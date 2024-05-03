@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 from numba import njit
 
@@ -30,6 +31,9 @@ from tardis.energy_input.gamma_ray_interactions import (
 )
 from tardis.energy_input.gamma_ray_estimators import deposition_estimator_kasen
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 @njit(**njit_dict_no_parallel)
 def gamma_packet_loop(
@@ -47,8 +51,6 @@ def gamma_packet_loop(
     dt_array,
     effective_time_array,
     energy_bins,
-    energy_df_rows,
-    energy_plot_df_rows,
     energy_out,
     packets_info_array,
 ):
@@ -104,13 +106,15 @@ def gamma_packet_loop(
     escaped_packets = 0
     scattered_packets = 0
     packet_count = len(packets)
-    print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
-    deposition_estimator = np.zeros_like(energy_df_rows)
+    print("Packet count: ", packet_count)
+    # deposition_estimator = np.zeros_like(energy_df_rows)
 
     for i in range(packet_count):
         packet = packets[i]
         time_index = get_index(packet.time_current, times)
+        # print("Time index: ", time_index)
+        # print("Time current: ", packet.time_current)
 
         if time_index < 0:
             print(packet.time_current, time_index)
@@ -215,16 +219,16 @@ def gamma_packet_loop(
 
             packet = move_packet(packet, distance)
 
-            deposition_estimator[packet.shell, time_index] += (
-                (initial_energy * 1000)
-                * distance
-                * (packet.energy_cmf / initial_energy)
-                * deposition_estimator_kasen(
-                    comoving_energy,
-                    mass_density_time[packet.shell, time_index],
-                    iron_group_fraction_per_shell[packet.shell],
-                )
-            )
+            # deposition_estimator[packet.shell, time_index] += (
+            #    (initial_energy * 1000)
+            #    * distance
+            #    * (packet.energy_cmf / initial_energy)
+            #    * deposition_estimator_kasen(
+            #        comoving_energy,
+            #       mass_density_time[packet.shell, time_index],
+            #        iron_group_fraction_per_shell[packet.shell],
+            #    )
+            # )
 
             if distance == distance_time:
                 time_index += 1
@@ -249,24 +253,24 @@ def gamma_packet_loop(
 
                 # Save packets to dataframe rows
                 # convert KeV to eV / s / cm^3
-                energy_df_rows[packet.shell, time_index] += (
-                    ejecta_energy_gained * 1000
-                )
+                # energy_df_rows[packet.shell, time_index] += (
+                #    ejecta_energy_gained * 1000
+                # )
 
-                energy_plot_df_rows[i] = np.array(
-                    [
-                        i,
-                        ejecta_energy_gained * 1000
-                        # * inv_volume_time[packet.shell, time_index]
-                        / dt,
-                        packet.get_location_r(),
-                        packet.time_current,
-                        packet.shell,
-                        compton_opacity,
-                        photoabsorption_opacity,
-                        pair_creation_opacity,
-                    ]
-                )
+                # energy_plot_df_rows[i] = np.array(
+                #    [
+                #        i,
+                #        ejecta_energy_gained * 1000
+                # * inv_volume_time[packet.shell, time_index]
+                #        / dt,
+                #        packet.get_location_r(),
+                #        packet.time_current,
+                #        packet.shell,
+                #        compton_opacity,
+                #        photoabsorption_opacity,
+                #        pair_creation_opacity,
+                #    ]
+                # )
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
@@ -314,10 +318,7 @@ def gamma_packet_loop(
     print("Scattered packets:", scattered_packets)
 
     return (
-        energy_df_rows,
-        energy_plot_df_rows,
         energy_out,
-        deposition_estimator,
         bin_width,
         packets_info_array,
     )

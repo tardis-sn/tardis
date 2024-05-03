@@ -73,6 +73,28 @@ def doppler_factor_3d(direction_vector, position_vector, time):
 
 
 @njit(**njit_dict_no_parallel)
+def doppler_factor_3D_all_packets(direction_vectors, position_vectors, times):
+    """Doppler shift for photons in 3D
+
+    Parameters
+    ----------
+    direction_vectors : array
+    position_vectors : array
+    times : array
+
+    Returns
+    -------
+    array
+        Doppler factors
+    """
+    velocity_vector = position_vectors / times
+    vel_mul_dir = np.multiply(velocity_vector, direction_vectors)
+    doppler_factors = 1 - (np.sum(vel_mul_dir, axis=0) / C_CGS)
+
+    return doppler_factors
+
+
+@njit(**njit_dict_no_parallel)
 def angle_aberration_gamma(direction_vector, position_vector, time):
     """Angle aberration formula for photons in 3D
 
@@ -385,3 +407,26 @@ def get_index(value, array):
         i += 1
 
     return i
+
+
+def make_isotope_string_tardis_like(isotope_dict):
+    """Converts isotope string to TARDIS format
+
+    Parameters
+    ----------
+    isotope : str
+        Isotope string
+
+    Returns
+    -------
+    str
+        TARDIS-like isotope string
+    """
+
+    new_isotope_dict = {}
+
+    for key in isotope_dict.keys():
+        new_key = key.replace("-", "")
+        new_isotope_dict[new_key] = isotope_dict[key]
+
+    return new_isotope_dict

@@ -210,7 +210,7 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
     average_energies = {}
     average_positron_energies = {}
 
-    for i, isotope in enumerate(all_isotope_names):
+    for _, isotope in enumerate(all_isotope_names):
         energy, intensity = setup_input_energy(
             gamma_ray_lines[gamma_ray_lines.index == isotope.replace("-", "")],
             "g",

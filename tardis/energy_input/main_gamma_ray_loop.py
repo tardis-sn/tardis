@@ -19,7 +19,10 @@ from tardis.energy_input.gamma_ray_transport import (
     create_isotope_dicts_old,
     create_inventories_dict_old,
 )
-from tardis.energy_input.gamma_ray_packet_source import RadioactivePacketSource
+from tardis.energy_input.gamma_ray_packet_source import (
+    RadioactivePacketSource,
+    GammaRayPacketSource,
+)
 from tardis.energy_input.gamma_ray_transport import (
     calculate_average_energies,
     calculate_average_power_per_mass,
@@ -31,12 +34,13 @@ from tardis.energy_input.gamma_ray_transport import (
     iron_group_fraction_per_shell,
 )
 from tardis.energy_input.GXPacket import GXPacket
+from tardis.energy_input.util import make_isotope_string_tardis_like
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def run_gamma_ray_loop(
+def run_gamma_ray_loop_old(
     model,
     plasma,
     num_decays,
@@ -286,3 +290,193 @@ def run_gamma_ray_loop(
         energy_plot_positrons,
         energy_estimated_deposition,
     )
+
+
+def get_effective_time_array(time_start, time_end, time_space, time_steps):
+    """
+    Function to get the effective time array for the gamma-ray loop.
+
+    Parameters
+    ----------
+    time_start : float
+        start time in days.
+    time_end : float
+        end time in days.
+    time_space : str
+        linear or log.
+    time_steps : int
+        number of time steps.
+
+    Returns
+    -------
+    times : np.ndarray
+        array of times in secs.
+    effective_time_array : np.ndarray
+        effective time array in secs.
+    """
+
+    time_start *= u.d.to(u.s)
+    time_end *= u.d.to(u.s)
+
+    assert time_start < time_end, "time_start must be smaller than time_end!"
+    if time_space == "log":
+        times = np.geomspace(time_start, time_end, time_steps + 1)
+        effective_time_array = np.sqrt(times[:-1] * times[1:])
+    else:
+        times = np.linspace(time_start, time_end, time_steps + 1)
+        effective_time_array = 0.5 * (times[:-1] + times[1:])
+
+    return times, effective_time_array
+
+
+def run_gamma_ray_loop(
+    model,
+    plasma,
+    isotope_decay_df,
+    cumulative_decays_df,
+    num_decays,
+    times,
+    effective_time_array,
+    seed,
+    positronium_fraction,
+    path_to_decay_data,
+    spectrum_bins,
+    time_steps,
+    grey_opacity,
+    photoabsorption_opacity="tardis",
+    pair_creation_opacity="tardis",
+):
+    np.random.seed(seed)
+    inner_velocities = model.v_inner.to("cm/s").value
+    outer_velocities = model.v_outer.to("cm/s").value
+    ejecta_volume = model.volume.to("cm^3").value
+    number_of_shells = model.no_of_shells
+    shell_masses = model.volume * model.density
+    raw_isotope_abundance = model.composition.raw_isotope_abundance.sort_values(
+        by=["atomic_number", "mass_number"], ascending=False
+    )
+
+    dt_array = np.diff(times)
+
+    ejecta_velocity_volume = calculate_ejecta_velocity_volume(model)
+
+    inv_volume_time = (
+        1.0 / ejecta_velocity_volume[:, np.newaxis]
+    ) / effective_time_array**3.0
+
+    for atom_number in plasma.isotope_number_density.index.get_level_values(0):
+        values = plasma.isotope_number_density.loc[atom_number].values
+        if values.shape[0] > 1:
+            plasma.isotope_number_density.loc[atom_number].update = np.sum(
+                values, axis=0
+            )
+        else:
+            plasma.isotope_number_density.loc[atom_number].update = values
+
+    # Electron number density
+    electron_number_density = plasma.number_density.mul(
+        plasma.number_density.index, axis=0
+    ).sum()
+    electron_number = np.array(electron_number_density * ejecta_volume)
+
+    # Evolve electron number and mass density with time
+    electron_number_density_time = (
+        electron_number[:, np.newaxis] * inv_volume_time
+    )
+    mass_density_time = shell_masses[:, np.newaxis] * inv_volume_time
+
+    # gamma_ray_lines = get_nuclear_lines_database(path_to_decay_data)
+    taus, parents = get_taus(raw_isotope_abundance)
+    # Need to get the strings for the isotopes without the dashes
+    taus = make_isotope_string_tardis_like(taus)
+
+    total_energy = cumulative_decays_df[
+        "decay_energy_keV"
+    ].sum()  # total energy in keV
+
+    energy_per_packet = total_energy / num_decays
+    energy_df_rows = np.zeros((number_of_shells, times.shape[0]))
+
+    logger.info(f"Total gamma-ray energy is {total_energy}")
+    average_power_per_mass = 1e41
+    positron_energy_per_isotope = 1000  # keV
+
+    packet_source = GammaRayPacketSource(
+        energy_per_packet,
+        isotope_decay_df,
+        positronium_fraction,
+        inner_velocities,
+        outer_velocities,
+        inv_volume_time,
+        times,
+        energy_df_rows,
+        effective_time_array,
+        taus,
+        parents,
+        positron_energy_per_isotope,
+        average_power_per_mass,
+    )
+    logger.info("Creating packets")
+    packet_collection = packet_source.create_packets(
+        cumulative_decays_df, num_decays
+    )
+    logger.info("Creating packet list")
+    packets = []
+    packets = [
+        GXPacket(
+            packet_collection.location[:, i],
+            packet_collection.direction[:, i],
+            packet_collection.energy_rf[i],
+            packet_collection.energy_cmf[i],
+            packet_collection.nu_rf[i],
+            packet_collection.nu_cmf[i],
+            packet_collection.status[i],
+            packet_collection.shell[i],
+            packet_collection.time_current[i],
+        )
+        for i in range(num_decays)
+    ]
+
+    # return packets
+
+    energy_bins = np.logspace(2, 3.8, spectrum_bins)
+    energy_out = np.zeros((len(energy_bins - 1), time_steps))
+    packets_info_array = np.zeros((int(num_decays), 8))
+    iron_group_fraction = iron_group_fraction_per_shell(model)
+
+    logger.info("Entering the main gamma-ray loop")
+
+    gamma_packet_loop(
+        packets,
+        grey_opacity,
+        photoabsorption_opacity,
+        pair_creation_opacity,
+        electron_number_density_time,
+        mass_density_time,
+        inv_volume_time,
+        iron_group_fraction.to_numpy(),
+        inner_velocities,
+        outer_velocities,
+        times,
+        dt_array,
+        effective_time_array,
+        energy_bins,
+        energy_out,
+        packets_info_array,
+    )
+
+    # packets_df_escaped = pd.DataFrame(
+    #     data=packets_array,
+    #     columns=[
+    #         "packet_index",
+    #         "status",
+    #         "nu_cmf",
+    #         "nu_rf",
+    #         "energy_cmf",
+    #         "lum_rf",
+    #         "energy_rf",
+    #         "shell_number",
+    #     ],
+    # )
+
+    # return packets_df_escaped
