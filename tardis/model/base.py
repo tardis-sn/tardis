@@ -162,6 +162,25 @@ class SimulationState(HDFWriterMixin):
             )
 
     @property
+    def elemental_number_density(self):
+        elemental_number_density = (
+            (
+                self.composition.elemental_mass_fraction
+                * self.composition.density
+            )
+            .divide(self.composition.element_masses, axis=0)
+            .dropna()
+        )
+        elemental_number_density = elemental_number_density.iloc[
+            :,
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+        ]
+        elemental_number_density.columns = range(
+            len(elemental_number_density.columns)
+        )
+        return elemental_number_density
+
+    @property
     def radius(self):
         return self.time_explosion * self.velocity
 

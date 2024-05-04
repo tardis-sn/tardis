@@ -153,6 +153,3 @@ two_photon_properties = PlasmaPropertyCollection(
         TwoPhotonFrequencySampler,
     ]
 )
-isotope_properties = PlasmaPropertyCollection(
-    [IsotopeAbundance, IsotopeMass, IsotopeNumberDensity]
-)

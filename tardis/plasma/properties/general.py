@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 __all__ = [
     "BetaRadiation",
     "GElectron",
-    "IsotopeNumberDensity",
     "SelectedAtoms",
     "ElectronTemperature",
     "BetaElectron",
@@ -76,48 +75,6 @@ class ThermalGElectron(GElectron):
 
     def calculate(self, beta_electron):
         return super(ThermalGElectron, self).calculate(beta_electron)
-
-
-class IsotopeNumberDensity(ProcessingPlasmaProperty):
-    """
-    Calculate the atom number density based on isotope mass.
-
-    Attributes
-    ----------
-    isotope_number_density : Pandas DataFrame, dtype float
-                     Indexed by atomic number, columns corresponding to zones
-    """
-
-    outputs = ("isotope_number_density",)
-    latex_name = ("N_{i}",)
-
-    @staticmethod
-    def calculate(isotope_mass, isotope_abundance, density):
-        """
-        Calculate the atom number density based on isotope mass.
-
-        Parameters
-        ----------
-        isotope_mass : pandas.DataFrame
-            Masses of isotopes.
-        isotope_abundance : pandas.DataFrame
-            Fractional abundance of isotopes.
-        density : pandas.DataFrame
-            Density of each shell.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Indexed by atomic number, columns corresponding to zones.
-        """
-        number_densities = isotope_abundance * density
-        isotope_number_density_array = (
-            number_densities.to_numpy() / isotope_mass.to_numpy()
-        )
-        return pd.DataFrame(
-            isotope_number_density_array, index=isotope_abundance.index
-        )
-
 
 class SelectedAtoms(ProcessingPlasmaProperty):
     """
