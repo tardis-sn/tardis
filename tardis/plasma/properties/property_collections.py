@@ -9,7 +9,6 @@ basic_inputs = PlasmaPropertyCollection(
     [
         TRadiative,
         Abundance,
-        Density,
         NumberDensity,
         TimeExplosion,
         AtomicData,

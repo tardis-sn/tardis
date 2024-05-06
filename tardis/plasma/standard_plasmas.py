@@ -117,7 +117,6 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     kwargs = dict(
         t_rad=simulation_state.t_radiative,
         abundance=simulation_state.abundance,
-        density=simulation_state.density,
         number_density=simulation_state.elemental_number_density,
         atomic_data=atom_data,
         time_explosion=simulation_state.time_explosion,
