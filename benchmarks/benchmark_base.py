@@ -50,7 +50,9 @@ class BenchmarkBase:
 
     @property
     def tardis_config_verysimple(self):
-        filename = self.get_absolute_path("tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml")
+        filename = self.get_absolute_path(
+            "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml"
+        )
         return yaml_load_file(
             filename,
             YAMLLoader,
@@ -60,7 +62,7 @@ class BenchmarkBase:
     def tardis_ref_path(self):
         # TODO: This route is fixed but needs to get from the arguments given in the command line.
         #       /app/tardis-refdata
-        return '/app/tardis-refdata'
+        return "/app/tardis-refdata"
 
     @property
     def atomic_dataset(self) -> AtomData:
@@ -74,10 +76,15 @@ class BenchmarkBase:
 
     @property
     def atomic_data_fname(self):
-        atomic_data_fname = f"{self.tardis_ref_path}/atom_data/kurucz_cd23_chianti_H_He.h5"
+        atomic_data_fname = (
+            f"{self.tardis_ref_path}/atom_data/kurucz_cd23_chianti_H_He.h5"
+        )
 
         if not Path(atomic_data_fname).exists():
-            atom_data_missing_str = f"{atomic_data_fname} atomic datafiles " f"does not seem to exist"
+            atom_data_missing_str = (
+                f"{atomic_data_fname} atomic datafiles "
+                f"does not seem to exist"
+            )
             raise Exception(atom_data_missing_str)
 
         return atomic_data_fname
@@ -92,7 +99,7 @@ class BenchmarkBase:
         #       ASV create a temporal directory in runtime per test: `tmpiuxngvlv`.
         #       The ASV and ASV_Runner, not has some way to get this temporal directory.
         #       The idea is use this temporal folders to storage this created temporal file.
-        _, path = mkstemp('-tardis-benchmark-hdf_buffer-test.hdf')
+        _, path = mkstemp("-tardis-benchmark-hdf_buffer-test.hdf")
         return path
 
     def create_temporal_file(self, suffix=None):
@@ -100,14 +107,16 @@ class BenchmarkBase:
         #       ASV create a temporal directory in runtime per test: `tmpiuxngvlv`.
         #       The ASV and ASV_Runner, not has some way to get this temporal directory.
         #       The idea is use this temporal folders to storage this created temporal file.
-        suffix_str = '' if suffix is None else f'-{suffix}'
+        suffix_str = "" if suffix is None else f"-{suffix}"
         _, path = mkstemp(suffix_str)
         return path
 
     @property
     def gamma_ray_simulation_state(self):
         self.gamma_ray_config.model.structure.velocity.start = 1.0 * u.km / u.s
-        self.gamma_ray_config.model.structure.density.rho_0 = 5.0e2 * u.g / u.cm ** 3
+        self.gamma_ray_config.model.structure.density.rho_0 = (
+            5.0e2 * u.g / u.cm**3
+        )
         self.gamma_ray_config.supernova.time_explosion = 150 * u.d
 
         return SimulationState.from_config(
@@ -116,9 +125,7 @@ class BenchmarkBase:
 
     @property
     def gamma_ray_config(self):
-        yml_path = (
-            f"{self.example_configuration_dir}/tardis_configv1_density_exponential_nebular_multi_isotope.yml"
-        )
+        yml_path = f"{self.example_configuration_dir}/tardis_configv1_density_exponential_nebular_multi_isotope.yml"
 
         return config_reader.Configuration.from_yaml(yml_path)
 
@@ -137,7 +144,9 @@ class BenchmarkBase:
     @property
     def simulation_verysimple(self):
         atomic_data = deepcopy(self.atomic_dataset)
-        sim = Simulation.from_config(self.config_verysimple, atom_data=atomic_data)
+        sim = Simulation.from_config(
+            self.config_verysimple, atom_data=atomic_data
+        )
         sim.iterate(4000)
         return sim
 
@@ -149,11 +158,11 @@ class BenchmarkBase:
 
     class CustomPyTestRequest:
         def __init__(
-                self,
-                tardis_regression_data_path: str,
-                node_name: str,
-                node_module_name: str,
-                regression_data_dir: str,
+            self,
+            tardis_regression_data_path: str,
+            node_name: str,
+            node_module_name: str,
+            regression_data_dir: str,
         ):
             self.tardis_regression_data_path = tardis_regression_data_path
             self.node_name = node_name
@@ -165,7 +174,7 @@ class BenchmarkBase:
             class SubClass:
                 @staticmethod
                 def getoption(option):
-                    if option == '--tardis-regression-data':
+                    if option == "--tardis-regression-data":
                         return self.tardis_regression_data_path
                     return None
 
@@ -190,6 +199,7 @@ class BenchmarkBase:
                         @property
                         def __name__(self):
                             return self.parent.node_module_name
+
                     return SubSubClass(self.parent)
 
             return SubClass(self)
@@ -219,12 +229,16 @@ class BenchmarkBase:
 
     @property
     def verysimple_packet_collection(self):
-        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        return (
+            self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        )
 
     @property
     def nb_simulation_verysimple(self):
         atomic_data = deepcopy(self.atomic_dataset)
-        sim = Simulation.from_config(self.config_verysimple, atom_data=atomic_data)
+        sim = Simulation.from_config(
+            self.config_verysimple, atom_data=atomic_data
+        )
         sim.iterate(10)
         return sim
 
@@ -238,7 +252,8 @@ class BenchmarkBase:
     @property
     def verysimple_opacity_state(self):
         return opacity_state_initialize(
-            self.nb_simulation_verysimple.plasma, line_interaction_type="macroatom"
+            self.nb_simulation_verysimple.plasma,
+            line_interaction_type="macroatom",
         )
 
     @property
@@ -275,13 +290,17 @@ class BenchmarkBase:
 
     @property
     def verysimple_numba_radial_1d_geometry(self):
-        return self.nb_simulation_verysimple.simulation_state.geometry.to_numba()
+        return (
+            self.nb_simulation_verysimple.simulation_state.geometry.to_numba()
+        )
 
     @property
     def simulation_verysimple_vpacket_tracking(self):
         atomic_data = deepcopy(self.atomic_dataset)
         sim = Simulation.from_config(
-            self.config_verysimple, atom_data=atomic_data, virtual_packet_logging=True
+            self.config_verysimple,
+            atom_data=atomic_data,
+            virtual_packet_logging=True,
         )
         sim.last_no_of_packets = 4000
         sim.run_final()
@@ -304,5 +323,7 @@ class BenchmarkBase:
             mode = "w"
         else:
             mode = "r"
-        with pd.HDFStore(f"{self.tardis_ref_path}/unit_test_data.h5", mode=mode) as store:
+        with pd.HDFStore(
+            f"{self.tardis_ref_path}/unit_test_data.h5", mode=mode
+        ) as store:
             yield store

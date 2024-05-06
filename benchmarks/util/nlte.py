@@ -15,7 +15,9 @@ class NLTE:
 
     @property
     def tardis_config_verysimple_nlte(self) -> OrderedDict:
-        path: str = "../../tardis/io/configuration/tests/data/tardis_configv1_nlte.yml"
+        path: str = (
+            "../../tardis/io/configuration/tests/data/tardis_configv1_nlte.yml"
+        )
         filename: Path = self.__base.get_path(path)
 
         return yaml_load_file(
@@ -47,10 +49,14 @@ class NLTE:
 
     @property
     def nlte_atomic_data_fname(self) -> str:
-        atomic_data_fname = f"{self.__base.tardis_ref_path}/nlte_atom_data/TestNLTE_He_Ti.h5"
+        atomic_data_fname = (
+            f"{self.__base.tardis_ref_path}/nlte_atom_data/TestNLTE_He_Ti.h5"
+        )
 
         if not Path(atomic_data_fname).exists():
-            atom_data_missing_str = f"Atomic datafiles {atomic_data_fname} does not seem to exist"
+            atom_data_missing_str = (
+                f"Atomic datafiles {atomic_data_fname} does not seem to exist"
+            )
             raise Exception(atom_data_missing_str)
 
         return atomic_data_fname

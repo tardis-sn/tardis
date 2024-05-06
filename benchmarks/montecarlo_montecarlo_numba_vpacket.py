@@ -1,8 +1,8 @@
 """
 Basic TARDIS Benchmark.
 """
+
 import numpy as np
-from asv_runner.benchmarks.mark import skip_benchmark
 
 import tardis.montecarlo.montecarlo_numba.vpacket as vpacket
 from benchmarks.benchmark_base import BenchmarkBase
@@ -11,14 +11,10 @@ from tardis.transport.frame_transformations import (
 )
 
 
-# @skip_benchmark
 class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
     """
     Class to benchmark the single packet loop function.
     """
-
-    def __init__(self):
-        pass
 
     @property
     def v_packet(self):
@@ -45,7 +41,9 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
 
     def time_trace_vpacket_within_shell(self):
         v_packet = self.v_packet
-        verysimple_numba_radial_1d_geometry = self.verysimple_numba_radial_1d_geometry
+        verysimple_numba_radial_1d_geometry = (
+            self.verysimple_numba_radial_1d_geometry
+        )
         verysimple_numba_model = self.verysimple_numba_model
         verysimple_opacity_state = self.verysimple_opacity_state
 
@@ -69,7 +67,9 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
 
     def time_trace_vpacket(self):
         v_packet = self.v_packet
-        verysimple_numba_radial_1d_geometry = self.verysimple_numba_radial_1d_geometry
+        verysimple_numba_radial_1d_geometry = (
+            self.verysimple_numba_radial_1d_geometry
+        )
         verysimple_numba_model = self.verysimple_numba_model
         verysimple_opacity_state = self.verysimple_opacity_state
 
@@ -105,7 +105,9 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
 
     def time_trace_bad_vpacket(self):
         broken_packet = self.broken_packet
-        verysimple_numba_radial_1d_geometry = self.verysimple_numba_radial_1d_geometry
+        verysimple_numba_radial_1d_geometry = (
+            self.verysimple_numba_radial_1d_geometry
+        )
         verysimple_numba_model = self.verysimple_numba_model
         verysimple_opacity_state = self.verysimple_opacity_state
 

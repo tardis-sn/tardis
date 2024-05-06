@@ -13,7 +13,7 @@ class Base:
     def tardis_ref_path(self) -> Path:
         # TODO: This route is fixed but needs to get from the arguments given in the command line.
         #       /app/tardis-refdata
-        return Path('/app/tardis-refdata')
+        return Path("/app/tardis-refdata")
 
     @property
     def example_configuration_dir(self) -> Path:

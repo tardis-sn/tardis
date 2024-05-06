@@ -1,22 +1,19 @@
 """
 Basic TARDIS Benchmark.
 """
-from asv_runner.benchmarks.mark import skip_benchmark
 
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 
 
-# @skip_benchmark
 class BenchmarkRunTardis(BenchmarkBase):
     """
     Class to benchmark the `run tardis` function.
     """
 
-    # timeout = 200
-
     def __init__(self):
+        super().__init__()
         self.config = None
 
     def setup(self):

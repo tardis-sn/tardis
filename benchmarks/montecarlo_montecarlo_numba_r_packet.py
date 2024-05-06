@@ -1,9 +1,8 @@
 """
 Basic TARDIS Benchmark.
 """
-from copy import deepcopy
 
-from asv_runner.benchmarks.mark import skip_benchmark
+from copy import deepcopy
 
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.base import run_tardis
@@ -12,14 +11,10 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 )
 
 
-# @skip_benchmark
 class BenchmarkMontecarloMontecarloNumbaRPacket(BenchmarkBase):
     """
     Class to benchmark the numba R packet function.
     """
-
-    def __init__(self):
-        pass
 
     @property
     def simulation_rpacket_tracking_enabled(self):
@@ -42,11 +37,15 @@ class BenchmarkMontecarloMontecarloNumbaRPacket(BenchmarkBase):
     def time_rpacket_trackers_to_dataframe(self):
         sim = self.simulation_rpacket_tracking_enabled
         transport_state = sim.transport.transport_state
-        rtracker_df = rpacket_trackers_to_dataframe(transport_state.rpacket_tracker)
+        rtracker_df = rpacket_trackers_to_dataframe(
+            transport_state.rpacket_tracker
+        )
 
         # check df shape and column names
         assert rtracker_df.shape == (
-            sum([len(tracker.r) for tracker in transport_state.rpacket_tracker]),
+            sum(
+                [len(tracker.r) for tracker in transport_state.rpacket_tracker]
+            ),
             8,
         )
 

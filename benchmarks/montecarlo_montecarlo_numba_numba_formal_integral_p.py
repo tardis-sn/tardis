@@ -1,6 +1,7 @@
 """
 Basic TARDIS Benchmark.
 """
+
 import numpy as np
 from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
@@ -12,19 +13,17 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 from tardis.util.base import intensity_black_body
 
 
-# @skip_benchmark
 class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     """
     Class to benchmark the numba formal integral function.
     """
 
-    def __init__(self):
-        pass
-
-    @parameterize({
-        "nu": [1e14, 0, 1],
-        "temperature": [1e4, 1, 1],
-    })
+    @parameterize(
+        {
+            "nu": [1e14, 0, 1],
+            "temperature": [1e4, 1, 1],
+        }
+    )
     def time_intensity_black_body(self, nu, temperature):
         func = formal_integral.intensity_black_body
         actual = func(nu, temperature)
@@ -113,7 +112,13 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         oz = np.zeros_like(r_inner)
         oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-        n = func(self.formal_integral_geometry(test_data), self.formal_integral_geometry(test_data), p, oz, oshell_id)
+        n = func(
+            self.formal_integral_geometry(test_data),
+            self.formal_integral_geometry(test_data),
+            p,
+            oz,
+            oshell_id,
+        )
         assert n == size
 
     @skip_benchmark
@@ -142,7 +147,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
 
         # Calculated way to determine which shells get hit
         expected_oshell_id[:expected_n] = (
-                np.abs(np.arange(0.5, expected_n, 1) - offset) - 0.5 + idx
+            np.abs(np.arange(0.5, expected_n, 1) - offset) - 0.5 + idx
         )
 
         expected_oz[0:offset] = 1 + self.calculate_z(
@@ -152,7 +157,13 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
             r_outer[np.arange(idx, size, 1)], p
         )
 
-        n = func(self.formal_integral_geometry(test_data), self.formal_integral_geometry(test_data), p, oz, oshell_id)
+        n = func(
+            self.formal_integral_geometry(test_data),
+            self.formal_integral_geometry(test_data),
+            p,
+            oz,
+            oshell_id,
+        )
 
         assert n == expected_n
 

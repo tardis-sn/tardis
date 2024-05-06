@@ -1,6 +1,7 @@
 """
 Basic TARDIS Benchmark.
 """
+
 import numpy as np
 from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
@@ -20,14 +21,10 @@ from tardis.montecarlo.estimators.radfield_mc_estimators import (
 )
 
 
-# @skip_benchmark
 class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
     """
     Class to benchmark the numba packet function.
     """
-
-    def __init__(self):
-        pass
 
     @property
     def geometry(self):
@@ -62,12 +59,15 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
             photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
         )
 
-    @parameterize({"Packet params": [
-        {"mu": 0.3, "r": 7.5e14},
-        {"mu": -0.3, "r": 7.5e13},
-        {"mu": -0.3, "r": 7.5e14},
-    ]
-    })
+    @parameterize(
+        {
+            "Packet params": [
+                {"mu": 0.3, "r": 7.5e14},
+                {"mu": -0.3, "r": 7.5e13},
+                {"mu": -0.3, "r": 7.5e14},
+            ]
+        }
+    )
     def time_calculate_distance_boundary(self, packet_params):
         mu = packet_params["mu"]
         r = packet_params["r"]
@@ -76,24 +76,28 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
             r, mu, self.geometry.r_inner[0], self.geometry.r_outer[0]
         )
 
-    @parameterize({"Parameters": [
+    @parameterize(
         {
-            "packet": {"nu_line": 0.1, "is_last_line": True},
-            "expected": None,
-        },
-        {
-            "packet": {"nu_line": 0.2, "is_last_line": False},
-            "expected": None,
-        },
-        {
-            "packet": {"nu_line": 0.5, "is_last_line": False},
-            "expected": utils.MonteCarloException,
-        },
-        {
-            "packet": {"nu_line": 0.6, "is_last_line": False},
-            "expected": utils.MonteCarloException,
-        },
-    ]})
+            "Parameters": [
+                {
+                    "packet": {"nu_line": 0.1, "is_last_line": True},
+                    "expected": None,
+                },
+                {
+                    "packet": {"nu_line": 0.2, "is_last_line": False},
+                    "expected": None,
+                },
+                {
+                    "packet": {"nu_line": 0.5, "is_last_line": False},
+                    "expected": utils.MonteCarloException,
+                },
+                {
+                    "packet": {"nu_line": 0.6, "is_last_line": False},
+                    "expected": utils.MonteCarloException,
+                },
+            ]
+        }
+    )
     def time_calculate_distance_line(self, parameters):
         packet_params = parameters["packet"]
         expected_params = parameters["expected"]
@@ -110,23 +114,28 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         obtained_tardis_error = None
         try:
             calculate_distances.calculate_distance_line(
-                self.static_packet, comov_nu, is_last_line, nu_line, time_explosion
+                self.static_packet,
+                comov_nu,
+                is_last_line,
+                nu_line,
+                time_explosion,
             )
         except utils.MonteCarloException:
             obtained_tardis_error = utils.MonteCarloException
 
         assert obtained_tardis_error == expected_params
 
-    @parameterize({"Parameters": [
+    @parameterize(
         {
-            "electron_density": 1e-5,
-            "tua_event": 1e10,
-        },
-        {
-            "electron_density": 1.0,
-            "tua_event": 1e10
-        },
-    ]})
+            "Parameters": [
+                {
+                    "electron_density": 1e-5,
+                    "tua_event": 1e10,
+                },
+                {"electron_density": 1.0, "tua_event": 1e10},
+            ]
+        }
+    )
     def time_calculate_distance_electron(self, parameters):
         electron_density = parameters["electron_density"]
         tau_event = parameters["tua_event"]
@@ -134,24 +143,28 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
             electron_density, tau_event
         )
 
-    @parameterize({"Parameters": [
+    @parameterize(
         {
-            "electron_density": 1e-5,
-            "distance": 1.0,
-        },
-        {
-            "electron_density": 1e10,
-            "distance": 1e10,
-        },
-        {
-            "electron_density": -1,
-            "distance": 0,
-        },
-        {
-            "electron_density": -1e10,
-            "distance": -1e10,
-        },
-    ]})
+            "Parameters": [
+                {
+                    "electron_density": 1e-5,
+                    "distance": 1.0,
+                },
+                {
+                    "electron_density": 1e10,
+                    "distance": 1e10,
+                },
+                {
+                    "electron_density": -1,
+                    "distance": 0,
+                },
+                {
+                    "electron_density": -1e10,
+                    "distance": -1e10,
+                },
+            ]
+        }
+    )
     def time_calculate_tau_electron(self, parameters):
         electron_density = parameters["electron_density"]
         distance = parameters["distance"]
@@ -163,48 +176,60 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         output1 = utils.get_random_mu()
         assert output1 == 0.9136407866175174
 
-    @parameterize({"Parameters": [
+    @parameterize(
         {
-            "cur_line_id": 0,
-            "distance_trace": 1e12,
-            "time_explosion": 5.2e7,
-        },
-        {
-            "cur_line_id": 0,
-            "distance_trace": 0,
-            "time_explosion": 5.2e7,
-        },
-        {
-            "cur_line_id": 1,
-            "distance_trace": 1e5,
-            "time_explosion": 1e10,
-        },
-    ]})
+            "Parameters": [
+                {
+                    "cur_line_id": 0,
+                    "distance_trace": 1e12,
+                    "time_explosion": 5.2e7,
+                },
+                {
+                    "cur_line_id": 0,
+                    "distance_trace": 0,
+                    "time_explosion": 5.2e7,
+                },
+                {
+                    "cur_line_id": 1,
+                    "distance_trace": 1e5,
+                    "time_explosion": 1e10,
+                },
+            ]
+        }
+    )
     def time_update_line_estimators(self, parameters):
         cur_line_id = parameters["cur_line_id"]
         distance_trace = parameters["distance_trace"]
         time_explosion = parameters["time_explosion"]
         update_line_estimators(
-            self.estimators, self.static_packet, cur_line_id, distance_trace, time_explosion
+            self.estimators,
+            self.static_packet,
+            cur_line_id,
+            distance_trace,
+            time_explosion,
         )
 
-    @parameterize({"Parameters": [
+    @parameterize(
         {
-            "current_shell_id": 132,
-            "delta_shell": 11,
-            "no_of_shells": 132,
-        },
-        {
-            "current_shell_id": 132,
-            "delta_shell": 1,
-            "no_of_shells": 133,
-        },
-        {
-            "current_shell_id": 132,
-            "delta_shell": 2,
-            "no_of_shells": 133
-        },
-    ]})
+            "Parameters": [
+                {
+                    "current_shell_id": 132,
+                    "delta_shell": 11,
+                    "no_of_shells": 132,
+                },
+                {
+                    "current_shell_id": 132,
+                    "delta_shell": 1,
+                    "no_of_shells": 133,
+                },
+                {
+                    "current_shell_id": 132,
+                    "delta_shell": 2,
+                    "no_of_shells": 133,
+                },
+            ]
+        }
+    )
     def time_move_packet_across_shell_boundary_emitted(self, parameters):
         current_shell_id = parameters["current_shell_id"]
         delta_shell = parameters["delta_shell"]
@@ -217,27 +242,31 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         assert packet.status == r_packet.PacketStatus.EMITTED
 
     @skip_benchmark
-    @parameterize({"Parameters": [
+    @parameterize(
         {
-            "current_shell_id": 132,
-            "delta_shell": 132,
-            "no_of_shells": 132,
-        },
-        {
-            "current_shell_id": -133,
-            "delta_shell": -133,
-            "no_of_shells": -1e9,
-        },
-        {
-            "current_shell_id": 132,
-            "delta_shell": 133,
-            "no_of_shells": 133,
-        },
-    ]})
+            "Parameters": [
+                {
+                    "current_shell_id": 132,
+                    "delta_shell": 132,
+                    "no_of_shells": 132,
+                },
+                {
+                    "current_shell_id": -133,
+                    "delta_shell": -133,
+                    "no_of_shells": -1e9,
+                },
+                {
+                    "current_shell_id": 132,
+                    "delta_shell": 133,
+                    "no_of_shells": 133,
+                },
+            ]
+        }
+    )
     def time_move_packet_across_shell_boundary_reabsorbed(self, parameters):
-        current_shell_id = parameters['current_shell_id']
-        delta_shell = parameters['delta_shell']
-        no_of_shells = parameters['no_of_shells']
+        current_shell_id = parameters["current_shell_id"]
+        delta_shell = parameters["delta_shell"]
+        no_of_shells = parameters["no_of_shells"]
         packet = self.packet
         packet.current_shell_id = current_shell_id
         r_packet_transport.move_packet_across_shell_boundary(
@@ -245,27 +274,31 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         )
         assert packet.status == r_packet.PacketStatus.REABSORBED
 
-    @parameterize({"Parameters": [
+    @parameterize(
         {
-            "current_shell_id": 132,
-            "delta_shell": -1,
-            "no_of_shells": 199,
-        },
-        {
-            "current_shell_id": 132,
-            "delta_shell": 0,
-            "no_of_shells": 132,
-        },
-        {
-            "current_shell_id": 132,
-            "delta_shell": 20,
-            "no_of_shells": 154,
-        },
-    ]})
+            "Parameters": [
+                {
+                    "current_shell_id": 132,
+                    "delta_shell": -1,
+                    "no_of_shells": 199,
+                },
+                {
+                    "current_shell_id": 132,
+                    "delta_shell": 0,
+                    "no_of_shells": 132,
+                },
+                {
+                    "current_shell_id": 132,
+                    "delta_shell": 20,
+                    "no_of_shells": 154,
+                },
+            ]
+        }
+    )
     def time_move_packet_across_shell_boundary_increment(self, parameters):
-        current_shell_id = parameters['current_shell_id']
-        delta_shell = parameters['delta_shell']
-        no_of_shells = parameters['no_of_shells']
+        current_shell_id = parameters["current_shell_id"]
+        delta_shell = parameters["delta_shell"]
+        no_of_shells = parameters["no_of_shells"]
         packet = self.packet
         packet.current_shell_id = current_shell_id
         r_packet_transport.move_packet_across_shell_boundary(
