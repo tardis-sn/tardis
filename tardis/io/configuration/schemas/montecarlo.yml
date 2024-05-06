@@ -45,14 +45,6 @@ properties:
         default: inf angstrom
     description: Limits of virtual packet spawn spectrum (giving maximum and minimum packet
       frequency)
-  enable_reflective_inner_boundary:
-    type: boolean
-    default: false
-    description: experimental feature to enable a reflective boundary.
-  inner_boundary_albedo:
-    type: number
-    default: 0.0
-    description: albedo of the reflective boundary
   convergence_strategy:
     oneOf:
     - $ref: 'montecarlo_definitions.yml#/definitions/convergence_strategy/damped'
