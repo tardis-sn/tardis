@@ -181,6 +181,26 @@ class SimulationState(HDFWriterMixin):
         return elemental_number_density
 
     @property
+    def isotopic_number_density(self):
+        isotopic_number_density = (
+            self.composition.isotopic_mass_fraction * self.composition.density
+        ).divide(
+            self.composition.isotope_masses.loc[
+                self.composition.isotopic_mass_fraction.index
+            ]
+            * u.u.to(u.g),
+            axis=0,
+        )
+        isotopic_number_density = isotopic_number_density.iloc[
+            :,
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+        ]
+        isotopic_number_density.columns = range(
+            len(isotopic_number_density.columns)
+        )
+        return isotopic_number_density
+
+    @property
     def radius(self):
         return self.time_explosion * self.velocity
 
