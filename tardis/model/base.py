@@ -22,7 +22,7 @@ from tardis.model.parse_input import (
     parse_structure_config,
     parse_packet_source,
 )
-from tardis.montecarlo.packet_source import BlackBodySimpleSource
+from tardis.transport.montecarlo.packet_source import BlackBodySimpleSource
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
