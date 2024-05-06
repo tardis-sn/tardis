@@ -15,6 +15,7 @@ from tardis.montecarlo.montecarlo_numba.opacities import (
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_packet,
+    calculate_distance_radial,
 )
 from tardis.energy_input.util import (
     doppler_factor_3d,
@@ -112,7 +113,7 @@ def gamma_packet_loop(
 
     for i in range(packet_count):
         packet = packets[i]
-        time_index = get_index(packet.time_current, times)
+        time_index = get_index(packet.time_current, effective_time_array)
         # print("Time index: ", time_index)
         # print("Time current: ", packet.time_current)
 
@@ -376,3 +377,64 @@ def process_packet_path(packet):
         ejecta_energy_gained = packet.energy_cmf
 
     return packet, ejecta_energy_gained
+
+
+@njit(**njit_dict_no_parallel)
+def gamma_packet_loop_understanding(
+    packets,
+    times,
+    inner_velocity,
+    outer_velocity,
+    effective_time_array,
+):
+
+    packet_count = len(packets)
+    print("Packet count: ", packet_count)
+    print("Effective time array: ", effective_time_array)
+    print("length of effective time array", len(effective_time_array))
+
+    for i in range(packet_count):
+        packet = packets[i]
+        time_index = get_index(packet.time_current, effective_time_array)
+        print("Time index: ", time_index)
+        print("Time current: ", packet.time_current)
+        print("Time current in days: ", packet.time_current / 86400)
+        print("Length of time array:", len(times))
+
+        # we need to have the times within the simulation time steps
+
+        if time_index < 0:
+            print(packet.time_current, time_index)
+            raise ValueError("Packet time index less than 0!")
+        elif time_index >= len(times):
+            print(packet.time_current, time_index)
+            raise ValueError("Packet time index greater than time steps!")
+
+        # while packet.status == GXPacketStatus.IN_PROCESS:
+
+        print(
+            "Inner shell velocity: ",
+            inner_velocity[packet.shell],
+        )
+        print(
+            "Outer shell velocity: ",
+            outer_velocity[packet.shell],
+        )
+
+        print(
+            "Effective time array: ",
+            effective_time_array[time_index],
+        )
+        print(
+            "Effective time array in days:",
+            effective_time_array[time_index] / 86400,
+        )
+
+        distance_boundary, shell_change = calculate_distance_radial(
+            packet,
+            inner_velocity[packet.shell] * packet.time_current,
+            outer_velocity[packet.shell] * packet.time_current,
+        )
+
+        print("Distance boundary: ", distance_boundary)
+        print("Shell change: ", shell_change)

@@ -708,6 +708,45 @@ class GammaRayPacketSource(BasePacketSource):
 
         return decay_times
 
+    def sample_decay_times(self, isotopes, taus, times, number_of_packets):
+        """
+        Sample decay times for a given number of packets
+
+        Parameters
+        ----------
+        isotopes : array
+            Array of isotope names as strings
+        taus : dict
+            Dictionary of isotope mean lifetimes in seconds
+        times : array
+            Array of time steps in seconds
+        number_of_packets : int
+            Number of packets
+
+        Returns
+        -------
+        decay_times : array
+            Array of decay times for each packet
+
+        """
+
+        decay_times = np.zeros(number_of_packets)
+
+        for i, isotope in enumerate(isotopes):
+            # decay time of the packet cannot be less than the minimum time in the simulation
+            decay_time_min = times[0]
+            # decay time of the packet cannot be greater than the maximum time in the simulation
+            decay_time_max = times[-1]
+
+            # rejection sampling on decay times
+            while (decay_times[i] <= decay_time_min) or (
+                decay_times[i] >= decay_time_max
+            ):
+                # since we know which isotope the packet is associated with, we can use the tau value for that isotope
+                decay_times[i] = -taus[isotope] * np.log(np.random.random())
+
+        return decay_times
+
     def create_packets(
         self, decays_per_isotope, number_of_packets, *args, **kwargs
     ):
@@ -750,7 +789,7 @@ class GammaRayPacketSource(BasePacketSource):
             random_state=np.random.RandomState(self.base_seed),
         )
         # get unique isotopes that have produced packets
-        isotopes = pd.unique(sampled_packets_df.index.get_level_values(2))
+        isotopes = sampled_packets_df.index.get_level_values(2)
 
         # compute the positron fraction for unique isotopes
         isotope_positron_fraction = self.calculate_positron_fraction(isotopes)
@@ -770,23 +809,13 @@ class GammaRayPacketSource(BasePacketSource):
         # Comment: Need to discuss. the indices should be used
         # We can use the indices of the effective time array used as a timestamp for each packet
 
-        packet_effective_times = sampled_packets_df.index.get_level_values(0)
-        initial_time_indexes = np.indices(
-            sampled_packets_df.index.get_level_values(0).shape
-        )
+        # packet_effective_times = sampled_packets_df.index.get_level_values(0)
+        # initial_time_indexes = np.indices(
+        #    sampled_packets_df.index.get_level_values(0).shape
+        # )
 
         # get the time of the middle of the step for each packet
         # Comment: Array indices need to be integers
-
-        # packet_effective_times = np.array(
-        #    [self.effective_times[i] for i in initial_time_indexes]
-        # )
-
-        # Comment: Taking too much time for the rejection sampling. Can it be improved with numba?
-        # packet decay time
-        decay_times = self.create_packet_decay_times(
-            number_of_packets, sampled_packets_df.index.get_level_values(2)
-        )
         # times_indices = np.indices(times.shape).flatten()
 
         # scale radius by packet decay time. This could be replaced with
@@ -795,9 +824,14 @@ class GammaRayPacketSource(BasePacketSource):
 
         # Comment: initial radii needs to be an array
 
+        packet_effective_times = sampled_packets_df.index.get_level_values(0)
+        decay_times = self.sample_decay_times(
+            isotopes, self.taus, self.effective_times, number_of_packets
+        )
+
         locations = (
             initial_radii.values
-            * packet_effective_times.values
+            * decay_times
             * self.create_packet_directions(number_of_packets)
         )
 
@@ -873,7 +907,7 @@ class GammaRayPacketSource(BasePacketSource):
             nus_cmf,
             statuses,
             shells,
-            times,
+            decay_times,
         )
 
     def calculate_positron_fraction(self, isotopes):

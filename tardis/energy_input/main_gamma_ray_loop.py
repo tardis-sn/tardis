@@ -7,7 +7,10 @@ import pandas as pd
 from tardis.energy_input.energy_source import (
     get_nuclear_lines_database,
 )
-from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
+from tardis.energy_input.gamma_packet_loop import (
+    gamma_packet_loop,
+    gamma_packet_loop_understanding,
+)
 from tardis.energy_input.gamma_ray_channel import (
     calculate_total_decays,
     create_inventories_dict,
@@ -446,7 +449,31 @@ def run_gamma_ray_loop(
 
     logger.info("Entering the main gamma-ray loop")
 
-    gamma_packet_loop(
+    # packets_df_escaped = pd.DataFrame(
+    #     data=packets_array,
+    #     columns=[
+    #         "packet_index",
+    #         "status",
+    #         "nu_cmf",
+    #         "nu_rf",
+    #         "energy_cmf",
+    #         "lum_rf",
+    #         "energy_rf",
+    #         "shell_number",
+    #     ],
+    # )
+
+    # return packets_df_escaped
+
+    # gamma_packet_loop_understanding(
+    #     packets, times, inner_velocities, outer_velocities, effective_time_array
+    # )
+
+    (
+        energy_out,
+        bin_width,
+        packets_array,
+    ) = gamma_packet_loop(
         packets,
         grey_opacity,
         photoabsorption_opacity,
@@ -465,18 +492,18 @@ def run_gamma_ray_loop(
         packets_info_array,
     )
 
-    # packets_df_escaped = pd.DataFrame(
-    #     data=packets_array,
-    #     columns=[
-    #         "packet_index",
-    #         "status",
-    #         "nu_cmf",
-    #         "nu_rf",
-    #         "energy_cmf",
-    #         "lum_rf",
-    #         "energy_rf",
-    #         "shell_number",
-    #     ],
-    # )
+    packets_df_escaped = pd.DataFrame(
+        data=packets_array,
+        columns=[
+            "packet_index",
+            "status",
+            "nu_cmf",
+            "nu_rf",
+            "energy_cmf",
+            "lum_rf",
+            "energy_rf",
+            "shell_number",
+        ],
+    )
 
-    # return packets_df_escaped
+    return packets_df_escaped
