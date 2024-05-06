@@ -5,9 +5,9 @@ Basic TARDIS Benchmark.
 import numpy as np
 from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
-import tardis.montecarlo.montecarlo_numba.interaction as interaction
+import tardis.transport.montecarlo.interaction as interaction
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
+from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,
 )
 

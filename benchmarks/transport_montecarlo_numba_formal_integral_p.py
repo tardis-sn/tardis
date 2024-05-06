@@ -5,11 +5,11 @@ Basic TARDIS Benchmark.
 import numpy as np
 from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
-import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
+import tardis.transport.montecarlo.formal_integral as formal_integral
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
+from tardis.transport.montecarlo.numba_interface import NumbaModel
 from tardis.util.base import intensity_black_body
 
 

@@ -4,7 +4,7 @@ Basic TARDIS Benchmark.
 
 from asv_runner.benchmarks.mark import parameterize
 
-import tardis.montecarlo.montecarlo_numba.opacities as calculate_opacity
+import tardis.transport.montecarlo.opacities as calculate_opacity
 from benchmarks.benchmark_base import BenchmarkBase
 
 

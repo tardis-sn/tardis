@@ -5,18 +5,18 @@ Basic TARDIS Benchmark.
 import numpy as np
 from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
-import tardis.montecarlo.estimators.radfield_mc_estimators
-import tardis.montecarlo.estimators.radfield_mc_estimators
-import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
-import tardis.montecarlo.montecarlo_numba.opacities as opacities
-import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-import tardis.montecarlo.montecarlo_numba.utils as utils
+import tardis.transport.montecarlo.estimators.radfield_mc_estimators
+import tardis.transport.montecarlo.estimators.radfield_mc_estimators
+import tardis.transport.montecarlo.numba_interface as numba_interface
+import tardis.transport.montecarlo.opacities as opacities
+import tardis.transport.montecarlo.r_packet as r_packet
+import tardis.transport.montecarlo.utils as utils
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.r_packet_transport as r_packet_transport
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
+from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     update_line_estimators,
 )
 
@@ -43,7 +43,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
 
     @property
     def estimators(self):
-        return tardis.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators(
+        return tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators(
             j_estimator=np.array([0.0, 0.0], dtype=np.float64),
             nu_bar_estimator=np.array([0.0, 0.0], dtype=np.float64),
             j_blue_estimator=np.array(
