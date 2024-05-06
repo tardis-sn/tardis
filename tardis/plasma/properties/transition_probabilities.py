@@ -9,7 +9,7 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.continuum_processes import (
     get_ground_state_multi_index,
 )
-from tardis.montecarlo.montecarlo_numba.macro_atom import (
+from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
 )
 

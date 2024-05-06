@@ -15,7 +15,7 @@ from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
 from tardis.model.parse_input import initialize_packet_source
-from tardis.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
@@ -95,7 +95,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     iterations : int
     model : tardis.model.SimulationState
     plasma : tardis.plasma.BasePlasma
-    transport : tardis.montecarlo.MontecarloTransport
+    transport : tardis.transport.montecarlo.MontecarloTransport
     no_of_packets : int
     last_no_of_packets : int
     no_of_virtual_packets : int

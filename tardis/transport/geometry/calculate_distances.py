@@ -2,19 +2,19 @@ import math
 
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import (
+from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
 )
 
-from tardis.montecarlo.montecarlo_numba.numba_config import (
+from tardis.transport.montecarlo.numba_config import (
     C_SPEED_OF_LIGHT,
     MISS_DISTANCE,
     SIGMA_THOMSON,
     CLOSE_LINE_THRESHOLD,
 )
 
-from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
-from tardis.montecarlo.montecarlo_numba.r_packet import (
+from tardis.transport.montecarlo.utils import MonteCarloException
+from tardis.transport.montecarlo.r_packet import (
     print_r_packet_properties,
 )
 
@@ -75,7 +75,7 @@ def calculate_distance_line(
 
     Parameters
     ----------
-    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    r_packet : tardis.transport.montecarlo.r_packet.RPacket
     comov_nu : float
         comoving frequency at the CURRENT position of the RPacket
     is_last_line : bool

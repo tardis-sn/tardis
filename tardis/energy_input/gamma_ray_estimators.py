@@ -1,8 +1,8 @@
 import numpy as np
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.opacities import (
+from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.opacities import (
     compton_opacity_calculation,
     SIGMA_T,
     photoabsorption_opacity_calculation,

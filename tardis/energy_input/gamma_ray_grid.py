@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.energy_input.util import (
     doppler_factor_3d,
     solve_quadratic_equation,
