@@ -1,4 +1,5 @@
 from tardis.plasma.properties import *
+from tardis.opacities.tau_sobolev import TauSobolev
 
 
 class PlasmaPropertyCollection(list):

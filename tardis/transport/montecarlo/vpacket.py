@@ -1,35 +1,31 @@
 import math
 
 import numpy as np
-from tardis.transport.montecarlo.opacities import (
-    chi_continuum_calculator,
-)
-from numba import float64, int64
-from numba import njit
+from numba import float64, int64, njit
 from numba.experimental import jitclass
 
+from tardis.opacities.opacities import (
+    chi_continuum_calculator,
+)
+from tardis.transport.frame_transformations import (
+    angle_aberration_CMF_to_LF,
+    angle_aberration_LF_to_CMF,
+    get_doppler_factor,
+)
+from tardis.transport.geometry.calculate_distances import (
+    calculate_distance_boundary,
+    calculate_distance_line,
+)
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.numba_config import (
+    C_SPEED_OF_LIGHT,
+    SIGMA_THOMSON,
+)
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
 )
 from tardis.transport.r_packet_transport import (
     move_packet_across_shell_boundary,
-)
-
-from tardis.transport.geometry.calculate_distances import (
-    calculate_distance_boundary,
-    calculate_distance_line,
-)
-
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-    angle_aberration_LF_to_CMF,
-    angle_aberration_CMF_to_LF,
-)
-
-from tardis.transport.montecarlo.numba_config import (
-    SIGMA_THOMSON,
-    C_SPEED_OF_LIGHT,
 )
 
 vpacket_spec = [
@@ -45,7 +41,7 @@ vpacket_spec = [
 
 
 @jitclass(vpacket_spec)
-class VPacket(object):
+class VPacket:
     def __init__(
         self,
         r,
@@ -175,6 +171,7 @@ def trace_vpacket(
 ):
     """
     Trace single vpacket.
+
     Parameters
     ----------
     v_packet
@@ -185,7 +182,6 @@ def trace_vpacket(
     -------
 
     """
-
     tau_trace_combined = 0.0
     while True:
         (
@@ -262,7 +258,6 @@ def trace_vpacket_volley(
     opacity_state : [type]
         [description]
     """
-
     if (r_packet.nu < vpacket_collection.v_packet_spawn_start_frequency) or (
         r_packet.nu > vpacket_collection.v_packet_spawn_end_frequency
     ):
