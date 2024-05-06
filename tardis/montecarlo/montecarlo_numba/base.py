@@ -29,7 +29,7 @@ def montecarlo_main_loop(
     geometry_state,
     numba_model,
     opacity_state,
-    montecarlo_configuration,
+    montecarlo_config_func,
     estimators,
     spectrum_frequency,
     number_of_vpackets,
@@ -64,6 +64,24 @@ def montecarlo_main_loop(
     enable_virtual_packet_logging : bool
         Enable virtual packet tracking
     """
+    # unpack configuration parts we need
+    montecarlo_configuration = montecarlo_config_func()
+    VPACKET_SPAWN_START_FREQUENCY = montecarlo_configuration[
+        "VPACKET_SPAWN_START_FREQUENCY"
+    ]
+    VPACKET_SPAWN_END_FREQUENCY = montecarlo_configuration[
+        "VPACKET_SPAWN_END_FREQUENCY"
+    ]
+    TEMPORARY_V_PACKET_BINS = montecarlo_configuration[
+        "TEMPORARY_V_PACKET_BINS"
+    ]
+    INITIAL_TRACKING_ARRAY_LENGTH = montecarlo_configuration[
+        "INITIAL_TRACKING_ARRAY_LENGTH"
+    ]
+    ENABLE_RPACKET_TRACKING = montecarlo_configuration[
+        "ENABLE_RPACKET_TRACKING"
+    ]
+
     no_of_packets = len(packet_collection.initial_nus)
 
     last_interaction_tracker = initialize_last_interaction_tracker(
@@ -82,17 +100,13 @@ def montecarlo_main_loop(
             VPacketCollection(
                 i,
                 spectrum_frequency,
-                montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-                montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+                VPACKET_SPAWN_START_FREQUENCY,
+                VPACKET_SPAWN_END_FREQUENCY,
                 number_of_vpackets,
-                montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
+                TEMPORARY_V_PACKET_BINS,
             )
         )
-        rpacket_trackers.append(
-            RPacketTracker(
-                montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
-            )
-        )
+        rpacket_trackers.append(RPacketTracker(INITIAL_TRACKING_ARRAY_LENGTH))
 
     # Get the ID of the main thread and the number of threads
     main_thread_id = get_thread_id()
@@ -144,7 +158,7 @@ def montecarlo_main_loop(
             local_estimators,
             vpacket_collection,
             rpacket_tracker,
-            montecarlo_configuration,
+            montecarlo_config_func,
         )
         packet_collection.output_nus[i] = r_packet.nu
 
@@ -177,20 +191,20 @@ def montecarlo_main_loop(
         vpacket_tracker = consolidate_vpacket_tracker(
             vpacket_collections,
             spectrum_frequency,
-            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+            VPACKET_SPAWN_START_FREQUENCY,
+            VPACKET_SPAWN_END_FREQUENCY,
         )
     else:
         vpacket_tracker = VPacketCollection(
             -1,
             spectrum_frequency,
-            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+            VPACKET_SPAWN_START_FREQUENCY,
+            VPACKET_SPAWN_END_FREQUENCY,
             -1,
             1,
         )
 
-    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+    if ENABLE_RPACKET_TRACKING:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 

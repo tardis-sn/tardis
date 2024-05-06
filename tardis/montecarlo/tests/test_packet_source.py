@@ -10,9 +10,6 @@ from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
 
 
 class TestPacketSource:

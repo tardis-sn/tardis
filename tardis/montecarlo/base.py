@@ -13,6 +13,7 @@ from tardis.montecarlo.estimators.radfield_mc_estimators import (
 from tardis.montecarlo.montecarlo_configuration import (
     MonteCarloConfiguration,
     configuration_initialize,
+    obj2strkeydict,
 )
 from tardis.montecarlo.montecarlo_numba import (
     montecarlo_main_loop,
@@ -181,6 +182,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
 
+        montecarlo_configuration_jit = obj2strkeydict(
+            self.montecarlo_configuration, "Montecarlo configuration"
+        )
+
         (
             v_packets_energy_hist,
             last_interaction_tracker,
@@ -191,7 +196,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             transport_state.geometry_state,
             numba_model,
             transport_state.opacity_state,
-            self.montecarlo_configuration,
+            montecarlo_configuration_jit,
             transport_state.radfield_mc_estimators,
             transport_state.spectrum_frequency.value,
             number_of_vpackets,
