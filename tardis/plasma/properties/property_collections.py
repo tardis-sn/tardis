@@ -25,7 +25,6 @@ basic_properties = PlasmaPropertyCollection(
         BetaRadiation,
         Levels,
         Lines,
-        AtomicMass,
         PartitionFunction,
         GElectron,
         IonizationData,
