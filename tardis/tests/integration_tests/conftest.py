@@ -8,11 +8,7 @@ import pytest
 # on `version.py`. Find another way to fix it!
 
 # from tardis import __githash__ as tardis_githash
-from tardis.tests.integration_tests.report import DokuReport
-from tardis.tests.integration_tests.plot_helpers import (
-    LocalPlotSaver,
-    RemotePlotSaver,
-)
+
 
 
 def pytest_configure(config):
@@ -24,24 +20,6 @@ def pytest_configure(config):
         config.integration_tests_config = yaml.load(
             open(integration_tests_configpath), Loader=yaml.CLoader
         )
-
-        if not config.getoption("--generate-reference"):
-            # Used by DokuReport class to show build environment details in report.
-            config._environment = []
-            # prevent opening dokupath on slave nodes (xdist)
-            if not hasattr(config, "slaveinput"):
-                config.dokureport = DokuReport(
-                    config.integration_tests_config["report"]
-                )
-                config.pluginmanager.register(config.dokureport)
-
-
-def pytest_unconfigure(config):
-    # Unregister only if it was registered in pytest_configure
-    if config.getvalue("integration-tests") and not config.getoption(
-        "--generate-reference"
-    ):
-        config.pluginmanager.unregister(config.dokureport)
 
 
 def pytest_terminal_summary(terminalreporter):
@@ -71,15 +49,6 @@ def pytest_runtest_makereport(item, call):
 def plot_object(request):
     integration_tests_config = request.config.integration_tests_config
     report_save_mode = integration_tests_config["report"]["save_mode"]
-
-    if report_save_mode == "remote":
-        return RemotePlotSaver(request, request.config.dokureport.dokuwiki_url)
-    else:
-        return LocalPlotSaver(
-            request,
-            os.path.join(request.config.dokureport.report_dirpath, "assets"),
-        )
-
 
 @pytest.fixture(
     scope="class",
