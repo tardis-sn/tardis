@@ -22,7 +22,7 @@ from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
 )
-from tardis.transport.r_packet_transport import (
+from tardis.transport.montecarlo.r_packet_transport import (
     move_packet_across_shell_boundary,
     move_r_packet,
     trace_packet,

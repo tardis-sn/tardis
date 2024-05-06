@@ -12,7 +12,7 @@ from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
 )
-from tardis.transport.r_packet_transport import (
+from tardis.transport.montecarlo.r_packet_transport import (
     move_packet_across_shell_boundary,
 )
 
