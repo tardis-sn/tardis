@@ -12,8 +12,8 @@ from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
-from tardis.montecarlo.base import MonteCarloTransportSolver
-from tardis.montecarlo.packet_source import (
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
@@ -541,7 +541,7 @@ def transport_to_dict(transport):
 
     Parameters
     ----------
-    transport : tardis.montecarlo.MontecarloTransport
+    transport : tardis.transport.montecarlo.MontecarloTransport
 
     Returns
     -------
@@ -619,7 +619,7 @@ def store_transport_to_hdf(transport, fname):
 
     Parameters
     ----------
-    transport : tardis.montecarlo.MontecarloTransport
+    transport : tardis.transport.montecarlo.MontecarloTransport
     filename : str
     """
     with h5py.File(fname, "a") as f:
@@ -670,7 +670,7 @@ def transport_from_hdf(fname):
 
     Returns
     -------
-    new_transport : tardis.montecarlo.MontecarloTransport
+    new_transport : tardis.transport.montecarlo.MontecarloTransport
     """
     d = {}
 
