@@ -9,7 +9,6 @@ import tardis.transport.montecarlo.formal_integral as formal_integral
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.transport.montecarlo.numba_interface import NumbaModel
 from tardis.util.base import intensity_black_body
 
 
@@ -77,16 +76,13 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         return geometry
 
     @property
-    def formal_integral_model(self):
-        model = NumbaModel(
-            1 / c.c.cgs.value,
-        )
-        return model
+    def time_explosion(self):
+        return 1 / c.c.cgs.value
 
     @parameterize({"p": [0.0, 0.5, 1.0], "Test data": TESTDATA})
     def time_calculate_z(self, p, test_data):
         func = formal_integral.calculate_z
-        inv_t = 1.0 / self.formal_integral_model.time_explosion
+        inv_t = 1.0 / self.time_explosion
         len(self.formal_integral_geometry(test_data).r_outer)
         r_outer = self.formal_integral_geometry(test_data).r_outer
 

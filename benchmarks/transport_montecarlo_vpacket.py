@@ -28,10 +28,10 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             index=0,
         )
 
-    def v_packet_initialize_line_id(self, v_packet, opacity_state, numba_model):
+    def v_packet_initialize_line_id(self, v_packet, opacity_state, time_explosion):
         inverse_line_list_nu = opacity_state.line_list_nu[::-1]
         doppler_factor = get_doppler_factor(
-            v_packet.r, v_packet.mu, numba_model.time_explosion
+            v_packet.r, v_packet.mu, time_explosion
         )
         comov_nu = v_packet.nu * doppler_factor
         next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
@@ -44,12 +44,12 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         verysimple_numba_radial_1d_geometry = (
             self.verysimple_numba_radial_1d_geometry
         )
-        verysimple_numba_model = self.verysimple_numba_model
+        verysimple_time_explosion = self.verysimple_time_explosion
         verysimple_opacity_state = self.verysimple_opacity_state
 
         # Give the vpacket a reasonable line ID
         self.v_packet_initialize_line_id(
-            v_packet, verysimple_opacity_state, verysimple_numba_model
+            v_packet, verysimple_opacity_state, verysimple_time_explosion
         )
 
         (
@@ -59,7 +59,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         ) = vpacket.trace_vpacket_within_shell(
             v_packet,
             verysimple_numba_radial_1d_geometry,
-            verysimple_numba_model,
+            verysimple_time_explosion,
             verysimple_opacity_state,
         )
 
@@ -70,7 +70,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         verysimple_numba_radial_1d_geometry = (
             self.verysimple_numba_radial_1d_geometry
         )
-        verysimple_numba_model = self.verysimple_numba_model
+        verysimple_time_explosion = self.verysimple_time_explosion
         verysimple_opacity_state = self.verysimple_opacity_state
 
         # Set seed because of RNG in trace_vpacket
@@ -78,13 +78,13 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
 
         # Give the vpacket a reasonable line ID
         self.v_packet_initialize_line_id(
-            v_packet, verysimple_opacity_state, verysimple_numba_model
+            v_packet, verysimple_opacity_state, verysimple_time_explosion
         )
 
         tau_trace_combined = vpacket.trace_vpacket(
             v_packet,
             verysimple_numba_radial_1d_geometry,
-            verysimple_numba_model,
+            verysimple_time_explosion,
             verysimple_opacity_state,
         )
 
@@ -108,12 +108,12 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         verysimple_numba_radial_1d_geometry = (
             self.verysimple_numba_radial_1d_geometry
         )
-        verysimple_numba_model = self.verysimple_numba_model
+        verysimple_time_explosion = self.verysimple_time_explosion
         verysimple_opacity_state = self.verysimple_opacity_state
 
         vpacket.trace_vpacket(
             broken_packet,
             verysimple_numba_radial_1d_geometry,
-            verysimple_numba_model,
+            verysimple_time_explosion,
             verysimple_opacity_state,
         )

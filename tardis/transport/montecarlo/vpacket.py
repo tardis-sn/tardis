@@ -70,7 +70,7 @@ class VPacket(object):
 def trace_vpacket_within_shell(
     v_packet,
     numba_radial_1d_geometry,
-    numba_model,
+    time_explosion,
     opacity_state,
     enable_full_relativity,
     continuum_processes_enabled,
@@ -98,7 +98,7 @@ def trace_vpacket_within_shell(
     doppler_factor = get_doppler_factor(
         v_packet.r,
         v_packet.mu,
-        numba_model.time_explosion,
+        time_explosion,
         enable_full_relativity,
     )
 
@@ -145,7 +145,7 @@ def trace_vpacket_within_shell(
             comov_nu,
             is_last_line,
             nu_line,
-            numba_model.time_explosion,
+            time_explosion,
             enable_full_relativity,
         )
 
@@ -166,7 +166,7 @@ def trace_vpacket_within_shell(
 def trace_vpacket(
     v_packet,
     numba_radial_1d_geometry,
-    numba_model,
+    time_explosion,
     opacity_state,
     tau_russian,
     survival_probability,
@@ -178,7 +178,7 @@ def trace_vpacket(
     Parameters
     ----------
     v_packet
-    numba_model
+    time_explosion
     opacity_state
 
     Returns
@@ -195,7 +195,7 @@ def trace_vpacket(
         ) = trace_vpacket_within_shell(
             v_packet,
             numba_radial_1d_geometry,
-            numba_model,
+            time_explosion,
             opacity_state,
             enable_full_relativity,
             continuum_processes_enabled,
@@ -238,7 +238,7 @@ def trace_vpacket_volley(
     r_packet,
     vpacket_collection,
     numba_radial_1d_geometry,
-    numba_model,
+    time_explosion,
     opacity_state,
     enable_full_relativity,
     tau_russian,
@@ -257,7 +257,7 @@ def trace_vpacket_volley(
         [description]
     numba_radial_1d_geometry : [type]
         [description]
-    numba_model : [type]
+    time_explosion : [type]
         [description]
     opacity_state : [type]
         [description]
@@ -281,7 +281,7 @@ def trace_vpacket_volley(
         v_packet_on_inner_boundary = False
         if enable_full_relativity:
             mu_min = angle_aberration_LF_to_CMF(
-                r_packet, numba_model.time_explosion, mu_min
+                r_packet, time_explosion, mu_min
             )
     else:
         v_packet_on_inner_boundary = True
@@ -289,14 +289,14 @@ def trace_vpacket_volley(
 
         if enable_full_relativity:
             inv_c = 1 / C_SPEED_OF_LIGHT
-            inv_t = 1 / numba_model.time_explosion
+            inv_t = 1 / time_explosion
             beta_inner = numba_radial_1d_geometry.r_inner[0] * inv_t * inv_c
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
     r_packet_doppler_factor = get_doppler_factor(
         r_packet.r,
         r_packet.mu,
-        numba_model.time_explosion,
+        time_explosion,
         enable_full_relativity,
     )
     for i in range(no_of_vpackets):
@@ -319,12 +319,12 @@ def trace_vpacket_volley(
         # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
         if enable_full_relativity:
             v_packet_mu = angle_aberration_CMF_to_LF(
-                r_packet, numba_model.time_explosion, v_packet_mu
+                r_packet, time_explosion, v_packet_mu
             )
         v_packet_doppler_factor = get_doppler_factor(
             r_packet.r,
             v_packet_mu,
-            numba_model.time_explosion,
+            time_explosion,
             enable_full_relativity,
         )
 
@@ -352,7 +352,7 @@ def trace_vpacket_volley(
         tau_vpacket = trace_vpacket(
             v_packet,
             numba_radial_1d_geometry,
-            numba_model,
+            time_explosion,
             opacity_state,
             tau_russian,
             survival_probability,

@@ -10,7 +10,7 @@ import numpy as np
 def test_macro_atom(
     static_packet,
     verysimple_opacity_state,
-    verysimple_numba_model,
+    verysimple_time_explosion,
     set_seed_fixture,
     seed,
     expected,
@@ -19,7 +19,7 @@ def test_macro_atom(
     full_relativity = False
     static_packet.initialize_line_id(
         verysimple_opacity_state,
-        verysimple_numba_model,
+        verysimple_time_explosion,
         full_relativity,
     )
     activation_level_id = verysimple_opacity_state.line2macro_level_upper[

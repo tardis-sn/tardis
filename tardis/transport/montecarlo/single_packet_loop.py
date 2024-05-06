@@ -35,7 +35,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 def single_packet_loop(
     r_packet,
     numba_radial_1d_geometry,
-    numba_model,
+    time_explosion,
     opacity_state,
     estimators,
     vpacket_collection,
@@ -47,7 +47,7 @@ def single_packet_loop(
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
     numba_radial_1d_geometry : tardis.transport.montecarlo.numba_interface.NumbaRadial1DGeometry
-    numba_model : tardis.transport.montecarlo.numba_interface.NumbaModel
+    time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     estimators : tardis.transport.montecarlo.numba_interface.Estimators
     vpacket_collection : tardis.transport.montecarlo.numba_interface.VPacketCollection
@@ -62,12 +62,12 @@ def single_packet_loop(
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
     if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-        set_packet_props_full_relativity(r_packet, numba_model)
+        set_packet_props_full_relativity(r_packet, time_explosion)
     else:
-        set_packet_props_partial_relativity(r_packet, numba_model)
+        set_packet_props_partial_relativity(r_packet, time_explosion)
     r_packet.initialize_line_id(
         opacity_state,
-        numba_model,
+        time_explosion,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
     )
 
@@ -75,7 +75,7 @@ def single_packet_loop(
         r_packet,
         vpacket_collection,
         numba_radial_1d_geometry,
-        numba_model,
+        time_explosion,
         opacity_state,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         montecarlo_configuration.VPACKET_TAU_RUSSIAN,
@@ -93,7 +93,7 @@ def single_packet_loop(
         doppler_factor = get_doppler_factor(
             r_packet.r,
             r_packet.mu,
-            numba_model.time_explosion,
+            time_explosion,
             montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         )
 
@@ -119,7 +119,7 @@ def single_packet_loop(
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_radial_1d_geometry,
-                numba_model,
+                time_explosion,
                 opacity_state,
                 estimators,
                 chi_continuum,
@@ -147,7 +147,7 @@ def single_packet_loop(
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_radial_1d_geometry,
-                numba_model,
+                time_explosion,
                 opacity_state,
                 estimators,
                 chi_continuum,
@@ -163,7 +163,7 @@ def single_packet_loop(
             move_r_packet(
                 r_packet,
                 distance,
-                numba_model.time_explosion,
+                time_explosion,
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
@@ -176,13 +176,13 @@ def single_packet_loop(
             move_r_packet(
                 r_packet,
                 distance,
-                numba_model.time_explosion,
+                time_explosion,
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             line_scatter(
                 r_packet,
-                numba_model.time_explosion,
+                time_explosion,
                 line_interaction_type,
                 opacity_state,
                 montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
@@ -192,7 +192,7 @@ def single_packet_loop(
                 r_packet,
                 vpacket_collection,
                 numba_radial_1d_geometry,
-                numba_model,
+                time_explosion,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
@@ -206,13 +206,13 @@ def single_packet_loop(
             move_r_packet(
                 r_packet,
                 distance,
-                numba_model.time_explosion,
+                time_explosion,
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             thomson_scatter(
                 r_packet,
-                numba_model.time_explosion,
+                time_explosion,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
 
@@ -220,7 +220,7 @@ def single_packet_loop(
                 r_packet,
                 vpacket_collection,
                 numba_radial_1d_geometry,
-                numba_model,
+                time_explosion,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
@@ -235,13 +235,13 @@ def single_packet_loop(
             move_r_packet(
                 r_packet,
                 distance,
-                numba_model.time_explosion,
+                time_explosion,
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             continuum_event(
                 r_packet,
-                numba_model.time_explosion,
+                time_explosion,
                 opacity_state,
                 chi_bf_tot,
                 chi_ff,
@@ -255,7 +255,7 @@ def single_packet_loop(
                 r_packet,
                 vpacket_collection,
                 numba_radial_1d_geometry,
-                numba_model,
+                time_explosion,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
@@ -269,18 +269,18 @@ def single_packet_loop(
 
 
 @njit
-def set_packet_props_partial_relativity(r_packet, numba_model):
+def set_packet_props_partial_relativity(r_packet, time_explosion):
     """Sets properties of the packets given partial relativity
 
     Parameters
     ----------
         r_packet : tardis.transport.montecarlo.r_packet.RPacket
-        numba_model : tardis.transport.montecarlo.numba_interface.NumbaModel
+        time_explosion : float
     """
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r,
         r_packet.mu,
-        numba_model.time_explosion,
+        time_explosion,
         enable_full_relativity=False,
     )
     r_packet.nu *= inverse_doppler_factor
@@ -288,20 +288,20 @@ def set_packet_props_partial_relativity(r_packet, numba_model):
 
 
 @njit
-def set_packet_props_full_relativity(r_packet, numba_model):
+def set_packet_props_full_relativity(r_packet, time_explosion):
     """Sets properties of the packets given full relativity
 
     Parameters
     ----------
         r_packet : tardis.transport.montecarlo.r_packet.RPacket
-        numba_model : tardis.transport.montecarlo.numba_interface.NumbaModel
+        time_explosion : float
     """
-    beta = (r_packet.r / numba_model.time_explosion) / C_SPEED_OF_LIGHT
+    beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
 
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r,
         r_packet.mu,
-        numba_model.time_explosion,
+        time_explosion,
         enable_full_relativity=True,
     )
 

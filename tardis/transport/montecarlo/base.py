@@ -22,7 +22,6 @@ from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
 from tardis.transport.montecarlo.numba_interface import (
-    NumbaModel,
     opacity_state_initialize,
 )
 from tardis.transport.montecarlo.r_packet import (
@@ -165,8 +164,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
 
-        numba_model = NumbaModel(time_explosion.to("s").value)
-
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
 
         (
@@ -177,7 +174,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
-            numba_model,
+            time_explosion.cgs.value,
             transport_state.opacity_state,
             self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
@@ -186,7 +183,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             iteration=iteration,
             show_progress_bars=show_progress_bars,
             total_iterations=total_iterations,
-            enable_virtual_packet_logging=self.enable_vpacket_tracking,
         )
 
         transport_state._montecarlo_virtual_luminosity.value[

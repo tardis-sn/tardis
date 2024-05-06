@@ -15,7 +15,7 @@ from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import yaml_load_file, YAMLLoader, HDFWriterMixin
 from tardis.model import SimulationState
-from tardis.transport.montecarlo import NumbaModel, opacity_state_initialize
+from tardis.transport.montecarlo import opacity_state_initialize
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
@@ -243,11 +243,9 @@ class BenchmarkBase:
         return sim
 
     @property
-    def verysimple_numba_model(self):
+    def verysimple_time_explosion(self):
         model = self.nb_simulation_verysimple.simulation_state
-        return NumbaModel(
-            model.time_explosion.to("s").value,
-        )
+        return model.time_explosion.cgs.value
 
     @property
     def verysimple_opacity_state(self):
