@@ -350,13 +350,28 @@ def generate_tutorials_page(app):
 
     for root, dirs, fnames in os.walk("io/"):
         for fname in fnames:
-            if fname.endswith(".ipynb") and "checkpoint" not in fname:
+            if fname.startswith("tutorial_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
                 notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
 
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
 
     with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
+        f.write(f"{title}\n{description}\n{notebooks}")
+
+def generate_how_to_guides_page(app):
+    """Create how_to_guides.rst"""
+    notebooks = ""
+
+    for root, dirs, fnames in os.walk("io/"):
+        for fname in fnames:
+            if fname.startswith("how_to_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
+                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+
+    title = "How-To Guides\n*********\n"
+    description = "The following pages contain the TARDIS how-to guides:"
+
+    with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
 
@@ -397,5 +412,6 @@ def create_redirect_files(app, docname):
 
 def setup(app):
     app.connect("builder-inited", generate_tutorials_page)
+    app.connect("builder-inited", generate_how_to_guides_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)

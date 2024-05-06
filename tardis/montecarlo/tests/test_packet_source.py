@@ -1,5 +1,6 @@
 import os
 
+from astropy import units as u
 import numpy as np
 import pandas as pd
 import pytest
@@ -71,7 +72,6 @@ class TestPacketSource:
         request : _pytest.fixtures.SubRequest
         tardis_ref_data: pd.HDFStore
         packet_unit_test_fpath: os.path
-        blackbodysimplesource: tardis.montecarlo.packet_source.BlackBodySimpleSource
         """
         if request.config.getoption("--generate-reference"):
             ref_bb = pd.read_hdf(packet_unit_test_fpath, key="/blackbody")
@@ -81,10 +81,10 @@ class TestPacketSource:
             pytest.skip("Reference data was generated during this run.")
 
         ref_df = tardis_ref_data["/packet_unittest/blackbody"]
-        self.bb.temperature = 10000
-        nus = self.bb.create_packet_nus(100)
+        self.bb.temperature = 10000 * u.K
+        nus = self.bb.create_packet_nus(100).value
         mus = self.bb.create_packet_mus(100)
-        unif_energies = self.bb.create_packet_energies(100)
+        unif_energies = self.bb.create_packet_energies(100).value
         assert np.all(np.isclose(nus, ref_df["nus"]))
         assert np.all(np.isclose(mus, ref_df["mus"]))
         assert np.all(np.isclose(unif_energies, ref_df["energies"]))
@@ -100,12 +100,14 @@ class TestPacketSource:
         tardis_ref_data : pd.HDFStore
         blackbody_simplesource_relativistic : tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
         """
-        blackbody_simplesource_relativistic.temperature = 10000
+        blackbody_simplesource_relativistic.temperature = 10000 * u.K
         blackbody_simplesource_relativistic.beta = 0.25
 
-        nus = blackbody_simplesource_relativistic.create_packet_nus(100)
+        nus = blackbody_simplesource_relativistic.create_packet_nus(100).value
         unif_energies = (
-            blackbody_simplesource_relativistic.create_packet_energies(100)
+            blackbody_simplesource_relativistic.create_packet_energies(
+                100
+            ).value
         )
         blackbody_simplesource_relativistic._reseed(2508)
         mus = blackbody_simplesource_relativistic.create_packet_mus(10)

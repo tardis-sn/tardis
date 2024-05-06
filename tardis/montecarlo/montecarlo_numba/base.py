@@ -115,7 +115,7 @@ def montecarlo_main_loop(
     # betting get thread_id goes from 0 to num threads
     # Note that get_thread_id() returns values from 0 to n_threads-1,
     # so we iterate from 0 to n_threads-1 to create the estimator_list
-    estimator_list = estimators.create_list(n_threads)
+    estimator_list = estimators.create_estimator_list(n_threads)
 
     for i in prange(no_of_packets):
         thread_id = get_thread_id()

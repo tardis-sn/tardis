@@ -120,7 +120,7 @@ class RadiationFieldMCEstimators:
             other.photo_ion_estimator_statistics
         )
 
-    def create_list(self, number):
+    def create_estimator_list(self, number):
         estimator_list = List()
 
         for i in range(number):

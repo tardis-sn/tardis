@@ -12,7 +12,11 @@ from pathlib import Path
 
 import tardis
 from tardis.io.model.readers.generic_readers import read_uniform_abundances
-from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
+from tardis.util.base import (
+    quantity_linspace,
+    is_valid_nuclide_or_elem,
+    is_notebook,
+)
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 from tardis.io.model.parse_density_configuration import (
@@ -277,8 +281,10 @@ class CustomAbundanceWidgetData:
         -------
         CustomAbundanceWidgetData
         """
-        abundance = sim.simulation_state.raw_abundance.copy()
-        isotope_abundance = sim.simulation_state.raw_isotope_abundance.copy()
+        abundance = sim.simulation_state.abundance.copy()
+        isotope_abundance = (
+            sim.simulation_state.composition.raw_isotope_abundance.copy()
+        )
 
         # integrate element and isotope to one DataFrame
         abundance["mass_number"] = ""
@@ -1284,109 +1290,114 @@ class CustomAbundanceWidget:
         ipywidgets.widgets.widget_box.VBox
             A box that contains all the widgets in the GUI.
         """
-        # --------------Combine widget components--------------
-        self.box_editor = ipw.HBox(
-            [
-                ipw.VBox(self.input_items),
-                ipw.VBox(self.checks, layout=ipw.Layout(margin="0 0 0 10px")),
-            ]
-        )
+        if not is_notebook():
+            print("Please use a notebook to display the widget")
+        else:
+            # --------------Combine widget components--------------
+            self.box_editor = ipw.HBox(
+                [
+                    ipw.VBox(self.input_items),
+                    ipw.VBox(
+                        self.checks, layout=ipw.Layout(margin="0 0 0 10px")
+                    ),
+                ]
+            )
 
-        box_add_shell = ipw.HBox(
-            [
-                self.input_v_start,
-                self.input_v_end,
-                self.btn_add_shell,
-                self.overwrite_warning,
-            ],
-            layout=ipw.Layout(margin="0 0 0 50px"),
-        )
+            box_add_shell = ipw.HBox(
+                [
+                    self.input_v_start,
+                    self.input_v_end,
+                    self.btn_add_shell,
+                    self.overwrite_warning,
+                ],
+                layout=ipw.Layout(margin="0 0 0 50px"),
+            )
 
-        box_head = ipw.HBox(
-            [self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell]
-        )
+            box_head = ipw.HBox(
+                [self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell]
+            )
 
-        box_add_element = ipw.HBox(
-            [self.input_symb, self.btn_add_element, self.symb_warning],
-            layout=ipw.Layout(margin="0 0 0 80px"),
-        )
+            box_add_element = ipw.HBox(
+                [self.input_symb, self.btn_add_element, self.symb_warning],
+                layout=ipw.Layout(margin="0 0 0 80px"),
+            )
 
-        help_note = ipw.HTML(
-            value="<p style='text-indent: 40px'>* Select a checkbox "
-            "to lock the abundance of corresponding element. </p>"
-            "<p style='text-indent: 40px'> On clicking the 'Normalize' "
-            "button, the locked abundance(s) will <b>not be normalized</b>."
-            " </p>",
-            indent=True,
-        )
+            help_note = ipw.HTML(
+                value="<p style='text-indent: 40px'>* Select a checkbox "
+                "to lock the abundance of corresponding element. </p>"
+                "<p style='text-indent: 40px'> On clicking the 'Normalize' "
+                "button, the locked abundance(s) will <b>not be normalized</b>."
+                " </p>",
+                indent=True,
+            )
 
-        self.abundance_note = ipw.HTML(
-            description="(The following abundances are for the innermost "
-            "shell in selected range.)",
-            layout=ipw.Layout(visibility="hidden"),
-            style={"description_width": "initial"},
-        )
+            self.abundance_note = ipw.HTML(
+                description="(The following abundances are for the innermost "
+                "shell in selected range.)",
+                layout=ipw.Layout(visibility="hidden"),
+                style={"description_width": "initial"},
+            )
 
-        box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
+            box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
 
-        box_apply = ipw.VBox(
-            [
-                ipw.Label(value="Apply abundance(s) to:"),
-                self.rbs_single_apply,
-                ipw.HBox(
-                    [
-                        self.rbs_multi_apply,
-                        self.irs_shell_range,
-                        self.abundance_note,
-                    ]
-                ),
-            ],
-            layout=ipw.Layout(margin="0 0 15px 50px"),
-        )
+            box_apply = ipw.VBox(
+                [
+                    ipw.Label(value="Apply abundance(s) to:"),
+                    self.rbs_single_apply,
+                    ipw.HBox(
+                        [
+                            self.rbs_multi_apply,
+                            self.irs_shell_range,
+                            self.abundance_note,
+                        ]
+                    ),
+                ],
+                layout=ipw.Layout(margin="0 0 15px 50px"),
+            )
 
-        box_features = ipw.VBox([box_norm, help_note])
-        box_abundance = ipw.VBox(
-            [
-                box_apply,
-                ipw.HBox([self.box_editor, box_features]),
-                box_add_element,
-            ]
-        )
-        box_density = self.density_editor.display()
+            box_features = ipw.VBox([box_norm, help_note])
+            box_abundance = ipw.VBox(
+                [
+                    box_apply,
+                    ipw.HBox([self.box_editor, box_features]),
+                    box_add_element,
+                ]
+            )
+            box_density = self.density_editor.display()
 
-        main_tab = ipw.Tab([box_abundance, box_density])
-        main_tab.set_title(0, "Edit Abundance")
-        main_tab.set_title(1, "Edit Density")
+            main_tab = ipw.Tab([box_abundance, box_density])
+            main_tab.set_title(0, "Edit Abundance")
+            main_tab.set_title(1, "Edit Density")
 
-        hint = ipw.HTML(
-            value="<b><font size='3'>Save model as file: </font></b>"
-        )
-        box_output = ipw.VBox(
-            [
-                hint,
-                self.input_i_time_0,
-                ipw.HBox(
-                    [self.input_path, self.btn_output, self.ckb_overwrite]
-                ),
-            ]
-        )
+            hint = ipw.HTML(
+                value="<b><font size='3'>Save model as file: </font></b>"
+            )
+            box_output = ipw.VBox(
+                [
+                    hint,
+                    self.input_i_time_0,
+                    ipw.HBox(
+                        [self.input_path, self.btn_output, self.ckb_overwrite]
+                    ),
+                ]
+            )
 
-        # Initialize the widget and plot colormap
-        self.plot_cmap = cmap
-        self.update_line_color()
-        self.read_abundance()
-        self.density_editor.read_density()
+            # Initialize the widget and plot colormap
+            self.plot_cmap = cmap
+            self.update_line_color()
+            self.read_abundance()
+            self.density_editor.read_density()
 
-        return ipw.VBox(
-            [
-                self.tbs_scale,
-                self.fig,
-                box_head,
-                main_tab,
-                box_output,
-                self.error_view,
-            ]
-        )
+            return ipw.VBox(
+                [
+                    self.tbs_scale,
+                    self.fig,
+                    box_head,
+                    main_tab,
+                    box_output,
+                    self.error_view,
+                ]
+            )
 
     @error_view.capture(clear_output=True)
     def to_csvy(self, path, overwrite):

@@ -4,10 +4,11 @@ import numpy as np
 from astropy import units as u
 
 from tardis.io.util import HDFWriterMixin
-from tardis.montecarlo.spectrum import TARDISSpectrum
 from tardis.montecarlo.estimators.dilute_blackbody_properties import (
     MCDiluteBlackBodyRadFieldSolver,
 )
+from tardis.montecarlo.montecarlo_numba.formal_integral import IntegrationError
+from tardis.montecarlo.spectrum import TARDISSpectrum
 
 
 class MonteCarloTransportState(HDFWriterMixin):
@@ -16,11 +17,13 @@ class MonteCarloTransportState(HDFWriterMixin):
         "output_energy",
         "nu_bar_estimator",
         "j_estimator",
+        "j_blue_estimator",
         "montecarlo_virtual_luminosity",
         "packet_luminosity",
         "spectrum",
         "spectrum_virtual",
         "spectrum_reabsorbed",
+        "spectrum_integrated",
         "time_of_simulation",
         "emitted_packet_mask",
         "last_interaction_type",
@@ -72,6 +75,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.integrator_settings = None
         self._spectrum_integrated = None
         self.enable_full_relativity = False
+        self.enable_continuum_processes = False
         self.geometry_state = geometry_state
         self.opacity_state = opacity_state
         self.rpacket_tracker = rpacket_tracker
@@ -121,6 +125,10 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def j_estimator(self):
         return self.radfield_mc_estimators.j_estimator
+
+    @property
+    def j_blue_estimator(self):
+        return self.radfield_mc_estimators.j_blue_estimator
 
     @property
     def time_of_simulation(self):
@@ -218,11 +226,26 @@ class MonteCarloTransportState(HDFWriterMixin):
         if self._spectrum_integrated is None:
             # This was changed from unpacking to specific attributes as compute
             # is not used in calculate_spectrum
-            self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1],
-                points=self.integrator_settings.points,
-                interpolate_shells=self.integrator_settings.interpolate_shells,
-            )
+            try:
+                self._spectrum_integrated = self.integrator.calculate_spectrum(
+                    self.spectrum_frequency[:-1],
+                    points=self.integrator_settings.points,
+                    interpolate_shells=self.integrator_settings.interpolate_shells,
+                )
+            except IntegrationError:
+                # if integration is impossible or fails, return an empty spectrum
+                warnings.warn(
+                    "The FormalIntegrator is not yet implemented for the full "
+                    "relativity mode or continuum processes. "
+                    "Please run with config option enable_full_relativity: "
+                    "False and continuum_processes_enabled: False "
+                    "This RETURNS AN EMPTY SPECTRUM!",
+                    UserWarning,
+                )
+                return TARDISSpectrum(
+                    np.array([np.nan, np.nan]) * u.Hz,
+                    np.array([np.nan]) * u.erg / u.s,
+                )
         return self._spectrum_integrated
 
     @property
@@ -365,9 +388,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_interaction_in_nu(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_in_nu, u.erg
-            )
+            return u.Quantity(self.vpacket_tracker.last_interaction_in_nu, u.Hz)
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_interaction_in_nu:"
@@ -381,7 +402,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_interaction_type(self):
         try:
-            return u.Quantity(self.vpacket_tracker.last_interaction_type, u.erg)
+            return self.vpacket_tracker.last_interaction_type
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_interaction_type:"
@@ -395,9 +416,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_line_interaction_in_id(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_in_id, u.erg
-            )
+            return self.vpacket_tracker.last_interaction_in_id
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_line_interaction_in_id:"
@@ -411,9 +430,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_line_interaction_out_id(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_out_id, u.erg
-            )
+            return self.vpacket_tracker.last_interaction_out_id
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_line_interaction_out_id:"
@@ -427,9 +444,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_line_interaction_shell_id(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_shell_id, u.erg
-            )
+            return self.vpacket_tracker.last_interaction_shell_id
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_line_interaction_shell_id:"

@@ -21,8 +21,7 @@ HEADER_RE_STR = [
     ("\s+total mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", "total_mass"),
 ]
 
-DATA_START_ROW = 6
-
+DATA_START_ROW = 5
 COLUMN_WITH_UNIT_RE = re.compile("(.+)\s+\((.+)\)")
 
 
@@ -46,15 +45,15 @@ def read_stella_model(fname):
         for i, line in enumerate(fh):
             if i < len(HEADER_RE_STR):
                 header_re_match = header_re[i].match(line)
-
                 metadata[HEADER_RE_STR[i][1]] = header_re_match.group(1)
-            if line.strip().startswith("mass of cell"):
-                column_names_raw = re.split(r"\s{3,}", line.strip())
-                break
-        else:
-            raise ValueError(
-                '"mass of cell" is required in the Stella input file to infer columns'
-            )
+            elif i == DATA_START_ROW:
+                if "mass of cell" in line:
+                    column_names_raw = re.split(r"\s{3,}", line.strip())
+                    break
+                else:
+                    raise ValueError(
+                        '"mass of cell" is required in the Stella input file to infer columns'
+                    )
 
         metadata["t_max"] = float(metadata["t_max"]) * u.day
         metadata["zones"] = int(metadata["zones"])
@@ -71,10 +70,16 @@ def read_stella_model(fname):
         else:
             column_name = column_name.lower().replace(" ", "_")
         column_names.append(column_name)
+    # +1 because there is a missing line between columns
+    # and the actual data
     data = pd.read_csv(
         fname,
-        delim_whitespace=True,
-        skiprows=DATA_START_ROW,
+        # The argument `delim_whitespace` was changed to `sep`
+        #   because the first one is deprecated since version 2.2.0.
+        #   The regular expression means: the separation is one or
+        #   more spaces together (simple space, tabs, new lines).
+        sep=r"\s+",
+        skiprows=DATA_START_ROW + 1,
         header=None,
         index_col=0,
     )
