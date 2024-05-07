@@ -23,16 +23,25 @@ def calculate_sobolev_line_opacity(
     time_explosion,
     stimulated_emission_factor,
 ):
-    tau_sobolevs = (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
-    tau_sobolevs *= (
-        SOBOLEV_COEFFICIENT
+    tau_sobolevs = (
+        (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
+        * SOBOLEV_COEFFICIENT
         * time_explosion.to(u.s).value
         * stimulated_emission_factor
+        * level_number_density.reindex(lines.droplevel(-1).index).values
     )
-    tau_sobolevs *= level_number_density.reindex(
-        lines.droplevel(-1).index
-    ).values
-    return tau_sobolevs
+
+    if np.any(np.isnan(tau_sobolevs)) or np.any(np.isinf(np.abs(tau_sobolevs))):
+        raise ValueError(
+            "Some tau_sobolevs are nan, inf, -inf in tau_sobolevs."
+            " Something went wrong!"
+        )
+
+    return pd.DataFrame(
+        tau_sobolevs,
+        index=lines.index,
+        columns=np.array(level_number_density.columns),
+    )
 
 
 class TauSobolev(ProcessingPlasmaProperty):
@@ -68,37 +77,12 @@ class TauSobolev(ProcessingPlasmaProperty):
         self,
         lines,
         level_number_density,
-        lines_lower_level_index,
         time_explosion,
         stimulated_emission_factor,
-        j_blues,
-        f_lu,
-        wavelength_cm,
     ):
-        f_lu = f_lu.values[np.newaxis].T
-        wavelength = wavelength_cm.values[np.newaxis].T
-        n_lower = level_number_density.values.take(
-            lines_lower_level_index, axis=0, mode="raise"
-        )
-        tau_sobolevs = (
-            self.sobolev_coefficient
-            * f_lu
-            * wavelength
-            * time_explosion
-            * n_lower
-            * stimulated_emission_factor
-        )
-
-        if np.any(np.isnan(tau_sobolevs)) or np.any(
-            np.isinf(np.abs(tau_sobolevs))
-        ):
-            raise ValueError(
-                "Some tau_sobolevs are nan, inf, -inf in tau_sobolevs."
-                " Something went wrong!"
-            )
-
-        return pd.DataFrame(
-            tau_sobolevs,
-            index=lines.index,
-            columns=np.array(level_number_density.columns),
+        return calculate_sobolev_line_opacity(
+            lines,
+            level_number_density,
+            time_explosion,
+            stimulated_emission_factor,
         )

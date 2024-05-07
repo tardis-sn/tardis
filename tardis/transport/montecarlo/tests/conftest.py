@@ -3,6 +3,7 @@ from copy import deepcopy
 import pytest
 import numpy as np
 from numba import njit
+from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
 )
@@ -15,7 +16,6 @@ from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
 
 
 from tardis.transport.montecarlo.numba_interface import (
-    opacity_state_initialize,
     NumbaModel,
 )
 

@@ -5,7 +5,7 @@ Basic TARDIS Benchmark.
 import numpy as np
 from asv_runner.benchmarks.mark import parameterize
 
-import tardis.transport.montecarlo.numba_interface as numba_interface
+import tardis.opacities.opacity_state as numba_interface
 from benchmarks.benchmark_base import BenchmarkBase
 
 

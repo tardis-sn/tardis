@@ -7,6 +7,7 @@ from numba import cuda, set_num_threads
 from tardis import constants as const
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
+from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
 )
@@ -20,7 +21,6 @@ from tardis.transport.montecarlo import (
 from tardis.transport.montecarlo.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.numba_interface import (
     NumbaModel,
-    opacity_state_initialize,
 )
 from tardis.transport.montecarlo.r_packet import (
     rpacket_trackers_to_dataframe,
