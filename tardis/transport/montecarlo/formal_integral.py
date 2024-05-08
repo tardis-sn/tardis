@@ -184,9 +184,7 @@ def numba_formal_integral(
                 # calculate e-scattering optical depth to grid cell boundary
 
                 Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
-                zend = (
-                    time_explosion / C_INV * (1.0 - nu_end / nu)
-                )  # check
+                zend = time_explosion / C_INV * (1.0 - nu_end / nu)  # check
                 escat_contrib += (
                     (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
                 )

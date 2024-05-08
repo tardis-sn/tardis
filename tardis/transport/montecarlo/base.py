@@ -126,7 +126,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             opacity_state=opacity_state,
         )
 
-        transport_state.enable_full_relativity = self.montecarlo_configuration.ENABLE_FULL_RELATIVITY
+        transport_state.enable_full_relativity = (
+            self.montecarlo_configuration.ENABLE_FULL_RELATIVITY
+        )
         transport_state.integrator_settings = self.integrator_settings
         transport_state._integrator = FormalIntegrator(
             simulation_state, plasma, self

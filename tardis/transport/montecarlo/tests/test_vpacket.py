@@ -117,7 +117,9 @@ def test_trace_vpacket_volley(
     # Set seed because of RNG in trace_vpacket
     np.random.seed(1)
 
-    packet.initialize_line_id(verysimple_opacity_state, verysimple_time_explosion)
+    packet.initialize_line_id(
+        verysimple_opacity_state, verysimple_time_explosion
+    )
 
     vpacket.trace_vpacket_volley(
         packet,

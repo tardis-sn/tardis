@@ -233,7 +233,9 @@ def test_trace_packet(
     set_seed_fixture,
 ):
     set_seed_fixture(1963)
-    packet.initialize_line_id(verysimple_opacity_state, verysimple_time_explosion)
+    packet.initialize_line_id(
+        verysimple_opacity_state, verysimple_time_explosion
+    )
     distance, interaction_type, delta_shell = r_packet_transport.trace_packet(
         packet,
         verysimple_time_explosion,

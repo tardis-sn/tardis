@@ -130,9 +130,7 @@ def time_explosion():
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(["p", "p_loc"], [(0.0, 0), (0.5, 1), (1.0, 2)])
-def test_calculate_z_cuda(
-    formal_integral_geometry, time_explosion, p, p_loc
-):
+def test_calculate_z_cuda(formal_integral_geometry, time_explosion, p, p_loc):
     """
     Initializes the test of the cuda version
     against the numba implementation of the

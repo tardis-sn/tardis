@@ -68,7 +68,7 @@ def formal_integral_geometry(request):
 
 @pytest.fixture(scope="function")
 def time_explosion():
-    return  1 / c.c.cgs.value
+    return 1 / c.c.cgs.value
 
 
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
@@ -89,16 +89,12 @@ def test_calculate_z(formal_integral_geometry, time_explosion, p):
 
 
 @pytest.mark.parametrize("p", [0, 0.5, 1])
-def test_populate_z_photosphere(
-    formal_integral_geometry, time_explosion, p
-):
+def test_populate_z_photosphere(formal_integral_geometry, time_explosion, p):
     """
     Test the case where p < r[0]
     That means we 'hit' all shells from inside to outside.
     """
-    integrator = formal_integral.FormalIntegrator(
-        time_explosion, None, None
-    )
+    integrator = formal_integral.FormalIntegrator(time_explosion, None, None)
     func = formal_integral.populate_z
     size = len(formal_integral_geometry.r_outer)
     r_inner = formal_integral_geometry.r_inner
@@ -121,9 +117,7 @@ def test_populate_z_shells(formal_integral_geometry, time_explosion, p):
     """
     Test the case where p > r[0]
     """
-    integrator = formal_integral.FormalIntegrator(
-        time_explosion, None, None
-    )
+    integrator = formal_integral.FormalIntegrator(time_explosion, None, None)
     func = formal_integral.populate_z
 
     size = len(formal_integral_geometry.r_inner)
