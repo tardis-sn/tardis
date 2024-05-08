@@ -20,7 +20,7 @@ from tardis.transport.montecarlo.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
 
-from tardis.transport.montecarlo.spectrum import TARDISSpectrum
+from tardis.spectrum import TARDISSpectrum
 
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
