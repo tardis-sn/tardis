@@ -18,7 +18,6 @@ __all__ = [
     "StimulatedEmissionFactor",
     "BetaSobolev",
     "RawRadBoundBoundTransProbs",
-    "NonMarkovChainTransitionProbabilities",
 ]
 
 C_EINSTEIN = (

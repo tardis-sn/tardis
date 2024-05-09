@@ -1,11 +1,12 @@
-from tardis.plasma.properties.base import ProcessingPlasmaProperty
-from tardis.plasma.properties.radiative_properties import logger
-from tardis.opacities.macro_atom import util
-
+import logging
 
 import numpy as np
 import pandas as pd
 
+from tardis.opacities.macro_atom import util
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
+
+logger = logging.getLogger(__name__)
 
 class TransitionProbabilities(ProcessingPlasmaProperty):
     """
