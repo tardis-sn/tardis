@@ -1,21 +1,21 @@
 import numpy as np
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_electron,
     calculate_distance_line,
 )
-from tardis.montecarlo.estimators.radfield_estimator_calcs import (
+from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_line_estimators,
     update_base_estimators,
 )
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
-from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
-from tardis.montecarlo.montecarlo_numba.r_packet import (
+from tardis.transport.montecarlo.opacities import calculate_tau_electron
+from tardis.transport.montecarlo.r_packet import (
     InteractionType,
     PacketStatus,
 )
@@ -39,11 +39,11 @@ def trace_packet(
 
     Parameters
     ----------
-    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
-    numba_radial_1d_geometry : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaRadial1DGeometry
-    numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
-    opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
-    estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
+    r_packet : tardis.transport.montecarlo.r_packet.RPacket
+    numba_radial_1d_geometry : tardis.transport.montecarlo.numba_interface.NumbaRadial1DGeometry
+    numba_model : tardis.transport.montecarlo.numba_interface.NumbaModel
+    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
+    estimators : tardis.transport.montecarlo.numba_interface.Estimators
 
     Returns
     -------
@@ -190,11 +190,11 @@ def move_r_packet(
 
     Parameters
     ----------
-    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    r_packet : tardis.transport.montecarlo.r_packet.RPacket
         r_packet objects
     time_explosion : float
         time since explosion in s
-    numba_estimator : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaEstimator
+    numba_estimator : tardis.transport.montecarlo.numba_interface.NumbaEstimator
         Estimators object
     distance : float
         distance in cm
