@@ -35,7 +35,7 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  Check-for-changes:
+  check-for-changes:
     runs-on: ubuntu-latest
     outputs:
       trigger-check-outcome: ${{ steps.trigger_check.outcome }}
@@ -75,8 +75,8 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-latest
-    needs: Check-for-changes
-    if: needs.Check-for-changes.outputs.trigger-check-outcome == 'success' || needs.Check-for-changes.outputs.docs-check-outcome == 'success'
+    needs: check-for-changes
+    if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     steps:
       - uses: actions/checkout@v4
         if: github.event_name != 'pull_request_target'
