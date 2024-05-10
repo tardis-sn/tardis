@@ -75,6 +75,7 @@ class ThermalGElectron(GElectron):
     def calculate(self, beta_electron):
         return super(ThermalGElectron, self).calculate(beta_electron)
 
+
 class SelectedAtoms(ProcessingPlasmaProperty):
     """
     Attributes
