@@ -17,7 +17,7 @@ from tardis.io.model.readers.generic_readers import read_uniform_abundances
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
-from tardis.model.radiation_field_state import (
+from tardis.radiation_field.planck_rad_field import (
     DiluteBlackBodyRadiationFieldState,
 )
 from tardis.transport.montecarlo.packet_source import (

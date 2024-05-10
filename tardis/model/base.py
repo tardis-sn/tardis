@@ -23,7 +23,7 @@ from tardis.model.parse_input import (
     parse_packet_source,
 )
 from tardis.transport.montecarlo.packet_source import BlackBodySimpleSource
-from tardis.model.radiation_field_state import (
+from tardis.radiation_field.planck_rad_field import (
     DiluteBlackBodyRadiationFieldState,
 )
 from tardis.util.base import is_valid_nuclide_or_elem

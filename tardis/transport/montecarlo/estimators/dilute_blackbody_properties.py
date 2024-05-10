@@ -3,7 +3,7 @@ from astropy import units as u
 from scipy.special import zeta
 
 from tardis import constants as const
-from tardis.model.radiation_field_state import (
+from tardis.radiation_field.planck_rad_field import (
     DiluteBlackBodyRadiationFieldState,
 )
 
