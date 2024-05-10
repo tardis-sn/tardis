@@ -5,7 +5,6 @@ from pathlib import Path
 import numpy as np
 from astropy import units as u
 
-from tardis import constants
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.model.readers.csvy import (
@@ -18,13 +17,9 @@ from tardis.model.parse_input import (
     parse_csvy_composition,
     parse_csvy_geometry,
     parse_csvy_radiation_field_state,
+    parse_packet_source,
     parse_radiation_field_state,
     parse_structure_config,
-    parse_packet_source,
-)
-from tardis.transport.montecarlo.packet_source import BlackBodySimpleSource
-from tardis.radiation_field.planck_rad_field import (
-    DiluteBlackBodyRadiationFieldState,
 )
 from tardis.util.base import is_valid_nuclide_or_elem
 
