@@ -536,6 +536,7 @@ class LevelIdxs2TransitionIdx(HiddenPlasmaProperty):
 
         return level_idxs2transition_idx
 
+
 class IonizationData(BaseAtomicDataProperty):
     """
     Attributes
