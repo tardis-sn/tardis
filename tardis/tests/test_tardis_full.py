@@ -61,10 +61,7 @@ class TestTransportSimple:
         return transport_state
 
     def get_expected_data(self, key: str):
-        try:
-            return pd.read_hdf(self.regression_data.fpath, key)
-        except KeyError:
-            pytest.skip(f"Key {key} not found in regression data")
+        return pd.read_hdf(self.regression_data.fpath, key)
 
     def test_j_blue_estimators(self, transport_state):
         key = "transport_state/j_blue_estimator"
