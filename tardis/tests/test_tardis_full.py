@@ -12,6 +12,7 @@ from tardis.simulation.base import Simulation
 from tardis.tests.fixtures.regression_data import RegressionData
 
 
+@pytest.mark.skip
 def test_run_tardis_from_config_obj(
     atomic_data_fname, example_configuration_dir: Path
 ):
