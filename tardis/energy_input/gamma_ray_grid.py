@@ -53,7 +53,6 @@ def calculate_distance_radial(photon, r_inner, r_outer):
 
     # the correct distance is the shortest positive distance
     distance_list = [i for i in distances if i > 0]
-    print(distance_list)
 
     if not distance_list:
         print(photon.get_location_r() - r_inner)
