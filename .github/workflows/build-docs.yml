@@ -48,7 +48,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
 
       - name: Check for trigger by push event, manual dispatch, build-docs label on a PR
