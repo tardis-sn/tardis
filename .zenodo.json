@@ -116,13 +116,13 @@
       "name": "Shields, Joshua"
     },
     {
+      "name": "O'Brien, Jack"
+    },
+    {
       "name": "Barbosa, Talytha"
     },
     {
       "name": "Sondhi, Dhruv"
-    },
-    {
-      "name": "O'Brien, Jack"
     },
     {
       "name": "Yu, Jenny"
@@ -163,10 +163,10 @@
       "name": "Bylund, Tomas"
     },
     {
-      "name": "Black, William"
+      "name": "Bentil, Laud"
     },
     {
-      "name": "Bentil, Laud"
+      "name": "Black, William"
     },
     {
       "name": "Eguren, Jordi",
@@ -188,13 +188,7 @@
       "name": "Magee, Mark"
     },
     {
-      "name": "Daksh, Ayushi"
-    },
-    {
       "name": "Visser, Erin"
-    },
-    {
-      "name": "Kambham, Satwik"
     },
     {
       "name": "Livneh, Ran"
@@ -203,14 +197,23 @@
       "name": "Dutta, Anirban"
     },
     {
-      "name": "Rajagopalan, Srinath"
+      "name": "Kambham, Satwik"
     },
     {
-      "name": "Lu, Jing"
+      "name": "Daksh, Ayushi"
     },
     {
       "name": "Mishra, Sashank",
       "orcid": "0000-0001-8302-1584"
+    },
+    {
+      "name": "Rajagopalan, Srinath"
+    },
+    {
+      "name": "Gupta, Sumit"
+    },
+    {
+      "name": "Lu, Jing"
     },
     {
       "name": "Floers, Andreas"
@@ -219,34 +222,31 @@
       "name": "Reichenbach, John"
     },
     {
-      "name": "Gupta, Sumit"
-    },
-    {
-      "name": "Jain, Rinkle"
-    },
-    {
       "name": "Bhakar, Jayant"
     },
     {
       "name": "Actions, GitHub"
     },
     {
-      "name": "Srivastava, Sarthak"
-    },
-    {
-      "name": "Chaumal, Aarya"
-    },
-    {
-      "name": "Brar, Antreev"
+      "name": "Jain, Rinkle"
     },
     {
       "name": "Singh, Sourav"
     },
     {
-      "name": "Matsumura, Yuki"
+      "name": "Srivastava, Sarthak"
     },
     {
-      "name": "Kumar, Aman"
+      "name": "Brar, Antreev"
+    },
+    {
+      "name": "Roldan, Israel"
+    },
+    {
+      "name": "Chaumal, Aarya"
+    },
+    {
+      "name": "Matsumura, Yuki"
     },
     {
       "name": "Patidar, Abhishek"
@@ -255,19 +255,19 @@
       "name": "Kowalski, Nathan"
     },
     {
-      "name": "Gupta, Harshul"
+      "name": "Kumar, Aman"
+    },
+    {
+      "name": "Talegaonkar, Chinmay"
     },
     {
       "name": "Selsing, Jonatan"
     },
     {
-      "name": "Roldan, Israel"
-    },
-    {
       "name": "Sofiatti, Caroline"
     },
     {
-      "name": "Talegaonkar, Chinmay"
+      "name": "Gupta, Harshul"
     },
     {
       "name": "Venkat, Shashank"
