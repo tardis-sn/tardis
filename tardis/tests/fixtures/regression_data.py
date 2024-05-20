@@ -158,7 +158,7 @@ class RegressionData:
             with pd.HDFStore(self.fpath, mode="w") as store:
                 tardis_module.to_hdf(store, overwrite=True)
             pytest.skip(
-                f"Skipping test to generate regression_data {self.fpath} data"
+                f"Skipping test to generate regression data: {self.fpath}"
             )
         else:
             return pd.HDFStore(self.fpath, mode="r")
