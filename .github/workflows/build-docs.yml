@@ -24,7 +24,8 @@ on:
 env:
   CACHE_NUMBER: 0 # increase to reset cache manually
   DEPLOY_BRANCH: gh-pages # deployed docs branch
-  HDF5_USE_FILE_LOCKING: "FALSE" # disable file locking
+  HDF5_USE_FILE_LOCKING: "FALSE" # disable file lockingenv:
+  ATOM_DATA_PATH: Downloads/tardis_data/kurucz_cd23_chianti_H_He.h5 #Path where the atomic data is stored
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -93,6 +94,27 @@ jobs:
           file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
           echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
         id: cache-environment-key
+
+      - name: Restore Atom Data
+        uses: actions/cache/restore@v3
+        id: atom-data-restore
+        with:
+          path: ${{env.ATOM_DATA_PATH}}
+          key: atom-data
+
+      - name: Download Atom Data
+        if: steps.atom-data-restore.outputs.cache-hit != 'true'
+        run: |
+          REPO_URL="https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata"
+          wget -q "$REPO_URL/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&versionType=branch&version=master&resolveLfs=true" -O ${{ env.ATOM_DATA_PATH }}
+
+      - name: Save Atom Data
+        uses: actions/cache/save@v3
+        if: ${{ steps.atom-data-restore.outputs.cache-hit != 'true'  && always() || false }}
+        id: atom-data-cache-save
+        with:
+          path: ${{env.ATOM_DATA_PATH}}
+          key: atom-data
 
       - uses: mamba-org/setup-micromamba@v1
         with:
