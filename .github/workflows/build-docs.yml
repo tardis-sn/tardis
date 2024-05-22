@@ -94,6 +94,9 @@ jobs:
           echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
         id: cache-environment-key
 
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
+
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: conda-linux-64.lock
