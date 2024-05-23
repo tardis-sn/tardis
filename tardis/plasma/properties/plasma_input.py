@@ -10,7 +10,6 @@ __all__ = [
     "Abundance",
     "NumberDensity",
     "IsotopeAbundance",
-    "Density",
     "TimeExplosion",
     "JBlueEstimator",
     "LinkTRadTElectron",
@@ -78,18 +77,6 @@ class IsotopeAbundance(Input):
     """
 
     outputs = ("isotope_abundance",)
-
-
-class Density(ArrayInput):
-    """
-    Attributes
-    ----------
-    density : Numpy array, dtype float
-      Total density values
-    """
-
-    outputs = ("density",)
-    latex_name = (r"\rho",)
 
 
 class TimeExplosion(Input):
