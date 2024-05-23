@@ -123,6 +123,8 @@ def time_explosion():
     """
     This gets the time_explosion to be used in later tests
     """
+    # previously used model value that passes tests
+        # time taken for a photon to move 1 cm
     return 1 / c.c.cgs.value
 
 

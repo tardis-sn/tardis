@@ -47,6 +47,7 @@ def montecarlo_main_loop(
     geometry_state : GeometryState
         Simulation geometry
     time_explosion : float
+        Time in seconds
     opacity_state : OpacityState
     estimators : Estimators
     spectrum_frequency :  astropy.units.Quantity

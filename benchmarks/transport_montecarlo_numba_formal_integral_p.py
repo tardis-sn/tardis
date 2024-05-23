@@ -77,6 +77,8 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
 
     @property
     def time_explosion(self):
+        # previously used model value that passes tests
+        # time taken for a photon to move 1 cm
         return 1 / c.c.cgs.value
 
     @parameterize({"p": [0.0, 0.5, 1.0], "Test data": TESTDATA})
