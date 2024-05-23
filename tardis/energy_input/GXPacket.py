@@ -19,6 +19,7 @@ class GXPacketStatus(IntEnum):
     PAIR_CREATION = 2
     IN_PROCESS = 3
     END = 4
+    ESCAPED = 5
 
 
 gxpacket_spec = [

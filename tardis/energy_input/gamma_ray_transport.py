@@ -503,10 +503,17 @@ def main_gamma_ray_loop(
         )
     ]
 
+    print ("Total energy", total_energy)
+
     energy_per_mass = total_energy.divide(
         (raw_isotope_abundance * shell_masses).T.to_numpy(),
         axis=0,
     )
+    energy_per_isotope = total_energy.apply(lambda x: x / x.sum(), axis=1)
+
+    print (energy_per_isotope)
+
+    print ("Energy per mass norm:", energy_per_mass)
 
     # Time averaged energy per mass for constant packet count
     average_power_per_mass = energy_per_mass / (time_end - time_start)
@@ -518,13 +525,20 @@ def main_gamma_ray_loop(
     decayed_packet_count = num_decays * number_of_isotopes.divide(
         total_number_isotopes, axis=0
     )
+    print ("Decayed packet count", decayed_packet_count)
+    print ("Energy per mass norm", energy_per_mass_norm)
 
     packets_per_isotope = (
-        (energy_per_mass_norm * decayed_packet_count.T.values)
+        (energy_per_isotope * decayed_packet_count.T.values)
         .round()
         .fillna(0)
         .astype(int)
     )
+    print ("Packets per isotope:", packets_per_isotope)
+    ni_56_packets = packets_per_isotope['Ni-56'].sum()
+    co_56_packets = packets_per_isotope['Co-56'].sum()
+    print ("Ni-56 packets", ni_56_packets)
+    print ("Co-56 packets", co_56_packets)
 
     print("Total gamma-ray energy")
     print(total_energy.sum().sum() * u.keV.to("erg"))
@@ -542,7 +556,7 @@ def main_gamma_ray_loop(
 
     packet_energy = total_energy.sum().sum() / number_of_packets
 
-    print("Energy per packet", packet_energy)
+    print("Energy per packet", packet_energy * u.keV.to("erg"))
 
     # Need to update volume for positron deposition to be time-dependent
     print("Initializing packets")
@@ -604,6 +618,7 @@ def main_gamma_ray_loop(
 
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
+    packets_info_array = np.zeros((number_of_packets, 9))
 
     # Process packets
     (
@@ -611,6 +626,7 @@ def main_gamma_ray_loop(
         energy_plot_df_rows,
         energy_out,
         deposition_estimator,
+        packets_array
     ) = gamma_packet_loop(
         packets,
         grey_opacity,
@@ -629,6 +645,7 @@ def main_gamma_ray_loop(
         energy_df_rows,
         energy_plot_df_rows,
         energy_out,
+        packets_info_array,
     )
 
     # DataFrame of energy information
@@ -672,10 +689,25 @@ def main_gamma_ray_loop(
         final_energy += p.energy_rf
 
     print("Final energy to test for conservation")
-    print(final_energy)
+    print(final_energy * u.keV.to("erg"))
 
     escape_energy = pd.DataFrame(
         data=energy_out, columns=times[:-1], index=energy_bins
+    )
+
+    packets_out_df = pd.DataFrame(
+        data=packets_array,
+        columns=[
+            "packet_index",
+            "status",
+            "nu_cmf",
+            "nu_rf",
+            "energy_cmf",
+            "lum_rf",
+            "time_index",
+            "energy_rf",
+            "shell"
+        ],
     )
 
     return (
@@ -685,4 +717,5 @@ def main_gamma_ray_loop(
         decayed_packet_count,
         energy_plot_positrons,
         energy_estimated_deposition,
+        packets_out_df
     )

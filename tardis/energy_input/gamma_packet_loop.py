@@ -18,6 +18,7 @@ from tardis.energy_input.util import (
     doppler_factor_3d,
     C_CGS,
     H_CGS_KEV,
+    KEV2ERG,
     kappa_calculation,
     get_index,
 )
@@ -50,6 +51,7 @@ def gamma_packet_loop(
     energy_df_rows,
     energy_plot_df_rows,
     energy_out,
+    packets_info_array
 ):
     """Propagates packets through the simulation
 
@@ -110,6 +112,7 @@ def gamma_packet_loop(
     for i in range(packet_count):
         packet = packets[i]
         time_index = get_index(packet.time_current, times)
+        time_of_spectra = times[time_index]
 
         if time_index < 0:
             print(packet.time_current, time_index)
@@ -281,10 +284,13 @@ def gamma_packet_loop(
                     bin_width = (
                         energy_bins[bin_index + 1] - energy_bins[bin_index]
                     )
-                    energy_out[bin_index, time_index] += rest_energy / (
-                        bin_width * dt
-                    )
-                    packet.status = GXPacketStatus.END
+
+                    energy_ergs = (packet.energy_rf * KEV2ERG) 
+
+                    #energy_out[bin_index, time_index] += rest_energy * KEV2ERG / dt
+                    energy_out[bin_index, time_index] += energy_ergs / dt
+                    
+                    packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
                     if scattered:
                         scattered_packets += 1
@@ -292,11 +298,25 @@ def gamma_packet_loop(
                     packet.energy_rf = 0.0
                     packet.energy_cmf = 0.0
                     packet.status = GXPacketStatus.END
+            
+            packets_info_array[i] = np.array([i, 
+                                              packet.status,  
+                                              packet.nu_cmf,
+                                              packet.nu_rf,
+                                              packet.energy_cmf,
+                                              energy_ergs,
+                                              packet.time_current,
+                                              packet.energy_rf,
+                                              packet.shell])
 
     print("Escaped packets:", escaped_packets)
     print("Scattered packets:", scattered_packets)
 
-    return energy_df_rows, energy_plot_df_rows, energy_out, deposition_estimator
+    return (energy_df_rows, 
+            energy_plot_df_rows, 
+            energy_out, 
+            deposition_estimator,
+            packets_info_array)
 
 
 @njit(**njit_dict_no_parallel)
