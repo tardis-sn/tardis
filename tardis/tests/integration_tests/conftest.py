@@ -10,7 +10,6 @@ import pytest
 # from tardis import __githash__ as tardis_githash
 
 
-
 def pytest_configure(config):
     integration_tests_configpath = config.getvalue("integration-tests")
     if integration_tests_configpath:

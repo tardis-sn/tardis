@@ -36,4 +36,3 @@ def run_tests():
         f"{less_packets}",
     ]
     subprocess.call(test_command)
-
