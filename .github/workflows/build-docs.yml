@@ -97,6 +97,10 @@ jobs:
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
 
+      - name: Copy atom_data
+        run: |
+          cp -r tardis-refdata/atom_data Downloads/tardis_data
+
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: conda-linux-64.lock
