@@ -22,34 +22,6 @@ def pytest_configure(config):
         )
 
 
-def pytest_terminal_summary(terminalreporter):
-    if terminalreporter.config.getoption(
-        "--generate-reference"
-    ) and terminalreporter.config.getvalue("integration-tests"):
-        # TODO: Add a check whether generation was successful or not.
-        terminalreporter.write_sep(
-            "-",
-            f"Generated reference data: {os.path.join(terminalreporter.config.integration_tests_config['reference'], tardis_githash[:7],)}",
-        )
-
-
-@pytest.mark.hookwrapper
-def pytest_runtest_makereport(item, call):
-    # execute all other hooks to obtain the report object
-    outcome = yield
-    report = outcome.get_result()
-    if report.when == "call":
-        if "plot_object" in item.fixturenames:
-            plot_obj = item.funcargs["plot_object"]
-            plot_obj.upload(report)
-            report.extra = plot_obj.get_extras()
-
-
-@pytest.fixture(scope="function")
-def plot_object(request):
-    integration_tests_config = request.config.integration_tests_config
-    report_save_mode = integration_tests_config["report"]["save_mode"]
-
 @pytest.fixture(
     scope="class",
     params=[
