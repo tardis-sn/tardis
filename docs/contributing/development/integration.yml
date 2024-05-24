@@ -6,13 +6,6 @@ atom_data_path: "~/projects/tardis/integration/"
 report:
   save_mode: "local"
 
-  # This section contains credentials for dokuwiki instance.
-  # It is mandatory if "save_mode" is "remote", else can be removed.
-  dokuwiki:
-    url: "http://opensupernova.org/~karandesai96/integration/"
-    username: "private"
-    password: "private"
-
   # If "save_mode" is "local", a sub directory will be made in this
   # directory according to commit hash (shortened), and it will contain
   # the complete report content.
