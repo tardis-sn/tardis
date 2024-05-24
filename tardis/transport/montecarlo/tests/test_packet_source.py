@@ -27,15 +27,14 @@ class TestBlackBodySimpleSource:
         tardis.transport.montecarlo.packet_source.BlackBodySimpleSource
         """
         cls = type(self)
-        montecarlo_configuration.LEGACY_MODE_ENABLED = True
         bb = BlackBodySimpleSource(
             radius=123,
             temperature=10000 * u.K,
             base_seed=1963,
             legacy_second_seed=2508,
+            legacy_mode_enabled=True
         )
         yield bb
-        montecarlo_configuration.LEGACY_MODE_ENABLED = False
 
     def test_bb_nus(self, regression_data, blackbodysimplesource):
         actual_nus = blackbodysimplesource.create_packet_nus(100).value
@@ -76,14 +75,12 @@ class TestBlackBodySimpleSourceRel:
         -------
         tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
         """
-        montecarlo_configuration.LEGACY_MODE_ENABLED = True
         bb_rel = BlackBodySimpleSourceRelativistic(
-            time_explosion=1123187, base_seed=1963, legacy_second_seed=2508
+            time_explosion=1123187, base_seed=1963, legacy_second_seed=2508, legacy_mode_enabled=True
         )
         bb_rel.temperature = 10000 * u.K
         bb_rel.beta = 0.25
         yield bb_rel
-        montecarlo_configuration.LEGACY_MODE_ENABLED = False
 
     def test_bb_nus(self, regression_data, blackbody_simplesource_relativistic):
         actual_nus = blackbody_simplesource_relativistic.create_packet_nus(
