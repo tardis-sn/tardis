@@ -32,7 +32,7 @@ class TestBlackBodySimpleSource:
             temperature=10000 * u.K,
             base_seed=1963,
             legacy_second_seed=2508,
-            legacy_mode_enabled=True
+            legacy_mode_enabled=True,
         )
         yield bb
 
@@ -76,7 +76,10 @@ class TestBlackBodySimpleSourceRel:
         tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
         """
         bb_rel = BlackBodySimpleSourceRelativistic(
-            time_explosion=1123187, base_seed=1963, legacy_second_seed=2508, legacy_mode_enabled=True
+            time_explosion=1123187,
+            base_seed=1963,
+            legacy_second_seed=2508,
+            legacy_mode_enabled=True,
         )
         bb_rel.temperature = 10000 * u.K
         bb_rel.beta = 0.25
