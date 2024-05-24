@@ -3,11 +3,12 @@ import numpy as np
 
 class ConvergenceSolver:
     def __init__(self, strategy):
-        """_summary_
+        """Convergence solver. Sets convergence strategy and assigns a method
+        to the converge property.
 
         Parameters
         ----------
-        strategy : _type_
+        strategy : string
             Convergence strategy for the physical property
 
         Raises
