@@ -94,12 +94,9 @@ jobs:
           echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
         id: cache-environment-key
 
-      - name: Setup LFS
-        uses: ./.github/actions/setup_lfs
-
       - name: Copy atom_data
         run: |
-          cp -r tardis-refdata/atom_data Downloads/tardis_data
+          mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-refdata/atom_data/. ~/Downloads/tardis-data
 
       - uses: mamba-org/setup-micromamba@v1
         with:
