@@ -33,13 +33,13 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'benchmarks')))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: github.event_name != 'pull_request_target'
         with:
           fetch-depth: 0
 
       - name: Checkout pull/${{ github.event.number }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
