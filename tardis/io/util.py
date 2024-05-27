@@ -242,7 +242,7 @@ class HDFWriterMixin(object):
                     path_or_buf, complevel=complevel, complib=complib
                 )
             except TypeError as e:
-                if e.message == "Expected bytes, got HDFStore":
+                if str(e) == "Expected bytes, got HDFStore":
                     # when path_or_buf is an HDFStore buffer instead
                     logger.debug(
                         "Expected bytes, got HDFStore. Changing path to HDF buffer"
