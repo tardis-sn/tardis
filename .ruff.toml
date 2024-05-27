@@ -206,7 +206,6 @@ lint.ignore = [
     "TRY003",  # raise-vanilla-args
     "TRY004",  # prefer-type-error
     "TRY201",  # verbose-raise
-    "TRY300",  # Consider `else` block
     "TRY301",  # raise-within-try
 
     # flake8-quotes (Q)
