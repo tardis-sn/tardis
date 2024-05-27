@@ -24,7 +24,7 @@ jobs:
         run: sudo npm install -g github-changes
 
       - name: Update changelog
-        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.BOT_TOKEN }}
+        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md
 
       - uses: actions/upload-artifact@v4
         with:
