@@ -520,7 +520,7 @@ def is_valid_nuclide_or_elem(input_nuclide):
         parse_nuclide(input_nuclide, DEFAULTDATA.nuclides, "ICRP-107")
         is_nuclide = True
     except:
-        is_nuclide = True if input_nuclide in Z_DICT.values() else False
+        is_nuclide = input_nuclide in Z_DICT.values()
 
     return is_nuclide
 
