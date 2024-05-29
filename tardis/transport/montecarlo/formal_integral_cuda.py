@@ -66,7 +66,7 @@ def cuda_formal_integral(
     shell_id : array(int64, 2d, C)
     """
 
-    # todo: add all the original todos
+    # TODO: add all the original todos
 
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
