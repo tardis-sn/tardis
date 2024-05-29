@@ -18,21 +18,25 @@ def config(example_configuration_dir: Path):
 def strategy(config):
     return config.montecarlo.convergence_strategy.t_rad
 
+
 def test_convergence_solver_init_damped(strategy):
     solver = ConvergenceSolver(strategy)
     assert solver.damping_factor == 0.5
     assert solver.threshold == 0.05
     assert solver.converge == solver.damped_converge
 
+
 def test_convergence_solver_init_custom(strategy):
-    strategy.type = 'custom'
+    strategy.type = "custom"
     with pytest.raises(NotImplementedError):
         ConvergenceSolver(strategy)
 
+
 def test_convergence_solver_init_invalid(strategy):
-    strategy.type = 'invalid'
+    strategy.type = "invalid"
     with pytest.raises(ValueError):
         ConvergenceSolver(strategy)
+
 
 def test_damped_converge(strategy):
     solver = ConvergenceSolver(strategy)
@@ -40,6 +44,7 @@ def test_damped_converge(strategy):
     estimated_value = np.float64(20.0)
     converged_value = solver.damped_converge(value, estimated_value)
     assert converged_value == 15.0
+
 
 def test_get_convergence_status(strategy):
     solver = ConvergenceSolver(strategy)
