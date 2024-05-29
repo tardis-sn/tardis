@@ -151,10 +151,10 @@
       "name": "Savel, Arjun"
     },
     {
-      "name": "Reinecke, Martin"
+      "name": "Holas, Alexander"
     },
     {
-      "name": "Holas, Alexander"
+      "name": "Reinecke, Martin"
     },
     {
       "name": "Eweis, Youssef"
@@ -163,23 +163,23 @@
       "name": "Bylund, Tomas"
     },
     {
+      "name": "Bentil, Laud"
+    },
+    {
       "name": "Black, William"
     },
     {
-      "name": "Bentil, Laud"
+      "name": "Kumar, Ansh"
     },
     {
       "name": "Eguren, Jordi",
       "orcid": "0000-0002-2328-8030"
     },
     {
-      "name": "Kumar, Ansh"
+      "name": "Alam, Arib"
     },
     {
       "name": "Bartnik, Matthew"
-    },
-    {
-      "name": "Alam, Arib"
     },
     {
       "name": "Varma Buddaraju, Rohith"
@@ -188,29 +188,38 @@
       "name": "Magee, Mark"
     },
     {
-      "name": "Daksh, Ayushi"
-    },
-    {
       "name": "Visser, Erin"
     },
     {
-      "name": "Kambham, Satwik"
-    },
-    {
-      "name": "Livneh, Ran"
+      "name": "Daksh, Ayushi"
     },
     {
       "name": "Dutta, Anirban"
     },
     {
+      "name": "Livneh, Ran"
+    },
+    {
+      "name": "Kambham, Satwik"
+    },
+    {
+      "name": "Gupta, Sumit"
+    },
+    {
       "name": "Rajagopalan, Srinath"
+    },
+    {
+      "name": "Mishra, Sashank",
+      "orcid": "0000-0001-8302-1584"
     },
     {
       "name": "Lu, Jing"
     },
     {
-      "name": "Mishra, Sashank",
-      "orcid": "0000-0001-8302-1584"
+      "name": "Actions, GitHub"
+    },
+    {
+      "name": "Jain, Rinkle"
     },
     {
       "name": "Floers, Andreas"
@@ -219,49 +228,40 @@
       "name": "Reichenbach, John"
     },
     {
-      "name": "Gupta, Sumit"
-    },
-    {
-      "name": "Jain, Rinkle"
-    },
-    {
       "name": "Bhakar, Jayant"
-    },
-    {
-      "name": "Actions, GitHub"
-    },
-    {
-      "name": "Srivastava, Sarthak"
     },
     {
       "name": "Chaumal, Aarya"
     },
     {
-      "name": "Brar, Antreev"
-    },
-    {
       "name": "Singh, Sourav"
-    },
-    {
-      "name": "Matsumura, Yuki"
-    },
-    {
-      "name": "Kumar, Aman"
-    },
-    {
-      "name": "Patidar, Abhishek"
-    },
-    {
-      "name": "Kowalski, Nathan"
     },
     {
       "name": "Gupta, Harshul"
     },
     {
-      "name": "Selsing, Jonatan"
+      "name": "Brar, Antreev"
     },
     {
       "name": "Roldan, Israel"
+    },
+    {
+      "name": "Srivastava, Sarthak"
+    },
+    {
+      "name": "Patidar, Abhishek"
+    },
+    {
+      "name": "Matsumura, Yuki"
+    },
+    {
+      "name": "Kowalski, Nathan"
+    },
+    {
+      "name": "Kumar, Aman"
+    },
+    {
+      "name": "Selsing, Jonatan"
     },
     {
       "name": "Sofiatti, Caroline"
