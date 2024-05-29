@@ -33,7 +33,7 @@ class IsotopicMassFraction(pd.DataFrame):
 
     @classmethod
     def from_inventories(cls, inventories):
-        multi_index_tuples = set([])
+        multi_index_tuples = set()
         for inventory in inventories:
             multi_index_tuples.update(
                 [cls.id_to_tuple(key) for key in inventory.contents.keys()]
