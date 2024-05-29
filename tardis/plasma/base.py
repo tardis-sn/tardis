@@ -288,7 +288,7 @@ class BasePlasma(PlasmaWriterMixin):
         try:
             import pygraphviz
         except:
-            logger.warn(
+            logger.warning(
                 "pygraphviz missing. Plasma graph will not be " "generated."
             )
             return
@@ -374,7 +374,7 @@ class BasePlasma(PlasmaWriterMixin):
         try:
             import dot2tex
         except:
-            logger.warn(
+            logger.warning(
                 "dot2tex missing. Plasma graph will not be " "generated."
             )
             return
