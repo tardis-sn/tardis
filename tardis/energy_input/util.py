@@ -42,7 +42,7 @@ def spherical_to_cartesian(r, theta, phi):
 def get_random_unit_vector():
     """Generate a random unit vector
 
-    Returns:
+    Returns
     -------
         array: random unit vector
     """

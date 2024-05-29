@@ -69,7 +69,7 @@ class GXPacket(object):
     def get_location_r(self):
         """Calculate radius of the packet
 
-        Returns:
+        Returns
         -------
             float: packet radius
         """
