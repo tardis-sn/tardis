@@ -450,7 +450,7 @@ def packets_per_isotope(fractional_decay_energy, decayed_packet_count_dict):
 
     packets_per_isotope_list = []
     for shell, parent_isotope in packets_per_isotope.items():
-        for isotopes, isotope_dict in parent_isotope.items():
+        for isotope_dict in parent_isotope.values():
             for name, value in isotope_dict.items():
                 packets_per_isotope_list.append(
                     {
