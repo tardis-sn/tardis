@@ -110,4 +110,4 @@ jobs:
       - name: Refdata Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
         working-directory: ${{ env.TARDIS_PIP_PATH }}
-        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests')
+        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
