@@ -734,12 +734,7 @@ class CustomAbundanceWidget:
             else position_1
         )
 
-        if (index_1 - index_0 > 1) or (
-            index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0)
-        ):
-            return True
-        else:
-            return False
+        return bool(index_1 - index_0 > 1 or index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
 
     def on_btn_add_shell(self, obj):
         """Add new shell with given boundary velocities. Triggered if
