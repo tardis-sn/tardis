@@ -70,6 +70,7 @@ class GXPacket(object):
         """Calculate radius of the packet
 
         Returns:
+        -------
             float: packet radius
         """
         return np.sqrt(

@@ -43,6 +43,7 @@ def get_random_unit_vector():
     """Generate a random unit vector
 
     Returns:
+    -------
         array: random unit vector
     """
     theta = get_random_theta_photon()
