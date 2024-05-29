@@ -26,7 +26,7 @@ jobs:
       - name: Update changelog
         run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.BOT_TOKEN }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: changelog
           path: CHANGELOG.md
@@ -52,7 +52,7 @@ jobs:
           rm CITATION.cff
           doi2cff init 10.5281/zenodo.592480
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: citation
           path: CITATION.cff
@@ -76,7 +76,7 @@ jobs:
       - name: Update README.rst
         run: python .ci-helpers/update_credits.py
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: credits
           path: |

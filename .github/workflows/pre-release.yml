@@ -52,7 +52,7 @@ jobs:
         run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
         if: failure()
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: zenodo_json
           path: .zenodo.json
