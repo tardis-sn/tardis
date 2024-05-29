@@ -115,7 +115,7 @@ def logging_state(log_level, tardis_config, specific_log_level):
             specific_log_level = tardis_config["debug"]["specific_log_level"]
 
     logging_level = logging_level.upper()
-    if not logging_level in LOGGING_LEVELS:
+    if logging_level not in LOGGING_LEVELS:
         raise ValueError(
             f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
         )

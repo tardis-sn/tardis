@@ -350,7 +350,7 @@ class FormalIntegrator(object):
                     "FormalIntegrator."
                 )
 
-        if not self.transport.line_interaction_type in [
+        if self.transport.line_interaction_type not in [
             "downbranch",
             "macroatom",
         ]:
