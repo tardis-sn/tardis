@@ -132,7 +132,7 @@ def roman_to_int(roman_string):
 
     NUMERALS_SET = set(list(zip(*NUMERAL_MAP))[1])
     roman_string = roman_string.upper()
-    if len(set(list(roman_string.upper())) - NUMERALS_SET) != 0:
+    if len(set(roman_string.upper()) - NUMERALS_SET) != 0:
         raise ValueError(f"{roman_string} does not seem to be a roman numeral")
     i = result = 0
     for integer, numeral in NUMERAL_MAP:
