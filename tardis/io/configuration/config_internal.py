@@ -1,4 +1,5 @@
-import logging, shutil
+import logging
+import shutil
 import yaml
 import os
 from pathlib import Path
