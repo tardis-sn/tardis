@@ -16,7 +16,7 @@ import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.r_packet_transport as r_packet_transport
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_line_estimators,
 )
 
