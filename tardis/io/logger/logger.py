@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from tardis.io.logger.colored_logger import ColoredFormatter, formatter_message
+from tardis.io.logger.colored_logger import ColoredFormatter
 
 logging.captureWarnings(True)
 logger = logging.getLogger("tardis")

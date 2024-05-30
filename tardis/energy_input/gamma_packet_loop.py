@@ -27,7 +27,6 @@ from tardis.transport.montecarlo.opacities import (
     pair_creation_opacity_artis,
     pair_creation_opacity_calculation,
     photoabsorption_opacity_calculation,
-    photoabsorption_opacity_calculation_kasen,
 )
 
 

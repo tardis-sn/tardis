@@ -5,8 +5,7 @@ import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
 from astropy import units as u
-from numba import byte, char, float64, int64, njit, prange, typeof
-from numba.experimental import jitclass
+from numba import njit, prange
 from scipy.interpolate import interp1d
 
 from tardis import constants as const

@@ -1,8 +1,6 @@
 import os
 
 import matplotlib as mpl
-import matplotlib.pylab as plt
-import numpy as np
 from pkg_resources import parse_version
 
 if os.environ.get("QT_API", None) == "pyqt":
@@ -15,16 +13,7 @@ else:
          and at the bash prompt use : \n\n export QT_API=pyside \n or\n
          export QT_API=pyqt \n\n For more information refer to user guide."""
     )
-import yaml
 
-from tardis import run_tardis
-from tardis.gui.widgets import (
-    LineInfo,
-    LineInteractionTables,
-    MatplotlibWidget,
-    ModelViewer,
-    ShellInfo,
-)
 
 if parse_version(mpl.__version__) >= parse_version("1.4"):
     mpl.style.use("fivethirtyeight")

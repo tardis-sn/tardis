@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import numpy as np
-from astropy import units as u
 from pytest import fixture
 
 from tardis.io.model.cmfgen import read_cmfgen_model

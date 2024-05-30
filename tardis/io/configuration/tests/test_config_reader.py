@@ -1,10 +1,8 @@
 # tests for the config reader module
-import os
 
 import pandas as pd
 import pytest
 from astropy.units import Quantity
-from attr import validate
 from jsonschema.exceptions import ValidationError
 from numpy.testing import assert_almost_equal
 

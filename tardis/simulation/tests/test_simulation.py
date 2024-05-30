@@ -1,5 +1,3 @@
-import logging
-import os
 from pathlib import Path
 
 import astropy.units as u
@@ -9,7 +7,6 @@ import pandas.testing as pdt
 import pytest
 
 import tardis
-from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 

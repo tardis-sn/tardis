@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 import tardis.transport.montecarlo.macro_atom as macro_atom

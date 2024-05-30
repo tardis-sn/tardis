@@ -11,7 +11,6 @@ from tardis.transport.frame_transformations import (
 from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
 )
-from tardis.transport.montecarlo import numba_config as nc
 
 
 class InteractionType(IntEnum):

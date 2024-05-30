@@ -1,6 +1,5 @@
 import os
 
-import astropy.units as u
 import pytest
 
 from tardis.io.configuration.config_reader import Configuration

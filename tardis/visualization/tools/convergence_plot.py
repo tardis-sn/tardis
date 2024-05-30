@@ -5,8 +5,6 @@ from contextlib import suppress
 
 import ipywidgets as widgets
 import matplotlib as mpl
-import matplotlib.cm as cm
-import matplotlib.colors as clr
 import numpy as np
 import plotly.graph_objects as go
 from astropy import units as u

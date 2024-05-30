@@ -8,7 +8,6 @@ import pytest
 from astropy import units as u
 
 from tardis import run_tardis
-from tardis.tests.test_util import monkeysession
 from tardis.visualization.tools.convergence_plot import (
     ConvergencePlots,
     transition_colors,

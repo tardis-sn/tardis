@@ -7,7 +7,6 @@ import tardis.transport.montecarlo.formal_integral as formal_integral_numba
 import tardis.transport.montecarlo.formal_integral_cuda as formal_integral_cuda
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.formal_integral import (
     FormalIntegrator,
     NumbaFormalIntegrator,

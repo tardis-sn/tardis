@@ -29,7 +29,6 @@ import os
 import sys
 from importlib import import_module
 
-import tardis  # FIXME: this import is required by astropy.constants
 
 try:
     from sphinx_astropy.conf.v1 import *  # noqa

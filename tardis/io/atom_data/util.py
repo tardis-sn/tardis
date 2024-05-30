@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 
 from tardis.io.atom_data.atom_web_download import (
-    download_atom_data,
     get_atomic_repo_config,
 )
 from tardis.io.configuration.config_internal import get_data_dir

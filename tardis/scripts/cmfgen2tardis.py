@@ -1,11 +1,9 @@
 import argparse
 import os
-import sys
 
 import numpy as np
 import pandas as pd
 
-from tardis.io.atom_data import AtomData
 
 # The from_hdf() method requires an argument, so the line below doesn't work
 # atomic_dataset = AtomData.from_hdf()

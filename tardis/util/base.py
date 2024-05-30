@@ -13,7 +13,7 @@ import tqdm.notebook
 import yaml
 from astropy import units as u
 from IPython import display, get_ipython
-from radioactivedecay import DEFAULTDATA, Nuclide
+from radioactivedecay import DEFAULTDATA
 from radioactivedecay.utils import Z_DICT, parse_nuclide
 
 import tardis

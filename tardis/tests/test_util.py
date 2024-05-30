@@ -1,7 +1,6 @@
 from io import StringIO
 
 import numpy as np
-import numpy.testing as npt
 import pytest
 from astropy import units as u
 
@@ -12,7 +11,6 @@ from tardis.util.base import (
     atomic_number2element_symbol,
     calculate_luminosity,
     convert_abundances_format,
-    create_synpp_yaml,
     element_symbol2atomic_number,
     int_to_roman,
     intensity_black_body,

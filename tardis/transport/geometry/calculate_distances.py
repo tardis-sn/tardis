@@ -11,9 +11,6 @@ from tardis.transport.montecarlo.numba_config import (
     MISS_DISTANCE,
     SIGMA_THOMSON,
 )
-from tardis.transport.montecarlo.r_packet import (
-    print_r_packet_properties,
-)
 from tardis.transport.montecarlo.utils import MonteCarloException
 
 

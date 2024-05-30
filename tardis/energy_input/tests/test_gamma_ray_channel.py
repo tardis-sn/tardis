@@ -6,11 +6,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 import radioactivedecay as rd
-from radioactivedecay import converters
 
-from tardis.energy_input.energy_source import (
-    get_nuclear_lines_database,
-)
 from tardis.energy_input.gamma_ray_channel import (
     calculate_total_decays,
     create_inventories_dict,

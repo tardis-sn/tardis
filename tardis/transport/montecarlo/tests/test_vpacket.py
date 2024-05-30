@@ -1,7 +1,5 @@
-import os
 
 import numpy as np
-import pandas as pd
 import pytest
 
 import tardis.transport.montecarlo.vpacket as vpacket

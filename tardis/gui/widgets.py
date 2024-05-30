@@ -23,10 +23,9 @@ from matplotlib.backends.backend_qt5 import (
 )
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import *
-from matplotlib.patches import Circle
 
 import tardis
-from tardis import analysis, util
+from tardis import analysis
 
 
 class MatplotlibWidget(FigureCanvas):

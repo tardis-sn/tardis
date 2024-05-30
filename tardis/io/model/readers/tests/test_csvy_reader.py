@@ -3,8 +3,6 @@ from pathlib import Path
 
 import numpy.testing as npt
 import pytest
-from astropy import units as u
-from jsonschema import exceptions as json_schema_exc
 
 import tardis
 from tardis.io.configuration.config_validator import validate_dict

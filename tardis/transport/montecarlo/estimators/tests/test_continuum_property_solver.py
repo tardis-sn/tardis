@@ -1,8 +1,6 @@
 from copy import deepcopy
 
-import numpy.testing as npt
 import pandas.testing as pdt
-import pytest
 
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (

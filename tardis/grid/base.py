@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 
 import tardis
-from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 

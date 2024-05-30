@@ -1,10 +1,7 @@
-import numpy as np
 import numpy.testing as npt
 import pytest
 
 from tardis.energy_input.gamma_ray_grid import (
-    calculate_distance_radial,
-    distance_trace,
     move_packet,
 )
 

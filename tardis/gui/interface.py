@@ -1,9 +1,9 @@
 import os
 
 if os.environ.get("QT_API", None) == "pyqt":
-    from PyQt5 import QtCore, QtWidgets
+    from PyQt5 import QtWidgets
 elif os.environ.get("QT_API", None) == "pyside":
-    from PySide2 import QtCore, QtWidgets
+    from PySide2 import QtWidgets
 else:
     raise ImportError(
         """QT_API was not set! Please exit the IPython console\n

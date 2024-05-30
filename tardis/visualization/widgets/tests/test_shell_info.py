@@ -2,7 +2,6 @@ import numpy as np
 import pandas.testing as pdt
 import pytest
 
-from tardis.tests.test_util import monkeysession
 from tardis.visualization.widgets.shell_info import (
     BaseShellInfo,
     HDFShellInfo,

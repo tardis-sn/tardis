@@ -1,12 +1,9 @@
 import os
-from pathlib import Path
 
-import numpy as np
 import numpy.testing as npt
 import pytest
 from astropy import units as u
 
-from tardis import io
 from tardis.io.model.readers.base import read_density_file
 from tardis.io.model.readers.generic_readers import (
     ConfigurationError,

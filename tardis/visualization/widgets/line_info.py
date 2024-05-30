@@ -1,10 +1,8 @@
 """Class to create and display Line Info Widget."""
-import re
 
 import ipywidgets as ipw
 import numpy as np
 import pandas as pd
-import qgrid
 from astropy import units as u
 from plotly import graph_objects as go
 from plotly.callbacks import BoxSelector

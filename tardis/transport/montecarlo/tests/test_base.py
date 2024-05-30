@@ -1,10 +1,6 @@
-import os
-from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
-from astropy import units as u
 from numpy.testing import assert_almost_equal
 
 ###

@@ -1,6 +1,5 @@
 import fileinput
 import logging
-import os
 import re
 import tempfile
 
@@ -283,7 +282,7 @@ class BasePlasma(PlasmaWriterMixin):
             edge labels into the file.
         """
         try:
-            import pygraphviz
+            pass
         except:
             logger.warning(
                 "pygraphviz missing. Plasma graph will not be " "generated."
