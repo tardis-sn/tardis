@@ -219,9 +219,9 @@ def klein_nishina(energy, theta_C):
     https://en.wikipedia.org/wiki/Klein%E2%80%93Nishina_formula
 
     .. math::
-        \frac{r_e}{2} [1 + \kappa (1 - \cos\theta_C)]^{-2} \left( 1 + \cos^2\theta_C + \frac{\kappa^2 (1 - \cos\theta_C)^2}{1 + \kappa(1 - \cos\theta_C)}\right)
+        \frac{r_e}{2} [1 + \\kappa (1 - \\cos\theta_C)]^{-2} \\left( 1 + \\cos^2\theta_C + \frac{\\kappa^2 (1 - \\cos\theta_C)^2}{1 + \\kappa(1 - \\cos\theta_C)}\right)
 
-    where :math:`\kappa = E / (m_e c^2)`
+    where :math:`\\kappa = E / (m_e c^2)`
 
     Parameters
     ----------

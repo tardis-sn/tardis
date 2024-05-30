@@ -226,8 +226,8 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
     def create_packet_mus(self, no_of_packets):
         """
-        Create zero-limb-darkening packet :math:`\mu` distributed
-        according to :math:`\\mu=\\sqrt{z}, z \isin [0, 1]`
+        Create zero-limb-darkening packet :math:`\\mu` distributed
+        according to :math:`\\mu=\\sqrt{z}, z \\isin [0, 1]`
 
         Parameters
         ----------
@@ -338,7 +338,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
 
     def create_packet_mus(self, no_of_packets):
         """
-        Create zero-limb-darkening packet :math:`\mu^\prime` distributed
+        Create zero-limb-darkening packet :math:`\\mu^\\prime` distributed
         according to :math:`\\mu^\\prime=2 \\frac{\\mu^\\prime + \\beta}{2 \\beta + 1}`.
         The complicated distribution is due to the fact that the inner boundary
         on which the packets are initialized is not comoving with the material.

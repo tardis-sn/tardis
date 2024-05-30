@@ -28,7 +28,7 @@ def axis_label_in_latex(label_text, unit, only_text=True):
     # If present, place s^{-1} just after erg
     if "erg" in unit_in_latex and "s^{-1}" in unit_in_latex:
         constituent_units = (
-            re.compile("\\\mathrm\{(.*)\}")
+            re.compile("\\\\mathrm\\{(.*)\\}")
             .findall(unit_in_latex)[0]
             .split("\\,")
         )

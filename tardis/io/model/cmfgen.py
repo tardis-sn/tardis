@@ -12,7 +12,7 @@ class CMFGENModel:
 
 
 HEADER_RE_STR = [
-    ("t0:\s+(\d+\.\d+)+\s+day", "t0"),
+    (r"t0:\s+(\d+\.\d+)+\s+day", "t0"),
 ]
 
 COLUMN_ROW = 1
