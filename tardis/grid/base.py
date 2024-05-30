@@ -66,7 +66,6 @@ class tardisGrid:
         self.config = tardis_config
         self.grid = gridFrame
 
-
     def grid_row_to_config(self, row_index):
         """
         Converts a grid row to a TARDIS config dict.

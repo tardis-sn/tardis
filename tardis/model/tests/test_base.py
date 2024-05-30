@@ -1,4 +1,3 @@
-
 import pandas as pd
 import pytest
 from astropy import units as u
@@ -343,9 +342,7 @@ def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
     geometry = simulation_verysimple.simulation_state.geometry
     volume = geometry.volume
 
-    assert_almost_equal(
-        volume[index].to(u.cm**3).value, expected, decimal=-40
-    )
+    assert_almost_equal(volume[index].to(u.cm**3).value, expected, decimal=-40)
 
 
 @pytest.mark.parametrize(

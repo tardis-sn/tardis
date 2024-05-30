@@ -435,18 +435,18 @@ class RadioactivePacketSource(BasePacketSource):
                 packet_energies_cmf[
                     packet_index - isotope_packet_count : packet_index
                 ] = initial_packet_energies_cmf
-                nus_rf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_rf
-                nus_cmf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_cmf
-                shells[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_shells
-                times[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_times
+                nus_rf[packet_index - isotope_packet_count : packet_index] = (
+                    initial_nus_rf
+                )
+                nus_cmf[packet_index - isotope_packet_count : packet_index] = (
+                    initial_nus_cmf
+                )
+                shells[packet_index - isotope_packet_count : packet_index] = (
+                    initial_shells
+                )
+                times[packet_index - isotope_packet_count : packet_index] = (
+                    initial_times
+                )
 
         return GXPacketCollection(
             locations,

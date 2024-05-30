@@ -133,9 +133,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         convergence_plots_kwargs,
         show_progress_bars,
     ):
-        super().__init__(
-            iterations, simulation_state.no_of_shells
-        )
+        super().__init__(iterations, simulation_state.no_of_shells)
 
         self.converged = False
         self.iterations = iterations

@@ -447,9 +447,7 @@ class Profile:
                     )
                 )
 
-            f.write(
-                "\n---\n"
-            )
+            f.write("\n---\n")
 
             # WRITE DATA
             datastring = ["velocity,", "density,"]

@@ -94,12 +94,12 @@ def test_model_section_config(tardis_config_verysimple):
 
     assert conf.model.structure.density.type == "branch85_w7"
 
-    tardis_config_verysimple["model"]["structure"]["velocity"][
-        "start"
-    ] = Quantity("2.0e4 km/s")
-    tardis_config_verysimple["model"]["structure"]["velocity"][
-        "stop"
-    ] = Quantity("1.1e4 km/s")
+    tardis_config_verysimple["model"]["structure"]["velocity"]["start"] = (
+        Quantity("2.0e4 km/s")
+    )
+    tardis_config_verysimple["model"]["structure"]["velocity"]["stop"] = (
+        Quantity("1.1e4 km/s")
+    )
 
     with pytest.raises(ValueError):
         conf = Configuration.from_config_dict(
@@ -132,12 +132,12 @@ def test_supernova_section_config(tardis_config_verysimple):
         )
 
     tardis_config_verysimple["supernova"]["time_explosion"] = Quantity("10 day")
-    tardis_config_verysimple["supernova"][
-        "luminosity_wavelength_start"
-    ] = Quantity("15 angstrom")
-    tardis_config_verysimple["supernova"][
-        "luminosity_wavelength_end"
-    ] = Quantity("0 angstrom")
+    tardis_config_verysimple["supernova"]["luminosity_wavelength_start"] = (
+        Quantity("15 angstrom")
+    )
+    tardis_config_verysimple["supernova"]["luminosity_wavelength_end"] = (
+        Quantity("0 angstrom")
+    )
     with pytest.raises(ValueError):
         conf = Configuration.from_config_dict(
             tardis_config_verysimple, validate=True, config_dirname="test"

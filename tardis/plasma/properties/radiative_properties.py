@@ -93,9 +93,9 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             (g_lower * n_upper) / (g_upper * n_lower)
         )
         stimulated_emission_factor[n_lower == 0.0] = 0.0
-        stimulated_emission_factor[
-            np.isneginf(stimulated_emission_factor)
-        ] = 0.0
+        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = (
+            0.0
+        )
         stimulated_emission_factor[
             meta_stable_upper & (stimulated_emission_factor < 0)
         ] = 0.0

@@ -3,6 +3,7 @@ Grotrian Diagram Widget for TARDIS simulation models.
 
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
+
 import ipywidgets as ipw
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -439,18 +440,18 @@ class GrotrianPlot:
         ]
 
         ### Map the levels to merged levels
-        excite_lines[
-            "merged_level_number_lower"
-        ] = excite_lines.level_number_lower.map(self.level_mapping)
-        excite_lines[
-            "merged_level_number_upper"
-        ] = excite_lines.level_number_upper.map(self.level_mapping)
-        deexcite_lines[
-            "merged_level_number_lower"
-        ] = deexcite_lines.level_number_lower.map(self.level_mapping)
-        deexcite_lines[
-            "merged_level_number_upper"
-        ] = deexcite_lines.level_number_upper.map(self.level_mapping)
+        excite_lines["merged_level_number_lower"] = (
+            excite_lines.level_number_lower.map(self.level_mapping)
+        )
+        excite_lines["merged_level_number_upper"] = (
+            excite_lines.level_number_upper.map(self.level_mapping)
+        )
+        deexcite_lines["merged_level_number_lower"] = (
+            deexcite_lines.level_number_lower.map(self.level_mapping)
+        )
+        deexcite_lines["merged_level_number_upper"] = (
+            deexcite_lines.level_number_upper.map(self.level_mapping)
+        )
 
         ### Group by level pairs
         excite_lines = (
@@ -517,12 +518,12 @@ class GrotrianPlot:
                 transform=self._transition_width_transform,
                 zero_undefined_offset=1e-3,
             )
-            excite_lines[
-                "transition_width_coefficient"
-            ] = transition_width_coefficient[: len(excite_lines)]
-            deexcite_lines[
-                "transition_width_coefficient"
-            ] = transition_width_coefficient[len(excite_lines) :]
+            excite_lines["transition_width_coefficient"] = (
+                transition_width_coefficient[: len(excite_lines)]
+            )
+            deexcite_lines["transition_width_coefficient"] = (
+                transition_width_coefficient[len(excite_lines) :]
+            )
 
         self.excite_lines = excite_lines
         self.deexcite_lines = deexcite_lines
@@ -612,14 +613,16 @@ class GrotrianPlot:
                     hovertemplate=f"Energy: {level_info.energy:.2e} eV<br>"
                     + f"Population: {level_info.population:.2e}"
                     + "<extra></extra>",
-                    line=dict(
-                        color="black",
-                        width=level_info.level_width_coefficient
-                        * self.level_width_scale
-                        + self.level_width_offset,
-                    )
-                    if level_info.population > 0
-                    else dict(color="grey", dash="dash"),
+                    line=(
+                        dict(
+                            color="black",
+                            width=level_info.level_width_coefficient
+                            * self.level_width_scale
+                            + self.level_width_offset,
+                        )
+                        if level_info.population > 0
+                        else dict(color="grey", dash="dash")
+                    ),
                     showlegend=False,
                 ),
                 row=1,
@@ -751,9 +754,11 @@ class GrotrianPlot:
             self.fig.add_trace(
                 go.Scatter(
                     x=[self.x_min, x_end],
-                    y=[y_lower, y_upper]
-                    if is_excitation
-                    else [y_upper, y_lower],
+                    y=(
+                        [y_lower, y_upper]
+                        if is_excitation
+                        else [y_upper, y_lower]
+                    ),
                     hovertemplate=f"Count: {int(line_info.num_electrons)}<br>"
                     + f"Wavelength: {wavelength:.2e} {ANGSTROM_SYMBOL}"
                     + "<extra></extra>",

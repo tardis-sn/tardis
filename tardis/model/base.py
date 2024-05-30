@@ -358,11 +358,9 @@ class SimulationState(HDFWriterMixin):
 
         if hasattr(csvy_model_data, "columns"):
             abund_names = {
-
-                    name
-                    for name in csvy_model_data.columns
-                    if is_valid_nuclide_or_elem(name)
-
+                name
+                for name in csvy_model_data.columns
+                if is_valid_nuclide_or_elem(name)
             }
             unsupported_columns = (
                 set(csvy_model_data.columns)

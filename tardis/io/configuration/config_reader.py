@@ -406,10 +406,10 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         montecarlo_section : dict
         """
         if montecarlo_section["convergence_strategy"]["type"] == "damped":
-            montecarlo_section[
-                "convergence_strategy"
-            ] = Configuration.parse_convergence_section(
-                montecarlo_section["convergence_strategy"]
+            montecarlo_section["convergence_strategy"] = (
+                Configuration.parse_convergence_section(
+                    montecarlo_section["convergence_strategy"]
+                )
             )
         elif montecarlo_section["convergence_strategy"]["type"] == "custom":
             raise NotImplementedError(

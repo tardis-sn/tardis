@@ -4,6 +4,7 @@ Spectral element DEComposition (SDEC) Plot for TARDIS simulation models.
 This plot is a spectral diagnostics plot similar to those originally
 proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 """
+
 import logging
 
 import astropy.units as u

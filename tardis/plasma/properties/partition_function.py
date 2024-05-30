@@ -392,6 +392,4 @@ class ThermalLTEPartitionFunction(PartitionFunction):
     latex_name = (r"Z_{i,j}(T_\mathrm{e}",)
 
     def calculate(self, thermal_lte_level_boltzmann_factor):
-        return super().calculate(
-            thermal_lte_level_boltzmann_factor
-        )
+        return super().calculate(thermal_lte_level_boltzmann_factor)

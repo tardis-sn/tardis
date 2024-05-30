@@ -1,4 +1,5 @@
 """Tests for SDEC Plots."""
+
 import os
 from copy import deepcopy
 

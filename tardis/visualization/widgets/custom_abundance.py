@@ -1,4 +1,5 @@
 """Class to create and display Custom Abundance Widget."""
+
 import os
 from pathlib import Path
 
@@ -735,7 +736,11 @@ class CustomAbundanceWidget:
             else position_1
         )
 
-        return bool(index_1 - index_0 > 1 or index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
+        return bool(
+            index_1 - index_0 > 1
+            or index_1 - index_0 == 1
+            and not np.isclose(v_vals[index_0], v_0)
+        )
 
     def on_btn_add_shell(self, obj):
         """Add new shell with given boundary velocities. Triggered if
@@ -885,9 +890,9 @@ class CustomAbundanceWidget:
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
 
-            self.data.abundance.iloc[
-                item_index, self.shell_no - 1
-            ] = obj.owner.value
+            self.data.abundance.iloc[item_index, self.shell_no - 1] = (
+                obj.owner.value
+            )
 
             if self.rbs_multi_apply.index is None:
                 self.update_abundance_plot(item_index)
@@ -1101,9 +1106,9 @@ class CustomAbundanceWidget:
         end_index = self.irs_shell_range.value[1]
         applied_shell_index = self.shell_no - 1
 
-        self.data.abundance.iloc[
-            item_index, start_index:end_index
-        ] = self.data.abundance.iloc[item_index, applied_shell_index]
+        self.data.abundance.iloc[item_index, start_index:end_index] = (
+            self.data.abundance.iloc[item_index, applied_shell_index]
+        )
 
         self.update_abundance_plot(item_index)
 
