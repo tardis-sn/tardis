@@ -654,7 +654,8 @@ class ModelViewer(QtWidgets.QWidget):
 
     def change_spectrum_to_spec_flux_angstrom(self):
         """Change spectrum data back from virtual spectrum. (See the
-        method above)."""
+        method above).
+        """
         if self.model.transport.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
                 self.model.transport.spectrum.wavelength
@@ -848,7 +849,8 @@ class ShellInfo(QtWidgets.QDialog):
 
     def on_atom_header_double_clicked(self, index):
         """Called when a header in the first column is clicked to show
-        ion populations."""
+        ion populations.
+        """
         self.current_atom_index = self.table1_data.index.values.tolist()[index]
         self.table2_data = self.parent.model.plasma.ion_number_density[
             self.shell_index
@@ -924,7 +926,8 @@ class LineInfo(QtWidgets.QDialog):
 
     def __init__(self, parent, wavelength_start, wavelength_end, tablecreator):
         """Create the dialog and set data in it from the model.
-        Show widget."""
+        Show widget.
+        """
         super(LineInfo, self).__init__(parent)
         self.createTable = tablecreator
         self.parent = parent

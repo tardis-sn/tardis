@@ -201,7 +201,8 @@ class TreeModel(QtCore.QAbstractItemModel):
 
     def data(self, index, role):
         """Returns the asked data for the node specified by the modeLabel
-        index."""
+        index.
+        """
         if not index.isValid():
             return None
 
@@ -550,7 +551,8 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         """Change the data in the model for specified index and role
-        to specified value."""
+        to specified value.
+        """
         if not index.isValid():
             return False
         elif role != QtCore.Qt.EditRole:

@@ -1,5 +1,6 @@
 """This module provides an opacity calculator class with which the opacities
-and optical depth information may be extracted from Tardis runs."""
+and optical depth information may be extracted from Tardis runs.
+"""
 import logging
 import numpy as np
 import astropy.units as units
@@ -223,7 +224,8 @@ class opacity_calculator(object):
     @property
     def kappa_exp(self):
         """bound-bound opacity according to the expansion opacity formalism per
-        frequency bin and cell"""
+        frequency bin and cell
+        """
         if self._kappa_exp is None:
             self._kappa_exp = self._calc_expansion_opacity()
         return self._kappa_exp
@@ -272,7 +274,8 @@ class opacity_calculator(object):
     @property
     def planck_tau(self):
         """Planck-mean optical depth, integrated from the surface to
-        corresponding inner shell radius"""
+        corresponding inner shell radius
+        """
         if self._planck_tau is None:
             planck_tau = self._calc_integrated_planck_optical_depth()
             self._planck_tau = planck_tau
