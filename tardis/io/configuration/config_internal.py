@@ -47,6 +47,6 @@ def get_data_dir():
         data_dir = DEFAULT_DATA_DIR
 
     if not os.path.exists(data_dir):
-        raise IOError(f"Data directory specified in {data_dir} does not exist")
+        raise OSError(f"Data directory specified in {data_dir} does not exist")
 
     return Path(data_dir)

@@ -87,8 +87,8 @@ def reference(request, data_path):
     else:
         try:
             reference = pd.HDFStore(data_path["reference_path"], "r")
-        except IOError:
-            raise IOError(
+        except OSError:
+            raise OSError(
                 f'Reference file {data_path["reference_path"]} does not exist and is needed'
                 f" for the tests"
             )

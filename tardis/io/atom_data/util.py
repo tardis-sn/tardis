@@ -41,13 +41,13 @@ def resolve_atom_data_fname(fname):
     atom_data_name = fname.stem
     atom_repo_config = get_atomic_repo_config()
     if atom_data_name in atom_repo_config:
-        raise IOError(
+        raise OSError(
             f"Atom Data {fname} not found in path or in TARDIS data repo - it is available as download:\n"
             f"from tardis.io.atom_data.util import download_atom_data\n"
             f"download_atom_data('{atom_data_name}')"
         )
 
-    raise IOError(
+    raise OSError(
         f"Atom Data {fname} is not found in current path or in TARDIS data repo. {atom_data_name} "
         "is also not a standard known TARDIS atom dataset."
     )

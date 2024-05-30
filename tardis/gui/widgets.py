@@ -426,7 +426,7 @@ class ConfigEditor(QtWidgets.QWidget):
                             print("The selected and available options")
                             print(optionselected)
                             print(options)
-                            raise IOError(
+                            raise OSError(
                                 "An invalid option was"
                                 " provided in the input file"
                             )
