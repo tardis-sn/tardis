@@ -110,7 +110,6 @@ def parse_csv_abundances(csvy_data):
     abundances : pandas.DataFrame
     isotope_abundance : pandas.MultiIndex
     """
-
     abundance_col_names = [
         name for name in csvy_data.columns if is_valid_nuclide_or_elem(name)
     ]

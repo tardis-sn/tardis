@@ -400,7 +400,6 @@ def download_from_url(url, dst, checksum, src=None, retries=3):
     src : tuple
         List of URLs to use as mirrors
     """
-
     cached_file_path = download_file(url, sources=src, pkgname="tardis")
 
     with open(cached_file_path, "rb") as f:

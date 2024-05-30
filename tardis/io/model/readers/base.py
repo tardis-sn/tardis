@@ -36,7 +36,6 @@ def read_abundances_file(
     outer_boundary_index : int
         index of the outer shell, default None
     """
-
     file_parsers = {
         "simple_ascii": read_simple_ascii_abundances,
         "artis": read_simple_ascii_abundances,

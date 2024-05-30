@@ -32,7 +32,6 @@ def compton_emissivity_estimator(packet, distance):
     float64, int
         Unnormalized emissivity estimator, line index
     """
-
     cmf_direction = angle_aberration_gamma(
         packet.get_direction_vector(), packet.location_r
     )

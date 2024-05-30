@@ -65,7 +65,6 @@ def cuda_formal_integral(
     z : array(float64, 2d, C)
     shell_id : array(int64, 2d, C)
     """
-
     # TODO: add all the original todos
 
     # global read-only values
@@ -464,7 +463,6 @@ def trapezoid_integration_cuda(arr, dx):
     arr : (array(float64, 1d, C)
     dx : np.float64
     """
-
     result = arr[0] + arr[-1]
 
     for x in range(1, len(arr) - 1):
@@ -509,5 +507,4 @@ def calculate_p_values(R_max, N):
     -------
     float64
     """
-
     return np.arange(N).astype(np.float64) * R_max / (N - 1)

@@ -186,7 +186,6 @@ def trace_vpacket(
     -------
 
     """
-
     tau_trace_combined = 0.0
     while True:
         (
@@ -263,7 +262,6 @@ def trace_vpacket_volley(
     opacity_state : [type]
         [description]
     """
-
     if (r_packet.nu < vpacket_collection.v_packet_spawn_start_frequency) or (
         r_packet.nu > vpacket_collection.v_packet_spawn_end_frequency
     ):

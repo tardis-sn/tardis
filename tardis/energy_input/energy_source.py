@@ -207,7 +207,6 @@ def positronium_continuum():
     intensity
         An array of intensities between 0 and 1
     """
-
     energy = np.linspace(1, ELECTRON_MASS_ENERGY_KEV, num=100, endpoint=False)
 
     x = energy / ELECTRON_MASS_ENERGY_KEV

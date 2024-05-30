@@ -45,7 +45,6 @@ class ArepoSnapshot:
             of-sight to the x-axis. Only usable with snapshots.
             Default: 0.0
         """
-
         try:
             import gadget_snap
         except ModuleNotFoundError:
@@ -145,7 +144,6 @@ class Profile:
             Time of the data
 
         """
-
         self.pos = pos
         self.vel = vel
         self.rho = rho
@@ -190,7 +188,6 @@ class Profile:
         -------
         fig : matplotlib figure object
         """
-
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=[9.8, 9.6])
 
         # Positive direction plots
@@ -280,7 +277,6 @@ class Profile:
         self : Profile object
 
         """
-
         self.vel_prof_p, bins_p = stats.binned_statistic(
             self.pos_prof_p,
             self.vel_prof_p * self.mass_prof_p,
@@ -406,7 +402,6 @@ class Profile:
         filename : str
             Name of the actual saved file
         """
-
         # Find a free filename
         if str(filename).endswith(".csvy"):
             filename = str(filename).replace(".csvy", "")
@@ -543,7 +538,6 @@ class ConeProfile(Profile):
         profile : ConeProfile object
 
         """
-
         # Convert Cartesian coordinates into cylindrical coordinates
         # P(x,y,z) -> P(x,r,theta)
         cyl = np.array(
@@ -710,7 +704,6 @@ class FullProfile(Profile):
         profile : FullProfile object
 
         """
-
         pos_p = np.sqrt(
             (self.pos[0]) ** 2 + (self.pos[1]) ** 2 + (self.pos[2]) ** 2
         ).flatten()

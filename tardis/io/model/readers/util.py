@@ -42,7 +42,6 @@ def read_csv_isotope_abundances(
     abundances : pandas.DataFrame
     isotope_abundance : pandas.MultiIndex
     """
-
     df = pd.read_csv(
         fname, comment="#", sep=delimiter, skiprows=skip_rows, index_col=0
     )

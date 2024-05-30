@@ -195,7 +195,6 @@ def compton_scatter(photon, compton_angle):
     float64
         Photon phi direction
     """
-
     # get comoving frame direction
     comov_direction = angle_aberration_gamma(
         photon.direction, photon.location, photon.time_current
@@ -254,7 +253,6 @@ def pair_creation_packet(packet):
     GXPacket
         outgoing packet
     """
-
     probability_gamma = (
         2 * ELECTRON_MASS_ENERGY_KEV / (H_CGS_KEV * packet.nu_cmf)
     )

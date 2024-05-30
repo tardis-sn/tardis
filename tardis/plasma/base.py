@@ -63,7 +63,6 @@ class BasePlasma(PlasmaWriterMixin):
         :param plasma_modules:
         :return:
         """
-
         self.graph = nx.DiGraph()
         # Adding all nodes
         self.graph.add_nodes_from(
@@ -249,7 +248,6 @@ class BasePlasma(PlasmaWriterMixin):
             : list
             all affected modules.
         """
-
         descendants_ob = []
 
         for plasma_property in changed_properties:
@@ -284,7 +282,6 @@ class BasePlasma(PlasmaWriterMixin):
             enables/disables writing LaTeX equations and
             edge labels into the file.
         """
-
         try:
             import pygraphviz
         except:

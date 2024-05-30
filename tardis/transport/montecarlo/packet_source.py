@@ -239,7 +239,6 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         Directions for packets
             numpy.ndarray
         """
-
         # For testing purposes
         if self.legacy_mode_enabled:
             return np.sqrt(np.random.random(no_of_packets))

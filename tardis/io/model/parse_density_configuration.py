@@ -81,7 +81,6 @@ def parse_config_v1_density(config: Configuration) -> u.Quantity:
     density: u.Quantity
 
     """
-
     velocity = quantity_linspace(
         config.model.structure.velocity.start,
         config.model.structure.velocity.stop,
@@ -217,5 +216,4 @@ def calculate_density_after_time(
     scaled_density : astropy.units.Quantity
         in g / cm^3
     """
-
     return (densities * (time_explosion / time_0) ** -3).to(u.g / (u.cm**3))

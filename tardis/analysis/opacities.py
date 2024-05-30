@@ -300,7 +300,6 @@ class opacity_calculator:
         kappa_exp : astropy.units.Quantity ndarray
             expansion opacity array (shape Nbins x Nshells)
         """
-
         index = self.mdl.plasma.tau_sobolevs.index
         line_waves = self.mdl.plasma.atomic_data.lines.loc[index]
         line_waves = line_waves.wavelength.values * units.AA
@@ -340,7 +339,6 @@ class opacity_calculator:
         kappa_thom : astropy.units.Quantity ndarray
             Thomson scattering opacity (shape Nshells)
         """
-
         try:
             sigma_T = const.sigma_T
         except AttributeError:
@@ -370,7 +368,6 @@ class opacity_calculator:
         kappa_planck_mean : astropy.units.Quantity ndarray
             Planck-mean opacity (shape Nshells)
         """
-
         kappa_planck_mean = np.zeros(self.nshells) / units.cm
 
         for i in range(self.nshells):
@@ -395,7 +392,6 @@ class opacity_calculator:
         delta_tau : astropy.units.Quantity ndarray (dimensionless)
             Planck-mean optical depth (shape Nshells)
         """
-
         delta_r = self.r_outer - self.r_inner
         delta_tau = delta_r * self.planck_kappa
 

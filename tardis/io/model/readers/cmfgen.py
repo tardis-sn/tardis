@@ -81,7 +81,6 @@ def read_cmfgen_composition(fname, delimiter=r"\s+"):
     fname : str
         filename of the csv file
     """
-
     warnings.warn(
         "The current CMFGEN model parser is deprecated", DeprecationWarning
     )

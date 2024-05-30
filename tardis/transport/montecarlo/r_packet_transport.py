@@ -48,7 +48,6 @@ def trace_packet(
     Returns
     -------
     """
-
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
 
@@ -199,7 +198,6 @@ def move_r_packet(
     distance : float
         distance in cm
     """
-
     doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )

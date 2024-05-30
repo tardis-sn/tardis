@@ -25,7 +25,6 @@ def resolve_atom_data_fname(fname):
         : Path
         resolved fpath
     """
-
     fname = Path(fname)
     if os.path.exists(fname):
         return fname

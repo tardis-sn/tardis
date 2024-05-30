@@ -25,7 +25,6 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     distance : float
 
     """
-
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(

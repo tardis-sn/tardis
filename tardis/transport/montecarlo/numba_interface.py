@@ -80,7 +80,6 @@ class OpacityState:
         transition_line_id : numpy.ndarray
         bf_threshold_list_nu : numpy.ndarray
         """
-
         self.electron_density = electron_density
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
@@ -127,7 +126,6 @@ def opacity_state_initialize(
     plasma : tardis.plasma.BasePlasma
     line_interaction_type : enum
     """
-
     electron_densities = plasma.electron_densities.values
     t_electrons = plasma.t_electrons
     line_list_nu = plasma.atomic_data.lines.nu.values

@@ -24,7 +24,6 @@ def read_artis_density(fname):
     data : pandas.DataFrame
         data frame containing index, velocity (in km/s) and density
     """
-
     with open(fname) as fh:
         for i, line in enumerate(open(fname)):
             if i == 0:

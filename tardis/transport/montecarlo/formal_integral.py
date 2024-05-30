@@ -56,7 +56,6 @@ def numba_formal_integral(
         intensities at each p-ray multiplied by p
         frequency x p-ray grid
     """
-
     # TODO: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)

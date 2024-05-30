@@ -129,7 +129,6 @@ def roman_to_int(roman_string):
     int
         Returns integer representation of roman_string
     """
-
     NUMERALS_SET = set(list(zip(*NUMERAL_MAP))[1])
     roman_string = roman_string.upper()
     if len(set(roman_string.upper()) - NUMERALS_SET) != 0:
@@ -211,7 +210,6 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     ValueError
         If the current dataset does not contain necessary reference files
     """
-
     logger.warning("Currently only works with Si and a special setup")
     if radial1d_mdl.atom_data.synpp_refs is not None:
         raise ValueError(
@@ -363,7 +361,6 @@ def species_string_to_tuple(species_string):
     MalformedSpeciesError
         If the inputted string does not match the species format
     """
-
     try:
         element_symbol, ion_number_string = re.match(
             r"^(\w+)\s*(\d+)", species_string
@@ -419,7 +416,6 @@ def parse_quantity(quantity_string):
     MalformedQuantityError
         If string is not properly formatted for Astropy Quantity
     """
-
     if not isinstance(quantity_string, str):
         raise MalformedQuantityError(quantity_string)
 
@@ -493,7 +489,6 @@ def reformat_element_symbol(element_string):
     str
         Returned reformatted element symbol
     """
-
     return element_string[0].upper() + element_string[1:].lower()
 
 
@@ -514,7 +509,6 @@ def is_valid_nuclide_or_elem(input_nuclide):
         Bool indicating if the input nuclide is contained in the decay dataset
         or is a valid element.
     """
-
     try:
         parse_nuclide(input_nuclide, DEFAULTDATA.nuclides, "ICRP-107")
         is_nuclide = True

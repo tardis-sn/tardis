@@ -41,7 +41,6 @@ def read_simple_ascii_density(
     mean_density: u.Quantity
         mean density
     """
-
     with open(fname) as fh:
         time_of_model_string = fh.readline().strip()
         time_of_model = parse_quantity(time_of_model_string)
@@ -73,7 +72,6 @@ def read_csv_composition(fname, delimiter=r"\s+"):
     fname : str
         filename of the csv file
     """
-
     return read_csv_isotope_abundances(
         fname, delimiter=delimiter, skip_columns=0, skip_rows=[1]
     )

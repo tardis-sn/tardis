@@ -35,7 +35,6 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     r_outer : float
        outer radius of current shell
     """
-
     delta_shell = 0
     if mu > 0.0:
         # direction outward
@@ -88,7 +87,6 @@ def calculate_distance_line(
     Returns
     -------
     """
-
     nu = r_packet.nu
 
     if is_last_line:

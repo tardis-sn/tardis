@@ -77,7 +77,6 @@ def logging_state(log_level, tardis_config, specific_log_level):
     specific_log_level: boolean
         Allows to set specific logging levels. Logs of the `log_level` level would be output.
     """
-
     if "debug" in tardis_config:
         specific_log_level = (
             tardis_config["debug"]["specific_log_level"]

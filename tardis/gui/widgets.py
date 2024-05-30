@@ -34,7 +34,6 @@ class MatplotlibWidget(FigureCanvas):
 
     def __init__(self, tablecreator, parent, fig=None):
         """Create the canvas. Add toolbar depending on the parent."""
-
         # Force-deactivate LaTeX
         plt.rcParams["text.usetex"] = False
 
@@ -527,7 +526,6 @@ class ModelViewer(QtWidgets.QWidget):
         """Read some data from tardis model and display on the label for
         quick user access.
         """
-
         model_converged = (
             '<font color="green"><b>True</b></font>'
             if self.model.converged
@@ -1252,7 +1250,6 @@ class Tardis(QtWidgets.QMainWindow):
             Raised when an attempt is made to start the active mode.
             This will be removed when active mode is developed.
         """
-
         # assumes that qt has already been initialized by starting IPython
         # with the flag "--pylab=qt"gut
         # app = QtCore.QCoreApplication.instance()

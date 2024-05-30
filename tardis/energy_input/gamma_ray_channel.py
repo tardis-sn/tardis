@@ -126,7 +126,6 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
         dataframe of isotopes for each shell with their decay mode, number of decays, radiation type,
         radiation energy and radiation intensity.
     """
-
     gamma_ray_lines = gamma_ray_lines.rename_axis(
         "isotope"
     )  # renaming "Isotope" in nndc to "isotope"
