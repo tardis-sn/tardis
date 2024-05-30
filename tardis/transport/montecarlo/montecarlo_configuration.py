@@ -1,7 +1,7 @@
-from astropy import units as u
-from numba import float64, int64, boolean
-from numba.experimental import jitclass
 import numpy as np
+from astropy import units as u
+from numba import boolean, float64, int64
+from numba.experimental import jitclass
 
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,

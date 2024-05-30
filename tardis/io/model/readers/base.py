@@ -1,3 +1,7 @@
+import numpy as np
+import pandas as pd
+
+from tardis.io.model.readers.artis import read_artis_density
 from tardis.io.model.readers.cmfgen import (
     read_cmfgen_composition,
     read_cmfgen_density,
@@ -8,12 +12,6 @@ from tardis.io.model.readers.generic_readers import (
     read_simple_ascii_abundances,
     read_simple_ascii_density,
 )
-
-
-import numpy as np
-import pandas as pd
-
-from tardis.io.model.readers.artis import read_artis_density
 
 
 def read_abundances_file(

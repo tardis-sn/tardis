@@ -1,13 +1,13 @@
+from typing import Tuple
+
 import numpy as np
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import (
-    ConfigurationNameSpace,
     Configuration,
+    ConfigurationNameSpace,
 )
 from tardis.util.base import quantity_linspace
-
-from typing import Tuple
 
 
 def parse_density_section(

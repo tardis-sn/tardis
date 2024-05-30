@@ -1,8 +1,10 @@
 import numpy as np
 import pytest
 
-import tardis.transport.montecarlo.montecarlo_configuration as numba_config
+import tardis.transport.frame_transformations as frame_transformations
+import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.estimators.radfield_mc_estimators
+import tardis.transport.montecarlo.montecarlo_configuration as numba_config
 import tardis.transport.montecarlo.numba_interface as numba_interface
 import tardis.transport.montecarlo.opacities as opacities
 import tardis.transport.montecarlo.r_packet as r_packet

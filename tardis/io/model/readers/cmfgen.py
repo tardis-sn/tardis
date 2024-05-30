@@ -1,12 +1,10 @@
-from tardis.io.model.readers.util import read_csv_isotope_abundances
-from tardis.util.base import parse_quantity
-
+import warnings
 
 import pandas as pd
 from astropy import units as u
 
-
-import warnings
+from tardis.io.model.readers.util import read_csv_isotope_abundances
+from tardis.util.base import parse_quantity
 
 
 def read_cmfgen_density(fname: str):

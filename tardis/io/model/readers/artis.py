@@ -1,6 +1,6 @@
 import numpy as np
-from astropy import units as u
 import pandas as pd
+from astropy import units as u
 
 
 def read_artis_density(fname):

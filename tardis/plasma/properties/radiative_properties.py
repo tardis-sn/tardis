@@ -3,9 +3,9 @@ import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from tardis import constants as const
 from numba import jit, prange
 
+from tardis import constants as const
 from tardis.plasma.properties.base import (
     ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,

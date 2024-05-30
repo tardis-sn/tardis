@@ -1,11 +1,11 @@
 import logging
 
 import numpy as np
-from numpy.linalg.linalg import LinAlgError
 import pandas as pd
+from numpy.linalg.linalg import LinAlgError
 
-from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaConfigError
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 

@@ -3,9 +3,9 @@ import os
 import tardis.util.base
 
 if os.environ.get("QT_API", None) == "pyqt":
-    from PyQt5 import QtGui, QtCore, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWidgets
 elif os.environ.get("QT_API", None) == "pyside":
-    from PySide2 import QtGui, QtCore, QtWidgets
+    from PySide2 import QtCore, QtGui, QtWidgets
 else:
     raise ImportError(
         """QT_API was not set! Please exit the IPython console\n
@@ -14,16 +14,16 @@ else:
     )
 
 import matplotlib as mpl
-from matplotlib.figure import *
 import matplotlib.gridspec as gridspec
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import matplotlib.pylab as plt
+from astropy import units as u
+from matplotlib import colors
 from matplotlib.backends.backend_qt5 import (
     NavigationToolbar2QT as NavigationToolbar,
 )
-from matplotlib import colors
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import *
 from matplotlib.patches import Circle
-import matplotlib.pylab as plt
-from astropy import units as u
 
 import tardis
 from tardis import analysis, util

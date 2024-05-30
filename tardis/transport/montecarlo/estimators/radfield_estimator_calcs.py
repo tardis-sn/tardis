@@ -2,14 +2,14 @@ from math import exp
 
 from numba import njit
 
-from tardis.transport.montecarlo import (
-    njit_dict_no_parallel,
-)
-from tardis.transport.montecarlo.numba_config import KB, H
 from tardis.transport.frame_transformations import (
     calc_packet_energy,
     calc_packet_energy_full_relativity,
 )
+from tardis.transport.montecarlo import (
+    njit_dict_no_parallel,
+)
+from tardis.transport.montecarlo.numba_config import KB, H
 
 
 @njit(**njit_dict_no_parallel)

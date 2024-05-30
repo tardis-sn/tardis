@@ -1,9 +1,11 @@
-from pathlib import Path
-from tardis.io.model.readers import arepo
-import pytest
-import numpy as np
-import os
 import json
+import os
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+from tardis.io.model.readers import arepo
 
 
 @pytest.fixture()

@@ -1,11 +1,12 @@
 import logging
-import shutil
-import yaml
 import os
+import shutil
 from pathlib import Path
 
-from tardis import __path__ as TARDIS_PATH
+import yaml
 from astropy.config import get_config_dir
+
+from tardis import __path__ as TARDIS_PATH
 
 TARDIS_PATH = Path(TARDIS_PATH[0])
 DEFAULT_CONFIG_PATH = (

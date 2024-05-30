@@ -1,11 +1,12 @@
 import os
-from matplotlib import pyplot as plt
+
+import numpy as np
+import pandas as pd
 from matplotlib import colors
+from matplotlib import pyplot as plt
 
 import tardis.util.base
 from tardis.io.atom_data import AtomData
-import numpy as np
-import pandas as pd
 
 # Making 2 Figures for ionization balance and level populations
 

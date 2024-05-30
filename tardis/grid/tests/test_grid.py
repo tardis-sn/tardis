@@ -4,9 +4,7 @@ import numpy as np
 import pandas as pd
 
 import tardis
-
 import tardis.grid as grid
-
 
 DATA_PATH = Path(tardis.__path__[0]) / "grid" / "tests" / "data"
 

@@ -1,6 +1,8 @@
 import warnings
+
 import numpy as np
 from astropy import units as u
+
 from tardis.io.util import HDFWriterMixin
 
 

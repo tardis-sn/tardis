@@ -1,14 +1,15 @@
 from enum import IntEnum
+
 import numpy as np
-from numba import int64, float64
+from numba import float64, int64
 from numba.experimental import jitclass
 
 from tardis.energy_input.samplers import sample_decay_time, sample_energy
 from tardis.energy_input.util import (
+    H_CGS_KEV,
+    doppler_factor_3d,
     get_index,
     get_random_unit_vector,
-    doppler_factor_3d,
-    H_CGS_KEV,
 )
 
 

@@ -1,12 +1,14 @@
-from pathlib import Path
-import tardis
-from tardis.io.model.readers import csvy
-from tardis.io.configuration.config_validator import validate_dict
-from jsonschema import exceptions as json_schema_exc
-import pytest
 import os
-from astropy import units as u
+from pathlib import Path
+
 import numpy.testing as npt
+import pytest
+from astropy import units as u
+from jsonschema import exceptions as json_schema_exc
+
+import tardis
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.readers import csvy
 
 
 @pytest.fixture

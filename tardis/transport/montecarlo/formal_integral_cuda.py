@@ -1,8 +1,9 @@
+import math
 import sys
+
 import numpy as np
 from astropy import units as u
-from numba import float64, int64, cuda
-import math
+from numba import cuda, float64, int64
 
 from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
 

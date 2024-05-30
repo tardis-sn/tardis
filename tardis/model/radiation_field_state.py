@@ -1,9 +1,9 @@
+from typing import Union
+
 import numpy as np
 from astropy import units as u
 
 from tardis.util.base import intensity_black_body
-
-from typing import Union
 
 
 class DiluteBlackBodyRadiationFieldState:

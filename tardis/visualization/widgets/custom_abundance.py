@@ -1,35 +1,36 @@
 """Class to create and display Custom Abundance Widget."""
 import os
-import yaml
+from pathlib import Path
+
+import ipywidgets as ipw
 import numpy as np
 import pandas as pd
-import ipywidgets as ipw
 import plotly.graph_objects as go
+import yaml
 from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
-from pathlib import Path
 
 import tardis
-from tardis.io.model.readers.generic_readers import read_uniform_abundances
-from tardis.util.base import (
-    quantity_linspace,
-    is_valid_nuclide_or_elem,
-    is_notebook,
-)
-from tardis.io.configuration.config_reader import Configuration
-from tardis.model import SimulationState
-from tardis.io.model.parse_density_configuration import (
-    calculate_power_law_density,
-    calculate_exponential_density,
-)
 from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
-from tardis.io.model.readers.csvy import load_csvy
+from tardis.io.model.parse_density_configuration import (
+    calculate_exponential_density,
+    calculate_power_law_density,
+)
 from tardis.io.model.readers.csvy import (
+    load_csvy,
     parse_csv_abundances,
 )
-from tardis.util.base import atomic_number2element_symbol
+from tardis.io.model.readers.generic_readers import read_uniform_abundances
+from tardis.model import SimulationState
+from tardis.util.base import (
+    atomic_number2element_symbol,
+    is_notebook,
+    is_valid_nuclide_or_elem,
+    quantity_linspace,
+)
 from tardis.visualization.tools.convergence_plot import transition_colors
 from tardis.visualization.widgets.util import debounce
 

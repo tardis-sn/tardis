@@ -21,10 +21,10 @@ njit_dict_no_parallel = {
     "parallel": False,
 }
 
-from tardis.transport.montecarlo.r_packet import RPacket
 from tardis.transport.montecarlo.montecarlo_main_loop import (
     montecarlo_main_loop,
 )
 from tardis.transport.montecarlo.packet_collections import (
     PacketCollection,
 )
+from tardis.transport.montecarlo.r_packet import RPacket

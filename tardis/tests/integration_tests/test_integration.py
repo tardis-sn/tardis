@@ -1,16 +1,16 @@
 import os
 
-import yaml
-import pytest
 import matplotlib as mpl
+import pytest
+import yaml
 
 mpl.use("Agg")
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 
 from tardis.io.atom_data.base import AtomData
-from tardis.simulation import Simulation
 from tardis.io.configuration.config_reader import Configuration
+from tardis.simulation import Simulation
 
 pytestmarker = [pytest.mark.no_cover, pytest.mark.integration]
 

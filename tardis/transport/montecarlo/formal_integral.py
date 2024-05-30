@@ -1,16 +1,15 @@
 import warnings
+
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
-from scipy.interpolate import interp1d
 from astropy import units as u
-from tardis import constants as const
-from numba import njit, char, float64, int64, typeof, byte, prange
+from numba import byte, char, float64, int64, njit, prange, typeof
 from numba.experimental import jitclass
+from scipy.interpolate import interp1d
 
-
-from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
+from tardis import constants as const
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,

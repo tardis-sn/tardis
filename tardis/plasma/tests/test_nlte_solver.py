@@ -3,7 +3,6 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 
-
 from tardis.plasma.properties import (
     NLTEPopulationSolverLU,
     NLTEPopulationSolverRoot,

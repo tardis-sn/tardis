@@ -1,15 +1,14 @@
 import os
-from pkg_resources import parse_version
 
-import numpy as np
 import matplotlib as mpl
 import matplotlib.pylab as plt
-
+import numpy as np
+from pkg_resources import parse_version
 
 if os.environ.get("QT_API", None) == "pyqt":
-    from PyQt5 import QtGui, QtCore, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWidgets
 elif os.environ.get("QT_API", None) == "pyside":
-    from PySide2 import QtGui, QtCore, QtWidgets
+    from PySide2 import QtCore, QtGui, QtWidgets
 else:
     raise ImportError(
         """QT_API was not set! Please exit the IPython console\n
@@ -19,8 +18,13 @@ else:
 import yaml
 
 from tardis import run_tardis
-from tardis.gui.widgets import MatplotlibWidget, ModelViewer, ShellInfo
-from tardis.gui.widgets import LineInfo, LineInteractionTables
+from tardis.gui.widgets import (
+    LineInfo,
+    LineInteractionTables,
+    MatplotlibWidget,
+    ModelViewer,
+    ShellInfo,
+)
 
 if parse_version(mpl.__version__) >= parse_version("1.4"):
     mpl.style.use("fivethirtyeight")

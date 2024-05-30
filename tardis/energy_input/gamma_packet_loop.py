@@ -1,34 +1,34 @@
 import numpy as np
 from numba import njit
 
-from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.opacities import (
-    compton_opacity_calculation,
-    photoabsorption_opacity_calculation,
-    pair_creation_opacity_calculation,
-    photoabsorption_opacity_calculation_kasen,
-    kappa_calculation,
-    pair_creation_opacity_artis,
-    SIGMA_T,
-)
+from tardis.energy_input.gamma_ray_estimators import deposition_estimator_kasen
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_packet,
 )
-from tardis.energy_input.util import (
-    doppler_factor_3d,
-    C_CGS,
-    H_CGS_KEV,
-    get_index,
+from tardis.energy_input.gamma_ray_interactions import (
+    compton_scatter,
+    get_compton_fraction_artis,
+    pair_creation_packet,
+    scatter_type,
 )
 from tardis.energy_input.GXPacket import GXPacketStatus
-from tardis.energy_input.gamma_ray_interactions import (
-    get_compton_fraction_artis,
-    scatter_type,
-    compton_scatter,
-    pair_creation_packet,
+from tardis.energy_input.util import (
+    C_CGS,
+    H_CGS_KEV,
+    doppler_factor_3d,
+    get_index,
 )
-from tardis.energy_input.gamma_ray_estimators import deposition_estimator_kasen
+from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.opacities import (
+    SIGMA_T,
+    compton_opacity_calculation,
+    kappa_calculation,
+    pair_creation_opacity_artis,
+    pair_creation_opacity_calculation,
+    photoabsorption_opacity_calculation,
+    photoabsorption_opacity_calculation_kasen,
+)
 
 
 @njit(**njit_dict_no_parallel)

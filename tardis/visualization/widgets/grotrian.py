@@ -3,17 +3,21 @@ Grotrian Diagram Widget for TARDIS simulation models.
 
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
-from tardis.analysis import LastLineInteraction
-from tardis.util.base import species_tuple_to_string, species_string_to_tuple
-from tardis.util.base import int_to_roman
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import numpy as np
-import pandas as pd
+import ipywidgets as ipw
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
 from astropy import units as u
-import ipywidgets as ipw
+from plotly.subplots import make_subplots
+
+from tardis.analysis import LastLineInteraction
+from tardis.util.base import (
+    int_to_roman,
+    species_string_to_tuple,
+    species_tuple_to_string,
+)
 
 ANGSTROM_SYMBOL = "\u212B"
 

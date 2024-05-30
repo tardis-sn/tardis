@@ -1,8 +1,8 @@
-import pytest
 import pandas as pd
+import pytest
+from numpy.testing import assert_almost_equal
 
 from tardis.model.matter.decay import IsotopicMassFraction
-from numpy.testing import assert_almost_equal
 
 
 @pytest.fixture

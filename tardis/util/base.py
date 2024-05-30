@@ -1,24 +1,24 @@
+import functools
 import logging
 import os
 import re
+import warnings
 from collections import OrderedDict
 
 import numexpr as ne
 import numpy as np
 import pandas as pd
-import yaml
-from tardis import constants
-from astropy import units as u
-from radioactivedecay import Nuclide, DEFAULTDATA
-from radioactivedecay.utils import parse_nuclide, Z_DICT
-
-import tardis
-from tardis.io.util import get_internal_data_path
-from IPython import get_ipython, display
 import tqdm
 import tqdm.notebook
-import functools
-import warnings
+import yaml
+from astropy import units as u
+from IPython import display, get_ipython
+from radioactivedecay import DEFAULTDATA, Nuclide
+from radioactivedecay.utils import Z_DICT, parse_nuclide
+
+import tardis
+from tardis import constants
+from tardis.io.util import get_internal_data_path
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value

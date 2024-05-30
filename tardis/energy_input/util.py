@@ -1,8 +1,8 @@
 import astropy.units as u
-import tardis.constants as const
 import numpy as np
 from numba import njit
 
+import tardis.constants as const
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.opacities import kappa_calculation
 

@@ -1,5 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
+
 import pytest
 
 from tardis.io.atom_data.base import AtomData

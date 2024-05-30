@@ -1,14 +1,14 @@
+import fileinput
+import logging
 import os
 import re
-import logging
 import tempfile
-import fileinput
 
 import networkx as nx
 
-from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
-from tardis.plasma.properties.base import *
 from tardis.io.util import PlasmaWriterMixin
+from tardis.plasma.exceptions import NotInitializedModule, PlasmaMissingModule
+from tardis.plasma.properties.base import *
 
 logger = logging.getLogger(__name__)
 

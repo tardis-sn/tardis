@@ -1,9 +1,10 @@
 """Utility classes and functions for widgets."""
 
-import logging
-import qgrid
-import ipywidgets as ipw
 import asyncio
+import logging
+
+import ipywidgets as ipw
+import qgrid
 
 logger = logging.getLogger(__name__)
 

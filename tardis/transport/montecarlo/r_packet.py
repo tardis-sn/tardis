@@ -2,14 +2,14 @@ from enum import IntEnum
 
 import numpy as np
 import pandas as pd
-from numba import int64, float64, njit, objmode
+from numba import float64, int64, njit, objmode
 from numba.experimental import jitclass
 
-from tardis.transport.montecarlo import (
-    njit_dict_no_parallel,
-)
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
+)
+from tardis.transport.montecarlo import (
+    njit_dict_no_parallel,
 )
 from tardis.transport.montecarlo import numba_config as nc
 

@@ -1,7 +1,8 @@
-import numpy as np
 from enum import IntEnum
 
+import numpy as np
 from numba import njit
+
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 
 

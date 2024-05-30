@@ -1,11 +1,10 @@
 from enum import IntEnum
 
+import numpy as np
 from numba import float64, int64
 from numba.experimental import jitclass
-import numpy as np
 
 from tardis import constants as const
-
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 

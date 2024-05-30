@@ -1,10 +1,11 @@
-import pytest
-import pandas as pd
 import numpy as np
-from plotly.callbacks import Points, BoxSelector
-from tardis.visualization.widgets.line_info import LineInfoWidget
-from tardis.util.base import species_string_to_tuple
+import pandas as pd
+import pytest
+from plotly.callbacks import BoxSelector, Points
+
 from tardis.tests.test_util import monkeysession
+from tardis.util.base import species_string_to_tuple
+from tardis.visualization.widgets.line_info import LineInfoWidget
 
 
 @pytest.fixture(scope="class")

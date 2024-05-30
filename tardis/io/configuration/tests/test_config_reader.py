@@ -1,13 +1,14 @@
 # tests for the config reader module
 import os
-from attr import validate
-import pytest
+
 import pandas as pd
-from numpy.testing import assert_almost_equal
+import pytest
+from astropy.units import Quantity
+from attr import validate
 from jsonschema.exceptions import ValidationError
+from numpy.testing import assert_almost_equal
 
 from tardis.io.configuration import config_reader
-from astropy.units import Quantity
 from tardis.io.configuration.config_reader import Configuration
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.standard_plasmas import assemble_plasma

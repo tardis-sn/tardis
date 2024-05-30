@@ -1,8 +1,9 @@
-from numba import float64
-from numba.experimental import jitclass
+import warnings
+
 import numpy as np
 from astropy import units as u
-import warnings
+from numba import float64
+from numba.experimental import jitclass
 
 
 class HomologousRadial1DGeometry:

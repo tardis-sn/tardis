@@ -1,18 +1,18 @@
 import numpy as np
 from numba import njit
 
-from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.frame_transformations import (
+    get_doppler_factor,
+)
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_electron,
     calculate_distance_line,
 )
+from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_line_estimators,
     update_base_estimators,
-)
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
+    update_line_estimators,
 )
 from tardis.transport.montecarlo.opacities import calculate_tau_electron
 from tardis.transport.montecarlo.r_packet import (

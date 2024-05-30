@@ -1,9 +1,8 @@
 import logging
-
 from abc import ABCMeta, abstractmethod, abstractproperty
+
 import numpy as np
 import pandas as pd
-
 
 __all__ = [
     "BasePlasmaProperty",

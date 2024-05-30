@@ -1,14 +1,14 @@
-from astropy import units as u
-from typing import Any, Tuple
-from numpy import recfromtxt
-import pandas as pd
-from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z
 from pathlib import Path
+from typing import Any, Tuple
 
 import numpy as np
-from tardis.io.model.readers.util import read_csv_isotope_abundances
+import pandas as pd
+from astropy import units as u
+from numpy import recfromtxt
+from radioactivedecay import Nuclide
+from radioactivedecay.utils import Z_DICT, elem_to_Z
 
+from tardis.io.model.readers.util import read_csv_isotope_abundances
 from tardis.util.base import parse_quantity
 
 

@@ -4,11 +4,11 @@ import numpy.testing as npt
 import pandas.testing as pdt
 import pytest
 
+from tardis.simulation import Simulation
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     DiluteBlackBodyContinuumPropertiesSolver,
     MCContinuumPropertiesSolver,
 )
-from tardis.simulation import Simulation
 
 
 def test_continuum_estimators(

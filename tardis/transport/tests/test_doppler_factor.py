@@ -1,12 +1,11 @@
-import pytest
 import numpy as np
-
-import tardis.transport.frame_transformations as frame_transformations
-import tardis.transport.montecarlo.r_packet as r_packet
-
+import pytest
 from numpy.testing import (
     assert_almost_equal,
 )
+
+import tardis.transport.frame_transformations as frame_transformations
+import tardis.transport.montecarlo.r_packet as r_packet
 
 
 @pytest.mark.parametrize(

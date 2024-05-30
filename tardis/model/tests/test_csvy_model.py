@@ -1,13 +1,14 @@
 from pathlib import Path
-import numpy as np
-import pandas as pd
-import numpy.testing as npt
 
-from astropy import units as u
-from tardis.io.configuration.config_reader import Configuration
-from tardis.io.atom_data.base import AtomData
-from tardis.model import SimulationState
+import numpy as np
+import numpy.testing as npt
+import pandas as pd
 import pytest
+from astropy import units as u
+
+from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_reader import Configuration
+from tardis.model import SimulationState
 
 
 @pytest.fixture(

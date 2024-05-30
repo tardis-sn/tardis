@@ -1,7 +1,8 @@
 import logging
+
+import astropy.units as u
 import numpy as np
 import pandas as pd
-import astropy.units as u
 import radioactivedecay as rd
 
 from tardis.energy_input.energy_source import (

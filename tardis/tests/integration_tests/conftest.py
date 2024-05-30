@@ -1,8 +1,9 @@
 import glob
 import os
-import yaml
+
 import pandas as pd
 import pytest
+import yaml
 
 # NOTE: the __githash__ variable is not available anymore
 # on `version.py`. Find another way to fix it!

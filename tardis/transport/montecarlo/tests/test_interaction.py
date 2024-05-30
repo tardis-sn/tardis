@@ -1,6 +1,7 @@
-import pytest
-import numpy.testing as npt
 import numpy as np
+import numpy.testing as npt
+import pytest
+
 import tardis.transport.montecarlo.interaction as interaction
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,

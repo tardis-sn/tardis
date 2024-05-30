@@ -1,6 +1,5 @@
-import pytest
-
 import numpy.testing as npt
+import pytest
 
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.single_packet_loop import (

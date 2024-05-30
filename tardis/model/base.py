@@ -18,14 +18,14 @@ from tardis.model.parse_input import (
     parse_csvy_composition,
     parse_csvy_geometry,
     parse_csvy_radiation_field_state,
+    parse_packet_source,
     parse_radiation_field_state,
     parse_structure_config,
-    parse_packet_source,
 )
-from tardis.transport.montecarlo.packet_source import BlackBodySimpleSource
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
+from tardis.transport.montecarlo.packet_source import BlackBodySimpleSource
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)

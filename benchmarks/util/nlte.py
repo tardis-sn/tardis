@@ -5,7 +5,7 @@ from pathlib import Path
 from benchmarks.util.base import Base
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.util import yaml_load_file, YAMLLoader
+from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model import SimulationState
 
 
