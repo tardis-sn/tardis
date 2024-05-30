@@ -355,7 +355,7 @@ def generate_tutorials_page(app):
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
 
-    with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
+    with open("tutorials.rst", mode="w", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
 def generate_how_to_guides_page(app):
@@ -370,7 +370,7 @@ def generate_how_to_guides_page(app):
     title = "How-To Guides\n*********\n"
     description = "The following pages contain the TARDIS how-to guides:"
 
-    with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
+    with open("how_to_guides.rst", mode="w", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
 

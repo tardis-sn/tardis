@@ -229,7 +229,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         helium_population = level_boltzmann_factor.loc[2].copy()
         for zone, _ in enumerate(electron_densities):
             with open(
-                f"He_NLTE_Files/discradfield{zone}.txt", "r"
+                f"He_NLTE_Files/discradfield{zone}.txt"
             ) as read_file:
                 for level in range(35):
                     level_population = read_file.readline()

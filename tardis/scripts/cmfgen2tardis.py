@@ -40,7 +40,7 @@ def extract_file_block(f):
 def convert_format(file_path):
     quantities_row = []
     prop_list = ["Velocity", "Density", "Electron density", "Temperature"]
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         for line in f:
             items = line.replace("(", "").replace(")", "").split()
             n = len(items)

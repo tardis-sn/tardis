@@ -341,7 +341,7 @@ class BasePlasma(PlasmaWriterMixin):
                 )
 
         if args is not None:
-            with open(fname, "r") as file:
+            with open(fname) as file:
                 lines = file.readlines()
 
             for newline in args:
@@ -383,7 +383,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         self.write_to_dot(temp_fname, args=args, latex_label=latex_label)
 
-        with open(temp_fname, "r") as file:
+        with open(temp_fname) as file:
             dot_string = file.read().replace("\\\\", "\\")
 
         texcode = dot2tex.dot2tex(
