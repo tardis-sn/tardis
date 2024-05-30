@@ -446,8 +446,8 @@ class Profile:
                 f.write(
                     "".join(
                         [
-                            "    -  name: {}\n".format(spec.capitalize()),
-                            "       desc: fractional {} abundance.\n".format(spec.capitalize()),
+                            f"    -  name: {spec.capitalize()}\n",
+                            f"       desc: fractional {spec.capitalize()} abundance.\n",
                         ]
                     )
                 )
@@ -459,8 +459,8 @@ class Profile:
             # WRITE DATA
             datastring = ["velocity,", "density,"]
             for spec in self.species[:-1]:
-                datastring.append("{},".format(spec.capitalize()))
-            datastring.append("{}".format(self.species[-1].capitalize()))
+                datastring.append(f"{spec.capitalize()},")
+            datastring.append(f"{self.species[-1].capitalize()}")
             f.write("".join(datastring))
 
             # Rebin data to nshells
@@ -488,8 +488,8 @@ class Profile:
             for i in inds:
                 f.write("\n")
                 for ii in range(len(exp) - 1):
-                    f.write("{:g},".format(exp[ii][i]))
-                f.write("{:g}".format(exp[-1][i]))
+                    f.write(f"{exp[ii][i]:g},")
+                f.write(f"{exp[-1][i]:g}")
 
         return filename
 

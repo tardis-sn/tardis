@@ -70,8 +70,8 @@ for ion_number in [0, 1, 2, 3]:
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
-        "{}-".format(ion_colors[ion_number]),
-        label="Si {} W=1.0".format(tardis.util.base.int_to_roman(ion_number + 1).upper()),
+        f"{ion_colors[ion_number]}-",
+        label=f"Si {tardis.util.base.int_to_roman(ion_number + 1).upper()} W=1.0",
     )
 
 
