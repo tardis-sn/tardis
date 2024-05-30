@@ -183,7 +183,7 @@ else:
 # This does not *have* to match the package name, but typically does
 project = setup_cfg["name"]
 author = setup_cfg["author"]
-copyright = "2013-{}, {}".format(datetime.datetime.now().year, author)
+copyright = f"2013-{datetime.datetime.now().year}, {author}"
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

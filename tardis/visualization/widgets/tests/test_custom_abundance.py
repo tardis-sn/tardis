@@ -222,7 +222,7 @@ class TestCustomAbundanceWidget:
                 line = caw.fig.data[2 + i].y[start_no - 1 : end_no]
                 unique_v = set(line)
                 assert len(unique_v) == 1
-                unique_v = float("{:.3g}".format(next(iter(unique_v))))
+                unique_v = float(f"{next(iter(unique_v)):.3g}")
                 assert unique_v == v
         else:
             for i, item in enumerate(caw.input_items):

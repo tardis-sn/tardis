@@ -114,7 +114,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
                 for i, output in enumerate(self.outputs):
                     setattr(self, output, new_values[i])
         else:
-            logger.info("{} has been frozen!".format(self.name))
+            logger.info(f"{self.name} has been frozen!")
 
     @abstractmethod
     def calculate(self, *args, **kwargs):

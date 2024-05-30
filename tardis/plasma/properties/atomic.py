@@ -377,9 +377,7 @@ class TwoPhotonData(ProcessingPlasmaProperty):
         if not mask_selected_species.sum():
             raise IncompleteAtomicData(
                 "two photon transition data for the requested "
-                "continuum_interactions species: {}".format(
-                    continuum_interaction_species.values.tolist()
-                )
+                f"continuum_interactions species: {continuum_interaction_species.values.tolist()}"
             )
         two_photon_data = two_photon_data[mask_selected_species]
         index_lower = two_photon_data.index.droplevel("level_number_upper")

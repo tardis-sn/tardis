@@ -200,8 +200,8 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    "Trying to freeze property {}"
-                    " that is unavailable".format(key)
+                    f"Trying to freeze property {key}"
+                    " that is unavailable"
                 )
             self.outputs_dict[key].frozen = True
 
@@ -224,8 +224,8 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    "Trying to thaw property {}"
-                    " that is unavailable".format(key)
+                    f"Trying to thaw property {key}"
+                    " that is unavailable"
                 )
             self.outputs_dict[key].frozen = False
 

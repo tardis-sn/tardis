@@ -601,7 +601,7 @@ class CustomAbundanceWidget:
         """
         self._trigger = False
         # `input_items` is the list of  abundance input widgets.
-        self.input_items[index].value = float("{:.2e}".format(value))
+        self.input_items[index].value = float(f"{value:.2e}")
         self._trigger = True
 
     def read_abundance(self):
@@ -1679,7 +1679,7 @@ class DensityEditor:
         """
         dvalue = self.data.density[self.shell_no].value
         self._trigger = False
-        self.input_d.value = float("{:.3e}".format(dvalue))
+        self.input_d.value = float(f"{dvalue:.3e}")
         self._trigger = True
 
     def update_density_plot(self):

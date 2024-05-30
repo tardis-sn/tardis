@@ -253,7 +253,7 @@ class Profile:
             labels,
             loc="upper left",
             bbox_to_anchor=(1.05, 1.05),
-            title="Time = {:.2f} s".format(self.time),
+            title=f"Time = {self.time:.2f} s",
         )
         if save is not None:
             plt.savefig(
@@ -426,12 +426,8 @@ class Profile:
                     [
                         "---\n",
                         "name: csvy_full\n",
-                        "model_density_time_0: {:g} day\n".format(
-                            self.time / (3600 * 24)
-                        ),  # TODO astropy units
-                        "model_isotope_time_0: {:g} day\n".format(
-                            self.time / (3600 / 24)
-                        ),  # TODO astropy units
+                        f"model_density_time_0: {self.time / (3600 * 24):g} day\n",  # TODO astropy units
+                        f"model_isotope_time_0: {self.time / (3600 / 24):g} day\n",  # TODO astropy units
                         "description: Config file for TARDIS from Arepo snapshot.\n",
                         "tardis_model_config_version: v1.0\n",
                         "datatype:\n",
