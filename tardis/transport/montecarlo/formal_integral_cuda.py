@@ -376,7 +376,6 @@ class BoundsError(IndexError):
     binary search
     """
 
-    pass
 
 
 @cuda.jit(device=True)

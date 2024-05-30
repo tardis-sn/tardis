@@ -441,7 +441,6 @@ class ConfigEditor(QtWidgets.QWidget):
         """Recalculate and display the model from the modified data in
         the ConfigEditor.
         """
-        pass
 
 
 class ModelViewer(QtWidgets.QWidget):
