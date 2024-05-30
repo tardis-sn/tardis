@@ -25,7 +25,7 @@ DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_SPECIFIC_STATE = False
 
 
-class FilterLog(object):
+class FilterLog:
     """
     Filter Log Class for Filtering Logging Output
     to a particular level

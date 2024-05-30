@@ -59,7 +59,7 @@ def quantity_from_str(text):
     return u.Quantity(value, unit_str)
 
 
-class MockRegexPattern(object):
+class MockRegexPattern:
     """
     A mock class to be used in place of a compiled regular expression
     when a type check is needed instead of a regex match.
@@ -188,7 +188,7 @@ def check_equality(item1, item2):
         return True
 
 
-class HDFWriterMixin(object):
+class HDFWriterMixin:
     def __new__(cls, *args, **kwargs):
         instance = super(HDFWriterMixin, cls).__new__(cls)
         instance.optional_hdf_properties = []

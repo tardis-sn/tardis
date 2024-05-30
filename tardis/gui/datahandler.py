@@ -34,7 +34,7 @@ mpl.rcParams["axes.edgecolor"] = mpl.rcParams["grid.color"]
 mpl.rcParams["axes.linewidth"] = mpl.rcParams["grid.linewidth"]
 
 
-class Node(object):
+class Node:
     """Object that serves as the nodes in the TreeModel.
 
     Attributes

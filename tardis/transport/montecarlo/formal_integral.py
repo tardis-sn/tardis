@@ -210,7 +210,7 @@ def numba_formal_integral(
 
 
 # @jitclass(integrator_spec)
-class NumbaFormalIntegrator(object):
+class NumbaFormalIntegrator:
     """
     Helper class for performing the formal integral
     with numba.
@@ -253,7 +253,7 @@ class NumbaFormalIntegrator(object):
         )
 
 
-class FormalIntegrator(object):
+class FormalIntegrator:
     """
     Class containing the formal integrator.
 

@@ -36,7 +36,7 @@ def transition_colors(length, name="jet"):
     return colors
 
 
-class ConvergencePlots(object):
+class ConvergencePlots:
     """
     Create and update convergence plots for visualizing convergence of the simulation.
 

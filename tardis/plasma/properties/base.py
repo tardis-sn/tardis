@@ -19,7 +19,7 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-class BasePlasmaProperty(object, metaclass=ABCMeta):
+class BasePlasmaProperty(metaclass=ABCMeta):
     """
     Attributes
     ----------

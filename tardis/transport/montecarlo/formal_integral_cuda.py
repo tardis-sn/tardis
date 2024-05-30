@@ -210,7 +210,7 @@ def cuda_formal_integral(
     )
 
 
-class CudaFormalIntegrator(object):
+class CudaFormalIntegrator:
     """
     Helper class for performing the formal integral
     with CUDA.

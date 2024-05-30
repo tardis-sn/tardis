@@ -45,7 +45,7 @@ vpacket_spec = [
 
 
 @jitclass(vpacket_spec)
-class VPacket(object):
+class VPacket:
     def __init__(
         self,
         r,

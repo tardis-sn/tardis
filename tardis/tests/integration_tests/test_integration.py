@@ -71,7 +71,7 @@ def model_quantities(request):
     reason="integration tests are not included in this run",
 )
 @pytest.mark.integration
-class TestIntegration(object):
+class TestIntegration:
     """Slow integration test for various setups present in subdirectories of
     ``tardis/tests/integration_tests``.
     """

@@ -37,7 +37,7 @@ opacity_state_spec = [
 
 
 @jitclass(opacity_state_spec)
-class OpacityState(object):
+class OpacityState:
     def __init__(
         self,
         electron_density,

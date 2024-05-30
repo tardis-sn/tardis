@@ -193,7 +193,7 @@ numba_geometry_spec = [
 
 
 @jitclass(numba_geometry_spec)
-class NumbaRadial1DGeometry(object):
+class NumbaRadial1DGeometry:
     def __init__(self, r_inner, r_outer, v_inner, v_outer):
         """
         Radial 1D Geometry for the Numba mode

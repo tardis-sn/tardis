@@ -29,7 +29,7 @@ numba_config_spec = [
 
 
 @jitclass(numba_config_spec)
-class MonteCarloConfiguration(object):
+class MonteCarloConfiguration:
     def __init__(self):
         self.ENABLE_FULL_RELATIVITY = False
         self.TEMPORARY_V_PACKET_BINS = 0

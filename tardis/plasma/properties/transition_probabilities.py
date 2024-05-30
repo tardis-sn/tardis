@@ -50,7 +50,7 @@ def normalize_trans_probs(p):
     return p_norm
 
 
-class SpMatrixSeriesConverterMixin(object):
+class SpMatrixSeriesConverterMixin:
     @staticmethod
     def series2matrix(series, idx2reduced_idx):
         """

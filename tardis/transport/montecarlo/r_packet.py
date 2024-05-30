@@ -47,7 +47,7 @@ rpacket_spec = [
 
 
 @jitclass(rpacket_spec)
-class RPacket(object):
+class RPacket:
     def __init__(self, r, mu, nu, energy, seed, index=0):
         self.r = r
         self.mu = mu

@@ -37,7 +37,7 @@ gxpacket_spec = [
 
 
 @jitclass(gxpacket_spec)
-class GXPacket(object):
+class GXPacket:
     """
     Indivisible gamma-ray packet
     """

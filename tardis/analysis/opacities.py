@@ -10,7 +10,7 @@ from astropy.modeling.models import Blackbody
 logger = logging.getLogger(__name__)
 
 
-class opacity_calculator(object):
+class opacity_calculator:
     """Basic Tardis opacity and optical depth calculator
 
     Given the model object of a Tardis run and a frequency grid, detailed
