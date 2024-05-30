@@ -75,7 +75,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
     """
 
     def __init__(self, plasma_parent):
-        super(ProcessingPlasmaProperty, self).__init__()
+        super().__init__()
         self.plasma_parent = plasma_parent
         self._update_inputs()
         self.frozen = False
@@ -132,7 +132,7 @@ class HiddenPlasmaProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
     """
 
     def __init__(self, plasma_parent):
-        super(HiddenPlasmaProperty, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
 
 
 class TransitionProbabilitiesProperty(
@@ -159,7 +159,7 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
 
     def __init__(self, plasma_parent):
 
-        super(BaseAtomicDataProperty, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.value = None
 
     @abstractmethod

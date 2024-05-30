@@ -109,13 +109,13 @@ class ConfigurationNameSpace(dict):
         dict.__setitem__(self, key, value)
 
     def __getitem__(self, key):
-        return super(ConfigurationNameSpace, self).__getitem__(key)
+        return super().__getitem__(key)
 
     def __getattr__(self, item):
         if item in self:
             return self[item]
         else:
-            super(ConfigurationNameSpace, self).__getattribute__(item)
+            super().__getattribute__(item)
 
     __setattr__ = __setitem__
 
@@ -447,7 +447,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         return convergence_section_dict
 
     def __init__(self, config_dict):
-        super(Configuration, self).__init__(config_dict)
+        super().__init__(config_dict)
 
 
 def quantity_representer(dumper, data):

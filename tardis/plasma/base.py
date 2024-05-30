@@ -31,7 +31,7 @@ class BasePlasma(PlasmaWriterMixin):
         if item in self.outputs_dict:
             return self.get_value(item)
         else:
-            super(BasePlasma, self).__getattribute__(item)
+            super().__getattribute__(item)
 
     def __setattr__(self, key, value):
         if key != "module_dict" and key in self.outputs_dict:
@@ -39,7 +39,7 @@ class BasePlasma(PlasmaWriterMixin):
                 "Plasma inputs can only be updated using " "the 'update' method"
             )
         else:
-            super(BasePlasma, self).__setattr__(key, value)
+            super().__setattr__(key, value)
 
     def __dir__(self):
         attrs = [item for item in self.__dict__ if not item.startswith("_")]

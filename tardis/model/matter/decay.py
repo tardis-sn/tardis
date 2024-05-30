@@ -17,7 +17,7 @@ class IsotopicMassFraction(pd.DataFrame):
             kwargs.pop("time_0")
         else:
             time_0 = 0 * u.d
-        super(IsotopicMassFraction, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.time_0 = time_0
 
     @property

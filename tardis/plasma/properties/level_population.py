@@ -25,7 +25,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
     latex_formula = (r"N_{i,j}\dfrac{bf_{i,j,k}}{Z_{i,j}}",)
 
     def __init__(self, plasma_parent):
-        super(LevelNumberDensity, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self._update_inputs()
         self.initialize_indices = True
 

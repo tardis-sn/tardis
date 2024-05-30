@@ -190,7 +190,7 @@ def check_equality(item1, item2):
 
 class HDFWriterMixin:
     def __new__(cls, *args, **kwargs):
-        instance = super(HDFWriterMixin, cls).__new__(cls)
+        instance = super().__new__(cls)
         instance.optional_hdf_properties = []
         instance.__init__(*args, **kwargs)
         return instance
@@ -382,7 +382,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
             If the HDF file path already exists, whether to overwrite it or not
         """
         self.collection = collection
-        super(PlasmaWriterMixin, self).to_hdf(
+        super().to_hdf(
             file_path_or_buf, path, name, overwrite
         )
 

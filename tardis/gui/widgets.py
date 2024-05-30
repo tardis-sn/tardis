@@ -51,11 +51,11 @@ class MatplotlibWidget(FigureCanvas):
         self.cb = None
         self.span = None
 
-        super(MatplotlibWidget, self).__init__(self.figure)
-        super(MatplotlibWidget, self).setSizePolicy(
+        super().__init__(self.figure)
+        super().setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
         )
-        super(MatplotlibWidget, self).updateGeometry()
+        super().updateGeometry()
         if fig != "model":
             self.toolbar = NavigationToolbar(self, parent)
             self.cid[0] = self.figure.canvas.mpl_connect(
@@ -195,7 +195,7 @@ class Shell(mpl.patches.Wedge):
     """
 
     def __init__(self, index, center, r_inner, r_outer, **kwargs):
-        super(Shell, self).__init__(
+        super().__init__(
             center, r_outer, 0, 90, width=r_outer - r_inner, **kwargs
         )
         self.index = index
@@ -223,7 +223,7 @@ class ConfigEditor(QtWidgets.QWidget):
             Set to None. The parent is changed when the widget is
             appended to the layout of its parent.
         """
-        super(ConfigEditor, self).__init__(parent)
+        super().__init__(parent)
 
         # Configurations from the input and template
         configDict = yaml.load(open(yamlconfigfile), Loader=yaml.CLoader)
@@ -812,7 +812,7 @@ class ShellInfo(QtWidgets.QDialog):
 
     def __init__(self, index, tablecreator, parent=None):
         """Create the widget to display shell info and set data."""
-        super(ShellInfo, self).__init__(parent)
+        super().__init__(parent)
 
         self.createTable = tablecreator
         self.parent = parent
@@ -928,7 +928,7 @@ class LineInfo(QtWidgets.QDialog):
         """Create the dialog and set data in it from the model.
         Show widget.
         """
-        super(LineInfo, self).__init__(parent)
+        super().__init__(parent)
         self.createTable = tablecreator
         self.parent = parent
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 250, 400)
@@ -1123,7 +1123,7 @@ class LineInteractionTables(QtWidgets.QWidget):
         tablecreator,
     ):
         """Create the widget and set data."""
-        super(LineInteractionTables, self).__init__()
+        super().__init__()
         self.createTable = tablecreator
         self.text_description = QtWidgets.QLabel(str(description))
         self.species_table = QtWidgets.QTableView()

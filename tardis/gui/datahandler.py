@@ -501,7 +501,7 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         """Call constructor of the QAbstractTableModel and set parameters
         given by user.
         """
-        super(SimpleTableModel, self).__init__(parent, *args)
+        super().__init__(parent, *args)
         self.headerdata = headerdata
         self.arraydata = []
         self.iterate_header = iterate_header
