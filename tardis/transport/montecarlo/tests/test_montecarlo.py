@@ -201,15 +201,6 @@ def test_get_random_mu_different_output():
     assert output1 != output2
 
 
-def test_get_random_mu_different_output():
-    """
-    Ensure that different calls results
-    """
-    output1 = r_packet.get_random_mu()
-    output2 = r_packet.get_random_mu()
-    assert output1 != output2
-
-
 @pytest.mark.parametrize(
     ["mu", "r", "time_explosion"], [(1, C_SPEED_OF_LIGHT, 1)]
 )
