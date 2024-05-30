@@ -231,7 +231,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
             with open(
                 f"He_NLTE_Files/discradfield{zone}.txt", "r"
             ) as read_file:
-                for level in range(0, 35):
+                for level in range(35):
                     level_population = read_file.readline()
                     level_population = float(level_population)
                     helium_population[zone].loc[0, level] = level_population

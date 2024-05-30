@@ -303,7 +303,7 @@ class BasePlasma(PlasmaWriterMixin):
                     ] = f"\\\\textrm{{{node}: }}"
                     node_list = self.plasma_properties_dict[node]
                     formulae = node_list.latex_formula
-                    for output in range(0, len(formulae)):
+                    for output in range(len(formulae)):
                         formula = formulae[output]
                         label = formula.replace("\\", "\\\\")
                         print_graph.nodes[str(node)]["label"] += label

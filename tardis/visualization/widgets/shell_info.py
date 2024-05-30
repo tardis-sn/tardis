@@ -296,7 +296,7 @@ class ShellInfoWidget:
                 "other_names": [
                     f"Frac. Ab. (Ion={ion})"
                     for ion in range(
-                        0, self.element_count_table.df.index.max() + 1
+                        self.element_count_table.df.index.max() + 1
                     )
                 ],
             },
