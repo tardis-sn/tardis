@@ -1,5 +1,5 @@
 """
-A collection of subpackages and submodules to handle input and output data. 
+A collection of subpackages and submodules to handle input and output data.
 """
 
 from tardis.io.configuration.config_internal import (

@@ -1,5 +1,5 @@
 """
-Getting and handling the atomic data. 
+Getting and handling the atomic data.
 """
 
 from tardis.io.atom_data.base import AtomData

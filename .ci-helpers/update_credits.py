@@ -45,7 +45,7 @@ def generate_zenodo():
         )
 
         not_found_msg = """
-                        Couldn"t retrieve the TARDIS software citation from Zenodo. Get it 
+                        Couldn"t retrieve the TARDIS software citation from Zenodo. Get it
                         directly from `this link <https://zenodo.org/record/{CONCEPT_DOI}>`_    .
                         """
 
