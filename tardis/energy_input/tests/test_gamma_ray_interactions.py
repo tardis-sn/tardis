@@ -15,13 +15,13 @@ from tardis.energy_input.GXPacket import GXPacketStatus
 @pytest.mark.xfail(reason="To be implemented")
 def test_get_compton_angle():
     """Test the Compton angle calculation"""
-    assert False
+    raise AssertionError()
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_compton_scatter():
     """Test Compton scattering"""
-    assert False
+    raise AssertionError()
 
 
 def test_pair_creation(basic_gamma_ray):

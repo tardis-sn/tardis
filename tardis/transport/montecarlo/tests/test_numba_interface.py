@@ -59,7 +59,7 @@ def test_opacity_state_initialize(nb_simulation_verysimple, input_params):
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_configuration_initialize():
-    assert False
+    raise AssertionError()
 
 
 def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
