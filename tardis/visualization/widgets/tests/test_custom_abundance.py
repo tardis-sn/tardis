@@ -153,8 +153,8 @@ class TestCustomAbundanceWidget:
             caw.irs_shell_range.value = (1, 20)
 
             assert caw.shell_no == caw.irs_shell_range.value[0]
-            assert caw.btn_next.disabled == True
-            assert caw.btn_prev.disabled == True
+            assert caw.btn_next.disabled is True
+            assert caw.btn_prev.disabled is True
         else:
             caw.shell_no = 20
             caw.update_bar_diagonal()

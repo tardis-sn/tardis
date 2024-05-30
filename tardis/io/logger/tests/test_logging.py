@@ -66,7 +66,7 @@ class TestSimulationLogging:
             specific_log_level=specific_log_level,
         )
         for record in caplog.records:
-            if specific_log_level == True:
+            if specific_log_level is True:
                 assert record.levelno == LOGGING_LEVELS[log_level.upper()]
             else:
                 assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
@@ -84,7 +84,7 @@ class TestSimulationLogging:
         caplog.clear()
         run_tardis(config=config)
         for record in caplog.records:
-            if specific_log_level == True:
+            if specific_log_level is True:
                 assert record.levelno == LOGGING_LEVELS[log_level.upper()]
             else:
                 assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
@@ -106,7 +106,7 @@ class TestSimulationLogging:
             specific_log_level=specific_log_level,
         )
         for record in caplog.records:
-            if specific_log_level == True:
+            if specific_log_level is True:
                 assert record.levelno == LOGGING_LEVELS[log_level.upper()]
             else:
                 assert record.levelno >= LOGGING_LEVELS[log_level.upper()]

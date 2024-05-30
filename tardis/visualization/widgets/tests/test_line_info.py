@@ -40,7 +40,7 @@ class TestLineInfoWidgetData:
 
         if wavelength_range is None or wavelength_range == [16200, 16300]:
             # Dataframe contains all falsy values (proxy for empty)
-            assert species_interactions_df.all(axis=None) == False
+            assert species_interactions_df.all(axis=None) is False
         else:
             # All values sum up to 1
             assert np.isclose(species_interactions_df.iloc[:, 0].sum(), 1)
@@ -63,7 +63,7 @@ class TestLineInfoWidgetData:
         species_interactions_df = line_info_widget.get_species_interactions(
             wavelength_range, filter_mode
         )
-        if species_interactions_df.all(axis=None) == False:
+        if species_interactions_df.all(axis=None) is False:
             allowed_species = None  # no species can be selected
         else:
             allowed_species = species_interactions_df.index
@@ -86,7 +86,7 @@ class TestLineInfoWidgetData:
                 None, filter_mode, group_mode
             )
             # Dataframe contains all falsy values (proxy for empty)
-            assert last_line_counts_df.all(axis=None) == False
+            assert last_line_counts_df.all(axis=None) is False
             return
 
         for selected_species in allowed_species:
@@ -286,7 +286,7 @@ class TestLineInfoWidgetEvents:
                 [selected_species]
             )
 
-            if bool(selected_species) == False:
+            if bool(selected_species) is False:
                 # When selected_species is a falsy value due to empty
                 # species_interactions_table, use it as None in get_last_line_counts()
                 selected_species = None
@@ -332,7 +332,7 @@ class TestLineInfoWidgetEvents:
         # For testing changes in last_line_counts_table data,
         # we're only considering the 1st row (0th index species)
         # in species_interactions_table
-        if line_info_widget.last_line_counts_table.df.all(axis=None) == False:
+        if line_info_widget.last_line_counts_table.df.all(axis=None) is False:
             species0 = None
         else:
             species0 = line_info_widget.species_interactions_table.df.index[0]

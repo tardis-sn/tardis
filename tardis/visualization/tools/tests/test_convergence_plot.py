@@ -197,8 +197,7 @@ def test_override_plot_parameters(convergence_plots):
     assert (
         convergence_plots.t_inner_luminosities_plot["layout"]["xaxis2"][
             "showgrid"
-        ]
-        == False
+        ] is False
     )
 
     # testing plot parameters for plasma plot
@@ -212,7 +211,7 @@ def test_override_plot_parameters(convergence_plots):
         )
     # checking layout for plasma plot
     assert (
-        convergence_plots.plasma_plot["layout"]["xaxis2"]["showgrid"] == False
+        convergence_plots.plasma_plot["layout"]["xaxis2"]["showgrid"] is False
     )
 
 

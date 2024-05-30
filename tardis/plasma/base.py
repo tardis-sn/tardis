@@ -296,7 +296,7 @@ class BasePlasma(PlasmaWriterMixin):
         print_graph = self.remove_hidden_properties(print_graph)
 
         for node in print_graph:
-            if latex_label == True:
+            if latex_label is True:
                 if hasattr(self.plasma_properties_dict[node], "latex_formula"):
                     print_graph.nodes[str(node)][
                         "label"
@@ -317,13 +317,13 @@ class BasePlasma(PlasmaWriterMixin):
         for edge in print_graph.edges:
             label = print_graph.edges[edge]["label"]
             print_graph.edges[edge]["label"] = " "
-            if latex_label == True:
+            if latex_label is True:
                 print_graph.edges[edge]["texlbl"] = label
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
 
         for line in fileinput.FileInput(fname, inplace=1):
-            if latex_label == True:
+            if latex_label is True:
                 print(
                     line.replace(
                         r'node [label="\N"]',

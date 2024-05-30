@@ -908,7 +908,7 @@ class CustomAbundanceWidget:
         """
         item_index = obj.owner.index
 
-        if obj.new == True:
+        if obj.new is True:
             self.bound_locked_sum_to_1(item_index)
 
     def dpd_shell_no_eventhandler(self, obj):

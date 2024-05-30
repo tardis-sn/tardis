@@ -93,7 +93,7 @@ def get_all_isotopes(abundances):
     isotopes = set(progenitors)
     check = True
 
-    while check == True:
+    while check is True:
         progeny = set(isotopes)
 
         for i in isotopes:
