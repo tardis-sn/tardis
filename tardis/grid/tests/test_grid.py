@@ -5,7 +5,6 @@ import pandas as pd
 
 import tardis
 
-from pathlib import Path
 import tardis.grid as grid
 
 

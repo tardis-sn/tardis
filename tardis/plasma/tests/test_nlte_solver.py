@@ -2,7 +2,6 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
-import numpy.testing as npt
 
 
 from tardis.plasma.properties import (

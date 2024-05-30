@@ -29,7 +29,7 @@ from tardis.io.model.readers.csvy import load_csvy
 from tardis.io.model.readers.csvy import (
     parse_csv_abundances,
 )
-from tardis.util.base import atomic_number2element_symbol, quantity_linspace
+from tardis.util.base import atomic_number2element_symbol
 from tardis.visualization.tools.convergence_plot import transition_colors
 from tardis.visualization.widgets.util import debounce
 
