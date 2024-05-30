@@ -1464,7 +1464,7 @@ class CustomAbundanceWidget:
             data.sort_index(inplace=True)
 
             formatted_v = pd.Series(self.data.velocity.value).apply(
-                lambda x: "%.3e" % x
+                lambda x: "{:.3e}".format(x)
             )
             # Make sure velocity is within the boundary.
             formatted_v[0] = self.data.velocity.value[0]
