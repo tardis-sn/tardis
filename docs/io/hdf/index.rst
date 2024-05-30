@@ -56,7 +56,7 @@ Extract data
 Extract data using the HDF5 libraries
 -------------------------------------
 
-In TARDIS the generated data is valuable because it has been reviewed and validated. For this reason, TARDIS usually takes the generated data.
+In TARDIS the generated data is valuable because it has been reviewed and validated. For this reason, TARDIS tests against the generated data.
 
 Then the question is how to extract data from the actual “.h5” files. It could be easily pulled and followed by the next commands:
 
