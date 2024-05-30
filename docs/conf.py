@@ -183,7 +183,7 @@ else:
 # This does not *have* to match the package name, but typically does
 project = setup_cfg["name"]
 author = setup_cfg["author"]
-copyright = "2013-{0}, {1}".format(datetime.datetime.now().year, author)
+copyright = "2013-{}, {}".format(datetime.datetime.now().year, author)
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -287,7 +287,7 @@ if setup_cfg.get("edit_on_github").lower() == "true":
     edit_on_github_doc_root = "docs"
 
 # -- Resolving issue number to links in changelog -----------------------------
-github_issues_url = "https://github.com/{0}/issues/".format(
+github_issues_url = "https://github.com/{}/issues/".format(
     setup_cfg["github_project"]
 )
 
