@@ -168,8 +168,8 @@ class AtomData:
             Path to the HDFStore file or name of known atom data file
             (default: None)
         """
-        dataframes = dict()
-        nonavailable = list()
+        dataframes = {}
+        nonavailable = []
 
         fname = resolve_atom_data_fname(fname)
 

@@ -161,11 +161,11 @@ class MatplotlibWidget(FigureCanvas):
     def shell_picker(self, shell, mouseevent):
         """Enable picking shells in the shell plot."""
         if mouseevent.xdata is None:
-            return False, dict()
+            return False, {}
         mouse_r2 = mouseevent.xdata**2 + mouseevent.ydata**2
         if shell.r_inner**2 < mouse_r2 < shell.r_outer**2:
-            return True, dict()
-        return False, dict()
+            return True, {}
+        return False, {}
 
     def span_picker(self, span, mouseevent, tolerance=5):
         """Detect mouseclicks inside tolerance region of the span selector

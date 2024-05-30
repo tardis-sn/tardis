@@ -920,7 +920,7 @@ class GrotrianPlot:
             autosize=False,
             width=1000,
             height=700,
-            margin=dict(),
+            margin={},
             showlegend=False,
         )
 

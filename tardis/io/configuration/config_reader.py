@@ -85,7 +85,7 @@ class ConfigurationNameSpace(dict):
                 "Cannot specify both model and csvy_model in main config file."
             )
         if hasattr(self, "csvy_model"):
-            model = dict()
+            model = {}
             csvy_model_path = os.path.join(self.config_dirname, self.csvy_model)
             csvy_yml = load_yaml_from_csvy(csvy_model_path)
             if "v_inner_boundary" in csvy_yml:
