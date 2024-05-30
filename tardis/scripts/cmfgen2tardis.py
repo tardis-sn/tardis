@@ -102,7 +102,7 @@ def parse_file(args):
     )
 
     filename = os.path.splitext(os.path.basename(args.input_path))[0]
-    save_fname = ".".join((filename, "csv"))
+    save_fname = f"{filename}.csv"
     resultant_df = pd.concat([density_df, abundances_df], axis=1)
     resultant_df.columns = pd.MultiIndex.from_tuples(
         zip(resultant_df.columns, quantities_row)

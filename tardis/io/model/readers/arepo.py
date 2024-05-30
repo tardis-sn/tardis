@@ -458,12 +458,7 @@ class Profile:
                 )
 
             f.write(
-                "".join(
-                    [
-                        "\n",
-                        "---\n",
-                    ]
-                )
+                "\n---\n"
             )
 
             # WRITE DATA

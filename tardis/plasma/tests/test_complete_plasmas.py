@@ -144,12 +144,12 @@ class TestPlasma:
         config = Configuration.from_yaml(PLASMA_CONFIG_FPATH)
         hash_string = ""
         for prop, value in request.param.items():
-            hash_string = "_".join((hash_string, prop))
+            hash_string = f"{hash_string}_{prop}"
             if prop == "nlte":
                 for nlte_prop, nlte_value in request.param[prop].items():
                     config.plasma.nlte[nlte_prop] = nlte_value
                     if nlte_prop != "species":
-                        hash_string = "_".join((hash_string, nlte_prop))
+                        hash_string = f"{hash_string}_{nlte_prop}"
             else:
                 config.plasma[prop] = value
                 hash_string = "_".join((hash_string, str(value)))
