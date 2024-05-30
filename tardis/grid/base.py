@@ -30,7 +30,6 @@ def _set_tardis_config_property(tardis_config, key, value):
     for key in keyitems[1:-1]:
         tmp_dict = getattr(tmp_dict, key)
     setattr(tmp_dict, keyitems[-1], value)
-    return
 
 
 class tardisGrid:
@@ -67,7 +66,6 @@ class tardisGrid:
         self.config = tardis_config
         self.grid = gridFrame
 
-        return
 
     def grid_row_to_config(self, row_index):
         """
@@ -144,7 +142,6 @@ class tardisGrid:
             File name to save grid.
         """
         self.grid.to_csv(filename, index=False)
-        return
 
     @classmethod
     def from_axes(cls, configFile, axesdict):
