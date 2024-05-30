@@ -2,7 +2,7 @@ import os
 from pkg_resources import parse_version
 
 import numpy as np
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pylab as plt
 
 
@@ -22,16 +22,16 @@ from tardis import run_tardis
 from tardis.gui.widgets import MatplotlibWidget, ModelViewer, ShellInfo
 from tardis.gui.widgets import LineInfo, LineInteractionTables
 
-if parse_version(matplotlib.__version__) >= parse_version("1.4"):
-    matplotlib.style.use("fivethirtyeight")
+if parse_version(mpl.__version__) >= parse_version("1.4"):
+    mpl.style.use("fivethirtyeight")
 else:
     print("Please upgrade matplotlib to a version >=1.4 for best results!")
-matplotlib.rcParams["font.family"] = "serif"
-matplotlib.rcParams["font.size"] = 10.0
-matplotlib.rcParams["lines.linewidth"] = 1.0
-matplotlib.rcParams["axes.formatter.use_mathtext"] = True
-matplotlib.rcParams["axes.edgecolor"] = matplotlib.rcParams["grid.color"]
-matplotlib.rcParams["axes.linewidth"] = matplotlib.rcParams["grid.linewidth"]
+mpl.rcParams["font.family"] = "serif"
+mpl.rcParams["font.size"] = 10.0
+mpl.rcParams["lines.linewidth"] = 1.0
+mpl.rcParams["axes.formatter.use_mathtext"] = True
+mpl.rcParams["axes.edgecolor"] = mpl.rcParams["grid.color"]
+mpl.rcParams["axes.linewidth"] = mpl.rcParams["grid.linewidth"]
 
 
 class Node(object):

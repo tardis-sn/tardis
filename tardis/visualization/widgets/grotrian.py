@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 import pandas as pd
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from astropy import units as u
 import ipywidgets as ipw
@@ -741,7 +741,7 @@ class GrotrianPlot:
 
             # Get the end arrow color (proportional to log wavelength)
             color_coef = line_info.color_coefficient
-            color = matplotlib.colors.rgb2hex(self._cmap(color_coef)[:3])
+            color = mpl.colors.rgb2hex(self._cmap(color_coef)[:3])
 
             # Draw arrow
             self.fig.add_trace(

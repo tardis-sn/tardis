@@ -13,7 +13,7 @@ else:
          export QT_API=pyqt \n\n For more information refer to user guide."""
     )
 
-import matplotlib
+import matplotlib as mpl
 from matplotlib.figure import *
 import matplotlib.gridspec as gridspec
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -189,7 +189,7 @@ class MatplotlibWidget(FigureCanvas):
         return False, event_attributes
 
 
-class Shell(matplotlib.patches.Wedge):
+class Shell(mpl.patches.Wedge):
     """A data holder to store measurements of shells that will be drawn in
     the plot.
     """

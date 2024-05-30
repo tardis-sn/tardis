@@ -2,9 +2,9 @@ import os
 
 import yaml
 import pytest
-import matplotlib
+import matplotlib as mpl
 
-matplotlib.use("Agg")
+mpl.use("Agg")
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 
