@@ -1154,8 +1154,8 @@ class GrotrianWidget:
         """
         min_wavelength, max_wavelength = change["new"]
         index = self.fig.children.index(self.plot.fig)
-        setattr(self.plot, "min_wavelength", min_wavelength)
-        setattr(self.plot, "max_wavelength", max_wavelength + 1)
+        self.plot.min_wavelength = min_wavelength
+        self.plot.max_wavelength = max_wavelength + 1
 
         # Set the updated plot in the figure
         children_list = list(self.fig.children)
