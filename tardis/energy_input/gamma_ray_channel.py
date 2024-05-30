@@ -51,6 +51,7 @@ def create_inventories_dict(isotope_dict):
     ----------
     isotope_dict : Dict
         dictionary of isotopes for each shell with their ``masses``.
+
     Returns
     -------
         inv : Dict

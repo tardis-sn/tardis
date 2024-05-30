@@ -175,6 +175,7 @@ def trace_vpacket(
 ):
     """
     Trace single vpacket.
+
     Parameters
     ----------
     v_packet

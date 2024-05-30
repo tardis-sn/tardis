@@ -229,6 +229,7 @@ def klein_nishina(energy, theta_C):
         Packet energy
     theta_C : float
         Compton angle
+
     Returns
     -------
     float
@@ -276,6 +277,7 @@ def compton_theta_distribution(energy, sample_resolution=100):
 @njit(**njit_dict_no_parallel)
 def get_random_theta_photon():
     """Get a random theta direction between 0 and pi
+
     Returns
     -------
     float
