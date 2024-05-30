@@ -21,7 +21,6 @@ def parse_density_section(
 
     Parameters
     ----------
-
     density_configuration : tardis.io.config_reader.Configuration
     v_middle : astropy.Quantity
         middle of the velocity bins

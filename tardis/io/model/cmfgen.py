@@ -26,7 +26,6 @@ def read_cmfgen_model(fname):
 
     Parameters
     ----------
-
     fname : str
 
     Returns

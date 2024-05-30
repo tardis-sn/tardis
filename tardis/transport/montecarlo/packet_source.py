@@ -269,7 +269,6 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
         Parameters
         ----------
-
         luminosity : u.Quantity
 
         """

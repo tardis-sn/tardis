@@ -774,7 +774,6 @@ def deprecated(func):
 
     Parameters
     ----------
-
     func : function
     """
 
