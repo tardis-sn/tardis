@@ -1,12 +1,13 @@
 import numpy as np
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.opacities import (
+from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.opacities import (
     compton_opacity_calculation,
     photoabsorption_opacity_calculation,
     pair_creation_opacity_calculation,
     photoabsorption_opacity_calculation_kasen,
+    kappa_calculation,
     pair_creation_opacity_artis,
     SIGMA_T,
 )
@@ -18,7 +19,6 @@ from tardis.energy_input.util import (
     doppler_factor_3d,
     C_CGS,
     H_CGS_KEV,
-    kappa_calculation,
     get_index,
 )
 from tardis.energy_input.GXPacket import GXPacketStatus
@@ -50,7 +50,6 @@ def gamma_packet_loop(
     energy_df_rows,
     energy_plot_df_rows,
     energy_out,
-    packets_out,
     packets_info_array,
 ):
     """Propagates packets through the simulation
@@ -289,9 +288,6 @@ def gamma_packet_loop(
                     energy_out[bin_index, time_index] += rest_energy / (
                         bin_width * dt
                     )
-                    packets_out[bin_index] = np.array(
-                        [bin_index, i, rest_energy, packet.Z, packet.A]
-                    )
                     packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
                     if scattered:
@@ -322,7 +318,6 @@ def gamma_packet_loop(
         energy_plot_df_rows,
         energy_out,
         deposition_estimator,
-        packets_out,
         bin_width,
         packets_info_array,
     )

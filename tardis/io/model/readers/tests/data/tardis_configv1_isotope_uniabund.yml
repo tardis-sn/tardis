@@ -5,8 +5,8 @@ supernova:
     time_explosion: 13 day
 
 atom_data: kurucz_atom_pure_simple.h5
-model:
 
+model:
     structure:
         type: specific
         velocity:

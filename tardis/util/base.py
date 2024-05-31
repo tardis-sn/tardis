@@ -32,7 +32,11 @@ tardis_dir = os.path.realpath(tardis.__path__[0])
 ATOMIC_SYMBOLS_DATA = (
     pd.read_csv(
         get_internal_data_path("atomic_symbols.dat"),
-        delim_whitespace=True,
+        # The argument `delim_whitespace` was changed to `sep`
+        #   because the first one is deprecated since version 2.2.0.
+        #   The regular expression means: the separation is one or
+        #   more spaces together (simple space, tabs, new lines).
+        sep=r"\s+",
         names=["atomic_number", "symbol"],
     )
     .set_index("atomic_number")

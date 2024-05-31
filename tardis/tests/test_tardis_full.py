@@ -1,15 +1,15 @@
 from pathlib import Path
 
-import pytest
-import numpy as np
 import numpy.testing as npt
+import pandas as pd
+import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
-from tardis.simulation.base import Simulation
-from tardis.io.configuration.config_reader import Configuration
-
 from tardis import run_tardis
+from tardis.io.configuration.config_reader import Configuration
+from tardis.simulation.base import Simulation
+from tardis.tests.fixtures.regression_data import RegressionData
 
 
 def test_run_tardis_from_config_obj(
@@ -35,18 +35,18 @@ class TestTransportSimple:
     Very simple run
     """
 
-    name = "test_transport_simple"
+    regression_data: RegressionData = None
 
     @pytest.fixture(scope="class")
-    def transport(
+    def transport_state(
         self,
+        request,
         atomic_data_fname,
-        tardis_ref_data,
         generate_reference,
         example_configuration_dir: Path,
     ):
         config = Configuration.from_yaml(
-            example_configuration_dir / "tardis_configv1_verysimple.yml"
+            str(example_configuration_dir / "tardis_configv1_verysimple.yml")
         )
         config["atom_data"] = atomic_data_fname
 
@@ -54,46 +54,40 @@ class TestTransportSimple:
         simulation.run_convergence()
         simulation.run_final()
 
-        if not generate_reference:
-            return simulation.transport
-        else:
-            simulation.transport.hdf_properties = [
-                "j_blue_estimator",
-                "spectrum",
-                "spectrum_virtual",
-            ]
-            simulation.transport.to_hdf(
-                tardis_ref_data, "", self.name, overwrite=True
-            )
-            pytest.skip("Reference data was generated during this run.")
+        transport_state = simulation.transport.transport_state
+        request.cls.regression_data = RegressionData(request)
+        request.cls.regression_data.sync_hdf_store(transport_state)
 
-    @pytest.fixture(scope="class")
-    def refdata(self, tardis_ref_data):
-        def get_ref_data(key):
-            return tardis_ref_data[f"{self.name}/{key}"]
+        return transport_state
 
-        return get_ref_data
+    def get_expected_data(self, key: str):
+        return pd.read_hdf(self.regression_data.fpath, key)
 
-    def test_j_blue_estimators(self, transport, refdata):
-        j_blue_estimator = refdata("j_blue_estimator").values
+    def test_j_blue_estimators(self, transport_state):
+        key = "transport_state/j_blue_estimator"
+        expected = self.get_expected_data(key)
 
         npt.assert_allclose(
-            transport.transport_state.radfield_mc_estimators.j_blue_estimator,
-            j_blue_estimator,
+            transport_state.radfield_mc_estimators.j_blue_estimator,
+            expected.values,
         )
 
-    def test_spectrum(self, transport, refdata):
-        luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
+    def test_spectrum(self, transport_state):
+        key = "transport_state/spectrum/luminosity"
+        expected = self.get_expected_data(key)
+
+        luminosity = u.Quantity(expected, "erg /s")
 
         assert_quantity_allclose(
-            transport.transport_state.spectrum.luminosity, luminosity
+            transport_state.spectrum.luminosity, luminosity
         )
 
-    def test_virtual_spectrum(self, transport, refdata):
-        luminosity = u.Quantity(
-            refdata("spectrum_virtual/luminosity"), "erg /s"
-        )
+    def test_virtual_spectrum(self, transport_state):
+        key = "transport_state/spectrum_virtual/luminosity"
+        expected = self.get_expected_data(key)
+
+        luminosity = u.Quantity(expected, "erg /s")
 
         assert_quantity_allclose(
-            transport.transport_state.spectrum_virtual.luminosity, luminosity
+            transport_state.spectrum_virtual.luminosity, luminosity
         )

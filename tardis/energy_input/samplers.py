@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 @njit(**njit_dict_no_parallel)
@@ -105,7 +105,7 @@ def sample_energy(energy, intensity):
 
     average = (energy * intensity).sum()
     total = 0
-    for (e, i) in zip(energy, intensity):
+    for e, i in zip(energy, intensity):
         total += e * i / average
         if z <= total:
             return e
@@ -138,29 +138,3 @@ def sample_decay_time(
             np.random.random()
         )
     return decay_time
-
-
-@njit(**njit_dict_no_parallel)
-def initial_packet_radius(packet_count, inner_velocity, outer_velocity):
-    """Initialize the random radii of packets in a shell
-
-    Parameters
-    ----------
-    packet_count : int
-        Number of packets in the shell
-    inner_velocity : float
-        Inner velocity of the shell
-    outer_velocity : float
-        Outer velocity of the shell
-
-    Returns
-    -------
-    array
-        Array of length packet_count of random locations in the shell
-    """
-    z = np.random.random(packet_count)
-    initial_radii = (
-        z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0
-    ) ** (1.0 / 3.0)
-
-    return initial_radii

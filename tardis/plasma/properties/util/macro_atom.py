@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.transport.montecarlo import njit_dict
 
 h_cgs = const.h.cgs.value
 c = const.c.to("cm/s").value
