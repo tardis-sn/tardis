@@ -284,11 +284,12 @@ def gamma_packet_loop(
                     bin_width = (
                         energy_bins[bin_index + 1] - energy_bins[bin_index]
                     )
+                    freq_bin_width = bin_width / H_CGS_KEV
 
                     energy_ergs = (packet.energy_rf * KEV2ERG) 
 
                     #energy_out[bin_index, time_index] += rest_energy * KEV2ERG / dt
-                    energy_out[bin_index, time_index] += energy_ergs / dt
+                    energy_out[bin_index, time_index] += energy_ergs / dt / freq_bin_width
                     
                     packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
