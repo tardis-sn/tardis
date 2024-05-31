@@ -29,7 +29,6 @@ import os
 import sys
 from importlib import import_module
 
-
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
 except ImportError:

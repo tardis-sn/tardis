@@ -6,6 +6,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
+from tardis.tests.test_util import monkeysession
 from tardis.visualization.widgets.custom_abundance import (
     CustomAbundanceWidget,
     CustomAbundanceWidgetData,
