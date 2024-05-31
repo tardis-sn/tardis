@@ -6,8 +6,8 @@ name: pre-release
 
 on:
   schedule:
-    - cron: '0 0 * * 0'
-  workflow_dispatch:  # manual trigger
+    - cron: "0 0 * * 0"
+  workflow_dispatch: # manual trigger
 
 defaults:
   run:
@@ -17,7 +17,7 @@ jobs:
   zenodo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: tardis-sn/tardis_zenodo
           token: ${{ secrets.BOT_TOKEN }}
@@ -28,14 +28,14 @@ jobs:
           KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
 
       - name: Download Lock File
-        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
-        
+        run: wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
+
       - name: Generate Cache Key
-        run: | 
+        run: |
           file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
           echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
         id: cache-environment-key
-        
+
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: conda-linux-64.lock
@@ -52,7 +52,7 @@ jobs:
         run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
         if: failure()
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: zenodo_json
           path: .zenodo.json
@@ -61,9 +61,9 @@ jobs:
     needs: zenodo
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: /tmp
 
@@ -137,4 +137,4 @@ jobs:
         if: steps.create-pr.outputs.pull-request-operation == 'created'
 
   compare_refdata:
-      uses: tardis-sn/tardis-refdata/.github/workflows/compare-refdata.yml@master
+    uses: tardis-sn/tardis-refdata/.github/workflows/compare-refdata.yml@master
