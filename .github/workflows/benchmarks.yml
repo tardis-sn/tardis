@@ -33,20 +33,20 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'benchmarks')))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: github.event_name != 'pull_request_target'
         with:
           fetch-depth: 0
 
       - name: Checkout pull/${{ github.event.number }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
         if: github.event_name == 'pull_request_target'
 
       - name: Restore Atom Data
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         id: atom-data-restore
         with:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
@@ -59,7 +59,7 @@ jobs:
           wget -q "$REPO_URL/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&versionType=branch&version=master&resolveLfs=true" -O benchmarks/data/kurucz_cd23_chianti_H_He.h5
 
       - name: Save Atom Data
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         if: ${{ steps.atom-data-restore.outputs.cache-hit != 'true'  && always() || false }}
         id: atom-data-cache-save
         with:
@@ -186,7 +186,7 @@ jobs:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
 
       - name: Save results artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: asv-benchmark-results-${{ runner.os }}

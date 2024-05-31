@@ -27,7 +27,7 @@ runs:
       shell: bash
 
     - name: Restore LFS cache
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v4
       id: lfs-cache-refdata
       with:
         path: tardis-refdata/.git/lfs
@@ -49,7 +49,7 @@ runs:
       # uses fake ternary
       # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
       if: ${{ steps.lfs-cache-refdata.outputs.cache-hit != 'true'  && always() || false }}
-      uses: actions/cache/save@v3
+      uses: actions/cache/save@v4
       id: lfs-cache-refdata-save
       with:
         path: tardis-refdata/.git/lfs
@@ -67,7 +67,7 @@ runs:
       shell: bash
 
     - name: Restore LFS cache
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v4
       id: lfs-cache-regression-data
       with:
         path: tardis-regression-data/.git/lfs
@@ -89,7 +89,7 @@ runs:
       # uses fake ternary
       # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
       if: ${{ steps.lfs-cache-regression-data.outputs.cache-hit != 'true'  && always() || false }}
-      uses: actions/cache/save@v3
+      uses: actions/cache/save@v4
       id: lfs-cache-regression-data-save
       with:
         path: tardis-regression-data/.git/lfs
