@@ -157,7 +157,7 @@ jobs:
           EVENT: ${{ github.event_name }}
 
       - name: Deploy ${{ env.DEST_DIR }}
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.BOT_TOKEN }}
           publish_branch: ${{ env.DEPLOY_BRANCH }}
