@@ -110,3 +110,38 @@ class RPacketTracker(object):
         self.energy = self.energy[: self.num_interactions]
         self.shell_id = self.shell_id[: self.num_interactions]
         self.interaction_type = self.interaction_type[: self.num_interactions]
+
+
+last_interaction_tracker_spec = [
+    ("radius", float64[:]),
+    ("shell_id", int64[:]),
+    ("interaction_type", int64[:]),
+    ("energy", float64[:]),
+    ("in_id", int64[:]),
+    ("in_nu", float64[:]),
+    ("out_id", int64[:]),
+    ("nu", float64[:]),
+]
+
+
+@jitclass(last_interaction_tracker_spec)
+class RPacketLastInteractionTracker:
+    def __init__(self, no_of_packets):
+        self.radius = -1 * np.ones(no_of_packets, dtype=np.float64)
+        self.shell_id = -1 * np.ones(no_of_packets, dtype=np.int32)
+        self.nu = np.zeros(no_of_packets, dytpe=np.float64)
+        self.energy = np.zeros(no_of_packets, dtype=np.float64)
+        self.interaction_type = -1 * np.ones(no_of_packets, dtype=np.int32)
+        self.in_id = -1 * np.ones(no_of_packets, dtype=np.int32)
+        self.in_nu = np.zeros(no_of_packets, dtype=np.float64)
+        self.out_id = -1 * np.ones(no_of_packets, dtype=np.int32)
+
+        def update_last_interaction(self, r_packet, i):
+            self.radius = r_packet.r
+            self.shell_id = r_packet.current_shell_id
+            self.nu = r_packet.nu
+            self.energy = r_packet.energy
+            self.interaction_type = r_packet.last_interaction_type
+            self.in_id = r_packet.last_line_interaction_in_id
+            self.in_nu = r_packet.last_interaction_in_nu
+            self.out_id = r_packet.last_line_interaction_out_id
