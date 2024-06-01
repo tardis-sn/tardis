@@ -64,7 +64,7 @@ class AtomData:
     A DataFrame containing  the *macro atom references* with:
         index : numerical index
         columns : atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
-    Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
+    Refer to the docs: https://tardis-sn.github.io/tardis/physics/setup/plasma/macroatom.html
 
     collision_data : (pandas.DataFrame, np.array)
     A DataFrame containing the *electron collisions data* with:
