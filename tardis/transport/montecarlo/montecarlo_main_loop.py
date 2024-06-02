@@ -5,7 +5,7 @@ from numba.typed import List
 
 from tardis.transport.montecarlo import njit_dict
 from tardis.transport.montecarlo.numba_interface import NumbaModel
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
+from tardis.transport.montecarlo.packet_trackers import RPacketTracker, RPacketLastInteractionTracker
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
     consolidate_vpacket_tracker,
@@ -67,6 +67,8 @@ def montecarlo_main_loop(
     last_interaction_tracker = initialize_last_interaction_tracker(
         no_of_packets
     )
+
+    last_interaction_tracker_check = RPacketLastInteractionTracker(no_of_packets) 
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
@@ -147,13 +149,14 @@ def montecarlo_main_loop(
         packet_collection.output_nus[i] = r_packet.nu
 
         last_interaction_tracker.update_last_interaction(r_packet, i)
+        last_interaction_tracker_check.update_last_interaction(r_packet, i)
 
         if r_packet.status == PacketStatus.REABSORBED:
             packet_collection.output_energies[i] = -r_packet.energy
-            last_interaction_tracker.types[i] = r_packet.last_interaction_type
+            last_interaction_traker_check.energy[i] = -r_packet.energy
         elif r_packet.status == PacketStatus.EMITTED:
             packet_collection.output_energies[i] = r_packet.energy
-            last_interaction_tracker.types[i] = r_packet.last_interaction_type
+            last_interaction_tracker_check.energy[i] = r_packet.energy
 
         vpacket_collection.finalize_arrays()
 
@@ -195,6 +198,7 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         last_interaction_tracker,
+        last_interaction_tracker_check,
         vpacket_tracker,
         rpacket_trackers,
     )

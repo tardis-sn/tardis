@@ -137,11 +137,11 @@ class RPacketLastInteractionTracker:
         self.out_id = -1 * np.ones(no_of_packets, dtype=np.int32)
 
         def update_last_interaction(self, r_packet, i):
-            self.radius = r_packet.r
-            self.shell_id = r_packet.current_shell_id
-            self.nu = r_packet.nu
-            self.energy = r_packet.energy
-            self.interaction_type = r_packet.last_interaction_type
-            self.in_id = r_packet.last_line_interaction_in_id
-            self.in_nu = r_packet.last_interaction_in_nu
-            self.out_id = r_packet.last_line_interaction_out_id
+            self.radius[i] = r_packet.r
+            self.shell_id[i] = r_packet.current_shell_id
+            self.nu[i] = r_packet.nu
+            self.energy[i] = r_packet.energy
+            self.interaction_type[i] = r_packet.last_interaction_type
+            self.in_id[i] = r_packet.last_line_interaction_in_id
+            self.in_nu[i] = r_packet.last_interaction_in_nu
+            self.out_id[i] = r_packet.last_line_interaction_out_id
