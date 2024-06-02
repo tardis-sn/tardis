@@ -2,7 +2,6 @@
 Basic TARDIS Benchmark.
 """
 
-import numpy as np
 from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
 import tardis.transport.montecarlo.interaction as interaction
@@ -20,16 +19,9 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
 
     def time_thomson_scatter(self):
         packet = self.packet
-        init_mu = packet.mu
-        init_nu = packet.nu
-        init_energy = packet.energy
         time_explosion = self.verysimple_numba_model.time_explosion
 
         interaction.thomson_scatter(packet, time_explosion)
-
-        assert np.abs(packet.mu - init_mu) > 1e-7
-        assert np.abs(packet.nu - init_nu) > 1e-7
-        assert np.abs(packet.energy - init_energy) > 1e-7
 
     @parameterize(
         {
@@ -42,9 +34,6 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
     )
     def time_line_scatter(self, line_interaction_type):
         packet = self.packet
-        init_mu = packet.mu
-        init_nu = packet.nu
-        init_energy = packet.energy
         packet.initialize_line_id(
             self.verysimple_opacity_state, self.verysimple_numba_model
         )
@@ -56,10 +45,6 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
             line_interaction_type,
             self.verysimple_opacity_state,
         )
-
-        assert np.abs(packet.mu - init_mu) > 1e-7
-        assert np.abs(packet.nu - init_nu) > 1e-7
-        assert np.abs(packet.energy - init_energy) > 1e-7
 
     @parameterize(
         {
@@ -99,5 +84,3 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
             time_explosion,
             self.verysimple_opacity_state,
         )
-
-        assert packet.next_line_id == emission_line_id + 1

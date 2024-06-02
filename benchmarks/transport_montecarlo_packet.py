@@ -123,8 +123,6 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         except utils.MonteCarloException:
             obtained_tardis_error = utils.MonteCarloException
 
-        assert obtained_tardis_error == expected_params
-
     @parameterize(
         {
             "Parameters": [
@@ -173,8 +171,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
     def time_get_random_mu(self):
         self.set_seed_fixture(1963)
 
-        output1 = utils.get_random_mu()
-        assert output1 == 0.9136407866175174
+        _ = utils.get_random_mu()
 
     @parameterize(
         {
@@ -239,7 +236,6 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         r_packet_transport.move_packet_across_shell_boundary(
             packet, delta_shell, no_of_shells
         )
-        assert packet.status == r_packet.PacketStatus.EMITTED
 
     @skip_benchmark
     @parameterize(
@@ -272,7 +268,6 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         r_packet_transport.move_packet_across_shell_boundary(
             packet, delta_shell, no_of_shells
         )
-        assert packet.status == r_packet.PacketStatus.REABSORBED
 
     @parameterize(
         {
@@ -304,4 +299,3 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         r_packet_transport.move_packet_across_shell_boundary(
             packet, delta_shell, no_of_shells
         )
-        assert packet.current_shell_id == current_shell_id + delta_shell

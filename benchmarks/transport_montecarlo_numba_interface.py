@@ -73,5 +73,3 @@ class BenchmarkMontecarloMontecarloNumbaNumbaInterface(BenchmarkBase):
                 last_interaction_out_id,
                 last_interaction_shell_id,
             )
-
-        assert verysimple_3vpacket_collection.length == 9

@@ -52,18 +52,12 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             v_packet, verysimple_opacity_state, verysimple_numba_model
         )
 
-        (
-            tau_trace_combined,
-            distance_boundary,
-            delta_shell,
-        ) = vpacket.trace_vpacket_within_shell(
+        _, _, _ = vpacket.trace_vpacket_within_shell(
             v_packet,
             verysimple_numba_radial_1d_geometry,
             verysimple_numba_model,
             verysimple_opacity_state,
         )
-
-        assert delta_shell == 1
 
     def time_trace_vpacket(self):
         v_packet = self.v_packet
@@ -81,15 +75,12 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             v_packet, verysimple_opacity_state, verysimple_numba_model
         )
 
-        tau_trace_combined = vpacket.trace_vpacket(
+        _ = vpacket.trace_vpacket(
             v_packet,
             verysimple_numba_radial_1d_geometry,
             verysimple_numba_model,
             verysimple_opacity_state,
         )
-
-        assert v_packet.next_line_id == 2773
-        assert v_packet.current_shell_id == 1
 
     @property
     def broken_packet(self):

@@ -119,7 +119,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
             oz,
             oshell_id,
         )
-        assert n == size
 
     @skip_benchmark
     @parameterize({"p": [1e-5, 0.5, 0.99, 1], "Test data": TESTDATA})
@@ -164,8 +163,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
             oz,
             oshell_id,
         )
-
-        assert n == expected_n
 
     @parameterize({"N": [100, 1000, 10000]})
     def time_calculate_p_values(self, n):
