@@ -66,7 +66,7 @@ class InteractionRadiusPlotter:
                 virtual=sdec.SDECData.from_simulation(sim, "virtual"),
                 real=sdec.SDECData.from_simulation(sim, "real"),
             ),
-            sim.model.time_explosion,
+            sim.plasma.time_explosion,
         )
 
     @classmethod
