@@ -158,7 +158,7 @@ def montecarlo_main_loop(
 
         if r_packet.status == PacketStatus.REABSORBED:
             packet_collection.output_energies[i] = -r_packet.energy
-            last_interaction_traker_check.energy[i] = -r_packet.energy
+            last_interaction_tracker_check.energy[i] = -r_packet.energy
         elif r_packet.status == PacketStatus.EMITTED:
             packet_collection.output_energies[i] = r_packet.energy
             last_interaction_tracker_check.energy[i] = r_packet.energy

@@ -129,7 +129,7 @@ class RPacketLastInteractionTracker:
     def __init__(self, no_of_packets):
         self.radius = -1 * np.ones(no_of_packets, dtype=np.float64)
         self.shell_id = -1 * np.ones(no_of_packets, dtype=np.int32)
-        self.nu = np.zeros(no_of_packets, dytpe=np.float64)
+        self.nu = np.zeros(no_of_packets, dtype=np.float64)
         self.energy = np.zeros(no_of_packets, dtype=np.float64)
         self.interaction_type = -1 * np.ones(no_of_packets, dtype=np.int32)
         self.in_id = -1 * np.ones(no_of_packets, dtype=np.int32)
