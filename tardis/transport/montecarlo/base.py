@@ -187,11 +187,12 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             total_iterations=total_iterations,
         )
 
-        transport_state._montecarlo_virtual_luminosity.value[
-            :
-        ] = v_packets_energy_hist
+        transport_state._montecarlo_virtual_luminosity.value[:] = (
+            v_packets_energy_hist
+        )
         transport_state.last_interaction_type = last_interaction_tracker.types
         transport_state.last_interaction_in_nu = last_interaction_tracker.in_nus
+        transport_state.last_interaction_in_r = last_interaction_tracker.in_rs
         transport_state.last_line_interaction_in_id = (
             last_interaction_tracker.in_ids
         )
