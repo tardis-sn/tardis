@@ -40,6 +40,7 @@ class SDECData:
         last_line_interaction_in_id,
         last_line_interaction_out_id,
         last_line_interaction_in_nu,
+        last_interaction_in_r,
         lines_df,
         packet_nus,
         packet_energies,
@@ -67,6 +68,8 @@ class SDECData:
             emission (interaction out)
         last_line_interaction_in_nu : np.array
             Frequency values of the last absorption of emitted packets
+        last_line_interaction_in_r : np.array
+            Radius of the last interaction experienced by emitted packets   
         lines_df : pd.DataFrame
             Data about the atomic lines present in simulation model's plasma
         packet_nus : astropy.Quantity
@@ -98,6 +101,7 @@ class SDECData:
                 "last_line_interaction_out_id": last_line_interaction_out_id,
                 "last_line_interaction_in_id": last_line_interaction_in_id,
                 "last_line_interaction_in_nu": last_line_interaction_in_nu,
+                "last_interaction_in_r": last_interaction_in_r
             }
         )
 
@@ -177,6 +181,7 @@ class SDECData:
                 last_line_interaction_in_id=transport_state.vpacket_tracker.last_interaction_in_id,
                 last_line_interaction_out_id=transport_state.vpacket_tracker.last_interaction_out_id,
                 last_line_interaction_in_nu=transport_state.vpacket_tracker.last_interaction_in_nu,
+                #last_interaction_in_r=sim.runner.virt_packet_last_interaction_in_r,
                 lines_df=lines_df,
                 packet_nus=u.Quantity(
                     transport_state.vpacket_tracker.nus, "Hz"
@@ -209,6 +214,9 @@ class SDECData:
                 ],
                 last_line_interaction_in_nu=transport_state.last_interaction_in_nu[
                     transport_state.emitted_packet_mask
+                ],
+                last_interaction_in_r=transport_state.runner.last_interaction_in_r[
+                    transport_state.runner.emitted_packet_mask
                 ],
                 lines_df=lines_df,
                 packet_nus=transport_state.packet_collection.output_nus[
@@ -283,6 +291,12 @@ class SDECData:
                         ].to_numpy(),
                         "Hz",
                     ),
+                    last_interaction_in_r=u.Quantity(
+                        hdf[
+                            "/simulation/runner/virt_packet_last_interaction_in_r"
+                        ].to_numpy(),
+                        "cm",
+                    ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(
                         hdf[
@@ -346,6 +360,12 @@ class SDECData:
                             "/simulation/transport/transport_state/last_interaction_in_nu"
                         ].to_numpy()[emitted_packet_mask],
                         "Hz",
+                    ),
+                    last_interaction_in_r=u.Quantity(
+                        hdf[
+                            "/simulation/runner/last_interaction_in_r"
+                        ].to_numpy()[emitted_packet_mask],
+                        "cm",
                     ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(

@@ -15,6 +15,7 @@ packet_collection_spec = [
     ("time_of_simulation", float64),
     ("radiation_field_luminosity", float64),  #
     ("output_nus", float64[:]),
+    ("output_radii", float64[:]),
     ("output_energies", float64[:]),
 ]
 
@@ -40,6 +41,7 @@ class PacketCollection:
             1 / radiation_field_luminosity
         )  # 1 erg / luminosity
         self.output_nus = np.ones_like(initial_radii, dtype=np.float64) * -99.0
+        #self._output_radii = np.ones(no_of_packets, dtype=np.float64) * -99.0
         self.output_energies = (
             np.ones_like(initial_radii, dtype=np.float64) * -99.0
         )
@@ -110,6 +112,7 @@ vpacket_collection_spec = [
     ("number_of_vpackets", int64),
     ("length", int64),
     ("last_interaction_in_nu", float64[:]),
+    ("last_interaction_in_r", float64[:]),
     ("last_interaction_type", int64[:]),
     ("last_interaction_in_id", int64[:]),
     ("last_interaction_out_id", int64[:]),
@@ -139,6 +142,9 @@ class VPacketCollection:
         self.last_interaction_in_nu = np.zeros(
             temporary_v_packet_bins, dtype=np.float64
         )
+        self.last_interaction_in_r = np.zeros(
+            temporary_v_packet_bins, dtype=np.float64
+        )
         self.last_interaction_type = -1 * np.ones(
             temporary_v_packet_bins, dtype=np.int64
         )
@@ -162,6 +168,7 @@ class VPacketCollection:
         initial_mu,
         initial_r,
         last_interaction_in_nu,
+        last_interaction_in_r,
         last_interaction_type,
         last_interaction_in_id,
         last_interaction_out_id,
@@ -205,6 +212,7 @@ class VPacketCollection:
             temp_last_interaction_in_nu = np.empty(
                 temp_length, dtype=np.float64
             )
+            temp_last_interaction_in_r = np.empty(temp_length, dtype=np.float64)
             temp_last_interaction_type = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_in_id = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_out_id = np.empty(temp_length, dtype=np.int64)
@@ -219,6 +227,9 @@ class VPacketCollection:
             temp_last_interaction_in_nu[
                 : self.length
             ] = self.last_interaction_in_nu
+            temp_last_interaction_in_r[
+                : self.length
+            ] = self.last_interaction_in_r
             temp_last_interaction_type[
                 : self.length
             ] = self.last_interaction_type
@@ -237,6 +248,7 @@ class VPacketCollection:
             self.initial_mus = temp_initial_mus
             self.initial_rs = temp_initial_rs
             self.last_interaction_in_nu = temp_last_interaction_in_nu
+            self.last_interaction_in_r = temp_last_interaction_in_r
             self.last_interaction_type = temp_last_interaction_type
             self.last_interaction_in_id = temp_last_interaction_in_id
             self.last_interaction_out_id = temp_last_interaction_out_id
@@ -248,6 +260,7 @@ class VPacketCollection:
         self.initial_mus[self.idx] = initial_mu
         self.initial_rs[self.idx] = initial_r
         self.last_interaction_in_nu[self.idx] = last_interaction_in_nu
+        self.last_interaction_in_r[self.idx] = last_interaction_in_r
         self.last_interaction_type[self.idx] = last_interaction_type
         self.last_interaction_in_id[self.idx] = last_interaction_in_id
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
