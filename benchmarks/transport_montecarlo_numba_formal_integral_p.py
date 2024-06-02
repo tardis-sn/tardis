@@ -173,3 +173,22 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         np.zeros_like(expected, dtype=np.float64)
 
         func(r, n)
+
+    @parameterize({"nu": [1e13, 5e14, 1e15], "temperature": [300, 1000, 5800]})
+    def time_intensity_black_body(self, nu, temperature):
+        formal_integral.intensity_black_body(nu, temperature)
+
+    @parameterize({
+        'case1': {'x': [100.0, 90.0, 80.0, 70.0, 60.0], 'x_insert': 85.0, 'imin': 0, 'imax': 4},
+        'case2': {'x': [50.0, 40.0, 30.0, 20.0, 10.0], 'x_insert': 55.0, 'imin': 0, 'imax': 4},
+        'case3': {'x': [5.0, 4.0, 3.0, 2.0, 1.0], 'x_insert': 0.5, 'imin': 0, 'imax': 4},
+        'case4': {'x': [200.0, 150.0, 100.0, 50.0, 25.0], 'x_insert': 200.0, 'imin': 0, 'imax': 4},
+        'case5': {'x': [200.0, 150.0, 100.0, 50.0, 25.0], 'x_insert': 25.0, 'imin': 0, 'imax': 4},
+        'edge_case_low': {'x': [1e9, 5e8, 1e8, 5e7], 'x_insert': -1e9, 'imin': 0, 'imax': 3},
+        'edge_case_high': {'x': [1e9, 5e8, 1e8, 5e7], 'x_insert': 1e9, 'imin': 0, 'imax': 3}
+    })
+    def test_reverse_binary_search(x, x_insert, imin, imax):
+        formal_integral.reverse_binary_search(x, x_insert, imin, imax)
+
+    
+    
