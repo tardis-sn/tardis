@@ -61,9 +61,13 @@ class InteractionRadiusPlotter:
         Plotter
         """
 
-        return cls(dict(virtual=sdec.SDECData.from_simulation(sim, "virtual"),
-                        real=sdec.SDECData.from_simulation(sim, "real")),
-                   sim.model.time_explosion)
+        return cls(
+            dict(
+                virtual=sdec.SDECData.from_simulation(sim, "virtual"),
+                real=sdec.SDECData.from_simulation(sim, "real"),
+            ),
+            sim.model.time_explosion,
+        )
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
@@ -80,10 +84,15 @@ class InteractionRadiusPlotter:
         Plotter
         """
         hdfstore = pd.HDFStore(hdf_fpath)
-        time_explosion = hdfstore['/simulation/plasma/scalars']['time_explosion'] * u.s
-        return cls(dict(virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
-                        real=sdec.SDECData.from_hdf(hdf_fpath, "real")),
-                   )
+        time_explosion = (
+            hdfstore["/simulation/plasma/scalars"]["time_explosion"] * u.s
+        )
+        return cls(
+            dict(
+                virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
+                real=sdec.SDECData.from_hdf(hdf_fpath, "real"),
+            ),
+        )
 
     def _parse_species_list(self, species_list):
         """
@@ -123,7 +132,7 @@ class InteractionRadiusPlotter:
                         )
                         # add each ion between the two requested into the species list
                         for ion_number in np.arange(
-                                first_ion_numeral, second_ion_numeral + 1
+                            first_ion_numeral, second_ion_numeral + 1
                         ):
                             full_species_list.append(
                                 f"{element} {int_to_roman(ion_number)}"
@@ -195,7 +204,7 @@ class InteractionRadiusPlotter:
                 # if the element was requested, and not a specific ion, then
                 # add the element symbol to the label list
                 if (atomic_number in self._keep_colour) & (
-                        atomic_symbol not in species_name
+                    atomic_symbol not in species_name
                 ):
                     # compiling the label, and adding it to the list
                     label = f"{atomic_symbol}"
@@ -282,12 +291,14 @@ class InteractionRadiusPlotter:
         cbar.set_ticklabels(self._species_name)
         return
 
-    def generate_plot_mpl(self,
-                          packets_mode="virtual",
-                          ax=None,
-                          figsize=(12, 7),
-                          cmapname="jet",
-                          species_list=None):
+    def generate_plot_mpl(
+        self,
+        packets_mode="virtual",
+        ax=None,
+        figsize=(12, 7),
+        cmapname="jet",
+        species_list=None,
+    ):
         """
         Generate the last interaction radius distribution plot
         using matplotlib.
@@ -296,7 +307,10 @@ class InteractionRadiusPlotter:
         # Parse the requested species list
         self._parse_species_list(species_list=species_list)
         species_in_model = np.unique(
-            self.data[packets_mode].packets_df_line_interaction['last_line_interaction_species'].values)
+            self.data[packets_mode]
+            .packets_df_line_interaction["last_line_interaction_species"]
+            .values
+        )
         msk = np.isin(self._species_list, species_in_model)
         self.species = np.array(self._species_list)[msk]
 
@@ -313,22 +327,26 @@ class InteractionRadiusPlotter:
         self._make_colorbar_colors()
         self._show_colorbar_mpl()
 
-        groups = self.data[packets_mode].packets_df_line_interaction.groupby(by='last_line_interaction_species')
+        groups = self.data[packets_mode].packets_df_line_interaction.groupby(
+            by="last_line_interaction_species"
+        )
 
         plot_colors = []
         plot_data = []
 
         for species_counter, identifier in enumerate(self.species):
             g_df = groups.get_group(identifier)
-            r_last_interaction = g_df['last_interaction_in_r'].values * u.cm
-            v_last_interaction = (r_last_interaction / self.time_explosion).to('km/s')
+            r_last_interaction = g_df["last_interaction_in_r"].values * u.cm
+            v_last_interaction = (r_last_interaction / self.time_explosion).to(
+                "km/s"
+            )
             plot_data.append(v_last_interaction)
             plot_colors.append(self._color_list[species_counter])
 
         self.ax.hist(plot_data, bins=50, color=plot_colors)
-        self.ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
-        self.ax.tick_params('both', labelsize=20)
-        self.ax.set_xlabel('Last Interaction Velocity (km/s)', fontsize=25)
-        self.ax.set_ylabel('Packet Count', fontsize=25)
+        self.ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+        self.ax.tick_params("both", labelsize=20)
+        self.ax.set_xlabel("Last Interaction Velocity (km/s)", fontsize=25)
+        self.ax.set_ylabel("Packet Count", fontsize=25)
 
         return plt.gca()
