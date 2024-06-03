@@ -31,3 +31,5 @@ else:
 
 from tardis.base import run_tardis
 from tardis.io.util import yaml_load_file as yaml_load
+
+TARDIS_PATH = __path__

@@ -15,7 +15,7 @@ import yaml
 from astropy import units as u
 from astropy.utils.data import download_file
 
-from tardis import __path__ as TARDIS_PATH
+from tardis import TARDIS_PATH
 from tardis import constants as const
 
 logger = logging.getLogger(__name__)

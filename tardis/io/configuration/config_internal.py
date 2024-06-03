@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 from astropy.config import get_config_dir
 
-from tardis import __path__ as TARDIS_PATH
+from tardis import TARDIS_PATH
 
 TARDIS_PATH = Path(TARDIS_PATH[0])
 DEFAULT_CONFIG_PATH = (
