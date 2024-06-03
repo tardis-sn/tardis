@@ -597,10 +597,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         try:
             del self._callbacks[id]
-            return True
         except KeyError:
             logger.debug(f"Call Back was not found in {self._callbacks.keys()}")
             return False
+        else:
+            return True
+
 
     @classmethod
     def from_config(
