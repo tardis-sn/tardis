@@ -165,7 +165,7 @@ def tardis_snapshot_path(request):
         )
 
 
-@pytest.yield_fixture(scope="session")
+@pytest.fixture(scope="session")
 def tardis_ref_data(tardis_ref_path, generate_reference):
     if generate_reference:
         mode = "w"
