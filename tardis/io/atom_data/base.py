@@ -259,11 +259,8 @@ class AtomData:
                 f"Reading Atom Data with: UUID = {atom_data.uuid1} MD5  = {atom_data.md5} "
             )
             if nonavailable:
-                logger.info(
-                    "Non provided Atomic Data: {}".format(
-                        ", ".join(nonavailable)
-                    )
-                )
+                nonavailable_joined = ", ".join(nonavailable)
+                logger.info("Non provided Atomic Data: %s", nonavailable_joined)
 
         return atom_data
 
