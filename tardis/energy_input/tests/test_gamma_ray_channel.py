@@ -112,8 +112,8 @@ def test_isotope_dicts(gamma_ray_test_composition, nuclide_name):
     raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
     isotope_dict = create_isotope_dicts(raw_isotopic_mass_fraction, cell_masses)
 
-    for isotope_dict in isotope_dict.values():
-        assert nuclide_name in isotope_dict.keys()
+    for item in isotope_dict.values():
+        assert nuclide_name in item.keys()
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
