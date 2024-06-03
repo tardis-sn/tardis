@@ -23,7 +23,7 @@ def generate_zenodo():
     try:
         headers = {"accept": "application/x-bibtex"}
         response = requests.get(
-            f"https://zenodo.org/api/records/{CONCEPT_DOI}", headers=headers
+            f"https://zenodo.org/api/records/{CONCEPT_DOI}", headers=headers, timeout=10
         )
         response.encoding = "utf-8"
         citation = re.findall(r"@software{(.*)\,", response.text)
