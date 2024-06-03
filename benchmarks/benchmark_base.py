@@ -15,7 +15,7 @@ from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import yaml_load_file, YAMLLoader, HDFWriterMixin
 from tardis.model import SimulationState
-from tardis.transport.montecarlo import NumbaModel, opacity_state_initialize
+from tardis.transport.montecarlo.numba_interface import NumbaModel, opacity_state_initialize
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
