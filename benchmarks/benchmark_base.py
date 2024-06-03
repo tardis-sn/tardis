@@ -40,6 +40,7 @@ class BenchmarkBase:
     It allows 10 minutes of runtime for each benchmark and includes
     the total time for all the repetitions for each benchmark.
     """
+
     timeout = 600
 
     def __init__(self):
@@ -172,6 +173,7 @@ class BenchmarkBase:
         """
         Modify pytest request object.
         """
+
         def __init__(
             self,
             tardis_regression_data_path: str,
