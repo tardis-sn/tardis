@@ -6,7 +6,7 @@ import pathlib
 import re
 import textwrap
 import warnings
-from datetime import date
+import datetime
 
 import requests
 from rst_include import rst_include
@@ -18,7 +18,7 @@ def generate_zenodo():
     """
     CONCEPT_DOI = "592480"  # See: https://help.zenodo.org/#versioning
     zenodo_path = pathlib.Path("docs/resources/zenodo.rst")
-    year = date.today().year
+    year = datetime.datetime.now(tz=datetime.timezone.utc).date().year
 
     try:
         headers = {"accept": "application/x-bibtex"}
