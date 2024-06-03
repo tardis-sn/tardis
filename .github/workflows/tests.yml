@@ -17,7 +17,7 @@ on:
       - opened
       - reopened
       - synchronize
-      - labeled # requires the `build-docs` label
+      - labeled
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
