@@ -43,15 +43,10 @@ def continuum_compare_data_fname():
 
 
 @pytest.fixture(scope="module")
-def continuum_compare_data(continuum_compare_data_fname, request):
+def continuum_compare_data(continuum_compare_data_fname):
     compare_data = pd.HDFStore(continuum_compare_data_fname, mode="r")
-
-    def fin():
-        compare_data.close()
-
-    request.addfinalizer(fin)
-
-    return compare_data
+    yield compare_data
+    compare_data.close()
 
 
 @pytest.fixture(scope="function")
