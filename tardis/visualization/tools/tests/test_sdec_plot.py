@@ -341,10 +341,7 @@ class TestSDECPlotter:
             )
 
             if isinstance(plotter.lum_to_flux, u.quantity.Quantity):
-                assert (
-                    plotter.lum_to_flux.cgs.value
-                    == self.hdf_file.get_node(group, "lum_to_flux"),
-                )
+                assert plotter.lum_to_flux.cgs.value == self.hdf_file.get_node(group, "lum_to_flux")
             else:
                 assert plotter.lum_to_flux == self.hdf_file.get_node(
                     group, "lum_to_flux"
@@ -473,12 +470,7 @@ class TestSDECPlotter:
         else:
             group = self.hdf_file.get_node("/" + subgroup_name)
             # test output of the _make_colorbar_labels function
-            assert (
-                plotter._species_name
-                == self.hdf_file.get_node(group, "_species_name")
-                .read()
-                .astype(str),
-            )
+            assert plotter._species_name == self.hdf_file.get_node(group, "_species_name").read().astype(str)
             # test output of the _make_colorbar_colors function
             np.testing.assert_allclose(
                 np.asarray(np.asarray(plotter._color_list)),
@@ -616,12 +608,7 @@ class TestSDECPlotter:
         else:
             group = self.hdf_file.get_node("/", subgroup_name)
             # test output of the _make_colorbar_labels function
-            assert (
-                plotter._species_name
-                == self.hdf_file.get_node(group, "_species_name")
-                .read()
-                .astype(str),
-            )
+            assert plotter._species_name == self.hdf_file.get_node(group, "_species_name").read().astype(str)
             # test output of the _make_colorbar_colors function
             np.testing.assert_allclose(
                 np.asarray(np.asarray(plotter._color_list)),
