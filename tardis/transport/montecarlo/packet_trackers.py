@@ -126,15 +126,22 @@ last_interaction_tracker_spec = [
 
 @jitclass(last_interaction_tracker_spec)
 class RPacketLastInteractionTracker:
+    """
+    Numba JITCLASS for storing the last interaction info a RPacket
+
+    Parameters
+    ----------
+    
+    """
     def __init__(self, no_of_packets):
         self.radius = -1 * np.ones(no_of_packets, dtype=np.float64)
-        self.shell_id = -1 * np.ones(no_of_packets, dtype=np.int32)
+        self.shell_id = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.nu = np.zeros(no_of_packets, dtype=np.float64)
         self.energy = np.zeros(no_of_packets, dtype=np.float64)
-        self.interaction_type = -1 * np.ones(no_of_packets, dtype=np.int32)
-        self.in_id = -1 * np.ones(no_of_packets, dtype=np.int32)
+        self.interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
+        self.in_id = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.in_nu = np.zeros(no_of_packets, dtype=np.float64)
-        self.out_id = -1 * np.ones(no_of_packets, dtype=np.int32)
+        self.out_id = -1 * np.ones(no_of_packets, dtype=np.int64)
 
     def update_last_interaction(self, r_packet, i):
         self.radius[i] = r_packet.r
