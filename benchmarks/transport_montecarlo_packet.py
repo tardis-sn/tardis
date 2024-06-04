@@ -100,7 +100,6 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
     )
     def time_calculate_distance_line(self, parameters):
         packet_params = parameters["packet"]
-        expected_params = parameters["expected"]
         nu_line = packet_params["nu_line"]
         is_last_line = packet_params["is_last_line"]
 
@@ -111,17 +110,13 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         )
         comov_nu = self.static_packet.nu * doppler_factor
 
-        obtained_tardis_error = None
-        try:
-            calculate_distances.calculate_distance_line(
-                self.static_packet,
-                comov_nu,
-                is_last_line,
-                nu_line,
-                time_explosion,
-            )
-        except utils.MonteCarloException:
-            obtained_tardis_error = utils.MonteCarloException
+        calculate_distances.calculate_distance_line(
+            self.static_packet,
+            comov_nu,
+            is_last_line,
+            nu_line,
+            time_explosion,
+        )
 
     @parameterize(
         {
@@ -169,9 +164,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         opacities.calculate_tau_electron(electron_density, distance)
 
     def time_get_random_mu(self):
-        self.set_seed_fixture(1963)
-
-        _ = utils.get_random_mu()
+        utils.get_random_mu()
 
     @parameterize(
         {
