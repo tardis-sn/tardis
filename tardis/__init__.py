@@ -16,6 +16,8 @@ import warnings
 
 # ----------------------------------------------------------------------------
 
+TARDIS_PATH = __path__
+
 if ("astropy.units" in sys.modules) or ("astropy.constants" in sys.modules):
     warnings.warn(
         "Astropy is already imported externally. Astropy should be imported"
@@ -31,5 +33,3 @@ else:
 
 from tardis.base import run_tardis
 from tardis.io.util import yaml_load_file as yaml_load
-
-TARDIS_PATH = __path__
