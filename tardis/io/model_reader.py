@@ -7,7 +7,7 @@ import h5py
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from numpy import recfromtxt
+from numpy import genfromtxt
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z, NuclideStrError
 
@@ -221,7 +221,7 @@ def read_simple_ascii_density(fname):
         time_of_model_string = fh.readline().strip()
         time_of_model = parse_quantity(time_of_model_string)
 
-    data = recfromtxt(
+    data = genfromtxt(
         fname,
         skip_header=1,
         names=("index", "velocity", "density"),
@@ -272,7 +272,7 @@ def read_artis_density(fname):
         "fe52_fraction",
         "cr48_fraction",
     ]
-    artis_model = recfromtxt(
+    artis_model = genfromtxt(
         fname,
         skip_header=2,
         usecols=(0, 1, 2, 4, 5, 6, 7),
