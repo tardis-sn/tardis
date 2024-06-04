@@ -1,14 +1,14 @@
 from pathlib import Path
 
 import numpy as np
-from pytest import fixture
+import pytest
 
 from tardis.io.model.cmfgen import read_cmfgen_model
 
 MODEL_DATA_PATH = Path(__file__).parent / "data"
 
 
-@fixture
+@pytest.fixture
 def cmfgen_model_example_file():
     return read_cmfgen_model(MODEL_DATA_PATH / "cmfgen_model.csv")
 
