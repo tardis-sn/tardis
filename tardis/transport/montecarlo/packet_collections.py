@@ -15,7 +15,6 @@ packet_collection_spec = [
     ("time_of_simulation", float64),
     ("radiation_field_luminosity", float64),  #
     ("output_nus", float64[:]),
-    ("output_radii", float64[:]),
     ("output_energies", float64[:]),
 ]
 
@@ -41,7 +40,6 @@ class PacketCollection:
             1 / radiation_field_luminosity
         )  # 1 erg / luminosity
         self.output_nus = np.ones_like(initial_radii, dtype=np.float64) * -99.0
-        # self._output_radii = np.ones(no_of_packets, dtype=np.float64) * -99.0
         self.output_energies = (
             np.ones_like(initial_radii, dtype=np.float64) * -99.0
         )

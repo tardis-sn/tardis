@@ -63,7 +63,7 @@ class InteractionRadiusPlotter:
 
         return cls(
             dict(
-                virtual=sdec.SDECData.from_simulation(sim, "virtual"),
+                #virtual=sdec.SDECData.from_simulation(sim, "virtual"),
                 real=sdec.SDECData.from_simulation(sim, "real"),
             ),
             sim.plasma.time_explosion,
@@ -89,7 +89,7 @@ class InteractionRadiusPlotter:
         )
         return cls(
             dict(
-                virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
+                #virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
                 real=sdec.SDECData.from_hdf(hdf_fpath, "real"),
             ),
         )
@@ -274,6 +274,9 @@ class InteractionRadiusPlotter:
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
 
+        if not self._species_name:
+            raise ValueError("No species found to plot in colorbar")
+
         color_values = [
             self.cmap(species_counter / len(self._species_name))
             for species_counter in range(len(self._species_name))
@@ -293,7 +296,7 @@ class InteractionRadiusPlotter:
 
     def generate_plot_mpl(
         self,
-        packets_mode="virtual",
+        packets_mode = "real",
         ax=None,
         figsize=(12, 7),
         cmapname="jet",
@@ -311,8 +314,13 @@ class InteractionRadiusPlotter:
             .packets_df_line_interaction["last_line_interaction_species"]
             .values
         )
+        if self._species_list is None or not self._species_list:
+            raise ValueError("No species provided for plotting.")
         msk = np.isin(self._species_list, species_in_model)
         self.species = np.array(self._species_list)[msk]
+
+        if len(self.species) == 0:
+            raise ValueError("No valid species found for plotting.")
 
         if ax is None:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
