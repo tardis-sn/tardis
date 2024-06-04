@@ -26,19 +26,15 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     )
     def time_intensity_black_body(self, nu, temperature):
         func = formal_integral.intensity_black_body
-        actual = func(nu, temperature)
-        print(actual, type(actual))
-        intensity_black_body(nu, temperature)
+        func(nu, temperature)
 
     @parameterize({"N": (1e2, 1e3, 1e4, 1e5)})
     def time_trapezoid_integration(self, n):
         func = formal_integral.trapezoid_integration
         h = 1.0
-        n = int(n)
-        data = np.random.random(n)
+        data = np.random.random(int(n))
 
         func(data, h)
-        np.trapz(data)
 
     @staticmethod
     def calculate_z(r, p):
@@ -87,15 +83,10 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     def time_calculate_z(self, p, test_data):
         func = formal_integral.calculate_z
         inv_t = 1.0 / self.formal_integral_model.time_explosion
-        len(self.formal_integral_geometry(test_data).r_outer)
         r_outer = self.formal_integral_geometry(test_data).r_outer
 
         for r in r_outer:
-            actual = func(r, p, inv_t)
-            if p >= r:
-                assert actual == 0
-            else:
-                np.sqrt(r * r - p * p) * formal_integral.C_INV * inv_t
+            func(r, p, inv_t)
 
     @skip_benchmark
     @parameterize({"p": [0, 0.5, 1], "Test data": TESTDATA})
@@ -112,7 +103,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         oz = np.zeros_like(r_inner)
         oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-        n = func(
+        func(
             self.formal_integral_geometry(test_data),
             self.formal_integral_geometry(test_data),
             p,
@@ -167,12 +158,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     @parameterize({"N": [100, 1000, 10000]})
     def time_calculate_p_values(self, n):
         r = 1.0
-        func = formal_integral.calculate_p_values
-
-        expected = r / (n - 1) * np.arange(0, n, dtype=np.float64)
-        np.zeros_like(expected, dtype=np.float64)
-
-        func(r, n)
+        formal_integral.calculate_p_values(r, n)
 
     @parameterize({"nu": [1e13, 5e14, 1e15], "temperature": [300, 1000, 5800]})
     def time_intensity_black_body(self, nu, temperature):
@@ -187,7 +173,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         'edge_case_low': {'x': [1e9, 5e8, 1e8, 5e7], 'x_insert': -1e9, 'imin': 0, 'imax': 3},
         'edge_case_high': {'x': [1e9, 5e8, 1e8, 5e7], 'x_insert': 1e9, 'imin': 0, 'imax': 3}
     })
-    def test_reverse_binary_search(x, x_insert, imin, imax):
+    def time_reverse_binary_search(x, x_insert, imin, imax):
         formal_integral.reverse_binary_search(x, x_insert, imin, imax)
 
     
