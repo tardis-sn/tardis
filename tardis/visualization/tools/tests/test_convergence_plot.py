@@ -7,8 +7,8 @@ import plotly.graph_objects as go
 import pytest
 from astropy import units as u
 
-from tardis.tests.test_util import monkeysession
 from tardis import run_tardis
+from tardis.tests.test_util import monkeysession
 from tardis.visualization.tools.convergence_plot import (
     ConvergencePlots,
     transition_colors,

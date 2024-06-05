@@ -1,5 +1,9 @@
 from __future__ import annotations
-from typing import Any, Tuple
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any, Tuple
 
 import numpy as np
 import pandas as pd

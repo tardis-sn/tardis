@@ -2,11 +2,11 @@
 requires the `rst-include` package
 """
 
+import datetime
 import pathlib
 import re
 import textwrap
 import warnings
-import datetime
 
 import requests
 from rst_include import rst_include

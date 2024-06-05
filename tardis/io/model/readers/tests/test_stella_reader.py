@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import numpy as np
-from astropy import units as u
 import pytest
+from astropy import units as u
 
 from tardis.io.model import read_stella_model
 

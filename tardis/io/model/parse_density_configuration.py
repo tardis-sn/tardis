@@ -1,5 +1,9 @@
 from __future__ import annotations
-from typing import Tuple
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Tuple
 
 import numpy as np
 from astropy import units as u
