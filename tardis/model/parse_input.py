@@ -79,7 +79,7 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
         density = parse_config_v1_density(config)
 
     elif structure_config.type == "file":
-        if Path.is_absolute(structure_config.filename):
+        if Path.is_absolute(Path(structure_config.filename)):
             structure_config_fname = structure_config.filename
         else:
             structure_config_fname = os.path.join(
@@ -236,7 +236,7 @@ def parse_abundance_config(config, geometry, time_explosion):
         )
 
     elif abundances_section.type == "file":
-        if Path.is_absolute(abundances_section.filename):
+        if Path.is_absolute(Path(abundances_section.filename)):
             abundances_fname = abundances_section.filename
         else:
             abundances_fname = os.path.join(
