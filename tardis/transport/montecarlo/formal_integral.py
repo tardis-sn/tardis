@@ -336,9 +336,8 @@ class FormalIntegrator:
         def raise_or_return(message):
             if raises:
                 raise IntegrationError(message)
-            else:
-                warnings.warn(message)
-                return False
+            warnings.warn(message)
+            return False
 
         for obj in (self.simulation_state, self.plasma, self.transport):
             if obj is None:

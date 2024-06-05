@@ -76,8 +76,7 @@ class BenchmarkBase:
         if atomic_data.md5 != DEFAULT_ATOM_DATA_UUID:
             message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_UUID}")'
             raise Exception(message)
-        else:
-            return atomic_data
+        return atomic_data
 
     @property
     def atomic_data_fname(self):

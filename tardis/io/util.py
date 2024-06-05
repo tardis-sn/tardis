@@ -236,20 +236,19 @@ class HDFWriterMixin:
                 "to overwrite it, set function parameter overwrite=True"
             )
 
-        else:
-            try:  # when path_or_buf is a str, the HDFStore should get created
-                buf = pd.HDFStore(
-                    path_or_buf, complevel=complevel, complib=complib
+        try:  # when path_or_buf is a str, the HDFStore should get created
+            buf = pd.HDFStore(
+                path_or_buf, complevel=complevel, complib=complib
+            )
+        except TypeError as e:
+            if str(e) == "Expected bytes, got HDFStore":
+                # when path_or_buf is an HDFStore buffer instead
+                logger.debug(
+                    "Expected bytes, got HDFStore. Changing path to HDF buffer"
                 )
-            except TypeError as e:
-                if str(e) == "Expected bytes, got HDFStore":
-                    # when path_or_buf is an HDFStore buffer instead
-                    logger.debug(
-                        "Expected bytes, got HDFStore. Changing path to HDF buffer"
-                    )
-                    buf = path_or_buf
-                else:
-                    raise e
+                buf = path_or_buf
+            else:
+                raise e
 
         if not buf.is_open:
             buf.open()

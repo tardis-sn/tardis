@@ -37,8 +37,7 @@ class BasePlasma(PlasmaWriterMixin):
             raise AttributeError(
                 "Plasma inputs can only be updated using " "the 'update' method"
             )
-        else:
-            super().__setattr__(key, value)
+        super().__setattr__(key, value)
 
     def __dir__(self):
         attrs = [item for item in self.__dict__ if not item.startswith("_")]

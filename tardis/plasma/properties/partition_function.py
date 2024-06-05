@@ -249,8 +249,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                             "rate matrix. Does the atomic data contain "
                             "collision data?"
                         )
-                    else:
-                        raise e
+                    raise e
                 general_level_boltzmann_factor[i].loc[species] = (
                     level_boltzmann_factor
                     * g.loc[species][0]

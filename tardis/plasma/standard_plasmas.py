@@ -283,10 +283,9 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         # TODO: See issue #633
         if config.plasma.heating_rate_data_file in ["none", None]:
             raise PlasmaConfigError("Heating rate data file not specified")
-        else:
-            property_kwargs[HeliumNumericalNLTE] = dict(
-                heating_rate_data_file=config.plasma.heating_rate_data_file
-            )
+        property_kwargs[HeliumNumericalNLTE] = dict(
+            heating_rate_data_file=config.plasma.heating_rate_data_file
+        )
     else:
         # If nlte ionization species are present, we don't want to add the
         # IonNumberDensity from helium_lte_properties, since we want

@@ -1418,9 +1418,8 @@ class CustomAbundanceWidget:
             raise FileExistsError(
                 "The file already exists. Click the 'overwrite' checkbox to overwrite it."
             )
-        else:
-            self.write_yaml_portion(posix_path)
-            self.write_csv_portion(posix_path)
+        self.write_yaml_portion(posix_path)
+        self.write_csv_portion(posix_path)
 
     @error_view.capture(clear_output=True)
     def write_yaml_portion(self, path):

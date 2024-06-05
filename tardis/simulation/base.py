@@ -172,10 +172,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                     "to False."
                 )
-            else:
-                self.convergence_plots = ConvergencePlots(
-                    iterations=self.iterations, **convergence_plots_kwargs
-                )
+            self.convergence_plots = ConvergencePlots(
+                iterations=self.iterations, **convergence_plots_kwargs
+            )
 
         if "export_convergence_plots" in convergence_plots_kwargs:
             if not isinstance(
