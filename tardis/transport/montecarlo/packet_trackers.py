@@ -131,6 +131,24 @@ class RPacketLastInteractionTracker:
 
     Parameters
     ----------
+    radius : float
+        Radius from the center where last interaction happened
+    shell_id : int
+        The id of the shell where the last interaction happened
+    interaction_type : int
+        The id of the last interaction that the r_packet went
+            LINE : 2
+            ESCATTERING : 4
+            CONTINUUM_PROCESS : 8 
+    energy : float
+       The energy of the r_packet 
+    in_id : int
+
+    in_nu : float
+
+    out_id : int
+
+    nu : float
     
     """
     def __init__(self, no_of_packets):
@@ -143,12 +161,12 @@ class RPacketLastInteractionTracker:
         self.in_nu = np.zeros(no_of_packets, dtype=np.float64)
         self.out_id = -1 * np.ones(no_of_packets, dtype=np.int64)
 
-    def update_last_interaction(self, r_packet, i):
-        self.radius[i] = r_packet.r
-        self.shell_id[i] = r_packet.current_shell_id
-        self.nu[i] = r_packet.nu
-        self.energy[i] = r_packet.energy
-        self.interaction_type[i] = r_packet.last_interaction_type
-        self.in_id[i] = r_packet.last_line_interaction_in_id
-        self.in_nu[i] = r_packet.last_interaction_in_nu
-        self.out_id[i] = r_packet.last_line_interaction_out_id
+    def update_last_interaction(self, r_packet, index):
+        self.radius[index] = r_packet.r
+        self.shell_id[index] = r_packet.current_shell_id
+        self.nu[index] = r_packet.nu
+        self.energy[index] = r_packet.energy
+        self.interaction_type[index] = r_packet.last_interaction_type
+        self.in_id[index] = r_packet.last_line_interaction_in_id
+        self.in_nu[index] = r_packet.last_interaction_in_nu
+        self.out_id[index] = r_packet.last_line_interaction_out_id
