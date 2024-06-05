@@ -546,10 +546,9 @@ class TestSDECPlotter:
         species_list : list of str
         """
         subgroup_name = make_valid_name("ply" + request.node.callspec.id)
-        if distance is not None:
-            observed_spectrum = observed_spectrum
-        else:
+        if distance is None:
             observed_spectrum = None
+
         fig = plotter.generate_plot_ply(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,

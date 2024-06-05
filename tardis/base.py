@@ -97,7 +97,6 @@ def run_tardis(
             logger.debug(
                 "Atom Data Cannot be Read from HDF. Setting to Default Atom Data"
             )
-            atom_data = atom_data
 
     simulation = Simulation.from_config(
         tardis_config,

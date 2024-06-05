@@ -3,7 +3,7 @@ from pylab import *
 
 from tardis import constants as const
 
-x, y = x, y = mgrid[1:1000, 1:1000]
+x, y = mgrid[1:1000, 1:1000]
 mu_in = x / 500.0 - 1
 mu_out = y / 500.0 - 1
 v = 1.1e4 * u.km / u.s
