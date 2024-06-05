@@ -318,14 +318,14 @@ class ConvergencePlots:
         # add luminosity data in hover data in plasma plots
         customdata = len(velocity_km_s) * [
             "<br>"
-            + "Emitted Luminosity: "
-            + f'{self.value_data["Emitted"][-1]:.4g}'
-            + "<br>"
-            + "Requested Luminosity: "
-            + f'{self.value_data["Requested"][-1]:.4g}'
-            + "<br>"
-            + "Absorbed Luminosity: "
-            + f'{self.value_data["Absorbed"][-1]:.4g}'
+            "Emitted Luminosity: "
+            f"{self.value_data["Emitted"][-1]:.4g}"
+            "<br>"
+            "Requested Luminosity: "
+            f"{self.value_data["Requested"][-1]:.4g}"
+            "<br>"
+            "Absorbed Luminosity: "
+            f"{self.value_data["Absorbed"][-1]:.4g}"
         ]
 
         # add a radiation temperature vs shell velocity trace to the plasma plot
