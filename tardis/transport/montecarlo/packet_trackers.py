@@ -139,9 +139,9 @@ class RPacketLastInteractionTracker:
         The id of the last interaction that the r_packet went
             LINE : 2
             ESCATTERING : 4
-            CONTINUUM_PROCESS : 8 
+            CONTINUUM_PROCESS : 8
     energy : float
-       The energy of the r_packet 
+       The energy of the r_packet
     in_id : int
 
     in_nu : float
@@ -149,8 +149,9 @@ class RPacketLastInteractionTracker:
     out_id : int
 
     nu : float
-    
+
     """
+
     def __init__(self, no_of_packets):
         self.radius = -1 * np.ones(no_of_packets, dtype=np.float64)
         self.shell_id = -1 * np.ones(no_of_packets, dtype=np.int64)
