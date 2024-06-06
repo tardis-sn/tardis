@@ -12,7 +12,7 @@ from tardis import constants as const
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.transport.montecarlo.numba_interface import RPacketTracker
+from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
     angle_aberration_LF_to_CMF,
