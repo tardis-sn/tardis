@@ -184,7 +184,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         (
             v_packets_energy_hist,
             last_interaction_tracker,
-            last_interaction_tracker_check,
             vpacket_tracker,
             rpacket_trackers,
         ) = montecarlo_main_loop(
@@ -215,9 +214,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
         transport_state.last_line_interaction_shell_id = (
             last_interaction_tracker.shell_ids
-        )
-        transport_state.last_interaction_tracker = (
-            last_interaction_tracker_check
         )
 
         if self.montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
