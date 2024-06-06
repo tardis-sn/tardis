@@ -64,6 +64,7 @@ Mission Statement
     :caption: Input/Output
     :hidden:
     
+    io/hdf/index
     io/configuration/index
     io/model/index
     io/optional/index
