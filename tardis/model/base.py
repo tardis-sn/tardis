@@ -344,7 +344,7 @@ class SimulationState(HDFWriterMixin):
             "dilution_factor",
         }
 
-        if Path.is_absolute(config.csvy_model):
+        if Path.is_absolute(Path(config.csvy_model)):
             csvy_model_fname = config.csvy_model
         else:
             csvy_model_fname = os.path.join(
