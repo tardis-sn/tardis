@@ -350,7 +350,9 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
     def _get_macro_atom_data(atomic_data):
         try:
             return atomic_data.macro_atom_data
-        except:
+        except Exception as e:
+            # TODO: Do not write bare except
+            print("Exception occurred! ", e)
             logger.debug(
                 "Macro Atom Data was not found. Instead returning All Macro Atom Data"
             )

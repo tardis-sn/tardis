@@ -94,7 +94,7 @@ class BasePlasma(PlasmaWriterMixin):
                     label = self.outputs_dict[input].latex_name[position]
                     label = "$" + label + "$"
                     label = label.replace("\\", "\\\\")
-                except:
+                except (AttributeError, IndexError):
                     label = input.replace("_", "-")
                 self.graph.add_edge(
                     self.outputs_dict[input].name,
@@ -278,13 +278,6 @@ class BasePlasma(PlasmaWriterMixin):
             enables/disables writing LaTeX equations and
             edge labels into the file.
         """
-        try:
-            pass
-        except:
-            logger.warning(
-                "pygraphviz missing. Plasma graph will not be " "generated."
-            )
-            return
         print_graph = self.graph.copy()
         print_graph = self.remove_hidden_properties(print_graph)
 
@@ -366,7 +359,9 @@ class BasePlasma(PlasmaWriterMixin):
         """
         try:
             import dot2tex
-        except:
+        except Exception as e:
+            # TODO: Do not write bare except
+            print("Exception occurred! ", e)
             logger.warning(
                 "dot2tex missing. Plasma graph will not be " "generated."
             )
@@ -430,7 +425,9 @@ class BasePlasma(PlasmaWriterMixin):
                                 ]
                                 label = "$" + label + "$"
                                 label = label.replace("\\", "\\\\")
-                            except:
+                            except Exception as e:
+                                # TODO: Do not write bare except
+                                print("Exception occurred! ", e)
                                 label = input.replace("_", "-")
                             self.graph.add_edge(
                                 self.outputs_dict[input].name,

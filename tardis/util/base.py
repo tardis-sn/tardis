@@ -512,7 +512,9 @@ def is_valid_nuclide_or_elem(input_nuclide):
     try:
         parse_nuclide(input_nuclide, DEFAULTDATA.nuclides, "ICRP-107")
         is_nuclide = True
-    except:
+    except Exception as e:
+        # TODO: Do not write bare except
+        print("Exception occurred! ", e)
         is_nuclide = input_nuclide in Z_DICT.values()
 
     return is_nuclide
