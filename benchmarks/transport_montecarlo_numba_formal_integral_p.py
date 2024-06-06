@@ -185,9 +185,13 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         )
 
     def time_FormalIntegrator_make_source_function(self) -> None:
-        self.FormalIntegrator.make_source_function()
+        self.att_S_ul, self.Jredlu, self.Jbluelu, self.e_dot_u = self.FormalIntegrator.make_source_function()
 
     def time_FormalIntegrator_generate_numba_objects(self) -> None:
         self.FormalIntegrator.generate_numba_objects()
 
-    
+    @parameterize({"N": [100, 1000, 10000, 100000]})
+    def time_FormalIntegrator_formal_integral(self, N: int = 1000):
+        self.FormalIntegrator.formal_integral(
+            self.Simulation.transport.transport_state.spectrum.frequency, N
+        )
