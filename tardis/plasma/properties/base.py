@@ -1,6 +1,6 @@
 import logging
 
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 import numpy as np
 import pandas as pd
 
@@ -31,7 +31,8 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
                  Used to label nodes when plotting graphs
     """
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def outputs(self):
         pass
 
@@ -144,7 +145,8 @@ class TransitionProbabilitiesProperty(
     track all transition probabilities and to later combine them.
     """
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def transition_probabilities_outputs(self):
         pass
 
@@ -200,6 +202,12 @@ class Input(BasePlasmaProperty):
 class ArrayInput(Input):
     def _set_output_value(self, output, value):
         setattr(self, output, np.array(value, copy=False))
+
+
+class ObjectInput(Input):
+    def set_value(self, value):
+        for output in self.outputs:
+            self._set_output_value(self, output, getattr(value, output))
 
 
 class DataFrameInput(Input):
