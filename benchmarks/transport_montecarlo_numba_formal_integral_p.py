@@ -10,13 +10,30 @@ from benchmarks.benchmark_base import BenchmarkBase
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.numba_interface import NumbaModel
-from tardis.util.base import intensity_black_body
+from tardis.io.configuration.config_reader import Configuration
+from tardis import run_tardis
+
 
 
 class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     """
     Class to benchmark the numba formal integral function.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.config = None
+
+    def setup(self):
+        filename = "data/tardis_configv1_benchmark.yml"
+        path = self.get_relative_path(filename)
+        self.config = Configuration.from_yaml(path)
+        self.Simulation = run_tardis(
+            self.config, log_level="ERROR", show_progress_bars=False)
+
+        self.FormalIntegrator = formal_integral.FormalIntegrator(
+            self.Simulation.simulation_state, self.Simulation.plasma, self.Simulation.transport
+        )
 
     @parameterize(
         {
@@ -95,7 +112,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
             self.formal_integral_geometry(test_data), None, None
         )
         func = formal_integral.populate_z
-        size = len(self.formal_integral_geometry(test_data).r_outer)
         r_inner = self.formal_integral_geometry(test_data).r_inner
         self.formal_integral_geometry(test_data).r_outer
 
@@ -113,7 +129,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
 
     @skip_benchmark
     @parameterize({"p": [1e-5, 0.5, 0.99, 1], "Test data": TESTDATA})
-    def time_populate_z_shells(self, p, test_data):
+    def time_populate_z_shells(self, p, test_data) -> None:
         formal_integral.FormalIntegrator(
             self.formal_integral_geometry(test_data), None, None
         )
@@ -124,30 +140,11 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         r_outer = self.formal_integral_geometry(test_data).r_outer
 
         p = r_inner[0] + (r_outer[-1] - r_inner[0]) * p
-        idx = np.searchsorted(r_outer, p, side="right")
 
         oz = np.zeros(size * 2)
         oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-        offset = size - idx
-
-        expected_n = (offset) * 2
-        expected_oz = np.zeros_like(oz)
-        expected_oshell_id = np.zeros_like(oshell_id)
-
-        # Calculated way to determine which shells get hit
-        expected_oshell_id[:expected_n] = (
-            np.abs(np.arange(0.5, expected_n, 1) - offset) - 0.5 + idx
-        )
-
-        expected_oz[0:offset] = 1 + self.calculate_z(
-            r_outer[np.arange(size, idx, -1) - 1], p
-        )
-        expected_oz[offset:expected_n] = 1 - self.calculate_z(
-            r_outer[np.arange(idx, size, 1)], p
-        )
-
-        n = func(
+        func(
             self.formal_integral_geometry(test_data),
             self.formal_integral_geometry(test_data),
             p,
@@ -176,5 +173,8 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     def time_reverse_binary_search(x, x_insert, imin, imax):
         formal_integral.reverse_binary_search(x, x_insert, imin, imax)
 
-    
-    
+    # Benchmark for functions in FormalIntegrator class
+
+    def time_FormalIntegrator_check(self):
+        self.FormalIntegrator.check()
+
