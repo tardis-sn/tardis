@@ -29,7 +29,8 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         path = self.get_relative_path(filename)
         self.config = Configuration.from_yaml(path)
         self.Simulation = run_tardis(
-            self.config, log_level="ERROR", show_progress_bars=False)
+            self.config, log_level="ERROR", show_progress_bars=False
+        )
 
         self.FormalIntegrator = formal_integral.FormalIntegrator(
             self.Simulation.simulation_state, self.Simulation.plasma, self.Simulation.transport
@@ -178,3 +179,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     def time_FormalIntegrator_check(self):
         self.FormalIntegrator.check()
 
+    def time_FormalIntegrator_calculate_spectrum(self):
+        self.FormalIntegrator.calculate_spectrum(
+            self.Simulation.transport.transport_state.spectrum.frequency
+        )
