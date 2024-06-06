@@ -3,15 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from tardis.io.configuration.config_reader import (
+        Configuration,
+        ConfigurationNameSpace,
+    )
     from typing import Tuple
 
 import numpy as np
 from astropy import units as u
 
-from tardis.io.configuration.config_reader import (
-    Configuration,
-    ConfigurationNameSpace,
-)
 from tardis.util.base import quantity_linspace
 
 
