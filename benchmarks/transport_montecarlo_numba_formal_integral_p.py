@@ -176,10 +176,18 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
 
     # Benchmark for functions in FormalIntegrator class
 
-    def time_FormalIntegrator_check(self):
+    def time_FormalIntegrator_check(self) -> None:
         self.FormalIntegrator.check()
 
-    def time_FormalIntegrator_calculate_spectrum(self):
+    def time_FormalIntegrator_calculate_spectrum(self) -> None:
         self.FormalIntegrator.calculate_spectrum(
             self.Simulation.transport.transport_state.spectrum.frequency
         )
+
+    def time_FormalIntegrator_make_source_function(self) -> None:
+        self.FormalIntegrator.make_source_function()
+
+    def time_FormalIntegrator_generate_numba_objects(self) -> None:
+        self.FormalIntegrator.generate_numba_objects()
+
+    
