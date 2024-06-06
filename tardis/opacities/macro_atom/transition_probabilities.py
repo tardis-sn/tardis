@@ -2,7 +2,6 @@ import logging
 
 import numpy as np
 import pandas as pd
-
 from scipy import sparse as sp
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
@@ -50,7 +49,7 @@ def normalize_trans_probs(p):
     return p_norm
 
 
-class SpMatrixSeriesConverterMixin(object):
+class SpMatrixSeriesConverterMixin:
     @staticmethod
     def series2matrix(series, idx2reduced_idx):
         """
