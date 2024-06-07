@@ -19,6 +19,7 @@ class GXPacketStatus(IntEnum):
     PAIR_CREATION = 2
     IN_PROCESS = 3
     END = 4
+    ESCAPED = 5
 
 
 gxpacket_spec = [
@@ -78,6 +79,36 @@ class GXPacket(object):
         )
 
 
+class GXPacketCollection:
+    """
+    Gamma-ray packet collection
+    """
+
+    def __init__(
+        self,
+        location,
+        direction,
+        energy_rf,
+        energy_cmf,
+        nu_rf,
+        nu_cmf,
+        status,
+        shell,
+        time_current,
+    ):
+        self.location = location
+        self.direction = direction
+        self.energy_rf = energy_rf
+        self.energy_cmf = energy_cmf
+        self.nu_rf = nu_rf
+        self.nu_cmf = nu_cmf
+        self.status = status
+        self.shell = shell
+        self.time_current = time_current
+        self.number_of_packets = len(self.energy_rf)
+        self.tau = -np.log(np.random.random(self.number_of_packets))
+
+
 # @njit(**njit_dict_no_parallel)
 def initialize_packet_properties(
     isotope_energy,
@@ -92,7 +123,6 @@ def initialize_packet_properties(
     initial_radius,
     times,
     effective_times,
-    inventory,
     average_power_per_mass,
     uniform_packet_energies=True,
 ):

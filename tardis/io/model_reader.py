@@ -9,11 +9,11 @@ import pandas as pd
 from astropy import units as u
 from numpy import recfromtxt
 from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z
+from radioactivedecay.utils import Z_DICT, elem_to_Z, NuclideStrError
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
-from tardis.montecarlo.base import MonteCarloTransportSolver
-from tardis.montecarlo.packet_source import (
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
@@ -169,7 +169,10 @@ def read_uniform_abundances(abundances_section, no_of_shells):
     )
 
     for element_symbol_string in abundances_section:
-        if element_symbol_string == "type":
+        if (
+            element_symbol_string == "type"
+            or element_symbol_string == "model_isotope_time_0"
+        ):
             continue
         try:
             if element_symbol_string in Z_DICT.values():
@@ -185,7 +188,7 @@ def read_uniform_abundances(abundances_section, no_of_shells):
                     abundances_section[element_symbol_string]
                 )
 
-        except RuntimeError as err:
+        except NuclideStrError as err:
             raise RuntimeError(
                 f"Abundances are not defined properly in config file : {err.args}"
             )
@@ -541,7 +544,7 @@ def transport_to_dict(transport):
 
     Parameters
     ----------
-    transport : tardis.montecarlo.MontecarloTransport
+    transport : tardis.transport.montecarlo.MontecarloTransport
 
     Returns
     -------
@@ -619,7 +622,7 @@ def store_transport_to_hdf(transport, fname):
 
     Parameters
     ----------
-    transport : tardis.montecarlo.MontecarloTransport
+    transport : tardis.transport.montecarlo.MontecarloTransport
     filename : str
     """
     with h5py.File(fname, "a") as f:
@@ -670,7 +673,7 @@ def transport_from_hdf(fname):
 
     Returns
     -------
-    new_transport : tardis.montecarlo.MontecarloTransport
+    new_transport : tardis.transport.montecarlo.MontecarloTransport
     """
     d = {}
 
@@ -741,6 +744,7 @@ def transport_from_hdf(fname):
         nthreads=d["nthreads"],
         enable_virtual_packet_logging=d["virt_logging"],
         use_gpu=d["use_gpu"],
+        montecarlo_configuration=d["montecarlo_configuration"],
     )
 
     new_transport.Edotlu_estimator = d["Edotlu_estimator"]

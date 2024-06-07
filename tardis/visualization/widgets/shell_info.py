@@ -3,6 +3,7 @@ from tardis.io.atom_data.atom_web_download import download_atom_data
 from tardis.util.base import (
     atomic_number2element_symbol,
     species_tuple_to_string,
+    is_notebook,
 )
 
 from tardis.visualization.widgets.util import create_table_widget
@@ -438,53 +439,56 @@ class ShellInfoWidget:
         ipywidgets.Box
             Shell info widget containing all component widgets
         """
-        # CSS properties of the layout of shell info tables container
-        tables_container_layout = dict(
-            display="flex",
-            align_items="flex-start",
-            justify_content="space-between",
-        )
-        tables_container_layout.update(layout_kwargs)
+        if not is_notebook():
+            print("Please use a notebook to display the widget")
+        else:
+            # CSS properties of the layout of shell info tables container
+            tables_container_layout = dict(
+                display="flex",
+                align_items="flex-start",
+                justify_content="space-between",
+            )
+            tables_container_layout.update(layout_kwargs)
 
-        # Setting tables' widths
-        self.shells_table.layout.width = shells_table_width
-        self.element_count_table.layout.width = element_count_table_width
-        self.ion_count_table.layout.width = ion_count_table_width
-        self.level_count_table.layout.width = level_count_table_width
+            # Setting tables' widths
+            self.shells_table.layout.width = shells_table_width
+            self.element_count_table.layout.width = element_count_table_width
+            self.ion_count_table.layout.width = ion_count_table_width
+            self.level_count_table.layout.width = level_count_table_width
 
-        # Attach event listeners to table widgets
-        self.shells_table.on(
-            "selection_changed", self.update_element_count_table
-        )
-        self.element_count_table.on(
-            "selection_changed", self.update_ion_count_table
-        )
-        self.ion_count_table.on(
-            "selection_changed", self.update_level_count_table
-        )
+            # Attach event listeners to table widgets
+            self.shells_table.on(
+                "selection_changed", self.update_element_count_table
+            )
+            self.element_count_table.on(
+                "selection_changed", self.update_ion_count_table
+            )
+            self.ion_count_table.on(
+                "selection_changed", self.update_level_count_table
+            )
 
-        # Putting all table widgets in a container styled with tables_container_layout
-        shell_info_tables_container = ipw.Box(
-            [
-                self.shells_table,
-                self.element_count_table,
-                self.ion_count_table,
-                self.level_count_table,
-            ],
-            layout=ipw.Layout(**tables_container_layout),
-        )
-        self.shells_table.change_selection([1])
+            # Putting all table widgets in a container styled with tables_container_layout
+            shell_info_tables_container = ipw.Box(
+                [
+                    self.shells_table,
+                    self.element_count_table,
+                    self.ion_count_table,
+                    self.level_count_table,
+                ],
+                layout=ipw.Layout(**tables_container_layout),
+            )
+            self.shells_table.change_selection([1])
 
-        # Notes text explaining how to interpret tables widgets' data
-        text = ipw.HTML(
-            "<b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all "
-            "values sum to 1)<br><b>W</b> denotes <i>Dilution Factor</i> and "
-            "<b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i>"
-        )
+            # Notes text explaining how to interpret tables widgets' data
+            text = ipw.HTML(
+                "<b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all "
+                "values sum to 1)<br><b>W</b> denotes <i>Dilution Factor</i> and "
+                "<b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i>"
+            )
 
-        # Put text horizontally before shell info container
-        shell_info_widget = ipw.VBox([text, shell_info_tables_container])
-        return shell_info_widget
+            # Put text horizontally before shell info container
+            shell_info_widget = ipw.VBox([text, shell_info_tables_container])
+            return shell_info_widget
 
 
 def shell_info_from_simulation(sim_model):

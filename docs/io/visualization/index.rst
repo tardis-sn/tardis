@@ -12,9 +12,9 @@ diagnostic visualizations.
 .. toctree::
     :maxdepth: 2
 
-    sdec_plot
-    convergence_plot
-    montecarlo_packet_visualization
+    how_to_sdec_plot
+    tutorial_convergence_plot
+    tutorial_montecarlo_packet_visualization
 
 
 TARDIS Widgets (Graphical User Interfaces)
@@ -28,5 +28,5 @@ Jupyter Notebooks, making data exploration much easier.
     :maxdepth: 2
 
     using_widgets
-    Generating Custom Abundance Widget <abundance_widget>
-    Generating Data Exploration Widgets <generating_widgets>
+    Generating Custom Abundance Widget <how_to_abundance_widget>
+    Generating Data Exploration Widgets <how_to_generating_widgets>

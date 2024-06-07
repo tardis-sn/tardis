@@ -5,11 +5,11 @@ import pandas as pd
 from numba import njit, prange
 
 from tardis import constants as const
-from tardis.montecarlo.estimators.util import (
+from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
     integrate_array_by_blocks,
 )
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.transport.montecarlo import njit_dict
 from tardis.plasma.exceptions import PlasmaException
 from tardis.plasma.properties.base import (
     Input,

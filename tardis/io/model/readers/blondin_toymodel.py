@@ -1,10 +1,8 @@
 import re
 
-import yaml
-
 import numpy as np
 import pandas as pd
-
+import yaml
 from astropy import units as u
 
 from tardis.util.base import parse_quantity
@@ -44,7 +42,15 @@ def read_blondin_toymodel(fname):
     ]
 
     raw_blondin_csv = pd.read_csv(
-        fname, delim_whitespace=True, comment="#", header=None, names=columns
+        fname,
+        # The argument `delim_whitespace` was changed to `sep`
+        #   because the first one is deprecated since version 2.2.0.
+        #   The regular expression means: the separation is one or
+        #   more spaces together (simple space, tabs, new lines).
+        sep=r"\s+",
+        comment="#",
+        header=None,
+        names=columns,
     )
     raw_blondin_csv.set_index("idx", inplace=True)
 

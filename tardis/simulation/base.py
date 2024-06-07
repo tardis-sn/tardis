@@ -15,10 +15,7 @@ from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
 from tardis.model.parse_input import initialize_packet_source
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
-from tardis.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.util.base import is_notebook
@@ -99,7 +96,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     iterations : int
     model : tardis.model.SimulationState
     plasma : tardis.plasma.BasePlasma
-    transport : tardis.montecarlo.MontecarloTransport
+    transport : tardis.transport.montecarlo.MontecarloTransport
     no_of_packets : int
     last_no_of_packets : int
     no_of_virtual_packets : int
@@ -173,27 +170,34 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         if show_convergence_plots:
-            self.convergence_plots = ConvergencePlots(
-                iterations=self.iterations, **convergence_plots_kwargs
-            )
-
-            if "export_convergence_plots" in convergence_plots_kwargs:
-                if not isinstance(
-                    convergence_plots_kwargs["export_convergence_plots"], bool
-                ):
-                    raise TypeError(
-                        "Expected bool in export_convergence_plots argument"
-                    )
-                self.export_convergence_plots = convergence_plots_kwargs[
-                    "export_convergence_plots"
-                ]
+            if not is_notebook():
+                raise RuntimeError(
+                    "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
+                    "to False."
+                )
             else:
-                self.export_convergence_plots = False
+                self.convergence_plots = ConvergencePlots(
+                    iterations=self.iterations, **convergence_plots_kwargs
+                )
+
+        if "export_convergence_plots" in convergence_plots_kwargs:
+            if not isinstance(
+                convergence_plots_kwargs["export_convergence_plots"],
+                bool,
+            ):
+                raise TypeError(
+                    "Expected bool in export_convergence_plots argument"
+                )
+            self.export_convergence_plots = convergence_plots_kwargs[
+                "export_convergence_plots"
+            ]
+        else:
+            self.export_convergence_plots = False
 
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
-        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED = (
+        self.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED = (
             not self.plasma.continuum_interaction_species.empty
         )
 
@@ -607,8 +611,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         config,
         packet_source=None,
         virtual_packet_logging=False,
-        show_convergence_plots=True,
+        show_convergence_plots=False,
         show_progress_bars=True,
+        legacy_mode_enabled=False,
         **kwargs,
     ):
         """
@@ -634,7 +639,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if atom_data is None:
             if "atom_data" in config:
                 if Path(config.atom_data).is_absolute():
-                    atom_data_fname = config.atom_data
+                    atom_data_fname = Path(config.atom_data)
                 else:
                     atom_data_fname = (
                         Path(config.config_dirname) / config.atom_data
@@ -662,15 +667,22 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         else:
             if hasattr(config, "csvy_model"):
                 simulation_state = SimulationState.from_csvy(
-                    config, atom_data=atom_data
+                    config,
+                    atom_data=atom_data,
+                    legacy_mode_enabled=legacy_mode_enabled,
                 )
             else:
                 simulation_state = SimulationState.from_config(
-                    config, atom_data=atom_data
+                    config,
+                    atom_data=atom_data,
+                    legacy_mode_enabled=legacy_mode_enabled,
                 )
             if packet_source is not None:
                 simulation_state.packet_source = initialize_packet_source(
-                    config, simulation_state.geometry, packet_source
+                    config,
+                    simulation_state.geometry,
+                    packet_source,
+                    legacy_mode_enabled,
                 )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]

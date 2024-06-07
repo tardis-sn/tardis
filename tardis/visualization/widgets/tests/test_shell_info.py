@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 import pandas.testing as pdt
 
+from tardis.tests.test_util import monkeysession
 from tardis.visualization.widgets.shell_info import (
     BaseShellInfo,
     SimulationShellInfo,
@@ -138,8 +139,11 @@ class TestShellInfoWidget:
     select_ion_num = 3
 
     @pytest.fixture(scope="class")
-    def shell_info_widget(self, base_shell_info):
+    def shell_info_widget(self, base_shell_info, monkeysession):
         shell_info_widget = ShellInfoWidget(base_shell_info)
+        monkeysession.setattr(
+            "tardis.visualization.widgets.shell_info.is_notebook", lambda: True
+        )
         # To attach event listeners to table widgets of shell_info_widget
         _ = shell_info_widget.display()
         return shell_info_widget

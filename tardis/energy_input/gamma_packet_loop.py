@@ -1,12 +1,13 @@
 import numpy as np
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.opacities import (
+from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.opacities import (
     compton_opacity_calculation,
     photoabsorption_opacity_calculation,
     pair_creation_opacity_calculation,
     photoabsorption_opacity_calculation_kasen,
+    kappa_calculation,
     pair_creation_opacity_artis,
     SIGMA_T,
 )
@@ -18,7 +19,6 @@ from tardis.energy_input.util import (
     doppler_factor_3d,
     C_CGS,
     H_CGS_KEV,
-    kappa_calculation,
     get_index,
 )
 from tardis.energy_input.GXPacket import GXPacketStatus
@@ -50,6 +50,7 @@ def gamma_packet_loop(
     energy_df_rows,
     energy_plot_df_rows,
     energy_out,
+    packets_info_array,
 ):
     """Propagates packets through the simulation
 
@@ -151,7 +152,7 @@ def gamma_packet_loop(
                     # electron count per isotope
                     photoabsorption_opacity = 0
                     # photoabsorption_opacity_calculation_kasen()
-                else:
+                elif photoabsorption_opacity_type == "tardis":
                     photoabsorption_opacity = (
                         photoabsorption_opacity_calculation(
                             comoving_energy,
@@ -159,6 +160,8 @@ def gamma_packet_loop(
                             iron_group_fraction_per_shell[packet.shell],
                         )
                     )
+                else:
+                    raise ValueError("Invalid photoabsorption opacity type!")
 
                 if pair_creation_opacity_type == "artis":
                     pair_creation_opacity = pair_creation_opacity_artis(
@@ -166,13 +169,14 @@ def gamma_packet_loop(
                         mass_density_time[packet.shell, time_index],
                         iron_group_fraction_per_shell[packet.shell],
                     )
-                else:
+                elif pair_creation_opacity_type == "tardis":
                     pair_creation_opacity = pair_creation_opacity_calculation(
                         comoving_energy,
                         mass_density_time[packet.shell, time_index],
                         iron_group_fraction_per_shell[packet.shell],
                     )
-
+                else:
+                    raise ValueError("Invalid pair creation opacity type!")
             else:
                 compton_opacity = 0.0
                 pair_creation_opacity = 0.0
@@ -235,7 +239,6 @@ def gamma_packet_loop(
                     )
 
             elif distance == distance_interaction:
-
                 packet.status = scatter_type(
                     compton_opacity,
                     photoabsorption_opacity,
@@ -277,6 +280,7 @@ def gamma_packet_loop(
 
                 if packet.shell > len(mass_density_time[:, 0]) - 1:
                     rest_energy = packet.nu_rf * H_CGS_KEV
+                    lum_rf = (packet.energy_rf * 1.6022e-9) / dt
                     bin_index = get_index(rest_energy, energy_bins)
                     bin_width = (
                         energy_bins[bin_index + 1] - energy_bins[bin_index]
@@ -284,7 +288,7 @@ def gamma_packet_loop(
                     energy_out[bin_index, time_index] += rest_energy / (
                         bin_width * dt
                     )
-                    packet.status = GXPacketStatus.END
+                    packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
                     if scattered:
                         scattered_packets += 1
@@ -293,10 +297,30 @@ def gamma_packet_loop(
                     packet.energy_cmf = 0.0
                     packet.status = GXPacketStatus.END
 
+            packets_info_array[i] = np.array(
+                [
+                    i,
+                    packet.status,
+                    packet.nu_cmf,
+                    packet.nu_rf,
+                    packet.energy_cmf,
+                    lum_rf,
+                    packet.energy_rf,
+                    packet.shell,
+                ]
+            )
+
     print("Escaped packets:", escaped_packets)
     print("Scattered packets:", scattered_packets)
 
-    return energy_df_rows, energy_plot_df_rows, energy_out, deposition_estimator
+    return (
+        energy_df_rows,
+        energy_plot_df_rows,
+        energy_out,
+        deposition_estimator,
+        bin_width,
+        packets_info_array,
+    )
 
 
 @njit(**njit_dict_no_parallel)

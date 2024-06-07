@@ -164,7 +164,7 @@ class AtomData:
 
         Parameters
         ----------
-        fname : str, optional
+        fname : Path, optional
             Path to the HDFStore file or name of known atom data file
             (default: None)
         """

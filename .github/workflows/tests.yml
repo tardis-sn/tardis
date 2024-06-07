@@ -12,6 +12,12 @@ on:
   pull_request:
     branches:
     - '*'
+    
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
@@ -46,109 +52,32 @@ jobs:
     name: ${{ matrix.label }}-pip-${{ matrix.pip }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-        if: matrix.pip == false
+      - uses: actions/checkout@v4
 
-      - name: Clone tardis-sn/tardis-refdata
-        uses: actions/checkout@v2
-        with:
-          repository: tardis-sn/tardis-refdata
-          path: tardis-refdata
-          lfs: false
-
-      - name: Create LFS file list
-        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-        working-directory: tardis-refdata
-
-      - name: Restore LFS cache
-        uses: actions/cache/restore@v3
-        id: lfs-cache-refdata
-        with:
-          path: tardis-refdata/.git/lfs
-          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
-
-      - name: Git LFS Pull
-        run: git lfs pull
-        working-directory: tardis-refdata
-        if: steps.lfs-cache-refdata.outputs.cache-hit != 'true'
-      
-      - name: Git LFS Checkout
-        run: git lfs checkout
-        working-directory: tardis-refdata
-        if: steps.lfs-cache-refdata.outputs.cache-hit == 'true'
-      
-      - name: Save LFS cache if not found
-        # uses fake ternary 
-        # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
-        if: ${{ steps.lfs-cache.outputs.cache-hit != 'true'  && always() || false }}
-        uses: actions/cache/save@v3
-        id: lfs-cache-refdata-save
-        with:
-          path: tardis-refdata/.git/lfs
-          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
-      
-      - name: Clone tardis-sn/tardis-regression-data
-        uses: actions/checkout@v4
-        with:
-          repository: tardis-sn/tardis-regression-data
-          path: tardis-regression-data
-      
-      - name: Create LFS file list
-        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-        working-directory: tardis-refdata
-
-      - name: Restore LFS cache
-        uses: actions/cache/restore@v3
-        id: lfs-cache-regression-data
-        with:
-          path: tardis-regression-data/.git/lfs
-          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
-  
-      - name: Git LFS Pull
-        run: git lfs pull
-        working-directory: tardis-regression-data
-        if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
-      
-      - name: Git LFS Checkout
-        run: git lfs checkout
-        working-directory: tardis-regression-data
-        if: steps.lfs-cache-regression-data.outputs.cache-hit == 'true'
-      
-      - name: Save LFS cache if not found
-        # uses fake ternary 
-        # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
-        if: ${{ steps.lfs-cache.outputs.cache-hit != 'true'  && always() || false }}
-        uses: actions/cache/save@v3
-        id: lfs-cache-regression-data-save
-        with:
-          path: tardis-regression-data/.git/lfs
-          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
-
-
-      - name: Setup environment
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            activate-environment: tardis
-            use-mamba: true
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
 
       - name: Download Lock File
         run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ matrix.label }}.lock
         if: matrix.pip == true
-
-      - uses: actions/cache@v2
-        with:
-          path: ${{ matrix.prefix }}
-          key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
-        id: cache-conda
-
-      - name: Update environment
-        run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true'
       
-      - name: Install package editable
+      - name: Generate Cache Key
         run: | 
+          file_hash=$(cat conda-${{ matrix.label }}.lock | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
+        id: cache-environment-key
+        
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: conda-${{ matrix.label }}.lock
+          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          environment-name: tardis
+          cache-environment: true
+          cache-downloads: true
+
+      - name: Install package editable
+        run: |
           pip install -e .
           echo "TARDIS_PIP_PATH=tardis" >> $GITHUB_ENV
         if: matrix.pip == false
@@ -173,6 +102,12 @@ jobs:
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
         working-directory: ${{ env.TARDIS_PIP_PATH }}
+        if: always()
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
+      
+      - name: Refdata Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
+        working-directory: ${{ env.TARDIS_PIP_PATH }}
+        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'

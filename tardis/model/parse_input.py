@@ -20,7 +20,7 @@ from tardis.model.matter.decay import IsotopicMassFraction
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
-from tardis.montecarlo.packet_source import (
+from tardis.transport.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
@@ -30,42 +30,6 @@ logger = logging.getLogger(__name__)
 
 
 def parse_structure_config(config, time_explosion, enable_homology=True):
-    """
-    Parse the structure configuration data.
-
-    Parameters
-    ----------
-    config : object
-        The configuration data.
-    time_explosion : float
-        The time of the explosion.
-    enable_homology : bool, optional
-        Whether to enable homology (default is True).
-
-    Returns
-    -------
-    electron_densities : object
-        The parsed electron densities.
-    temperature : object
-        The parsed temperature.
-    geometry : object
-        The parsed geometry.
-    density : object
-        The parsed density.
-
-    Raises
-    ------
-    NotImplementedError
-        If the structure configuration type is not supported.
-
-    Notes
-    -----
-    This function parses the structure configuration data and returns the parsed electron
-    densities, temperature, geometry, and density. The structure configuration can be of
-    type 'specific' or 'file'. If it is of type 'specific', the velocity and density are
-    parsed from the configuration. If it is of type 'file', the velocity and density are
-    read from a file. The parsed data is used to create a homologous radial 1D geometry object.
-    """
     """
     Parse the structure configuration data.
 
@@ -145,8 +109,8 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
         )
         density = density[1:]
     geometry = HomologousRadial1DGeometry(
-        velocity[:-1],  # r_inner
-        velocity[1:],  # r_outer
+        velocity[:-1],  # v_inner
+        velocity[1:],  # v_outer
         v_inner_boundary=structure_config.get("v_inner_boundary", None),
         v_outer_boundary=structure_config.get("v_outer_boundary", None),
         time_explosion=time_explosion,
@@ -217,8 +181,8 @@ def parse_csvy_geometry(
         velocity = velocity.to("cm/s")
 
     geometry = HomologousRadial1DGeometry(
-        velocity[:-1],  # r_inner
-        velocity[1:],  # r_outer
+        velocity[:-1],  # v_inner
+        velocity[1:],  # v_outer
         v_inner_boundary=v_boundary_inner,
         v_outer_boundary=v_boundary_outer,
         time_explosion=time_explosion,
@@ -243,6 +207,9 @@ def parse_abundance_config(config, geometry, time_explosion):
     -------
     nuclide_mass_fraction : object
         The parsed nuclide mass fraction.
+
+    raw_isotope_abundance : object
+        The parsed raw isotope abundance. This is the isotope abundance data before decay.
 
     Raises
     ------
@@ -292,6 +259,7 @@ def parse_abundance_config(config, geometry, time_explosion):
         isotope_abundance /= norm_factor
     # The next line is if the abundances are given via dict
     # and not gone through the schema validator
+    raw_isotope_abundance = isotope_abundance
     model_isotope_time_0 = config.model.abundances.get(
         "model_isotope_time_0", 0.0 * u.day
     )
@@ -302,7 +270,7 @@ def parse_abundance_config(config, geometry, time_explosion):
     nuclide_mass_fraction = convert_to_nuclide_mass_fraction(
         isotope_abundance, abundance
     )
-    return nuclide_mass_fraction
+    return nuclide_mass_fraction, raw_isotope_abundance
 
 
 def convert_to_nuclide_mass_fraction(isotopic_mass_fraction, mass_fraction):
@@ -394,11 +362,14 @@ def parse_csvy_composition(
         csvy_model_config, csvy_model_data, time_explosion
     )
 
-    nuclide_mass_fraction = parse_abundance_csvy(
+    nuclide_mass_fraction, raw_isotope_mass_fraction = parse_abundance_csvy(
         csvy_model_config, csvy_model_data, geometry, time_explosion
     )
     return Composition(
-        density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
+        density,
+        nuclide_mass_fraction,
+        raw_isotope_mass_fraction,
+        atom_data.atom_data.mass.copy(),
     )
 
 
@@ -467,11 +438,14 @@ def parse_abundance_csvy(
         )
         mass_fraction /= norm_factor
         isotope_mass_fraction /= norm_factor
+
+    raw_isotope_mass_fraction = isotope_mass_fraction
     isotope_mass_fraction = IsotopicMassFraction(
         isotope_mass_fraction, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
-    return convert_to_nuclide_mass_fraction(
-        isotope_mass_fraction, mass_fraction
+    return (
+        convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction),
+        raw_isotope_mass_fraction,
     )
 
 
@@ -576,7 +550,9 @@ def parse_radiation_field_state(
     )
 
 
-def initialize_packet_source(config, geometry, packet_source):
+def initialize_packet_source(
+    config, geometry, packet_source, legacy_mode_enabled
+):
     """
     Initialize the packet source based on config and geometry
 
@@ -603,9 +579,13 @@ def initialize_packet_source(config, geometry, packet_source):
         packet_source = BlackBodySimpleSourceRelativistic(
             base_seed=config.montecarlo.seed,
             time_explosion=config.supernova.time_explosion,
+            legacy_mode_enabled=legacy_mode_enabled,
         )
     else:
-        packet_source = BlackBodySimpleSource(base_seed=config.montecarlo.seed)
+        packet_source = BlackBodySimpleSource(
+            base_seed=config.montecarlo.seed,
+            legacy_mode_enabled=legacy_mode_enabled,
+        )
 
     luminosity_requested = config.supernova.luminosity_requested
     if config.plasma.initial_t_inner > 0.0 * u.K:
@@ -625,7 +605,7 @@ def initialize_packet_source(config, geometry, packet_source):
     return packet_source
 
 
-def parse_packet_source(config, geometry):
+def parse_packet_source(config, geometry, legacy_mode_enabled):
     """
     Parse the packet source based on the given configuration and geometry.
 
@@ -645,11 +625,17 @@ def parse_packet_source(config, geometry):
         packet_source = BlackBodySimpleSourceRelativistic(
             base_seed=config.montecarlo.seed,
             time_explosion=config.supernova.time_explosion,
+            legacy_mode_enabled=legacy_mode_enabled,
         )
     else:
-        packet_source = BlackBodySimpleSource(base_seed=config.montecarlo.seed)
+        packet_source = BlackBodySimpleSource(
+            base_seed=config.montecarlo.seed,
+            legacy_mode_enabled=legacy_mode_enabled,
+        )
 
-    return initialize_packet_source(config, geometry, packet_source)
+    return initialize_packet_source(
+        config, geometry, packet_source, legacy_mode_enabled
+    )
 
 
 def parse_csvy_radiation_field_state(
@@ -676,6 +662,13 @@ def parse_csvy_radiation_field_state(
     else:
         t_radiative = calculate_t_radiative_from_t_inner(
             geometry, packet_source
+        )
+
+    if np.any(t_radiative < 1000 * u.K):
+        logging.critical(
+            "Radiative temperature is too low in some of the shells, temperatures below 1000K "
+            f"(e.g., T_rad = {t_radiative[np.argmin(t_radiative)]} in shell {np.argmin(t_radiative)} in your model) "
+            "are not accurately handled by TARDIS.",
         )
 
     if hasattr(csvy_model_data, "columns") and (
