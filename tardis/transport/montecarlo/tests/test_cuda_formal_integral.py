@@ -11,9 +11,6 @@ from tardis.transport.montecarlo.formal_integral import (
     FormalIntegrator,
     NumbaFormalIntegrator,
 )
-from tardis.transport.montecarlo.numba_interface import (
-    NumbaModel,
-)
 
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 
@@ -122,23 +119,20 @@ def formal_integral_geometry(request):
 
 
 @pytest.fixture(scope="function")
-def formal_integral_model():
+def time_explosion():
     """
-    This gets the Numba model to be used in later tests
+    This gets the time_explosion to be used in later tests
     """
-    model = NumbaModel(
-        1 / c.c.cgs.value,
-    )
-    return model
+    # previously used model value that passes tests
+    # time taken for a photon to move 1 cm
+    return 1 / c.c.cgs.value
 
 
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(["p", "p_loc"], [(0.0, 0), (0.5, 1), (1.0, 2)])
-def test_calculate_z_cuda(
-    formal_integral_geometry, formal_integral_model, p, p_loc
-):
+def test_calculate_z_cuda(formal_integral_geometry, time_explosion, p, p_loc):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -146,7 +140,7 @@ def test_calculate_z_cuda(
     both results have 15 digits of precision.
     """
     actual = np.zeros(3)
-    inv_t = 1.0 / formal_integral_model.time_explosion
+    inv_t = 1.0 / time_explosion
     size = len(formal_integral_geometry.r_outer)
     r_outer = formal_integral_geometry.r_outer
     for r in r_outer:
@@ -173,7 +167,7 @@ def calculate_z_caller(r, p, inv_t, actual):
     ["p", "p_loc"],
     [(1e-5, 0), (1e-3, 1), (0.1, 2), (0.5, 3), (0.99, 4), (1, 5)],
 )
-def test_populate_z(formal_integral_geometry, formal_integral_model, p, p_loc):
+def test_populate_z(formal_integral_geometry, time_explosion, p, p_loc):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -187,7 +181,7 @@ def test_populate_z(formal_integral_geometry, formal_integral_model, p, p_loc):
 
     expected = formal_integral_numba.populate_z(
         formal_integral_geometry,
-        formal_integral_model,
+        time_explosion,
         p,
         expected_oz,
         expected_oshell_id,
@@ -197,7 +191,7 @@ def test_populate_z(formal_integral_geometry, formal_integral_model, p, p_loc):
     populate_z_caller[1, 6](
         formal_integral_geometry.r_inner,
         formal_integral_geometry.r_outer,
-        formal_integral_model.time_explosion,
+        time_explosion,
         p,
         oz,
         oshell_id,
@@ -375,7 +369,7 @@ def test_full_formal_integral(
     # as it is automatically set to the CUDA version when there is a GPU available
     formal_integrator_numba.integrator = NumbaFormalIntegrator(
         formal_integrator_numba.numba_radial_1d_geometry,
-        formal_integrator_numba.numba_model,
+        sim.simulation_state.time_explosion.cgs.value,
         formal_integrator_numba.opacity_state,
         formal_integrator_numba.points,
     )

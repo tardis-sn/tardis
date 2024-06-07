@@ -16,7 +16,7 @@ from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
 
 
 from tardis.transport.montecarlo.numba_interface import (
-    NumbaModel,
+    opacity_state_initialize,
 )
 
 
@@ -44,11 +44,9 @@ def verysimple_numba_radial_1d_geometry(nb_simulation_verysimple):
 
 
 @pytest.fixture(scope="package")
-def verysimple_numba_model(nb_simulation_verysimple):
+def verysimple_time_explosion(nb_simulation_verysimple):
     model = nb_simulation_verysimple.simulation_state
-    return NumbaModel(
-        model.time_explosion.to("s").value,
-    )
+    return model.time_explosion.cgs.value
 
 
 @pytest.fixture(scope="package")

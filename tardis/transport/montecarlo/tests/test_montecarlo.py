@@ -7,12 +7,12 @@ import pytest
 import tardis.transport.montecarlo.formal_integral as formal_integral
 import tardis.transport.montecarlo.r_packet as r_packet
 import tardis.transport.montecarlo.utils as utils
-import tardis.transport.r_packet_transport as r_packet_transport
+import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 from tardis import constants as const
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.transport.montecarlo.numba_interface import RPacketTracker
+from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
     angle_aberration_LF_to_CMF,
