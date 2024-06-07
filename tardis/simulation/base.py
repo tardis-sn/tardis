@@ -233,7 +233,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.t_inner_convergence_solver.get_convergence_status(
                 t_inner.value,
                 estimated_t_inner.value,
-                self.simulation_state.no_of_shells,
+                1,
             )
         )
 
