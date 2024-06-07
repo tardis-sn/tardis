@@ -22,7 +22,7 @@ from tardis.transport.montecarlo.numba_interface import (
     NumbaModel,
     opacity_state_initialize,
 )
-from tardis.transport.montecarlo.r_packet import (
+from tardis.transport.montecarlo.packet_trackers import (
     rpacket_trackers_to_dataframe,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
