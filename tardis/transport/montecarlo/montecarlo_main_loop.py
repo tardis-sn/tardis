@@ -4,7 +4,6 @@ from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
 
 from tardis.transport.montecarlo import njit_dict
-from tardis.transport.montecarlo.numba_interface import NumbaModel
 from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
