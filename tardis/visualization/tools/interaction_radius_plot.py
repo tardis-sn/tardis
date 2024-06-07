@@ -1,9 +1,3 @@
-"""
-Last interaction radius plot package for TARDIS simulations.
-
-This plot is a spectral diagnostics plot similar to those originally
-proposed in Williamson et al. (2021).
-"""
 
 import tardis.visualization.tools.sdec_plot as sdec
 
@@ -15,7 +9,6 @@ from tardis.util.base import (
     atomic_number2element_symbol,
     element_symbol2atomic_number,
     species_string_to_tuple,
-    species_tuple_to_string,
     roman_to_int,
     int_to_roman,
 )
@@ -63,7 +56,7 @@ class InteractionRadiusPlotter:
 
         return cls(
             dict(
-                #virtual=sdec.SDECData.from_simulation(sim, "virtual"),
+                virtual=sdec.SDECData.from_simulation(sim, "virtual"),
                 real=sdec.SDECData.from_simulation(sim, "real"),
             ),
             sim.plasma.time_explosion,
@@ -89,7 +82,7 @@ class InteractionRadiusPlotter:
         )
         return cls(
             dict(
-                #virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
+                virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
                 real=sdec.SDECData.from_hdf(hdf_fpath, "real"),
             ),
         )
@@ -296,7 +289,7 @@ class InteractionRadiusPlotter:
 
     def generate_plot_mpl(
         self,
-        packets_mode = "real",
+        packets_mode = "virtual",
         ax=None,
         figsize=(12, 7),
         cmapname="jet",
@@ -331,7 +324,7 @@ class InteractionRadiusPlotter:
         self._make_colorbar_labels()
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
-        # Get the number of unqie colors
+        # Get the number of unique colors
         self._make_colorbar_colors()
         self._show_colorbar_mpl()
 
@@ -351,10 +344,70 @@ class InteractionRadiusPlotter:
             plot_data.append(v_last_interaction)
             plot_colors.append(self._color_list[species_counter])
 
-        self.ax.hist(plot_data, bins=50, color=plot_colors)
-        self.ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+        self.ax.hist(plot_data, bins=20, color=plot_colors)
+        self.ax.ticklabel_format(axis="y", scilimits=(0, 0))
         self.ax.tick_params("both", labelsize=20)
         self.ax.set_xlabel("Last Interaction Velocity (km/s)", fontsize=25)
         self.ax.set_ylabel("Packet Count", fontsize=25)
 
         return plt.gca()
+    
+    def generate_plot_plotly(
+        self,
+        packets_mode="virtual",
+        species_list=None,
+    ):
+        """
+        Generate the last interaction radius distribution plot
+        using Plotly.
+        """
+        # Parse the requested species list
+        self._parse_species_list(species_list=species_list)
+        species_in_model = np.unique(
+            self.data[packets_mode]
+            .packets_df_line_interaction["last_line_interaction_species"]
+            .values
+        )
+        if self._species_list is None or not self._species_list:
+            raise ValueError("No species provided for plotting.")
+        msk = np.isin(self._species_list, species_in_model)
+        self.species = np.array(self._species_list)[msk]
+        if len(self.species) == 0:
+            raise ValueError("No valid species found for plotting.")
+        # Get the labels in the color bar. This determines the number of unique colors
+        self._make_colorbar_labels()
+        # Get the number of unique colors
+        self._make_colorbar_colors()
+        groups = self.data[packets_mode].packets_df_line_interaction.groupby(
+            by="last_line_interaction_species"
+        )
+
+        plot_colors = []
+        plot_data = []
+
+        for species_counter, identifier in enumerate(self.species):
+            g_df = groups.get_group(identifier)
+            r_last_interaction = g_df["last_interaction_in_r"].values * u.cm
+            v_last_interaction = (r_last_interaction / self.time_explosion).to(
+                "km/s"
+            )
+            plot_data.append(v_last_interaction)
+            color = f"rgba({int(255*self._color_list[species_counter][0])}, {int(255*self._color_list[species_counter][1])}, {int(255*self._color_list[species_counter][2])}, 1)"
+            plot_colors.append(color)
+        fig = go.Figure()
+        for data, color, name in zip(plot_data, plot_colors, self._species_name):
+            fig.add_trace(go.Histogram(
+                x=data,
+                marker_color=color,
+                name=name,
+                opacity=0.75,
+                nbinsx=20
+            ))
+        fig.update_layout(
+            barmode='overlay',
+            xaxis_title='Last Interaction Velocity (km/s)',
+            yaxis_title='Packet Count',
+            template='plotly_white',
+            font=dict(size=18)
+        )
+        return fig
