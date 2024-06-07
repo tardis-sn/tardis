@@ -115,18 +115,45 @@ class RPacketTracker(object):
 last_interaction_tracker_spec = [
     ("radius", float64[:]),
     ("shell_id", int64[:]),
-    ("interaction_type", int64[:]),
     ("energy", float64[:]),
+    ("nu", float64[:]),
+    ("interaction_type", int64[:]),
     ("in_id", int64[:]),
     ("in_nu", float64[:]),
     ("out_id", int64[:]),
     ("out_nu", float64[:]),
-    ("nu", float64[:]),
 ]
 
 
 @jitclass(last_interaction_tracker_spec)
 class RPacketLastInteractionTracker:
+    """
+    Numba JITCLASS for storing the last interaction information that an RPacket underwent.
+    Parameters
+    ----------
+        radius : float
+            Radius from the center where the interaction happened.
+        shell_id : int
+            The id of the shell in which the interaction happened.
+        energy : float
+            The energy of the RPacket
+        nu : float
+            The frequency of the RPacket after the interaction.
+        interaction_type: int
+            The id of the type of interaction that happened
+                - LINE = 2
+                - ESCATTERING = 4
+                - CONTINUUM_PROCESS = 8
+        in_id : int
+            In case of Line Interaction, the id of the absorption line interaction.
+        in_nu : float
+            The frequency corresponding to the absorption process
+        out_id : int
+            In case of Line Interaction, the id of the emission line interaction.
+        out_nu : float
+            The frequency corresponding to the emission process
+    """
+
     def __init__(self, no_of_packets):
         self.radius = -1 * np.ones(no_of_packets, dtype=np.float64)
         self.shell_id = -1 * np.ones(no_of_packets, dtype=np.int64)
