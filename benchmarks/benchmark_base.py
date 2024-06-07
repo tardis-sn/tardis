@@ -14,6 +14,14 @@ from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model import SimulationState
+from tardis.transport.montecarlo import RPacket
+from tardis.transport.montecarlo.numba_interface import (
+    NumbaModel,
+    opacity_state_initialize,
+)
+from tardis.transport.montecarlo.packet_collections import (
+    VPacketCollection,
+)
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 from tardis.tests.fixtures.regression_data import RegressionData
