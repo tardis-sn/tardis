@@ -1,9 +1,8 @@
 import logging
-
 from abc import ABCMeta, abstractmethod
+
 import numpy as np
 import pandas as pd
-
 
 __all__ = [
     "BasePlasmaProperty",
@@ -19,7 +18,7 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-class BasePlasmaProperty(object, metaclass=ABCMeta):
+class BasePlasmaProperty(metaclass=ABCMeta):
     """
     Attributes
     ----------
@@ -115,7 +114,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
                 for i, output in enumerate(self.outputs):
                     setattr(self, output, new_values[i])
         else:
-            logger.info("{} has been frozen!".format(self.name))
+            logger.info(f"{self.name} has been frozen!")
 
     @abstractmethod
     def calculate(self, *args, **kwargs):
@@ -205,9 +204,15 @@ class ArrayInput(Input):
 
 
 class ObjectInput(Input):
+
+    input_object_map = {}  # mapping output names from input object attributes
     def set_value(self, value):
         for output in self.outputs:
-            self._set_output_value(self, output, getattr(value, output))
+            if output in self.input_object_map:
+                object_attr = self.input_object_map[output]
+                self._set_output_value(output, getattr(value, object_attr))
+            else:
+                self._set_output_value(output, getattr(value, output))
 
 
 class DataFrameInput(Input):

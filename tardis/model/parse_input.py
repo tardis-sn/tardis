@@ -18,7 +18,7 @@ from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
 from tardis.radiation_field.planck_rad_field import (
-    DiluteBlackBodyRadiationFieldState,
+    DilutePlanckianRadiationField,
 )
 from tardis.transport.montecarlo.packet_source import (
     BlackBodySimpleSource,
@@ -581,9 +581,7 @@ def parse_radiation_field_state(
 
     assert len(dilution_factor) == geometry.no_of_shells
 
-    return DiluteBlackBodyRadiationFieldState(
-        t_radiative, dilution_factor, geometry
-    )
+    return DilutePlanckianRadiationField(t_radiative, dilution_factor, geometry)
 
 
 def initialize_packet_source(
@@ -714,9 +712,7 @@ def parse_csvy_radiation_field_state(
     else:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
 
-    return DiluteBlackBodyRadiationFieldState(
-        t_radiative, dilution_factor, geometry
-    )
+    return DilutePlanckianRadiationField(t_radiative, dilution_factor, geometry)
 
 
 def calculate_t_radiative_from_t_inner(geometry, packet_source):

@@ -70,6 +70,13 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     : plasma.BasePlasma
 
     """
+
+    if (config.plasma.ionization == "nebular") or (
+        config.plasma.excitation == "dilute-lte"
+    ):
+        radiation_field = "dilute_planckian_radiation_field"
+    else:
+        pass
     # Convert the nlte species list to a proper format.
     nlte_species = [
         species_string_to_tuple(s) for s in config.plasma.nlte.species

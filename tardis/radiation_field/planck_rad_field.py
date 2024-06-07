@@ -6,35 +6,14 @@ from astropy import units as u
 from tardis.util.base import intensity_black_body
 
 
-class PlanckRadiationField:
-    def __init__(self, temperature) -> None:
-        self.temperature = u.Quantity(temperature, u.K)
-
-    def calculate_mean_intensity(self, nu):
-        return intensity_black_body(
-            nu.values[np.newaxis].T, self.temperature.value
-        )
-
-
-class DilutePlanckRadiationField:
-    def __init__(self, temperature, dilution_factor) -> None:
-        self.temperature = u.Quantity(temperature, u.K)
-        self.dilution_factor = dilution_factor
-
-    def calculate_mean_intensity(self, nu):
-        return self.dilution_factor * intensity_black_body(
-            nu.values[np.newaxis].T, self.temperature.value
-        )
-
-
-class DiluteBlackBodyRadiationFieldState:
+class DilutePlanckianRadiationField:
     """
     Represents the state of a dilute thermal radiation field.
 
 
     Parameters
     ----------
-    t_radiative : u.Quantity
+    temperature : u.Quantity
         Radiative temperature in each shell
     dilution_factor : numpy.ndarray
         Dilution Factors in each shell
@@ -44,18 +23,18 @@ class DiluteBlackBodyRadiationFieldState:
 
     def __init__(
         self,
-        t_radiative: u.Quantity,
+        temperature: u.Quantity,
         dilution_factor: np.ndarray,
         geometry=None,
     ):
         # ensuring that the radiation_field has both
         # dilution_factor and t_radiative equal length
-        assert len(t_radiative) == len(dilution_factor)
+        assert len(temperature) == len(dilution_factor)
         if (
             geometry is not None
         ):  # check the active shells only (this is used when setting up the radiation_field_state)
             assert np.all(
-                t_radiative[
+                temperature[
                     geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
                 ]
                 > 0 * u.K
@@ -67,10 +46,14 @@ class DiluteBlackBodyRadiationFieldState:
                 > 0
             )
         else:
-            assert np.all(t_radiative > 0 * u.K)
+            assert np.all(temperature > 0 * u.K)
             assert np.all(dilution_factor > 0)
-        self.t_radiative = t_radiative
+        self.temperature = temperature
         self.dilution_factor = dilution_factor
+
+    @property
+    def temperature_kelvin(self):
+        return self.temperature.to(u.K).value
 
     def calculate_mean_intensity(self, nu: Union[u.Quantity, np.ndarray]):
         """
@@ -87,5 +70,5 @@ class DiluteBlackBodyRadiationFieldState:
             Intensity of the radiation field at the given frequency
         """
         return self.dilution_factor * intensity_black_body(
-            nu[np.newaxis].T, self.t_radiative
+            nu[np.newaxis].T, self.temperature
         )

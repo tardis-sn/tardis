@@ -4,7 +4,7 @@ from scipy.special import zeta
 
 from tardis import constants as const
 from tardis.radiation_field.planck_rad_field import (
-    DiluteBlackBodyRadiationFieldState,
+    DilutePlanckianRadiationField,
 )
 
 DILUTION_FACTOR_ESTIMATOR_CONSTANT = (
@@ -52,6 +52,6 @@ class MCDiluteBlackBodyRadFieldSolver:
             * volume
         )
 
-        return DiluteBlackBodyRadiationFieldState(
+        return DilutePlanckianRadiationField(
             temperature_radiative, dilution_factor
         )

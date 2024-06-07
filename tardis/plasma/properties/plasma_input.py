@@ -1,7 +1,4 @@
-from tardis.plasma.properties.base import (
-    ArrayInput,
-    Input,
-)
+from tardis.plasma.properties.base import ArrayInput, Input, ObjectInput
 
 __all__ = [
     "TRadiative",
@@ -176,3 +173,8 @@ class NumberDensity(Input):
 
     outputs = ("number_density",)
     latex_name = ("N_{i}",)
+
+
+class DilutePlanckianRadFieldInput(ObjectInput):
+    input_object_map = {"t_rad": "temperature_kelvin", "w": "dilution_factor"}
+    outputs = ("t_rad", "w")
