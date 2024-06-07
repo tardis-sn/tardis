@@ -5,15 +5,13 @@ Basic TARDIS Benchmark.
 import numpy as np
 from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
-import tardis.transport.montecarlo.estimators.radfield_mc_estimators
-import tardis.transport.montecarlo.estimators.radfield_mc_estimators
-import tardis.transport.montecarlo.numba_interface as numba_interface
-import tardis.transport.montecarlo.opacities as opacities
-import tardis.transport.montecarlo.r_packet as r_packet
-import tardis.transport.montecarlo.utils as utils
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
-import tardis.transport.r_packet_transport as r_packet_transport
+import tardis.transport.montecarlo.estimators.radfield_mc_estimators
+import tardis.transport.montecarlo.opacities as opacities
+import tardis.transport.montecarlo.r_packet as r_packet
+import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
+import tardis.transport.montecarlo.utils as utils
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
@@ -37,9 +35,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
 
     @property
     def model(self):
-        return numba_interface.NumbaModel(
-            time_explosion=5.2e7,
-        )
+        return 5.2e7
 
     @property
     def estimators(self):
@@ -104,7 +100,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         nu_line = packet_params["nu_line"]
         is_last_line = packet_params["is_last_line"]
 
-        time_explosion = self.model.time_explosion
+        time_explosion = self.model
 
         doppler_factor = frame_transformations.get_doppler_factor(
             self.static_packet.r, self.static_packet.mu, time_explosion

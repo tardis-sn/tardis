@@ -23,7 +23,7 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
         init_mu = packet.mu
         init_nu = packet.nu
         init_energy = packet.energy
-        time_explosion = self.verysimple_numba_model.time_explosion
+        time_explosion = self.verysimple_time_explosion
 
         interaction.thomson_scatter(packet, time_explosion)
 
@@ -46,9 +46,9 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
         init_nu = packet.nu
         init_energy = packet.energy
         packet.initialize_line_id(
-            self.verysimple_opacity_state, self.verysimple_numba_model
+            self.verysimple_opacity_state, self.verysimple_time_explosion
         )
-        time_explosion = self.verysimple_numba_model.time_explosion
+        time_explosion = self.verysimple_time_explosion
 
         interaction.line_scatter(
             packet,
@@ -88,10 +88,10 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
         packet.mu = test_packet["mu"]
         packet.energy = test_packet["energy"]
         packet.initialize_line_id(
-            self.verysimple_opacity_state, self.verysimple_numba_model
+            self.verysimple_opacity_state, self.verysimple_time_explosion
         )
 
-        time_explosion = self.verysimple_numba_model.time_explosion
+        time_explosion = self.verysimple_time_explosion
 
         interaction.line_emission(
             packet,

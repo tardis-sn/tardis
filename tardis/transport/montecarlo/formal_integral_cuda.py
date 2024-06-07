@@ -216,9 +216,9 @@ class CudaFormalIntegrator(object):
     with CUDA.
     """
 
-    def __init__(self, geometry, model, plasma, points=1000):
+    def __init__(self, geometry, time_explosion, plasma, points=1000):
         self.geometry = geometry
-        self.model = model
+        self.time_explosion = time_explosion
         self.plasma = plasma
         self.points = points
 
@@ -264,7 +264,7 @@ class CudaFormalIntegrator(object):
         cuda_formal_integral[blocks_per_grid, THREADS_PER_BLOCK](
             self.geometry.r_inner,
             self.geometry.r_outer,
-            self.model.time_explosion,
+            self.time_explosion,
             self.plasma.line_list_nu,
             iT.value,
             inu.value,

@@ -4,7 +4,6 @@ from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
 
 from tardis.transport.montecarlo import njit_dict
-from tardis.transport.montecarlo.numba_interface import NumbaModel
 from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
@@ -25,7 +24,7 @@ from tardis.util.base import update_packet_pbar
 def montecarlo_main_loop(
     packet_collection,
     geometry_state,
-    numba_model,
+    time_explosion,
     opacity_state,
     montecarlo_configuration,
     estimators,
@@ -34,7 +33,6 @@ def montecarlo_main_loop(
     iteration,
     show_progress_bars,
     total_iterations,
-    enable_virtual_packet_logging,
 ):
     """This is the main loop of the MonteCarlo routine that generates packets
     and sends them through the ejecta.
@@ -46,7 +44,8 @@ def montecarlo_main_loop(
         Real packet collection
     geometry_state : GeometryState
         Simulation geometry
-    numba_model : NumbaModel
+    time_explosion : float
+        Time in seconds
     opacity_state : OpacityState
     estimators : Estimators
     spectrum_frequency :  astropy.units.Quantity
@@ -59,8 +58,6 @@ def montecarlo_main_loop(
         Display progress bars
     total_iterations : int
         Maximum number of iterations
-    enable_virtual_packet_logging : bool
-        Enable virtual packet tracking
     """
     no_of_packets = len(packet_collection.initial_nus)
 
@@ -137,7 +134,7 @@ def montecarlo_main_loop(
         loop = single_packet_loop(
             r_packet,
             geometry_state,
-            numba_model,
+            time_explosion,
             opacity_state,
             local_estimators,
             vpacket_collection,
@@ -171,7 +168,7 @@ def montecarlo_main_loop(
     for sub_estimator in estimator_list:
         estimators.increment(sub_estimator)
 
-    if enable_virtual_packet_logging:
+    if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
         vpacket_tracker = consolidate_vpacket_tracker(
             vpacket_collections,
             spectrum_frequency,

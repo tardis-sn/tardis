@@ -10,24 +10,6 @@ from tardis import constants as const
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
-numba_model_spec = [
-    ("time_explosion", float64),
-]
-
-
-@jitclass(numba_model_spec)
-class NumbaModel(object):
-    def __init__(self, time_explosion):
-        """
-        Model for the Numba mode
-
-        Parameters
-        ----------
-        time_explosion : float
-        """
-        self.time_explosion = time_explosion
-
-
 opacity_state_spec = [
     ("electron_density", float64[:]),
     ("t_electrons", float64[:]),

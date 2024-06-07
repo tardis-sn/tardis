@@ -310,8 +310,6 @@ class ConfigEditor(QtWidgets.QWidget):
                 },
                 "last_no_of_packets": [False, -1],
                 "no_of_virtual_packets": [False, 0],
-                "enable_reflective_inner_boundary": [False, False],
-                "inner_boundary_albedo": [False, 0.0],
                 "convergence_strategy": {
                     "type": [
                         True,
