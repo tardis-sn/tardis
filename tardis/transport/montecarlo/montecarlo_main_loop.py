@@ -5,7 +5,10 @@ from numba.typed import List
 
 from tardis.transport.montecarlo import njit_dict
 from tardis.transport.montecarlo.numba_interface import NumbaModel
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
+from tardis.transport.montecarlo.packet_trackers import (
+    RPacketTracker,
+    RPacketLastInteractionTracker,
+)
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
     consolidate_vpacket_tracker,
@@ -68,6 +71,9 @@ def montecarlo_main_loop(
         no_of_packets
     )
 
+    # While in review this is a temporary name, will delete the original
+    # last_interaction_tracker class and will use that name
+    last_interaction_tracker_work = RPacketLastInteractionTracker(no_of_packets)
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
 
