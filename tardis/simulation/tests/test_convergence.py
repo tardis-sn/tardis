@@ -52,10 +52,14 @@ def test_get_convergence_status(strategy):
     value = np.array([1.0, 2.0, 3.0], dtype=np.float64)
     estimated_value = np.array([1.01, 2.02, 3.03], dtype=np.float64)
     no_of_cells = np.int64(3)
-    is_converged = solver.get_convergence_status(value, estimated_value, no_of_cells)
+    is_converged = solver.get_convergence_status(
+        value, estimated_value, no_of_cells
+    )
     assert is_converged
 
     value = np.array([1.0, 2.0, 3.0], dtype=np.float64)
     estimated_value = np.array([2.0, 3.0, 4.0], dtype=np.float64)
-    is_converged = solver.get_convergence_status(value, estimated_value, no_of_cells)
+    is_converged = solver.get_convergence_status(
+        value, estimated_value, no_of_cells
+    )
     assert not is_converged
