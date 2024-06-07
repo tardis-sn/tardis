@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+import numpy.testing as npt
 import pytest
 
 from tardis.io.configuration.config_reader import Configuration
@@ -43,7 +44,7 @@ def test_damped_converge(strategy):
     value = np.float64(10.0)
     estimated_value = np.float64(20.0)
     converged_value = solver.damped_converge(value, estimated_value)
-    assert converged_value == 15.0
+    npt.assert_almost_equal(converged_value, 15.0)
 
 
 def test_get_convergence_status(strategy):
@@ -51,10 +52,10 @@ def test_get_convergence_status(strategy):
     value = np.array([1.0, 2.0, 3.0], dtype=np.float64)
     estimated_value = np.array([1.01, 2.02, 3.03], dtype=np.float64)
     no_of_cells = np.int64(3)
-    status = solver.get_convergence_status(value, estimated_value, no_of_cells)
-    assert status
+    is_converged = solver.get_convergence_status(value, estimated_value, no_of_cells)
+    assert is_converged
 
     value = np.array([1.0, 2.0, 3.0], dtype=np.float64)
     estimated_value = np.array([2.0, 3.0, 4.0], dtype=np.float64)
-    status = solver.get_convergence_status(value, estimated_value, no_of_cells)
-    assert not status
+    is_converged = solver.get_convergence_status(value, estimated_value, no_of_cells)
+    assert not is_converged
