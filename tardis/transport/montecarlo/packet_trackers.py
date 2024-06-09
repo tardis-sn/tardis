@@ -156,3 +156,50 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
         index=pd.MultiIndex.from_arrays(index_array, names=["index", "step"]),
         columns=df_dtypes.names,
     )
+
+
+rpacket_last_interaction_tracker_spec = [
+    ("index", int64),
+    ("r", float64),
+    ("nu", float64),
+    ("energy", float64),
+    ("shell_id", int64),
+    ("interaction_type", int64),
+]
+
+
+@jitclass(rpacket_last_interaction_tracker_spec)
+class RPacketLastInteractionTracker(object):
+    """
+    Numba JITCLASS for storing the last interaction the RPacket undergoes.
+    Parameters
+    ----------
+        index : int
+            Index position of each RPacket
+        r : float
+            Radius of the shell where the RPacket is present
+        nu : float
+            Frequency of the RPacket
+        energy : float
+            Energy possessed by the RPacket
+        shell_id : int
+            Current Shell No in which the last interaction happened
+        interaction_type: int
+            Type of interaction the rpacket undergoes
+    """
+
+    def __init__(self):
+        self.index = np.int64(-1)
+        self.r = np.float64(-1)
+        self.nu = np.float64(0)
+        self.energy = np.float64(0)
+        self.shell_id = np.int64(-1)
+        self.interaction_type = np.int64(-1)
+
+    def track_last_interaction(self, r_packet):
+        self.index = r_packet.index
+        self.r = r_packet.r
+        self.nu = r_packet.nu
+        self.energy = r_packet.energy
+        self.shell_id = r_packet.current_shell_id
+        self.interaction_type = r_packet.last_interaction_type

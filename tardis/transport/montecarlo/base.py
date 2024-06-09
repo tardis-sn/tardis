@@ -173,6 +173,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             last_interaction_tracker,
             vpacket_tracker,
             rpacket_trackers,
+            rpacket_last_interaction_trackers,
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
