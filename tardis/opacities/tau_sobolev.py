@@ -77,12 +77,36 @@ class TauSobolev(ProcessingPlasmaProperty):
         self,
         lines,
         level_number_density,
+        lines_lower_level_index,
         time_explosion,
         stimulated_emission_factor,
+        f_lu,
+        wavelength_cm,
     ):
-        return calculate_sobolev_line_opacity(
-            lines,
-            level_number_density,
-            time_explosion,
-            stimulated_emission_factor,
+        f_lu = f_lu.values[np.newaxis].T
+        wavelength = wavelength_cm.values[np.newaxis].T
+        n_lower = level_number_density.values.take(
+            lines_lower_level_index, axis=0, mode="raise"
+        )
+        tau_sobolevs = (
+            self.sobolev_coefficient
+            * f_lu
+            * wavelength
+            * time_explosion
+            * n_lower
+            * stimulated_emission_factor
+        )
+
+        if np.any(np.isnan(tau_sobolevs)) or np.any(
+            np.isinf(np.abs(tau_sobolevs))
+        ):
+            raise ValueError(
+                "Some tau_sobolevs are nan, inf, -inf in tau_sobolevs."
+                " Something went wrong!"
+            )
+
+        return pd.DataFrame(
+            tau_sobolevs,
+            index=lines.index,
+            columns=np.array(level_number_density.columns),
         )

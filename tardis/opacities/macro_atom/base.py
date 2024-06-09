@@ -67,7 +67,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
         transition_type = macro_atom_data.transition_type.values
         lines_idx = macro_atom_data.lines_idx.values
         tpos = macro_atom_data.transition_probability.values
-        util.calculate_transition_probabilities(
+        util.fast_calculate_transition_probabilities(
             tpos,
             beta_sobolev.values,
             j_blues.values,

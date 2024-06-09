@@ -12,7 +12,7 @@ from tardis.transport.montecarlo.single_packet_loop import (
 # TODO set RNG consistently
 def test_verysimple_single_packet_loop(
     verysimple_numba_radial_1d_geometry,
-    verysimple_numba_model,
+    verysimple_time_explosion,
     verysimple_opacity_state,
     verysimple_estimators,
     verysimple_vpacket_collection,
@@ -21,7 +21,7 @@ def test_verysimple_single_packet_loop(
     numba_radial_1d_geometry = verysimple_numba_radial_1d_geometry
     packet_collection = verysimple_packet_collection
     vpacket_collection = verysimple_vpacket_collection
-    numba_model = verysimple_numba_model
+    time_explosion = verysimple_time_explosion
     opacity_state = verysimple_opacity_state
     numba_estimators = verysimple_estimators
 
@@ -36,7 +36,7 @@ def test_verysimple_single_packet_loop(
     single_packet_loop(
         r_packet,
         numba_radial_1d_geometry,
-        numba_model,
+        time_explosion,
         opacity_state,
         numba_estimators,
         vpacket_collection,

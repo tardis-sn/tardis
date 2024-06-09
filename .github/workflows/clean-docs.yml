@@ -5,26 +5,24 @@
 name: clean-docs
 
 on:
-
   delete:
-    branches:                           # remove deleted branches
-      - '*'
+    branches: # remove deleted branches
+      - "*"
 
-  pull_request_target:                  # remove closed or merged pull requests
+  pull_request_target: # remove closed or merged pull requests
     branches:
-      - '*'
+      - "*"
     types:
       - closed
 
 env:
-  DEPLOY_BRANCH: gh-pages               #  deployed docs branch
+  DEPLOY_BRANCH: gh-pages #  deployed docs branch
 
 jobs:
   clean:
     runs-on: ubuntu-latest
     steps:
-
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set folder to delete
         run: |

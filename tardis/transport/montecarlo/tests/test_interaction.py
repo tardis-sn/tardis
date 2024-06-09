@@ -7,11 +7,11 @@ from tardis.transport.montecarlo.numba_interface import (
 )
 
 
-def test_thomson_scatter(packet, verysimple_numba_model):
+def test_thomson_scatter(packet, verysimple_time_explosion):
     init_mu = packet.mu
     init_nu = packet.nu
     init_energy = packet.energy
-    time_explosion = verysimple_numba_model.time_explosion
+    time_explosion = verysimple_time_explosion
 
     interaction.thomson_scatter(packet, time_explosion, False)
 
@@ -31,7 +31,7 @@ def test_thomson_scatter(packet, verysimple_numba_model):
 def test_line_scatter(
     line_interaction_type,
     packet,
-    verysimple_numba_model,
+    verysimple_time_explosion,
     verysimple_opacity_state,
 ):
     init_mu = packet.mu
@@ -39,9 +39,9 @@ def test_line_scatter(
     init_energy = packet.energy
     full_relativity = False
     packet.initialize_line_id(
-        verysimple_opacity_state, verysimple_numba_model, full_relativity
+        verysimple_opacity_state, verysimple_time_explosion, full_relativity
     )
-    time_explosion = verysimple_numba_model.time_explosion
+    time_explosion = verysimple_time_explosion
 
     interaction.line_scatter(
         packet,
@@ -89,7 +89,7 @@ def test_line_scatter(
 )
 def test_line_emission(
     packet,
-    verysimple_numba_model,
+    verysimple_time_explosion,
     verysimple_opacity_state,
     test_packet,
     expected,
@@ -100,11 +100,11 @@ def test_line_emission(
     full_relativity = False
     packet.initialize_line_id(
         verysimple_opacity_state,
-        verysimple_numba_model,
+        verysimple_time_explosion,
         full_relativity,
     )
 
-    time_explosion = verysimple_numba_model.time_explosion
+    time_explosion = verysimple_time_explosion
 
     interaction.line_emission(
         packet,

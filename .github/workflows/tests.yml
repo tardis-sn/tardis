@@ -12,6 +12,12 @@ on:
   pull_request:
     branches:
     - '*'
+    
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
@@ -104,4 +110,4 @@ jobs:
       - name: Refdata Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
         working-directory: ${{ env.TARDIS_PIP_PATH }}
-        if: always()
+        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
