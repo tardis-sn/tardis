@@ -1,4 +1,4 @@
-from tardis.io.model.readers.cmfgen import (
+from tardis.io.model.readers.cmfgen_deprecated import (
     read_cmfgen_composition,
     read_cmfgen_density,
 )

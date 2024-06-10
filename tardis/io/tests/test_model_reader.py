@@ -5,7 +5,7 @@ from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.readers.artis import read_artis_density
-from tardis.io.model.readers.cmfgen import (
+from tardis.io.model.readers.cmfgen_deprecated import (
     read_cmfgen_composition,
     read_cmfgen_density,
 )
