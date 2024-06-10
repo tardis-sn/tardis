@@ -1,4 +1,5 @@
 from astropy import units as u
+
 from tardis.transport.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,

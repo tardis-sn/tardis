@@ -1,8 +1,7 @@
+from astropy import units as u
+
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
-
-
-from astropy import units as u
 
 
 def parse_csvy_geometry(
