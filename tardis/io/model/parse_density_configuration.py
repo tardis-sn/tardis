@@ -181,8 +181,8 @@ def parse_density_from_csvy(csvy_model_config, csvy_model_data, time_explosion):
             csvy_model_config.datatype.fields[density_field_index]["unit"]
         )
         density_0 = csvy_model_data["density"].values * density_unit
-        # Removing as thee new architecture removes the 0th shell already
-        # density_0 = density_0.to("g/cm^3")[1:]
+        density_0 = density_0.to("g/cm^3")[1:]
+        # Removing as the new architecture removes the 0th shell already
         # density_0 = density_0.insert(0, 0)
         density = calculate_density_after_time(
             density_0, time_0, time_explosion
