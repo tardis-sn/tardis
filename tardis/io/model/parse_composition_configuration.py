@@ -44,14 +44,14 @@ def parse_composition_from_csvy(
     )
 
     (
-        nuclide_mass_fraction,
-        raw_isotope_mass_fraction,
+        nuclide_mass_fractions,
+        raw_isotope_mass_fractions,
     ) = parse_mass_fractions_from_csvy(
         csvy_model_config, csvy_model_data, geometry, time_explosion
     )
     return Composition(
         density,
-        nuclide_mass_fraction,
-        raw_isotope_mass_fraction,
+        nuclide_mass_fractions,
+        raw_isotope_mass_fractions,
         atom_data.atom_data.mass.copy(),
     )

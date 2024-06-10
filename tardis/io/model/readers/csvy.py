@@ -118,7 +118,7 @@ def parse_csv_mass_fractions(csvy_data):
 
     df = df.transpose()
 
-    mass_fraction = pd.DataFrame(
+    mass_fractions = pd.DataFrame(
         columns=np.arange(df.shape[1]),
         index=pd.Index([], name="atomic_number"),
         dtype=np.float64,
@@ -127,20 +127,20 @@ def parse_csv_mass_fractions(csvy_data):
     isotope_index = pd.MultiIndex(
         [[]] * 2, [[]] * 2, names=["atomic_number", "mass_number"]
     )
-    isotope_mass_fraction = pd.DataFrame(
+    isotope_mass_fractions = pd.DataFrame(
         columns=np.arange(df.shape[1]), index=isotope_index, dtype=np.float64
     )
 
     for element_symbol_string in df.index[0:]:
         if element_symbol_string in Z_DICT.values():
             z = elem_to_Z(element_symbol_string)
-            mass_fraction.loc[z, :] = df.loc[element_symbol_string].tolist()
+            mass_fractions.loc[z, :] = df.loc[element_symbol_string].tolist()
         else:
             nuc = Nuclide(element_symbol_string)
             z = nuc.Z
             mass_no = nuc.A
-            isotope_mass_fraction.loc[(z, mass_no), :] = df.loc[
+            isotope_mass_fractions.loc[(z, mass_no), :] = df.loc[
                 element_symbol_string
             ].tolist()
 
-    return mass_fraction.index, mass_fraction, isotope_mass_fraction
+    return mass_fractions.index, mass_fractions, isotope_mass_fractions

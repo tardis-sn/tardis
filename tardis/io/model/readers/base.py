@@ -44,13 +44,15 @@ def read_mass_fractions_file(
         "custom_composition": read_csv_composition,
     }
 
-    isotope_mass_fraction = pd.DataFrame()
+    isotope_mass_fractions = pd.DataFrame()
     if mass_fraction_filetype in ["cmfgen_model", "custom_composition"]:
-        index, mass_fractions, isotope_mass_fraction = file_parsers[mass_fraction_filetype](
+        index, mass_fractions, isotope_mass_fractions = file_parsers[
+            mass_fraction_filetype
+        ](mass_fraction_filename)
+    else:
+        index, mass_fractions = file_parsers[mass_fraction_filetype](
             mass_fraction_filename
         )
-    else:
-        index, mass_fractions = file_parsers[mass_fraction_filetype](mass_fraction_filename)
 
     if outer_boundary_index is not None:
         outer_boundary_index_m1 = outer_boundary_index - 1
@@ -61,7 +63,7 @@ def read_mass_fractions_file(
         :, slice(inner_boundary_index, outer_boundary_index_m1)
     ]
     mass_fractions.columns = np.arange(len(mass_fractions.columns))
-    return index, mass_fractions, isotope_mass_fraction
+    return index, mass_fractions, isotope_mass_fractions
 
 
 def read_density_file(filename, filetype):

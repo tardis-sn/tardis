@@ -114,9 +114,9 @@ def parse_mass_fractions_from_csvy(
 
     Returns
     -------
-    mass_fraction : pd.DataFrame
+    mass_fractions : pd.DataFrame
         The parsed mass fraction data.
-    isotope_mass_fraction : pandas.DataFrame
+    isotope_mass_fractions : pandas.DataFrame
         The parsed isotope mass fraction data.
 
     Raises
@@ -134,41 +134,45 @@ def parse_mass_fractions_from_csvy(
     """
     if hasattr(csvy_model_config, "abundance"):
         mass_fractions_section = csvy_model_config.abundance
-        mass_fraction, isotope_mass_fraction = read_uniform_mass_fractions(
+        mass_fractions, isotope_mass_fractions = read_uniform_mass_fractions(
             mass_fractions_section, geometry.no_of_shells
         )
     else:
-        _, mass_fraction, isotope_mass_fraction = parse_csv_mass_fractions(
+        _, mass_fractions, isotope_mass_fractions = parse_csv_mass_fractions(
             csvy_model_data
         )
-        mass_fraction = mass_fraction.loc[:, 1:]
-        mass_fraction.columns = np.arange(mass_fraction.shape[1])
-        isotope_mass_fraction = isotope_mass_fraction.loc[:, 1:]
-        isotope_mass_fraction.columns = np.arange(
-            isotope_mass_fraction.shape[1]
+        mass_fractions = mass_fractions.loc[:, 1:]
+        mass_fractions.columns = np.arange(mass_fractions.shape[1])
+        isotope_mass_fractions = isotope_mass_fractions.loc[:, 1:]
+        isotope_mass_fractions.columns = np.arange(
+            isotope_mass_fractions.shape[1]
         )
 
-    mass_fraction = mass_fraction.replace(np.nan, 0.0)
-    mass_fraction = mass_fraction[mass_fraction.sum(axis=1) > 0]
-    isotope_mass_fraction = isotope_mass_fraction.replace(np.nan, 0.0)
-    isotope_mass_fraction = isotope_mass_fraction[
-        isotope_mass_fraction.sum(axis=1) > 0
+    mass_fractions = mass_fractions.replace(np.nan, 0.0)
+    mass_fractions = mass_fractions[mass_fractions.sum(axis=1) > 0]
+    isotope_mass_fractions = isotope_mass_fractions.replace(np.nan, 0.0)
+    isotope_mass_fractions = isotope_mass_fractions[
+        isotope_mass_fractions.sum(axis=1) > 0
     ]
-    norm_factor = mass_fraction.sum(axis=0) + isotope_mass_fraction.sum(axis=0)
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(
+        axis=0
+    )
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
         logger.warning(
             "Mass fractions have not been normalized to 1. - normalizing"
         )
-        mass_fraction /= norm_factor
-        isotope_mass_fraction /= norm_factor
+        mass_fractions /= norm_factor
+        isotope_mass_fractions /= norm_factor
 
-    raw_isotope_mass_fraction = isotope_mass_fraction
-    isotope_mass_fraction = IsotopicMassFraction(
-        isotope_mass_fraction, time_0=csvy_model_config.model_isotope_time_0
+    raw_isotope_mass_fraction = isotope_mass_fractions
+    isotope_mass_fractions = IsotopicMassFraction(
+        isotope_mass_fractions, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
     return (
-        convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction),
+        convert_to_nuclide_mass_fraction(
+            isotope_mass_fractions, mass_fractions
+        ),
         raw_isotope_mass_fraction,
     )
 

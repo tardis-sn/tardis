@@ -115,10 +115,10 @@ def read_uniform_mass_fractions(mass_fractions_section, no_of_shells):
 
     Returns
     -------
-    mass_fraction : pandas.DataFrame
-    isotope_mass_fraction : pandas.DataFrame
+    mass_fractions : pandas.DataFrame
+    isotope_mass_fractions : pandas.DataFrame
     """
-    mass_fraction = pd.DataFrame(
+    mass_fractions = pd.DataFrame(
         columns=np.arange(no_of_shells),
         index=pd.Index(np.arange(1, 120), name="atomic_number"),
         dtype=np.float64,
@@ -127,7 +127,7 @@ def read_uniform_mass_fractions(mass_fractions_section, no_of_shells):
     isotope_index = pd.MultiIndex(
         [[]] * 2, [[]] * 2, names=["atomic_number", "mass_number"]
     )
-    isotope_mass_fraction = pd.DataFrame(
+    isotope_mass_fractions = pd.DataFrame(
         columns=np.arange(no_of_shells), index=isotope_index, dtype=np.float64
     )
 
@@ -137,14 +137,14 @@ def read_uniform_mass_fractions(mass_fractions_section, no_of_shells):
         try:
             if element_symbol_string in Z_DICT.values():
                 z = elem_to_Z(element_symbol_string)
-                mass_fraction.loc[z] = float(
+                mass_fractions.loc[z] = float(
                     mass_fractions_section[element_symbol_string]
                 )
             else:
                 nuc = Nuclide(element_symbol_string)
                 mass_no = nuc.A
                 z = nuc.Z
-                isotope_mass_fraction.loc[(z, mass_no), :] = float(
+                isotope_mass_fractions.loc[(z, mass_no), :] = float(
                     mass_fractions_section[element_symbol_string]
                 )
 
@@ -153,4 +153,4 @@ def read_uniform_mass_fractions(mass_fractions_section, no_of_shells):
                 f"mass_fractions are not defined properly in config file : {err.args}"
             )
 
-    return mass_fraction, isotope_mass_fraction
+    return mass_fractions, isotope_mass_fractions
