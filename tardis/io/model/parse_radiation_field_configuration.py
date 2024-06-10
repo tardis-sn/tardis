@@ -84,7 +84,7 @@ def parse_radiation_field_state_from_csvy(
     -------
     DiluteThermalRadiationFieldState
         The parsed radiation field state.
-    """    
+    """
     t_radiative = None
     dilution_factor = None
 
@@ -163,7 +163,7 @@ def calculate_geometric_dilution_factor(geometry):
     -------
     np.array
         The dilution factors for the inout geometry
-    """    
+    """
     return 0.5 * (
         1
         - np.sqrt(
