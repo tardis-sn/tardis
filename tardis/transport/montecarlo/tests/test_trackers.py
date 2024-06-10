@@ -42,4 +42,4 @@ def test_tracking_manual(static_packet):
 
 def test_tracking_simulation(last_interactions):
     checkedTypes, toCheckTypes = last_interactions
-    assert checkedTypes == toCheckTypes
+    assert np.array_equal(checkedTypes, toCheckTypes)
