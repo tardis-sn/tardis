@@ -23,6 +23,34 @@ def calculate_sobolev_line_opacity(
     time_explosion,
     stimulated_emission_factor,
 ):
+    """
+    Calculates the Sobolev line opacity based on the provided parameters.
+
+    Parameters
+    ----------
+    lines : pandas.DataFrame
+        DataFrame containing information about spectral lines.
+    level_number_density : pandas.DataFrame
+        DataFrame with level number densities.
+    time_explosion : astropy.units.Quantity
+        Time since explosion.
+    stimulated_emission_factor : float
+        Factor for stimulated emission.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Calculated Sobolev line opacity values.
+
+    Raises
+    ------
+    ValueError
+        If any calculated tau_sobolevs are nan or inf.
+
+    Examples
+    --------
+    >>> calculate_sobolev_line_opacity(lines_data, level_density_data, time_exp, stim_factor)
+    """
     tau_sobolevs = (
         (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
         * SOBOLEV_COEFFICIENT
@@ -83,6 +111,36 @@ class TauSobolev(ProcessingPlasmaProperty):
         f_lu,
         wavelength_cm,
     ):
+        """
+        Calculate Sobolev line opacity.
+
+        Calculates the Sobolev line opacity based on the provided parameters.
+
+        Parameters
+        ----------
+        lines : pandas.DataFrame
+            DataFrame containing information about spectral lines.
+        level_number_density : pandas.DataFrame
+            DataFrame with level number densities.
+        time_explosion : astropy.units.Quantity
+            Time since explosion.
+        stimulated_emission_factor : float
+            Factor for stimulated emission.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Calculated Sobolev line opacity values.
+
+        Raises
+        ------
+        ValueError
+            If any calculated tau_sobolevs are nan or inf.
+
+        Examples
+        --------
+        >>> calculate_sobolev_line_opacity(lines_data, level_density_data, time_exp, stim_factor)
+        """
         f_lu = f_lu.values[np.newaxis].T
         wavelength = wavelength_cm.values[np.newaxis].T
         n_lower = level_number_density.values.take(

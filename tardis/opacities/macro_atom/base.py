@@ -126,11 +126,6 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
         )
         return transition_probabilities
 
-    def _normalize_transition_probabilities(self, transition_probabilities):
-        util.normalize_transition_probabilities(
-            transition_probabilities, self.block_references
-        )
-
     @staticmethod
     def _get_macro_atom_data(atomic_data):
         try:

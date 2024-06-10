@@ -4,11 +4,6 @@ from numba import njit
 from tardis import constants as const
 from tardis.transport.montecarlo import njit_dict
 
-H_CGS = const.h.cgs.value
-C = const.c.to("cm/s").value
-K_BOLTZMANN = const.k_B.cgs.value
-INV_C2 = 1 / (C**2)
-
 
 @njit(**njit_dict)
 def fast_calculate_transition_probabilities(
