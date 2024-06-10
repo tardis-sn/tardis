@@ -12,12 +12,12 @@ import tardis
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import ConfigurationError
+from tardis.io.model.parse_packet_source import initialize_packet_source
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
-from tardis.io.model.parse_input import initialize_packet_source
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
