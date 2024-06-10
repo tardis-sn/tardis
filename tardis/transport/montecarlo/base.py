@@ -224,6 +224,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
         )
 
+        self.transport_state.rpacket_last_interaction_trackers = (
+            rpacket_last_interaction_trackers
+        )
+
     @classmethod
     def from_config(
         cls, config, packet_source, enable_virtual_packet_logging=False
