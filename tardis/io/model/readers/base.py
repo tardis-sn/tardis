@@ -5,7 +5,7 @@ from tardis.io.model.readers.cmfgen_deprecated import (
 from tardis.io.model.readers.generic_readers import (
     ConfigurationError,
     read_csv_composition,
-    read_simple_ascii_abundances,
+    read_simple_ascii_mass_fractions,
     read_simple_ascii_density,
 )
 
@@ -16,9 +16,9 @@ import pandas as pd
 from tardis.io.model.readers.artis import read_artis_density
 
 
-def read_abundances_file(
-    abundance_filename,
-    abundance_filetype,
+def read_mass_fractions_file(
+    mass_fraction_filename,
+    mass_fraction_filetype,
     inner_boundary_index=None,
     outer_boundary_index=None,
 ):
@@ -27,9 +27,9 @@ def read_abundances_file(
 
     Parameters
     ----------
-    abundance_filename : str
+    mass_fraction_filename : str
         filename or path of the density file
-    abundance_filetype : str
+    mass_fraction_filetype : str
         type of the density file
     inner_boundary_index : int
         index of the inner shell, default None
@@ -38,30 +38,30 @@ def read_abundances_file(
     """
 
     file_parsers = {
-        "simple_ascii": read_simple_ascii_abundances,
-        "artis": read_simple_ascii_abundances,
+        "simple_ascii": read_simple_ascii_mass_fractions,
+        "artis": read_simple_ascii_mass_fractions,
         "cmfgen_model": read_cmfgen_composition,
         "custom_composition": read_csv_composition,
     }
 
-    isotope_abundance = pd.DataFrame()
-    if abundance_filetype in ["cmfgen_model", "custom_composition"]:
-        index, abundances, isotope_abundance = file_parsers[abundance_filetype](
-            abundance_filename
+    isotope_mass_fraction = pd.DataFrame()
+    if mass_fraction_filetype in ["cmfgen_model", "custom_composition"]:
+        index, mass_fractions, isotope_mass_fraction = file_parsers[mass_fraction_filetype](
+            mass_fraction_filename
         )
     else:
-        index, abundances = file_parsers[abundance_filetype](abundance_filename)
+        index, mass_fractions = file_parsers[mass_fraction_filetype](mass_fraction_filename)
 
     if outer_boundary_index is not None:
         outer_boundary_index_m1 = outer_boundary_index - 1
     else:
         outer_boundary_index_m1 = None
     index = index[inner_boundary_index:outer_boundary_index]
-    abundances = abundances.loc[
+    mass_fractions = mass_fractions.loc[
         :, slice(inner_boundary_index, outer_boundary_index_m1)
     ]
-    abundances.columns = np.arange(len(abundances.columns))
-    return index, abundances, isotope_abundance
+    mass_fractions.columns = np.arange(len(mass_fractions.columns))
+    return index, mass_fractions, isotope_mass_fraction
 
 
 def read_density_file(filename, filetype):

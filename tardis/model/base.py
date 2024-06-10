@@ -7,14 +7,14 @@ from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
-from tardis.io.model.parse_abundance_configuration import (
-    parse_abundance_from_config,
-)
 from tardis.io.model.parse_composition_configuration import (
     parse_composition_from_csvy,
 )
 from tardis.io.model.parse_geometry_configuration import (
     parse_geometry_from_csvy,
+)
+from tardis.io.model.parse_mass_fraction_configuration import (
+    parse_mass_fractions_from_config,
 )
 from tardis.io.model.parse_packet_source_configuration import (
     parse_packet_source_from_config,
@@ -304,7 +304,7 @@ class SimulationState(HDFWriterMixin):
         (
             nuclide_mass_fraction,
             raw_isotope_abundance,
-        ) = parse_abundance_from_config(config, geometry, time_explosion)
+        ) = parse_mass_fractions_from_config(config, geometry, time_explosion)
 
         # using atom_data.mass.copy() to ensure that the original atom_data is not modified
         composition = Composition(

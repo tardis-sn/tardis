@@ -13,7 +13,7 @@ from pathlib import Path
 from tardis.io.model.readers.base import read_density_file
 
 from tardis.io.model.readers.generic_readers import (
-    read_simple_ascii_abundances,
+    read_simple_ascii_mass_fractions,
     read_simple_ascii_density,
 )
 
@@ -32,7 +32,7 @@ def test_simple_ascii_density_reader_time(example_model_file_dir):
 
 
 def test_simple_ascii_abundance_reader(example_model_file_dir):
-    (index, abundances,) = read_simple_ascii_abundances(
+    (index, abundances,) = read_simple_ascii_mass_fractions(
         example_model_file_dir / "artis_abundances.dat"
     )
 

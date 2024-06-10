@@ -11,8 +11,8 @@ from tardis.io.model.readers.cmfgen_deprecated import (
 )
 from tardis.io.model.readers.generic_readers import (
     read_csv_composition,
-    read_simple_ascii_abundances,
-    read_uniform_abundances,
+    read_simple_ascii_mass_fractions,
+    read_uniform_mass_fractions,
 )
 
 
@@ -61,8 +61,8 @@ def test_simple_read_artis_density(artis_density_fname: str):
 
 
 # Artis files are currently read with read ascii files function
-def test_read_simple_ascii_abundances(artis_abundances_fname):
-    index, abundances = read_simple_ascii_abundances(artis_abundances_fname)
+def test_read_simple_ascii_mass_fractions(artis_abundances_fname):
+    index, abundances = read_simple_ascii_mass_fractions(artis_abundances_fname)
     assert len(abundances.columns) == 69
     assert np.isclose(abundances[23].loc[2], 2.672351e-08, atol=1.0e-12)
 
@@ -91,8 +91,8 @@ def test_read_cmfgen_isotope_abundances(cmfgen_fname):
     assert isotope_abundance.shape == (2, 9)
 
 
-def test_read_uniform_abundances(isotope_uniform_abundance):
-    abundances, isotope_abundance = read_uniform_abundances(
+def test_read_uniform_mass_fractions(isotope_uniform_abundance):
+    abundances, isotope_abundance = read_uniform_mass_fractions(
         isotope_uniform_abundance, 20
     )
     assert np.isclose(abundances.loc[8, 2], 0.19, atol=1.0e-12)

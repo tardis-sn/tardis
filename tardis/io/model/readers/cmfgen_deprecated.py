@@ -1,4 +1,4 @@
-from tardis.io.model.readers.util import read_csv_isotope_abundances
+from tardis.io.model.readers.util import read_csv_isotope_mass_fractions
 from tardis.util.base import parse_quantity
 
 
@@ -86,6 +86,6 @@ def read_cmfgen_composition(fname, delimiter=r"\s+"):
         "The current CMFGEN model parser is deprecated", DeprecationWarning
     )
 
-    return read_csv_isotope_abundances(
+    return read_csv_isotope_mass_fractions(
         fname, delimiter=delimiter, skip_columns=4, skip_rows=[0, 2, 3]
     )
