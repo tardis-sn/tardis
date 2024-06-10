@@ -1,15 +1,15 @@
+import logging
+import os
+
 from tardis.io.model.parse_density_configuration import (
     calculate_density_after_time,
     parse_config_v1_density,
 )
-from tardis.io.model.parse_input import logger
 from tardis.io.model.readers.base import read_density_file
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
 
-
-import os
-
+logger = logging.getLogger(__name__)
 
 def parse_structure_config(config, time_explosion, enable_homology=True):
     """
