@@ -65,6 +65,26 @@ def parse_radiation_field_state_from_config(
 def parse_radiation_field_state_from_csvy(
     config, csvy_model_config, csvy_model_data, geometry, packet_source
 ):
+    """Parses the radiation field state for CSVY model inputs.
+
+    Parameters
+    ----------
+    config : Config
+        The configuration object.
+    csvy_model_config : Config
+        CSVY model configuration.
+    csvy_model_data : Config
+        CSVY model data
+    geometry : Geometry
+        The geometry object.
+    packet_source : {None, PacketSource}, optional
+        The packet source object.
+
+    Returns
+    -------
+    DiluteThermalRadiationFieldState
+        The parsed radiation field state.
+    """    
     t_radiative = None
     dilution_factor = None
 
@@ -132,6 +152,18 @@ def calculate_t_radiative_from_t_inner(geometry, packet_source):
 
 
 def calculate_geometric_dilution_factor(geometry):
+    """Calculates the geometric dilution factor w for models without a defined w.
+
+    Parameters
+    ----------
+    geometry : Geometry
+        The geometry object
+
+    Returns
+    -------
+    np.array
+        The dilution factors for the inout geometry
+    """    
     return 0.5 * (
         1
         - np.sqrt(
