@@ -4,7 +4,6 @@ import numpy as np
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketLastInteractionTracker,
 )
-from tardis.transport.montecarlo.r_packet import RPacket
 
 
 @pytest.fixture()
@@ -19,7 +18,7 @@ def last_interactions(nb_simulation_verysimple):
     ):
         toCheckTypes[i] = rpacket_last_interaction_tracker.interaction_type
 
-    reurn(checkedTypes, toCheckTypes)
+    return (checkedTypes, toCheckTypes)
 
 
 def test_defaults():
