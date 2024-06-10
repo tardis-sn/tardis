@@ -1,4 +1,3 @@
-
 import tardis.visualization.tools.sdec_plot as sdec
 
 import numpy as np
@@ -24,7 +23,7 @@ class InteractionRadiusPlotter:
     Plotting interface for the interaction radius plot.
     """
 
-    def __init__(self, data, time_explosion):
+    def __init__(self, data, time_explosion, no_of_shells):
         """
         Initialize the plotter with required data from the simulation.
 
@@ -33,10 +32,17 @@ class InteractionRadiusPlotter:
         data : dict of SDECData
             Dictionary to store data required for interaction radius plot,
             for both packet modes (real, virtual).
+
+        time_explosion : astropy.units.Quantity
+            Time of the explosion.
+
+        no_of_shells : int
+            The number of shells in TARDIS simulation.
         """
 
         self.data = data
         self.time_explosion = time_explosion
+        self.no_of_shells = no_of_shells
         return
 
     @classmethod
@@ -60,6 +66,7 @@ class InteractionRadiusPlotter:
                 real=sdec.SDECData.from_simulation(sim, "real"),
             ),
             sim.plasma.time_explosion,
+            sim.simulation_state.no_of_shells,
         )
 
     @classmethod
@@ -76,10 +83,7 @@ class InteractionRadiusPlotter:
         -------
         Plotter
         """
-        hdfstore = pd.HDFStore(hdf_fpath)
-        time_explosion = (
-            hdfstore["/simulation/plasma/scalars"]["time_explosion"] * u.s
-        )
+
         return cls(
             dict(
                 virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
@@ -289,7 +293,7 @@ class InteractionRadiusPlotter:
 
     def generate_plot_mpl(
         self,
-        packets_mode = "virtual",
+        packets_mode="virtual",
         ax=None,
         figsize=(12, 7),
         cmapname="jet",
@@ -344,14 +348,14 @@ class InteractionRadiusPlotter:
             plot_data.append(v_last_interaction)
             plot_colors.append(self._color_list[species_counter])
 
-        self.ax.hist(plot_data, bins=20, color=plot_colors)
+        self.ax.hist(plot_data, bins=self.no_of_shells, color=plot_colors)
         self.ax.ticklabel_format(axis="y", scilimits=(0, 0))
         self.ax.tick_params("both", labelsize=20)
         self.ax.set_xlabel("Last Interaction Velocity (km/s)", fontsize=25)
         self.ax.set_ylabel("Packet Count", fontsize=25)
 
         return plt.gca()
-    
+
     def generate_plot_plotly(
         self,
         packets_mode="virtual",
@@ -395,19 +399,23 @@ class InteractionRadiusPlotter:
             color = f"rgba({int(255*self._color_list[species_counter][0])}, {int(255*self._color_list[species_counter][1])}, {int(255*self._color_list[species_counter][2])}, 1)"
             plot_colors.append(color)
         fig = go.Figure()
-        for data, color, name in zip(plot_data, plot_colors, self._species_name):
-            fig.add_trace(go.Histogram(
-                x=data,
-                marker_color=color,
-                name=name,
-                opacity=0.75,
-                nbinsx=20
-            ))
+        for data, color, name in zip(
+            plot_data, plot_colors, self._species_name
+        ):
+            fig.add_trace(
+                go.Histogram(
+                    x=data,
+                    marker_color=color,
+                    name=name,
+                    opacity=0.75,
+                    nbinsx=self.no_of_shells,
+                )
+            )
         fig.update_layout(
-            barmode='overlay',
-            xaxis_title='Last Interaction Velocity (km/s)',
-            yaxis_title='Packet Count',
-            template='plotly_white',
-            font=dict(size=18)
+            barmode="overlay",
+            xaxis_title="Last Interaction Velocity (km/s)",
+            yaxis_title="Packet Count",
+            template="plotly_white",
+            font=dict(size=18),
         )
         return fig
