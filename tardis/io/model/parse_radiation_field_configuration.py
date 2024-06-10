@@ -11,46 +11,7 @@ from tardis.model.radiation_field_state import (
 logger = logging.getLogger(__name__)
 
 
-def calculate_t_radiative_from_t_inner(geometry, packet_source):
-    """
-    Calculates the radiative temperature based on the inner temperature and the geometry of the system.
-
-    Parameters
-    ----------
-    geometry : Geometry
-        The geometry object.
-    packet_source : PacketSource
-        The packet source object.
-
-    Returns
-    -------
-    Quantity
-        The calculated radiative temperature.
-    """
-    lambda_wien_inner = const.b_wien / packet_source.temperature
-    t_radiative = const.b_wien / (
-        lambda_wien_inner
-        * (1 + (geometry.v_middle - geometry.v_inner_boundary) / const.c)
-    )
-    return t_radiative
-
-
-def calculate_geometric_dilution_factor(geometry):
-    return 0.5 * (
-        1
-        - np.sqrt(
-            1
-            - (
-                geometry.r_inner[geometry.v_inner_boundary_index] ** 2
-                / geometry.r_middle**2
-            )
-            .to(1)
-            .value
-        )
-    )
-
-
-def parse_radiation_field_state(
+def parse_radiation_field_state_from_config(
     config, t_radiative, geometry, dilution_factor=None, packet_source=None
 ):
     """
@@ -101,7 +62,7 @@ def parse_radiation_field_state(
     )
 
 
-def parse_csvy_radiation_field_state(
+def parse_radiation_field_state_from_csvy(
     config, csvy_model_config, csvy_model_data, geometry, packet_source
 ):
     t_radiative = None
@@ -143,4 +104,43 @@ def parse_csvy_radiation_field_state(
 
     return DiluteBlackBodyRadiationFieldState(
         t_radiative, dilution_factor, geometry
+    )
+
+
+def calculate_t_radiative_from_t_inner(geometry, packet_source):
+    """
+    Calculates the radiative temperature based on the inner temperature and the geometry of the system.
+
+    Parameters
+    ----------
+    geometry : Geometry
+        The geometry object.
+    packet_source : PacketSource
+        The packet source object.
+
+    Returns
+    -------
+    Quantity
+        The calculated radiative temperature.
+    """
+    lambda_wien_inner = const.b_wien / packet_source.temperature
+    t_radiative = const.b_wien / (
+        lambda_wien_inner
+        * (1 + (geometry.v_middle - geometry.v_inner_boundary) / const.c)
+    )
+    return t_radiative
+
+
+def calculate_geometric_dilution_factor(geometry):
+    return 0.5 * (
+        1
+        - np.sqrt(
+            1
+            - (
+                geometry.r_inner[geometry.v_inner_boundary_index] ** 2
+                / geometry.r_middle**2
+            )
+            .to(1)
+            .value
+        )
     )

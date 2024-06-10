@@ -1,9 +1,11 @@
-from tardis.io.model.parse_abundance_configuration import parse_abundance_csvy
-from tardis.io.model.parse_density_configuration import parse_density_csvy
+from tardis.io.model.parse_abundance_configuration import (
+    parse_abundance_from_csvy,
+)
+from tardis.io.model.parse_density_configuration import parse_density_from_csvy
 from tardis.model.matter.composition import Composition
 
 
-def parse_csvy_composition(
+def parse_composition_from_csvy(
     atom_data, csvy_model_config, csvy_model_data, time_explosion, geometry
 ):
     """
@@ -44,11 +46,14 @@ def parse_csvy_composition(
     and isotope abundance data. The parsed data is returned as density, abundance, isotope_abundance,
     and elemental_mass.
     """
-    density = parse_density_csvy(
+    density = parse_density_from_csvy(
         csvy_model_config, csvy_model_data, time_explosion
     )
 
-    nuclide_mass_fraction, raw_isotope_mass_fraction = parse_abundance_csvy(
+    (
+        nuclide_mass_fraction,
+        raw_isotope_mass_fraction,
+    ) = parse_abundance_from_csvy(
         csvy_model_config, csvy_model_data, geometry, time_explosion
     )
     return Composition(

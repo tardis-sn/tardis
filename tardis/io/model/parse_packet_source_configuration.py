@@ -61,7 +61,7 @@ def initialize_packet_source(
     return packet_source
 
 
-def parse_packet_source(config, geometry, legacy_mode_enabled):
+def parse_packet_source_from_config(config, geometry, legacy_mode_enabled):
     """
     Parse the packet source based on the given configuration and geometry.
 

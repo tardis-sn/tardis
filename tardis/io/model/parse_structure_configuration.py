@@ -3,7 +3,7 @@ import os
 
 from tardis.io.model.parse_density_configuration import (
     calculate_density_after_time,
-    parse_config_v1_density,
+    parse_density_from_config,
 )
 from tardis.io.model.readers.base import read_density_file
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
@@ -11,7 +11,8 @@ from tardis.util.base import quantity_linspace
 
 logger = logging.getLogger(__name__)
 
-def parse_structure_config(config, time_explosion, enable_homology=True):
+
+def parse_structure_from_config(config, time_explosion, enable_homology=True):
     """
     Parse the structure configuration data.
 
@@ -57,7 +58,7 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
             structure_config.velocity.stop,
             structure_config.velocity.num + 1,
         ).cgs
-        density = parse_config_v1_density(config)
+        density = parse_density_from_config(config)
 
     elif structure_config.type == "file":
         if os.path.isabs(structure_config.filename):

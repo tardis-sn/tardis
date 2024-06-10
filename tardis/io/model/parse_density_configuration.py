@@ -10,7 +10,7 @@ from tardis.io.configuration.config_reader import (
 from tardis.util.base import quantity_linspace
 
 
-def parse_density_section(
+def parse_density_section_config(
     density_configuration: ConfigurationNameSpace,
     v_middle: u.Quantity,
     time_explosion: u.Quantity,
@@ -67,7 +67,7 @@ def parse_density_section(
     return density_0, time_0
 
 
-def parse_config_v1_density(config: Configuration) -> u.Quantity:
+def parse_density_from_config(config: Configuration) -> u.Quantity:
     """
     Parse the configuration file and produce a density at
     time_explosion.
@@ -91,12 +91,14 @@ def parse_config_v1_density(config: Configuration) -> u.Quantity:
     v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
     time_explosion = config.supernova.time_explosion.cgs
     d_conf = config.model.structure.density
-    density_0, time_0 = parse_density_section(d_conf, v_middle, time_explosion)
+    density_0, time_0 = parse_density_section_config(
+        d_conf, v_middle, time_explosion
+    )
 
     return calculate_density_after_time(density_0, time_0, time_explosion)
 
 
-def parse_csvy_density(
+def parse_density_section_csvy(
     csvy_model_config: Configuration, time_explosion: u.Quantity
 ) -> u.Quantity:
     """
@@ -133,10 +135,60 @@ def parse_csvy_density(
     no_of_shells = len(adjusted_velocity) - 1
 
     if hasattr(csvy_model_config, "density"):
-        density_0, time_0 = parse_density_section(
+        density_0, time_0 = parse_density_section_config(
             csvy_model_config.density, v_middle, time_explosion
         )
     return calculate_density_after_time(density_0, time_0, time_explosion)
+
+
+def parse_density_from_csvy(csvy_model_config, csvy_model_data, time_explosion):
+    """
+    Parse the density data from a CSVY model.
+
+    Parameters
+    ----------
+    csvy_model_config : object
+        The configuration data of the CSVY model.
+    csvy_model_data : object
+        The data of the CSVY model.
+    time_explosion : float
+        The time of the explosion.
+
+    Returns
+    -------
+    density : object
+        The parsed density data.
+
+    Raises
+    ------
+    None.
+
+    Notes
+    -----
+    This function parses the density data from a CSVY model. If the CSVY model configuration
+    contains a 'density' attribute, it uses the 'parse_csvy_density' function to parse the
+    density data. Otherwise, it calculates the density data using the 'calculate_density_after_time'
+    function. The parsed density data is returned.
+    """
+    if hasattr(csvy_model_config, "density"):
+        density = parse_density_section_csvy(csvy_model_config, time_explosion)
+    else:
+        time_0 = csvy_model_config.model_density_time_0
+        density_field_index = [
+            field["name"] for field in csvy_model_config.datatype.fields
+        ].index("density")
+        density_unit = u.Unit(
+            csvy_model_config.datatype.fields[density_field_index]["unit"]
+        )
+        density_0 = csvy_model_data["density"].values * density_unit
+        # Removing as thee new architecture removes the 0th shell already
+        # density_0 = density_0.to("g/cm^3")[1:]
+        # density_0 = density_0.insert(0, 0)
+        density = calculate_density_after_time(
+            density_0, time_0, time_explosion
+        )
+
+    return density
 
 
 def calculate_power_law_density(
@@ -217,53 +269,3 @@ def calculate_density_after_time(
         in g / cm^3
     """
     return (densities * (time_explosion / time_0) ** -3).to(u.g / (u.cm**3))
-
-
-def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
-    """
-    Parse the density data from a CSVY model.
-
-    Parameters
-    ----------
-    csvy_model_config : object
-        The configuration data of the CSVY model.
-    csvy_model_data : object
-        The data of the CSVY model.
-    time_explosion : float
-        The time of the explosion.
-
-    Returns
-    -------
-    density : object
-        The parsed density data.
-
-    Raises
-    ------
-    None.
-
-    Notes
-    -----
-    This function parses the density data from a CSVY model. If the CSVY model configuration
-    contains a 'density' attribute, it uses the 'parse_csvy_density' function to parse the
-    density data. Otherwise, it calculates the density data using the 'calculate_density_after_time'
-    function. The parsed density data is returned.
-    """
-    if hasattr(csvy_model_config, "density"):
-        density = parse_csvy_density(csvy_model_config, time_explosion)
-    else:
-        time_0 = csvy_model_config.model_density_time_0
-        density_field_index = [
-            field["name"] for field in csvy_model_config.datatype.fields
-        ].index("density")
-        density_unit = u.Unit(
-            csvy_model_config.datatype.fields[density_field_index]["unit"]
-        )
-        density_0 = csvy_model_data["density"].values * density_unit
-        # Removing as thee new architecture removes the 0th shell already
-        # density_0 = density_0.to("g/cm^3")[1:]
-        # density_0 = density_0.insert(0, 0)
-        density = calculate_density_after_time(
-            density_0, time_0, time_explosion
-        )
-
-    return density

@@ -4,7 +4,7 @@ from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
 
 
-def parse_csvy_geometry(
+def parse_geometry_from_csvy(
     config, csvy_model_config, csvy_model_data, time_explosion
 ):
     """
