@@ -12,7 +12,7 @@ from tardis.io.model.parse_composition_configuration import (
     parse_csvy_composition,
 )
 from tardis.io.model.parse_geometry_configuration import parse_csvy_geometry
-from tardis.io.model.parse_packet_source import (
+from tardis.io.model.parse_packet_source_configuration import (
     parse_packet_source,
 )
 from tardis.io.model.parse_radiation_field_configuration import (
