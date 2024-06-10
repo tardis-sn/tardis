@@ -13,7 +13,7 @@ from tardis.io.model.readers.csvy import (
 )
 from tardis.io.util import HDFWriterMixin
 from tardis.model.matter.composition import Composition
-from tardis.model.parse_input import (
+from tardis.io.model.parse_input import (
     parse_abundance_config,
     parse_csvy_composition,
     parse_csvy_geometry,

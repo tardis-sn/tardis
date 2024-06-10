@@ -14,7 +14,7 @@ from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
-from tardis.model.parse_input import initialize_packet_source
+from tardis.io.model.parse_input import initialize_packet_source
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
