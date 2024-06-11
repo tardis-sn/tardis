@@ -123,9 +123,7 @@ def test_tracking_from_rpacket_tracker_simulation(
     npt.assert_array_equal(
         index_from_rpacket_tracker, index_from_last_interaction_tracker
     )
-    npt.assert_allclose(
-        r_from_rpacket_tracker, r_from_last_interaction_tracker
-    )
+    npt.assert_allclose(r_from_rpacket_tracker, r_from_last_interaction_tracker)
     npt.assert_allclose(
         nu_from_rpacket_tracker, nu_from_last_interaction_tracker
     )
