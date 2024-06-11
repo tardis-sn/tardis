@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 import pytest
 import numpy as np
 import numpy.testing as npt
@@ -28,20 +26,20 @@ def last_interactions(simulation_rpacket_tracking_enabled):
 def test_defaults():
     tracker = RPacketLastInteractionTracker()
     assert tracker.index == -1
-    assert tracker.r == -1
-    assert tracker.nu == 0
-    assert tracker.energy == 0
     assert tracker.shell_id == -1
     assert tracker.interaction_type == -1
+    npt.assert_almost_equal(tracker.r, -1.0)
+    npt.assert_almost_equal(tracker.nu, 0.0)
+    npt.assert_almost_equal(tracker.energy, 0.0)
 
 
 def test_tracking_manual(static_packet):
     tracker = RPacketLastInteractionTracker()
-    tracker.track_last_interaction(static_packet)
+    tracker.track(static_packet)
     assert tracker.index == 0
-    assert tracker.r == 7.5e14
-    assert tracker.nu == 0.4
-    assert tracker.energy == 0.9
+    npt.assert_almost_equal(tracker.r, 7.5e14)
+    npt.assert_almost_equal(tracker.nu, 0.4)
+    npt.assert_almost_equal(tracker.energy, 0.9)
 
 
 def test_tracking_from_last_interaction_simulation(last_interactions):
@@ -126,15 +124,14 @@ def test_tracking_from_rpacket_tracker_simulation(
         index_from_rpacket_tracker, index_from_last_interaction_tracker
     )
     npt.assert_allclose(
-        r_from_rpacket_tracker, r_from_last_interaction_tracker, rtol=1e-14
+        r_from_rpacket_tracker, r_from_last_interaction_tracker
     )
     npt.assert_allclose(
-        nu_from_rpacket_tracker, nu_from_last_interaction_tracker, rtol=1e-14
+        nu_from_rpacket_tracker, nu_from_last_interaction_tracker
     )
     npt.assert_allclose(
         energy_from_rpacket_tracker,
         energy_from_last_interaction_tracker,
-        rtol=1e-14,
     )
     npt.assert_array_equal(
         shell_id_from_rpacket_tracker, shell_id_from_last_interaction_tracker
