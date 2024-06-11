@@ -47,6 +47,7 @@ from tardis.plasma.properties.property_collections import (
     two_photon_properties,
 )
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
+from tardis.radiation_field import DilutePlanckianRadiationField
 from tardis.util.base import species_string_to_tuple
 
 logger = logging.getLogger(__name__)
@@ -70,13 +71,13 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     : plasma.BasePlasma
 
     """
-
     if (config.plasma.ionization == "nebular") or (
         config.plasma.excitation == "dilute-lte"
     ):
         radiation_field = "dilute_planckian_radiation_field"
     else:
-        pass
+        radiation_field = "dilute_planckian_radiation_field"
+
     # Convert the nlte species list to a proper format.
     nlte_species = [
         species_string_to_tuple(s) for s in config.plasma.nlte.species
@@ -121,13 +122,15 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         for s in config.plasma.nlte_excitation_species
     ]
 
+    dilute_planckian_radiation_field = DilutePlanckianRadiationField(
+        simulation_state.t_radiative, simulation_state.dilution_factor
+    )
     kwargs = dict(
-        t_rad=simulation_state.t_radiative,
+        dilute_planckian_radiation_field=dilute_planckian_radiation_field,
         abundance=simulation_state.abundance,
         number_density=simulation_state.elemental_number_density,
         atomic_data=atom_data,
         time_explosion=simulation_state.time_explosion,
-        w=simulation_state.dilution_factor,
         link_t_rad_t_electron=config.plasma.link_t_rad_t_electron,
         continuum_interaction_species=continuum_interaction_species,
         nlte_ionization_species=nlte_ionization_species,
