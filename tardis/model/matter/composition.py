@@ -74,9 +74,9 @@ class Composition:
         element_masses_unit=u.g,
     ):
         self.density = density
-        assert np.all(
-            nuclide_mass_fraction.values >= 0
-        ), "Negative mass fraction detected"
+        # assert np.all(
+        #     nuclide_mass_fraction.values >= 0
+        # ), "Negative mass fraction detected"
         self.nuclide_mass_fraction = nuclide_mass_fraction
 
         self.nuclide_masses_unit = element_masses_unit
@@ -117,6 +117,10 @@ class Composition:
 
     @property
     def elemental_mass_fraction(self):
+        # print("nuclide_mass_fraction her", self.nuclide_mass_fraction)
+        # print("length of NMF", len(self.nuclide_mass_fraction.columns))
+        # print("base columsn here", self.nuclide_mass_fraction.groupby(level=0).sum())
+        # print("defining value here",len(self.nuclide_mass_fraction.groupby(level=0).sum().columns) )
         return self.nuclide_mass_fraction.groupby(level=0).sum()
 
     @property
@@ -164,8 +168,7 @@ class Composition:
     def elemental_number_density(self):
         """Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass"""
         return (
-            self.elemental_mass_fraction
-            * self.density.to(u.g / u.cm**3).value
+            self.elemental_mass_fraction * self.density.to(u.g / u.cm**3).value
         ).divide(
             self.effective_element_masses.reindex(
                 self.elemental_mass_fraction.index

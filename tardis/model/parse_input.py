@@ -417,7 +417,7 @@ def parse_abundance_csvy(
         _, mass_fraction, isotope_mass_fraction = parse_csv_abundances(
             csvy_model_data
         )
-        mass_fraction = mass_fraction.loc[:, 1:]
+        # mass_fraction = mass_fraction.loc[:, 1:]
         mass_fraction.columns = np.arange(mass_fraction.shape[1])
         isotope_mass_fraction = isotope_mass_fraction.loc[:, 1:]
         isotope_mass_fraction.columns = np.arange(
