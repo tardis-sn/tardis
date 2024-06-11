@@ -75,9 +75,6 @@ def montecarlo_main_loop(
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
     rpacket_trackers = List()
-
-    # Creating an empty List where individual RPacketLastInteractionTracker
-    # class will be stored.
     rpacket_last_interaction_trackers = List()
     for i in range(no_of_packets):
         vpacket_collections.append(
@@ -140,8 +137,6 @@ def montecarlo_main_loop(
 
         # RPacket Tracker for this thread
         rpacket_tracker = rpacket_trackers[i]
-
-        # RPacketLastInteractionTracker for the current RPacket
         rpacket_last_interaction_tracker = rpacket_last_interaction_trackers[i]
 
         loop = single_packet_loop(
@@ -158,7 +153,7 @@ def montecarlo_main_loop(
 
         last_interaction_tracker.update_last_interaction(r_packet, i)
 
-        rpacket_last_interaction_tracker.track_last_interaction(r_packet)
+        rpacket_last_interaction_tracker.track(r_packet)
 
         if r_packet.status == PacketStatus.REABSORBED:
             packet_collection.output_energies[i] = -r_packet.energy

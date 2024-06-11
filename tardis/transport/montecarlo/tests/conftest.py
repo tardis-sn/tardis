@@ -141,13 +141,11 @@ def random_call_fixture():
     return njit(random_call)
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="module")
 def simulation_rpacket_tracking_enabled(config_verysimple, atomic_dataset):
     config_verysimple.montecarlo.iterations = 3
     config_verysimple.montecarlo.no_of_packets = 4000
     config_verysimple.montecarlo.last_no_of_packets = -1
-    config_verysimple.spectrum.virtual.virtual_packet_logging = True
-    config_verysimple.montecarlo.no_of_virtual_packets = 1
     config_verysimple.montecarlo.tracking.track_rpacket = True
     config_verysimple.spectrum.num = 2000
     atomic_data = deepcopy(atomic_dataset)

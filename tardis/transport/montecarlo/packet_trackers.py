@@ -189,14 +189,14 @@ class RPacketLastInteractionTracker(object):
     """
 
     def __init__(self):
-        self.index = np.int64(-1)
-        self.r = np.float64(-1)
-        self.nu = np.float64(0)
-        self.energy = np.float64(0)
-        self.shell_id = np.int64(-1)
-        self.interaction_type = np.int64(-1)
+        self.index = -1
+        self.r = -1.0
+        self.nu = 0.0
+        self.energy = 0.0
+        self.shell_id = -1
+        self.interaction_type = -1
 
-    def track_last_interaction(self, r_packet):
+    def track(self, r_packet):
         self.index = r_packet.index
         self.r = r_packet.r
         self.nu = r_packet.nu
