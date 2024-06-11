@@ -9,7 +9,7 @@ import pandas as pd
 from astropy import units as u
 from numpy import recfromtxt
 from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z, NuclideStrError
+from radioactivedecay.utils import Z_DICT, NuclideStrError, elem_to_Z
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
@@ -553,23 +553,23 @@ def transport_to_dict(transport):
     virtual_spectrum_spawn_range : dict
     """
     transport_dict = {
-        "Edotlu_estimator": transport.Edotlu_estimator,
-        "bf_heating_estimator": transport.bf_heating_estimator,
-        "disable_electron_scattering": transport.disable_electron_scattering,
+        "Edotlu_estimator": transport.transport_state.radfield_mc_estimators.Edotlu_estimator,
+        "bf_heating_estimator": transport.transport_state.radfield_mc_estimators.bf_heating_estimator,
+        "disable_electron_scattering": transport.montecarlo_configuration.DISABLE_ELECTRON_SCATTERING,
         "enable_full_relativity": transport.enable_full_relativity,
         "input_energy": transport.input_energy,
         "input_mu": transport.input_mu,
         "input_nu": transport.input_nu,
         "input_r_cgs": transport.input_r,
-        "j_blue_estimator": transport.j_blue_estimator,
-        "j_estimator": transport.j_estimator,
-        "last_interaction_in_nu": transport.last_interaction_in_nu,
-        "last_interaction_type": transport.last_interaction_type,
-        "last_line_interaction_in_id": transport.last_line_interaction_in_id,
-        "last_line_interaction_out_id": transport.last_line_interaction_out_id,
-        "last_line_interaction_shell_id": transport.last_line_interaction_shell_id,
+        "j_blue_estimator": transport.transport_state.radfield_mc_estimators.j_blue_estimator,
+        "j_estimator": transport.transport_state.radfield_mc_estimators.j_estimator,
+        "last_interaction_in_nu": transport.transport_state.last_interaction_in_nu,
+        "last_interaction_type": transport.transport_state.last_interaction_type,
+        "last_line_interaction_in_id": transport.transport_state.last_line_interaction_in_id,
+        "last_line_interaction_out_id": transport.transport_state.last_line_interaction_out_id,
+        "last_line_interaction_shell_id": transport.transport_state.last_line_interaction_shell_id,
         "line_interaction_type": transport.line_interaction_type,
-        "nu_bar_estimator": transport.nu_bar_estimator,
+        "nu_bar_estimator": transport.transport_state.radfield_mc_estimators.nu_bar_estimator,
         "photo_ion_estimator": transport.photo_ion_estimator,
         "photo_ion_estimator_statistics": transport.photo_ion_estimator_statistics,
         "r_inner": transport.r_inner_cgs,
@@ -585,15 +585,15 @@ def transport_to_dict(transport):
         "v_outer": transport.v_outer_cgs,
         "nthreads": transport.nthreads,
         "virt_logging": transport.virt_logging,
-        "virt_packet_energies": transport.virt_packet_energies,
-        "virt_packet_initial_mus": transport.virt_packet_initial_mus,
-        "virt_packet_initial_rs": transport.virt_packet_initial_rs,
-        "virt_packet_last_interaction_in_nu": transport.virt_packet_last_interaction_in_nu,
-        "virt_packet_last_interaction_type": transport.virt_packet_last_interaction_type,
-        "virt_packet_last_line_interaction_in_id": transport.virt_packet_last_line_interaction_in_id,
-        "virt_packet_last_line_interaction_out_id": transport.virt_packet_last_line_interaction_out_id,
-        "virt_packet_last_line_interaction_shell_id": transport.virt_packet_last_line_interaction_shell_id,
-        "virt_packet_nus": transport.virt_packet_nus,
+        "virt_packet_energies": transport.transport_state.virt_packet_energies,
+        "virt_packet_initial_mus": transport.transport_state.virt_packet_initial_mus,
+        "virt_packet_initial_rs": transport.transport_state.virt_packet_initial_rs,
+        "virt_packet_last_interaction_in_nu": transport.transport_state.virt_packet_last_interaction_in_nu,
+        "virt_packet_last_interaction_type": transport.transport_state.virt_packet_last_interaction_type,
+        "virt_packet_last_line_interaction_in_id": transport.transport_state.virt_packet_last_line_interaction_in_id,
+        "virt_packet_last_line_interaction_out_id": transport.transport_state.virt_packet_last_line_interaction_out_id,
+        "virt_packet_last_line_interaction_shell_id": transport.transport_state.virt_packet_last_line_interaction_shell_id,
+        "virt_packet_nus": transport.transport_state.virt_packet_nus,
         "volume_cgs": transport.volume,
     }
 
