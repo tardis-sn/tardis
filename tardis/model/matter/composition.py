@@ -117,10 +117,6 @@ class Composition:
 
     @property
     def elemental_mass_fraction(self):
-        # print("nuclide_mass_fraction her", self.nuclide_mass_fraction)
-        # print("length of NMF", len(self.nuclide_mass_fraction.columns))
-        # print("base columsn here", self.nuclide_mass_fraction.groupby(level=0).sum())
-        # print("defining value here",len(self.nuclide_mass_fraction.groupby(level=0).sum().columns) )
         return self.nuclide_mass_fraction.groupby(level=0).sum()
 
     @property
