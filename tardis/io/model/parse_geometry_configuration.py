@@ -25,6 +25,7 @@ def parse_structure_from_config(config):
     NotImplementedError
         For structure types that are not "specific" or "file"
     """
+    density_time = None
     velocity = None
     density = None
     electron_densities = None
@@ -46,7 +47,7 @@ def parse_structure_from_config(config):
             )
 
         (
-            time_0,
+            density_time,
             velocity,
             density,
             electron_densities,
@@ -56,7 +57,7 @@ def parse_structure_from_config(config):
     else:
         raise NotImplementedError
 
-    return velocity, density, electron_densities, temperature
+    return density_time, velocity, density, electron_densities, temperature
 
 
 def parse_geometry_from_config(config, time_explosion):
@@ -75,13 +76,19 @@ def parse_geometry_from_config(config, time_explosion):
     HomologousRadial1DGeometry
         The parsed geometry
     """
-    velocity, density, electron_densities, temperature = parse_structure_from_config(config)
+    (
+        density_time,
+        velocity,
+        density,
+        electron_densities,
+        temperature,
+    ) = parse_structure_from_config(config)
 
     return HomologousRadial1DGeometry(
         velocity[:-1],  # v_inner
         velocity[1:],  # v_outer
-        v_inner_boundary= config.model.structure.get("v_inner_boundary", None),
-        v_outer_boundary= config.model.structure.get("v_outer_boundary", None),
+        v_inner_boundary=config.model.structure.get("v_inner_boundary", None),
+        v_outer_boundary=config.model.structure.get("v_outer_boundary", None),
         time_explosion=time_explosion,
     )
 

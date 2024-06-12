@@ -5,7 +5,9 @@ import numpy as np
 from astropy import units as u
 
 from tardis import constants as const
-from tardis.io.model.parse_geometry_configuration import parse_structure_from_config
+from tardis.io.model.parse_geometry_configuration import (
+    parse_structure_from_config,
+)
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
@@ -40,7 +42,13 @@ def parse_radiation_field_state_from_config(
     AssertionError
         If the length of t_radiative or dilution_factor is not compatible with the geometry.
     """
-    velocity, density, electron_densities, temperature = parse_structure_from_config(config)
+    (
+        density_time,
+        velocity,
+        density,
+        electron_densities,
+        temperature,
+    ) = parse_structure_from_config(config)
 
     if temperature is None:
         if config.plasma.initial_t_rad > 0 * u.K:
