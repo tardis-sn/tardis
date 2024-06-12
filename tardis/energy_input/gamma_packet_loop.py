@@ -113,7 +113,7 @@ def gamma_packet_loop(
 
     for i in range(packet_count):
         packet = packets[i]
-        time_index = get_index(packet.time_current, effective_time_array)
+        time_index = get_index(packet.time_current, times)
         # print("Time index: ", time_index)
         # print("Time current: ", packet.time_current)
 
@@ -395,7 +395,7 @@ def gamma_packet_loop_understanding(
 
     for i in range(packet_count):
         packet = packets[i]
-        time_index = get_index(packet.time_current, effective_time_array)
+        time_index = get_index(packet.time_current, times)
         print("Time index: ", time_index)
         print("Time current: ", packet.time_current)
         print("Time current in days: ", packet.time_current / 86400)
@@ -432,8 +432,8 @@ def gamma_packet_loop_understanding(
 
         distance_boundary, shell_change = calculate_distance_radial(
             packet,
-            inner_velocity[packet.shell] * packet.time_current,
-            outer_velocity[packet.shell] * packet.time_current,
+            inner_velocity[packet.shell] * effective_time_array[time_index],
+            outer_velocity[packet.shell] * effective_time_array[time_index],
         )
 
         print("Distance boundary: ", distance_boundary)

@@ -506,4 +506,8 @@ def run_gamma_ray_loop(
         ],
     )
 
-    return packets_df_escaped
+    escape_energy = pd.DataFrame(
+        data=energy_out, columns=times[:-1], index=energy_bins
+    )
+
+    return escape_energy, packets_df_escaped

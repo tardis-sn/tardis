@@ -51,6 +51,15 @@ def calculate_distance_radial(photon, r_inner, r_outer):
 
     distances = np.array([inner_1, inner_2, outer_1, outer_2])
 
+    # print(
+    #     "Distance to inner shell boundaries: ",
+    #     photon.get_location_r() - r_inner,
+    # )
+    # print(
+    #     "Distance to outer shell boundaries: ",
+    #     photon.get_location_r() - r_outer,
+    # )
+
     # the correct distance is the shortest positive distance
     distance_list = [i for i in distances if i > 0]
 
@@ -103,8 +112,8 @@ def distance_trace(
     """
     distance_boundary, shell_change = calculate_distance_radial(
         photon,
-        inner_velocity[photon.shell] * photon.time_current,
-        outer_velocity[photon.shell] * photon.time_current,
+        inner_velocity[photon.shell] * current_time,
+        outer_velocity[photon.shell] * current_time,
     )
 
     distance_interaction = photon.tau / total_opacity

@@ -824,14 +824,27 @@ class GammaRayPacketSource(BasePacketSource):
 
         # Comment: initial radii needs to be an array
 
-        packet_effective_times = sampled_packets_df.index.get_level_values(0)
+        # packet_effective_times = sampled_packets_df.index.get_level_values(0)
+
         decay_times = self.sample_decay_times(
             isotopes, self.taus, self.effective_times, number_of_packets
         )
 
+        # decay_time_indices = np.digitize(
+        #    decay_times, sorted(packet_effective_times.values), right=False
+        # )
+        decay_time_indices = []
+        for i in range(number_of_packets):
+            decay_time_indices.append(
+                get_index(decay_times[i], self.effective_times)
+            )
+        # decay_times = self.create_packet_decay_times(
+        #     number_of_packets, isotopes
+        # )
+
         locations = (
             initial_radii.values
-            * decay_times
+            * self.effective_times[decay_time_indices]
             * self.create_packet_directions(number_of_packets)
         )
 
