@@ -291,7 +291,9 @@ class SimulationState(HDFWriterMixin):
 
         geometry = parse_geometry_from_config(config, time_explosion)
 
-        composition, electron_densities = parse_composition_from_config(atom_data, config, time_explosion, geometry)
+        composition, electron_densities = parse_composition_from_config(
+            atom_data, config, time_explosion, geometry
+        )
 
         packet_source = parse_packet_source_from_config(
             config, geometry, legacy_mode_enabled

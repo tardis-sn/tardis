@@ -6,9 +6,7 @@ from tardis.transport.montecarlo.packet_source import (
 )
 
 
-def initialize_packet_source(
-    config, geometry, packet_source, legacy_mode_enabled
-):
+def initialize_packet_source(packet_source, config, geometry):
     """
     Initialize the packet source based on config and geometry
 
@@ -31,18 +29,6 @@ def initialize_packet_source(
     ValueError
         If both t_inner and luminosity_requested are None.
     """
-    if config.montecarlo.enable_full_relativity:
-        packet_source = BlackBodySimpleSourceRelativistic(
-            base_seed=config.montecarlo.seed,
-            time_explosion=config.supernova.time_explosion,
-            legacy_mode_enabled=legacy_mode_enabled,
-        )
-    else:
-        packet_source = BlackBodySimpleSource(
-            base_seed=config.montecarlo.seed,
-            legacy_mode_enabled=legacy_mode_enabled,
-        )
-
     luminosity_requested = config.supernova.luminosity_requested
     if config.plasma.initial_t_inner > 0.0 * u.K:
         packet_source.radius = geometry.r_inner_active[0]
@@ -57,7 +43,6 @@ def initialize_packet_source(
         raise ValueError(
             "Both t_inner and luminosity_requested cannot be None."
         )
-
     return packet_source
 
 
@@ -89,6 +74,4 @@ def parse_packet_source_from_config(config, geometry, legacy_mode_enabled):
             legacy_mode_enabled=legacy_mode_enabled,
         )
 
-    return initialize_packet_source(
-        config, geometry, packet_source, legacy_mode_enabled
-    )
+    return initialize_packet_source(packet_source, config, geometry)

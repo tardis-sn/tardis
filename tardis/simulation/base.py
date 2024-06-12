@@ -679,12 +679,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     atom_data=atom_data,
                     legacy_mode_enabled=legacy_mode_enabled,
                 )
+            # Override with custom packet source from function argument if present
             if packet_source is not None:
                 simulation_state.packet_source = initialize_packet_source(
-                    config,
-                    simulation_state.geometry,
-                    packet_source,
-                    legacy_mode_enabled,
+                    packet_source, config, simulation_state.geometry
                 )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
