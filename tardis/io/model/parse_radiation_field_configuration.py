@@ -1,9 +1,11 @@
 import logging
+import os
 
 import numpy as np
 from astropy import units as u
 
 from tardis import constants as const
+from tardis.io.model.parse_geometry_configuration import parse_structure_from_config
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
@@ -12,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_radiation_field_state_from_config(
-    config, t_radiative, geometry, dilution_factor=None, packet_source=None
+    config, geometry, dilution_factor=None, packet_source=None
 ):
     """
     Parses the radiation field state based on the provided configuration, radiative temperature, geometry, dilution factor, and packet source.
@@ -21,8 +23,6 @@ def parse_radiation_field_state_from_config(
     ----------
     config : Config
         The configuration object.
-    t_radiative : {None, Quantity}, optional
-        The radiative temperature. If None, it is calculated based on the initial_t_rad value in the plasma configuration.
     geometry : Geometry
         The geometry object.
     dilution_factor : {None, ndarray}, optional
@@ -40,17 +40,19 @@ def parse_radiation_field_state_from_config(
     AssertionError
         If the length of t_radiative or dilution_factor is not compatible with the geometry.
     """
-    if t_radiative is None:
+    velocity, density, electron_densities, temperature = parse_structure_from_config(config)
+
+    if temperature is None:
         if config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = (
+            temperature = (
                 np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
             )
         else:
-            t_radiative = calculate_t_radiative_from_t_inner(
+            temperature = calculate_t_radiative_from_t_inner(
                 geometry, packet_source
             )
 
-    assert len(t_radiative) == geometry.no_of_shells
+    assert len(temperature) == geometry.no_of_shells
 
     if dilution_factor is None:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
@@ -58,7 +60,7 @@ def parse_radiation_field_state_from_config(
     assert len(dilution_factor) == geometry.no_of_shells
 
     return DiluteBlackBodyRadiationFieldState(
-        t_radiative, dilution_factor, geometry
+        temperature, dilution_factor, geometry
     )
 
 

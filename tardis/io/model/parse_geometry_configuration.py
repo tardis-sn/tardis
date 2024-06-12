@@ -1,7 +1,89 @@
+import os
+
 from astropy import units as u
 
+from tardis.io.model.readers.base import read_density_file
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
+
+
+def parse_structure_from_config(config):
+    """Parses the structure section from a config object
+
+    Parameters
+    ----------
+    config : object
+        The configuration to parse
+
+    Returns
+    -------
+    _type_
+        _description_
+
+    Raises
+    ------
+    NotImplementedError
+        For structure types that are not "specific" or "file"
+    """
+    velocity = None
+    density = None
+    electron_densities = None
+    temperature = None
+    structure_config = config.model.structure
+    if structure_config.type == "specific":
+        velocity = quantity_linspace(
+            structure_config.velocity.start,
+            structure_config.velocity.stop,
+            structure_config.velocity.num + 1,
+        ).cgs
+
+    elif structure_config.type == "file":
+        if os.path.isabs(structure_config.filename):
+            structure_config_fname = structure_config.filename
+        else:
+            structure_config_fname = os.path.join(
+                config.config_dirname, structure_config.filename
+            )
+
+        (
+            time_0,
+            velocity,
+            density,
+            electron_densities,
+            temperature,
+        ) = read_density_file(structure_config_fname, structure_config.filetype)
+        density = density.insert(0, 0)
+    else:
+        raise NotImplementedError
+
+    return velocity, density, electron_densities, temperature
+
+
+def parse_geometry_from_config(config, time_explosion):
+    """
+    Parse the geometry data from a TARDIS config.
+
+    Parameters
+    ----------
+    config : object
+        Configuration object.
+    time_explosion : float
+        The time of the explosion
+
+    Returns
+    -------
+    HomologousRadial1DGeometry
+        The parsed geometry
+    """
+    velocity, density, electron_densities, temperature = parse_structure_from_config(config)
+
+    return HomologousRadial1DGeometry(
+        velocity[:-1],  # v_inner
+        velocity[1:],  # v_outer
+        v_inner_boundary= config.model.structure.get("v_inner_boundary", None),
+        v_outer_boundary= config.model.structure.get("v_outer_boundary", None),
+        time_explosion=time_explosion,
+    )
 
 
 def parse_geometry_from_csvy(

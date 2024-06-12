@@ -1,3 +1,4 @@
+import logging
 from typing import Tuple
 
 import numpy as np
@@ -7,8 +8,10 @@ from tardis.io.configuration.config_reader import (
     Configuration,
     ConfigurationNameSpace,
 )
+from tardis.io.model.parse_geometry_configuration import parse_structure_from_config
 from tardis.util.base import quantity_linspace
 
+logger = logging.getLogger(__name__)
 
 def parse_density_section_config(
     density_configuration: ConfigurationNameSpace,
@@ -81,21 +84,28 @@ def parse_density_from_config(config: Configuration) -> u.Quantity:
     density: u.Quantity
 
     """
-    velocity = quantity_linspace(
-        config.model.structure.velocity.start,
-        config.model.structure.velocity.stop,
-        config.model.structure.velocity.num + 1,
-    ).cgs
-
-    adjusted_velocity = velocity.insert(0, 0)
-    v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
     time_explosion = config.supernova.time_explosion.cgs
-    d_conf = config.model.structure.density
-    density_0, time_0 = parse_density_section_config(
-        d_conf, v_middle, time_explosion
-    )
+    velocity, density, electron_densities, temperature = parse_structure_from_config(config)
 
-    return calculate_density_after_time(density_0, time_0, time_explosion)
+    if density is None:
+        adjusted_velocity = velocity.insert(0, 0)
+        v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
+        d_conf = config.model.structure.density
+        density, time_0 = parse_density_section_config(
+            d_conf, v_middle, time_explosion
+        )
+
+    density = calculate_density_after_time(density, time_0, time_explosion)
+
+    # Note: This is the number of shells *without* taking in mind the
+    #       v boundaries.
+    if len(density) == len(velocity):
+        logger.warning(
+            "Number of density points larger than number of shells. Assuming inner point irrelevant"
+        )
+        density = density[1:]
+
+    return density, electron_densities
 
 
 def parse_density_section_csvy(
