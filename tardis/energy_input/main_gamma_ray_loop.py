@@ -488,11 +488,7 @@ def run_gamma_ray_loop(
     #     packets, times, inner_velocities, outer_velocities, effective_time_array
     # )
 
-    (
-        energy_out,
-        bin_width,
-        packets_array,
-    ) = gamma_packet_loop(
+    (energy_out, bin_width, packets_array,) = gamma_packet_loop(
         packets,
         grey_opacity,
         photoabsorption_opacity,
