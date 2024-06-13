@@ -8,7 +8,7 @@ from tardis.energy_input.energy_source import (
     get_all_isotopes,
     setup_input_energy,
 )
-from tardis.montecarlo.montecarlo_numba.opacities import M_P
+from tardis.transport.montecarlo.opacities import M_P
 
 # Energy: keV, exported as eV for SF solver
 # distance: cm

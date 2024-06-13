@@ -17,8 +17,7 @@ from tardis.energy_input.util import (
     get_random_unit_vector,
     C_CGS,
 )
-from tardis.montecarlo.packet_source import BasePacketSource
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.transport.montecarlo.packet_source import BasePacketSource
 
 
 class RadioactivePacketSource(BasePacketSource):

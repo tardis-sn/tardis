@@ -1,11 +1,12 @@
 from pathlib import Path
-import pytest
+
 import numpy.testing as npt
+import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
-from tardis.simulation.base import Simulation
 from tardis.io.configuration.config_reader import Configuration
+from tardis.simulation.base import Simulation
 
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]

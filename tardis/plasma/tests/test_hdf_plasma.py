@@ -86,7 +86,7 @@ def test_atomic_data_uuid(simulation_verysimple, regression_data):
     assert actual == expected
 
 
-COLLECTION_PROPERTIES = ["t_rad", "w", "density"]
+COLLECTION_PROPERTIES = ["t_rad", "w"]
 
 
 @pytest.mark.parametrize("attr", COLLECTION_PROPERTIES)

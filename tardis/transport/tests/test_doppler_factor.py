@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 import tardis.transport.frame_transformations as frame_transformations
-import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
+import tardis.transport.montecarlo.r_packet as r_packet
 
 from numpy.testing import (
     assert_almost_equal,

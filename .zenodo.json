@@ -100,10 +100,10 @@
       "affiliation": "Michigan State University"
     },
     {
-      "name": "Smith, Isaac"
+      "name": "Arya, Atharva"
     },
     {
-      "name": "Arya, Atharva"
+      "name": "Smith, Isaac"
     },
     {
       "name": "Cawley, Kevin"
@@ -116,10 +116,10 @@
       "name": "Shields, Joshua"
     },
     {
-      "name": "Sondhi, Dhruv"
+      "name": "O'Brien, Jack"
     },
     {
-      "name": "O'Brien, Jack"
+      "name": "Sondhi, Dhruv"
     },
     {
       "name": "Barbosa, Talytha"
@@ -154,63 +154,72 @@
       "name": "Reinecke, Martin"
     },
     {
-      "name": "Eweis, Youssef"
+      "name": "Holas, Alexander"
     },
     {
-      "name": "Holas, Alexander"
+      "name": "Eweis, Youssef"
     },
     {
       "name": "Bylund, Tomas"
     },
     {
+      "name": "Black, William"
+    },
+    {
       "name": "Bentil, Laud"
     },
     {
-      "name": "Black, William"
+      "name": "Kumar, Ansh"
     },
     {
       "name": "Eguren, Jordi",
       "orcid": "0000-0002-2328-8030"
     },
     {
-      "name": "Kumar, Ansh"
+      "name": "Alam, Arib"
     },
     {
       "name": "Bartnik, Matthew"
     },
     {
-      "name": "Alam, Arib"
+      "name": "Varma Buddaraju, Rohith"
     },
     {
-      "name": "Varma Buddaraju, Rohith"
+      "name": "Gupta, Sumit"
     },
     {
       "name": "Magee, Mark"
     },
     {
-      "name": "Dutta, Anirban"
-    },
-    {
-      "name": "Kambham, Satwik"
-    },
-    {
-      "name": "Visser, Erin"
+      "name": "Livneh, Ran"
     },
     {
       "name": "Daksh, Ayushi"
     },
     {
-      "name": "Livneh, Ran"
+      "name": "Kambham, Satwik"
     },
     {
-      "name": "Mishra, Sashank",
-      "orcid": "0000-0001-8302-1584"
+      "name": "Dutta, Anirban"
+    },
+    {
+      "name": "Visser, Erin"
     },
     {
       "name": "Rajagopalan, Srinath"
     },
     {
       "name": "Lu, Jing"
+    },
+    {
+      "name": "Mishra, Sashank",
+      "orcid": "0000-0001-8302-1584"
+    },
+    {
+      "name": "Roldan, Israel"
+    },
+    {
+      "name": "Jain, Rinkle"
     },
     {
       "name": "Reichenbach, John"
@@ -225,19 +234,25 @@
       "name": "Floers, Andreas"
     },
     {
-      "name": "Jain, Rinkle"
+      "name": "Singh, Sourav"
     },
     {
       "name": "Chaumal, Aarya"
     },
     {
-      "name": "Singh, Sourav"
-    },
-    {
       "name": "Brar, Antreev"
     },
     {
+      "name": "Srivastava, Sarthak"
+    },
+    {
+      "name": "Gupta, Harshul"
+    },
+    {
       "name": "Patidar, Abhishek"
+    },
+    {
+      "name": "Matsumura, Yuki"
     },
     {
       "name": "Kowalski, Nathan"
@@ -249,37 +264,22 @@
       "name": "Selsing, Jonatan"
     },
     {
-      "name": "Srivastava, Sarthak"
-    },
-    {
-      "name": "Matsumura, Yuki"
-    },
-    {
       "name": "Talegaonkar, Chinmay"
-    },
-    {
-      "name": "Gupta, Harshul"
     },
     {
       "name": "Sofiatti, Caroline"
     },
     {
-      "name": "Sarafina, Nance"
+      "name": "Venkat, Shashank"
     },
     {
-      "name": "Sharma, Sampark"
+      "name": "Buchner, Johannes"
     },
     {
-      "name": "Singh Rathore, Parikshit"
+      "name": "Yap, Kevin"
     },
     {
-      "name": "Volodin, Dmitry"
-    },
-    {
-      "name": "Chen, Nutan"
-    },
-    {
-      "name": "Patra, Nilesh"
+      "name": "Truong, Le"
     },
     {
       "name": "Sandler, Morgan"
@@ -288,25 +288,28 @@
       "name": "Zaheer, Musabbiha"
     },
     {
+      "name": "Sarafina, Nance"
+    },
+    {
+      "name": "Patra, Nilesh"
+    },
+    {
+      "name": "Dasgupta, Debajyoti"
+    },
+    {
+      "name": "Chen, Nutan"
+    },
+    {
+      "name": "Patel, Pratik"
+    },
+    {
+      "name": "Sharma, Sampark"
+    },
+    {
+      "name": "Volodin, Dmitry"
+    },
+    {
       "name": "Prasad, Shilpi"
-    },
-    {
-      "name": "Truong, Le"
-    },
-    {
-      "name": "Yap, Kevin"
-    },
-    {
-      "name": "Buchner, Johannes"
-    },
-    {
-      "name": "Venkat, Shashank"
-    },
-    {
-      "name": "Roldan, Israel"
-    },
-    {
-      "name": "Gupta, Sumit"
     },
     {
       "name": "Gupta, Suyash"
@@ -321,10 +324,10 @@
       "name": "Aggarwal, Yash"
     },
     {
-      "name": "Patel, Pratik"
+      "name": "Singh Rathore, Parikshit"
     },
     {
-      "name": "Dasgupta, Debajyoti"
+      "name": "Kolliboyina, Chaitanya"
     },
     {
       "name": "PATIDAR, ABHISHEK"
@@ -336,13 +339,10 @@
       "name": "Nayak U, Ashwin"
     },
     {
-      "name": "Kolliboyina, Chaitanya"
+      "name": "Kharkar, Atharwa"
     },
     {
       "name": "Kumar, Atul"
-    },
-    {
-      "name": "Kharkar, Atharwa"
     }
   ]
 }

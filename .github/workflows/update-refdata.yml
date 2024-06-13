@@ -9,8 +9,8 @@ on:
     types: [update-refdata-command]
 
 env:
-  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --generate-reference 
-  CACHE_NUMBER: 1  # increase to reset cache manually
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --generate-reference
+  CACHE_NUMBER: 1 # increase to reset cache manually
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -25,22 +25,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout pull/${{ github.event.client_payload.pull_request.number }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.client_payload.pull_request.head.sha }}
-          
+
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
-  
+
       - name: Download Lock File
-        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
-      
+        run: wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
+
       - name: Generate Cache Key
-        run: | 
+        run: |
           file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
           echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
         id: cache-environment-key
-        
+
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: conda-linux-64.lock
@@ -79,7 +79,7 @@ jobs:
 
             These are the changes made by https://github.com/tardis-sn/tardis/pull/${{ github.event.client_payload.pull_request.number }}, please be careful before merging this pull request.
         id: create-pr
-      
+
       - name: Create pull request regression data
         uses: peter-evans/create-pull-request@v4
         with:
@@ -111,7 +111,7 @@ jobs:
       - name: Post comment (success)
         uses: peter-evans/create-or-update-comment@v2
         with:
-          token:  ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
@@ -127,13 +127,13 @@ jobs:
         env:
           REFDATA_URL: https://github.com/tardis-sn/tardis-refdata/pulls
           REGDATA_URL: https://github.com/tardis-sn/tardis-regression-data/pulls
-          
+
         if: success()
 
       - name: Post comment (failure)
         uses: peter-evans/create-or-update-comment@v2
         with:
-          token:  ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
