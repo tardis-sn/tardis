@@ -117,19 +117,19 @@ jobs:
 
       - name: Compare HEAD with master if PR
         if: github.event_name == 'pull_request_target'
-        continue-on-error: true # TODO: step failed sporadically while testing
+        # continue-on-error: true # TODO: step failed sporadically while testing
         run: |
-          asv continuous ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}  | tee asv-cont-output.log  
+          asv continuous ${{ github.event.pull_request.base.sha }} ${GITHUB_SHA}  | tee asv-cont-output.log  
           if grep -q failed asv-cont-output.log; then 
             echo "Some benchmarks have errors!"
             exit 1
           fi
 
       - name: Compare Master and PR head
-        run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | tee asv-compare-output.log
+        run: asv compare ${{ github.event.pull_request.base.sha }} ${GITHUB_SHA} | tee asv-compare-output.log
 
       - name: Compare Master and PR head but only show changed results
-        run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} --only-changed | tee asv-compare-changed-output.log
+        run: asv compare ${{ github.event.pull_request.base.sha }} ${GITHUB_SHA} --only-changed | tee asv-compare-changed-output.log
 
       - name: Benchmarks compare output
         id: asv_pr_vs_master
