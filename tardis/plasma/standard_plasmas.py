@@ -71,22 +71,16 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     : plasma.BasePlasma
 
     """
-    if (config.plasma.ionization == "nebular") or (
-        config.plasma.excitation == "dilute-lte"
-    ):
-        radiation_field = "dilute_planckian_radiation_field"
-    else:
-        radiation_field = "dilute_planckian_radiation_field"
-
     # Convert the nlte species list to a proper format.
     nlte_species = [
-        species_string_to_tuple(s) for s in config.plasma.nlte.species
+        species_string_to_tuple(species)
+        for species in config.plasma.nlte.species
     ]
 
     # Convert the continuum interaction species list to a proper format.
     continuum_interaction_species = [
-        species_string_to_tuple(s)
-        for s in config.plasma.continuum_interaction.species
+        species_string_to_tuple(species)
+        for species in config.plasma.continuum_interaction.species
     ]
     continuum_interaction_species = pd.MultiIndex.from_tuples(
         continuum_interaction_species, names=["atomic_number", "ion_number"]
@@ -114,12 +108,12 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         )
 
     nlte_ionization_species = [
-        species_string_to_tuple(s)
-        for s in config.plasma.nlte_ionization_species
+        species_string_to_tuple(species)
+        for species in config.plasma.nlte_ionization_species
     ]
     nlte_excitation_species = [
-        species_string_to_tuple(s)
-        for s in config.plasma.nlte_excitation_species
+        species_string_to_tuple(species)
+        for species in config.plasma.nlte_excitation_species
     ]
 
     dilute_planckian_radiation_field = DilutePlanckianRadiationField(
