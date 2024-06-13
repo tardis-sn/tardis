@@ -782,7 +782,11 @@ class GammaRayPacketSource(BasePacketSource):
 
         # sample packets from dataframe, returning a dataframe where each row is
         # a sampled packet
-        sampled_packets_df = decays_per_isotope.sample(
+
+        sampled_packets_df_gamma = decays_per_isotope[
+            decays_per_isotope["radiation"] == "g"
+        ]
+        sampled_packets_df = sampled_packets_df_gamma.sample(
             n=number_of_packets,
             weights="decay_energy_erg",
             replace=True,
@@ -876,7 +880,7 @@ class GammaRayPacketSource(BasePacketSource):
         nus_rf = np.zeros(number_of_packets)
 
         doppler_factors = doppler_factor_3D_all_packets(
-            directions, locations, times
+            directions, locations, decay_times
         )
 
         packet_energies_rf = packet_energies_cmf / doppler_factors

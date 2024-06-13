@@ -393,14 +393,21 @@ def run_gamma_ray_loop(
     # Need to get the strings for the isotopes without the dashes
     taus = make_isotope_string_tardis_like(taus)
 
-    total_energy = cumulative_decays_df[
+    cumulative_decays_df_gamma = cumulative_decays_df[
+        cumulative_decays_df["radiation"] == "g"
+    ]
+
+    total_energy = cumulative_decays_df_gamma[
         "decay_energy_keV"
     ].sum()  # total energy in keV
+
+    # total_energy_erg = total_energy * u.keV.to("erg")
 
     energy_per_packet = total_energy / num_decays
     energy_df_rows = np.zeros((number_of_shells, times.shape[0]))
 
     logger.info(f"Total gamma-ray energy is {total_energy}")
+    logger.info(f"Energy per packet is {energy_per_packet}")
     average_power_per_mass = 1e41
     positron_energy_per_isotope = 1000  # keV
 
@@ -448,6 +455,18 @@ def run_gamma_ray_loop(
     iron_group_fraction = iron_group_fraction_per_shell(model)
 
     logger.info("Entering the main gamma-ray loop")
+
+    total_cmf_energy = 0
+    total_rf_energy = 0
+
+    for p in packets:
+        total_cmf_energy += p.energy_cmf
+        total_rf_energy += p.energy_rf
+
+    print("Total CMF energy")
+    print(total_cmf_energy)
+    print("Total RF energy")
+    print(total_rf_energy)
 
     # packets_df_escaped = pd.DataFrame(
     #     data=packets_array,
@@ -500,7 +519,7 @@ def run_gamma_ray_loop(
             "nu_cmf",
             "nu_rf",
             "energy_cmf",
-            "lum_rf",
+            "luminosity",
             "energy_rf",
             "shell_number",
         ],

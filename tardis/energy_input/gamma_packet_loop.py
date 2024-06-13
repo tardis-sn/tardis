@@ -21,6 +21,7 @@ from tardis.energy_input.util import (
     doppler_factor_3d,
     C_CGS,
     H_CGS_KEV,
+    KEV2ERG,
     get_index,
 )
 from tardis.energy_input.GXPacket import GXPacketStatus
@@ -209,7 +210,7 @@ def gamma_packet_loop(
                 outer_velocities,
                 total_opacity,
                 effective_time_array[time_index],
-                times[time_index + 1],
+                effective_time_array[time_index + 1],
             )
 
             distance = min(
@@ -285,14 +286,17 @@ def gamma_packet_loop(
 
                 if packet.shell > len(mass_density_time[:, 0]) - 1:
                     rest_energy = packet.nu_rf * H_CGS_KEV
-                    lum_rf = (packet.energy_rf * 1.6022e-9) / dt
                     bin_index = get_index(rest_energy, energy_bins)
                     bin_width = (
                         energy_bins[bin_index + 1] - energy_bins[bin_index]
                     )
-                    energy_out[bin_index, time_index] += rest_energy / (
-                        bin_width * dt
+                    freq_bin_width = bin_width / H_CGS_KEV
+                    energy_ergs = packet.energy_rf * KEV2ERG
+                    luminosity = energy_ergs / dt
+                    energy_out[bin_index, time_index] += (
+                        energy_ergs / dt / freq_bin_width
                     )
+
                     packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
                     if scattered:
@@ -309,7 +313,7 @@ def gamma_packet_loop(
                     packet.nu_cmf,
                     packet.nu_rf,
                     packet.energy_cmf,
-                    lum_rf,
+                    luminosity,
                     packet.energy_rf,
                     packet.shell,
                 ]
