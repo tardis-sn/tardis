@@ -214,7 +214,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
             transport_state.rpacket_tracker = rpacket_trackers
         else:
-            self.transport_state.rpacket_last_interaction_trackers = (
+            self.transport_state.rpacket_tracker = (
                 rpacket_last_interaction_trackers
             )
             
