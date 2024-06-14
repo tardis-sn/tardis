@@ -557,10 +557,10 @@ def transport_to_dict(transport):
         "bf_heating_estimator": transport.transport_state.radfield_mc_estimators.bf_heating_estimator,
         "disable_electron_scattering": transport.montecarlo_configuration.DISABLE_ELECTRON_SCATTERING,
         "enable_full_relativity": transport.enable_full_relativity,
-        "input_energy": transport.input_energy,
-        "input_mu": transport.input_mu,
-        "input_nu": transport.input_nu,
-        "input_r_cgs": transport.input_r,
+        # "input_energy": transport.input_energy,
+        # "input_mu": transport.input_mu,
+        # "input_nu": transport.input_nu,
+        # "input_r_cgs": transport.input_r,
         "j_blue_estimator": transport.transport_state.radfield_mc_estimators.j_blue_estimator,
         "j_estimator": transport.transport_state.radfield_mc_estimators.j_estimator,
         "last_interaction_in_nu": transport.transport_state.last_interaction_in_nu,
@@ -570,21 +570,21 @@ def transport_to_dict(transport):
         "last_line_interaction_shell_id": transport.transport_state.last_line_interaction_shell_id,
         "line_interaction_type": transport.line_interaction_type,
         "nu_bar_estimator": transport.transport_state.radfield_mc_estimators.nu_bar_estimator,
-        "photo_ion_estimator": transport.photo_ion_estimator,
-        "photo_ion_estimator_statistics": transport.photo_ion_estimator_statistics,
-        "r_inner": transport.r_inner_cgs,
-        "r_outer": transport.r_outer_cgs,
+        "photo_ion_estimator": transport.transport_state.radfield_mc_estimators.photo_ion_estimator,
+        "photo_ion_estimator_statistics": transport.transport_state.radfield_mc_estimators.photo_ion_estimator_statistics,
+        "r_inner": transport.transport_state.geometry_state.r_inner,
+        "r_outer": transport.transport_state.geometry_state.r_outer,
         "packet_source_base_seed": transport.packet_source.base_seed,
         "spectrum_frequency_cgs": transport.spectrum_frequency,
         "spectrum_method": transport.spectrum_method,
-        "stim_recomb_cooling_estimator": transport.stim_recomb_cooling_estimator,
-        "stim_recomb_estimator": transport.stim_recomb_estimator,
-        "time_of_simulation_cgs": transport.time_of_simulation,
+        "stim_recomb_cooling_estimator": transport.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator,
+        "stim_recomb_estimator": transport.transport_state.radfield_mc_estimators.stim_recomb_estimator,
+        "time_of_simulation_cgs": transport.transport_state.time_of_simulation,
         "use_gpu": transport.use_gpu,
-        "v_inner": transport.v_inner_cgs,
-        "v_outer": transport.v_outer_cgs,
+        "v_inner": transport.transport_state.geometry_state.v_inner,
+        "v_outer": transport.transport_state.geometry_state.v_outer,
         "nthreads": transport.nthreads,
-        "virt_logging": transport.virt_logging,
+        "virt_logging": transport.transport_state.virt_logging,
         "virt_packet_energies": transport.transport_state.virt_packet_energies,
         "virt_packet_initial_mus": transport.transport_state.virt_packet_initial_mus,
         "virt_packet_initial_rs": transport.transport_state.virt_packet_initial_rs,
@@ -594,12 +594,17 @@ def transport_to_dict(transport):
         "virt_packet_last_line_interaction_out_id": transport.transport_state.virt_packet_last_line_interaction_out_id,
         "virt_packet_last_line_interaction_shell_id": transport.transport_state.virt_packet_last_line_interaction_shell_id,
         "virt_packet_nus": transport.transport_state.virt_packet_nus,
-        "volume_cgs": transport.volume,
+        "volume_cgs": transport.transport_state.geometry_state.volume,
     }
 
     for key, value in transport_dict.items():
         if key.endswith("_cgs"):
-            transport_dict[key] = [value.cgs.value, value.unit.to_string()]
+            if isinstance(
+                value, np.ndarray
+            ):  # FIX ME: how to deal with np.array objects here
+                pass
+            else:
+                transport_dict[key] = [value.cgs.value, value.unit.to_string()]
 
     integrator_settings = transport.integrator_settings
     virtual_spectrum_spawn_range = transport.virtual_spectrum_spawn_range
