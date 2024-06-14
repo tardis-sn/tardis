@@ -217,7 +217,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.transport_state.rpacket_tracker = (
                 rpacket_last_interaction_trackers
             )
-            
 
         if self.transport_state.rpacket_tracker is not None:
             self.transport_state.rpacket_tracker_df = (
@@ -227,10 +226,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         transport_state.virt_logging = (
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
-        )
-
-        self.transport_state.rpacket_last_interaction_trackers = (
-            rpacket_last_interaction_trackers
         )
 
     @classmethod
