@@ -147,13 +147,12 @@ def montecarlo_main_loop(
             local_estimators,
             vpacket_collection,
             rpacket_tracker,
+            rpacket_last_interaction_tracker,
             montecarlo_configuration,
         )
         packet_collection.output_nus[i] = r_packet.nu
 
         last_interaction_tracker.update_last_interaction(r_packet, i)
-
-        rpacket_last_interaction_tracker.track(r_packet)
 
         if r_packet.status == PacketStatus.REABSORBED:
             packet_collection.output_energies[i] = -r_packet.energy
