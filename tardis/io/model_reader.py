@@ -637,8 +637,13 @@ def store_transport_to_hdf(transport, fname):
 
         for key, value in transport_data.items():
             if key.endswith("_cgs"):
-                transport_group.create_dataset(key, data=value[0])
-                transport_group.create_dataset(key + "_unit", data=value[1])
+                if isinstance(value, tuple) and len(value) == 2:
+                    transport_group.create_dataset(key, data=value[0])
+                    transport_group.create_dataset(key + "_unit", data=value[1])
+                else:
+                    transport_group.create_dataset(key, data=value)
+                # transport_group.create_dataset(key, data=value[0])
+                # transport_group.create_dataset(key + "_unit", data=value[1])
             else:
                 if value is not None:
                     transport_group.create_dataset(key, data=value)
