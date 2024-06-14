@@ -150,7 +150,9 @@ def trace_packet(
 
             rpacket_last_interaction_tracker.in_nu = r_packet.nu
             rpacket_last_interaction_tracker.in_id = cur_line_id
-            rpacket_last_interaction_tracker.shell_id = r_packet.current_shell_id
+            rpacket_last_interaction_tracker.shell_id = (
+                r_packet.current_shell_id
+            )
             distance = distance_trace
             break
 

@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 
 
-#NOTE; in_nu, in_id, out_id corresponds to line interaction
-#While using in_nu, in_id, out_id make sure that the corresponding...
-#... interaction type is of line type only.
+# NOTE; in_nu, in_id, out_id corresponds to line interaction
+# While using in_nu, in_id, out_id make sure that the corresponding...
+# ... interaction type is of line type only.
 rpacket_tracker_spec = [
     ("length", int64),
     ("seed", int64),
@@ -125,9 +125,15 @@ class RPacketTracker(object):
         self.interaction_type[
             self.num_interactions
         ] = r_packet_tracker.last_interaction_type
-        self.in_nu[self.num_interactions] = r_packet_tracker.last_interaction_in_nu
-        self.in_id[self.num_interactions] = r_packet_tracker.last_line_interaction_in_id
-        self.out_id[self.num_interactions] = r_packet_tracker.last_line_interaction_out_id
+        self.in_nu[
+            self.num_interactions
+        ] = r_packet_tracker.last_interaction_in_nu
+        self.in_id[
+            self.num_interactions
+        ] = r_packet_tracker.last_line_interaction_in_id
+        self.out_id[
+            self.num_interactions
+        ] = r_packet_tracker.last_line_interaction_out_id
         self.num_interactions += 1
 
     def finalize_array(self):
@@ -204,8 +210,8 @@ rpacket_last_interaction_tracker_spec = [
     ("line_r", float64),
 ]
 
-#NOTE; in_nu, in_id, out_id, line_r doesn't necesarily correspond to the last interaction
-#NOTE; they corresponds to the last line interaction
+# NOTE; in_nu, in_id, out_id, line_r doesn't necesarily correspond to the last interaction
+# NOTE; they corresponds to the last line interaction
 @jitclass(rpacket_last_interaction_tracker_spec)
 class RPacketLastInteractionTracker(object):
     """
@@ -264,4 +270,3 @@ class RPacketLastInteractionTracker(object):
         self.out_id = r_packet.last_line_interaction_out_id
         if self.interaction_type == 2:
             self.line_r = self.r
-        
