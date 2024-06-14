@@ -85,8 +85,8 @@ def single_packet_loop(
     )
 
     if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
-        rpacket_tracker.track(r_packet)
         rpacket_last_interaction_tracker.track(r_packet)
+        rpacket_tracker.track(rpacket_last_interaction_tracker)
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
@@ -129,6 +129,7 @@ def single_packet_loop(
                 montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.DISABLE_LINE_SCATTERING,
+                rpacket_last_interaction_tracker,
             )
             update_bound_free_estimators(
                 comov_nu,
@@ -157,6 +158,7 @@ def single_packet_loop(
                 montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.DISABLE_LINE_SCATTERING,
+                rpacket_last_interaction_tracker,
             )
 
         # If continuum processes: update continuum estimators
@@ -267,8 +269,8 @@ def single_packet_loop(
         else:
             pass
         if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
-            rpacket_tracker.track(r_packet)
             rpacket_last_interaction_tracker.track(r_packet)
+            rpacket_tracker.track(rpacket_last_interaction_tracker)
 
 
 @njit

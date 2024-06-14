@@ -33,6 +33,7 @@ def trace_packet(
     continuum_processes_enabled,
     enable_full_relativity,
     disable_line_scattering,
+    rpacket_last_interaction_tracker,
 ):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
@@ -146,6 +147,10 @@ def trace_packet(
             r_packet.last_line_interaction_in_id = cur_line_id
             r_packet.last_line_interaction_shell_id = r_packet.current_shell_id
             r_packet.next_line_id = cur_line_id
+
+            rpacket_last_interaction_tracker.in_nu = r_packet.nu
+            rpacket_last_interaction_tracker.in_id = cur_line_id
+            rpacket_last_interaction_tracker.shell_id = r_packet.current_shell_id
             distance = distance_trace
             break
 
