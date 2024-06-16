@@ -58,6 +58,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         packet_source,
         enable_virtual_packet_logging=False,
         enable_rpacket_tracking=False,
+        enable_last_interaction_tracking=False,
         nthreads=1,
         debug_packets=False,
         logger_buffer=1,
@@ -77,6 +78,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         self.enable_vpacket_tracking = enable_virtual_packet_logging
         self.enable_rpacket_tracking = enable_rpacket_tracking
+        self.enable_last_interaction_tracking = enable_last_interaction_tracking
         self.montecarlo_configuration = montecarlo_configuration
 
         self.packet_source = packet_source
@@ -211,14 +213,13 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
         # Condition for Checking if RPacket Tracking is enabled
+        # Preference is given to tracking of all trackers
         if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
             transport_state.rpacket_tracker = rpacket_trackers
-        else:
-            self.transport_state.rpacket_tracker = (
-                rpacket_last_interaction_trackers
-            )
+        elif self.montecarlo_configuration.ENABLE_LAST_INTERACTION_TRACKING:
+            transport_state.rpacket_tracker = rpacket_last_interaction_trackers
 
-        if self.transport_state.rpacket_tracker is not None:
+        if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
             self.transport_state.rpacket_tracker_df = (
                 rpacket_trackers_to_dataframe(
                     self.transport_state.rpacket_tracker
@@ -309,6 +310,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 | enable_virtual_packet_logging
             ),
             enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
+            enable_last_interaction_tracking=config.montecarlo.tracking.track_last_interaction,
             nthreads=config.montecarlo.nthreads,
             use_gpu=use_gpu,
             montecarlo_configuration=montecarlo_configuration,
