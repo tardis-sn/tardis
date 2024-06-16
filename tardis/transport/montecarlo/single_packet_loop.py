@@ -86,7 +86,7 @@ def single_packet_loop(
 
     if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
         rpacket_tracker.track(r_packet)
-    else:
+    elif montecarlo_configuration.ENABLE_LAST_INTERACTION_TRACKING:
         rpacket_last_interaction_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
@@ -269,7 +269,7 @@ def single_packet_loop(
             pass
         if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
             rpacket_tracker.track(r_packet)
-        else:
+        elif montecarlo_configuration.ENABLE_LAST_INTERACTION_TRACKING:
             rpacket_last_interaction_tracker.track(r_packet)
 
 

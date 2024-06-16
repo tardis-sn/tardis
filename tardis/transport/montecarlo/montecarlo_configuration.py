@@ -21,6 +21,7 @@ numba_config_spec = [
     ("INITIAL_TRACKING_ARRAY_LENGTH", int64),
     ("LEGACY_MODE_ENABLED", boolean),
     ("ENABLE_RPACKET_TRACKING", boolean),
+    ("ENABLE_LAST_INTERACTION_TRACKING", boolean),
     ("CONTINUUM_PROCESSES_ENABLED", boolean),
     ("VPACKET_SPAWN_START_FREQUENCY", float64),
     ("VPACKET_SPAWN_END_FREQUENCY", float64),
@@ -46,6 +47,7 @@ class MonteCarloConfiguration(object):
         self.LEGACY_MODE_ENABLED = False
 
         self.ENABLE_RPACKET_TRACKING = False
+        self.ENABLE_LAST_INTERACTION_TRACKING = False
         self.CONTINUUM_PROCESSES_ENABLED = False
 
         self.VPACKET_SPAWN_START_FREQUENCY = 0
@@ -82,3 +84,6 @@ def configuration_initialize(config, transport, number_of_vpackets):
     )
     config.ENABLE_VPACKET_TRACKING = transport.enable_vpacket_tracking
     config.ENABLE_RPACKET_TRACKING = transport.enable_rpacket_tracking
+    config.ENABLE_LAST_INTERACTION_TRACKING = (
+        transport.enable_last_interaction_tracking
+    )

@@ -155,3 +155,21 @@ def simulation_rpacket_tracking_enabled(config_verysimple, atomic_dataset):
         show_convergence_plots=False,
     )
     return sim
+
+
+@pytest.fixture(scope="module")
+def simulation_last_interaction_tracking_enabled(
+    config_verysimple, atomic_dataset
+):
+    config_verysimple.montecarlo.iterations = 3
+    config_verysimple.montecarlo.no_of_packets = 4000
+    config_verysimple.montecarlo.last_no_of_packets = -1
+    config_verysimple.montecarlo.tracking.track_last_interaction = True
+    config_verysimple.spectrum.num = 2000
+    atomic_data = deepcopy(atomic_dataset)
+    sim = run_tardis(
+        config_verysimple,
+        atom_data=atomic_data,
+        show_convergence_plots=False,
+    )
+    return sim
