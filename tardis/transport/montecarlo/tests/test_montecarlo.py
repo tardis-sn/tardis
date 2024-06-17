@@ -21,7 +21,6 @@ from tardis.transport.frame_transformations import (
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.transport.montecarlo.numba_interface import RPacketTracker
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 

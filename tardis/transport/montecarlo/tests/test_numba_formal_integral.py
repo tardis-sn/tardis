@@ -4,7 +4,6 @@ import pytest
 
 import tardis.transport.montecarlo.formal_integral as formal_integral
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.transport.montecarlo.numba_interface import NumbaModel
 from tardis.util.base import intensity_black_body
 
 

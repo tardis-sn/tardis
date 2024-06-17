@@ -19,6 +19,7 @@ from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 
 # Adding logging support
 logger = logging.getLogger(__name__)
