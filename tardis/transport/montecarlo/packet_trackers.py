@@ -35,7 +35,7 @@ class RPacketTracker(object):
         r : float
             Radius of the shell where the RPacket is present
         nu : float
-            Luminosity of the RPacket
+            Frequency of the RPacket
         mu : float
             Cosine of the angle made by the direction of movement of the RPacket from its original direction
         energy : float
