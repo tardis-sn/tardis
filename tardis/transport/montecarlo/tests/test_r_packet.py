@@ -4,6 +4,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
+from tardis.io.configuration.config_reader import Configuration
 from tardis.base import run_tardis
 from tardis.transport.montecarlo.packet_trackers import (
     rpacket_trackers_to_dataframe,
@@ -11,15 +12,22 @@ from tardis.transport.montecarlo.packet_trackers import (
 
 
 @pytest.fixture()
-def simulation_rpacket_tracking_enabled(config_verysimple, atomic_dataset):
-    config_verysimple.montecarlo.iterations = 3
-    config_verysimple.montecarlo.no_of_packets = 4000
-    config_verysimple.montecarlo.last_no_of_packets = -1
-    config_verysimple.montecarlo.tracking.track_rpacket = True
-    config_verysimple.spectrum.num = 2000
+def config_rpacket_tracker(example_configuration_dir):
+    return Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
+
+
+@pytest.fixture()
+def simulation_rpacket_tracking_enabled(config_rpacket_tracker, atomic_dataset):
+    config_rpacket_tracker.montecarlo.iterations = 3
+    config_rpacket_tracker.montecarlo.no_of_packets = 4000
+    config_rpacket_tracker.montecarlo.last_no_of_packets = -1
+    config_rpacket_tracker.montecarlo.tracking.track_rpacket = True
+    config_rpacket_tracker.spectrum.num = 2000
     atomic_data = deepcopy(atomic_dataset)
     sim = run_tardis(
-        config_verysimple,
+        config_rpacket_tracker,
         atom_data=atomic_data,
         show_convergence_plots=False,
     )

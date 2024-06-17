@@ -139,24 +139,3 @@ def random_call_fixture():
         np.random.random()
 
     return njit(random_call)
-
-
-@pytest.fixture(scope="module")
-def simulation_last_interaction_tracking_enabled(
-    config_verysimple, atomic_dataset
-):
-    config_verysimple.montecarlo.iterations = 3
-    config_verysimple.montecarlo.no_of_packets = 4000
-    config_verysimple.montecarlo.last_no_of_packets = -1
-    # Explicitly setting track_rpacket to False, since is's set by
-    # True in some previous fixtures
-    config_verysimple.montecarlo.tracking.track_rpacket = False
-    config_verysimple.montecarlo.tracking.track_last_interaction = True
-    config_verysimple.spectrum.num = 2000
-    atomic_data = deepcopy(atomic_dataset)
-    sim = run_tardis(
-        config_verysimple,
-        atom_data=atomic_data,
-        show_convergence_plots=False,
-    )
-    return sim

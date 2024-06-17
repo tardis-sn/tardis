@@ -216,15 +216,14 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         # Preference is given to tracking of all trackers
         if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
             transport_state.rpacket_tracker = rpacket_trackers
-        elif self.montecarlo_configuration.ENABLE_LAST_INTERACTION_TRACKING:
-            transport_state.rpacket_tracker = rpacket_last_interaction_trackers
-
-        if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
             self.transport_state.rpacket_tracker_df = (
                 rpacket_trackers_to_dataframe(
                     self.transport_state.rpacket_tracker
                 )
             )
+        elif self.montecarlo_configuration.ENABLE_LAST_INTERACTION_TRACKING:
+            transport_state.rpacket_tracker = rpacket_last_interaction_trackers
+
         transport_state.virt_logging = (
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
         )
