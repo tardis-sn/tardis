@@ -1,10 +1,38 @@
+from copy import deepcopy
+
 import pytest
 import numpy as np
 import numpy.testing as npt
 
+from tardis.io.configuration.config_reader import Configuration
+from tardis.base import run_tardis
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketLastInteractionTracker,
 )
+
+
+@pytest.fixture(scope="module")
+def config_last_interaction(example_configuration_dir):
+    return Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
+
+
+@pytest.fixture(scope="module")
+def simulation_last_interaction_tracking_enabled(
+    config_last_interaction, atomic_dataset
+):
+    config_last_interaction.montecarlo.iterations = 3
+    config_last_interaction.montecarlo.no_of_packets = 4000
+    config_last_interaction.montecarlo.last_no_of_packets = -1
+    config_last_interaction.montecarlo.tracking.track_last_interaction = True
+    atomic_data = deepcopy(atomic_dataset)
+    sim = run_tardis(
+        config_last_interaction,
+        atom_data=atomic_data,
+        show_convergence_plots=False,
+    )
+    return sim
 
 
 @pytest.fixture()
