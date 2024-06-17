@@ -13,6 +13,10 @@ on:
     branches:
       - "*"
 
+  pull_request_target:
+    branches:
+      - master
+
 jobs:
   black:
     runs-on: ubuntu-latest
@@ -29,3 +33,66 @@ jobs:
 
       - name: Run Black
         run: black --check tardis
+  ruff: 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: ruff-env
+          create-args: >-
+            python=3.10
+            ruff
+      
+      - name: Show statistics
+        run: ruff check  --statistics  --show-fixes . | tee ruff_stats.txt
+        id: ruff_stats
+      
+      - name: Show entire output
+        run: ruff check . --output-format=full | tee ruff_full.txt
+        id: ruff_complete
+      
+      - name: Find Comment
+        if: always() && github.event_name == 'pull_request_target'
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.number }}
+          body-includes: I ran ruff on the latest commit
+      
+      - name: Post comment
+        if: github.event_name == 'pull_request_target'
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+            Hi human, 
+            I ran ruff on the latest commit (${{ github.event.pull_request.head.sha }}). 
+            Here are the outputs produced.
+            Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
+            Summarised output:
+            <details>
+
+              ```diff
+              ${{ steps.ruff_stats.outputs.content }}
+              ```
+
+            </details>
+
+            Complete output(might be large):
+            <details>
+
+              ```diff
+              ${{ steps.ruff_complete.outputs.content }}
+              ```
+              
+            </details>
+        env:
+          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+
+
