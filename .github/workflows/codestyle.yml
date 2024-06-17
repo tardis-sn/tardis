@@ -38,12 +38,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: mamba-org/setup-micromamba@v1
+      - uses: actions/setup-python@v5
         with:
-          environment-name: ruff-env
-          create-args: >-
-            python=3.10
-            ruff
+          python-version: '3.10' 
+      
+      - name: Install Ruff
+        run: pip install ruff
       
       - name: Show statistics
         run: ruff check  --statistics  --show-fixes . | tee ruff_stats.txt
