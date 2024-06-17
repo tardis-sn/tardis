@@ -94,5 +94,13 @@ jobs:
             </details>
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
-
+          
+      - name: Save results artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asv-benchmark-results-${{ runner.os }}
+          path: |
+            ruff_full.txt
+            ruff_stats.txt
 
