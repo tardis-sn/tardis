@@ -3,6 +3,7 @@ Basic TARDIS Benchmark.
 """
 
 import numpy as np
+from asv_runner.benchmarks.mark import parameterize
 
 import tardis.transport.montecarlo.vpacket as vpacket
 from benchmarks.benchmark_base import BenchmarkBase
@@ -107,4 +108,31 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             verysimple_numba_radial_1d_geometry,
             verysimple_numba_model,
             verysimple_opacity_state,
+        )
+
+    @parameterize(
+        {
+            "Paramters": [
+                {
+                    "tau_russian": 10.0,
+                    "survival_possibility": 0.0
+                },
+                {
+                    "tau_russian": 15.0,
+                    "survival_possibility": 0.1
+                },
+            ]
+        }
+    )
+    def time_trace_vpacket_volley(self, parameters):
+        vpacket.trace_vpacket_volley(
+            self.packet,
+            self.verysimple_3vpacket_collection,
+            self.verysimple_numba_radial_1d_geometry,
+            self.verysimple_numba_model,
+            self.verysimple_opacity_state,
+            False,
+            parameters["tau_russian"],
+            parameters["survival_possibility"],
+            False
         )
