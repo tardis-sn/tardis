@@ -1,6 +1,9 @@
 """Tests for SDEC Plots."""
+
 import os
 from copy import deepcopy
+from pathlib import Path
+from typing import Any, Literal
 
 import astropy.units as u
 import numpy as np
@@ -11,7 +14,14 @@ from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 
 from tardis.base import run_tardis
+from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_reader import Configuration
+from tardis.simulation.base import Simulation
 from tardis.visualization.tools.sdec_plot import SDECPlotter
+
+OBSERVED_SPECTRUM_TEST_DATA_PATH = str(
+    Path(__file__).parent / "data" / "observed_spectrum_test_data.dat"
+)
 
 
 def make_valid_name(testid):
@@ -34,7 +44,9 @@ def make_valid_name(testid):
 
 
 @pytest.fixture(scope="module")
-def simulation_simple(config_verysimple, atomic_dataset):
+def simulation_simple(
+    config_verysimple: Configuration, atomic_dataset: AtomData
+):
     """
     Instantiate SDEC plotter using a simple simulation model.
 
@@ -89,7 +101,9 @@ class TestSDECPlotter:
     """Test the SDECPlotter class."""
 
     @pytest.fixture(scope="class", autouse=True)
-    def create_hdf_file(self, request, sdec_ref_data_path):
+    def create_hdf_file(
+        self, request: pytest.FixtureRequest, sdec_ref_data_path: str
+    ):
         """
         Create an HDF5 file object.
 
@@ -114,7 +128,7 @@ class TestSDECPlotter:
         cls.hdf_file.close()
 
     @pytest.fixture(scope="class")
-    def plotter(self, simulation_simple):
+    def plotter(self, simulation_simple: Simulation):
         """
         Create a SDECPlotter object.
 
@@ -138,9 +152,7 @@ class TestSDECPlotter:
         -------
         Tuple of two astropy.units.quantity.Quantity values.
         """
-        test_data = np.loadtxt(
-            "tardis/visualization/tools/tests/data/observed_spectrum_test_data.dat"
-        )
+        test_data = np.loadtxt(OBSERVED_SPECTRUM_TEST_DATA_PATH)
         observed_spectrum_wavelength, observed_spectrum_flux = test_data.T
         observed_spectrum_wavelength = observed_spectrum_wavelength * u.AA
         observed_spectrum_flux = (
@@ -149,7 +161,9 @@ class TestSDECPlotter:
         return observed_spectrum_wavelength, observed_spectrum_flux
 
     @pytest.mark.parametrize("species", [["Si II", "Ca II", "C", "Fe I-V"]])
-    def test_parse_species_list(self, request, plotter, species):
+    def test_parse_species_list(
+        self, request: pytest.FixtureRequest, plotter: SDECPlotter, species: str
+    ):
         """
         Test _parse_species_list method.
 
@@ -204,12 +218,12 @@ class TestSDECPlotter:
     @pytest.mark.parametrize("nelements", [1, 3])
     def test_calculate_plotting_data(
         self,
-        request,
-        plotter,
-        packets_mode,
-        packet_wvl_range,
-        distance,
-        nelements,
+        request: pytest.FixtureRequest,
+        plotter: SDECPlotter,
+        packets_mode: Literal["virtual"] | Literal["real"],
+        packet_wvl_range: Any,
+        distance: Any,
+        nelements: Literal[1] | Literal[3],
     ):
         """
         Test _calculate_plotting_data method.
@@ -384,15 +398,15 @@ class TestSDECPlotter:
     )
     def test_generate_plot_mpl(
         self,
-        request,
-        plotter,
-        packets_mode,
-        packet_wvl_range,
-        distance,
-        show_modeled_spectrum,
-        observed_spectrum,
-        nelements,
-        species_list,
+        request: pytest.FixtureRequest,
+        plotter: SDECPlotter,
+        packets_mode: Literal["virtual"] | Literal["real"],
+        packet_wvl_range: Any | None,
+        distance: Any | None,
+        show_modeled_spectrum: bool,
+        observed_spectrum: tuple,
+        nelements: None | Literal[1],
+        species_list: list[str] | None,
     ):
         """
         Test generate_plot_mpl method.
@@ -527,15 +541,15 @@ class TestSDECPlotter:
     )
     def test_generate_plot_ply(
         self,
-        request,
-        plotter,
-        packets_mode,
-        packet_wvl_range,
-        distance,
-        show_modeled_spectrum,
-        observed_spectrum,
-        nelements,
-        species_list,
+        request: pytest.FixtureRequest,
+        plotter: SDECPlotter,
+        packets_mode: Literal["virtual"] | Literal["real"],
+        packet_wvl_range: Any | None,
+        distance: Any | None,
+        show_modeled_spectrum: bool,
+        observed_spectrum: tuple,
+        nelements: None | Literal[1],
+        species_list: list[str] | None,
     ):
         """
         Test generate_plot_mpl method.
