@@ -8,8 +8,8 @@ import numpy as np
 from numba import njit
 
 from benchmarks.util.nlte import NLTE
+from tardis import run_tardis
 from tardis.io.atom_data import AtomData
-from tardis.io.atom_data.util import download_atom_data
 from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
@@ -332,4 +332,22 @@ class BenchmarkBase:
 
     @property
     def rpacket_tracker(self):
-        return self.nb_simulation_verysimple.transport.transport_state.rpacket_tracker
+        return self.simulation_rpacket_tracking_enabled.transport.transport_state.rpacket_tracker
+
+    @property
+    def simulation_rpacket_tracking_enabled(self):
+        config_verysimple = self.config_verysimple
+        config_verysimple.montecarlo.iterations = 3
+        config_verysimple.montecarlo.no_of_packets = 4000
+        config_verysimple.montecarlo.last_no_of_packets = -1
+        config_verysimple.spectrum.virtual.virtual_packet_logging = True
+        config_verysimple.montecarlo.no_of_virtual_packets = 1
+        config_verysimple.montecarlo.tracking.track_rpacket = True
+        config_verysimple.spectrum.num = 2000
+        atomic_data = deepcopy(self.atomic_dataset)
+        sim = run_tardis(
+            config_verysimple,
+            atom_data=atomic_data,
+            show_convergence_plots=False,
+        )
+        return sim
