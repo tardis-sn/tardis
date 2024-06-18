@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import pytest
 from astropy import units as u
+from tardis import constants as c
+
 from numpy.testing import assert_almost_equal
 from tardis.spectrum import (
     TARDISSpectrum,

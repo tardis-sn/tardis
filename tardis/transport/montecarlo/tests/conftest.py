@@ -12,6 +12,7 @@ from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )
+from tardis.transport.montecarlo.packet_collections import VPacketCollection
 
 
 @pytest.fixture(scope="package")
