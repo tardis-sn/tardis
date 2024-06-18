@@ -1,28 +1,31 @@
-import re
 from copy import deepcopy
-from os.path import dirname, realpath, join
+from os.path import dirname, join, realpath
 from pathlib import Path
 from tempfile import mkstemp
 
 import astropy.units as u
 import numpy as np
-import pandas as pd
 from numba import njit
 
 from benchmarks.util.nlte import NLTE
 from tardis.io.atom_data import AtomData
+from tardis.io.atom_data.util import download_atom_data
 from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.util import yaml_load_file, YAMLLoader, HDFWriterMixin
+from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model import SimulationState
-from tardis.transport.montecarlo.numba_interface import NumbaModel, opacity_state_initialize
-from tardis.transport.montecarlo import RPacket
-from tardis.transport.montecarlo.packet_collections import (
-    VPacketCollection,
-)
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 from tardis.tests.fixtures.regression_data import RegressionData
+from tardis.transport.montecarlo import RPacket, montecarlo_configuration
+from tardis.transport.montecarlo.estimators import radfield_mc_estimators
+from tardis.transport.montecarlo.numba_interface import (
+    NumbaModel,
+    opacity_state_initialize,
+)
+from tardis.transport.montecarlo.packet_collections import (
+    VPacketCollection,
+)
 
 
 class BenchmarkBase:
@@ -317,13 +320,16 @@ class BenchmarkBase:
             return option
 
     @property
-    def tardis_ref_data(self):
-        # TODO: This function is not working in the benchmarks.
-        if self.generate_reference:
-            mode = "w"
-        else:
-            mode = "r"
-        with pd.HDFStore(
-            f"{self.tardis_ref_path}/unit_test_data.h5", mode=mode
-        ) as store:
-            yield store
+    def verysimple_radfield_mc_estimators(self):
+        plasma = self.nb_simulation_verysimple.plasma
+        return radfield_mc_estimators.initialize_estimator_statistics(
+            plasma.tau_sobolevs.shape, plasma.gamma.shape
+        )
+
+    @property
+    def montecarlo_configuration(self):
+        return montecarlo_configuration.MonteCarloConfiguration()
+
+    @property
+    def rpacket_tracker(self):
+        return self.nb_simulation_verysimple.transport.transport_state.rpacket_tracker
