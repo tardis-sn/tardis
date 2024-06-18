@@ -490,7 +490,7 @@ def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
         )
         density_0 = csvy_model_data["density"].values * density_unit
         # Removing as thee new architecture removes the 0th shell already
-        # density_0 = density_0.to("g/cm^3")[1:]
+        density_0 = density_0.to("g/cm^3")[1:]
         # density_0 = density_0.insert(0, 0)
         density = calculate_density_after_time(
             density_0, time_0, time_explosion

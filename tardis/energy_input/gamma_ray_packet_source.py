@@ -792,13 +792,13 @@ class GammaRayPacketSource(BasePacketSource):
             random_state=np.random.RandomState(self.base_seed),
         )
         # get unique isotopes that have produced packets
-        isotopes = sampled_packets_df.index.get_level_values(2)
+        isotopes = sampled_packets_df.index.get_level_values(1)
 
         # compute the positron fraction for unique isotopes
         isotope_positron_fraction = self.calculate_positron_fraction(isotopes)
 
         # get the packet shell index
-        shells = sampled_packets_df.index.get_level_values(1)
+        shells = sampled_packets_df.index.get_level_values(0)
 
         # get the inner and outer velocity boundaries for each packet to compute
         # the initial radii

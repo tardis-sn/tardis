@@ -76,7 +76,7 @@ def calculate_total_decays(inventories, time_delta):
         dictionary of inventories for each shell
 
     time_end : float
-        End time of simulation in days.
+        End time of simulation step in days.
 
 
     Returns
@@ -84,10 +84,10 @@ def calculate_total_decays(inventories, time_delta):
     cumulative_decay_df : pd.DataFrame
         total decays for x g of isotope for time 't'
     """
-    time_delta = u.Quantity(time_delta, u.s)
+    time_delta = u.Quantity(time_delta, u.d)
     total_decays = {}
     for shell, inventory in inventories.items():
-        total_decays[shell] = inventory.cumulative_decays(time_delta.value)
+        total_decays[shell] = inventory.cumulative_decays(time_delta.value, "d")
 
     flattened_dict = {}
 
@@ -205,7 +205,7 @@ def evolve_mass_fraction(raw_isotope_mass_fraction, time_array):
     return time_evolved_isotope_mass_fraction
 
 
-def time_evolve_cumulative_decays(
+def time_evolve_mass_fractions(
     raw_isotope_mass_fraction, shell_masses, gamma_ray_lines, time_array
 ):
     """
@@ -234,7 +234,9 @@ def time_evolve_cumulative_decays(
     cumulative_decay_df_list = []
     initial_isotope_mass_fraction = raw_isotope_mass_fraction
 
-    for time in time_array:
+    decay_times = np.diff(time_array)
+
+    for time in decay_times:
         decayed_isotope_mass_fraction = IsotopicMassFraction(
             initial_isotope_mass_fraction
         ).decay(time)

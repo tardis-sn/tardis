@@ -95,7 +95,9 @@ class IsotopicMassFraction(pd.DataFrame):
             Decayed abundances
         """
         inventories = self.to_inventories()
-        t_second = u.Quantity(t, u.s).to(u.s).value - self.time_0.to(u.s).value
+        t_second = (
+            u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
+        )
         logger.info(f"Decaying abundances for {t_second} seconds")
         if t_second < 0:
             logger.warning(

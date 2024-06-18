@@ -318,9 +318,6 @@ def get_effective_time_array(time_start, time_end, time_space, time_steps):
         effective time array in secs.
     """
 
-    time_start *= u.d.to(u.s)
-    time_end *= u.d.to(u.s)
-
     assert time_start < time_end, "time_start must be smaller than time_end!"
     if time_space == "log":
         times = np.geomspace(time_start, time_end, time_steps + 1)
@@ -334,7 +331,6 @@ def get_effective_time_array(time_start, time_end, time_space, time_steps):
 
 def run_gamma_ray_loop(
     model,
-    plasma,
     isotope_decay_df,
     cumulative_decays_df,
     num_decays,
@@ -367,18 +363,25 @@ def run_gamma_ray_loop(
         1.0 / ejecta_velocity_volume[:, np.newaxis]
     ) / effective_time_array**3.0
 
-    for atom_number in plasma.isotope_number_density.index.get_level_values(0):
-        values = plasma.isotope_number_density.loc[atom_number].values
+    for (
+        atom_number
+    ) in model.composition.isotopic_number_density.index.get_level_values(0):
+        values = model.composition.isotopic_number_density.loc[
+            atom_number
+        ].values
         if values.shape[0] > 1:
-            plasma.isotope_number_density.loc[atom_number].update = np.sum(
-                values, axis=0
-            )
+            model.composition.isotopic_number_density.loc[
+                atom_number
+            ].update = np.sum(values, axis=0)
         else:
-            plasma.isotope_number_density.loc[atom_number].update = values
+            model.composition.isotopic_number_density.loc[
+                atom_number
+            ].update = values
 
     # Electron number density
-    electron_number_density = plasma.number_density.mul(
-        plasma.number_density.index, axis=0
+    electron_number_density = model.composition.isotopic_number_density.mul(
+        model.composition.isotopic_number_density.index.get_level_values(0),
+        axis=0,
     ).sum()
     electron_number = np.array(electron_number_density * ejecta_volume)
 
@@ -393,20 +396,20 @@ def run_gamma_ray_loop(
     # Need to get the strings for the isotopes without the dashes
     taus = make_isotope_string_tardis_like(taus)
 
-    cumulative_decays_df_gamma = cumulative_decays_df[
-        cumulative_decays_df["radiation"] == "g"
+    isotope_decay_df_gamma = isotope_decay_df[
+        isotope_decay_df["radiation"] == "g"
     ]
 
-    total_energy = cumulative_decays_df_gamma[
+    total_energy_gamma = isotope_decay_df_gamma[
         "decay_energy_keV"
     ].sum()  # total energy in keV
 
-    # total_energy_erg = total_energy * u.keV.to("erg")
+    total_energy_gamma_erg = total_energy_gamma * u.keV.to("erg")
 
-    energy_per_packet = total_energy / num_decays
+    energy_per_packet = total_energy_gamma_erg / num_decays
     energy_df_rows = np.zeros((number_of_shells, times.shape[0]))
 
-    logger.info(f"Total gamma-ray energy is {total_energy}")
+    logger.info(f"Total energy in gamma-rays is {total_energy_gamma_erg}")
     logger.info(f"Energy per packet is {energy_per_packet}")
     average_power_per_mass = 1e41
     positron_energy_per_isotope = 1000  # keV
@@ -428,7 +431,7 @@ def run_gamma_ray_loop(
     )
     logger.info("Creating packets")
     packet_collection = packet_source.create_packets(
-        cumulative_decays_df, num_decays
+        isotope_decay_df, num_decays
     )
     logger.info("Creating packet list")
     packets = []
