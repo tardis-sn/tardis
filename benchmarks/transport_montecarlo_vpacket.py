@@ -53,7 +53,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             v_packet, verysimple_opacity_state, verysimple_numba_model
         )
 
-        _, _, _ = vpacket.trace_vpacket_within_shell(
+        vpacket.trace_vpacket_within_shell(
             v_packet,
             verysimple_numba_radial_1d_geometry,
             verysimple_numba_model,
@@ -76,7 +76,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             v_packet, verysimple_opacity_state, verysimple_numba_model
         )
 
-        _ = vpacket.trace_vpacket(
+        vpacket.trace_vpacket(
             v_packet,
             verysimple_numba_radial_1d_geometry,
             verysimple_numba_model,
