@@ -17,6 +17,7 @@ from tardis.model import SimulationState
 from tardis.model.parse_input import initialize_packet_source
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
@@ -339,10 +340,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # Bad test to see if this is a nlte run
         if "nlte_data" in self.plasma.outputs_dict:
             self.plasma.store_previous_properties()
-
+        radiation_field = DilutePlanckianRadiationField(
+            temperature=self.simulation_state.t_radiative,
+            dilution_factor=self.simulation_state.dilution_factor,
+        )
         update_properties = dict(
-            t_rad=self.simulation_state.t_radiative,
-            w=self.simulation_state.dilution_factor,
+            dilute_planckian_radiation_field=radiation_field
         )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.

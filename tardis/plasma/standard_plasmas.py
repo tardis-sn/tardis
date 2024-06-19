@@ -47,7 +47,7 @@ from tardis.plasma.properties.property_collections import (
     two_photon_properties,
 )
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
-from tardis.radiation_field import DilutePlanckianRadiationField
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.util.base import species_string_to_tuple
 
 logger = logging.getLogger(__name__)

@@ -47,7 +47,7 @@ class DilutePlanckianRadiationField:
             )
         else:
             assert np.all(temperature > 0 * u.K)
-            assert np.all(dilution_factor > 0)
+            assert np.all(dilution_factor >= 0)
         self.temperature = temperature
         self.dilution_factor = dilution_factor
 

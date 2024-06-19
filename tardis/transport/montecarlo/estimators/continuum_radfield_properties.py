@@ -6,7 +6,7 @@ from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.radiation_field.planck_rad_field import (
+from tardis.plasma.radiation_field.planck_rad_field import (
     DilutePlanckianRadiationField,
 )
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
