@@ -335,6 +335,10 @@ class BenchmarkBase:
         return self.simulation_rpacket_tracking_enabled.transport.transport_state.rpacket_tracker
 
     @property
+    def transport_state(self):
+        return self.nb_simulation_verysimple.transport.transport_state
+
+    @property
     def simulation_rpacket_tracking_enabled(self):
         config_verysimple = self.config_verysimple
         config_verysimple.montecarlo.iterations = 3
