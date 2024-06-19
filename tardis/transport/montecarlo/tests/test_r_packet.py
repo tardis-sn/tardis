@@ -13,6 +13,7 @@ from tardis.transport.montecarlo.packet_trackers import (
 
 @pytest.fixture()
 def config_rpacket_tracker(example_configuration_dir):
+    """Config object for rpacket tracker"""
     return Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_verysimple.yml"
     )
@@ -20,6 +21,7 @@ def config_rpacket_tracker(example_configuration_dir):
 
 @pytest.fixture()
 def simulation_rpacket_tracking_enabled(config_rpacket_tracker, atomic_dataset):
+    """Simulation object with track_rpacket enabled"""
     config_rpacket_tracker.montecarlo.iterations = 3
     config_rpacket_tracker.montecarlo.no_of_packets = 4000
     config_rpacket_tracker.montecarlo.last_no_of_packets = -1

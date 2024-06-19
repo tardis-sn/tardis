@@ -58,7 +58,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         packet_source,
         enable_virtual_packet_logging=False,
         enable_rpacket_tracking=False,
-        enable_last_interaction_tracking=False,
         nthreads=1,
         debug_packets=False,
         logger_buffer=1,
@@ -78,7 +77,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         self.enable_vpacket_tracking = enable_virtual_packet_logging
         self.enable_rpacket_tracking = enable_rpacket_tracking
-        self.enable_last_interaction_tracking = enable_last_interaction_tracking
         self.montecarlo_configuration = montecarlo_configuration
 
         self.packet_source = packet_source
@@ -221,7 +219,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                     self.transport_state.rpacket_tracker
                 )
             )
-        elif self.montecarlo_configuration.ENABLE_LAST_INTERACTION_TRACKING:
+        else:
             transport_state.rpacket_tracker = rpacket_last_interaction_trackers
 
         transport_state.virt_logging = (
@@ -309,7 +307,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 | enable_virtual_packet_logging
             ),
             enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
-            enable_last_interaction_tracking=config.montecarlo.tracking.track_last_interaction,
             nthreads=config.montecarlo.nthreads,
             use_gpu=use_gpu,
             montecarlo_configuration=montecarlo_configuration,
