@@ -7,7 +7,6 @@ from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
 )
 
-from tardis.base import run_tardis
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
