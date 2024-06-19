@@ -622,20 +622,35 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         **kwargs,
     ):
         """
-        Create a new Simulation instance from a Configuration object.
+        Create a simulation instance from the provided configuration.
 
         Parameters
         ----------
-        config : tardis.io.config_reader.Configuration
-
+        config : object
+            The configuration object for the simulation.
+        packet_source : object, optional
+            The packet source for the simulation.
+        virtual_packet_logging : bool, optional
+            Flag indicating virtual packet logging.
+        show_convergence_plots : bool, optional
+            Flag indicating whether to show convergence plots.
+        show_progress_bars : bool, optional
+            Flag indicating whether to show progress bars.
+        legacy_mode_enabled : bool, optional
+            Flag indicating if legacy mode is enabled.
+        atom_data : object, optional
+            The atom data for the simulation.
+        plasma : object, optional
+            The plasma object for the simulation.
+        transport : object, optional
+            The transport solver for the simulation.
         **kwargs
-            Allow overriding some structures, such as model, plasma, atomic data
-            and the transport, instead of creating them from the configuration
-            object.
+            Additional keyword arguments.
 
         Returns
         -------
-        Simulation
+        object
+            The created simulation instance.
         """
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
