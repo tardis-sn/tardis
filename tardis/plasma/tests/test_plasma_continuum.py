@@ -1,6 +1,6 @@
 import numpy as np
-
 import numpy.testing as npt
+
 from tardis.plasma.properties import YgData
 
 

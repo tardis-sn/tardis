@@ -9,6 +9,7 @@ from tardis.io.atom_data import AtomData
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
+from tardis.plasma.properties.continuum_processes import PhotoIonBoltzmannFactor
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
@@ -16,7 +17,6 @@ from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
     integrate_array_by_blocks,
 )
-from tardis.plasma.properties.continuum_processes import PhotoIonBoltzmannFactor
 
 H = const.h.cgs.value
 

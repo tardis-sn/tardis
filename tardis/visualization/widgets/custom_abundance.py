@@ -1,35 +1,37 @@
 """Class to create and display Custom Abundance Widget."""
+
 import os
-import yaml
+from pathlib import Path
+
+import ipywidgets as ipw
 import numpy as np
 import pandas as pd
-import ipywidgets as ipw
 import plotly.graph_objects as go
+import yaml
 from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
-from pathlib import Path
 
 import tardis
-from tardis.io.model.readers.generic_readers import read_uniform_abundances
-from tardis.util.base import (
-    quantity_linspace,
-    is_valid_nuclide_or_elem,
-    is_notebook,
-)
-from tardis.io.configuration.config_reader import Configuration
-from tardis.model import SimulationState
-from tardis.io.model.parse_density_configuration import (
-    calculate_power_law_density,
-    calculate_exponential_density,
-)
 from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
-from tardis.io.model.readers.csvy import load_csvy
+from tardis.io.model.parse_density_configuration import (
+    calculate_exponential_density,
+    calculate_power_law_density,
+)
 from tardis.io.model.readers.csvy import (
+    load_csvy,
     parse_csv_abundances,
 )
-from tardis.util.base import atomic_number2element_symbol, quantity_linspace
+from tardis.io.model.readers.generic_readers import read_uniform_abundances
+from tardis.model import SimulationState
+from tardis.util.base import (
+    atomic_number2element_symbol,
+    is_notebook,
+    is_valid_nuclide_or_elem,
+    quantity_linspace,
+)
 from tardis.visualization.tools.convergence_plot import transition_colors
 from tardis.visualization.widgets.util import debounce
 
@@ -601,7 +603,7 @@ class CustomAbundanceWidget:
         """
         self._trigger = False
         # `input_items` is the list of  abundance input widgets.
-        self.input_items[index].value = float("{:.2e}".format(value))
+        self.input_items[index].value = float(f"{value:.2e}")
         self._trigger = True
 
     def read_abundance(self):
@@ -734,12 +736,11 @@ class CustomAbundanceWidget:
             else position_1
         )
 
-        if (index_1 - index_0 > 1) or (
-            index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0)
-        ):
-            return True
-        else:
-            return False
+        return bool(
+            index_1 - index_0 > 1
+            or index_1 - index_0 == 1
+            and not np.isclose(v_vals[index_0], v_0)
+        )
 
     def on_btn_add_shell(self, obj):
         """Add new shell with given boundary velocities. Triggered if
@@ -889,9 +890,9 @@ class CustomAbundanceWidget:
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
 
-            self.data.abundance.iloc[
-                item_index, self.shell_no - 1
-            ] = obj.owner.value
+            self.data.abundance.iloc[item_index, self.shell_no - 1] = (
+                obj.owner.value
+            )
 
             if self.rbs_multi_apply.index is None:
                 self.update_abundance_plot(item_index)
@@ -913,7 +914,7 @@ class CustomAbundanceWidget:
         """
         item_index = obj.owner.index
 
-        if obj.new == True:
+        if obj.new is True:
             self.bound_locked_sum_to_1(item_index)
 
     def dpd_shell_no_eventhandler(self, obj):
@@ -1105,9 +1106,9 @@ class CustomAbundanceWidget:
         end_index = self.irs_shell_range.value[1]
         applied_shell_index = self.shell_no - 1
 
-        self.data.abundance.iloc[
-            item_index, start_index:end_index
-        ] = self.data.abundance.iloc[item_index, applied_shell_index]
+        self.data.abundance.iloc[item_index, start_index:end_index] = (
+            self.data.abundance.iloc[item_index, applied_shell_index]
+        )
 
         self.update_abundance_plot(item_index)
 
@@ -1417,9 +1418,8 @@ class CustomAbundanceWidget:
             raise FileExistsError(
                 "The file already exists. Click the 'overwrite' checkbox to overwrite it."
             )
-        else:
-            self.write_yaml_portion(posix_path)
-            self.write_csv_portion(posix_path)
+        self.write_yaml_portion(posix_path)
+        self.write_csv_portion(posix_path)
 
     @error_view.capture(clear_output=True)
     def write_yaml_portion(self, path):
@@ -1469,7 +1469,7 @@ class CustomAbundanceWidget:
             data.sort_index(inplace=True)
 
             formatted_v = pd.Series(self.data.velocity.value).apply(
-                lambda x: "%.3e" % x
+                lambda x: f"{x:.3e}"
             )
             # Make sure velocity is within the boundary.
             formatted_v[0] = self.data.velocity.value[0]
@@ -1684,7 +1684,7 @@ class DensityEditor:
         """
         dvalue = self.data.density[self.shell_no].value
         self._trigger = False
-        self.input_d.value = float("{:.3e}".format(dvalue))
+        self.input_d.value = float(f"{dvalue:.3e}")
         self._trigger = True
 
     def update_density_plot(self):

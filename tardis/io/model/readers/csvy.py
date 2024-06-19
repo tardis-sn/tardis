@@ -1,9 +1,11 @@
 import logging
+
 import numpy as np
+import pandas as pd
+import yaml
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
-import yaml
-import pandas as pd
+
 from tardis.io.util import YAMLLoader
 from tardis.util.base import is_valid_nuclide_or_elem
 
@@ -110,7 +112,6 @@ def parse_csv_abundances(csvy_data):
     abundances : pandas.DataFrame
     isotope_abundance : pandas.MultiIndex
     """
-
     abundance_col_names = [
         name for name in csvy_data.columns if is_valid_nuclide_or_elem(name)
     ]

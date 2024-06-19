@@ -1,9 +1,10 @@
-from tardis.io.configuration.config_reader import ConfigurationNameSpace
-import pytest
-from astropy import units as u
 import os
 
+import pytest
+from astropy import units as u
 from numpy.testing import assert_almost_equal
+
+from tardis.io.configuration.config_reader import ConfigurationNameSpace
 
 simple_config_dict = {
     "a": {"b": {"param1": 1, "param2": [0, 1, 2 * u.km], "param3": 4.0 * u.km}}

@@ -15,11 +15,11 @@ from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
 from tardis.model.parse_input import initialize_packet_source
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -134,9 +134,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         convergence_plots_kwargs,
         show_progress_bars,
     ):
-        super(Simulation, self).__init__(
-            iterations, simulation_state.no_of_shells
-        )
+        super().__init__(iterations, simulation_state.no_of_shells)
 
         self.converged = False
         self.iterations = iterations
@@ -175,10 +173,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                     "to False."
                 )
-            else:
-                self.convergence_plots = ConvergencePlots(
-                    iterations=self.iterations, **convergence_plots_kwargs
-                )
+            self.convergence_plots = ConvergencePlots(
+                iterations=self.iterations, **convergence_plots_kwargs
+            )
 
         if "export_convergence_plots" in convergence_plots_kwargs:
             if not isinstance(
@@ -600,10 +597,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         try:
             del self._callbacks[id]
-            return True
         except KeyError:
             logger.debug(f"Call Back was not found in {self._callbacks.keys()}")
             return False
+        else:
+            return True
+
 
     @classmethod
     def from_config(

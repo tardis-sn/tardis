@@ -1,6 +1,10 @@
 from numba import njit
 
 from tardis import constants as const
+from tardis.transport.frame_transformations import (
+    get_doppler_factor,
+    get_inverse_doppler_factor,
+)
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_bound_free_estimators,
 )

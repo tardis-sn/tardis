@@ -1,10 +1,8 @@
-import os
-import pytest
 import numpy as np
-import pandas as pd
+import pytest
+
 import tardis.transport.montecarlo.vpacket as vpacket
 from tardis import constants as const
-
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )

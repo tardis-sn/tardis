@@ -1,12 +1,12 @@
-from pathlib import Path
-import tardis
-from tardis.io.model.readers import csvy
-from tardis.io.configuration.config_validator import validate_dict
-from jsonschema import exceptions as json_schema_exc
-import pytest
 import os
-from astropy import units as u
+from pathlib import Path
+
 import numpy.testing as npt
+import pytest
+
+import tardis
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.readers import csvy
 
 
 @pytest.fixture
@@ -45,7 +45,7 @@ def test_csvy_nocsv_data_is_none(csvy_nocsv_fname):
 
 def test_missing_required_property(csvy_missing_fname):
     yaml_dict, csv = csvy.load_csvy(csvy_missing_fname)
-    with pytest.raises(Exception):
+    with pytest.raises(FileNotFoundError):
         vy = validate_dict(
             yaml_dict,
             schemapath=os.path.join(

@@ -1,14 +1,18 @@
-from astropy import units as u
-from typing import Any, Tuple
-from numpy import recfromtxt
-import pandas as pd
-from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z
-from pathlib import Path
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any, Tuple
 
 import numpy as np
-from tardis.io.model.readers.util import read_csv_isotope_abundances
+import pandas as pd
+from astropy import units as u
+from numpy import genfromtxt
+from radioactivedecay import Nuclide
+from radioactivedecay.utils import Z_DICT, elem_to_Z
 
+from tardis.io.model.readers.util import read_csv_isotope_abundances
 from tardis.util.base import parse_quantity
 
 
@@ -41,12 +45,11 @@ def read_simple_ascii_density(
     mean_density: u.Quantity
         mean density
     """
-
     with open(fname) as fh:
         time_of_model_string = fh.readline().strip()
         time_of_model = parse_quantity(time_of_model_string)
 
-    data = recfromtxt(
+    data = genfromtxt(
         fname,
         skip_header=1,
         names=("index", "velocity", "density"),
@@ -73,7 +76,6 @@ def read_csv_composition(fname, delimiter=r"\s+"):
     fname : str
         filename of the csv file
     """
-
     return read_csv_isotope_abundances(
         fname, delimiter=delimiter, skip_columns=0, skip_rows=[1]
     )

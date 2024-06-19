@@ -48,7 +48,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         helium_population.loc[0, 0] = 0.0
         # He II excited states
         he_two_population = level_boltzmann_factor.loc[2, 1].mul(
-            (float(g.loc[2, 1, 0]) ** (-1.0))
+            float(g.loc[2, 1, 0]) ** (-1.0)
         )
         helium_population.loc[1].update(he_two_population)
         # He II ground state
@@ -123,7 +123,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
     outputs = ("helium_population",)
 
     def __init__(self, plasma_parent, heating_rate_data_file):
-        super(HeliumNumericalNLTE, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self._g_upper = None
         self._g_lower = None
         self.heating_rate_data = np.loadtxt(heating_rate_data_file, unpack=True)
@@ -175,7 +175,9 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                         number_density = (
                             ion_number_density[zone].loc[element].sum()
                         )
-                    except:
+                    except Exception as e:
+                        # TODO: Do not write bare except
+                        print("Exception occurred! ", e)
                         number_density = 0.0
                         logger.debug(
                             f"Number Density could not be calculated. Setting Number Density to {number_density}"
@@ -228,10 +230,8 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         # Reading in populations from files
         helium_population = level_boltzmann_factor.loc[2].copy()
         for zone, _ in enumerate(electron_densities):
-            with open(
-                f"He_NLTE_Files/discradfield{zone}.txt", "r"
-            ) as read_file:
-                for level in range(0, 35):
+            with open(f"He_NLTE_Files/discradfield{zone}.txt") as read_file:
+                for level in range(35):
                     level_population = read_file.readline()
                     level_population = float(level_population)
                     helium_population[zone].loc[0, level] = level_population

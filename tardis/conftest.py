@@ -26,7 +26,7 @@ packagename.test
 
 # For Astropy 3.0 and later, we can use the standalone pytest plugin
 if astropy_version < "3.0":
-    from astropy.tests.pytest_plugins import *  # noqa
+    from astropy.tests.pytest_plugins import *
 
     del pytest_report_header
     ASTROPY_HEADER = True
@@ -165,7 +165,7 @@ def tardis_snapshot_path(request):
         )
 
 
-@pytest.yield_fixture(scope="session")
+@pytest.fixture(scope="session")
 def tardis_ref_data(tardis_ref_path, generate_reference):
     if generate_reference:
         mode = "w"

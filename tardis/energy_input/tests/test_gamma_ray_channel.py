@@ -1,23 +1,20 @@
-import pytest
-import numpy as np
 from pathlib import Path
-import astropy.units as u
-import numpy.testing as npt
-import radioactivedecay as rd
-import astropy.constants as const
-from radioactivedecay import converters
 
-from tardis.model import SimulationState
-from tardis.io.configuration import config_reader
-from tardis.energy_input.energy_source import (
-    get_nuclear_lines_database,
-)
+import astropy.constants as const
+import astropy.units as u
+import numpy as np
+import numpy.testing as npt
+import pytest
+import radioactivedecay as rd
+
 from tardis.energy_input.gamma_ray_channel import (
-    create_isotope_dicts,
-    create_inventories_dict,
     calculate_total_decays,
+    create_inventories_dict,
     create_isotope_decay_df,
+    create_isotope_dicts,
 )
+from tardis.io.configuration import config_reader
+from tardis.model import SimulationState
 
 
 @pytest.fixture(scope="module")
@@ -115,8 +112,8 @@ def test_isotope_dicts(gamma_ray_test_composition, nuclide_name):
     raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
     isotope_dict = create_isotope_dicts(raw_isotopic_mass_fraction, cell_masses)
 
-    for isotope_dict in isotope_dict.values():
-        assert nuclide_name in isotope_dict.keys()
+    for item in isotope_dict.values():
+        assert nuclide_name in item.keys()
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])

@@ -104,7 +104,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         func = formal_integral.populate_z
         size = len(self.formal_integral_geometry(test_data).r_outer)
         r_inner = self.formal_integral_geometry(test_data).r_inner
-        self.formal_integral_geometry(test_data).r_outer
+        r_outer = self.formal_integral_geometry(test_data).r_outer
 
         p = r_inner[0] * p
         oz = np.zeros_like(r_inner)

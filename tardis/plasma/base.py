@@ -1,14 +1,13 @@
-import os
-import re
-import logging
-import tempfile
 import fileinput
+import logging
+import re
+import tempfile
 
 import networkx as nx
 
-from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
-from tardis.plasma.properties.base import *
 from tardis.io.util import PlasmaWriterMixin
+from tardis.plasma.exceptions import NotInitializedModule, PlasmaMissingModule
+from tardis.plasma.properties.base import *
 
 logger = logging.getLogger(__name__)
 
@@ -31,15 +30,14 @@ class BasePlasma(PlasmaWriterMixin):
         if item in self.outputs_dict:
             return self.get_value(item)
         else:
-            super(BasePlasma, self).__getattribute__(item)
+            super().__getattribute__(item)
 
     def __setattr__(self, key, value):
         if key != "module_dict" and key in self.outputs_dict:
             raise AttributeError(
                 "Plasma inputs can only be updated using " "the 'update' method"
             )
-        else:
-            super(BasePlasma, self).__setattr__(key, value)
+        super().__setattr__(key, value)
 
     def __dir__(self):
         attrs = [item for item in self.__dict__ if not item.startswith("_")]
@@ -63,7 +61,6 @@ class BasePlasma(PlasmaWriterMixin):
         :param plasma_modules:
         :return:
         """
-
         self.graph = nx.DiGraph()
         # Adding all nodes
         self.graph.add_nodes_from(
@@ -97,7 +94,7 @@ class BasePlasma(PlasmaWriterMixin):
                     label = self.outputs_dict[input].latex_name[position]
                     label = "$" + label + "$"
                     label = label.replace("\\", "\\\\")
-                except:
+                except (AttributeError, IndexError):
                     label = input.replace("_", "-")
                 self.graph.add_edge(
                     self.outputs_dict[input].name,
@@ -200,8 +197,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    "Trying to freeze property {0}"
-                    " that is unavailable".format(key)
+                    f"Trying to freeze property {key}" " that is unavailable"
                 )
             self.outputs_dict[key].frozen = True
 
@@ -224,8 +220,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    "Trying to thaw property {0}"
-                    " that is unavailable".format(key)
+                    f"Trying to thaw property {key}" " that is unavailable"
                 )
             self.outputs_dict[key].frozen = False
 
@@ -249,7 +244,6 @@ class BasePlasma(PlasmaWriterMixin):
             : list
             all affected modules.
         """
-
         descendants_ob = []
 
         for plasma_property in changed_properties:
@@ -284,26 +278,18 @@ class BasePlasma(PlasmaWriterMixin):
             enables/disables writing LaTeX equations and
             edge labels into the file.
         """
-
-        try:
-            import pygraphviz
-        except:
-            logger.warn(
-                "pygraphviz missing. Plasma graph will not be " "generated."
-            )
-            return
         print_graph = self.graph.copy()
         print_graph = self.remove_hidden_properties(print_graph)
 
         for node in print_graph:
-            if latex_label == True:
+            if latex_label is True:
                 if hasattr(self.plasma_properties_dict[node], "latex_formula"):
                     print_graph.nodes[str(node)][
                         "label"
                     ] = f"\\\\textrm{{{node}: }}"
                     node_list = self.plasma_properties_dict[node]
                     formulae = node_list.latex_formula
-                    for output in range(0, len(formulae)):
+                    for output in range(len(formulae)):
                         formula = formulae[output]
                         label = formula.replace("\\", "\\\\")
                         print_graph.nodes[str(node)]["label"] += label
@@ -317,13 +303,13 @@ class BasePlasma(PlasmaWriterMixin):
         for edge in print_graph.edges:
             label = print_graph.edges[edge]["label"]
             print_graph.edges[edge]["label"] = " "
-            if latex_label == True:
+            if latex_label is True:
                 print_graph.edges[edge]["texlbl"] = label
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
 
         for line in fileinput.FileInput(fname, inplace=1):
-            if latex_label == True:
+            if latex_label is True:
                 print(
                     line.replace(
                         r'node [label="\N"]',
@@ -341,7 +327,7 @@ class BasePlasma(PlasmaWriterMixin):
                 )
 
         if args is not None:
-            with open(fname, "r") as file:
+            with open(fname) as file:
                 lines = file.readlines()
 
             for newline in args:
@@ -373,8 +359,10 @@ class BasePlasma(PlasmaWriterMixin):
         """
         try:
             import dot2tex
-        except:
-            logger.warn(
+        except Exception as e:
+            # TODO: Do not write bare except
+            print("Exception occurred! ", e)
+            logger.warning(
                 "dot2tex missing. Plasma graph will not be " "generated."
             )
             return
@@ -383,7 +371,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         self.write_to_dot(temp_fname, args=args, latex_label=latex_label)
 
-        with open(temp_fname, "r") as file:
+        with open(temp_fname) as file:
             dot_string = file.read().replace("\\\\", "\\")
 
         texcode = dot2tex.dot2tex(
@@ -437,7 +425,9 @@ class BasePlasma(PlasmaWriterMixin):
                                 ]
                                 label = "$" + label + "$"
                                 label = label.replace("\\", "\\\\")
-                            except:
+                            except Exception as e:
+                                # TODO: Do not write bare except
+                                print("Exception occurred! ", e)
                                 label = input.replace("_", "-")
                             self.graph.add_edge(
                                 self.outputs_dict[input].name,

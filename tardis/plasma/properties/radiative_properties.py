@@ -3,9 +3,9 @@ import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from tardis import constants as const
 from numba import jit, prange
 
+from tardis import constants as const
 from tardis.plasma.properties.base import (
     ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
@@ -40,7 +40,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     latex_formula = (r"1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}",)
 
     def __init__(self, plasma_parent=None, nlte_species=None):
-        super(StimulatedEmissionFactor, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self._g_upper = None
         self._g_lower = None
         self.nlte_species = nlte_species
@@ -93,9 +93,9 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             (g_lower * n_upper) / (g_upper * n_lower)
         )
         stimulated_emission_factor[n_lower == 0.0] = 0.0
-        stimulated_emission_factor[
-            np.isneginf(stimulated_emission_factor)
-        ] = 0.0
+        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = (
+            0.0
+        )
         stimulated_emission_factor[
             meta_stable_upper & (stimulated_emission_factor < 0)
         ] = 0.0
@@ -132,7 +132,7 @@ class TauSobolev(ProcessingPlasmaProperty):
     )
 
     def __init__(self, plasma_parent):
-        super(TauSobolev, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.sobolev_coefficient = (
             (
                 ((np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs))
@@ -234,7 +234,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
     outputs = ("transition_probabilities",)
 
     def __init__(self, plasma_parent):
-        super(TransitionProbabilities, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.initialize = True
         self.normalize = True
 
@@ -350,7 +350,9 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
     def _get_macro_atom_data(atomic_data):
         try:
             return atomic_data.macro_atom_data
-        except:
+        except Exception as e:
+            # TODO: Do not write bare except
+            print("Exception occurred! ", e)
             logger.debug(
                 "Macro Atom Data was not found. Instead returning All Macro Atom Data"
             )
@@ -376,7 +378,7 @@ class RawRadBoundBoundTransProbs(
     transition_probabilities_outputs = ("p_rad_bb",)
 
     def __init__(self, plasma_parent):
-        super(RawRadBoundBoundTransProbs, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.normalize = False
 
     def calculate(

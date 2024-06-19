@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-from tardis import constants as const
 
+from tardis import constants as const
 from tardis.plasma.properties.base import (
-    ProcessingPlasmaProperty,
     DataFrameInput,
+    ProcessingPlasmaProperty,
 )
 from tardis.util.base import intensity_black_body
 
@@ -47,7 +47,7 @@ class JBluesDetailed(ProcessingPlasmaProperty):
     latex_name = "J_{\\textrm{blue}}"
 
     def __init__(self, plasma_parent, w_epsilon):
-        super(JBluesDetailed, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.w_epsilon = w_epsilon
 
     def calculate(
@@ -65,10 +65,9 @@ class JBluesDetailed(ProcessingPlasmaProperty):
 
             for i in range(len(t_rad)):
                 zero_j_blues = j_blues[i] == 0.0
-                j_blues[i][
-                    zero_j_blues
-                ] = self.w_epsilon * intensity_black_body(
-                    nu[zero_j_blues].values, t_rad[i]
+                j_blues[i][zero_j_blues] = (
+                    self.w_epsilon
+                    * intensity_black_body(nu[zero_j_blues].values, t_rad[i])
                 )
             return j_blues
 

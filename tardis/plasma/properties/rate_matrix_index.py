@@ -1,4 +1,5 @@
 import pandas as pd
+
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 __all__ = [

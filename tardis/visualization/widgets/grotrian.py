@@ -3,17 +3,22 @@ Grotrian Diagram Widget for TARDIS simulation models.
 
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
-from tardis.analysis import LastLineInteraction
-from tardis.util.base import species_tuple_to_string, species_string_to_tuple
-from tardis.util.base import int_to_roman
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+
+import ipywidgets as ipw
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from astropy import units as u
-import ipywidgets as ipw
+from plotly.subplots import make_subplots
+
+from tardis.analysis import LastLineInteraction
+from tardis.util.base import (
+    int_to_roman,
+    species_string_to_tuple,
+    species_tuple_to_string,
+)
 
 ANGSTROM_SYMBOL = "\u212B"
 
@@ -435,18 +440,18 @@ class GrotrianPlot:
         ]
 
         ### Map the levels to merged levels
-        excite_lines[
-            "merged_level_number_lower"
-        ] = excite_lines.level_number_lower.map(self.level_mapping)
-        excite_lines[
-            "merged_level_number_upper"
-        ] = excite_lines.level_number_upper.map(self.level_mapping)
-        deexcite_lines[
-            "merged_level_number_lower"
-        ] = deexcite_lines.level_number_lower.map(self.level_mapping)
-        deexcite_lines[
-            "merged_level_number_upper"
-        ] = deexcite_lines.level_number_upper.map(self.level_mapping)
+        excite_lines["merged_level_number_lower"] = (
+            excite_lines.level_number_lower.map(self.level_mapping)
+        )
+        excite_lines["merged_level_number_upper"] = (
+            excite_lines.level_number_upper.map(self.level_mapping)
+        )
+        deexcite_lines["merged_level_number_lower"] = (
+            deexcite_lines.level_number_lower.map(self.level_mapping)
+        )
+        deexcite_lines["merged_level_number_upper"] = (
+            deexcite_lines.level_number_upper.map(self.level_mapping)
+        )
 
         ### Group by level pairs
         excite_lines = (
@@ -513,12 +518,12 @@ class GrotrianPlot:
                 transform=self._transition_width_transform,
                 zero_undefined_offset=1e-3,
             )
-            excite_lines[
-                "transition_width_coefficient"
-            ] = transition_width_coefficient[: len(excite_lines)]
-            deexcite_lines[
-                "transition_width_coefficient"
-            ] = transition_width_coefficient[len(excite_lines) :]
+            excite_lines["transition_width_coefficient"] = (
+                transition_width_coefficient[: len(excite_lines)]
+            )
+            deexcite_lines["transition_width_coefficient"] = (
+                transition_width_coefficient[len(excite_lines) :]
+            )
 
         self.excite_lines = excite_lines
         self.deexcite_lines = deexcite_lines
@@ -606,16 +611,18 @@ class GrotrianPlot:
                     y=level_info.y_coord * np.ones(10),
                     mode="lines",
                     hovertemplate=f"Energy: {level_info.energy:.2e} eV<br>"
-                    + f"Population: {level_info.population:.2e}"
-                    + "<extra></extra>",
-                    line=dict(
-                        color="black",
-                        width=level_info.level_width_coefficient
-                        * self.level_width_scale
-                        + self.level_width_offset,
-                    )
-                    if level_info.population > 0
-                    else dict(color="grey", dash="dash"),
+                    f"Population: {level_info.population:.2e}"
+                    "<extra></extra>",
+                    line=(
+                        dict(
+                            color="black",
+                            width=level_info.level_width_coefficient
+                            * self.level_width_scale
+                            + self.level_width_offset,
+                        )
+                        if level_info.population > 0
+                        else dict(color="grey", dash="dash")
+                    ),
                     showlegend=False,
                 ),
                 row=1,
@@ -741,18 +748,20 @@ class GrotrianPlot:
 
             # Get the end arrow color (proportional to log wavelength)
             color_coef = line_info.color_coefficient
-            color = matplotlib.colors.rgb2hex(self._cmap(color_coef)[:3])
+            color = mpl.colors.rgb2hex(self._cmap(color_coef)[:3])
 
             # Draw arrow
             self.fig.add_trace(
                 go.Scatter(
                     x=[self.x_min, x_end],
-                    y=[y_lower, y_upper]
-                    if is_excitation
-                    else [y_upper, y_lower],
+                    y=(
+                        [y_lower, y_upper]
+                        if is_excitation
+                        else [y_upper, y_lower]
+                    ),
                     hovertemplate=f"Count: {int(line_info.num_electrons)}<br>"
-                    + f"Wavelength: {wavelength:.2e} {ANGSTROM_SYMBOL}"
-                    + "<extra></extra>",
+                    f"Wavelength: {wavelength:.2e} {ANGSTROM_SYMBOL}"
+                    "<extra></extra>",
                     marker=dict(
                         size=self.arrowhead_size,
                         color=color,
@@ -920,7 +929,7 @@ class GrotrianPlot:
             autosize=False,
             width=1000,
             height=700,
-            margin=dict(),
+            margin={},
             showlegend=False,
         )
 
@@ -1154,8 +1163,8 @@ class GrotrianWidget:
         """
         min_wavelength, max_wavelength = change["new"]
         index = self.fig.children.index(self.plot.fig)
-        setattr(self.plot, "min_wavelength", min_wavelength)
-        setattr(self.plot, "max_wavelength", max_wavelength + 1)
+        self.plot.min_wavelength = min_wavelength
+        self.plot.max_wavelength = max_wavelength + 1
 
         # Set the updated plot in the figure
         children_list = list(self.fig.children)

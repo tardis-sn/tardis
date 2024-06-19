@@ -1,11 +1,10 @@
 from enum import IntEnum
 
+import numpy as np
 from numba import float64, int64
 from numba.experimental import jitclass
-import numpy as np
 
 from tardis import constants as const
-
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -37,7 +36,7 @@ opacity_state_spec = [
 
 
 @jitclass(opacity_state_spec)
-class OpacityState(object):
+class OpacityState:
     def __init__(
         self,
         electron_density,
@@ -80,7 +79,6 @@ class OpacityState(object):
         transition_line_id : numpy.ndarray
         bf_threshold_list_nu : numpy.ndarray
         """
-
         self.electron_density = electron_density
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
@@ -127,7 +125,6 @@ def opacity_state_initialize(
     plasma : tardis.plasma.BasePlasma
     line_interaction_type : enum
     """
-
     electron_densities = plasma.electron_densities.values
     t_electrons = plasma.t_electrons
     line_list_nu = plasma.atomic_data.lines.nu.values

@@ -1,13 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from tardis.io.configuration.config_reader import (
+        Configuration,
+        ConfigurationNameSpace,
+    )
+    from typing import Tuple
+
 import numpy as np
 from astropy import units as u
 
-from tardis.io.configuration.config_reader import (
-    ConfigurationNameSpace,
-    Configuration,
-)
 from tardis.util.base import quantity_linspace
-
-from typing import Tuple
 
 
 def parse_density_section(
@@ -21,7 +26,6 @@ def parse_density_section(
 
     Parameters
     ----------
-
     density_configuration : tardis.io.config_reader.Configuration
     v_middle : astropy.Quantity
         middle of the velocity bins
@@ -82,7 +86,6 @@ def parse_config_v1_density(config: Configuration) -> u.Quantity:
     density: u.Quantity
 
     """
-
     velocity = quantity_linspace(
         config.model.structure.velocity.start,
         config.model.structure.velocity.stop,
@@ -218,5 +221,4 @@ def calculate_density_after_time(
     scaled_density : astropy.units.Quantity
         in g / cm^3
     """
-
     return (densities * (time_explosion / time_0) ** -3).to(u.g / (u.cm**3))

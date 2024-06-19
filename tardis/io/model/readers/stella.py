@@ -12,17 +12,17 @@ class STELLAModel:
 
 
 HEADER_RE_STR = [
-    ("\s+days post max Lbol\s+(\d+\.\d*)", "t_max"),
-    ("\s+zones\s+(\d+)", "zones"),
+    (r"\s+days post max Lbol\s+(\d+\.\d*)", "t_max"),
+    (r"\s+zones\s+(\d+)", "zones"),
     (
-        "\s+inner boundary mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+",
+        r"\s+inner boundary mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+",
         "inner_boundary_mass",
     ),
-    ("\s+total mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", "total_mass"),
+    (r"\s+total mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", "total_mass"),
 ]
 
 DATA_START_ROW = 5
-COLUMN_WITH_UNIT_RE = re.compile("(.+)\s+\((.+)\)")
+COLUMN_WITH_UNIT_RE = re.compile(r"(.+)\s+\((.+)\)")
 
 
 def read_stella_model(fname):
@@ -31,7 +31,6 @@ def read_stella_model(fname):
 
     Parameters
     ----------
-
     fname : str
 
     Returns
@@ -50,10 +49,9 @@ def read_stella_model(fname):
                 if "mass of cell" in line:
                     column_names_raw = re.split(r"\s{3,}", line.strip())
                     break
-                else:
-                    raise ValueError(
-                        '"mass of cell" is required in the Stella input file to infer columns'
-                    )
+                raise ValueError(
+                    '"mass of cell" is required in the Stella input file to infer columns'
+                )
 
         metadata["t_max"] = float(metadata["t_max"]) * u.day
         metadata["zones"] = int(metadata["zones"])

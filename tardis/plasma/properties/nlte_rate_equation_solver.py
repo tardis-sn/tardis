@@ -299,9 +299,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
                     < NLTE_POPULATION_SOLVER_TOLERANCE
                 ):
                     logger.debug(
-                        "NLTE ionization solver converged after {} iterations for shell {}".format(
-                            iteration, shell
-                        )
+                        f"NLTE ionization solver converged after {iteration} iterations for shell {shell}"
                     )
                     break
 
@@ -717,9 +715,9 @@ def calculate_rate_matrix(
                 total_coll_ion_coefficients.loc[(atomic_number,)],
                 total_coll_recomb_coefficients.loc[(atomic_number,)],
             )
-        rate_matrix.loc[
-            (atomic_number, slice(None)), (atomic_number)
-        ] = rate_matrix_block
+        rate_matrix.loc[(atomic_number, slice(None)), (atomic_number)] = (
+            rate_matrix_block
+        )
 
     charge_conservation_row = calculate_charge_conservation_row(atomic_numbers)
     if set_charge_conservation:

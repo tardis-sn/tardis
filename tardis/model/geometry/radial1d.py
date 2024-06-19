@@ -1,8 +1,9 @@
-from numba import float64
-from numba.experimental import jitclass
+import warnings
+
 import numpy as np
 from astropy import units as u
-import warnings
+from numba import float64
+from numba.experimental import jitclass
 
 
 class HomologousRadial1DGeometry:
@@ -193,7 +194,7 @@ numba_geometry_spec = [
 
 
 @jitclass(numba_geometry_spec)
-class NumbaRadial1DGeometry(object):
+class NumbaRadial1DGeometry:
     def __init__(self, r_inner, r_outer, v_inner, v_outer):
         """
         Radial 1D Geometry for the Numba mode

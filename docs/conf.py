@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 #
 # Astropy documentation build configuration file.
@@ -25,14 +24,13 @@
 # Thus, any C-extensions that are needed to build the documentation will *not*
 # be accessible, and the documentation will not build correctly.
 
+import datetime
 import os
 import sys
-import datetime
-import tardis  # FIXME: this import is required by astropy.constants
 from importlib import import_module
 
 try:
-    from sphinx_astropy.conf.v1 import *  # noqa
+    from sphinx_astropy.conf.v1 import *
 except ImportError:
     print(
         "ERROR: the documentation requires the sphinx-astropy package to be installed"
@@ -132,7 +130,7 @@ nbsphinx_execute_arguments = [
 nbsphinx_prolog = r"""
 {% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
 .. raw:: html
-    
+
     <style>
         /* strip stderr */
         div.nboutput.container div.output_area.stderr {
@@ -167,7 +165,7 @@ nbsphinx_prolog = r"""
             line-height: 2em;
         }
     </style>
-    
+
     <div class="admonition note">
     <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
     </div>
@@ -184,7 +182,7 @@ else:
 # This does not *have* to match the package name, but typically does
 project = setup_cfg["name"]
 author = setup_cfg["author"]
-copyright = "2013-{0}, {1}".format(datetime.datetime.now().year, author)
+copyright = f"2013-{datetime.datetime.now().year}, {author}"
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -288,7 +286,7 @@ if setup_cfg.get("edit_on_github").lower() == "true":
     edit_on_github_doc_root = "docs"
 
 # -- Resolving issue number to links in changelog -----------------------------
-github_issues_url = "https://github.com/{0}/issues/".format(
+github_issues_url = "https://github.com/{}/issues/".format(
     setup_cfg["github_project"]
 )
 
@@ -356,7 +354,7 @@ def generate_tutorials_page(app):
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
 
-    with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
+    with open("tutorials.rst", mode="w", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
 def generate_how_to_guides_page(app):
@@ -371,7 +369,7 @@ def generate_how_to_guides_page(app):
     title = "How-To Guides\n*********\n"
     description = "The following pages contain the TARDIS how-to guides:"
 
-    with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
+    with open("how_to_guides.rst", mode="w", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
 

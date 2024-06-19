@@ -93,7 +93,9 @@ class LastLineInteraction:
         try:
             self._atomic_number = value
             self.update_last_interaction_filter()
-        except:
+        except Exception as e:
+            # TODO: Do not write bare except
+            print("Exception occurred! ", e)
             self._atomic_number = old_atomic_number
             raise ValueError(INVALID_ION_ERROR_MSG)
 
@@ -107,7 +109,9 @@ class LastLineInteraction:
         try:
             self._ion_number = value
             self.update_last_interaction_filter()
-        except:
+        except Exception as e:
+            # TODO: Do not write bare except
+            print("Exception occurred! ", e)
             self._ion_number = old_ion_number
             raise ValueError(INVALID_ION_ERROR_MSG)
 
@@ -118,7 +122,9 @@ class LastLineInteraction:
             self._atomic_number = atomic_number
             self._ion_number = ion_number
             self.update_last_interaction_filter()
-        except:
+        except Exception as e:
+            # TODO: Do not write bare except
+            print("Exception occurred! ", e)
             self._atomic_number = old_atomic_number
             self._ion_number = old_ion_number
             raise ValueError(INVALID_ION_ERROR_MSG)
@@ -133,7 +139,9 @@ class LastLineInteraction:
         try:
             self._shell = value
             self.update_last_interaction_filter()
-        except:
+        except Exception as e:
+            # TODO: Do not write bare except
+            print("Exception occurred! ", e)
             self._shell = old_shell
             raise ValueError("Invalid shell number")
 

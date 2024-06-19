@@ -1,7 +1,7 @@
-from astropy import units as u
-from numba import float64, int64, boolean
-from numba.experimental import jitclass
 import numpy as np
+from astropy import units as u
+from numba import boolean, float64, int64
+from numba.experimental import jitclass
 
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,
@@ -29,7 +29,7 @@ numba_config_spec = [
 
 
 @jitclass(numba_config_spec)
-class MonteCarloConfiguration(object):
+class MonteCarloConfiguration:
     def __init__(self):
         self.ENABLE_FULL_RELATIVITY = False
         self.TEMPORARY_V_PACKET_BINS = 0

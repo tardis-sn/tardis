@@ -1,7 +1,8 @@
-import pytest
-import tardis.transport.montecarlo.numba_interface as numba_interface
-import numpy.testing as npt
 import numpy as np
+import numpy.testing as npt
+import pytest
+
+import tardis.transport.montecarlo.numba_interface as numba_interface
 
 
 @pytest.mark.parametrize("input_params", ["scatter", "macroatom", "downbranch"])
@@ -59,7 +60,7 @@ def test_opacity_state_initialize(nb_simulation_verysimple, input_params):
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_configuration_initialize():
-    assert False
+    raise AssertionError()
 
 
 def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):

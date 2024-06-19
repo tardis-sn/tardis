@@ -15,7 +15,7 @@ import yaml
 from astropy import units as u
 from astropy.utils.data import download_file
 
-from tardis import __path__ as TARDIS_PATH
+from tardis import TARDIS_PATH
 from tardis import constants as const
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ def quantity_from_str(text):
     return u.Quantity(value, unit_str)
 
 
-class MockRegexPattern(object):
+class MockRegexPattern:
     """
     A mock class to be used in place of a compiled regular expression
     when a type check is needed instead of a regex match.
@@ -188,9 +188,9 @@ def check_equality(item1, item2):
         return True
 
 
-class HDFWriterMixin(object):
+class HDFWriterMixin:
     def __new__(cls, *args, **kwargs):
-        instance = super(HDFWriterMixin, cls).__new__(cls)
+        instance = super().__new__(cls)
         instance.optional_hdf_properties = []
         instance.__init__(*args, **kwargs)
         return instance
@@ -236,20 +236,19 @@ class HDFWriterMixin(object):
                 "to overwrite it, set function parameter overwrite=True"
             )
 
-        else:
-            try:  # when path_or_buf is a str, the HDFStore should get created
-                buf = pd.HDFStore(
-                    path_or_buf, complevel=complevel, complib=complib
+        try:  # when path_or_buf is a str, the HDFStore should get created
+            buf = pd.HDFStore(
+                path_or_buf, complevel=complevel, complib=complib
+            )
+        except TypeError as e:
+            if str(e) == "Expected bytes, got HDFStore":
+                # when path_or_buf is an HDFStore buffer instead
+                logger.debug(
+                    "Expected bytes, got HDFStore. Changing path to HDF buffer"
                 )
-            except TypeError as e:
-                if str(e) == "Expected bytes, got HDFStore":
-                    # when path_or_buf is an HDFStore buffer instead
-                    logger.debug(
-                        "Expected bytes, got HDFStore. Changing path to HDF buffer"
-                    )
-                    buf = path_or_buf
-                else:
-                    raise e
+                buf = path_or_buf
+            else:
+                raise e
 
         if not buf.is_open:
             buf.open()
@@ -382,9 +381,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
             If the HDF file path already exists, whether to overwrite it or not
         """
         self.collection = collection
-        super(PlasmaWriterMixin, self).to_hdf(
-            file_path_or_buf, path, name, overwrite
-        )
+        super().to_hdf(file_path_or_buf, path, name, overwrite)
 
 
 @lru_cache(maxsize=None)
@@ -400,7 +397,6 @@ def download_from_url(url, dst, checksum, src=None, retries=3):
     src : tuple
         List of URLs to use as mirrors
     """
-
     cached_file_path = download_file(url, sources=src, pkgname="tardis")
 
     with open(cached_file_path, "rb") as f:

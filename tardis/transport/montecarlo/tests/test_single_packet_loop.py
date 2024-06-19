@@ -1,6 +1,5 @@
-import pytest
-
 import numpy.testing as npt
+import pytest
 
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.single_packet_loop import (
@@ -49,9 +48,9 @@ def test_verysimple_single_packet_loop(
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_set_packet_props_partial_relativity():
-    assert False
+    raise AssertionError()
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_set_packet_props_full_relativity():
-    assert False
+    raise AssertionError()

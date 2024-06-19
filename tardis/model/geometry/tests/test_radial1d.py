@@ -1,10 +1,9 @@
-from astropy import units as u
 import numpy as np
 import numpy.testing as npt
+import pytest
+from astropy import units as u
 
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
-
-import pytest
 
 
 @pytest.fixture(scope="function")

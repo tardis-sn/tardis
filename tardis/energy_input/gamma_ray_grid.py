@@ -1,12 +1,12 @@
 import numpy as np
 from numba import njit
 
-from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.energy_input.util import (
+    C_CGS,
     doppler_factor_3d,
     solve_quadratic_equation,
-    C_CGS,
 )
+from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 @njit(**njit_dict_no_parallel)
@@ -25,7 +25,6 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     distance : float
 
     """
-
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(

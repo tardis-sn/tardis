@@ -1,24 +1,18 @@
 import warnings
+
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
-from scipy.interpolate import interp1d
 from astropy import units as u
+from numba import njit, prange
+from scipy.interpolate import interp1d
+
 from tardis import constants as const
-from numba import njit, char, float64, int64, typeof, byte, prange
-from numba.experimental import jitclass
-
-
-from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
-from tardis.transport.montecarlo.numba_interface import (
-    opacity_state_initialize,
-    OpacityState,
-)
-from tardis.transport.montecarlo.formal_integral_cuda import (
-    CudaFormalIntegrator,
-)
+from tardis.transport.montecarlo.numba_interface import opacity_state_initialize
+from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
+from tardis.transport.montecarlo.formal_integral_cuda import CudaFormalIntegrator
 
 from tardis.spectrum import TARDISSpectrum
 
@@ -56,8 +50,7 @@ def numba_formal_integral(
         intensities at each p-ray multiplied by p
         frequency x p-ray grid
     """
-
-    # todo: add all the original todos
+    # TODO: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
     # global read-only values
@@ -210,7 +203,7 @@ def numba_formal_integral(
 
 
 # @jitclass(integrator_spec)
-class NumbaFormalIntegrator(object):
+class NumbaFormalIntegrator:
     """
     Helper class for performing the formal integral
     with numba.
@@ -253,7 +246,7 @@ class NumbaFormalIntegrator(object):
         )
 
 
-class FormalIntegrator(object):
+class FormalIntegrator:
     """
     Class containing the formal integrator.
 
@@ -293,7 +286,8 @@ class FormalIntegrator(object):
 
     def generate_numba_objects(self):
         """instantiate the numba interface objects
-        needed for computing the formal integral"""
+        needed for computing the formal integral
+        """
         from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
         self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
@@ -338,9 +332,8 @@ class FormalIntegrator(object):
         def raise_or_return(message):
             if raises:
                 raise IntegrationError(message)
-            else:
-                warnings.warn(message)
-                return False
+            warnings.warn(message)
+            return False
 
         for obj in (self.simulation_state, self.plasma, self.transport):
             if obj is None:
@@ -350,7 +343,7 @@ class FormalIntegrator(object):
                     "FormalIntegrator."
                 )
 
-        if not self.transport.line_interaction_type in [
+        if self.transport.line_interaction_type not in [
             "downbranch",
             "macroatom",
         ]:
@@ -610,7 +603,8 @@ class FormalIntegrator(object):
 
     def formal_integral(self, nu, N):
         """Do the formal integral with the numba
-        routines"""
+        routines
+        """
         # TODO: get rid of storage later on
 
         res = self.make_source_function()

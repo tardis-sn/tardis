@@ -1,9 +1,8 @@
 import logging
-
 from abc import ABCMeta, abstractmethod, abstractproperty
+
 import numpy as np
 import pandas as pd
-
 
 __all__ = [
     "BasePlasmaProperty",
@@ -19,7 +18,7 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-class BasePlasmaProperty(object, metaclass=ABCMeta):
+class BasePlasmaProperty(metaclass=ABCMeta):
     """
     Attributes
     ----------
@@ -75,7 +74,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
     """
 
     def __init__(self, plasma_parent):
-        super(ProcessingPlasmaProperty, self).__init__()
+        super().__init__()
         self.plasma_parent = plasma_parent
         self._update_inputs()
         self.frozen = False
@@ -114,7 +113,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
                 for i, output in enumerate(self.outputs):
                     setattr(self, output, new_values[i])
         else:
-            logger.info("{} has been frozen!".format(self.name))
+            logger.info(f"{self.name} has been frozen!")
 
     @abstractmethod
     def calculate(self, *args, **kwargs):
@@ -132,7 +131,7 @@ class HiddenPlasmaProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
     """
 
     def __init__(self, plasma_parent):
-        super(HiddenPlasmaProperty, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
 
 
 class TransitionProbabilitiesProperty(
@@ -159,7 +158,7 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
 
     def __init__(self, plasma_parent):
 
-        super(BaseAtomicDataProperty, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.value = None
 
     @abstractmethod

@@ -1,18 +1,12 @@
 import os
-from astropy import units as u
-from tardis import io
-from tardis.io.model.readers.generic_readers import ConfigurationError
 
 import numpy.testing as npt
-
 import pytest
+from astropy import units as u
 
-import numpy as np
-
-from pathlib import Path
 from tardis.io.model.readers.base import read_density_file
-
 from tardis.io.model.readers.generic_readers import (
+    ConfigurationError,
     read_simple_ascii_abundances,
     read_simple_ascii_density,
 )
@@ -21,7 +15,11 @@ test_data_directory = os.path.dirname(__file__)
 
 
 def test_simple_ascii_density_reader_time(example_model_file_dir):
-    (time_model, velocity, density,) = read_simple_ascii_density(
+    (
+        time_model,
+        velocity,
+        density,
+    ) = read_simple_ascii_density(
         example_model_file_dir / "tardis_simple_ascii_density_test.dat"
     )
 
@@ -32,7 +30,10 @@ def test_simple_ascii_density_reader_time(example_model_file_dir):
 
 
 def test_simple_ascii_abundance_reader(example_model_file_dir):
-    (index, abundances,) = read_simple_ascii_abundances(
+    (
+        index,
+        abundances,
+    ) = read_simple_ascii_abundances(
         example_model_file_dir / "artis_abundances.dat"
     )
 

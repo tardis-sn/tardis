@@ -1,7 +1,8 @@
 import logging
+
+import astropy.units as u
 import numpy as np
 import pandas as pd
-import astropy.units as u
 import radioactivedecay as rd
 
 from tardis.energy_input.energy_source import (
@@ -317,10 +318,12 @@ def decay_chain_energies(
 
 def fractional_decay_energy(decay_energy):
     """Function to calculate fractional decay energy
+
     Parameters
     ----------
     decay_energy : Dict
         dictionary of decay chain energies for each isotope in each shell
+
     Returns
     -------
     fractional_decay_energy : Dict
@@ -450,7 +453,7 @@ def packets_per_isotope(fractional_decay_energy, decayed_packet_count_dict):
 
     packets_per_isotope_list = []
     for shell, parent_isotope in packets_per_isotope.items():
-        for isotopes, isotope_dict in parent_isotope.items():
+        for isotope_dict in parent_isotope.values():
             for name, value in isotope_dict.items():
                 packets_per_isotope_list.append(
                     {

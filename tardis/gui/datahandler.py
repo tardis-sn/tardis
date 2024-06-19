@@ -1,40 +1,33 @@
 import os
+
+import matplotlib as mpl
 from pkg_resources import parse_version
 
-import numpy as np
-import matplotlib
-import matplotlib.pylab as plt
-
-
 if os.environ.get("QT_API", None) == "pyqt":
-    from PyQt5 import QtGui, QtCore, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWidgets
 elif os.environ.get("QT_API", None) == "pyside":
-    from PySide2 import QtGui, QtCore, QtWidgets
+    from PySide2 import QtCore, QtGui, QtWidgets
 else:
     raise ImportError(
         """QT_API was not set! Please exit the IPython console\n
          and at the bash prompt use : \n\n export QT_API=pyside \n or\n
          export QT_API=pyqt \n\n For more information refer to user guide."""
     )
-import yaml
 
-from tardis import run_tardis
-from tardis.gui.widgets import MatplotlibWidget, ModelViewer, ShellInfo
-from tardis.gui.widgets import LineInfo, LineInteractionTables
 
-if parse_version(matplotlib.__version__) >= parse_version("1.4"):
-    matplotlib.style.use("fivethirtyeight")
+if parse_version(mpl.__version__) >= parse_version("1.4"):
+    mpl.style.use("fivethirtyeight")
 else:
     print("Please upgrade matplotlib to a version >=1.4 for best results!")
-matplotlib.rcParams["font.family"] = "serif"
-matplotlib.rcParams["font.size"] = 10.0
-matplotlib.rcParams["lines.linewidth"] = 1.0
-matplotlib.rcParams["axes.formatter.use_mathtext"] = True
-matplotlib.rcParams["axes.edgecolor"] = matplotlib.rcParams["grid.color"]
-matplotlib.rcParams["axes.linewidth"] = matplotlib.rcParams["grid.linewidth"]
+mpl.rcParams["font.family"] = "serif"
+mpl.rcParams["font.size"] = 10.0
+mpl.rcParams["lines.linewidth"] = 1.0
+mpl.rcParams["axes.formatter.use_mathtext"] = True
+mpl.rcParams["axes.edgecolor"] = mpl.rcParams["grid.color"]
+mpl.rcParams["axes.linewidth"] = mpl.rcParams["grid.linewidth"]
 
 
-class Node(object):
+class Node:
     """Object that serves as the nodes in the TreeModel.
 
     Attributes
@@ -201,7 +194,8 @@ class TreeModel(QtCore.QAbstractItemModel):
 
     def data(self, index, role):
         """Returns the asked data for the node specified by the modeLabel
-        index."""
+        index.
+        """
         if not index.isValid():
             return None
 
@@ -500,7 +494,7 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         """Call constructor of the QAbstractTableModel and set parameters
         given by user.
         """
-        super(SimpleTableModel, self).__init__(parent, *args)
+        super().__init__(parent, *args)
         self.headerdata = headerdata
         self.arraydata = []
         self.iterate_header = iterate_header
@@ -550,7 +544,8 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         """Change the data in the model for specified index and role
-        to specified value."""
+        to specified value.
+        """
         if not index.isValid():
             return False
         elif role != QtCore.Qt.EditRole:

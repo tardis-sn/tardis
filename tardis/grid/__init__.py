@@ -1,6 +1,6 @@
 """
-Storing a grid of TARDIS parameters that 
-facilitates running large numbers of 
+Storing a grid of TARDIS parameters that
+facilitates running large numbers of
 simulations easily.
 """
 

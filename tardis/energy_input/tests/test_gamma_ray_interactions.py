@@ -1,27 +1,25 @@
-import pytest
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 from tardis.energy_input.gamma_ray_interactions import (
-    compton_scatter,
     pair_creation_packet,
     scatter_type,
 )
-from tardis.energy_input.util import ELECTRON_MASS_ENERGY_KEV, H_CGS_KEV
-
 from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.energy_input.util import ELECTRON_MASS_ENERGY_KEV, H_CGS_KEV
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_get_compton_angle():
     """Test the Compton angle calculation"""
-    assert False
+    raise AssertionError()
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_compton_scatter():
     """Test Compton scattering"""
-    assert False
+    raise AssertionError()
 
 
 def test_pair_creation(basic_gamma_ray):

@@ -1,22 +1,18 @@
 from copy import deepcopy
 
-import pytest
 import numpy as np
+import pytest
 from numba import njit
-from tardis.transport.montecarlo.packet_collections import (
-    VPacketCollection,
-)
 
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-
-
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )
+from tardis.transport.montecarlo.packet_collections import VPacketCollection
 
 
 @pytest.fixture(scope="package")

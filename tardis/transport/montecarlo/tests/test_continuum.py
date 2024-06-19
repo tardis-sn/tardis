@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 import numpy.testing as npt
-import pytest
 
 from tardis.simulation import Simulation
 

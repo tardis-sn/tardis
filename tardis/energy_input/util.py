@@ -1,8 +1,8 @@
 import astropy.units as u
-import tardis.constants as const
 import numpy as np
 from numba import njit
 
+import tardis.constants as const
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.opacities import kappa_calculation
 
@@ -42,7 +42,8 @@ def spherical_to_cartesian(r, theta, phi):
 def get_random_unit_vector():
     """Generate a random unit vector
 
-    Returns:
+    Returns
+    -------
         array: random unit vector
     """
     theta = get_random_theta_photon()
@@ -218,9 +219,9 @@ def klein_nishina(energy, theta_C):
     https://en.wikipedia.org/wiki/Klein%E2%80%93Nishina_formula
 
     .. math::
-        \frac{r_e}{2} [1 + \kappa (1 - \cos\theta_C)]^{-2} \left( 1 + \cos^2\theta_C + \frac{\kappa^2 (1 - \cos\theta_C)^2}{1 + \kappa(1 - \cos\theta_C)}\right)
+        \frac{r_e}{2} [1 + \\kappa (1 - \\cos\theta_C)]^{-2} \\left( 1 + \\cos^2\theta_C + \frac{\\kappa^2 (1 - \\cos\theta_C)^2}{1 + \\kappa(1 - \\cos\theta_C)}\right)
 
-    where :math:`\kappa = E / (m_e c^2)`
+    where :math:`\\kappa = E / (m_e c^2)`
 
     Parameters
     ----------
@@ -228,6 +229,7 @@ def klein_nishina(energy, theta_C):
         Packet energy
     theta_C : float
         Compton angle
+
     Returns
     -------
     float
@@ -275,6 +277,7 @@ def compton_theta_distribution(energy, sample_resolution=100):
 @njit(**njit_dict_no_parallel)
 def get_random_theta_photon():
     """Get a random theta direction between 0 and pi
+
     Returns
     -------
     float

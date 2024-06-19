@@ -1,11 +1,10 @@
-import os
-from matplotlib import pyplot as plt
+import numpy as np
+import pandas as pd
 from matplotlib import colors
+from matplotlib import pyplot as plt
 
 import tardis.util.base
 from tardis.io.atom_data import AtomData
-import numpy as np
-import pandas as pd
 
 # Making 2 Figures for ionization balance and level populations
 
@@ -70,9 +69,8 @@ for ion_number in [0, 1, 2, 3]:
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
-        "%s-" % ion_colors[ion_number],
-        label="Si %s W=1.0"
-        % tardis.util.base.int_to_roman(ion_number + 1).upper(),
+        f"{ion_colors[ion_number]}-",
+        label=f"Si {tardis.util.base.int_to_roman(ion_number + 1).upper()} W=1.0",
     )
 
 

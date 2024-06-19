@@ -1,10 +1,9 @@
 import logging
 
 import numpy as np
-import pandas as pd
 from astropy import units as u
-from tardis import constants as const
 
+from tardis import constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
@@ -33,7 +32,7 @@ class BetaRadiation(ProcessingPlasmaProperty):
     latex_formula = (r"\dfrac{1}{k_{B} T_{\textrm{rad}}}",)
 
     def __init__(self, plasma_parent):
-        super(BetaRadiation, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.k_B_cgs = const.k_B.cgs.value
 
     def calculate(self, t_rad):
@@ -74,7 +73,7 @@ class ThermalGElectron(GElectron):
     )
 
     def calculate(self, beta_electron):
-        return super(ThermalGElectron, self).calculate(beta_electron)
+        return super().calculate(beta_electron)
 
 
 class SelectedAtoms(ProcessingPlasmaProperty):
@@ -118,7 +117,7 @@ class BetaElectron(ProcessingPlasmaProperty):
     latex_formula = (r"\frac{1}{K_{B} T_{\textrm{electron}}}",)
 
     def __init__(self, plasma_parent):
-        super(BetaElectron, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.k_B_cgs = const.k_B.cgs.value
 
     def calculate(self, t_electrons):

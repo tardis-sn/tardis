@@ -1,13 +1,11 @@
-import pytest
 import numpy as np
-from tardis import constants as c
-
-from copy import deepcopy
 import numpy.testing as ntest
+import pytest
 
-from tardis.util.base import intensity_black_body
 import tardis.transport.montecarlo.formal_integral as formal_integral
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.util.base import intensity_black_body
+from tardis import constants as c
 
 
 @pytest.mark.parametrize(

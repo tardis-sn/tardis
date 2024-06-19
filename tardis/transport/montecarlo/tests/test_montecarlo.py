@@ -18,6 +18,9 @@ from tardis.transport.frame_transformations import (
     angle_aberration_LF_to_CMF,
     get_doppler_factor,
 )
+from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+    RadiationFieldMCEstimators,
+)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -39,15 +42,10 @@ def continuum_compare_data_fname():
 
 
 @pytest.fixture(scope="module")
-def continuum_compare_data(continuum_compare_data_fname, request):
+def continuum_compare_data(continuum_compare_data_fname):
     compare_data = pd.HDFStore(continuum_compare_data_fname, mode="r")
-
-    def fin():
-        compare_data.close()
-
-    request.addfinalizer(fin)
-
-    return compare_data
+    yield compare_data
+    compare_data.close()
 
 
 @pytest.fixture(scope="function")
@@ -190,15 +188,6 @@ def test_binary_search(x, x_insert, imin, imax, expected_params):
     obtained_result = formal_integral.binary_search(x, x_insert, imin, imax)
 
     assert obtained_result == expected_params["result"]
-
-
-def test_get_random_mu_different_output():
-    """
-    Ensure that different calls results
-    """
-    output1 = r_packet.get_random_mu()
-    output2 = r_packet.get_random_mu()
-    assert output1 != output2
 
 
 def test_get_random_mu_different_output():
@@ -589,7 +578,6 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
         (-0.7, 7.5e14, 1 / 5.2e5),
         (0.3, 7.5e14, 1 / 2.2e5),
         (0.0, 7.5e14, 1 / 2.2e5),
-        (-0.7, 7.5e14, 1 / 5.2e5),
     ],
 )
 def test_angle_transformation_invariance(mu, r, inv_t_exp):

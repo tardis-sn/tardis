@@ -2,12 +2,12 @@ import numpy as np
 import pandas as pd
 import radioactivedecay as rd
 
+from tardis.energy_input.util import (
+    ELECTRON_MASS_ENERGY_KEV,
+    convert_half_life_to_astropy_units,
+)
 from tardis.util.base import (
     atomic_number2element_symbol,
-)
-from tardis.energy_input.util import (
-    convert_half_life_to_astropy_units,
-    ELECTRON_MASS_ENERGY_KEV,
 )
 
 
@@ -93,7 +93,7 @@ def get_all_isotopes(abundances):
     isotopes = set(progenitors)
     check = True
 
-    while check == True:
+    while check is True:
         progeny = set(isotopes)
 
         for i in isotopes:
@@ -109,7 +109,7 @@ def get_all_isotopes(abundances):
         else:
             isotopes |= progeny
 
-    isotopes = [i for i in isotopes]
+    isotopes = list(isotopes)
     return isotopes
 
 
@@ -207,7 +207,6 @@ def positronium_continuum():
     intensity
         An array of intensities between 0 and 1
     """
-
     energy = np.linspace(1, ELECTRON_MASS_ENERGY_KEV, num=100, endpoint=False)
 
     x = energy / ELECTRON_MASS_ENERGY_KEV

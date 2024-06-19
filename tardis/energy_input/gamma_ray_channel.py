@@ -1,7 +1,7 @@
 import logging
-import numpy as np
-import pandas as pd
+
 import astropy.units as u
+import pandas as pd
 import radioactivedecay as rd
 
 from tardis.energy_input.util import KEV2ERG
@@ -51,6 +51,7 @@ def create_inventories_dict(isotope_dict):
     ----------
     isotope_dict : Dict
         dictionary of isotopes for each shell with their ``masses``.
+
     Returns
     -------
         inv : Dict
@@ -125,7 +126,6 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
         dataframe of isotopes for each shell with their decay mode, number of decays, radiation type,
         radiation energy and radiation intensity.
     """
-
     gamma_ray_lines = gamma_ray_lines.rename_axis(
         "isotope"
     )  # renaming "Isotope" in nndc to "isotope"

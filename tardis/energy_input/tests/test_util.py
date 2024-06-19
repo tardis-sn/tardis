@@ -35,25 +35,25 @@ def test_spherical_to_cartesian(
 @pytest.mark.xfail(reason="To be removed")
 def test_doppler_gamma():
     """Test the doppler shift"""
-    assert False
+    raise AssertionError()
 
 
 @pytest.mark.xfail(reason="To be removed")
 def test_angle_aberration_gamma():
     """Test the angle aberration equation"""
-    assert False
+    raise AssertionError()
 
 
 @pytest.mark.xfail(reason="To be removed")
 def test_euler_rodrigues():
     """Test Euler-Rodrigues rotation"""
-    assert False
+    raise AssertionError()
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_solve_quadratic_equation():
     """Test the quadratic solver"""
-    assert False
+    raise AssertionError()
 
 
 @pytest.mark.parametrize(

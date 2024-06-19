@@ -14,14 +14,6 @@ from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model import SimulationState
-from tardis.transport.montecarlo import RPacket
-from tardis.transport.montecarlo.numba_interface import (
-    NumbaModel,
-    opacity_state_initialize,
-)
-from tardis.transport.montecarlo.packet_collections import (
-    VPacketCollection,
-)
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 from tardis.tests.fixtures.regression_data import RegressionData
@@ -32,8 +24,15 @@ from tardis.transport.montecarlo.packet_collections import (
 
 
 class BenchmarkBase:
-    # It allows 10 minutes of runtime for each benchmark and includes
-    # the total time for all the repetitions for each benchmark.
+    """
+    Base Benchmark Class.
+
+    Notes
+    -----
+    It allows 10 minutes of runtime for each benchmark and includes
+    the total time for all the repetitions for each benchmark.
+    """
+
     timeout = 600
 
     def __init__(self):
@@ -77,8 +76,7 @@ class BenchmarkBase:
         if atomic_data.md5 != DEFAULT_ATOM_DATA_UUID:
             message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_UUID}")'
             raise Exception(message)
-        else:
-            return atomic_data
+        return atomic_data
 
     @property
     def atomic_data_fname(self):
@@ -163,6 +161,10 @@ class BenchmarkBase:
         )
 
     class CustomPyTestRequest:
+        """
+        Modify pytest request object.
+        """
+
         def __init__(
             self,
             tardis_regression_data_path: str,

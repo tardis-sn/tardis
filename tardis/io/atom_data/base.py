@@ -168,8 +168,8 @@ class AtomData:
             Path to the HDFStore file or name of known atom data file
             (default: None)
         """
-        dataframes = dict()
-        nonavailable = list()
+        dataframes = {}
+        nonavailable = []
 
         fname = resolve_atom_data_fname(fname)
 
@@ -259,11 +259,8 @@ class AtomData:
                 f"Reading Atom Data with: UUID = {atom_data.uuid1} MD5  = {atom_data.md5} "
             )
             if nonavailable:
-                logger.info(
-                    "Non provided Atomic Data: {0}".format(
-                        ", ".join(nonavailable)
-                    )
-                )
+                nonavailable_joined = ", ".join(nonavailable)
+                logger.info("Non provided Atomic Data: %s", nonavailable_joined)
 
         return atom_data
 
@@ -503,9 +500,9 @@ class AtomData:
         )
 
         level_idxs2continuum_idx = self.photo_ion_levels_idx.copy()
-        level_idxs2continuum_idx[
-            "continuum_idx"
-        ] = self.level2continuum_edge_idx
+        level_idxs2continuum_idx["continuum_idx"] = (
+            self.level2continuum_edge_idx
+        )
         self.level_idxs2continuum_idx = level_idxs2continuum_idx.set_index(
             ["source_level_idx", "destination_level_idx"]
         )
@@ -539,31 +536,33 @@ class AtomData:
                 self.macro_atom_references = self.macro_atom_references.loc[
                     self.macro_atom_references["count_down"] > 0
                 ]
-                self.macro_atom_references.loc[
-                    :, "count_total"
-                ] = self.macro_atom_references["count_down"]
-                self.macro_atom_references.loc[
-                    :, "block_references"
-                ] = np.hstack(
-                    (
-                        0,
-                        np.cumsum(
-                            self.macro_atom_references["count_down"].values[:-1]
-                        ),
+                self.macro_atom_references.loc[:, "count_total"] = (
+                    self.macro_atom_references["count_down"]
+                )
+                self.macro_atom_references.loc[:, "block_references"] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references["count_down"].values[
+                                    :-1
+                                ]
+                            ),
+                        )
                     )
                 )
 
             elif line_interaction_type == "macroatom":
-                self.macro_atom_references.loc[
-                    :, "block_references"
-                ] = np.hstack(
-                    (
-                        0,
-                        np.cumsum(
-                            self.macro_atom_references["count_total"].values[
-                                :-1
-                            ]
-                        ),
+                self.macro_atom_references.loc[:, "block_references"] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references[
+                                    "count_total"
+                                ].values[:-1]
+                            ),
+                        )
                     )
                 )
 
@@ -681,12 +680,12 @@ class NLTEData:
                 & (self.lines.ion_number == species[1])
             )
             self.lines_idx[species] = lines_idx
-            self.lines_level_number_lower[
-                species
-            ] = self.lines.level_number_lower.values[lines_idx].astype(int)
-            self.lines_level_number_upper[
-                species
-            ] = self.lines.level_number_upper.values[lines_idx].astype(int)
+            self.lines_level_number_lower[species] = (
+                self.lines.level_number_lower.values[lines_idx].astype(int)
+            )
+            self.lines_level_number_upper[species] = (
+                self.lines.level_number_upper.values[lines_idx].astype(int)
+            )
 
             self.A_uls[species] = self.atom_data.lines.A_ul.values[lines_idx]
             self.B_uls[species] = self.atom_data.lines.B_ul.values[lines_idx]
@@ -721,9 +720,9 @@ class NLTEData:
                 line,
             ) in collision_group.get_group(species).iterrows():
                 # line.columns : delta_e, g_ratio, temperatures ...
-                C_ul_matrix[
-                    level_number_lower, level_number_upper, :
-                ] = line.values[2:]
+                C_ul_matrix[level_number_lower, level_number_upper, :] = (
+                    line.values[2:]
+                )
                 delta_E_matrix[level_number_lower, level_number_upper] = line[
                     "delta_e"
                 ]
