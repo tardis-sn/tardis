@@ -8,7 +8,7 @@ from tardis.energy_input.util import (
     klein_nishina,
     spherical_to_cartesian,
 )
-from tardis.transport.montecarlo.opacities import (
+from tardis.opacities.opacities import (
     kappa_calculation,
 )
 

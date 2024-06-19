@@ -1,5 +1,5 @@
 import pytest
-import tardis.transport.montecarlo.numba_interface as numba_interface
+import tardis.opacities.opacity_state as numba_interface
 import numpy.testing as npt
 import numpy as np
 

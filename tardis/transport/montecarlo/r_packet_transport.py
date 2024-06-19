@@ -1,20 +1,18 @@
 import numpy as np
 from numba import njit
 
-from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.geometry.calculate_distances import (
-    calculate_distance_boundary,
-    calculate_distance_electron,
-    calculate_distance_line,
-)
-from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_line_estimators,
-    update_base_estimators,
-)
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
-from tardis.transport.montecarlo.opacities import calculate_tau_electron
+from tardis.transport.geometry.calculate_distances import (
+    calculate_distance_boundary,
+    calculate_distance_line,
+)
+from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
+    update_base_estimators,
+    update_line_estimators,
+)
 from tardis.transport.montecarlo.r_packet import (
     InteractionType,
     PacketStatus,
@@ -48,7 +46,6 @@ def trace_packet(
     Returns
     -------
     """
-
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
 
@@ -199,7 +196,6 @@ def move_r_packet(
     distance : float
         distance in cm
     """
-
     doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )

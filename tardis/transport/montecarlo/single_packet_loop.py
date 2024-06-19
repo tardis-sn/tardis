@@ -1,6 +1,14 @@
 from numba import njit
 
 from tardis import constants as const
+from tardis.opacities.opacities import (
+    chi_continuum_calculator,
+    chi_electron_calculator,
+)
+from tardis.transport.frame_transformations import (
+    get_doppler_factor,
+    get_inverse_doppler_factor,
+)
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_bound_free_estimators,
 )
@@ -8,10 +16,6 @@ from tardis.transport.montecarlo.interaction import (
     continuum_event,
     line_scatter,
     thomson_scatter,
-)
-from tardis.transport.montecarlo.opacities import (
-    chi_continuum_calculator,
-    chi_electron_calculator,
 )
 from tardis.transport.montecarlo.r_packet import (
     InteractionType,
