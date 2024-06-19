@@ -1,7 +1,6 @@
 import logging
 import time
 from collections import OrderedDict
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -10,19 +9,19 @@ from IPython.display import display
 
 import tardis
 from tardis import constants as const
-from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
-from tardis.model import SimulationState
-from tardis.model.parse_input import initialize_packet_source
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
-from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
+from tardis.simulation.initialization import (
+    initialize_atom_data,
+    initialize_simulation_state,
+)
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
-# Adding logging support
 logger = logging.getLogger(__name__)
 
 
@@ -496,12 +495,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         ----------
         t_rad : astropy.units.Quanity
             current t_rad
-        w : astropy.units.Quanity
-            current w
+        dilution_factor : np.ndarray
+            current dilution_factor
         next_t_rad : astropy.units.Quanity
             next t_rad
-        next_w : astropy.units.Quanity
-            next_w
+        next_dilution_factor : np.ndarray
+            next dilution_factor
         log_sampling : int
             the n-th shells to be plotted
 
@@ -617,6 +616,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         show_convergence_plots=False,
         show_progress_bars=True,
         legacy_mode_enabled=False,
+        atom_data=None,
+        plasma=None,
+        transport=None,
         **kwargs,
     ):
         """
@@ -638,70 +640,22 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
 
-        atom_data = kwargs.get("atom_data", None)
-        if atom_data is None:
-            if "atom_data" in config:
-                if Path(config.atom_data).is_absolute():
-                    atom_data_fname = Path(config.atom_data)
-                else:
-                    atom_data_fname = (
-                        Path(config.config_dirname) / config.atom_data
-                    )
-
-            else:
-                raise ValueError(
-                    "No atom_data option found in the configuration."
-                )
-
-            logger.info(f"\n\tReading Atomic Data from {atom_data_fname}")
-
-            try:
-                atom_data = AtomData.from_hdf(atom_data_fname)
-            except TypeError as e:
-                print(
-                    e,
-                    "Error might be from the use of an old-format of the atomic database, \n"
-                    "please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data"
-                    " for the most recent version.",
-                )
-                raise
-        if "model" in kwargs:
-            simulation_state = kwargs["model"]
-        else:
-            if hasattr(config, "csvy_model"):
-                simulation_state = SimulationState.from_csvy(
-                    config,
-                    atom_data=atom_data,
-                    legacy_mode_enabled=legacy_mode_enabled,
-                )
-            else:
-                simulation_state = SimulationState.from_config(
-                    config,
-                    atom_data=atom_data,
-                    legacy_mode_enabled=legacy_mode_enabled,
-                )
-            if packet_source is not None:
-                simulation_state.packet_source = initialize_packet_source(
-                    config,
-                    simulation_state.geometry,
-                    packet_source,
-                    legacy_mode_enabled,
-                )
-        if "plasma" in kwargs:
-            plasma = kwargs["plasma"]
-        else:
+        atom_data = initialize_atom_data(config, atom_data=atom_data)
+        simulation_state = initialize_simulation_state(
+            config, packet_source, legacy_mode_enabled, kwargs, atom_data
+        )
+        if plasma is None:
             plasma = assemble_plasma(
                 config,
                 simulation_state,
                 atom_data=atom_data,
             )
-        if "transport" in kwargs:
-            if packet_source is not None:
-                raise ConfigurationError(
-                    "Cannot specify packet_source and transport at the same time."
-                )
-            transport = kwargs["transport"]
-        else:
+
+        if (transport is not None) and (packet_source is not None):
+            raise ConfigurationError(
+                "Cannot specify packet_source and transport at the same time."
+            )
+        if transport is None:
             transport = MonteCarloTransportSolver.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
