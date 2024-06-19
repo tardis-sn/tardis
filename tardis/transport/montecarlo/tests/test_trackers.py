@@ -1,11 +1,7 @@
-from copy import deepcopy
-
 import pytest
 import numpy as np
 import numpy.testing as npt
 
-from tardis.io.configuration.config_reader import Configuration
-from tardis.base import run_tardis
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketLastInteractionTracker,
 )
