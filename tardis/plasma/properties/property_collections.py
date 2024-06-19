@@ -1,4 +1,9 @@
+from tardis.opacities.macro_atom.base import (
+    NonMarkovChainTransitionProbabilities,
+    TransitionProbabilities,
+)
 from tardis.plasma.properties import *
+from tardis.opacities.tau_sobolev import TauSobolev
 
 
 class PlasmaPropertyCollection(list):
@@ -7,11 +12,12 @@ class PlasmaPropertyCollection(list):
 
 basic_inputs = PlasmaPropertyCollection(
     [
-        TRadiative,
+        DilutePlanckianRadField,
         Abundance,
         NumberDensity,
         TimeExplosion,
         AtomicData,
+        TRadiative,
         DilutionFactor,
         LinkTRadTElectron,
         HeliumTreatment,

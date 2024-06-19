@@ -1,22 +1,22 @@
 import numpy as np
 from numba import njit
 
-from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.opacities import (
+from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.energy_input.util import (
+    ELECTRON_MASS_ENERGY_KEV,
+    H_CGS_KEV,
+    angle_aberration_gamma,
+    compton_theta_distribution,
+    doppler_factor_3d,
+    euler_rodrigues,
+    get_perpendicular_vector,
+    get_random_unit_vector,
+)
+from tardis.opacities.opacities import (
     compton_opacity_partial,
     kappa_calculation,
 )
-from tardis.energy_input.util import (
-    get_random_unit_vector,
-    euler_rodrigues,
-    compton_theta_distribution,
-    get_perpendicular_vector,
-    angle_aberration_gamma,
-    doppler_factor_3d,
-    ELECTRON_MASS_ENERGY_KEV,
-    H_CGS_KEV,
-)
-from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 @njit(**njit_dict_no_parallel)
@@ -195,7 +195,6 @@ def compton_scatter(photon, compton_angle):
     float64
         Photon phi direction
     """
-
     # get comoving frame direction
     comov_direction = angle_aberration_gamma(
         photon.direction, photon.location, photon.time_current
@@ -254,7 +253,6 @@ def pair_creation_packet(packet):
     GXPacket
         outgoing packet
     """
-
     probability_gamma = (
         2 * ELECTRON_MASS_ENERGY_KEV / (H_CGS_KEV * packet.nu_cmf)
     )
