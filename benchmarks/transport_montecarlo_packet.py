@@ -5,19 +5,17 @@ Basic TARDIS Benchmark.
 import numpy as np
 from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
-import tardis.transport.montecarlo.estimators.radfield_mc_estimators
-import tardis.transport.montecarlo.estimators.radfield_mc_estimators
-import tardis.transport.montecarlo.numba_interface as numba_interface
-import tardis.transport.montecarlo.opacities as opacities
-import tardis.transport.montecarlo.r_packet as r_packet
-import tardis.transport.montecarlo.utils as utils
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
+import tardis.transport.montecarlo.numba_interface as numba_interface
+import tardis.transport.montecarlo.opacities as opacities
+import tardis.transport.montecarlo.utils as utils
 import tardis.transport.r_packet_transport as r_packet_transport
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    update_line_estimators,
+from tardis.transport.montecarlo.estimators import (
+    radfield_estimator_calcs,
+    radfield_mc_estimators,
 )
 
 
@@ -43,7 +41,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
 
     @property
     def estimators(self):
-        return tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators(
+        return radfield_mc_estimators.RadiationFieldMCEstimators(
             j_estimator=np.array([0.0, 0.0], dtype=np.float64),
             nu_bar_estimator=np.array([0.0, 0.0], dtype=np.float64),
             j_blue_estimator=np.array(
@@ -81,19 +79,9 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
             "Parameters": [
                 {
                     "packet": {"nu_line": 0.1, "is_last_line": True},
-                    "expected": None,
                 },
                 {
                     "packet": {"nu_line": 0.2, "is_last_line": False},
-                    "expected": None,
-                },
-                {
-                    "packet": {"nu_line": 0.5, "is_last_line": False},
-                    "expected": utils.MonteCarloException,
-                },
-                {
-                    "packet": {"nu_line": 0.6, "is_last_line": False},
-                    "expected": utils.MonteCarloException,
                 },
             ]
         }
@@ -106,7 +94,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         time_explosion = self.model.time_explosion
 
         doppler_factor = frame_transformations.get_doppler_factor(
-            self.static_packet.r, self.static_packet.mu, time_explosion
+            self.static_packet.r, self.static_packet.mu, time_explosion, False
         )
         comov_nu = self.static_packet.nu * doppler_factor
 
@@ -116,6 +104,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
             is_last_line,
             nu_line,
             time_explosion,
+            False
         )
 
     @parameterize(
@@ -125,7 +114,10 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
                     "electron_density": 1e-5,
                     "tua_event": 1e10,
                 },
-                {"electron_density": 1.0, "tua_event": 1e10},
+                {
+                    "electron_density": 1.0,
+                    "tua_event": 1e10
+                },
             ]
         }
     )
@@ -191,12 +183,13 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         cur_line_id = parameters["cur_line_id"]
         distance_trace = parameters["distance_trace"]
         time_explosion = parameters["time_explosion"]
-        update_line_estimators(
-            self.estimators,
+        radfield_estimator_calcs.update_line_estimators(
+            self.verysimple_radfield_mc_estimators,
             self.static_packet,
             cur_line_id,
             distance_trace,
             time_explosion,
+            False
         )
 
     @parameterize(
