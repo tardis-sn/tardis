@@ -65,7 +65,11 @@ class BenchmarkBase:
     def tardis_ref_path(self):
         # TODO: This route is fixed but needs to get from the arguments given in the command line.
         #       /app/tardis-refdata
-        return "/app/tardis-refdata"
+        ref_data_path = Path(
+            Path(__file__).parent.parent,
+            "tardis-refdata",
+        ).resolve()
+        return ref_data_path
 
     @property
     def atomic_dataset(self) -> AtomData:
