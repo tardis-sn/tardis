@@ -438,18 +438,18 @@ class RadioactivePacketSource(BasePacketSource):
                 packet_energies_cmf[
                     packet_index - isotope_packet_count : packet_index
                 ] = initial_packet_energies_cmf
-                nus_rf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_rf
-                nus_cmf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_cmf
-                shells[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_shells
-                times[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_times
+                nus_rf[packet_index - isotope_packet_count : packet_index] = (
+                    initial_nus_rf
+                )
+                nus_cmf[packet_index - isotope_packet_count : packet_index] = (
+                    initial_nus_cmf
+                )
+                shells[packet_index - isotope_packet_count : packet_index] = (
+                    initial_shells
+                )
+                times[packet_index - isotope_packet_count : packet_index] = (
+                    initial_times
+                )
 
         return GXPacketCollection(
             locations,
@@ -792,13 +792,13 @@ class GammaRayPacketSource(BasePacketSource):
             random_state=np.random.RandomState(self.base_seed),
         )
         # get unique isotopes that have produced packets
-        isotopes = sampled_packets_df.index.get_level_values(1)
+        isotopes = sampled_packets_df.index.get_level_values(2)
 
         # compute the positron fraction for unique isotopes
         isotope_positron_fraction = self.calculate_positron_fraction(isotopes)
 
         # get the packet shell index
-        shells = sampled_packets_df.index.get_level_values(0)
+        shells = sampled_packets_df.index.get_level_values(1)
 
         # get the inner and outer velocity boundaries for each packet to compute
         # the initial radii
@@ -829,7 +829,7 @@ class GammaRayPacketSource(BasePacketSource):
 
         # packet_effective_times = sampled_packets_df.index.get_level_values(0)
 
-        decay_times = self.sample_decay_times(
+        times = self.sample_decay_times(
             isotopes, self.taus, self.effective_times, number_of_packets
         )
 
@@ -838,9 +838,7 @@ class GammaRayPacketSource(BasePacketSource):
         # )
         decay_time_indices = []
         for i in range(number_of_packets):
-            decay_time_indices.append(
-                get_index(decay_times[i], self.effective_times)
-            )
+            decay_time_indices.append(get_index(times[i], self.effective_times))
         # decay_times = self.create_packet_decay_times(
         #     number_of_packets, isotopes
         # )
@@ -879,7 +877,7 @@ class GammaRayPacketSource(BasePacketSource):
         nus_rf = np.zeros(number_of_packets)
 
         doppler_factors = doppler_factor_3D_all_packets(
-            directions, locations, decay_times
+            directions, locations, times
         )
 
         packet_energies_rf = packet_energies_cmf / doppler_factors
@@ -923,7 +921,7 @@ class GammaRayPacketSource(BasePacketSource):
             nus_cmf,
             statuses,
             shells,
-            decay_times,
+            times,
         )
 
     def calculate_positron_fraction(self, isotopes):

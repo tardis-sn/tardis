@@ -331,6 +331,7 @@ def get_effective_time_array(time_start, time_end, time_space, time_steps):
 
 def run_gamma_ray_loop(
     model,
+    plasma,
     isotope_decay_df,
     cumulative_decays_df,
     num_decays,
@@ -370,17 +371,15 @@ def run_gamma_ray_loop(
             atom_number
         ].values
         if values.shape[0] > 1:
-            model.composition.isotopic_number_density.loc[
-                atom_number
-            ].update = np.sum(values, axis=0)
+            plasma.number_density.loc[atom_number].update = np.sum(
+                values, axis=0
+            )
         else:
-            model.composition.isotopic_number_density.loc[
-                atom_number
-            ].update = values
+            plasma.number_density.loc[atom_number].update = values
 
     # Electron number density
-    electron_number_density = model.composition.isotopic_number_density.mul(
-        model.composition.isotopic_number_density.index.get_level_values(0),
+    electron_number_density = plasma.number_density.mul(
+        plasma.number_density.index,
         axis=0,
     ).sum()
     electron_number = np.array(electron_number_density * ejecta_volume)
@@ -431,7 +430,7 @@ def run_gamma_ray_loop(
     )
     logger.info("Creating packets")
     packet_collection = packet_source.create_packets(
-        isotope_decay_df, num_decays
+        cumulative_decays_df, num_decays
     )
     logger.info("Creating packet list")
     packets = []
@@ -450,7 +449,7 @@ def run_gamma_ray_loop(
         for i in range(num_decays)
     ]
 
-    # return packets
+    return packets
 
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
@@ -491,7 +490,11 @@ def run_gamma_ray_loop(
     #     packets, times, inner_velocities, outer_velocities, effective_time_array
     # )
 
-    (energy_out, bin_width, packets_array,) = gamma_packet_loop(
+    (
+        energy_out,
+        bin_width,
+        packets_array,
+    ) = gamma_packet_loop(
         packets,
         grey_opacity,
         photoabsorption_opacity,
