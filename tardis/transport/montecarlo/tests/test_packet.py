@@ -9,7 +9,7 @@ import tardis.transport.montecarlo.r_packet as r_packet
 import tardis.transport.montecarlo.utils as utils
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
-import tardis.transport.r_packet_transport as r_packet_transport
+import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
@@ -36,10 +36,8 @@ def geometry():
 
 
 @pytest.fixture(scope="function")
-def model():
-    return numba_interface.NumbaModel(
-        time_explosion=5.2e7,
-    )
+def time_explosion():
+    return 5.2e7
 
 
 @pytest.fixture(scope="function")
@@ -106,12 +104,10 @@ def test_calculate_distance_boundary(packet_params, expected_params, geometry):
     ],
 )
 def test_calculate_distance_line(
-    packet_params, expected_params, static_packet, model
+    packet_params, expected_params, static_packet, time_explosion
 ):
     nu_line = packet_params["nu_line"]
     is_last_line = packet_params["is_last_line"]
-
-    time_explosion = model.time_explosion
 
     doppler_factor = frame_transformations.get_doppler_factor(
         static_packet.r, static_packet.mu, time_explosion, False
@@ -231,16 +227,18 @@ def test_update_line_estimators(
 @pytest.mark.xfail(reason="Need to fix estimator differences across runs")
 def test_trace_packet(
     packet,
-    verysimple_numba_model,
+    verysimple_time_explosion,
     verysimple_opacity_state,
     verysimple_estimators,
     set_seed_fixture,
 ):
     set_seed_fixture(1963)
-    packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model)
+    packet.initialize_line_id(
+        verysimple_opacity_state, verysimple_time_explosion
+    )
     distance, interaction_type, delta_shell = r_packet_transport.trace_packet(
         packet,
-        verysimple_numba_model,
+        verysimple_time_explosion,
         verysimple_opacity_state,
         verysimple_estimators,
         continuum_processes_enabled=False,
@@ -282,7 +280,7 @@ def test_move_r_packet(
     packet_params,
     expected_params,
     packet,
-    model,
+    time_explosion,
     estimators,
     ENABLE_FULL_RELATIVITY,
 ):
@@ -295,13 +293,13 @@ def test_move_r_packet(
     numba_config.ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
     r_packet_transport.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
     doppler_factor = frame_transformations.get_doppler_factor(
-        packet.r, packet.mu, model.time_explosion, ENABLE_FULL_RELATIVITY
+        packet.r, packet.mu, time_explosion, ENABLE_FULL_RELATIVITY
     )
 
     r_packet_transport.move_r_packet(
         packet,
         distance,
-        model.time_explosion,
+        time_explosion,
         estimators,
         ENABLE_FULL_RELATIVITY,
     )

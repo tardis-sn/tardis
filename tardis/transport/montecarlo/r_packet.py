@@ -65,11 +65,11 @@ class RPacket(object):
         self.last_line_interaction_shell_id = -1
 
     def initialize_line_id(
-        self, opacity_state, numba_model, enable_full_relativity
+        self, opacity_state, time_explosion, enable_full_relativity
     ):
         inverse_line_list_nu = opacity_state.line_list_nu[::-1]
         doppler_factor = get_doppler_factor(
-            self.r, self.mu, numba_model.time_explosion, enable_full_relativity
+            self.r, self.mu, time_explosion, enable_full_relativity
         )
         comov_nu = self.nu * doppler_factor
         next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
@@ -100,49 +100,3 @@ def print_r_packet_properties(r_packet):
                 str(getattr(r_packet, r_packet_attribute_name)),
             )
     print("-" * 80)
-
-
-def rpacket_trackers_to_dataframe(rpacket_trackers):
-    """Generates a dataframe from the rpacket_trackers list of RPacketCollection Objects.
-
-    Parameters
-    ----------
-    rpacket_trackers : numba.typed.typedlist.List
-        list of individual RPacketCollection class objects
-
-    Returns
-    -------
-    pandas.core.frame.DataFrame
-        Dataframe containing properties of RPackets as columns like status, seed, r, nu, mu, energy, shell_id, interaction_type
-
-    """
-    len_df = sum([len(tracker.r) for tracker in rpacket_trackers])
-    index_array = np.empty([2, len_df], dtype="int")
-    df_dtypes = np.dtype(
-        [
-            ("status", np.int64),
-            ("seed", np.int64),
-            ("r", np.float64),
-            ("nu", np.float64),
-            ("mu", np.float64),
-            ("energy", np.float64),
-            ("shell_id", np.int64),
-            ("interaction_type", np.int64),
-        ]
-    )
-    rpacket_tracker_ndarray = np.empty(len_df, df_dtypes)
-    cur_index = 0
-    for rpacket_tracker in rpacket_trackers:
-        prev_index = cur_index
-        cur_index = prev_index + len(rpacket_tracker.r)
-        for j, column_name in enumerate(df_dtypes.fields.keys()):
-            rpacket_tracker_ndarray[column_name][
-                prev_index:cur_index
-            ] = getattr(rpacket_tracker, column_name)
-        index_array[0][prev_index:cur_index] = getattr(rpacket_tracker, "index")
-        index_array[1][prev_index:cur_index] = range(cur_index - prev_index)
-    return pd.DataFrame(
-        rpacket_tracker_ndarray,
-        index=pd.MultiIndex.from_arrays(index_array, names=["index", "step"]),
-        columns=df_dtypes.names,
-    )

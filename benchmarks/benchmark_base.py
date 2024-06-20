@@ -17,12 +17,12 @@ from tardis.model import SimulationState
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 from tardis.tests.fixtures.regression_data import RegressionData
-from tardis.transport.montecarlo import RPacket, montecarlo_configuration
-from tardis.transport.montecarlo.estimators import radfield_mc_estimators
-from tardis.transport.montecarlo.numba_interface import (
-    NumbaModel,
+from tardis.transport.montecarlo import (
+    RPacket,
+    montecarlo_configuration,
     opacity_state_initialize,
 )
+from tardis.transport.montecarlo.estimators import radfield_mc_estimators
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
 )
@@ -250,11 +250,9 @@ class BenchmarkBase:
         return sim
 
     @property
-    def verysimple_numba_model(self):
+    def verysimple_time_explosion(self):
         model = self.nb_simulation_verysimple.simulation_state
-        return NumbaModel(
-            model.time_explosion.to("s").value,
-        )
+        return model.time_explosion.cgs.value
 
     @property
     def verysimple_opacity_state(self):

@@ -11,7 +11,6 @@ from tardis import constants as c
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.transport.montecarlo.numba_interface import NumbaModel
 
 
 class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
@@ -104,11 +103,10 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         return geometry
 
     @property
-    def formal_integral_model(self):
-        model = NumbaModel(
-            1 / c.c.cgs.value,
-        )
-        return model
+    def time_explosion(self):
+        # previously used model value that passes tests
+        # time taken for a photon to move 1 cm
+        return 1 / c.c.cgs.value
 
     @parameterize({"p": [0.0, 0.5, 1.0], "Test data": TESTDATA})
     def time_calculate_z(self, p, test_data):

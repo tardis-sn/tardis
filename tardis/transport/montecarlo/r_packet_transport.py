@@ -25,7 +25,7 @@ from tardis.transport.montecarlo.r_packet import (
 def trace_packet(
     r_packet,
     numba_radial_1d_geometry,
-    numba_model,
+    time_explosion,
     opacity_state,
     estimators,
     chi_continuum,
@@ -41,7 +41,7 @@ def trace_packet(
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
     numba_radial_1d_geometry : tardis.transport.montecarlo.numba_interface.NumbaRadial1DGeometry
-    numba_model : tardis.transport.montecarlo.numba_interface.NumbaModel
+    time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     estimators : tardis.transport.montecarlo.numba_interface.Estimators
 
@@ -68,7 +68,7 @@ def trace_packet(
     doppler_factor = get_doppler_factor(
         r_packet.r,
         r_packet.mu,
-        numba_model.time_explosion,
+        time_explosion,
         enable_full_relativity,
     )
     comov_nu = r_packet.nu * doppler_factor
@@ -98,7 +98,7 @@ def trace_packet(
             comov_nu,
             is_last_line,
             nu_line,
-            numba_model.time_explosion,
+            time_explosion,
             enable_full_relativity,
         )
 
@@ -136,7 +136,7 @@ def trace_packet(
             r_packet,
             cur_line_id,
             distance_trace,
-            numba_model.time_explosion,
+            time_explosion,
             enable_full_relativity,
         )
 
