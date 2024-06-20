@@ -63,7 +63,11 @@ class BenchmarkBase:
     def tardis_ref_path(self):
         # TODO: This route is fixed but needs to get from the arguments given in the command line.
         #       /app/tardis-refdata
-        return "/app/tardis-refdata"
+        ref_data_path = Path(
+            Path(__file__).parent.parent,
+            "tardis-refdata",
+        ).resolve()
+        return ref_data_path
 
     @property
     def atomic_dataset(self) -> AtomData:
@@ -253,6 +257,8 @@ class BenchmarkBase:
         return opacity_state_initialize(
             self.nb_simulation_verysimple.plasma,
             line_interaction_type="macroatom",
+            disable_line_scattering=self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+            continuum_processes_enabled=self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
         )
 
     @property
