@@ -8,11 +8,10 @@ from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 import tardis.transport.montecarlo.formal_integral as formal_integral
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis import constants as c
+from tardis import run_tardis
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.numba_interface import NumbaModel
-from tardis.io.configuration.config_reader import Configuration
-from tardis import run_tardis
-
 
 
 class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
@@ -38,11 +37,25 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
 
     @parameterize(
         {
-            "nu": [1e14, 0, 1],
-            "temperature": [1e4, 1, 1],
+            "Parameters": [
+                {
+                    "nu": 1e14,
+                    "temperature": 1e4,
+                },
+                {
+                    "nu": 0,
+                    "temperature": 1,
+                },
+                {
+                    "nu": 1,
+                    "temperature": 1,
+                }
+            ]
         }
     )
-    def time_intensity_black_body(self, nu, temperature):
+    def time_intensity_black_body(self, parameters):
+        nu = parameters["nu"]
+        temperature = parameters["temperature"]
         func = formal_integral.intensity_black_body
         func(nu, temperature)
 
@@ -131,9 +144,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     @skip_benchmark
     @parameterize({"p": [1e-5, 0.5, 0.99, 1], "Test data": TESTDATA})
     def time_populate_z_shells(self, p, test_data) -> None:
-        formal_integral.FormalIntegrator(
-            self.formal_integral_geometry(test_data), None, None
-        )
         func = formal_integral.populate_z
 
         size = len(self.formal_integral_geometry(test_data).r_inner)
@@ -153,45 +163,38 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
             oshell_id,
         )
 
-    @parameterize({"N": [100, 1000, 10000]})
-    def time_calculate_p_values(self, n):
+    @parameterize(
+        {
+            "Parameters": [
+                {
+                    "N": [100, 1000, 10000]
+                }
+            ]
+        }
+    )
+    def time_calculate_p_values(self, Parameters):
         r = 1.0
-        formal_integral.calculate_p_values(r, n)
+        formal_integral.calculate_p_values(r, Parameters["N"])
 
-    @parameterize({"nu": [1e13, 5e14, 1e15], "temperature": [300, 1000, 5800]})
+    @parameterize({
+            "parameters": {
+                "nu": [1e13, 5e14, 1e15],
+                "temperature": [300, 1000, 5800]
+            }
+        }
+    )
     def time_intensity_black_body(self, nu, temperature):
         formal_integral.intensity_black_body(nu, temperature)
 
-    @parameterize({
-        'case1': {'x': [100.0, 90.0, 80.0, 70.0, 60.0], 'x_insert': 85.0, 'imin': 0, 'imax': 4},
-        'case2': {'x': [50.0, 40.0, 30.0, 20.0, 10.0], 'x_insert': 55.0, 'imin': 0, 'imax': 4},
-        'case3': {'x': [5.0, 4.0, 3.0, 2.0, 1.0], 'x_insert': 0.5, 'imin': 0, 'imax': 4},
-        'case4': {'x': [200.0, 150.0, 100.0, 50.0, 25.0], 'x_insert': 200.0, 'imin': 0, 'imax': 4},
-        'case5': {'x': [200.0, 150.0, 100.0, 50.0, 25.0], 'x_insert': 25.0, 'imin': 0, 'imax': 4},
-        'edge_case_low': {'x': [1e9, 5e8, 1e8, 5e7], 'x_insert': -1e9, 'imin': 0, 'imax': 3},
-        'edge_case_high': {'x': [1e9, 5e8, 1e8, 5e7], 'x_insert': 1e9, 'imin': 0, 'imax': 3}
-    })
-    def time_reverse_binary_search(x, x_insert, imin, imax):
-        formal_integral.reverse_binary_search(x, x_insert, imin, imax)
-
     # Benchmark for functions in FormalIntegrator class
 
-    def time_FormalIntegrator_check(self) -> None:
-        self.FormalIntegrator.check()
-
-    def time_FormalIntegrator_calculate_spectrum(self) -> None:
+    def time_FormalIntegrator_functions(self):
         self.FormalIntegrator.calculate_spectrum(
             self.Simulation.transport.transport_state.spectrum.frequency
         )
-
-    def time_FormalIntegrator_make_source_function(self) -> None:
-        self.att_S_ul, self.Jredlu, self.Jbluelu, self.e_dot_u = self.FormalIntegrator.make_source_function()
-
-    def time_FormalIntegrator_generate_numba_objects(self) -> None:
+        self.FormalIntegrator.make_source_function()
         self.FormalIntegrator.generate_numba_objects()
-
-    @parameterize({"N": [100, 1000, 10000, 100000]})
-    def time_FormalIntegrator_formal_integral(self, N: int = 1000):
         self.FormalIntegrator.formal_integral(
-            self.Simulation.transport.transport_state.spectrum.frequency, N
+            self.Simulation.transport.transport_state.spectrum.frequency, 
+            1000
         )
