@@ -14,9 +14,9 @@ rpacket_tracker_spec = [
     ("energy", float64[:]),
     ("shell_id", int64[:]),
     ("interaction_type", int64[:]),
-    ("line_interaction_in_id", int64[:]),
-    ("line_interaction_out_id", int64[:]),
-    ("line_interaction_in_nu", float64[:]),
+    ("interaction_in_line_nu", float64[:]),
+    ("interaction_in_line_id", int64[:]),
+    ("interaction_out_line_id", int64[:]),
     ("num_interactions", int64),
 ]
 
@@ -47,12 +47,12 @@ class RPacketTracker(object):
             Current Shell No in which the RPacket is present
         interaction_type: int
             Type of interaction the rpacket undergoes
-        line_interaction_in_id : int
-            Id of the absorption line
-        line_interaction_out_id : int
-            Id of the transmission line
-        line_interaction_in_nu : float
+        interaction_in_line_nu : float
             frequency corresponding to the absroption line
+        interaction_in_line_id : int
+            Id of the absorption line
+        interaction_out_line_id : int
+            Id of the transmission line
         num_interactions : int
             Internal counter for the interactions that a particular RPacket undergoes
     """
@@ -68,9 +68,9 @@ class RPacketTracker(object):
         self.energy = np.empty(self.length, dtype=np.float64)
         self.shell_id = np.empty(self.length, dtype=np.int64)
         self.interaction_type = np.empty(self.length, dtype=np.int64)
-        self.line_interaction_in_id = np.empty(self.length, dtype=np.int64)
-        self.line_interaction_out_id = np.empty(self.length, dtype=np.int64)
-        self.line_interaction_in_nu = np.empty(self.length, dtype=np.float64)
+        self.interaction_in_line_nu = np.empty(self.length, dtype=np.float64)
+        self.interaction_in_line_id = np.empty(self.length, dtype=np.int64)
+        self.interaction_out_line_id = np.empty(self.length, dtype=np.int64)
         self.num_interactions = 0
 
     def track(self, r_packet):
@@ -83,6 +83,9 @@ class RPacketTracker(object):
             temp_energy = np.empty(temp_length, dtype=np.float64)
             temp_shell_id = np.empty(temp_length, dtype=np.int64)
             temp_interaction_type = np.empty(temp_length, dtype=np.int64)
+            temp_interaction_in_line_nu = np.empty(temp_length, dtype=np.int64)
+            temp_interaction_in_line_id = np.empty(temp_length, dtype=np.int64)
+            temp_interaction_out_line_id = np.empty(temp_length, dtype=np.int64)
 
             temp_status[: self.length] = self.status
             temp_r[: self.length] = self.r
@@ -91,6 +94,15 @@ class RPacketTracker(object):
             temp_energy[: self.length] = self.energy
             temp_shell_id[: self.length] = self.shell_id
             temp_interaction_type[: self.length] = self.interaction_type
+            temp_interaction_in_line_nu[
+                : self.length
+            ] = self.interaction_in_line_nu
+            temp_interaction_in_line_id[
+                : self.length
+            ] = self.interaction_in_line_id
+            temp_interaction_out_line_id[
+                : self.length
+            ] = self.interaction_out_line_id
 
             self.status = temp_status
             self.r = temp_r
@@ -99,6 +111,9 @@ class RPacketTracker(object):
             self.energy = temp_energy
             self.shell_id = temp_shell_id
             self.interaction_type = temp_interaction_type
+            self.interaction_in_line_nu = temp_interaction_in_line_nu
+            self.interaction_in_line_id = temp_interaction_in_line_id
+            self.interaction_out_line_id = temp_interaction_out_line_id
             self.length = temp_length
 
         self.index = r_packet.index
@@ -112,6 +127,21 @@ class RPacketTracker(object):
         self.interaction_type[
             self.num_interactions
         ] = r_packet.last_interaction_type
+        # Only set if last interaction is line interaction, else -1 or 0.
+        if r_packet.last_interaction_type == 2:
+            self.interaction_in_line_nu[
+                self.num_interactions
+            ] = r_packet.last_interaction_in_nu
+            self.interaction_in_line_id[
+                self.num_interactions
+            ] = r_packet.last_interaction_in_line_id
+            self.interaction_out_line_id[
+                self.num_interactions
+            ] = r_packet.last_interaction_out_line_id
+        else:
+            self.interaction_in_line_nu[self.num_interactions] = 0.0
+            self.interaction_in_line_id[self.num_interactions] = -1
+            self.interaction_out_line_id[self.num_interactions] = -1
         self.num_interactions += 1
 
     def finalize_array(self):
@@ -122,6 +152,15 @@ class RPacketTracker(object):
         self.energy = self.energy[: self.num_interactions]
         self.shell_id = self.shell_id[: self.num_interactions]
         self.interaction_type = self.interaction_type[: self.num_interactions]
+        self.interaction_in_line_nu = self.interaction_in_line_nu[
+            : self.num_interactions
+        ]
+        self.interaction_in_line_id = self.interaction_in_line_id[
+            : self.num_interactions
+        ]
+        self.interaction_out_line_id = self.interaction_out_line_id[
+            : self.num_interactions
+        ]
 
 
 def rpacket_trackers_to_dataframe(rpacket_trackers):
@@ -177,9 +216,9 @@ rpacket_last_interaction_tracker_spec = [
     ("energy", float64),
     ("shell_id", int64),
     ("interaction_type", int64),
-    ("line_interaction_in_id", int64),
-    ("line_interaction_out_id", int64),
-    ("line_interaction_in_nu", float64),
+    ("interaction_in_line_nu", float64),
+    ("interaction_in_line_id", int64),
+    ("interaction_out_line_id", int64),
 ]
 
 
@@ -201,12 +240,12 @@ class RPacketLastInteractionTracker(object):
             Current Shell No in which the last interaction happened
         interaction_type: int
             Type of interaction the rpacket undergoes
-        line_interaction_in_id : int
-            Id of the absorption line
-        line_interaction_out_id : int
-            Id of the transmission line
-        line_interaction_in_nu : float
+        interaction_in_line_nu : float
             frequency corresponding to the absroption line
+        interaction_in_line_id : int
+            Id of the absorption line
+        interaction_out_line_id : int
+            Id of the transmission line
     """
 
     def __init__(self):
@@ -216,9 +255,9 @@ class RPacketLastInteractionTracker(object):
         self.energy = 0.0
         self.shell_id = -1
         self.interaction_type = -1
-        self.line_interaction_in_id = -1
-        self.line_interaction_out_id = -1
-        self.line_interaction_in_nu = 0.0
+        self.interaction_in_line_id = -1
+        self.interaction_out_line_id = -1
+        self.interaction_in_line_nu = 0.0
 
     def track(self, r_packet):
         self.index = r_packet.index
@@ -227,3 +266,11 @@ class RPacketLastInteractionTracker(object):
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
         self.interaction_type = r_packet.last_interaction_type
+        if r_packet.last_interaction_type == 2:
+            self.interaction_in_line_nu = r_packet.last_interaction_in_nu
+            self.interaction_in_line_id = r_packet.last_interaction_in_line_id
+            self.interaction_out_line_id = r_packet.last_interaction_out_line_id
+        else:
+            self.interaction_in_line_nu = 0.0
+            self.interaction_in_line_id = -1
+            self.interaction_out_line_id = -1
