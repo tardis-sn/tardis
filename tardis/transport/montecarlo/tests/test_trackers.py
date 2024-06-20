@@ -8,7 +8,7 @@ from tardis.transport.montecarlo.packet_trackers import (
 
 
 @pytest.fixture()
-def interaction_type_last_interaction_class1(
+def interaction_type_last_interaction_class_old(
     nb_simulation_verysimple,
 ):
     """Last interaction types of rpacket from LastInteractionTracker"""
@@ -18,7 +18,7 @@ def interaction_type_last_interaction_class1(
 
 
 @pytest.fixture()
-def interaction_type_last_interaction_class2(
+def interaction_type_last_interaction_class_new(
     nb_simulation_verysimple,
 ):
     """Last interaction types of rpacket from RPacketLastInteractionTracker"""
@@ -80,12 +80,12 @@ def test_tracking_manual(static_packet):
 
 
 def test_last_interaction_type(
-    interaction_type_last_interaction_class1,
-    interaction_type_last_interaction_class2,
+    interaction_type_last_interaction_class_old,
+    interaction_type_last_interaction_class_new,
 ):
     npt.assert_array_equal(
-        interaction_type_last_interaction_class1,
-        interaction_type_last_interaction_class2,
+        interaction_type_last_interaction_class_old,
+        interaction_type_last_interaction_class_new,
     )
 
 
