@@ -211,7 +211,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
         # Condition for Checking if RPacket Tracking is enabled
-        # Preference is given to tracking of all trackers
         if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
             transport_state.rpacket_tracker = rpacket_trackers
             self.transport_state.rpacket_tracker_df = (
