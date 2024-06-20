@@ -262,6 +262,34 @@ class BenchmarkBase:
         )
 
     @property
+    def verysimple_enable_full_relativity(self):
+        return self.nb_simulation_verysimple.transport.enable_full_relativity
+
+    @property
+    def verysimple_disable_line_scattering(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
+        )
+
+    @property
+    def verysimple_continuum_processes_enabled(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        )
+
+    @property
+    def verysimple_tau_russian(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        )
+
+    @property
+    def verysimple_survival_probability(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
+        )
+
+    @property
     def static_packet(self):
         return RPacket(
             r=7.5e14,

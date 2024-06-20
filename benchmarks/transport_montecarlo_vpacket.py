@@ -48,8 +48,10 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         )
         verysimple_time_explosion = self.verysimple_time_explosion
         verysimple_opacity_state = self.verysimple_opacity_state
-        enable_full_relativity = self.enable_full_relativity
-        continuum_processes_enabled = self.continuum_processes_enabled
+        enable_full_relativity = self.verysimple_enable_full_relativity
+        continuum_processes_enabled = (
+            self.verysimple_continuum_processes_enabled
+        )
 
         # Give the vpacket a reasonable line ID
         self.v_packet_initialize_line_id(
@@ -81,7 +83,12 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         )
         verysimple_time_explosion = self.verysimple_time_explosion
         verysimple_opacity_state = self.verysimple_opacity_state
-        enable_full_relativity = self.enable_full_relativity
+        enable_full_relativity = self.verysimple_enable_full_relativity
+        continuum_processes_enabled = (
+            self.verysimple_continuum_processes_enabled
+        )
+        tau_russian = self.verysimple_tau_russian
+        survival_probability = self.verysimple_survival_probability
 
         # Set seed because of RNG in trace_vpacket
         np.random.seed(1)
@@ -125,9 +132,14 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         verysimple_numba_radial_1d_geometry = (
             self.verysimple_numba_radial_1d_geometry
         )
-        enable_full_relativity = self.enable_full_relativity
+        enable_full_relativity = self.verysimple_enable_full_relativity
         verysimple_time_explosion = self.verysimple_time_explosion
         verysimple_opacity_state = self.verysimple_opacity_state
+        continuum_processes_enabled = (
+            self.verysimple_continuum_processes_enabled
+        )
+        tau_russian = self.verysimple_tau_russian
+        survival_probability = self.verysimple_survival_probability
 
         vpacket.trace_vpacket(
             broken_packet,

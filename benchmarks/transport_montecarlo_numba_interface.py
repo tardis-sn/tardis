@@ -21,8 +21,8 @@ class BenchmarkMontecarloMontecarloNumbaNumbaInterface(BenchmarkBase):
         numba_interface.opacity_state_initialize(
             plasma,
             line_interaction_type,
-            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+            self.verysimple_disable_line_scattering,
+            self.verysimple_continuum_processes_enabled,
         )
 
         if line_interaction_type == "scatter":
