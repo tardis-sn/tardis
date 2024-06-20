@@ -37,8 +37,9 @@ def simulation_rpacket_tracking_enabled(config_rpacket_tracker, atomic_dataset):
 
 
 def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
-    sim = simulation_rpacket_tracking_enabled
-    transport_state = sim.transport.transport_state
+    transport_state = (
+        simulation_rpacket_tracking_enabled.transport.transport_state
+    )
     rtracker_df = rpacket_trackers_to_dataframe(transport_state.rpacket_tracker)
 
     # check df shape and column names
