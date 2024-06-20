@@ -12,8 +12,7 @@ def interaction_type_last_interaction_class1(
     nb_simulation_verysimple,
 ):
     """Last interaction types of rpacket from LastInteractionTracker"""
-    sim = nb_simulation_verysimple
-    transport_state = sim.transport.transport_state
+    transport_state = nb_simulation_verysimple.transport.transport_state
     interaction_type = transport_state.last_interaction_type
     return interaction_type
 
@@ -23,8 +22,7 @@ def interaction_type_last_interaction_class2(
     nb_simulation_verysimple,
 ):
     """Last interaction types of rpacket from RPacketLastInteractionTracker"""
-    sim = nb_simulation_verysimple
-    transport_state = sim.transport.transport_state
+    transport_state = nb_simulation_verysimple.transport.transport_state
     interaction_type = np.empty(
         len(transport_state.rpacket_tracker), dtype=np.int64
     )
@@ -41,8 +39,9 @@ def nu_from_packet_collection(
     nb_simulation_verysimple,
 ):
     """Last interaction output nus of rpacket from packet_collection"""
-    sim = nb_simulation_verysimple
-    packet_collection = sim.transport.transport_state.packet_collection
+    packet_collection = (
+        nb_simulation_verysimple.transport.transport_state.packet_collection
+    )
     return packet_collection.output_nus
 
 
@@ -51,8 +50,7 @@ def nu_from_last_interaction_class(
     nb_simulation_verysimple,
 ):
     """Last interaction output nus of rpacket from RPacketLastInteractionTracker"""
-    sim = nb_simulation_verysimple
-    transport_state = sim.transport.transport_state
+    transport_state = nb_simulation_verysimple.transport.transport_state
     nu = np.empty(len(transport_state.rpacket_tracker), dtype=np.float64)
     for i, last_interaction_tracker in enumerate(
         transport_state.rpacket_tracker
