@@ -86,6 +86,3 @@ benchmarks/data/*.h5
 .asv/
 pkgs/
 release_hashes.txt
-
-#PR directory (contains benchmarks)
-PR-*
