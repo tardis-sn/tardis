@@ -66,6 +66,11 @@ jobs:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
           key: atom-data
 
+      - name: Copy atom data to refdata
+        run: |
+          mkdir -p tardis-refdata/atom_data
+          cp benchmarks/data/kurucz_cd23_chianti_H_He.h5 tardis-refdata/atom_data/
+
       - name: Setup Mamba
         uses: mamba-org/setup-micromamba@v1
         with:
@@ -92,6 +97,10 @@ jobs:
             echo "Some benchmarks have failed!"
             exit 1
           fi
+
+      - name: ASV benchmarks
+        if: github.event_name != 'pull_request_target'
+        run: asv run --bench just-discover
 
       - name: Generate Graphs and HTML
         if: github.event_name != 'pull_request_target'
