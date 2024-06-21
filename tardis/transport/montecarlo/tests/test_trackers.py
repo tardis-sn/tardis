@@ -96,3 +96,19 @@ def test_last_interaction_nu(
     npt.assert_allclose(
         nu_from_packet_collection, nu_from_last_interaction_class
     )
+
+
+@pytest.mark.parametrize(
+    "expected,obtained",
+    [
+        (
+            "interaction_type_last_interaction_class_old",
+            "interaction_type_last_interaction_class_new",
+        ),
+        ("nu_from_packet_collection", "nu_from_last_interaction_class"),
+    ],
+)
+def test_last_interaction_properties(expected, obtained, request):
+    expected = request.getfixturevalue(expected)
+    obtained = request.getfixturevalue(obtained)
+    npt.assert_allclose(expected, obtained)
