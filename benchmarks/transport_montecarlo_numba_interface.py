@@ -18,7 +18,12 @@ class BenchmarkMontecarloMontecarloNumbaNumbaInterface(BenchmarkBase):
     def time_opacity_state_initialize(self, input_params):
         line_interaction_type = input_params
         plasma = self.nb_simulation_verysimple.plasma
-        numba_interface.opacity_state_initialize(plasma, line_interaction_type)
+        numba_interface.opacity_state_initialize(
+            plasma,
+            line_interaction_type,
+            self.verysimple_disable_line_scattering,
+            self.verysimple_continuum_processes_enabled,
+        )
 
         if line_interaction_type == "scatter":
             np.zeros(1, dtype=np.int64)
