@@ -66,6 +66,11 @@ jobs:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
           key: atom-data
 
+      - name: Copy atom data to refdata
+        run: |
+          mkdir -p tardis-refdata/atom_data
+          cp benchmarks/data/kurucz_cd23_chianti_H_He.h5 tardis-refdata/atom_data/
+
       - name: Setup Mamba
         uses: mamba-org/setup-micromamba@v1
         with:
@@ -79,6 +84,9 @@ jobs:
 
       - name: Install asv
         run: pip install asv
+
+      - run: git remote add upstream https://github.com/tardis-sn/tardis.git
+      - run: git fetch upstream master
 
       - name: Accept all asv questions
         run: asv machine --yes
@@ -115,15 +123,15 @@ jobs:
           target-branch: main
           target-directory: .asv
 
-      - name: Compare HEAD with master if PR
+      - name: Run benchmarks
         if: github.event_name == 'pull_request_target'
-        continue-on-error: true # TODO: step failed sporadically while testing
-        run: |
-          asv continuous ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | tee asv-cont-output.log  
-          if grep -q failed asv-cont-output.log; then 
-            echo "Some benchmarks have errors!"
-            exit 1
-          fi
+        run: asv run --config asv.conf.json
+      
+      - name: Fetch the latest changes
+        if: github.event_name == 'pull_request_target'
+        run: | 
+          git remote add upstream https://github.com/tardis-sn/tardis.git
+          git fetch upstream master
 
       - name: Compare Master and PR head
         run: asv compare upstream/master HEAD --config asv.conf.json | tee asv-compare-output.log
@@ -143,21 +151,25 @@ jobs:
         with:
           path: asv-compare-changed-output.log
 
+      - name: Remove .asv
+        run: rm -rf .asv
+
       - name: Run benchmarks for base to head commits of PR
         if: github.event_name == 'pull_request_target'
         run: |
+          asv run master..${{ github.event.pull_request.head.ref }} | tee asv-output-PR.log  
+            if grep -q failed asv-output-PR.log; then 
+              echo "Some benchmarks have failed!"
+              exit 1
+            fi
           mkdir -p PR-${{ github.event.number }}
-          cd PR-${{ github.event.number }}
-          asv run ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | tee asv-output-PR.log  
-          if grep -q failed asv-output-PR.log; then 
-            echo "Some benchmarks have failed!"
-            exit 1
-          fi
-
+          cp -r .asv PR-${{ github.event.number }}
+      
       - name: Generate Graphs and HTML of PR
         if: github.event_name == 'pull_request_target'
-        working-directory: PR-${{ github.event.number }}
-        run: asv publish
+        run: |
+          cd PR-${{ github.event.number }}
+          asv publish
 
       - name: Delete env files of PR
         if: github.event_name == 'pull_request_target'
@@ -176,6 +188,7 @@ jobs:
           user-email: tardis.sn.bot@gmail.com
           target-branch: main
           target-directory: PR
+
       
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
@@ -217,8 +230,11 @@ jobs:
               ```
               
             </details>
+
+            If you want to see the graph of the results, you can check it [**here**](${{ env.URL_PAGES }})
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+          URL_PAGES: https://tardis-sn.github.io/tardis-benchmarks/PR-${{ github.event.number }}
 
       - name: Save results artifact
         uses: actions/upload-artifact@v4
@@ -227,6 +243,5 @@ jobs:
           name: asv-benchmark-results-${{ runner.os }}
           path: |
             .asv/results
-            asv-cont-output.log  
             asv-compare-output.log
             asv-compare-changed-output.log
