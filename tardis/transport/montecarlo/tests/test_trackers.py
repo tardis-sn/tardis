@@ -79,25 +79,6 @@ def test_tracking_manual(static_packet):
     npt.assert_almost_equal(tracker.energy, 0.9)
 
 
-def test_last_interaction_type(
-    interaction_type_last_interaction_class_old,
-    interaction_type_last_interaction_class_new,
-):
-    npt.assert_array_equal(
-        interaction_type_last_interaction_class_old,
-        interaction_type_last_interaction_class_new,
-    )
-
-
-def test_last_interaction_nu(
-    nu_from_packet_collection,
-    nu_from_last_interaction_class,
-):
-    npt.assert_allclose(
-        nu_from_packet_collection, nu_from_last_interaction_class
-    )
-
-
 @pytest.mark.parametrize(
     "expected,obtained",
     [
