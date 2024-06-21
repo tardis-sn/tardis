@@ -15,8 +15,6 @@ __all__ = [
     "JBlueEstimator",
     "LinkTRadTElectron",
     "HeliumTreatment",
-    "RInner",
-    "TInner",
     "Volume",
     "ContinuumInteractionSpecies",
     "NLTEIonizationSpecies",
@@ -124,15 +122,6 @@ class LinkTRadTElectron(Input):
 
 class HeliumTreatment(Input):
     outputs = ("helium_treatment",)
-
-
-class RInner(Input):
-    outputs = ("r_inner",)
-
-
-class TInner(Input):
-    outputs = ("t_inner",)
-
 
 class Volume(Input):
     outputs = ("volume",)

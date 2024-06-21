@@ -10,6 +10,9 @@ from tardis.transport.montecarlo import (
     montecarlo_main_loop,
     numba_config,
 )
+from tardis.transport.montecarlo.estimators.dilute_blackbody_properties import (
+    MCRadiationFieldPropertiesSolver,
+)
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
 )
@@ -49,6 +52,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
     def __init__(
         self,
+        radfield_prop_solver,
         spectrum_frequency,
         virtual_spectrum_spawn_range,
         enable_full_relativity,
@@ -64,6 +68,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         use_gpu=False,
         montecarlo_configuration=None,
     ):
+        self.radfield_prop_solver = radfield_prop_solver
         # inject different packets
         self.spectrum_frequency = spectrum_frequency
         self.virtual_spectrum_spawn_range = virtual_spectrum_spawn_range
@@ -124,6 +129,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             spectrum_frequency=self.spectrum_frequency,
             geometry_state=geometry_state,
             opacity_state=opacity_state,
+            time_explosion=simulation_state.time_explosion,
         )
 
         transport_state.enable_full_relativity = (
@@ -142,7 +148,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
     def run(
         self,
         transport_state,
-        time_explosion,
         iteration=0,
         total_iterations=0,
         show_progress_bars=True,
@@ -176,7 +181,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
-            time_explosion.cgs.value,
+            transport_state.time_explosion.cgs.value,
             transport_state.opacity_state,
             self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
@@ -289,7 +294,12 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             config.montecarlo.tracking.initial_array_length
         )
 
+        radfield_prop_solver = MCRadiationFieldPropertiesSolver(
+            config.plasma.w_epsilon
+        )
+
         return cls(
+            radfield_prop_solver=radfield_prop_solver,
             spectrum_frequency=spectrum_frequency,
             virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,

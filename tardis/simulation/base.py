@@ -262,10 +262,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         -------
             converged : bool
         """
-        (
-            estimated_t_rad,
-            estimated_dilution_factor,
-        ) = self.transport.transport_state.calculate_radiationfield_properties()
+        estimated_radfield_properties = (
+            self.transport.radfield_prop_solver.solve(
+                self.transport.transport_state.radfield_mc_estimators,
+                self.transport.transport_state.time_explosion,
+                self.transport.transport_state.time_of_simulation,
+                self.transport.transport_state.geometry_state.volume,
+                self.transport.transport_state.opacity_state.line_list_nu,
+            )
+        )
+
+        estimated_t_rad = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
+
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
             self.luminosity_requested,
@@ -334,11 +347,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.simulation_state.dilution_factor = next_dilution_factor
         self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
-        # model.calculate_j_blues() equivalent
-        # model.update_plasmas() equivalent
-        # Bad test to see if this is a nlte run
-        if "nlte_data" in self.plasma.outputs_dict:
-            self.plasma.store_previous_properties()
         radiation_field = DilutePlanckianRadiationField(
             temperature=self.simulation_state.t_radiative,
             dilution_factor=self.simulation_state.dilution_factor,
@@ -346,6 +354,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         update_properties = dict(
             dilute_planckian_radiation_field=radiation_field
         )
+
+        # model.calculate_j_blues() equivalent
+        # model.update_plasmas() equivalent
+        # Bad test to see if this is a nlte run
+        if "nlte_data" in self.plasma.outputs_dict:
+            self.plasma.store_previous_properties()
+            update_properties = dict(
+                j_blues=estimated_radfield_properties.j_blues
+            )
+
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
 
@@ -382,7 +400,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.transport.run(
             transport_state,
-            time_explosion=self.simulation_state.time_explosion,
             iteration=self.iterations_executed,
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
