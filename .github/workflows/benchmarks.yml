@@ -97,11 +97,7 @@ jobs:
             echo "Some benchmarks have failed!"
             exit 1
           fi
-
-      - name: ASV benchmarks
-        if: github.event_name != 'pull_request_target'
-        run: asv run --bench just-discover
-
+          
       - name: Generate Graphs and HTML
         if: github.event_name != 'pull_request_target'
         run: asv publish
