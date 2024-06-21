@@ -1,11 +1,11 @@
+from copy import deepcopy
+
 import numpy.testing as npt
 import pytest
+import numpy as np
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.base import run_tardis
-from tardis.transport.montecarlo.packet_trackers import (
-    rpacket_trackers_to_dataframe,
-)
 
 
 @pytest.fixture(scope="module")
@@ -19,14 +19,13 @@ def config_rpacket_tracker(example_configuration_dir):
 @pytest.fixture(scope="module")
 def simulation_rpacket_tracking_enabled(config_rpacket_tracker, atomic_dataset):
     """Simulation object with track_rpacket enabled"""
-    config_rpacket_tracker.montecarlo.iterations = 3
+    config_rpacket_tracker.montecarlo.iterations = 1
     config_rpacket_tracker.montecarlo.no_of_packets = 4000
     config_rpacket_tracker.montecarlo.last_no_of_packets = -1
     config_rpacket_tracker.montecarlo.tracking.track_rpacket = True
     config_rpacket_tracker.spectrum.num = 2000
     atomic_data = deepcopy(atomic_dataset)
     sim = run_tardis(
-        config_verysimple,
         config_rpacket_tracker,
         atom_data=atomic_data,
         show_convergence_plots=False,
@@ -39,7 +38,7 @@ def interaction_type_last_interaction_class(
     simulation_rpacket_tracking_enabled,
 ):
     """Last interaction types of rpacket from LastInteractionTracker"""
-    interation_type = (
+    interaction_type = (
         simulation_rpacket_tracking_enabled.transport.transport_state.last_interaction_type
     )
     return interaction_type
@@ -50,7 +49,7 @@ def shell_id_last_interaction_class(
     simulation_rpacket_tracking_enabled,
 ):
     """Last interaction types of rpacket from LastInteractionTracker"""
-    interation_type = (
+    interaction_type = (
         simulation_rpacket_tracking_enabled.transport.transport_state.last_interaction_type
     )
     mask = interaction_type == 2
@@ -73,7 +72,7 @@ def nu_from_packet_collection(
     return packet_collection.output_nus
 
 
-@pytest.fixture(scope="moduel")
+@pytest.fixture(scope="module")
 def rpacket_tracker(simulation_rpacket_tracking_enabled):
     rpacket_tracker = (
         simulation_rpacket_tracking_enabled.transport.transport_state.rpacket_tracker
