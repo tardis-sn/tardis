@@ -17,8 +17,7 @@ basic_inputs = PlasmaPropertyCollection(
         NumberDensity,
         TimeExplosion,
         AtomicData,
-        TRadiative,
-        DilutionFactor,
+        JBlues,
         LinkTRadTElectron,
         HeliumTreatment,
         ContinuumInteractionSpecies,
@@ -28,6 +27,8 @@ basic_inputs = PlasmaPropertyCollection(
 )
 basic_properties = PlasmaPropertyCollection(
     [
+        TRadiative,
+        DilutionFactor,
         BetaRadiation,
         Levels,
         Lines,
@@ -85,18 +86,10 @@ helium_lte_properties = PlasmaPropertyCollection(
 helium_numerical_nlte_properties = PlasmaPropertyCollection(
     [HeliumNumericalNLTE]
 )
-detailed_j_blues_inputs = PlasmaPropertyCollection(
-    [JBluesEstimator, RInner, TInner, Volume]
-)
-detailed_j_blues_properties = PlasmaPropertyCollection(
-    [JBluesDetailed, JBluesNormFactor, LuminosityInner, TimeSimulation]
-)
 continuum_interaction_inputs = PlasmaPropertyCollection(
     [
         StimRecombRateCoeffEstimator,
         PhotoIonRateCoeffEstimator,
-        RInner,
-        TInner,
         Volume,
         BfHeatingRateCoeffEstimator,
         StimRecombCoolingRateCoeffEstimator,
@@ -114,9 +107,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         ThermalGElectron,
         ThermalPhiSahaLTE,
         SahaFactor,
-        TimeSimulation,
         PhotoIonEstimatorsNormFactor,
-        LuminosityInner,
         StimRecombRateCoeff,
         CorrPhotoIonRateCoeff,
         SpontRecombCoolingRateCoeff,

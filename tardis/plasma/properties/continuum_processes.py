@@ -5,18 +5,17 @@ import pandas as pd
 from numba import njit, prange
 
 from tardis import constants as const
-from tardis.transport.montecarlo.estimators.util import (
-    bound_free_estimator_array2frame,
-    integrate_array_by_blocks,
-)
-from tardis.transport.montecarlo import njit_dict
 from tardis.plasma.exceptions import PlasmaException
 from tardis.plasma.properties.base import (
     Input,
     ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
 )
-from tardis.plasma.properties.j_blues import JBluesDiluteBlackBody
+from tardis.transport.montecarlo import njit_dict
+from tardis.transport.montecarlo.estimators.util import (
+    bound_free_estimator_array2frame,
+    integrate_array_by_blocks,
+)
 
 __all__ = [
     "SpontRecombRateCoeff",
@@ -356,8 +355,7 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         photo_ion_norm_factor,
         photo_ion_block_references,
         photo_ion_index,
-        t_rad,
-        w,
+        dilute_planckian_radiation_field,
         level2continuum_idx,
     ):
         # Used for initialization
@@ -366,8 +364,7 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
                 photo_ion_cross_sections,
                 photo_ion_block_references,
                 photo_ion_index,
-                t_rad,
-                w,
+                dilute_planckian_radiation_field,
             )
         else:
             gamma_estimator = bound_free_estimator_array2frame(
@@ -382,13 +379,12 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         photo_ion_cross_sections,
         photo_ion_block_references,
         photo_ion_index,
-        t_rad,
-        w,
+        dilute_planckian_radiation_field,
     ):
         nu = photo_ion_cross_sections["nu"]
         x_sect = photo_ion_cross_sections["x_sect"]
-        j_nus = JBluesDiluteBlackBody.calculate(
-            photo_ion_cross_sections, nu, t_rad, w
+        j_nus = dilute_planckian_radiation_field.calculate_mean_intensity(
+            nu,
         )
         gamma = j_nus.multiply(4.0 * np.pi * x_sect / nu / H, axis=0)
         gamma = integrate_array_by_blocks(
@@ -416,8 +412,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
         photo_ion_norm_factor,
         photo_ion_block_references,
         photo_ion_index,
-        t_rad,
-        w,
+        dilute_planckian_radiation_field,
         phi_ik,
         t_electrons,
         boltzmann_factor_photo_ion,
@@ -429,8 +424,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
                 photo_ion_cross_sections,
                 photo_ion_block_references,
                 photo_ion_index,
-                t_rad,
-                w,
+                dilute_planckian_radiation_field,
                 t_electrons,
                 boltzmann_factor_photo_ion,
             )
@@ -447,16 +441,13 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
         photo_ion_cross_sections,
         photo_ion_block_references,
         photo_ion_index,
-        t_rad,
-        w,
+        dilute_planckian_radiation_field,
         t_electrons,
         boltzmann_factor_photo_ion,
     ):
         nu = photo_ion_cross_sections["nu"]
         x_sect = photo_ion_cross_sections["x_sect"]
-        j_nus = JBluesDiluteBlackBody.calculate(
-            photo_ion_cross_sections, nu, t_rad, w
-        )
+        j_nus = dilute_planckian_radiation_field.calculate_mean_intensity(nu)
         j_nus *= boltzmann_factor_photo_ion
         alpha_stim = j_nus.multiply(4.0 * np.pi * x_sect / nu / H, axis=0)
         alpha_stim = integrate_array_by_blocks(

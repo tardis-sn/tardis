@@ -12,7 +12,7 @@ __all__ = [
     "NumberDensity",
     "IsotopeAbundance",
     "TimeExplosion",
-    "JBlueEstimator",
+    "JBlues",
     "LinkTRadTElectron",
     "HeliumTreatment",
     "Volume",
@@ -96,15 +96,15 @@ class TimeExplosion(Input):
     latex_name = (r"t_{\textrm{exp}}",)
 
 
-class JBlueEstimator(ArrayInput):
+class JBlues(Input):
     """
     Attributes
     ----------
     j_blue_estimators : Numpy array
     """
 
-    outputs = ("j_blue_estimators",)
-    latex_name = (r"J_{\textrm{blue-estimator}}",)
+    outputs = ("j_blues",)
+    latex_name = (r"J_{\textrm{blue}}",)
 
 
 class LinkTRadTElectron(Input):

@@ -358,21 +358,49 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # model.calculate_j_blues() equivalent
         # model.update_plasmas() equivalent
         # Bad test to see if this is a nlte run
-        if "nlte_data" in self.plasma.outputs_dict:
-            self.plasma.store_previous_properties()
-            update_properties = dict(
-                j_blues=estimated_radfield_properties.j_blues
+        if (
+            self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "blackbody"
+        ):
+            j_blues = radiation_field.calculate_mean_intensity(
+                self.plasma.atomic_data.lines.nu.values
             )
+            update_properties["j_blues"] = pd.DataFrame(
+                j_blues, index=self.plasma.atomic_data.lines.index
+            )
+            raise NotImplementedError(
+                "This is not right yet - calculate dilute mean intensity"
+            )
+        elif (
+            self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "dilute-blackbody"
+        ):
+            j_blues = radiation_field.calculate_mean_intensity(
+                self.plasma.atomic_data.lines.nu.values
+            )
+            update_properties["j_blues"] = pd.DataFrame(
+                j_blues, index=self.plasma.atomic_data.lines.index
+            )
+        elif (
+            self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "detailed"
+        ):
+            update_properties["j_blues"] = pd.DataFrame(
+                estimated_radfield_properties.j_blues,
+                index=self.plasma.atomic_data.lines.index,
+            )
+        else:
+            raise ValueError(
+                f"radiative_rates_type type unknown - {self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
+            )
+
+            self.plasma.store_previous_properties()
 
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
 
         estimators = self.transport.transport_state.radfield_mc_estimators
-        if "j_blue_estimator" in self.plasma.outputs_dict:
-            update_properties.update(
-                t_inner=next_t_inner,
-                j_blue_estimator=estimators.j_blue_estimator,
-            )
+
         if "gamma_estimator" in self.plasma.outputs_dict:
             update_properties.update(
                 gamma_estimator=estimators.photo_ion_estimator,

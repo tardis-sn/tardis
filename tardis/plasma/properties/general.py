@@ -14,8 +14,6 @@ __all__ = [
     "SelectedAtoms",
     "ElectronTemperature",
     "BetaElectron",
-    "LuminosityInner",
-    "TimeSimulation",
     "ThermalGElectron",
 ]
 

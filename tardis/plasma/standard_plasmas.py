@@ -5,14 +5,12 @@ import pandas as pd
 from astropy import units as u
 
 from tardis.plasma import BasePlasma
+from tardis.plasma.base import PlasmaSolverSettings
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import (
     HeliumNumericalNLTE,
     IonNumberDensity,
     IonNumberDensityHeNLTE,
-    JBluesBlackBody,
-    JBluesDetailed,
-    JBluesDiluteBlackBody,
     LevelBoltzmannFactorNLTE,
     MarkovChainTransProbsCollector,
     RadiationFieldCorrection,
@@ -30,8 +28,6 @@ from tardis.plasma.properties.property_collections import (
     basic_properties,
     continuum_interaction_inputs,
     continuum_interaction_properties,
-    detailed_j_blues_inputs,
-    detailed_j_blues_properties,
     dilute_lte_excitation_properties,
     helium_lte_properties,
     helium_nlte_properties,
@@ -213,22 +209,37 @@ def assemble_plasma(config, simulation_state, atom_data=None):
             r_inner=simulation_state.r_inner.to(u.cm),
             t_inner=simulation_state.t_inner,
         )
-    if config.plasma.radiative_rates_type == "blackbody":
-        plasma_modules.append(JBluesBlackBody)
-    elif config.plasma.radiative_rates_type == "dilute-blackbody":
-        plasma_modules.append(JBluesDiluteBlackBody)
-    elif config.plasma.radiative_rates_type == "detailed":
-        plasma_modules += detailed_j_blues_properties + detailed_j_blues_inputs
-        kwargs.update(
-            r_inner=simulation_state.r_inner.to(u.cm),
-            t_inner=simulation_state.t_inner,
-            volume=simulation_state.volume,
-            j_blue_estimator=None,
+
+    ##### RADIATIVE RATES SETUP
+
+    plasma_solver_settings = PlasmaSolverSettings(
+        RADIATIVE_RATES_TYPE=config.plasma.radiative_rates_type
+    )
+
+    if (plasma_solver_settings.RADIATIVE_RATES_TYPE == "dilute-blackbody") or (
+        plasma_solver_settings.RADIATIVE_RATES_TYPE == "detailed"
+    ):
+        kwargs["j_blues"] = pd.DataFrame(
+            dilute_planckian_radiation_field.calculate_mean_intensity(
+                atom_data.lines["nu"].values
+            ),
+            index=atom_data.lines.index,
         )
-        property_kwargs[JBluesDetailed] = {"w_epsilon": config.plasma.w_epsilon}
+
+    elif plasma_solver_settings.RADIATIVE_RATES_TYPE == "blackbody":
+        planckian_rad_field = (
+            dilute_planckian_radiation_field.to_planckian_radiation_field()
+        )
+        kwargs["j_blues"] = pd.DataFrame(
+            planckian_rad_field.calculate_mean_intensity(
+                atom_data.lines["nu"].values
+            ),
+            index=atom_data.lines.index,
+        )
+
     else:
         raise ValueError(
-            f"radiative_rates_type type unknown - {config.plasma.radiative_rates_type}"
+            f"radiative_rates_type type unknown - {plasma_solver_settings.RADIATIVE_RATES_TYPE}"
         )
 
     if config.plasma.excitation == "lte":
@@ -335,6 +346,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     plasma = BasePlasma(
         plasma_properties=plasma_modules,
         property_kwargs=property_kwargs,
+        plasma_solver_settings=plasma_solver_settings,
         **kwargs,
     )
 
