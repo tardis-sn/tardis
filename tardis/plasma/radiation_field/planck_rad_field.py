@@ -108,7 +108,6 @@ class PlanckianRadiationField:
             )
         else:
             assert np.all(temperature > 0 * u.K)
-            assert np.all(dilution_factor >= 0)
         self.temperature = temperature
 
     @property

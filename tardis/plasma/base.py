@@ -1,8 +1,8 @@
+import dataclasses
 import fileinput
 import logging
 import re
 import tempfile
-import dataclasses
 
 import networkx as nx
 

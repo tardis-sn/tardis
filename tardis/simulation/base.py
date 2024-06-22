@@ -362,14 +362,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
             == "blackbody"
         ):
-            j_blues = radiation_field.calculate_mean_intensity(
+            planckian_radiation_field = (
+                radiation_field.to_planckian_radiation_field()
+            )
+            j_blues = planckian_radiation_field.calculate_mean_intensity(
                 self.plasma.atomic_data.lines.nu.values
             )
             update_properties["j_blues"] = pd.DataFrame(
                 j_blues, index=self.plasma.atomic_data.lines.index
-            )
-            raise NotImplementedError(
-                "This is not right yet - calculate dilute mean intensity"
             )
         elif (
             self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
