@@ -134,10 +134,10 @@ class RPacketTracker(object):
             ] = r_packet.last_interaction_in_nu
             self.interaction_in_line_id[
                 self.num_interactions
-            ] = r_packet.last_interaction_in_line_id
+            ] = r_packet.last_line_interaction_in_id
             self.interaction_out_line_id[
                 self.num_interactions
-            ] = r_packet.last_interaction_out_line_id
+            ] = r_packet.last_line_interaction_out_id
         else:
             self.interaction_in_line_nu[self.num_interactions] = 0.0
             self.interaction_in_line_id[self.num_interactions] = -1
@@ -268,8 +268,8 @@ class RPacketLastInteractionTracker(object):
         self.interaction_type = r_packet.last_interaction_type
         if r_packet.last_interaction_type == 2:
             self.interaction_in_line_nu = r_packet.last_interaction_in_nu
-            self.interaction_in_line_id = r_packet.last_interaction_in_line_id
-            self.interaction_out_line_id = r_packet.last_interaction_out_line_id
+            self.interaction_in_line_id = r_packet.last_line_interaction_in_id
+            self.interaction_out_line_id = r_packet.last_line_interaction_out_id
         else:
             self.interaction_in_line_nu = 0.0
             self.interaction_in_line_id = -1
