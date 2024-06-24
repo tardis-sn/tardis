@@ -26,8 +26,7 @@ jobs:
           config: cliff.toml
           args: --verbose
         env:
-          OUTPUT: CHANGELOG.md
-          GITHUB_REPO: ${{ github.repository }}
+          OUTPUT: docs/contributing/CHANGELOG.md
 
       - uses: actions/upload-artifact@v4
         with:
