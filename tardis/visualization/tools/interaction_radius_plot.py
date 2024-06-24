@@ -1,5 +1,6 @@
-import tardis.visualization.tools.sdec_plot as sdec
-
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 import astropy.units as u
@@ -11,11 +12,7 @@ from tardis.util.base import (
     roman_to_int,
     int_to_roman,
 )
-
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.colors as clr
-import plotly.graph_objects as go
+import tardis.visualization.tools.sdec_plot as sdec
 
 
 class InteractionRadiusPlotter:
@@ -83,12 +80,20 @@ class InteractionRadiusPlotter:
         -------
         Plotter
         """
-
+        hdfstore = pd.HDFStore(hdf_fpath)
+        time_explosion = (
+            hdfstore["/simulation/plasma/scalars"]["time_explosion"] * u.s
+        )
+        velocity = (
+            hdfstore["/simulation/simulation_state"]["velocity"] * u.cm / u.s
+        )
         return cls(
             dict(
                 virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
                 real=sdec.SDECData.from_hdf(hdf_fpath, "real"),
             ),
+            time_explosion,
+            velocity,
         )
 
     def _parse_species_list(self, species_list):
@@ -102,6 +107,11 @@ class InteractionRadiusPlotter:
             Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
             (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
 
+        Raises
+        ------
+        ValueError
+            If species list contains invalid entries.
+
         """
         if species_list is not None:
             # check if there are any digits in the species list. If there are, then exit.
@@ -113,6 +123,7 @@ class InteractionRadiusPlotter:
                 )
             else:
                 full_species_list = []
+                species_mapped = {}
                 for species in species_list:
                     # check if a hyphen is present. If it is, then it indicates a
                     # range of ions. Add each ion in that range to the list as a new entry
@@ -150,31 +161,31 @@ class InteractionRadiusPlotter:
                 # the requested ion
                 for species in full_species_list:
                     if " " in species:
-                        requested_species_ids.append(
-                            [
-                                species_string_to_tuple(species)[0] * 100
-                                + species_string_to_tuple(species)[1]
-                            ]
+                        species_id = (
+                            species_string_to_tuple(species)[0] * 100
+                            + species_string_to_tuple(species)[1]
                         )
+                        requested_species_ids.append([species_id])
+                        species_mapped[species_id] = [species_id]
                     else:
                         atomic_number = element_symbol2atomic_number(species)
-                        requested_species_ids.append(
-                            [
-                                atomic_number * 100 + ion_number
-                                for ion_number in np.arange(atomic_number)
-                            ]
-                        )
+                        species_ids = [
+                            atomic_number * 100 + ion_number
+                            for ion_number in np.arange(atomic_number)
+                        ]
+                        requested_species_ids.append(species_ids)
+                        species_mapped[atomic_number * 100] = species_ids
                         # add the atomic number to a list so you know that this element should
                         # have all species in the same colour, i.e. it was requested like
                         # species_list = [Si]
                         keep_colour.append(atomic_number)
-                requested_species_ids = [
+
+                self._species_list = [
                     species_id
                     for temp_list in requested_species_ids
                     for species_id in temp_list
                 ]
-
-                self._species_list = requested_species_ids
+                self._species_mapped = species_mapped
                 self._keep_colour = keep_colour
         else:
             self._species_list = None
@@ -221,52 +232,65 @@ class InteractionRadiusPlotter:
         # worked out
 
         color_list = []
+        species_keys = list(self._species_mapped.keys())
+        num_species = len(species_keys)
+        valid_species_keys = []
 
-        # Colors for each element
-        # Create new variables to keep track of the last atomic number that was plotted
-        # This is used when plotting species in case an element was given in the list
-        # This is to ensure that all ions of that element are grouped together
-        # ii is to track the colour index
-        # e.g. if Si is given in species_list, this is to ensure Si I, Si II, etc. all have the same colour
-        color_counter = 0
-        previous_atomic_number = 0
-        for species_counter, identifier in enumerate(self.species):
-            if self._species_list is not None:
-                # Get the ion number and atomic number for each species
-                ion_number = identifier % 100
-                atomic_number = (identifier - ion_number) / 100
-                if previous_atomic_number == 0:
-                    # If this is the first species being plotted, then take note of the atomic number
-                    # don't update the colour index
-                    color_counter = color_counter
-                    previous_atomic_number = atomic_number
-                elif previous_atomic_number in self._keep_colour:
-                    # If the atomic number is in the list of elements that should all be plotted in the same colour
-                    # then don't update the colour index if this element has been plotted already
-                    if previous_atomic_number == atomic_number:
-                        color_counter = color_counter
-                        previous_atomic_number = atomic_number
-                    else:
-                        # Otherwise, increase the colour counter by one, because this is a new element
-                        color_counter = color_counter + 1
-                        previous_atomic_number = atomic_number
-                else:
-                    # If this is just a normal species that was requested then increment the colour index
-                    color_counter = color_counter + 1
-                    previous_atomic_number = atomic_number
-                # Calculate the colour of this species
-                color = self.cmap(color_counter / len(self._species_name))
-
-            else:
-                # If you're not using species list then this is just a fraction based on the total
-                # number of columns in the dataframe
-                color = self.cmap(species_counter / len(self.species))
-
-            color_list.append(color)
+        for species_counter, species_key in enumerate(species_keys):
+            if any(
+                species in self.species
+                for species in self._species_mapped[species_key]
+            ):
+                color = self.cmap(species_counter / num_species)
+                color_list.append(color)
+                valid_species_keys.append(species_key)
 
         self._color_list = color_list
+        self._valid_species_keys = valid_species_keys
 
-        return
+    def _generate_plot_data(self, packets_mode):
+        """
+        Generate plot data and colors for species in the model.
+
+        Parameters
+        ----------
+        packets_mode : str
+            Packet mode, either 'virtual' or 'real'.
+
+        Returns
+        -------
+        plot_data : list
+            List of velocity data for each species.
+
+        plot_colors : list
+            List of colors corresponding to each species.
+        """
+        groups = self.data[packets_mode].packets_df_line_interaction.groupby(
+            by="last_line_interaction_species"
+        )
+
+        plot_colors = []
+        plot_data = []
+        species_counter = 0
+
+        for specie_list in self._species_mapped.values():
+            full_v_last = []
+            for specie in specie_list:
+                if specie in self.species:
+                    g_df = groups.get_group(specie)
+                    r_last_interaction = (
+                        g_df["last_interaction_in_r"].values * u.cm
+                    )
+                    v_last_interaction = (
+                        r_last_interaction / self.time_explosion
+                    ).to("km/s")
+                    full_v_last.extend(v_last_interaction)
+            if full_v_last:
+                plot_data.append(full_v_last)
+                plot_colors.append(self._color_list[species_counter])
+                species_counter += 1
+
+        return plot_data, plot_colors
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
@@ -332,31 +356,36 @@ class InteractionRadiusPlotter:
         self._make_colorbar_colors()
         self._show_colorbar_mpl()
 
-        groups = self.data[packets_mode].packets_df_line_interaction.groupby(
-            by="last_line_interaction_species"
-        )
+        plot_data, plot_colors = self._generate_plot_data(packets_mode)
+        bin_edges = (self.velocity).to("km/s")
 
-        plot_colors = []
-        plot_data = []
-
-        for species_counter, identifier in enumerate(self.species):
-            g_df = groups.get_group(identifier)
-            r_last_interaction = g_df["last_interaction_in_r"].values * u.cm
-            v_last_interaction = (r_last_interaction / self.time_explosion).to(
-                "km/s"
+        for data, color, name in zip(
+            plot_data, plot_colors, self._species_name
+        ):
+            hist, _ = np.histogram(data, bins=bin_edges)
+            step_x = np.repeat(bin_edges, 2)[1:-1]
+            step_y = np.repeat(hist, 2)
+            self.ax.plot(
+                step_x,
+                step_y,
+                label=name,
+                color=color,
+                linewidth=2.5,
+                drawstyle="steps-post",
+                alpha=0.75,
             )
-            plot_data.append(v_last_interaction)
-            plot_colors.append(self._color_list[species_counter])
 
-        self.ax.hist(plot_data, bins=self.no_of_shells, color=plot_colors)
         self.ax.ticklabel_format(axis="y", scilimits=(0, 0))
-        self.ax.tick_params("both", labelsize=20)
-        self.ax.set_xlabel("Last Interaction Velocity (km/s)", fontsize=25)
-        self.ax.set_ylabel("Packet Count", fontsize=25)
+        self.ax.tick_params("both", labelsize=14)
+        self.ax.set_xlabel("Last Interaction Velocity (km/s)", fontsize=14)
+        self.ax.set_ylabel("Packet Count", fontsize=14)
+        self.ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+        self.ax.legend(fontsize=15)
+        plt.tight_layout()
 
-        return plt.gca()
+        return self.ax
 
-    def generate_plot_plotly(
+    def generate_plot_ply(
         self,
         packets_mode="virtual",
         species_list=None,
@@ -376,36 +405,32 @@ class InteractionRadiusPlotter:
             raise ValueError("No species provided for plotting.")
         msk = np.isin(self._species_list, species_in_model)
         self.species = np.array(self._species_list)[msk]
+
         if len(self.species) == 0:
             raise ValueError("No valid species found for plotting.")
         # Get the labels in the color bar. This determines the number of unique colors
         self._make_colorbar_labels()
+        # Set colormap to be used in elements of emission and absorption plots
+        self.cmap = cm.get_cmap(cmapname, len(self._species_name))
         # Get the number of unique colors
         self._make_colorbar_colors()
-        groups = self.data[packets_mode].packets_df_line_interaction.groupby(
-            by="last_line_interaction_species"
-        )
 
-        plot_colors = []
-        plot_data = []
-
-        for species_counter, identifier in enumerate(self.species):
-            g_df = groups.get_group(identifier)
-            r_last_interaction = g_df["last_interaction_in_r"].values * u.cm
-            v_last_interaction = (r_last_interaction / self.time_explosion).to(
-                "km/s"
-            )
-            plot_data.append(v_last_interaction)
-            color = f"rgba({int(255*self._color_list[species_counter][0])}, {int(255*self._color_list[species_counter][1])}, {int(255*self._color_list[species_counter][2])}, 1)"
-            plot_colors.append(color)
+        plot_data, plot_colors = self._generate_plot_data(packets_mode)
+        bin_edges = (self.velocity).to("km/s")
         fig = go.Figure()
         for data, color, name in zip(
             plot_data, plot_colors, self._species_name
         ):
             fig.add_trace(
-                go.Histogram(
-                    x=data,
-                    marker_color=color,
+                go.Scatter(
+                    x=step_x,
+                    y=step_y,
+                    mode="lines",
+                    line=dict(
+                        color=f"rgba({int(255*color[0])}, {int(255*color[1])}, {int(255*color[2])}, 1)",
+                        width=2.5,
+                        shape="hv",
+                    ),
                     name=name,
                     opacity=0.75,
                     nbinsx=self.no_of_shells,
@@ -415,7 +440,8 @@ class InteractionRadiusPlotter:
             barmode="overlay",
             xaxis_title="Last Interaction Velocity (km/s)",
             yaxis_title="Packet Count",
-            template="plotly_white",
-            font=dict(size=18),
+            font=dict(size=14),
+            yaxis=dict(tickformat=".1e"),
+            xaxis=dict(tickformat=".0f"),
         )
         return fig
