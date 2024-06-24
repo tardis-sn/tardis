@@ -7,7 +7,7 @@ from tardis.transport.montecarlo.packet_trackers import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def interaction_type_last_interaction_class_old(
     nb_simulation_verysimple,
 ):
@@ -18,6 +18,18 @@ def interaction_type_last_interaction_class_old(
 
 
 @pytest.fixture()
+def shell_id_last_interaction_class_old(
+    nb_simulation_verysimple,
+    interaction_type_last_interaction_class_old,
+):
+    """Last interaction types of rpacket from LastInteractionTracker"""
+    transport_state = nb_simulation_verysimple.transport.transport_state
+    shell_id = transport_state.last_line_interaction_shell_id
+    mask = interaction_type_last_interaction_class_old == 2
+    return shell_id[mask]
+
+
+@pytest.fixture(scope="module")
 def interaction_type_last_interaction_class_new(
     nb_simulation_verysimple,
 ):
@@ -35,6 +47,22 @@ def interaction_type_last_interaction_class_new(
 
 
 @pytest.fixture()
+def shell_id_last_interaction_class_new(
+    nb_simulation_verysimple,
+    interaction_type_last_interaction_class_new,
+):
+    """Last interaction types of rpacket from RPacketLastInteractionTracker"""
+    transport_state = nb_simulation_verysimple.transport.transport_state
+    shell_id = np.empty(len(transport_state.rpacket_tracker), dtype=np.int64)
+    for i, last_interaction_tracker in enumerate(
+        transport_state.rpacket_tracker
+    ):
+        shell_id[i] = last_interaction_tracker.shell_id
+    mask = interaction_type_last_interaction_class_new == 2
+    return shell_id[mask]
+
+
+@pytest.fixture()
 def nu_from_packet_collection(
     nb_simulation_verysimple,
 ):
@@ -46,7 +74,7 @@ def nu_from_packet_collection(
 
 
 @pytest.fixture()
-def nu_from_last_interaction_class(
+def nu_from_last_interaction_class_new(
     nb_simulation_verysimple,
 ):
     """Last interaction output nus of rpacket from RPacketLastInteractionTracker"""
@@ -86,7 +114,11 @@ def test_tracking_manual(static_packet):
             "interaction_type_last_interaction_class_old",
             "interaction_type_last_interaction_class_new",
         ),
-        ("nu_from_packet_collection", "nu_from_last_interaction_class"),
+        (
+            "shell_id_last_interaction_class_old",
+            "shell_id_last_interaction_class_new",
+        ),
+        ("nu_from_packet_collection", "nu_from_last_interaction_class_new"),
     ],
 )
 def test_last_interaction_properties(expected, obtained, request):
