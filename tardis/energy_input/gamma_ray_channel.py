@@ -110,7 +110,8 @@ def calculate_total_decays(inventories, time_delta):
 
 def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     """
-    Function to create a dataframe of isotopes for each shell with their decay mode, number of decays, radiation type,
+    Function to create a dataframe of isotopes for each shell with their decay mode,
+    number of decays, radiation type,
     radiation energy and radiation intensity.
 
     Parameters

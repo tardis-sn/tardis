@@ -50,17 +50,6 @@ def calculate_distance_radial(photon, r_inner, r_outer):
         outer_2 = -1
 
     distances = np.array([inner_1, inner_2, outer_1, outer_2])
-
-    # print(
-    #     "Distance to inner shell boundaries: ",
-    #     photon.get_location_r() - r_inner,
-    # )
-    # print(
-    #     "Distance to outer shell boundaries: ",
-    #     photon.get_location_r() - r_outer,
-    # )
-
-    # the correct distance is the shortest positive distance
     distance_list = [i for i in distances if i > 0]
 
     if not distance_list:

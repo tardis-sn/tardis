@@ -7,7 +7,6 @@ from tardis.transport.montecarlo.opacities import (
     compton_opacity_calculation,
     photoabsorption_opacity_calculation,
     pair_creation_opacity_calculation,
-    photoabsorption_opacity_calculation_kasen,
     kappa_calculation,
     pair_creation_opacity_artis,
     SIGMA_T,
@@ -15,15 +14,14 @@ from tardis.transport.montecarlo.opacities import (
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_packet,
-    calculate_distance_radial,
 )
 from tardis.energy_input.util import (
     doppler_factor_3d,
     C_CGS,
     H_CGS_KEV,
-    KEV2ERG,
     get_index,
 )
+
 from tardis.energy_input.GXPacket import GXPacketStatus
 from tardis.energy_input.gamma_ray_interactions import (
     get_compton_fraction_artis,
@@ -45,7 +43,6 @@ def gamma_packet_loop(
     pair_creation_opacity_type,
     electron_number_density_time,
     mass_density_time,
-    inv_volume_time,
     iron_group_fraction_per_shell,
     inner_velocities,
     outer_velocities,
@@ -109,22 +106,16 @@ def gamma_packet_loop(
     scattered_packets = 0
     packet_count = len(packets)
 
-    print("Packet count: ", packet_count)
-    # deposition_estimator = np.zeros_like(energy_df_rows)
+    print("Packet count:", packet_count)
 
     for i in range(packet_count):
         packet = packets[i]
         time_index = get_index(packet.time_current, times)
-        # print("Time index: ", time_index)
-        # print("Time current: ", packet.time_current)
-
         if time_index < 0:
             print(packet.time_current, time_index)
             raise ValueError("Packet time index less than 0!")
 
         scattered = False
-
-        initial_energy = packet.energy_cmf
 
         while packet.status == GXPacketStatus.IN_PROCESS:
             # Get delta-time value for this step
@@ -220,17 +211,6 @@ def gamma_packet_loop(
 
             packet = move_packet(packet, distance)
 
-            # deposition_estimator[packet.shell, time_index] += (
-            #    (initial_energy * 1000)
-            #    * distance
-            #    * (packet.energy_cmf / initial_energy)
-            #    * deposition_estimator_kasen(
-            #        comoving_energy,
-            #       mass_density_time[packet.shell, time_index],
-            #        iron_group_fraction_per_shell[packet.shell],
-            #    )
-            # )
-
             if distance == distance_time:
                 time_index += 1
 
@@ -251,27 +231,6 @@ def gamma_packet_loop(
                 )
 
                 packet, ejecta_energy_gained = process_packet_path(packet)
-
-                # Save packets to dataframe rows
-                # convert KeV to eV / s / cm^3
-                # energy_df_rows[packet.shell, time_index] += (
-                #    ejecta_energy_gained * 1000
-                # )
-
-                # energy_plot_df_rows[i] = np.array(
-                #    [
-                #        i,
-                #        ejecta_energy_gained * 1000
-                # * inv_volume_time[packet.shell, time_index]
-                #        / dt,
-                #        packet.get_location_r(),
-                #        packet.time_current,
-                #        packet.shell,
-                #        compton_opacity,
-                #        photoabsorption_opacity,
-                #        pair_creation_opacity,
-                #    ]
-                # )
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
@@ -322,7 +281,6 @@ def gamma_packet_loop(
 
     return (
         energy_out,
-        bin_width,
         packets_info_array,
     )
 
@@ -379,64 +337,3 @@ def process_packet_path(packet):
         ejecta_energy_gained = packet.energy_cmf
 
     return packet, ejecta_energy_gained
-
-
-@njit(**njit_dict_no_parallel)
-def gamma_packet_loop_understanding(
-    packets,
-    times,
-    inner_velocity,
-    outer_velocity,
-    effective_time_array,
-):
-
-    packet_count = len(packets)
-    print("Packet count: ", packet_count)
-    print("Effective time array: ", effective_time_array)
-    print("length of effective time array", len(effective_time_array))
-
-    for i in range(packet_count):
-        packet = packets[i]
-        time_index = get_index(packet.time_current, times)
-        print("Time index: ", time_index)
-        print("Time current: ", packet.time_current)
-        print("Time current in days: ", packet.time_current / 86400)
-        print("Length of time array:", len(times))
-
-        # we need to have the times within the simulation time steps
-
-        if time_index < 0:
-            print(packet.time_current, time_index)
-            raise ValueError("Packet time index less than 0!")
-        elif time_index >= len(times):
-            print(packet.time_current, time_index)
-            raise ValueError("Packet time index greater than time steps!")
-
-        # while packet.status == GXPacketStatus.IN_PROCESS:
-
-        print(
-            "Inner shell velocity: ",
-            inner_velocity[packet.shell],
-        )
-        print(
-            "Outer shell velocity: ",
-            outer_velocity[packet.shell],
-        )
-
-        print(
-            "Effective time array: ",
-            effective_time_array[time_index],
-        )
-        print(
-            "Effective time array in days:",
-            effective_time_array[time_index] / 86400,
-        )
-
-        distance_boundary, shell_change = calculate_distance_radial(
-            packet,
-            inner_velocity[packet.shell] * effective_time_array[time_index],
-            outer_velocity[packet.shell] * effective_time_array[time_index],
-        )
-
-        print("Distance boundary: ", distance_boundary)
-        print("Shell change: ", shell_change)

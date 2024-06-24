@@ -186,13 +186,13 @@ def solve_quadratic_equation(position, direction, radius):
     a = np.sum(direction**2)
     b = 2.0 * np.sum(position * direction)
     c = -(radius**2) + np.sum(position**2)
-    root = b**2 - 4 * a * c
+    discriminant = b**2 - 4 * a * c
     solution_1 = -np.inf
     solution_2 = -np.inf
-    if root > 0.0:
-        solution_1 = (-b + np.sqrt(root)) / (2 * a)
-        solution_2 = (-b - np.sqrt(root)) / (2 * a)
-    elif root == 0:
+    if discriminant > 0.0:
+        solution_1 = (-b + np.sqrt(discriminant)) / (2 * a)
+        solution_2 = (-b - np.sqrt(discriminant)) / (2 * a)
+    elif discriminant == 0:
         solution_1 = -b / (2 * a)
 
     return solution_1, solution_2
@@ -220,13 +220,13 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
     a = np.dot(direction, direction) - (radius / light_distance) ** 2.0
     b = 2.0 * (np.dot(position, direction) - radius**2.0 / light_distance)
     c = np.dot(position, position) - radius**2.0
-    root = b**2.0 - 4.0 * a * c
+    discriminant = b**2.0 - 4.0 * a * c
     solution_1 = -np.inf
     solution_2 = -np.inf
-    if root > 0.0:
-        solution_1 = (-b + np.sqrt(root)) / (2.0 * a)
-        solution_2 = (-b - np.sqrt(root)) / (2.0 * a)
-    elif root == 0:
+    if discriminant > 0.0:
+        solution_1 = (-b + np.sqrt(discriminant)) / (2.0 * a)
+        solution_2 = (-b - np.sqrt(discriminant)) / (2.0 * a)
+    elif discriminant == 0:
         solution_1 = -b / (2.0 * a)
 
     return solution_1, solution_2
