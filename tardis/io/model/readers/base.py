@@ -17,8 +17,8 @@ from tardis.io.model.readers.artis import read_artis_density
 
 
 def read_mass_fractions_file(
-    mass_fraction_filename,
-    mass_fraction_filetype,
+    mass_fractions_filename,
+    mass_fractions_filetype,
     inner_boundary_index=None,
     outer_boundary_index=None,
 ):
@@ -27,9 +27,9 @@ def read_mass_fractions_file(
 
     Parameters
     ----------
-    mass_fraction_filename : str
+    mass_fractions_filename : str
         filename or path of the density file
-    mass_fraction_filetype : str
+    mass_fractions_filetype : str
         type of the density file
     inner_boundary_index : int
         index of the inner shell, default None
@@ -45,13 +45,13 @@ def read_mass_fractions_file(
     }
 
     isotope_mass_fractions = pd.DataFrame()
-    if mass_fraction_filetype in ["cmfgen_model", "custom_composition"]:
+    if mass_fractions_filetype in ["cmfgen_model", "custom_composition"]:
         index, mass_fractions, isotope_mass_fractions = file_parsers[
-            mass_fraction_filetype
-        ](mass_fraction_filename)
+            mass_fractions_filetype
+        ](mass_fractions_filename)
     else:
-        index, mass_fractions = file_parsers[mass_fraction_filetype](
-            mass_fraction_filename
+        index, mass_fractions = file_parsers[mass_fractions_filetype](
+            mass_fractions_filename
         )
 
     if outer_boundary_index is not None:

@@ -29,10 +29,10 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
 
     Returns
     -------
-    nuclide_mass_fraction : object
+    nuclide_mass_fractions : object
         The parsed nuclide mass fraction.
 
-    raw_isotope_mass_fraction : object
+    raw_isotope_mass_fractions : object
         The parsed raw isotope mass fraction. This is the isotope mass fraction data before decay.
 
     Raises
@@ -51,10 +51,10 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
     is returned.
     """
     mass_fractions_section = config.model.abundances
-    isotope_mass_fraction = pd.DataFrame()
+    isotope_mass_fractions = pd.DataFrame()
 
     if mass_fractions_section.type == "uniform":
-        mass_fraction, isotope_mass_fraction = read_uniform_mass_fractions(
+        mass_fractions, isotope_mass_fractions = read_uniform_mass_fractions(
             mass_fractions_section, geometry.no_of_shells
         )
 
@@ -66,35 +66,35 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
                 config.config_dirname, mass_fractions_section.filename
             )
 
-        index, mass_fraction, isotope_mass_fraction = read_mass_fractions_file(
+        index, mass_fractions, isotope_mass_fractions = read_mass_fractions_file(
             mass_fractions_fname, mass_fractions_section.filetype
         )
 
-    mass_fraction = mass_fraction.replace(np.nan, 0.0)
-    mass_fraction = mass_fraction[mass_fraction.sum(axis=1) > 0]
+    mass_fractions = mass_fractions.replace(np.nan, 0.0)
+    mass_fractions = mass_fractions[mass_fractions.sum(axis=1) > 0]
 
-    norm_factor = mass_fraction.sum(axis=0) + isotope_mass_fraction.sum(axis=0)
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
         logger.warning(
             "Mass fractions have not been normalized to 1. - normalizing"
         )
-        mass_fraction /= norm_factor
-        isotope_mass_fraction /= norm_factor
+        mass_fractions /= norm_factor
+        isotope_mass_fractions /= norm_factor
     # The next line is if the mass_fractions are given via dict
     # and not gone through the schema validator
-    raw_isotope_mass_fraction = isotope_mass_fraction
+    raw_isotope_mass_fractions = isotope_mass_fractions
     model_isotope_time_0 = config.model.abundances.get(
         "model_isotope_time_0", 0.0 * u.day
     )
-    isotope_mass_fraction = IsotopicMassFraction(
-        isotope_mass_fraction, time_0=model_isotope_time_0
+    isotope_mass_fractions = IsotopicMassFraction(
+        isotope_mass_fractions, time_0=model_isotope_time_0
     ).decay(time_explosion)
 
-    nuclide_mass_fraction = convert_to_nuclide_mass_fraction(
-        isotope_mass_fraction, mass_fraction
+    nuclide_mass_fractions = convert_to_nuclide_mass_fractions(
+        isotope_mass_fractions, mass_fractions
     )
-    return nuclide_mass_fraction, raw_isotope_mass_fraction
+    return nuclide_mass_fractions, raw_isotope_mass_fractions
 
 
 def parse_mass_fractions_from_csvy(
@@ -170,14 +170,14 @@ def parse_mass_fractions_from_csvy(
         isotope_mass_fractions, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
     return (
-        convert_to_nuclide_mass_fraction(
+        convert_to_nuclide_mass_fractions(
             isotope_mass_fractions, mass_fractions
         ),
         raw_isotope_mass_fraction,
     )
 
 
-def convert_to_nuclide_mass_fraction(isotopic_mass_fraction, mass_fraction):
+def convert_to_nuclide_mass_fractions(isotopic_mass_fractions, mass_fractions):
     """
     Convert the mass fraction and isotope mass fraction data to nuclide mass fraction.
 
@@ -185,7 +185,7 @@ def convert_to_nuclide_mass_fraction(isotopic_mass_fraction, mass_fraction):
     ----------
     isotope_mass_fraction : pandas.DataFrame
         The isotope mass fraction data.
-    mass_fraction : pandas.DataFrame
+    mass_fractions : pandas.DataFrame
         The mass fraction data.
 
     Returns
@@ -205,17 +205,17 @@ def convert_to_nuclide_mass_fraction(isotopic_mass_fraction, mass_fraction):
     The resulting mass fraction data is then concatenated with the isotope mass fraction data to
     obtain the final nuclide mass fraction.
     """
-    nuclide_mass_fraction = pd.DataFrame()
-    if mass_fraction is not None:
-        mass_fraction.index = Composition.convert_element2nuclide_index(
-            mass_fraction.index
+    nuclide_mass_fractions = pd.DataFrame()
+    if mass_fractions is not None:
+        mass_fractions.index = Composition.convert_element2nuclide_index(
+            mass_fractions.index
         )
-        nuclide_mass_fraction = mass_fraction
+        nuclide_mass_fractions = mass_fractions
     else:
-        nuclide_mass_fraction = pd.DataFrame()
+        nuclide_mass_fractions = pd.DataFrame()
 
-    if isotopic_mass_fraction is not None:
-        nuclide_mass_fraction = pd.concat(
-            [nuclide_mass_fraction, isotopic_mass_fraction]
+    if isotopic_mass_fractions is not None:
+        nuclide_mass_fractions = pd.concat(
+            [nuclide_mass_fractions, isotopic_mass_fractions]
         )
-    return nuclide_mass_fraction
+    return nuclide_mass_fractions
