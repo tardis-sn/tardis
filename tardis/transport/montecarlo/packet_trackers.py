@@ -83,7 +83,9 @@ class RPacketTracker(object):
             temp_energy = np.empty(temp_length, dtype=np.float64)
             temp_shell_id = np.empty(temp_length, dtype=np.int64)
             temp_interaction_type = np.empty(temp_length, dtype=np.int64)
-            temp_interaction_in_line_nu = np.empty(temp_length, dtype=np.int64)
+            temp_interaction_in_line_nu = np.empty(
+                temp_length, dtype=np.float64
+            )
             temp_interaction_in_line_id = np.empty(temp_length, dtype=np.int64)
             temp_interaction_out_line_id = np.empty(temp_length, dtype=np.int64)
 
