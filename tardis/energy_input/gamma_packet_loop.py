@@ -212,7 +212,6 @@ def gamma_packet_loop(
                 effective_time_array[time_index],
                 effective_time_array[time_index + 1],
             )
-
             distance = min(
                 distance_interaction, distance_boundary, distance_time
             )
@@ -291,11 +290,10 @@ def gamma_packet_loop(
                         energy_bins[bin_index + 1] - energy_bins[bin_index]
                     )
                     freq_bin_width = bin_width / H_CGS_KEV
-                    energy_ergs = packet.energy_rf * KEV2ERG
-                    luminosity = energy_ergs / dt
                     energy_out[bin_index, time_index] += (
-                        energy_ergs / dt / freq_bin_width
+                        packet.energy_rf / dt / freq_bin_width
                     )
+                    luminosity = packet.energy_rf / dt
 
                     packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1

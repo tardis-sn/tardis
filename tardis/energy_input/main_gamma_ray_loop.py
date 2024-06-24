@@ -339,14 +339,60 @@ def run_gamma_ray_loop(
     effective_time_array,
     seed,
     positronium_fraction,
-    path_to_decay_data,
     spectrum_bins,
     time_steps,
     grey_opacity,
     photoabsorption_opacity="tardis",
     pair_creation_opacity="tardis",
 ):
+    """
+    Main loop to determine the gamma-ray propagation through the ejecta.
+
+    Parameters
+    ----------
+    model : tardis.model.Radial1DModel
+            Tardis model object.
+    plasma : tardis.plasma.standard_plasmas.BasePlasma
+            Tardis plasma object.
+    isotope_decay_df : pd.DataFrame
+            DataFrame containing the cumulative decay data.
+    cumulative_decays_df : pd.DataFrame
+            DataFrame containing the time evolving mass fractions.
+    num_decays : int
+            Number of packets to decay.
+    times : np.ndarray
+            Array of times in days.
+    effective_time_array : np.ndarray
+            Effective time array in days.
+    seed : int
+            Seed for the random number generator.
+    positronium_fraction : float
+            Fraction of positronium.
+    spectrum_bins : int
+            Number of spectrum bins.
+    time_steps : int
+            Number of time steps.
+    grey_opacity : float
+            Grey opacity.
+    photoabsorption_opacity : str
+            Photoabsorption opacity.
+    pair_creation_opacity : str
+            Pair creation opacity.
+
+
+    Returns
+    -------
+
+    escape_energy : pd.DataFrame
+            DataFrame containing the energy escaping the ejecta.
+    packets_df_escaped : pd.DataFrame
+            DataFrame containing the packets info that escaped the ejecta.
+
+
+    """
     np.random.seed(seed)
+    times = times * u.d.to(u.s)
+    effective_time_array = effective_time_array * u.d.to(u.s)
     inner_velocities = model.v_inner.to("cm/s").value
     outer_velocities = model.v_outer.to("cm/s").value
     ejecta_volume = model.volume.to("cm^3").value
@@ -390,25 +436,20 @@ def run_gamma_ray_loop(
     )
     mass_density_time = shell_masses[:, np.newaxis] * inv_volume_time
 
-    # gamma_ray_lines = get_nuclear_lines_database(path_to_decay_data)
     taus, parents = get_taus(raw_isotope_abundance)
     # Need to get the strings for the isotopes without the dashes
     taus = make_isotope_string_tardis_like(taus)
 
+    # Get only the gamma rays
     isotope_decay_df_gamma = isotope_decay_df[
         isotope_decay_df["radiation"] == "g"
     ]
+    total_energy_gamma = isotope_decay_df_gamma["decay_energy_erg"].sum()
 
-    total_energy_gamma = isotope_decay_df_gamma[
-        "decay_energy_keV"
-    ].sum()  # total energy in keV
-
-    total_energy_gamma_erg = total_energy_gamma * u.keV.to("erg")
-
-    energy_per_packet = total_energy_gamma_erg / num_decays
+    energy_per_packet = total_energy_gamma / num_decays
     energy_df_rows = np.zeros((number_of_shells, times.shape[0]))
 
-    logger.info(f"Total energy in gamma-rays is {total_energy_gamma_erg}")
+    logger.info(f"Total energy in gamma-rays is {total_energy_gamma}")
     logger.info(f"Energy per packet is {energy_per_packet}")
     average_power_per_mass = 1e41
     positron_energy_per_isotope = 1000  # keV
@@ -449,8 +490,6 @@ def run_gamma_ray_loop(
         for i in range(num_decays)
     ]
 
-    return packets
-
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
     packets_info_array = np.zeros((int(num_decays), 8))
@@ -465,34 +504,11 @@ def run_gamma_ray_loop(
         total_cmf_energy += p.energy_cmf
         total_rf_energy += p.energy_rf
 
-    print("Total CMF energy")
-    print(total_cmf_energy)
-    print("Total RF energy")
-    print(total_rf_energy)
-
-    # packets_df_escaped = pd.DataFrame(
-    #     data=packets_array,
-    #     columns=[
-    #         "packet_index",
-    #         "status",
-    #         "nu_cmf",
-    #         "nu_rf",
-    #         "energy_cmf",
-    #         "lum_rf",
-    #         "energy_rf",
-    #         "shell_number",
-    #     ],
-    # )
-
-    # return packets_df_escaped
-
-    # gamma_packet_loop_understanding(
-    #     packets, times, inner_velocities, outer_velocities, effective_time_array
-    # )
+    logger.info(f"Total CMF energy is {total_cmf_energy}")
+    logger.info(f"Total RF energy is {total_rf_energy}")
 
     (
         energy_out,
-        bin_width,
         packets_array,
     ) = gamma_packet_loop(
         packets,
