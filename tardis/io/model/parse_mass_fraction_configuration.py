@@ -66,14 +66,20 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
                 config.config_dirname, mass_fractions_section.filename
             )
 
-        index, mass_fractions, isotope_mass_fractions = read_mass_fractions_file(
+        (
+            index,
+            mass_fractions,
+            isotope_mass_fractions,
+        ) = read_mass_fractions_file(
             mass_fractions_fname, mass_fractions_section.filetype
         )
 
     mass_fractions = mass_fractions.replace(np.nan, 0.0)
     mass_fractions = mass_fractions[mass_fractions.sum(axis=1) > 0]
 
-    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(
+        axis=0
+    )
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
         logger.warning(
