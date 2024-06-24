@@ -9,7 +9,7 @@ import pandas as pd
 from astropy import units as u
 from numpy import recfromtxt
 from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z, NuclideStrError
+from radioactivedecay.utils import Z_DICT, NuclideStrError, elem_to_Z
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
@@ -553,53 +553,58 @@ def transport_to_dict(transport):
     virtual_spectrum_spawn_range : dict
     """
     transport_dict = {
-        "Edotlu_estimator": transport.Edotlu_estimator,
-        "bf_heating_estimator": transport.bf_heating_estimator,
-        "disable_electron_scattering": transport.disable_electron_scattering,
+        "Edotlu_estimator": transport.transport_state.radfield_mc_estimators.Edotlu_estimator,
+        "bf_heating_estimator": transport.transport_state.radfield_mc_estimators.bf_heating_estimator,
+        "disable_electron_scattering": transport.montecarlo_configuration.DISABLE_ELECTRON_SCATTERING,
         "enable_full_relativity": transport.enable_full_relativity,
-        "input_energy": transport.input_energy,
-        "input_mu": transport.input_mu,
-        "input_nu": transport.input_nu,
-        "input_r_cgs": transport.input_r,
-        "j_blue_estimator": transport.j_blue_estimator,
-        "j_estimator": transport.j_estimator,
-        "last_interaction_in_nu": transport.last_interaction_in_nu,
-        "last_interaction_type": transport.last_interaction_type,
-        "last_line_interaction_in_id": transport.last_line_interaction_in_id,
-        "last_line_interaction_out_id": transport.last_line_interaction_out_id,
-        "last_line_interaction_shell_id": transport.last_line_interaction_shell_id,
+        # "input_energy": transport.input_energy,
+        # "input_mu": transport.input_mu,
+        # "input_nu": transport.input_nu,
+        # "input_r_cgs": transport.input_r,
+        "j_blue_estimator": transport.transport_state.radfield_mc_estimators.j_blue_estimator,
+        "j_estimator": transport.transport_state.radfield_mc_estimators.j_estimator,
+        "last_interaction_in_nu": transport.transport_state.last_interaction_in_nu,
+        "last_interaction_type": transport.transport_state.last_interaction_type,
+        "last_line_interaction_in_id": transport.transport_state.last_line_interaction_in_id,
+        "last_line_interaction_out_id": transport.transport_state.last_line_interaction_out_id,
+        "last_line_interaction_shell_id": transport.transport_state.last_line_interaction_shell_id,
         "line_interaction_type": transport.line_interaction_type,
-        "nu_bar_estimator": transport.nu_bar_estimator,
-        "photo_ion_estimator": transport.photo_ion_estimator,
-        "photo_ion_estimator_statistics": transport.photo_ion_estimator_statistics,
-        "r_inner": transport.r_inner_cgs,
-        "r_outer": transport.r_outer_cgs,
+        "nu_bar_estimator": transport.transport_state.radfield_mc_estimators.nu_bar_estimator,
+        "photo_ion_estimator": transport.transport_state.radfield_mc_estimators.photo_ion_estimator,
+        "photo_ion_estimator_statistics": transport.transport_state.radfield_mc_estimators.photo_ion_estimator_statistics,
+        "r_inner": transport.transport_state.geometry_state.r_inner,
+        "r_outer": transport.transport_state.geometry_state.r_outer,
         "packet_source_base_seed": transport.packet_source.base_seed,
         "spectrum_frequency_cgs": transport.spectrum_frequency,
         "spectrum_method": transport.spectrum_method,
-        "stim_recomb_cooling_estimator": transport.stim_recomb_cooling_estimator,
-        "stim_recomb_estimator": transport.stim_recomb_estimator,
-        "time_of_simulation_cgs": transport.time_of_simulation,
+        "stim_recomb_cooling_estimator": transport.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator,
+        "stim_recomb_estimator": transport.transport_state.radfield_mc_estimators.stim_recomb_estimator,
+        "time_of_simulation_cgs": transport.transport_state.time_of_simulation,
         "use_gpu": transport.use_gpu,
-        "v_inner": transport.v_inner_cgs,
-        "v_outer": transport.v_outer_cgs,
+        "v_inner": transport.transport_state.geometry_state.v_inner,
+        "v_outer": transport.transport_state.geometry_state.v_outer,
         "nthreads": transport.nthreads,
-        "virt_logging": transport.virt_logging,
-        "virt_packet_energies": transport.virt_packet_energies,
-        "virt_packet_initial_mus": transport.virt_packet_initial_mus,
-        "virt_packet_initial_rs": transport.virt_packet_initial_rs,
-        "virt_packet_last_interaction_in_nu": transport.virt_packet_last_interaction_in_nu,
-        "virt_packet_last_interaction_type": transport.virt_packet_last_interaction_type,
-        "virt_packet_last_line_interaction_in_id": transport.virt_packet_last_line_interaction_in_id,
-        "virt_packet_last_line_interaction_out_id": transport.virt_packet_last_line_interaction_out_id,
-        "virt_packet_last_line_interaction_shell_id": transport.virt_packet_last_line_interaction_shell_id,
-        "virt_packet_nus": transport.virt_packet_nus,
-        "volume_cgs": transport.volume,
+        "virt_logging": transport.transport_state.virt_logging,
+        "virt_packet_energies": transport.transport_state.virt_packet_energies,
+        "virt_packet_initial_mus": transport.transport_state.virt_packet_initial_mus,
+        "virt_packet_initial_rs": transport.transport_state.virt_packet_initial_rs,
+        "virt_packet_last_interaction_in_nu": transport.transport_state.virt_packet_last_interaction_in_nu,
+        "virt_packet_last_interaction_type": transport.transport_state.virt_packet_last_interaction_type,
+        "virt_packet_last_line_interaction_in_id": transport.transport_state.virt_packet_last_line_interaction_in_id,
+        "virt_packet_last_line_interaction_out_id": transport.transport_state.virt_packet_last_line_interaction_out_id,
+        "virt_packet_last_line_interaction_shell_id": transport.transport_state.virt_packet_last_line_interaction_shell_id,
+        "virt_packet_nus": transport.transport_state.virt_packet_nus,
+        "volume_cgs": transport.transport_state.geometry_state.volume,
     }
 
     for key, value in transport_dict.items():
         if key.endswith("_cgs"):
-            transport_dict[key] = [value.cgs.value, value.unit.to_string()]
+            if isinstance(
+                value, np.ndarray
+            ):  # FIX ME: how to deal with np.array objects here
+                pass
+            else:
+                transport_dict[key] = [value.cgs.value, value.unit.to_string()]
 
     integrator_settings = transport.integrator_settings
     virtual_spectrum_spawn_range = transport.virtual_spectrum_spawn_range
@@ -632,8 +637,13 @@ def store_transport_to_hdf(transport, fname):
 
         for key, value in transport_data.items():
             if key.endswith("_cgs"):
-                transport_group.create_dataset(key, data=value[0])
-                transport_group.create_dataset(key + "_unit", data=value[1])
+                if isinstance(value, tuple) and len(value) == 2:
+                    transport_group.create_dataset(key, data=value[0])
+                    transport_group.create_dataset(key + "_unit", data=value[1])
+                else:
+                    transport_group.create_dataset(key, data=value)
+                # transport_group.create_dataset(key, data=value[0])
+                # transport_group.create_dataset(key + "_unit", data=value[1])
             else:
                 if value is not None:
                     transport_group.create_dataset(key, data=value)
