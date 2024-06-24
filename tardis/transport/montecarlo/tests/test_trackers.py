@@ -17,18 +17,6 @@ def interaction_type_last_interaction_class_old(
     return interaction_type
 
 
-@pytest.fixture()
-def shell_id_last_interaction_class_old(
-    nb_simulation_verysimple,
-    interaction_type_last_interaction_class_old,
-):
-    """Last interaction types of rpacket from LastInteractionTracker"""
-    transport_state = nb_simulation_verysimple.transport.transport_state
-    shell_id = transport_state.last_line_interaction_shell_id
-    mask = interaction_type_last_interaction_class_old == 2
-    return shell_id[mask]
-
-
 @pytest.fixture(scope="module")
 def interaction_type_last_interaction_class_new(
     nb_simulation_verysimple,
@@ -47,19 +35,41 @@ def interaction_type_last_interaction_class_new(
 
 
 @pytest.fixture()
-def shell_id_last_interaction_class_new(
+def last_line_interaction_old(
+    nb_simulation_verysimple,
+    interaction_type_last_interaction_class_old,
+):
+    """Last line interaction data of rpacket from LastInteractionTracker"""
+    transport_state = nb_simulation_verysimple.transport.transport_state
+    mask = interaction_type_last_interaction_class_old == 2
+
+    def get_attribute_data(attribute):
+        attribute_data = getattr(transport_state, attribute)
+        attribute_data = attribute_data[mask]
+        return attribute_data
+
+    return get_attribute_data
+
+
+@pytest.fixture()
+def last_line_interaction_new(
     nb_simulation_verysimple,
     interaction_type_last_interaction_class_new,
 ):
-    """Last interaction types of rpacket from RPacketLastInteractionTracker"""
-    transport_state = nb_simulation_verysimple.transport.transport_state
-    shell_id = np.empty(len(transport_state.rpacket_tracker), dtype=np.int64)
-    for i, last_interaction_tracker in enumerate(
-        transport_state.rpacket_tracker
-    ):
-        shell_id[i] = last_interaction_tracker.shell_id
+    """Last line interaction data of rpacket from RPacketLastInteractionTracker"""
+    rpacket_tracker = (
+        nb_simulation_verysimple.transport.transport_state.rpacket_tracker
+    )
     mask = interaction_type_last_interaction_class_new == 2
-    return shell_id[mask]
+
+    def get_attribute_data(attribute):
+        attribute_data = np.empty(len(rpacket_tracker))
+        for i, last_interaction_tracker in enumerate(rpacket_tracker):
+            attribute_data[i] = getattr(last_interaction_tracker, attribute)
+        attribute_data = attribute_data[mask]
+        return attribute_data
+
+    return get_attribute_data
 
 
 @pytest.fixture()
@@ -114,10 +124,6 @@ def test_tracking_manual(static_packet):
             "interaction_type_last_interaction_class_old",
             "interaction_type_last_interaction_class_new",
         ),
-        (
-            "shell_id_last_interaction_class_old",
-            "shell_id_last_interaction_class_new",
-        ),
         ("nu_from_packet_collection", "nu_from_last_interaction_class_new"),
     ],
 )
@@ -125,3 +131,36 @@ def test_last_interaction_properties(expected, obtained, request):
     expected = request.getfixturevalue(expected)
     obtained = request.getfixturevalue(obtained)
     npt.assert_allclose(expected, obtained)
+
+
+@pytest.mark.parametrize(
+    "argument_old,argument_new",
+    [
+        (
+            "last_interaction_in_nu",
+            "interaction_in_line_nu",
+        ),
+        (
+            "last_line_interaction_in_id",
+            "interaction_in_line_id",
+        ),
+        (
+            "last_line_interaction_out_id",
+            "interaction_out_line_id",
+        ),
+        (
+            "last_line_interaction_shell_id",
+            "shell_id",
+        ),
+    ],
+)
+def test_last_line_interaction_properties(
+    last_line_interaction_old,
+    last_line_interaction_new,
+    argument_old,
+    argument_new,
+):
+    npt.assert_allclose(
+        last_line_interaction_old(argument_old),
+        last_line_interaction_new(argument_new),
+    )
