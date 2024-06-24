@@ -241,10 +241,7 @@ def run_gamma_ray_loop(
     logger.info(f"Total CMF energy is {total_cmf_energy}")
     logger.info(f"Total RF energy is {total_rf_energy}")
 
-    (
-        energy_out,
-        packets_array,
-    ) = gamma_packet_loop(
+    (energy_out, packets_array,) = gamma_packet_loop(
         packets,
         grey_opacity,
         photoabsorption_opacity,
