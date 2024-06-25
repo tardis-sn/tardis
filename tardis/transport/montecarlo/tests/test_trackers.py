@@ -2,7 +2,6 @@ import pytest
 import numpy as np
 import numpy.testing as npt
 
-from tardis.transport.montecarlo.r_packet import InteractionType
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketLastInteractionTracker,
 )
@@ -26,7 +25,7 @@ def shell_id_last_interaction_class_old(
     """Last interaction types of rpacket from LastInteractionTracker"""
     transport_state = nb_simulation_verysimple.transport.transport_state
     shell_id = transport_state.last_line_interaction_shell_id
-    mask = interaction_type_last_interaction_class_old == InteractionType.LINE
+    mask = interaction_type_last_interaction_class_old == 2
     return shell_id[mask]
 
 
@@ -59,7 +58,7 @@ def shell_id_last_interaction_class_new(
         transport_state.rpacket_tracker
     ):
         shell_id[i] = last_interaction_tracker.shell_id
-    mask = interaction_type_last_interaction_class_new == InteractionType.LINE
+    mask = interaction_type_last_interaction_class_new == 2
     return shell_id[mask]
 
 
