@@ -3,6 +3,8 @@ from numba.experimental import jitclass
 import numpy as np
 import pandas as pd
 
+from tardis.transport.montecarlo.r_packet import InteractionType
+
 rpacket_tracker_spec = [
     ("length", int64),
     ("seed", int64),
@@ -130,7 +132,7 @@ class RPacketTracker(object):
             self.num_interactions
         ] = r_packet.last_interaction_type
         # Only set if last interaction is line interaction, else -1 or 0.
-        if r_packet.last_interaction_type == 2:
+        if r_packet.last_interaction_type == InteractionType.LINE:
             self.interaction_in_line_nu[
                 self.num_interactions
             ] = r_packet.last_interaction_in_nu
@@ -268,7 +270,7 @@ class RPacketLastInteractionTracker(object):
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
         self.interaction_type = r_packet.last_interaction_type
-        if r_packet.last_interaction_type == 2:
+        if r_packet.last_interaction_type == InteractionType.LINE:
             self.interaction_in_line_nu = r_packet.last_interaction_in_nu
             self.interaction_in_line_id = r_packet.last_line_interaction_in_id
             self.interaction_out_line_id = r_packet.last_line_interaction_out_id
