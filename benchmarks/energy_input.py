@@ -1,7 +1,6 @@
 import astropy.units as u
 import numpy as np
 
-from benchmarks.benchmark_base import BenchmarkBase
 from tardis.energy_input import GXPacket, main_gamma_ray_loop
 from tardis.energy_input.energy_source import (
     get_nuclear_lines_database,
@@ -38,12 +37,12 @@ from tardis.plasma.properties import (
 )
 
 
-class BenchmarkMainGammaRayLoop(BenchmarkBase):
+class BaseEnergyInput:
     """
-    Class to benchmark the gamma packet loop function.
+    methods and variables required for child class
     """
 
-    def setup(self):
+    def __init__(self):
         self.atom_data_file = "tardis/io/configuration/tests/data/tardis_configv1_density_exponential_nebular_Ni_only.yml"
         atom_data = AtomData.from_hdf(self.atom_data_file)
 
@@ -72,32 +71,9 @@ class BenchmarkMainGammaRayLoop(BenchmarkBase):
         self.photoabsorption_opacity = "tardis"
         self.pair_creation_opacity = "tardis"
 
+        self.setupRadioactivePacketSource()
 
-    def time_main_gamma_ray_loop(self):
-        main_gamma_ray_loop.run_gamma_ray_loop(
-            self.model,
-            self.plasma,
-            num_decays=self.num_packets,
-            time_start=0.0011574074,
-            time_end=20.0,
-            time_space="log",
-            time_steps=50,
-            seed=1,
-            positronium_fraction=0.0,
-            spectrum_bins=1000,
-            grey_opacity=-1,
-            path_to_decay_data=self.atom_data_file
-        )
-
-
-
-class BenchmarkGammaPacketLoop(BenchmarkMainGammaRayLoop):
-    """
-    Class to benchmark the gamma packet loop function.
-    """
-
-    def setup(self):
-        super().setup()
+    def setupRadioactivePacketSource(self):
         np.random.seed(seed=1)
         self.inner_velocities = self.model.v_inner.to("cm/s").value
         self.outer_velocities = self.model.v_outer.to("cm/s").value
@@ -170,7 +146,7 @@ class BenchmarkGammaPacketLoop(BenchmarkMainGammaRayLoop):
         )
 
         total_energy = energy_df.sum().sum()
-        packets_per_isotope_df = (
+        self.packets_per_isotope_df = (
             distribute_packets(decayed_energy, total_energy, self.num_packets)
             .round()
             .fillna(0)
@@ -180,10 +156,10 @@ class BenchmarkGammaPacketLoop(BenchmarkMainGammaRayLoop):
         total_energy = total_energy * u.eV.to("erg")
 
         self.iron_group_fraction_per_shell = iron_group_fraction_per_shell(self.model).to_numpy()
-        number_of_packets = packets_per_isotope_df.sum().sum()
-        individual_packet_energy = total_energy / number_of_packets
+        self.number_of_packets = self.packets_per_isotope_df.sum().sum()
+        individual_packet_energy = total_energy / self.number_of_packets
 
-        packet_source = RadioactivePacketSource(
+        self.RadioactivePacketSource = RadioactivePacketSource(
             individual_packet_energy,
             gamma_ray_line_dict,
             self.positronium_fraction,
@@ -199,13 +175,47 @@ class BenchmarkGammaPacketLoop(BenchmarkMainGammaRayLoop):
             average_power_per_mass,
         )
 
-        packet_collection = packet_source.create_packets(packets_per_isotope_df)
 
-        self.energy_df_rows = packet_source.energy_df_rows
-        self.energy_plot_df_rows = np.zeros((number_of_packets, 8))
+class BenchmarkMainGammaRayLoop(BaseEnergyInput):
+    """
+    Class to benchmark the gamma packet loop function.
+    """
+
+    def setup(self):
+        super().__init__()
+
+    def time_main_gamma_ray_loop(self):
+        main_gamma_ray_loop.run_gamma_ray_loop(
+            self.model,
+            self.plasma,
+            num_decays=self.num_packets,
+            time_start=0.0011574074,
+            time_end=20.0,
+            time_space="log",
+            time_steps=50,
+            seed=1,
+            positronium_fraction=0.0,
+            spectrum_bins=1000,
+            grey_opacity=-1,
+            path_to_decay_data=self.atom_data_file
+        )
+
+
+class BenchmarkGammaPacketLoop(BaseEnergyInput):
+    """
+    Class to benchmark the gamma packet loop function.
+    """
+
+    def setup(self):
+        super().__init__()
+
+        packet_collection = self.RadioactivePacketSource.create_packets(self.packets_per_isotope_df)
+
+        self.energy_df_rows = self.RadioactivePacketSource.energy_df_rows
+        self.energy_plot_df_rows = np.zeros((self.number_of_packets, 8))
 
         self.packets = []
-        for i in range(number_of_packets):
+        for i in range(self.number_of_packets):
             packet = GXPacket(
                 packet_collection.location[:, i],
                 packet_collection.direction[:, i],
@@ -256,3 +266,16 @@ class BenchmarkGammaPacketLoop(BenchmarkMainGammaRayLoop):
             self.energy_out,
             self.packets_info_array
         )
+
+
+class BenchmarkGammaRayPacketSource(BaseEnergyInput):
+    """
+    class to benchmark gamma_ray_packet_source functions
+    """
+
+    def setup():
+        super().__init__()
+
+    def time_RadioactivePacketSource_create_packets(self):
+        self.RadioactivePacketSource.create_packets(self.packets_per_isotope_df)
+
