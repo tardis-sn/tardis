@@ -136,7 +136,6 @@ def montecarlo_main_loop(
 
         # RPacket Tracker for this thread
         rpacket_tracker = rpacket_trackers[i]
-        rpacket_last_interaction_tracker = rpacket_last_interaction_trackers[i]
 
         loop = single_packet_loop(
             r_packet,
@@ -146,7 +145,6 @@ def montecarlo_main_loop(
             local_estimators,
             vpacket_collection,
             rpacket_tracker,
-            rpacket_last_interaction_tracker,
             montecarlo_configuration,
         )
         packet_collection.output_nus[i] = r_packet.nu
@@ -202,5 +200,4 @@ def montecarlo_main_loop(
         last_interaction_tracker,
         vpacket_tracker,
         rpacket_trackers,
-        rpacket_last_interaction_trackers,
     )
