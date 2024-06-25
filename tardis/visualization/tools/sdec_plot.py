@@ -530,6 +530,7 @@ class SDECPlotter:
                 )
             else:
                 full_species_list = []
+                species_mapped = {}
                 for species in species_list:
                     # check if a hyphen is present. If it is, then it indicates a
                     # range of ions. Add each ion in that range to the list as a new entry
@@ -567,20 +568,20 @@ class SDECPlotter:
                 # the requested ion
                 for species in full_species_list:
                     if " " in species:
-                        requested_species_ids.append(
-                            [
-                                species_string_to_tuple(species)[0] * 100
-                                + species_string_to_tuple(species)[1]
-                            ]
+                        species_id = (
+                            species_string_to_tuple(species)[0] * 100
+                            + species_string_to_tuple(species)[1]
                         )
+                        requested_species_ids.append([species_id])
+                        species_mapped[species_id] = [species_id]
                     else:
                         atomic_number = element_symbol2atomic_number(species)
-                        requested_species_ids.append(
-                            [
-                                atomic_number * 100 + ion_number
-                                for ion_number in np.arange(atomic_number)
-                            ]
-                        )
+                        species_ids = [
+                            atomic_number * 100 + ion_number
+                            for ion_number in np.arange(atomic_number)
+                        ]
+                        requested_species_ids.append(species_ids)
+                        species_mapped[atomic_number * 100] = species_ids
                         # add the atomic number to a list so you know that this element should
                         # have all species in the same colour, i.e. it was requested like
                         # species_list = [Si]
@@ -591,6 +592,7 @@ class SDECPlotter:
                     for species_id in temp_list
                 ]
 
+                self._species_mapped = species_mapped
                 self._species_list = requested_species_ids
                 self._keep_colour = keep_colour
         else:
@@ -1713,25 +1715,6 @@ class SDECPlotter:
 
         return self.fig
 
-    @staticmethod
-    def to_rgb255_string(color_tuple):
-        """
-        Convert a matplotlib RGBA tuple to a generic RGB 255 string.
-
-        Parameters
-        ----------
-        color_tuple : tuple
-            Matplotlib RGBA tuple of float values in closed interval [0, 1]
-
-        Returns
-        -------
-        str
-            RGB string of format rgb(r,g,b) where r,g,b are integers between
-            0 and 255 (both inclusive)
-        """
-        color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
-        return f"rgb{color_tuple_255}"
-
     def _plot_emission_ply(self):
         """Plot emission part of the SDEC Plot using plotly."""
         # By specifying a common stackgroup, plotly will itself add up
@@ -1788,7 +1771,7 @@ class SDECPlotter:
                         name=species_name + " Emission",
                         hovertemplate=f"<b>{species_name:s} Emission<br>"  # noqa: ISC003
                         + "(%{x:.2f}, %{y:.3g})<extra></extra>",
-                        fillcolor=self.to_rgb255_string(
+                        fillcolor=pu.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="emission",
@@ -1847,7 +1830,7 @@ class SDECPlotter:
                         name=species_name + " Absorption",
                         hovertemplate=f"<b>{species_name:s} Absorption<br>"  # noqa: ISC003
                         + "(%{x:.2f}, %{y:.3g})<extra></extra>",
-                        fillcolor=self.to_rgb255_string(
+                        fillcolor=pu.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="absorption",
@@ -1886,7 +1869,7 @@ class SDECPlotter:
         # twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)
         categorical_colorscale = []
         for species_counter in range(len(self._species_name)):
-            color = self.to_rgb255_string(
+            color = pu.to_rgb255_string(
                 self.cmap(colorscale_bins[species_counter])
             )
             categorical_colorscale.append(
