@@ -264,9 +264,11 @@ def single_packet_loop(
             )
         else:
             pass
-        if interaction_type != InteractionType.BOUNDARY:
-            if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
-                rpacket_tracker.track(r_packet)
+        if (
+            interaction_type != InteractionType.BOUNDARY
+            and montecarlo_configuration.ENABLE_RPACKET_TRACKING
+        ):
+            rpacket_tracker.track(r_packet)
 
 
 @njit
