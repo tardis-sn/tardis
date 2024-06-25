@@ -173,6 +173,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             last_interaction_tracker,
             vpacket_tracker,
             rpacket_trackers,
+            rpacket_last_interaction_trackers,
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
@@ -209,16 +210,16 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         update_iterations_pbar(1)
         refresh_packet_pbar()
-
-        transport_state.rpacket_tracker = rpacket_trackers
-
         # Condition for Checking if RPacket Tracking is enabled
         if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+            transport_state.rpacket_tracker = rpacket_trackers
             self.transport_state.rpacket_tracker_df = (
                 rpacket_trackers_to_dataframe(
                     self.transport_state.rpacket_tracker
                 )
             )
+        else:
+            transport_state.rpacket_tracker = rpacket_last_interaction_trackers
 
         transport_state.virt_logging = (
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
