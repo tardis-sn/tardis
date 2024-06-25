@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 import numpy.testing as npt
 
+from tardis.transport.montecarlo.r_packet import InteractionType
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketLastInteractionTracker,
 )
@@ -41,7 +42,7 @@ def last_line_interaction_old(
 ):
     """Last line interaction data of rpacket from LastInteractionTracker"""
     transport_state = nb_simulation_verysimple.transport.transport_state
-    mask = interaction_type_last_interaction_class_old == 2
+    mask = interaction_type_last_interaction_class_old == InteractionType.LINE
 
     def get_attribute_data(attribute):
         attribute_data = getattr(transport_state, attribute)
@@ -60,10 +61,10 @@ def last_line_interaction_new(
     rpacket_tracker = (
         nb_simulation_verysimple.transport.transport_state.rpacket_tracker
     )
-    mask = interaction_type_last_interaction_class_new == 2
+    mask = interaction_type_last_interaction_class_new == InteractionType.LINE
 
     def get_attribute_data(attribute):
-        attribute_data = np.empty(len(rpacket_tracker))
+        attribute_data = np.empty(len(rpacket_tracker), dtype=np.float64)
         for i, last_interaction_tracker in enumerate(rpacket_tracker):
             attribute_data[i] = getattr(last_interaction_tracker, attribute)
         attribute_data = attribute_data[mask]
