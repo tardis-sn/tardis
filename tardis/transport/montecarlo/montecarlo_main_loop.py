@@ -75,6 +75,7 @@ def montecarlo_main_loop(
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
     rpacket_trackers = List()
+    rpacket_last_interaction_trackers = List()
     for i in range(no_of_packets):
         vpacket_collections.append(
             VPacketCollection(
@@ -86,14 +87,14 @@ def montecarlo_main_loop(
                 montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
             )
         )
-        if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
-            rpacket_trackers.append(
-                RPacketTracker(
-                    montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
-                )
+        rpacket_trackers.append(
+            RPacketTracker(
+                montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
             )
-        else:
-            rpacket_trackers.append(RPacketLastInteractionTracker())
+        )
+        rpacket_last_interaction_trackers.append(
+            RPacketLastInteractionTracker()
+        )
 
     # Get the ID of the main thread and the number of threads
     main_thread_id = get_thread_id()
