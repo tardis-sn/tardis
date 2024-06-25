@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.colors as clr
 import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
@@ -13,6 +14,7 @@ from tardis.util.base import (
     int_to_roman,
 )
 import tardis.visualization.tools.sdec_plot as sdec
+from tardis.visualization import plot_util as pu
 
 
 class InteractionRadiusPlotter:
@@ -39,7 +41,8 @@ class InteractionRadiusPlotter:
 
         self.data = data
         self.time_explosion = time_explosion
-        self.no_of_shells = no_of_shells
+        self.velocity = velocity
+        self.sdec_plotter = sdec.SDECPlotter(data)
         return
 
     @classmethod
@@ -54,7 +57,7 @@ class InteractionRadiusPlotter:
 
         Returns
         -------
-        Plotter
+        InteractionRadiusPlotter
         """
 
         return cls(
@@ -78,7 +81,7 @@ class InteractionRadiusPlotter:
 
         Returns
         -------
-        Plotter
+        InteractionRadiusPlotter
         """
         hdfstore = pd.HDFStore(hdf_fpath)
         time_explosion = (
@@ -113,117 +116,25 @@ class InteractionRadiusPlotter:
             If species list contains invalid entries.
 
         """
-        if species_list is not None:
-            # check if there are any digits in the species list. If there are, then exit.
-            # species_list should only contain species in the Roman numeral
-            # format, e.g. Si II, and each ion must contain a space
-            if any(char.isdigit() for char in " ".join(species_list)) == True:
-                raise ValueError(
-                    "All species must be in Roman numeral form, e.g. Si II"
-                )
-            else:
-                full_species_list = []
-                species_mapped = {}
-                for species in species_list:
-                    # check if a hyphen is present. If it is, then it indicates a
-                    # range of ions. Add each ion in that range to the list as a new entry
-                    if "-" in species:
-                        # split the string on spaces. First thing in the list is then the element
-                        element = species.split(" ")[0]
-                        # Next thing is the ion range
-                        # convert the requested ions into numerals
-                        first_ion_numeral = roman_to_int(
-                            species.split(" ")[-1].split("-")[0]
-                        )
-                        second_ion_numeral = roman_to_int(
-                            species.split(" ")[-1].split("-")[-1]
-                        )
-                        # add each ion between the two requested into the species list
-                        for ion_number in np.arange(
-                            first_ion_numeral, second_ion_numeral + 1
-                        ):
-                            full_species_list.append(
-                                f"{element} {int_to_roman(ion_number)}"
-                            )
-                    else:
-                        # Otherwise it's either an element or ion so just add to the list
-                        full_species_list.append(species)
-
-                # full_species_list is now a list containing each individual species requested
-                # e.g. it parses species_list = [Si I - V] into species_list = [Si I, Si II, Si III, Si IV, Si V]
-                self._full_species_list = full_species_list
-                requested_species_ids = []
-                keep_colour = []
-
-                # go through each of the requested species. Check whether it is
-                # an element or ion (ions have spaces). If it is an element,
-                # add all possible ions to the ions list. Otherwise just add
-                # the requested ion
-                for species in full_species_list:
-                    if " " in species:
-                        species_id = (
-                            species_string_to_tuple(species)[0] * 100
-                            + species_string_to_tuple(species)[1]
-                        )
-                        requested_species_ids.append([species_id])
-                        species_mapped[species_id] = [species_id]
-                    else:
-                        atomic_number = element_symbol2atomic_number(species)
-                        species_ids = [
-                            atomic_number * 100 + ion_number
-                            for ion_number in np.arange(atomic_number)
-                        ]
-                        requested_species_ids.append(species_ids)
-                        species_mapped[atomic_number * 100] = species_ids
-                        # add the atomic number to a list so you know that this element should
-                        # have all species in the same colour, i.e. it was requested like
-                        # species_list = [Si]
-                        keep_colour.append(atomic_number)
-
-                self._species_list = [
-                    species_id
-                    for temp_list in requested_species_ids
-                    for species_id in temp_list
-                ]
-                self._species_mapped = species_mapped
-                self._keep_colour = keep_colour
-        else:
-            self._species_list = None
-        return
+        # Use the sdec.SDECPlotter instance to parse the species list
+        self.sdec_plotter._parse_species_list(species_list)
+        self._full_species_list = self.sdec_plotter._full_species_list
+        self._species_list = self.sdec_plotter._species_list
+        self._species_mapped = self.sdec_plotter._species_mapped
+        self._keep_colour = self.sdec_plotter._keep_colour
 
     def _make_colorbar_labels(self):
-        """Get the labels for the species in the colorbar."""
-        if self._species_list is None:
-            # If species_list is none then the labels are just elements
-            species_name = [
-                atomic_number2element_symbol(atomic_num)
-                for atomic_num in self.species
-            ]
-        else:
-            species_name = []
-            for species in self.species:
-                # Go through each species requested
-                ion_number = species % 100
-                atomic_number = (species - ion_number) / 100
+        """
+        Generate labels for the colorbar based on species.
 
-                ion_numeral = int_to_roman(ion_number + 1)
-                atomic_symbol = atomic_number2element_symbol(atomic_number)
-
-                # if the element was requested, and not a specific ion, then
-                # add the element symbol to the label list
-                if (atomic_number in self._keep_colour) & (
-                    atomic_symbol not in species_name
-                ):
-                    # compiling the label, and adding it to the list
-                    label = f"{atomic_symbol}"
-                    species_name.append(label)
-                elif atomic_number not in self._keep_colour:
-                    # otherwise add the ion to the label list
-                    label = f"{atomic_symbol} {ion_numeral}"
-                    species_name.append(label)
-
-        self._species_name = species_name
-        return
+        If a species list is provided, uses that to generate labels.
+        Otherwise, generates labels from the species in the model.
+        """
+        self.sdec_plotter._keep_colour = self._keep_colour
+        self.sdec_plotter.species = self.species
+        self.sdec_plotter._species_list = self._species_list
+        self.sdec_plotter._make_colorbar_labels()
+        self._species_name = self.sdec_plotter._species_name
 
     def _make_colorbar_colors(self):
         """Get the colours for the species to be plotted."""
@@ -319,17 +230,34 @@ class InteractionRadiusPlotter:
         self,
         packets_mode="virtual",
         ax=None,
-        figsize=(12, 7),
+        figsize=(11, 5),
         cmapname="jet",
         species_list=None,
     ):
         """
-        Generate the last interaction radius distribution plot
-        using matplotlib.
+        Generate the last interaction radius distribution plot using matplotlib.
+
+        Parameters
+        ----------
+        packets_mode : str, optional
+            Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
+        ax : matplotlib.axes.Axes, optional
+            Axes object to plot on. If None, creates a new figure.
+        figsize : tuple, optional
+            Size of the figure. Default is (11, 6).
+        cmapname : str, optional
+            Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
+        species_list : list of str
+            List of species to plot.
+
+        Returns
+        -------
+        matplotlib.axes.Axes
+            Axes object with the plot.
         """
 
         # Parse the requested species list
-        self._parse_species_list(species_list=species_list)
+        self._parse_species_list(species_list)
         species_in_model = np.unique(
             self.data[packets_mode]
             .packets_df_line_interaction["last_line_interaction_species"]
@@ -354,7 +282,8 @@ class InteractionRadiusPlotter:
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
         # Get the number of unique colors
         self._make_colorbar_colors()
-        self._show_colorbar_mpl()
+        # Show colorbar
+        # self._show_colorbar_mpl()
 
         plot_data, plot_colors = self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to("km/s")
@@ -385,17 +314,49 @@ class InteractionRadiusPlotter:
 
         return self.ax
 
+    # def _show_colorbar_mpl(self):
+    #     """Show matplotlib colorbar with labels of elements mapped to colors."""
+
+    #     color_values = [
+    #         self.cmap(species_counter / len(self._species_name))
+    #         for species_counter in range(len(self._species_name))
+    #     ]
+
+    #     custcmap = clr.ListedColormap(color_values)
+    #     norm = clr.Normalize(vmin=0, vmax=len(self._species_name))
+    #     mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)
+    #     mappable.set_array(np.linspace(1, len(self._species_name) + 1, 256))
+    #     cbar = plt.colorbar(mappable, ax=self.ax)
+
+    #     bounds = np.arange(len(self._species_name)) + 0.5
+    #     cbar.set_ticks(bounds)
+
+    #     cbar.set_ticklabels(self._species_name)
+    #     return
+
     def generate_plot_ply(
         self,
         packets_mode="virtual",
         species_list=None,
+        cmapname="jet",
     ):
         """
-        Generate the last interaction radius distribution plot
-        using Plotly.
+        Generate the last interaction radius distribution plot using plotly.
+
+        Parameters
+        ----------
+        packets_mode : str, optional
+            Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
+        species_list : list of str
+            List of species to plot.
+
+        Returns
+        -------
+        plotly.graph_objects.Figure
+            Plotly figure object with the plot.
         """
         # Parse the requested species list
-        self._parse_species_list(species_list=species_list)
+        self._parse_species_list(species_list)
         species_in_model = np.unique(
             self.data[packets_mode]
             .packets_df_line_interaction["last_line_interaction_species"]
@@ -421,13 +382,16 @@ class InteractionRadiusPlotter:
         for data, color, name in zip(
             plot_data, plot_colors, self._species_name
         ):
+            hist, _ = np.histogram(data, bins=bin_edges)
+            self.step_x = np.repeat(bin_edges, 2)[1:-1]
+            self.step_y = np.repeat(hist, 2)
             fig.add_trace(
                 go.Scatter(
-                    x=step_x,
-                    y=step_y,
+                    x=self.step_x,
+                    y=self.step_y,
                     mode="lines",
                     line=dict(
-                        color=f"rgba({int(255*color[0])}, {int(255*color[1])}, {int(255*color[2])}, 1)",
+                        color=pu.to_rgb255_string(color),
                         width=2.5,
                         shape="hv",
                     ),
@@ -442,6 +406,69 @@ class InteractionRadiusPlotter:
             yaxis_title="Packet Count",
             font=dict(size=14),
             yaxis=dict(tickformat=".1e"),
-            xaxis=dict(tickformat=".0f"),
+            xaxis=dict(tickformat=".0f", tickmode="auto"),
         )
+
+        # fig = self._show_colorbar_ply(fig)
         return fig
+
+    # def _show_colorbar_ply(self, fig):
+    #     """
+    #     Show plotly colorbar with labels of elements mapped to colors.
+
+    #     Parameters
+    #     ----------
+    #     fig : plotly.graph_objects.Figure
+    #     Plotly figure object to add the colorbar to.
+
+    #     Returns
+    #     -------
+    #     plotly.graph_objects.Figure
+    #         Plotly figure object with the colorbar added.
+    #     """
+    #     # Interpolate [0, 1] range to create bins equal to number of elements
+    #     colorscale_bins = np.linspace(0, 1, num=len(self._species_name) + 1)
+
+    #     # Create a categorical colorscale [a list of (reference point, color)]
+    #     # by mapping same reference points (excluding 1st and last bin edge)
+    #     # twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)
+    #     categorical_colorscale = []
+    #     for species_counter in range(len(self._species_name)):
+    #         color = pu.to_rgb255_string(
+    #             self.cmap(colorscale_bins[species_counter])
+    #         )
+    #         categorical_colorscale.append(
+    #             (colorscale_bins[species_counter], color)
+    #         )
+    #         categorical_colorscale.append(
+    #             (colorscale_bins[species_counter + 1], color)
+    #         )
+
+    #     coloraxis_options = {
+    #         "colorscale": categorical_colorscale,
+    #         "showscale": True,
+    #         "cmin": 0,
+    #         "cmax": len(self._species_name),
+    #         "colorbar": {
+    #             "title": "Elements",
+    #             "tickvals": np.arange(0, len(self._species_name)) + 0.5,
+    #             "ticktext": self._species_name,
+    #             # to change length and position of colorbar
+    #             "len": 1,
+    #             "yanchor": "top",
+    #             "y": 1,
+    #         },
+    #     }
+
+    #     colorbar_trace = go.Scatter(
+    #         x=[None],
+    #         y=[0],
+    #         mode="markers",
+    #         name="Colorbar",
+    #         showlegend=False,
+    #         hoverinfo="skip",
+    #         marker=dict(color=[0], opacity=0, **coloraxis_options),
+    #     )
+
+    #     fig.add_trace(colorbar_trace)
+    #     return fig
