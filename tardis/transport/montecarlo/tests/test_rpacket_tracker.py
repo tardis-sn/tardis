@@ -5,6 +5,7 @@ import pytest
 import numpy as np
 
 from tardis.io.configuration.config_reader import Configuration
+from tardis.transport.montecarlo.r_packet import InteractionType
 from tardis.base import run_tardis
 
 
@@ -52,7 +53,7 @@ def shell_id_last_interaction_class(
     interaction_type = (
         simulation_rpacket_tracking_enabled.transport.transport_state.last_interaction_type
     )
-    mask = interaction_type == 2
+    mask = interaction_type == InteractionType.LINE
     shell_id = (
         simulation_rpacket_tracking_enabled.transport.transport_state.last_line_interaction_shell_id
     )
@@ -107,7 +108,7 @@ def shell_id_rpacket_tracker(
     for i in range(no_of_packets):
         interactions = rpacket_tracker[i].num_interactions
         shell_id[i] = rpacket_tracker[i].shell_id[interactions - 1]
-    mask = last_interaction_type_rpacket_tracker == 2
+    mask = last_interaction_type_rpacket_tracker == InteractionType.LINE
     last_line_interaction_shell_id = shell_id[mask]
 
     return last_line_interaction_shell_id
