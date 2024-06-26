@@ -21,8 +21,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     def __init__(self):
         super().__init__()
         self.config = None
-
-    def setup(self):
         filename = "data/tardis_configv1_benchmark.yml"
         path = self.get_relative_path(filename)
         self.config = Configuration.from_yaml(path)
@@ -111,7 +109,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     @parameterize({"p": [0.0, 0.5, 1.0], "Test data": TESTDATA})
     def time_calculate_z(self, p, test_data):
         func = formal_integral.calculate_z
-        inv_t = 1.0 / self.formal_integral_model.time_explosion
+        inv_t = 1.0 / self.verysimple_time_explosion
         r_outer = self.formal_integral_geometry(test_data).r_outer
 
         for r in r_outer:
@@ -173,16 +171,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     def time_calculate_p_values(self, Parameters):
         r = 1.0
         formal_integral.calculate_p_values(r, Parameters["N"])
-
-    @parameterize({
-            "parameters": {
-                "nu": [1e13, 5e14, 1e15],
-                "temperature": [300, 1000, 5800]
-            }
-        }
-    )
-    def time_intensity_black_body(self, nu, temperature):
-        formal_integral.intensity_black_body(nu, temperature)
 
     # Benchmark for functions in FormalIntegrator class
 

@@ -6,13 +6,10 @@ import numpy as np
 from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
 import tardis.opacities.opacities as opacities
-import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
-import tardis.transport.montecarlo.numba_interface as numba_interface
 import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.estimators import (
     radfield_mc_estimators,
 )
@@ -25,12 +22,6 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
     """
     Class to benchmark the numba packet function.
     """
-
-    @property
-    def model(self):
-        return numba_interface.NumbaModel(
-            time_explosion=5.2e7,
-        )
 
     @property
     def estimators(self):

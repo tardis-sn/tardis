@@ -163,7 +163,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             self.packet,
             self.verysimple_3vpacket_collection,
             self.verysimple_numba_radial_1d_geometry,
-            self.verysimple_numba_model,
+            self.verysimple_time_explosion,
             self.verysimple_opacity_state,
             False,
             parameters["tau_russian"],

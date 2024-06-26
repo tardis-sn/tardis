@@ -15,14 +15,13 @@ class BenchmarkTransportMontecarloMainLoop(BenchmarkBase):
         montecarlo_main_loop(
             self.transport_state.packet_collection,
             self.transport_state.geometry_state,
-            self.verysimple_numba_model,
+            self.verysimple_time_explosion,
             self.transport_state.opacity_state,
             self.montecarlo_configuration,
             self.transport_state.radfield_mc_estimators,
             self.transport_state.spectrum_frequency.value,
-            number_of_vpacket=self.montecarlo_configuration.NUMBER_OF_VPACKETS,
+            self.montecarlo_configuration.NUMBER_OF_VPACKETS,
             iteration=0,
             show_progress_bars=False,
-            total_iterations=0,
-            enable_virtual_packet_logging=self.montecarlo_configuration.ENABLE_VPACKET_TRACKING,
+            total_iterations=0
         )

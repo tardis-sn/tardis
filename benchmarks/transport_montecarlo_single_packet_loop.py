@@ -15,7 +15,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         single_packet_loop.single_packet_loop(
             self.packet,
             self.verysimple_numba_radial_1d_geometry,
-            self.verysimple_numba_model,
+            self.verysimple_time_explosion,
             self.verysimple_opacity_state,
             self.verysimple_radfield_mc_estimators,
             self.verysimple_packet_collection,
