@@ -182,7 +182,7 @@ def montecarlo_main_loop(
     for sub_estimator in estimator_list:
         estimators.increment(sub_estimator)
 
-    if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
+    if ENABLE_VPACKET_TRACKING:
         vpacket_tracker = consolidate_vpacket_tracker(
             vpacket_collections,
             spectrum_frequency,
