@@ -17,8 +17,16 @@ def parse_structure_from_config(config):
 
     Returns
     -------
-    _type_
-        _description_
+    Quantity
+        Time at which densities are valid
+    Quantity
+        Velocities
+    Quantity
+        Densities
+    Quantity
+        Electron densities
+    Quantity
+        Temperatures
 
     Raises
     ------

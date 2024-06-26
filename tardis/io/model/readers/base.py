@@ -85,6 +85,10 @@ def read_density_file(filename, filetype):
         the array containing the velocities
     unscaled_mean_densities : np.ndarray
         the array containing the densities
+    electron_densities : np.ndarray
+        The array containing electron densities
+    temperature : np.ndarray
+        The array containing temperatures
     """
     file_parsers = {
         "artis": read_artis_density,
