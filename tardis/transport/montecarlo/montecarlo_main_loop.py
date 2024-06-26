@@ -76,6 +76,9 @@ def montecarlo_main_loop(
     ENABLE_RPACKET_TRACKING = montecarlo_configuration[
         "ENABLE_RPACKET_TRACKING"
     ]
+    ENABLE_VPACKET_TRACKING = montecarlo_configuration[
+        "ENABLE_VPACKET_TRACKING"
+    ]
 
     no_of_packets = len(packet_collection.initial_nus)
 
