@@ -17,12 +17,9 @@ from tardis.model import SimulationState
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 from tardis.tests.fixtures.regression_data import RegressionData
-from tardis.transport.montecarlo import (
-    RPacket,
-    montecarlo_configuration,
-    opacity_state_initialize,
-)
+from tardis.transport.montecarlo import RPacket, montecarlo_configuration
 from tardis.transport.montecarlo.estimators import radfield_mc_estimators
+from tardis.transport.montecarlo.numba_interface import opacity_state_initialize
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
 )
@@ -259,6 +256,36 @@ class BenchmarkBase:
         return opacity_state_initialize(
             self.nb_simulation_verysimple.plasma,
             line_interaction_type="macroatom",
+            disable_line_scattering=self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+            continuum_processes_enabled=self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+        )
+
+    @property
+    def verysimple_enable_full_relativity(self):
+        return self.nb_simulation_verysimple.transport.enable_full_relativity
+
+    @property
+    def verysimple_disable_line_scattering(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
+        )
+
+    @property
+    def verysimple_continuum_processes_enabled(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        )
+
+    @property
+    def verysimple_tau_russian(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        )
+
+    @property
+    def verysimple_survival_probability(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
         )
 
     @property

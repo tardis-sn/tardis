@@ -1,7 +1,7 @@
 import numpy.testing as npt
 import pytest
 
-from tardis.transport.montecarlo.opacities import (
+from tardis.opacities.opacities import (
     compton_opacity_calculation,
     kappa_calculation,
     pair_creation_opacity_calculation,
