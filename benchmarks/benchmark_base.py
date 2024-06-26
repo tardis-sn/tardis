@@ -14,6 +14,7 @@ from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model import SimulationState
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 from tardis.tests.fixtures.regression_data import RegressionData
@@ -384,3 +385,12 @@ class BenchmarkBase:
             show_convergence_plots=False,
         )
         return sim
+
+    @property
+    def geometry(self):
+        return NumbaRadial1DGeometry(
+            r_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
+            r_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
+            v_inner=np.array([-1, -1], dtype=np.float64),
+            v_outer=np.array([-1, -1], dtype=np.float64),
+        )

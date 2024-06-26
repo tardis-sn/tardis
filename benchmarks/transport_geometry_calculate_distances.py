@@ -10,6 +10,10 @@ class BenchmarkTransportGeometryCalculateDistances(BenchmarkBase):
     Class to benchmark the calculate distances function.
     """
 
+    @property
+    def model(self):
+        return 5.2e7
+
     @parameterize(
         {
             "Packet params": [
@@ -31,11 +35,19 @@ class BenchmarkTransportGeometryCalculateDistances(BenchmarkBase):
         {
             "Parameters": [
                 {
-                    "packet": {"nu_line": 0.1, "is_last_line": True},
+                    "packet": {
+                        "nu_line": 0.1,
+                        "is_last_line": True
+                    },
+                    "enable_full_relativity": True,
                 },
                 {
-                    "packet": {"nu_line": 0.2, "is_last_line": False},
-                },
+                    "packet": {
+                        "nu_line": 0.2,
+                        "is_last_line": False
+                    },
+                    "enable_full_relativity": True,
+                }
             ]
         }
     )
@@ -43,11 +55,15 @@ class BenchmarkTransportGeometryCalculateDistances(BenchmarkBase):
         packet_params = parameters["packet"]
         nu_line = packet_params["nu_line"]
         is_last_line = packet_params["is_last_line"]
+        enable_full_relativity = parameters["enable_full_relativity"]
 
-        time_explosion = self.model.time_explosion
+        time_explosion = self.model
 
         doppler_factor = frame_transformations.get_doppler_factor(
-            self.static_packet.r, self.static_packet.mu, time_explosion, False
+            self.static_packet.r,
+            self.static_packet.mu,
+            time_explosion,
+            enable_full_relativity
         )
         comov_nu = self.static_packet.nu * doppler_factor
 
@@ -57,5 +73,5 @@ class BenchmarkTransportGeometryCalculateDistances(BenchmarkBase):
             is_last_line,
             nu_line,
             time_explosion,
-            False
+            enable_full_relativity
         )
