@@ -1,91 +1,75 @@
-from tardis.io.model.readers.util import read_csv_isotope_abundances
-from tardis.util.base import parse_quantity
-
-
+import re
 import pandas as pd
 from astropy import units as u
+from pathlib import Path
+import dataclasses
 
 
-import warnings
+@dataclasses.dataclass
+class CMFGENModel:
+    metadata: dict
+    data: pd.DataFrame
 
 
-def read_cmfgen_density(fname: str):
+HEADER_RE_STR = [
+    (r"t0:\s+(\d+\.\d+)+\s+day", "t0"),
+]
+
+COLUMN_ROW = 1
+UNIT_ROW = 2
+DATA_START_ROW = 3
+
+
+def read_cmfgen_model(fname):
     """
-    Reading a density file of the following structure (example; lines starting with a hash will be ignored):
-    The first density describes the mean density in the center of the model and is not used.
-    The file consists of a header row and next row contains unit of the respective attributes
-    Note that the first column has to contain a running index
-
-    Example:
-
-    index velocity densities electron_densities temperature
-    - km/s g/cm^3 /cm^3 K
-    0 871.66905 4.2537191e-09 2.5953807e+14 7.6395577
-    1 877.44269 4.2537191e-09 2.5953807e+14 7.6395577
-
-    Rest columns contain abundances of elements and isotopes
+    Read in a CMFGEN model file and return the data and model
 
     Parameters
     ----------
+
     fname : str
-        filename or path with filename
 
     Returns
     -------
-    time_of_model : astropy.units.Quantity
-        time at which the model is valid
-    velocity : np.ndarray
-    mean_density : np.ndarray
-    electron_densities : np.ndarray
-    temperature : np.ndarray
+    model : CMFGENModel
+
     """
-    warnings.warn(
-        "The current CMFGEN model parser is deprecated", DeprecationWarning
-    )
-
-    df = pd.read_csv(fname, comment="#", delimiter=r"\s+", skiprows=[0, 2])
-
+    header_re = [re.compile(re_str[0]) for re_str in HEADER_RE_STR]
+    metadata = {}
     with open(fname) as fh:
-        for row_index, line in enumerate(fh):
-            if row_index == 0:
-                time_of_model_string = line.strip().replace("t0:", "")
-                time_of_model = parse_quantity(time_of_model_string)
-            elif row_index == 2:
-                quantities = line.split()
+        for i, line in enumerate(fh):
+            if i < len(HEADER_RE_STR):
+                header_re_match = header_re[i].match(line)
+                metadata[HEADER_RE_STR[i][1]] = header_re_match.group(1)
+            elif i == COLUMN_ROW:
+                if "Index" in line:
+                    column_names = re.split(r"\s", line.strip())
+                    column_names = [
+                        col.lower().replace(" ", "_") for col in column_names
+                    ]
+                    column_names = column_names[
+                        1:
+                    ]  # Remove Index from column names
+                else:
+                    raise ValueError(
+                        '"Index" is required in the Cmfgen input file to infer columns'
+                    )
+            elif i == UNIT_ROW:
+                units = re.split(r"\s", line.strip())
+                units = units[1:]  # Remove index column
+                for col, unit in zip(column_names, units):
+                    if u.Unit(unit) == "":  # dimensionless
+                        continue
+                    metadata[f"{col}_unit"] = u.Unit(unit)
+                break
 
-    velocity = u.Quantity(df["velocity"].values, quantities[1]).to("cm/s")
-    temperature = u.Quantity(df["temperature"].values, quantities[2])[1:]
-    mean_density = u.Quantity(df["densities"].values, quantities[3])[1:]
-    electron_densities = u.Quantity(
-        df["electron_densities"].values, quantities[4]
-    )[1:]
-
-    return (
-        time_of_model,
-        velocity,
-        mean_density,
-        electron_densities,
-        temperature,
+        metadata["t0"] = float(metadata["t0"]) * u.day
+    data = pd.read_csv(
+        fname,
+        delim_whitespace=True,
+        skiprows=DATA_START_ROW,
+        header=None,
+        index_col=0,
     )
-
-
-def read_cmfgen_composition(fname, delimiter=r"\s+"):
-    """Read composition from a CMFGEN model file
-
-    The CMFGEN file format contains information about the ejecta state in the
-    first four columns and the following ones contain elemental and isotopic
-    abundances.
-
-    WARNING : deprecated
-
-    fname : str
-        filename of the csv file
-    """
-
-    warnings.warn(
-        "The current CMFGEN model parser is deprecated", DeprecationWarning
-    )
-
-    return read_csv_isotope_abundances(
-        fname, delimiter=delimiter, skip_columns=4, skip_rows=[0, 2, 3]
-    )
+    data.columns = column_names
+    return CMFGENModel(metadata, data)
