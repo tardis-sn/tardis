@@ -60,7 +60,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     Parameters
     ----------
     config : io.config_reader.Configuration
-    model : model.SimulationState
+    simulation_state : model.SimulationState
     atom_data : atomic.AtomData
         If None, an attempt will be made to read the atomic data
         from config.
