@@ -118,7 +118,6 @@ class InteractionRadiusPlotter:
         """
         # Use the sdec.SDECPlotter instance to parse the species list
         self.sdec_plotter._parse_species_list(species_list)
-        self._full_species_list = self.sdec_plotter._full_species_list
         self._species_list = self.sdec_plotter._species_list
         self._species_mapped = self.sdec_plotter._species_mapped
         self._keep_colour = self.sdec_plotter._keep_colour
@@ -130,9 +129,7 @@ class InteractionRadiusPlotter:
         If a species list is provided, uses that to generate labels.
         Otherwise, generates labels from the species in the model.
         """
-        self.sdec_plotter._keep_colour = self._keep_colour
         self.sdec_plotter.species = self.species
-        self.sdec_plotter._species_list = self._species_list
         self.sdec_plotter._make_colorbar_labels()
         self._species_name = self.sdec_plotter._species_name
 
@@ -145,7 +142,6 @@ class InteractionRadiusPlotter:
         color_list = []
         species_keys = list(self._species_mapped.keys())
         num_species = len(species_keys)
-        valid_species_keys = []
 
         for species_counter, species_key in enumerate(species_keys):
             if any(
@@ -154,10 +150,8 @@ class InteractionRadiusPlotter:
             ):
                 color = self.cmap(species_counter / num_species)
                 color_list.append(color)
-                valid_species_keys.append(species_key)
 
         self._color_list = color_list
-        self._valid_species_keys = valid_species_keys
 
     def _generate_plot_data(self, packets_mode):
         """
