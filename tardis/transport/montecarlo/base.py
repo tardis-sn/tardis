@@ -13,7 +13,7 @@ from tardis.transport.montecarlo import (
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
 )
-from tardis.transport.montecarlo.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.montecarlo_configuration import (
     MonteCarloConfiguration,
     configuration_initialize,

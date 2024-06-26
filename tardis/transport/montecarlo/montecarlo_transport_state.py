@@ -7,8 +7,8 @@ from tardis.io.util import HDFWriterMixin
 from tardis.transport.montecarlo.estimators.dilute_blackbody_properties import (
     MCDiluteBlackBodyRadFieldSolver,
 )
-from tardis.transport.montecarlo.formal_integral import IntegrationError
-from tardis.visualization.spectrum import TARDISSpectrum
+from tardis.spectrum.formal_integral import IntegrationError
+from tardis.spectrum.spectrum import TARDISSpectrum
 
 
 class MonteCarloTransportState(HDFWriterMixin):

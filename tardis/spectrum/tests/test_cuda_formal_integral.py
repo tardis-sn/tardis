@@ -3,11 +3,11 @@ import numpy.testing as ntest
 import pytest
 from numba import cuda
 
-import tardis.transport.montecarlo.formal_integral as formal_integral_numba
-import tardis.transport.montecarlo.formal_integral_cuda as formal_integral_cuda
+import tardis.spectrum.formal_integral as formal_integral_numba
+import tardis.spectrum.formal_integral_cuda as formal_integral_cuda
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.transport.montecarlo.formal_integral import (
+from tardis.spectrum.formal_integral import (
     FormalIntegrator,
     NumbaFormalIntegrator,
 )
