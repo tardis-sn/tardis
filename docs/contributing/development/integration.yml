@@ -1,24 +1,5 @@
 atom_data_path: "~/projects/tardis/integration/"
 
-# This section holds information about mechanism of saving the HTML
-# report of the tests.
-# "save_mode" is mandatory: It can be either "local" or "remote".
-report:
-  save_mode: "local"
-
-  # This section contains credentials for dokuwiki instance.
-  # It is mandatory if "save_mode" is "remote", else can be removed.
-  dokuwiki:
-    url: "http://opensupernova.org/~karandesai96/integration/"
-    username: "private"
-    password: "private"
-
-  # If "save_mode" is "local", a sub directory will be made in this
-  # directory according to commit hash (shortened), and it will contain
-  # the complete report content.
-  reportpath: "~/projects/tardis/integration"
-
-
 # Path to directory where reference HDF files will be generated and
 # saved during the test run. Use "--generate-reference" flag in command
 # line args for the purpose, for other cases this will denote path

@@ -1,57 +1,53 @@
-from astropy import units as u
-import os
 import logging
 
 import numpy as np
 import pandas as pd
+from astropy import units as u
 
-from tardis.io.atom_data import AtomData
+from tardis.plasma import BasePlasma
+from tardis.plasma.exceptions import PlasmaConfigError
+from tardis.plasma.properties import (
+    HeliumNumericalNLTE,
+    IonNumberDensity,
+    IonNumberDensityHeNLTE,
+    JBluesBlackBody,
+    JBluesDetailed,
+    JBluesDiluteBlackBody,
+    LevelBoltzmannFactorNLTE,
+    MarkovChainTransProbsCollector,
+    RadiationFieldCorrection,
+    StimulatedEmissionFactor,
+)
+from tardis.plasma.properties.base import TransitionProbabilitiesProperty
 from tardis.plasma.properties.level_population import LevelNumberDensity
 from tardis.plasma.properties.nlte_rate_equation_solver import (
     NLTEPopulationSolverLU,
     NLTEPopulationSolverRoot,
 )
-from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
-from tardis.util.base import species_string_to_tuple
-from tardis.plasma import BasePlasma
-from tardis.plasma.properties.base import TransitionProbabilitiesProperty
 from tardis.plasma.properties.property_collections import (
+    adiabatic_cooling_properties,
     basic_inputs,
     basic_properties,
+    continuum_interaction_inputs,
+    continuum_interaction_properties,
+    detailed_j_blues_inputs,
+    detailed_j_blues_properties,
+    dilute_lte_excitation_properties,
+    helium_lte_properties,
+    helium_nlte_properties,
+    helium_numerical_nlte_properties,
     lte_excitation_properties,
     lte_ionization_properties,
     macro_atom_properties,
-    dilute_lte_excitation_properties,
     nebular_ionization_properties,
-    non_nlte_properties,
-    nlte_properties,
-    helium_nlte_properties,
-    helium_numerical_nlte_properties,
-    helium_lte_properties,
-    detailed_j_blues_properties,
-    detailed_j_blues_inputs,
-    continuum_interaction_properties,
-    continuum_interaction_inputs,
-    adiabatic_cooling_properties,
-    two_photon_properties,
-    isotope_properties,
     nlte_lu_solver_properties,
+    nlte_properties,
     nlte_root_solver_properties,
+    non_nlte_properties,
+    two_photon_properties,
 )
-from tardis.plasma.exceptions import PlasmaConfigError
-
-from tardis.plasma.properties import (
-    LevelBoltzmannFactorNLTE,
-    JBluesBlackBody,
-    JBluesDiluteBlackBody,
-    JBluesDetailed,
-    RadiationFieldCorrection,
-    StimulatedEmissionFactor,
-    HeliumNumericalNLTE,
-    IonNumberDensity,
-    IonNumberDensityHeNLTE,
-    MarkovChainTransProbsCollector,
-)
+from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
+from tardis.util.base import species_string_to_tuple
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +60,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     Parameters
     ----------
     config : io.config_reader.Configuration
-    model : model.SimulationState
+    simulation_state : model.SimulationState
     atom_data : atomic.AtomData
         If None, an attempt will be made to read the atomic data
         from config.
@@ -121,7 +117,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     kwargs = dict(
         t_rad=simulation_state.t_radiative,
         abundance=simulation_state.abundance,
-        density=simulation_state.density,
+        number_density=simulation_state.elemental_number_density,
         atomic_data=atom_data,
         time_explosion=simulation_state.time_explosion,
         w=simulation_state.dilution_factor,
@@ -138,7 +134,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         if line_interaction_type != "macroatom":
             raise PlasmaConfigError(
                 "Continuum interactions require line_interaction_type "
-                "macroatom (instead of {}).".format(line_interaction_type)
+                f"macroatom (instead of {line_interaction_type})."
             )
 
         plasma_modules += continuum_interaction_properties
@@ -171,8 +167,9 @@ def assemble_plasma(config, simulation_state, atom_data=None):
             if config.plasma.nlte_ionization_species:
                 nlte_ionization_species = config.plasma.nlte_ionization_species
                 for species in nlte_ionization_species:
-                    if not (
-                        species in config.plasma.continuum_interaction.species
+                    if (
+                        species
+                        not in config.plasma.continuum_interaction.species
                     ):
                         raise PlasmaConfigError(
                             f"NLTE ionization species {species} not in continuum species."
@@ -180,8 +177,9 @@ def assemble_plasma(config, simulation_state, atom_data=None):
             if config.plasma.nlte_excitation_species:
                 nlte_excitation_species = config.plasma.nlte_excitation_species
                 for species in nlte_excitation_species:
-                    if not (
-                        species in config.plasma.continuum_interaction.species
+                    if (
+                        species
+                        not in config.plasma.continuum_interaction.species
                     ):
                         raise PlasmaConfigError(
                             f"NLTE excitation species {species} not in continuum species."
@@ -199,9 +197,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
                 plasma_modules += nlte_root_solver_properties
             else:
                 raise PlasmaConfigError(
-                    "NLTE solver type unknown - {}".format(
-                        config.plasma.nlte_solver
-                    )
+                    f"NLTE solver type unknown - {config.plasma.nlte_solver}"
                 )
 
         kwargs.update(

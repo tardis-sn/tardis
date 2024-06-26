@@ -1,6 +1,5 @@
-import re
 from copy import deepcopy
-from os.path import dirname, realpath, join
+from os.path import dirname, join, realpath
 from pathlib import Path
 from tempfile import mkstemp
 
@@ -13,16 +12,18 @@ from benchmarks.util.nlte import NLTE
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.util import yaml_load_file, YAMLLoader, HDFWriterMixin
+from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model import SimulationState
-from tardis.montecarlo import NumbaModel, opacity_state_initialize
-from tardis.montecarlo.montecarlo_numba import RPacket
-from tardis.montecarlo.montecarlo_numba.packet_collections import (
-    VPacketCollection,
-)
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 from tardis.tests.fixtures.regression_data import RegressionData
+from tardis.transport.montecarlo import RPacket
+from tardis.transport.montecarlo.numba_interface import (
+    opacity_state_initialize,
+)
+from tardis.transport.montecarlo.packet_collections import (
+    VPacketCollection,
+)
 
 
 class BenchmarkBase:
@@ -62,7 +63,11 @@ class BenchmarkBase:
     def tardis_ref_path(self):
         # TODO: This route is fixed but needs to get from the arguments given in the command line.
         #       /app/tardis-refdata
-        return "/app/tardis-refdata"
+        ref_data_path = Path(
+            Path(__file__).parent.parent,
+            "tardis-refdata",
+        ).resolve()
+        return ref_data_path
 
     @property
     def atomic_dataset(self) -> AtomData:
@@ -243,17 +248,45 @@ class BenchmarkBase:
         return sim
 
     @property
-    def verysimple_numba_model(self):
+    def verysimple_time_explosion(self):
         model = self.nb_simulation_verysimple.simulation_state
-        return NumbaModel(
-            model.time_explosion.to("s").value,
-        )
+        return model.time_explosion.cgs.value
 
     @property
     def verysimple_opacity_state(self):
         return opacity_state_initialize(
             self.nb_simulation_verysimple.plasma,
             line_interaction_type="macroatom",
+            disable_line_scattering=self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+            continuum_processes_enabled=self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+        )
+
+    @property
+    def verysimple_enable_full_relativity(self):
+        return self.nb_simulation_verysimple.transport.enable_full_relativity
+
+    @property
+    def verysimple_disable_line_scattering(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
+        )
+
+    @property
+    def verysimple_continuum_processes_enabled(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        )
+
+    @property
+    def verysimple_tau_russian(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        )
+
+    @property
+    def verysimple_survival_probability(self):
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
         )
 
     @property

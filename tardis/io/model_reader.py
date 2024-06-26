@@ -9,11 +9,11 @@ import pandas as pd
 from astropy import units as u
 from numpy import recfromtxt
 from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z
+from radioactivedecay.utils import Z_DICT, elem_to_Z, NuclideStrError
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
-from tardis.montecarlo.base import MonteCarloTransportSolver
-from tardis.montecarlo.packet_source import (
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
@@ -169,7 +169,10 @@ def read_uniform_abundances(abundances_section, no_of_shells):
     )
 
     for element_symbol_string in abundances_section:
-        if element_symbol_string == "type":
+        if (
+            element_symbol_string == "type"
+            or element_symbol_string == "model_isotope_time_0"
+        ):
             continue
         try:
             if element_symbol_string in Z_DICT.values():
@@ -185,7 +188,7 @@ def read_uniform_abundances(abundances_section, no_of_shells):
                     abundances_section[element_symbol_string]
                 )
 
-        except RuntimeError as err:
+        except NuclideStrError as err:
             raise RuntimeError(
                 f"Abundances are not defined properly in config file : {err.args}"
             )
@@ -541,13 +544,12 @@ def transport_to_dict(transport):
 
     Parameters
     ----------
-    transport : tardis.montecarlo.MontecarloTransport
+    transport : tardis.transport.montecarlo.MontecarloTransport
 
     Returns
     -------
     transport_dict : dict
     integrator_settings : dict
-    v_packet_settings : dict
     virtual_spectrum_spawn_range : dict
     """
     transport_dict = {
@@ -555,8 +557,6 @@ def transport_to_dict(transport):
         "bf_heating_estimator": transport.bf_heating_estimator,
         "disable_electron_scattering": transport.disable_electron_scattering,
         "enable_full_relativity": transport.enable_full_relativity,
-        "enable_reflective_inner_boundary": transport.enable_reflective_inner_boundary,
-        "inner_boundary_albedo": transport.inner_boundary_albedo,
         "input_energy": transport.input_energy,
         "input_mu": transport.input_mu,
         "input_nu": transport.input_nu,
@@ -602,13 +602,11 @@ def transport_to_dict(transport):
             transport_dict[key] = [value.cgs.value, value.unit.to_string()]
 
     integrator_settings = transport.integrator_settings
-    v_packet_settings = transport.v_packet_settings
     virtual_spectrum_spawn_range = transport.virtual_spectrum_spawn_range
 
     return (
         transport_dict,
         integrator_settings,
-        v_packet_settings,
         virtual_spectrum_spawn_range,
     )
 
@@ -619,7 +617,7 @@ def store_transport_to_hdf(transport, fname):
 
     Parameters
     ----------
-    transport : tardis.montecarlo.MontecarloTransport
+    transport : tardis.transport.montecarlo.MontecarloTransport
     filename : str
     """
     with h5py.File(fname, "a") as f:
@@ -629,7 +627,6 @@ def store_transport_to_hdf(transport, fname):
         (
             transport_data,
             integrator_settings,
-            v_packet_settings,
             virtual_spectrum_spawn_range,
         ) = transport_to_dict(transport)
 
@@ -646,12 +643,6 @@ def store_transport_to_hdf(transport, fname):
         )
         for key, value in integrator_settings.items():
             integrator_settings_group.create_dataset(key, data=value)
-
-        v_packet_settings_group = transport_group.create_group(
-            "v_packet_settings"
-        )
-        for key, value in v_packet_settings.items():
-            v_packet_settings_group.create_dataset(key, data=value)
 
         virtual_spectrum_spawn_range_group = transport_group.create_group(
             "virtual_spectrum_spawn_range"
@@ -670,7 +661,7 @@ def transport_from_hdf(fname):
 
     Returns
     -------
-    new_transport : tardis.montecarlo.MontecarloTransport
+    new_transport : tardis.transport.montecarlo.MontecarloTransport
     """
     d = {}
 
@@ -720,7 +711,6 @@ def transport_from_hdf(fname):
 
     # Converting dictionaries to ConfigurationNameSpace
     d["integrator_settings"] = ConfigurationNameSpace(d["integrator_settings"])
-    d["v_packet_settings"] = ConfigurationNameSpace(d["v_packet_settings"])
     d["virtual_spectrum_spawn_range"] = ConfigurationNameSpace(
         d["virtual_spectrum_spawn_range"]
     )
@@ -730,12 +720,9 @@ def transport_from_hdf(fname):
         spectrum_frequency=d["spectrum_frequency_cgs"],
         virtual_spectrum_spawn_range=d["virtual_spectrum_spawn_range"],
         disable_electron_scattering=d["disable_electron_scattering"],
-        enable_reflective_inner_boundary=d["enable_reflective_inner_boundary"],
         enable_full_relativity=d["enable_full_relativity"],
-        inner_boundary_albedo=d["inner_boundary_albedo"],
         line_interaction_type=d["line_interaction_type"],
         integrator_settings=d["integrator_settings"],
-        v_packet_settings=d["v_packet_settings"],
         spectrum_method=d["spectrum_method"],
         packet_source=d["packet_source"],
         nthreads=d["nthreads"],

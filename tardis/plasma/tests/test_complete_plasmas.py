@@ -193,7 +193,7 @@ class TestPlasma:
 
     def test_levels(self, plasma):
         actual = pd.DataFrame(plasma.levels)
-        key = f"plasma/levels"
+        key = "plasma/levels"
         expected = pd.read_hdf(self.regression_data.fpath, key)
         pdt.assert_frame_equal(actual, expected)
 
@@ -202,13 +202,13 @@ class TestPlasma:
         actual = getattr(plasma, attr)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        key = f"plasma/scalars"
+        key = "plasma/scalars"
         expected = pd.read_hdf(self.regression_data.fpath, key)[attr]
         npt.assert_equal(actual, expected)
 
     def test_helium_treatment(self, plasma):
         actual = plasma.helium_treatment
-        key = f"plasma/scalars"
+        key = "plasma/scalars"
         expected = pd.read_hdf(self.regression_data.fpath, key)[
             "helium_treatment"
         ]
@@ -217,6 +217,6 @@ class TestPlasma:
     def test_zeta_data(self, plasma):
         if hasattr(plasma, "zeta_data"):
             actual = plasma.zeta_data
-            key = f"plasma/zeta_data"
+            key = "plasma/zeta_data"
             expected = pd.read_hdf(self.regression_data.fpath, key)
             npt.assert_allclose(actual, expected.values)

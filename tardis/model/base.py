@@ -22,7 +22,7 @@ from tardis.model.parse_input import (
     parse_structure_config,
     parse_packet_source,
 )
-from tardis.montecarlo.packet_source import BlackBodySimpleSource
+from tardis.transport.montecarlo.packet_source import BlackBodySimpleSource
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
@@ -160,6 +160,45 @@ class SimulationState(HDFWriterMixin):
             raise ValueError(
                 "Trying to set t_radiative for different number of shells."
             )
+
+    @property
+    def elemental_number_density(self):
+        elemental_number_density = (
+            (
+                self.composition.elemental_mass_fraction
+                * self.composition.density
+            )
+            .divide(self.composition.element_masses, axis=0)
+            .dropna()
+        )
+        elemental_number_density = elemental_number_density.iloc[
+            :,
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+        ]
+        elemental_number_density.columns = range(
+            len(elemental_number_density.columns)
+        )
+        return elemental_number_density
+
+    @property
+    def isotopic_number_density(self):
+        isotopic_number_density = (
+            self.composition.isotopic_mass_fraction * self.composition.density
+        ).divide(
+            self.composition.isotope_masses.loc[
+                self.composition.isotopic_mass_fraction.index
+            ]
+            * u.u.to(u.g),
+            axis=0,
+        )
+        isotopic_number_density = isotopic_number_density.iloc[
+            :,
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+        ]
+        isotopic_number_density.columns = range(
+            len(isotopic_number_density.columns)
+        )
+        return isotopic_number_density
 
     @property
     def radius(self):
