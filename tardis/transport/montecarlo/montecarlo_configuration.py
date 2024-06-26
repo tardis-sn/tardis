@@ -7,7 +7,7 @@ import numpy as np
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,
 )
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.tardis.montecarlo import njit_dict
 
 
 class MonteCarloConfiguration:
