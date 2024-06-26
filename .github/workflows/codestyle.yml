@@ -43,7 +43,7 @@ jobs:
           python-version: '3.12.3' 
       
       - name: Install Ruff
-        run: pip install ruff
+        run: pip install ruff==0.4.9
       
       - name: Show statistics
         run: ruff check  --statistics  --show-fixes . | tee ruff_stats.txt
