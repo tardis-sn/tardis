@@ -14,18 +14,9 @@ class BenchmarkTransportGeometryCalculateDistances(BenchmarkBase):
     def model(self):
         return 5.2e7
 
-    @parameterize(
-        {
-            "Packet params": [
-                {"mu": 0.3, "r": 7.5e14},
-                {"mu": -0.3, "r": 7.5e13},
-                {"mu": -0.3, "r": 7.5e14},
-            ]
-        }
-    )
-    def time_calculate_distance_boundary(self, packet_params):
-        mu = packet_params["mu"]
-        r = packet_params["r"]
+    def time_calculate_distance_boundary(self):
+        mu = 0.3
+        r = 7.5e14
 
         calculate_distances.calculate_distance_boundary(
             r, mu, self.geometry.r_inner[0], self.geometry.r_outer[0]

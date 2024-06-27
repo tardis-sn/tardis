@@ -89,16 +89,3 @@ class BenchmarkMontecarloMontecarloNumbaOpacities(BenchmarkBase):
         calculate_opacity.pair_creation_opacity_calculation(
             energy, ejecta_density, iron_group_fraction
         )
-
-    @parameterize(
-        {
-            "Energy": [
-                511.0, 
-                255.5, 
-                0.0, 
-                511.0e7,
-            ]
-        }
-    )
-    def time_kappa_calculation(self, energy):
-        calculate_opacity.kappa_calculation(energy)

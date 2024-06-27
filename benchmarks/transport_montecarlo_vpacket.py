@@ -3,7 +3,7 @@ Basic TARDIS Benchmark.
 """
 
 import numpy as np
-from asv_runner.benchmarks.mark import parameterize
+from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
 import tardis.transport.montecarlo.vpacket as vpacket
 from benchmarks.benchmark_base import BenchmarkBase
@@ -144,6 +144,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             continuum_processes_enabled,
         )
 
+    @skip_benchmark
     @parameterize(
         {
             "Paramters": [

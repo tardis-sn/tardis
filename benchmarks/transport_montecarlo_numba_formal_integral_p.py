@@ -12,7 +12,8 @@ from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
-
+# Error in all functions: Terminating: fork() called from a process already using GNU OpenMP, this is unsafe. 
+@skip_benchmark
 class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     """
     Class to benchmark the numba formal integral function.
@@ -53,16 +54,14 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     def time_intensity_black_body(self, parameters):
         nu = parameters["nu"]
         temperature = parameters["temperature"]
-        func = formal_integral.intensity_black_body
-        func(nu, temperature)
+        formal_integral.intensity_black_body(nu, temperature)
 
     @parameterize({"N": (1e2, 1e3, 1e4, 1e5)})
     def time_trapezoid_integration(self, n):
-        func = formal_integral.trapezoid_integration
         h = 1.0
         data = np.random.random(int(n))
 
-        func(data, h)
+        formal_integral.trapezoid_integration(data, h)
 
     @staticmethod
     def calculate_z(r, p):
@@ -106,6 +105,8 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         # time taken for a photon to move 1 cm
         return 1 / c.c.cgs.value
 
+    # Error: Terminating: fork() called from a process already using GNU OpenMP, this is unsafe.
+    @skip_benchmark
     @parameterize({"p": [0.0, 0.5, 1.0], "Test data": TESTDATA})
     def time_calculate_z(self, p, test_data):
         func = formal_integral.calculate_z
@@ -121,7 +122,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         formal_integral.FormalIntegrator(
             self.formal_integral_geometry(test_data), None, None
         )
-        func = formal_integral.populate_z
         r_inner = self.formal_integral_geometry(test_data).r_inner
         self.formal_integral_geometry(test_data).r_outer
 
@@ -129,7 +129,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         oz = np.zeros_like(r_inner)
         oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-        func(
+        formal_integral.populate_z(
             self.formal_integral_geometry(test_data),
             self.formal_integral_geometry(test_data),
             p,
@@ -159,6 +159,8 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
             oshell_id,
         )
 
+    # Error: Terminating: fork() called from a process already using GNU OpenMP, this is unsafe.
+    @skip_benchmark
     @parameterize(
         {
             "Parameters": [
@@ -174,6 +176,8 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
 
     # Benchmark for functions in FormalIntegrator class
 
+    # Error: Terminating: fork() called from a process already using GNU OpenMP, this is unsafe.
+    @skip_benchmark  
     def time_FormalIntegrator_functions(self):
         self.FormalIntegrator.calculate_spectrum(
             self.Simulation.transport.transport_state.spectrum.frequency
@@ -181,6 +185,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         self.FormalIntegrator.make_source_function()
         self.FormalIntegrator.generate_numba_objects()
         self.FormalIntegrator.formal_integral(
-            self.Simulation.transport.transport_state.spectrum.frequency, 
+            self.Simulation.transport.transport_state.spectrum.frequency,
             1000
         )
