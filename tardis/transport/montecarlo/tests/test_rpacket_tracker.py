@@ -9,31 +9,6 @@ from tardis.transport.montecarlo.r_packet import InteractionType
 from tardis.base import run_tardis
 
 
-@pytest.fixture(scope="module")
-def config_rpacket_tracker(example_configuration_dir):
-    """Config object for rpacket tracker"""
-    return Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_verysimple.yml"
-    )
-
-
-@pytest.fixture(scope="module")
-def simulation_rpacket_tracking_enabled(config_rpacket_tracker, atomic_dataset):
-    """Simulation object with track_rpacket enabled"""
-    config_rpacket_tracker.montecarlo.iterations = 1
-    config_rpacket_tracker.montecarlo.no_of_packets = 4000
-    config_rpacket_tracker.montecarlo.last_no_of_packets = -1
-    config_rpacket_tracker.montecarlo.tracking.track_rpacket = True
-    config_rpacket_tracker.spectrum.num = 2000
-    atomic_data = deepcopy(atomic_dataset)
-    sim = run_tardis(
-        config_rpacket_tracker,
-        atom_data=atomic_data,
-        show_convergence_plots=False,
-    )
-    return sim
-
-
 @pytest.fixture()
 def interaction_type_last_interaction_class(
     simulation_rpacket_tracking_enabled,
