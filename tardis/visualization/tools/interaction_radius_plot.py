@@ -149,6 +149,10 @@ class InteractionRadiusPlotter:
 
         Creates a list of colors corresponding to the species names.
         """
+        # the colours depends on the species present in the model and what's requested
+        # some species need to be shown in the same colour, so the exact colours have to be
+        # worked out
+
         color_list = []
         species_keys = list(self._species_mapped.keys())
         num_species = len(species_keys)
