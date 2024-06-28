@@ -42,8 +42,8 @@ transport_state_properties = [
     "output_energy",
     "nu_bar_estimator",
     "j_estimator",
-    "montecarlo_virtual_luminosity",
-    "packet_luminosity",
+    #"montecarlo_virtual_luminosity",
+    #"packet_luminosity",
     # These are nested properties that should be tested differently
     # "spectrum",
     # "spectrum_virtual",

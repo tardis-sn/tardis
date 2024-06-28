@@ -15,7 +15,7 @@ class SpectrumSolver:
         self.spectrum_frequency = spectrum_frequency
         self._montecarlo_virtual_luminosity = u.Quantity(
             np.zeros_like(self.spectrum_frequency.value), "erg / s"
-        )
+        ) # should be init with v_packets_energy_hist
         self._integrator = None
         self.integrator_settings = None
         self._spectrum_integrated = None
@@ -139,7 +139,7 @@ class SpectrumSolver:
             self.transport_state.emitted_packet_nu > luminosity_nu_start
         ) & (self.transport_state.emitted_packet_nu < luminosity_nu_end)
 
-        return self.emitted_packet_luminosity[
+        return self.transport_state.emitted_packet_luminosity[
             luminosity_wavelength_filter
         ].sum()
 
@@ -159,19 +159,19 @@ class SpectrumSolver:
         astropy.units.Quantity
         """
         luminosity_wavelength_filter = (
-            self.reabsorbed_packet_nu > luminosity_nu_start
-        ) & (self.reabsorbed_packet_nu < luminosity_nu_end)
+            self.transport_state.reabsorbed_packet_nu > luminosity_nu_start
+        ) & (self.transport_state.reabsorbed_packet_nu < luminosity_nu_end)
 
-        return self.reabsorbed_packet_luminosity[
+        return self.transport_state.reabsorbed_packet_luminosity[
             luminosity_wavelength_filter
         ].sum()
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config, v_packets_energy_hist):
         spectrum_frequency = quantity_linspace(
             config.spectrum.stop.to("Hz", u.spectral()),
             config.spectrum.start.to("Hz", u.spectral()),
             num=config.spectrum.num + 1,
         )
 
-        return cls(transport_state=None, spectrum_frequency=spectrum_frequency)
+        return cls(transport_state=None, spectrum_frequency=spectrum_frequency,)
