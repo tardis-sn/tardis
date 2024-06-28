@@ -23,6 +23,7 @@ from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
+from tardis.spectrum.base import SpectrumSolver
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -205,14 +206,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
     def estimate_t_inner(
-        self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
+        self, input_t_inner, luminosity_requested, emitted_luminosity, t_inner_update_exponent=-0.5
     ):
-        emitted_luminosity = (
-            self.transport.transport_state.calculate_emitted_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end
-            )
-        )
-
         luminosity_ratios = (
             (emitted_luminosity / luminosity_requested).to(1).value
         )
@@ -255,7 +250,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.consecutive_converges_count = 0
             return False
 
-    def advance_state(self):
+    def advance_state(self, emitted_luminosity):
         """
         Advances the state of the model and the plasma for the next
         iteration of the simulation. Returns True if the convergence criteria
@@ -272,6 +267,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
             self.luminosity_requested,
+            emitted_luminosity,
             t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
 
@@ -389,6 +385,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             show_progress_bars=self.show_progress_bars,
         )
 
+        spectrum_solver = SpectrumSolver(transport_state, self.transport.spectrum_frequency)
+
         output_energy = (
             self.transport.transport_state.packet_collection.output_energies
         )
@@ -396,12 +394,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             logger.critical("No r-packet escaped through the outer boundary.")
 
         emitted_luminosity = (
-            self.transport.transport_state.calculate_emitted_luminosity(
+            spectrum_solver.calculate_emitted_luminosity(
                 self.luminosity_nu_start, self.luminosity_nu_end
             )
         )
         reabsorbed_luminosity = (
-            self.transport.transport_state.calculate_reabsorbed_luminosity(
+            spectrum_solver.calculate_reabsorbed_luminosity(
                 self.luminosity_nu_start, self.luminosity_nu_end
             )
         )
@@ -424,6 +422,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
+        return emitted_luminosity
 
     def run_convergence(self):
         """
@@ -438,8 +437,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.plasma.electron_densities,
                 self.simulation_state.t_inner,
             )
-            self.iterate(self.no_of_packets)
-            self.converged = self.advance_state()
+            emitted_luminosity = self.iterate(self.no_of_packets)
+            self.converged = self.advance_state(emitted_luminosity)
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
             self._call_back()
