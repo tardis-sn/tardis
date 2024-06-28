@@ -39,7 +39,6 @@ class InteractionRadiusPlotter:
         self.time_explosion = time_explosion
         self.velocity = velocity
         self.sdec_plotter = sdec.SDECPlotter(data)
-        return
 
     @classmethod
     def from_simulation(cls, sim):
@@ -112,7 +111,6 @@ class InteractionRadiusPlotter:
             If species list contains invalid entries.
 
         """
-        # Use the sdec.SDECPlotter instance to parse the species list
         self.sdec_plotter._parse_species_list(species_list)
         self._species_list = self.sdec_plotter._species_list
         self._species_mapped = self.sdec_plotter._species_mapped
@@ -126,7 +124,6 @@ class InteractionRadiusPlotter:
         Otherwise, generates labels from the species in the model.
         """
         if self._species_list is None:
-            # If species_list is none then the labels are just elements
             species_name = [
                 atomic_number2element_symbol(atomic_num)
                 for atomic_num in self.species
@@ -135,11 +132,9 @@ class InteractionRadiusPlotter:
             species_name = []
             for species_key, species_ids in self._species_mapped.items():
                 if any(species in self.species for species in species_ids):
-                    # If the key is for an element, label by element symbol
                     if species_key % 100 == 0:
                         label = atomic_number2element_symbol(species_key // 100)
                     else:
-                        # If the key is for a specific ion, label by element and ion
                         atomic_number = species_key // 100
                         ion_number = species_key % 100
                         ion_numeral = int_to_roman(ion_number + 1)
@@ -149,11 +144,11 @@ class InteractionRadiusPlotter:
         self._species_name = species_name
 
     def _make_colorbar_colors(self):
-        """Get the colours for the species to be plotted."""
-        # the colours depends on the species present in the model and what's requested
-        # some species need to be shown in the same colour, so the exact colours have to be
-        # worked out
+        """
+        Generate colors for the species to be plotted.
 
+        Creates a list of colors corresponding to the species names.
+        """
         color_list = []
         species_keys = list(self._species_mapped.keys())
         num_species = len(species_keys)
@@ -212,28 +207,40 @@ class InteractionRadiusPlotter:
 
         return plot_data, plot_colors
 
-    def _show_colorbar_mpl(self):
-        """Show matplotlib colorbar with labels of elements mapped to colors."""
+    def _prepare_plot(self, packets_mode, species_list, cmapname):
+        """
+        Helper function to prepare the plot data and colors.
 
-        if not self._species_name:
-            raise ValueError("No species found to plot in colorbar")
+        Parameters
+        ----------
+        packets_mode : str
+            Packet mode, either 'virtual' or 'real'.
+        species_list : list of str
+            List of species to plot.
 
-        color_values = [
-            self.cmap(species_counter / len(self._species_name))
-            for species_counter in range(len(self._species_name))
-        ]
+        Raises
+        ------
+        ValueError
+            If no species provided or no valid species found.
 
-        custcmap = clr.ListedColormap(color_values)
-        norm = clr.Normalize(vmin=0, vmax=len(self._species_name))
-        mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)
-        mappable.set_array(np.linspace(1, len(self._species_name) + 1, 256))
-        cbar = plt.colorbar(mappable, ax=self.ax)
+        """
+        self._parse_species_list(species_list)
+        species_in_model = np.unique(
+            self.data[packets_mode]
+            .packets_df_line_interaction["last_line_interaction_species"]
+            .values
+        )
+        if self._species_list is None or not self._species_list:
+            raise ValueError("No species provided for plotting.")
+        msk = np.isin(self._species_list, species_in_model)
+        self.species = np.array(self._species_list)[msk]
 
-        bounds = np.arange(len(self._species_name)) + 0.5
-        cbar.set_ticks(bounds)
+        if len(self.species) == 0:
+            raise ValueError("No valid species found for plotting.")
 
-        cbar.set_ticklabels(self._species_name)
-        return
+        self._make_colorbar_labels()
+        self.cmap = cm.get_cmap(cmapname, len(self._species_name))
+        self._make_colorbar_colors()
 
     def generate_plot_mpl(
         self,
@@ -242,6 +249,8 @@ class InteractionRadiusPlotter:
         figsize=(11, 5),
         cmapname="jet",
         species_list=None,
+        log_scale=False,
+        bins_range=None,
     ):
         """
         Generate the last interaction radius distribution plot using matplotlib.
@@ -258,42 +267,27 @@ class InteractionRadiusPlotter:
             Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
         species_list : list of str
             List of species to plot.
+        log_scale : bool, optional
+            If True, both axes are scaled logarithmically. Default is False.
+        bins_range : tuple of int, optional
+            Range of bins to plot, e.g., (3, 9). Default is None, which plots all bins.
 
         Returns
         -------
         matplotlib.axes.Axes
             Axes object with the plot.
         """
+        self._prepare_plot(packets_mode, species_list, cmapname)
+        plot_data, plot_colors = self._generate_plot_data(packets_mode)
+        bin_edges = (self.velocity).to("km/s")
 
-        # Parse the requested species list
-        self._parse_species_list(species_list)
-        species_in_model = np.unique(
-            self.data[packets_mode]
-            .packets_df_line_interaction["last_line_interaction_species"]
-            .values
-        )
-        if self._species_list is None or not self._species_list:
-            raise ValueError("No species provided for plotting.")
-        msk = np.isin(self._species_list, species_in_model)
-        self.species = np.array(self._species_list)[msk]
-
-        if len(self.species) == 0:
-            raise ValueError("No valid species found for plotting.")
+        if bins_range:
+            bin_edges = bin_edges[bins_range[0] - 1 : bins_range[1] + 1]
 
         if ax is None:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
         else:
             self.ax = ax
-
-        # Get the labels in the color bar. This determines the number of unique colors
-        self._make_colorbar_labels()
-        # Set colormap to be used in elements of emission and absorption plots
-        self.cmap = cm.get_cmap(cmapname, len(self._species_name))
-        # Get the number of unique colors
-        self._make_colorbar_colors()
-
-        plot_data, plot_colors = self._generate_plot_data(packets_mode)
-        bin_edges = (self.velocity).to("km/s")
 
         for data, color, name in zip(
             plot_data, plot_colors, self._species_name
@@ -317,6 +311,10 @@ class InteractionRadiusPlotter:
         self.ax.set_ylabel("Packet Count", fontsize=14)
         self.ax.grid(True, which="both", linestyle="--", linewidth=0.5)
         self.ax.legend(fontsize=15)
+        plt.legend(bbox_to_anchor=(1.0, 1.0), loc="upper left")
+        if log_scale:
+            self.ax.set_xscale("log")
+            self.ax.set_yscale("log")
         plt.tight_layout()
 
         return self.ax
@@ -324,8 +322,12 @@ class InteractionRadiusPlotter:
     def generate_plot_ply(
         self,
         packets_mode="virtual",
-        species_list=None,
+        fig=None,
+        graph_height=500,
         cmapname="jet",
+        species_list=None,
+        log_scale=False,
+        bins_range=None,
     ):
         """
         Generate the last interaction radius distribution plot using plotly.
@@ -334,48 +336,42 @@ class InteractionRadiusPlotter:
         ----------
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
+        fig : plotly.graph_objects.Figure, optional
+            Plotly figure object to add the plot to. If None, creates a new figure.
+        graph_height : int, optional
+            Height of the graph in pixels. Default is 500.
+        cmapname : str, optional
+            Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
         species_list : list of str
             List of species to plot.
+        log_scale : bool, optional
+            If True, both axes are scaled logarithmically. Default is False.
+        bins_range : tuple of int, optional
+            Range of bins to plot, e.g., (3, 9). Default is None, which plots all bins.
 
         Returns
         -------
         plotly.graph_objects.Figure
             Plotly figure object with the plot.
         """
-        # Parse the requested species list
-        self._parse_species_list(species_list)
-        species_in_model = np.unique(
-            self.data[packets_mode]
-            .packets_df_line_interaction["last_line_interaction_species"]
-            .values
-        )
-        if self._species_list is None or not self._species_list:
-            raise ValueError("No species provided for plotting.")
-        msk = np.isin(self._species_list, species_in_model)
-        self.species = np.array(self._species_list)[msk]
-
-        if len(self.species) == 0:
-            raise ValueError("No valid species found for plotting.")
-        # Get the labels in the color bar. This determines the number of unique colors
-        self._make_colorbar_labels()
-        # Set colormap to be used in elements of emission and absorption plots
-        self.cmap = cm.get_cmap(cmapname, len(self._species_name))
-        # Get the number of unique colors
-        self._make_colorbar_colors()
-
+        self._prepare_plot(packets_mode, species_list, cmapname)
         plot_data, plot_colors = self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to("km/s")
+
+        if bins_range:
+            bin_edges = bin_edges[bins_range[0] - 1 : bins_range[1] + 1]
+
         fig = go.Figure()
         for data, color, name in zip(
             plot_data, plot_colors, self._species_name
         ):
             hist, _ = np.histogram(data, bins=bin_edges)
-            self.step_x = np.repeat(bin_edges, 2)[1:-1]
-            self.step_y = np.repeat(hist, 2)
+            step_x = np.repeat(bin_edges, 2)[1:-1]
+            step_y = np.repeat(hist, 2)
             fig.add_trace(
                 go.Scatter(
-                    x=self.step_x,
-                    y=self.step_y,
+                    x=step_x,
+                    y=step_y,
                     mode="lines",
                     line=dict(
                         color=pu.to_rgb255_string(color),
@@ -388,12 +384,15 @@ class InteractionRadiusPlotter:
                 )
             )
         fig.update_layout(
-            barmode="overlay",
+            height=graph_height,
             xaxis_title="Last Interaction Velocity (km/s)",
             yaxis_title="Packet Count",
             font=dict(size=14),
-            yaxis=dict(tickformat=".1e"),
-            xaxis=dict(tickformat=".0f", tickmode="auto"),
+            yaxis=dict(exponentformat="power" if log_scale else "e"),
+            xaxis=dict(exponentformat="power" if log_scale else "none"),
         )
+        if log_scale:
+            fig.update_xaxes(type="log")
+            fig.update_yaxes(type="log", dtick=1)
 
         return fig
