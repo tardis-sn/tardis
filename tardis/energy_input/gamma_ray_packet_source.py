@@ -437,18 +437,18 @@ class RadioactivePacketSource(BasePacketSource):
                 packet_energies_cmf[
                     packet_index - isotope_packet_count : packet_index
                 ] = initial_packet_energies_cmf
-                nus_rf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_rf
-                nus_cmf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_cmf
-                shells[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_shells
-                times[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_times
+                nus_rf[packet_index - isotope_packet_count : packet_index] = (
+                    initial_nus_rf
+                )
+                nus_cmf[packet_index - isotope_packet_count : packet_index] = (
+                    initial_nus_cmf
+                )
+                shells[packet_index - isotope_packet_count : packet_index] = (
+                    initial_shells
+                )
+                times[packet_index - isotope_packet_count : packet_index] = (
+                    initial_times
+                )
 
         return GXPacketCollection(
             locations,
@@ -746,6 +746,19 @@ class GammaRayPacketSource(BasePacketSource):
 
         return decay_times
 
+    def sample_decay_times_uniformly(
+        self, times, time_indices, number_of_packets
+    ):
+
+        decay_times = np.zeros(number_of_packets)
+
+        for i in range(number_of_packets):
+            decay_times[i] = np.random.uniform(
+                times[time_indices[i]], times[time_indices[i] + 1]
+            )
+
+        return decay_times
+
     def create_packets(
         self, decays_per_isotope, number_of_packets, *args, **kwargs
     ):
@@ -800,14 +813,22 @@ class GammaRayPacketSource(BasePacketSource):
         # sample radii at time = 0
         initial_radii = self.create_packet_radii(sampled_packets_df)
         # sample decay times
-        times = self.sample_decay_times(
-            isotopes, self.taus, self.effective_times, number_of_packets
+        sampled_times = sampled_packets_df.index.get_level_values("time")
+        sampled_time_indices = np.searchsorted(times, sampled_times)
+
+        decay_times = self.sample_decay_times_uniformly(
+            sampled_times, sampled_time_indices, number_of_packets
         )
 
         # get the time step index of the packets
-        decay_time_indices = []
-        for i in range(number_of_packets):
-            decay_time_indices.append(get_index(times[i], self.effective_times))
+        # decay_time_indices = []
+        # for i in range(number_of_packets):
+        #    decay_time_indices.append(
+        #        get_index(decay_times[i], self.effective_times)
+        #    )
+
+        # get the time of the middle of the step for each packet
+        decay_time_indices = np.searchsorted(self.effective_times, decay_times)
         # 3D locations
         locations = (
             initial_radii.values
@@ -851,7 +872,7 @@ class GammaRayPacketSource(BasePacketSource):
             nus_cmf,
             statuses,
             shells,
-            times,
+            decay_times,
         )
 
     def calculate_positron_fraction(self, isotopes):
