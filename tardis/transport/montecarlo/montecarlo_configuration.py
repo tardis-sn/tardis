@@ -3,10 +3,14 @@ from numba import float64, int64, boolean
 from numba.experimental import jitclass
 import numpy as np
 
+from tardis.transport.montecarlo import (
+    montecarlo_configuration as TempMonteCarloConfiguration,
+)
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,
 )
 
+ENABLE_RPACKET_TRACKING = False
 numba_config_spec = [
     ("ENABLE_FULL_RELATIVITY", boolean),
     ("TEMPORARY_V_PACKET_BINS", int64),
@@ -82,3 +86,6 @@ def configuration_initialize(config, transport, number_of_vpackets):
     )
     config.ENABLE_VPACKET_TRACKING = transport.enable_vpacket_tracking
     config.ENABLE_RPACKET_TRACKING = transport.enable_rpacket_tracking
+    TempMonteCarloConfiguration.ENABLE_RPACKET_TRACKING = (
+        transport.enable_rpacket_tracking
+    )

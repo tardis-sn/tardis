@@ -14,6 +14,9 @@ from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
 )
 from tardis.transport.montecarlo.formal_integral import FormalIntegrator
+from tardis.transport.montecarlo import (
+    montecarlo_configuration as TempMonteCarloConfiguration,
+)
 from tardis.transport.montecarlo.montecarlo_configuration import (
     MonteCarloConfiguration,
     configuration_initialize,
@@ -210,7 +213,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
         # Condition for Checking if RPacket Tracking is enabled
-        if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+        if TempMonteCarloConfiguration.ENABLE_RPACKET_TRACKING:
             transport_state.rpacket_tracker = rpacket_trackers
 
         if self.transport_state.rpacket_tracker is not None:
