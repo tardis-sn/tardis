@@ -5,6 +5,9 @@ from numba.typed import List
 
 from tardis.transport.montecarlo import njit_dict
 from tardis.transport.montecarlo.packet_trackers import RPacketTracker
+from tardis.transport.montecarlo import (
+    montecarlo_configuration as TempMonteCarloConfiguration,
+)
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
     consolidate_vpacket_tracker,
@@ -83,11 +86,12 @@ def montecarlo_main_loop(
                 montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
             )
         )
-        rpacket_trackers.append(
-            RPacketTracker(
-                montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+        if TempMonteCarloConfiguration.ENABLE_RPACKET_TRACKING:
+            rpacket_trackers.append(
+                RPacketTracker(
+                    montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+                )
             )
-        )
 
     # Get the ID of the main thread and the number of threads
     main_thread_id = get_thread_id()
@@ -129,7 +133,10 @@ def montecarlo_main_loop(
         vpacket_collection = vpacket_collections[i]
 
         # RPacket Tracker for this thread
-        rpacket_tracker = rpacket_trackers[i]
+        if TempMonteCarloConfiguration.ENABLE_RPACKET_TRACKING:
+            rpacket_tracker = rpacket_trackers[i]
+        else:
+            rpacket_tracker = None
 
         loop = single_packet_loop(
             r_packet,
@@ -185,7 +192,7 @@ def montecarlo_main_loop(
             1,
         )
 
-    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+    if TempMonteCarloConfiguration.ENABLE_RPACKET_TRACKING:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 
