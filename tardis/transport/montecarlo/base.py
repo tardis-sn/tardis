@@ -125,7 +125,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         transport_state = MonteCarloTransportState(
             packet_collection,
             estimators,
-            spectrum_frequency=self.spectrum_frequency,
             geometry_state=geometry_state,
             opacity_state=opacity_state,
         )
@@ -184,7 +183,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             transport_state.opacity_state,
             self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
-            transport_state.spectrum_frequency.value,
+            self.spectrum_frequency.value,
             number_of_vpackets,
             iteration=iteration,
             show_progress_bars=show_progress_bars,

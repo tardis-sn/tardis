@@ -62,7 +62,6 @@ class MonteCarloTransportState(HDFWriterMixin):
         self,
         packet_collection,
         radfield_mc_estimators,
-        spectrum_frequency,
         geometry_state,
         opacity_state,
         rpacket_tracker=None,
@@ -70,13 +69,6 @@ class MonteCarloTransportState(HDFWriterMixin):
     ):
         self.packet_collection = packet_collection
         self.radfield_mc_estimators = radfield_mc_estimators
-        self.spectrum_frequency = spectrum_frequency
-        self._montecarlo_virtual_luminosity = u.Quantity(
-            np.zeros_like(self.spectrum_frequency.value), "erg / s"
-        )
-        self._integrator = None
-        self.integrator_settings = None
-        self._spectrum_integrated = None
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
         self.geometry_state = geometry_state
@@ -168,152 +160,6 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
-
-    @property
-    def montecarlo_reabsorbed_luminosity(self):
-        return u.Quantity(
-            np.histogram(
-                self.reabsorbed_packet_nu,
-                weights=self.reabsorbed_packet_luminosity,
-                bins=self.spectrum_frequency,
-            )[0],
-            "erg / s",
-        )
-
-    @property
-    def montecarlo_emitted_luminosity(self):
-        return u.Quantity(
-            np.histogram(
-                self.emitted_packet_nu,
-                weights=self.emitted_packet_luminosity,
-                bins=self.spectrum_frequency,
-            )[0],
-            "erg / s",
-        )
-
-    @property
-    def montecarlo_virtual_luminosity(self):
-        return (
-            self._montecarlo_virtual_luminosity[:-1]
-            / self.packet_collection.time_of_simulation
-        )
-
-    @property
-    def spectrum(self):
-        return TARDISSpectrum(
-            self.spectrum_frequency, self.montecarlo_emitted_luminosity
-        )
-
-    @property
-    def spectrum_reabsorbed(self):
-        return TARDISSpectrum(
-            self.spectrum_frequency, self.montecarlo_reabsorbed_luminosity
-        )
-
-    @property
-    def spectrum_virtual(self):
-        if np.all(self.montecarlo_virtual_luminosity == 0):
-            warnings.warn(
-                "MontecarloTransport.spectrum_virtual"
-                "is zero. Please run the montecarlo simulation with"
-                "no_of_virtual_packets > 0",
-                UserWarning,
-            )
-
-        return TARDISSpectrum(
-            self.spectrum_frequency, self.montecarlo_virtual_luminosity
-        )
-
-    @property
-    def spectrum_integrated(self):
-        if self._spectrum_integrated is None:
-            # This was changed from unpacking to specific attributes as compute
-            # is not used in calculate_spectrum
-            try:
-                self._spectrum_integrated = self.integrator.calculate_spectrum(
-                    self.spectrum_frequency[:-1],
-                    points=self.integrator_settings.points,
-                    interpolate_shells=self.integrator_settings.interpolate_shells,
-                )
-            except IntegrationError:
-                # if integration is impossible or fails, return an empty spectrum
-                warnings.warn(
-                    "The FormalIntegrator is not yet implemented for the full "
-                    "relativity mode or continuum processes. "
-                    "Please run with config option enable_full_relativity: "
-                    "False and continuum_processes_enabled: False "
-                    "This RETURNS AN EMPTY SPECTRUM!",
-                    UserWarning,
-                )
-                return TARDISSpectrum(
-                    np.array([np.nan, np.nan]) * u.Hz,
-                    np.array([np.nan]) * u.erg / u.s,
-                )
-        return self._spectrum_integrated
-
-    @property
-    def integrator(self):
-        if self._integrator is None:
-            warnings.warn(
-                "MontecarloTransport.integrator: "
-                "The FormalIntegrator is not yet available."
-                "Please run the montecarlo simulation at least once.",
-                UserWarning,
-            )
-        if self.enable_full_relativity:
-            raise NotImplementedError(
-                "The FormalIntegrator is not yet implemented for the full "
-                "relativity mode. "
-                "Please run with config option enable_full_relativity: "
-                "False."
-            )
-        return self._integrator
-
-    def calculate_emitted_luminosity(
-        self, luminosity_nu_start, luminosity_nu_end
-    ):
-        """
-        Calculate emitted luminosity.
-
-        Parameters
-        ----------
-        luminosity_nu_start : astropy.units.Quantity
-        luminosity_nu_end : astropy.units.Quantity
-
-        Returns
-        -------
-        astropy.units.Quantity
-        """
-        luminosity_wavelength_filter = (
-            self.emitted_packet_nu > luminosity_nu_start
-        ) & (self.emitted_packet_nu < luminosity_nu_end)
-
-        return self.emitted_packet_luminosity[
-            luminosity_wavelength_filter
-        ].sum()
-
-    def calculate_reabsorbed_luminosity(
-        self, luminosity_nu_start, luminosity_nu_end
-    ):
-        """
-        Calculate reabsorbed luminosity.
-
-        Parameters
-        ----------
-        luminosity_nu_start : astropy.units.Quantity
-        luminosity_nu_end : astropy.units.Quantity
-
-        Returns
-        -------
-        astropy.units.Quantity
-        """
-        luminosity_wavelength_filter = (
-            self.reabsorbed_packet_nu > luminosity_nu_start
-        ) & (self.reabsorbed_packet_nu < luminosity_nu_end)
-
-        return self.reabsorbed_packet_luminosity[
-            luminosity_wavelength_filter
-        ].sum()
 
     @property
     def virt_packet_nus(self):
