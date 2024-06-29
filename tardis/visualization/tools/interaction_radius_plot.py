@@ -18,7 +18,7 @@ class InteractionRadiusPlotter:
     Plotting interface for the interaction radius plot.
     """
 
-    def __init__(self, data, time_explosion, no_of_shells):
+    def __init__(self, data, time_explosion, velocity):
         """
         Initialize the plotter with required data from the simulation.
 
@@ -31,8 +31,8 @@ class InteractionRadiusPlotter:
         time_explosion : astropy.units.Quantity
             Time of the explosion.
 
-        no_of_shells : int
-            The number of shells in TARDIS simulation.
+        velocity : astropy.units.Quantity
+            Velocity array from the simulation.
         """
 
         self.data = data
@@ -61,7 +61,7 @@ class InteractionRadiusPlotter:
                 real=sdec.SDECData.from_simulation(sim, "real"),
             ),
             sim.plasma.time_explosion,
-            sim.simulation_state.no_of_shells,
+            sim.simulation_state.velocity,
         )
 
     @classmethod
@@ -78,21 +78,23 @@ class InteractionRadiusPlotter:
         -------
         InteractionRadiusPlotter
         """
-        hdfstore = pd.HDFStore(hdf_fpath)
-        time_explosion = (
-            hdfstore["/simulation/plasma/scalars"]["time_explosion"] * u.s
-        )
-        velocity = (
-            hdfstore["/simulation/simulation_state"]["velocity"] * u.cm / u.s
-        )
-        return cls(
-            dict(
-                virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
-                real=sdec.SDECData.from_hdf(hdf_fpath, "real"),
-            ),
-            time_explosion,
-            velocity,
-        )
+        with pd.HDFStore(hdf_fpath, "r") as hdf:
+            time_explosion = (
+                hdf["/simulation/plasma/scalars"]["time_explosion"] * u.s
+            )
+            v_inner = hdf["/simulation/simulation_state/v_inner"] * (u.cm / u.s)
+            v_outer = hdf["/simulation/simulation_state/v_outer"] * (u.cm / u.s)
+            velocity = pd.concat(
+                [v_inner, pd.Series([v_outer.iloc[-1]])], ignore_index=True
+            ).tolist() * (u.cm / u.s)
+            return cls(
+                dict(
+                    virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
+                    real=sdec.SDECData.from_hdf(hdf_fpath, "real"),
+                ),
+                time_explosion,
+                velocity,
+            )
 
     def _parse_species_list(self, species_list):
         """
@@ -384,7 +386,6 @@ class InteractionRadiusPlotter:
                     ),
                     name=name,
                     opacity=0.75,
-                    nbinsx=self.no_of_shells,
                 )
             )
         fig.update_layout(
