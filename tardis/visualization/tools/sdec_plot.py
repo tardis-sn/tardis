@@ -260,7 +260,10 @@ class SDECData:
                 hdf["/simulation/simulation_state/scalars"].t_inner, "K"
             )
             time_of_simulation = u.Quantity(
-                hdf["/simulation/transport/scalars"].time_of_simulation, "s"
+                hdf[
+                    "/simulation/transport/transport_state/scalars"
+                ].time_of_simulation,
+                "s",
             )
 
             if packets_mode == "virtual":
