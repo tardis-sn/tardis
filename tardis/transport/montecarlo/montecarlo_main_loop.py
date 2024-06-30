@@ -1,4 +1,5 @@
 import numpy as np
+import numba
 from numba import njit, objmode, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
@@ -91,8 +92,10 @@ def montecarlo_main_loop(
 
     # Pre-allocate a list of vpacket collections for later storage
     vpacket_collections = List()
-    # Configuring the Tracking for R_Packets
-    rpacket_trackers = List()
+    # Initialize rpacket_trackers
+    rpacket_trackers = initialize_rpacket_trackers(
+        ENABLE_RPACKET_TRACKING, no_of_packets, INITIAL_TRACKING_ARRAY_LENGTH
+    )
     for i in range(no_of_packets):
         vpacket_collections.append(
             VPacketCollection(
@@ -104,7 +107,6 @@ def montecarlo_main_loop(
                 TEMPORARY_V_PACKET_BINS,
             )
         )
-        rpacket_trackers.append(RPacketTracker(INITIAL_TRACKING_ARRAY_LENGTH))
 
     # Get the ID of the main thread and the number of threads
     main_thread_id = get_thread_id()
@@ -146,7 +148,9 @@ def montecarlo_main_loop(
         vpacket_collection = vpacket_collections[i]
 
         # RPacket Tracker for this thread
-        rpacket_tracker = rpacket_trackers[i]
+        rpacket_tracker = get_rpacket_tracker(
+            ENABLE_RPACKET_TRACKING, rpacket_trackers, i
+        )
 
         loop = single_packet_loop(
             r_packet,
@@ -212,3 +216,46 @@ def montecarlo_main_loop(
         vpacket_tracker,
         rpacket_trackers,
     )
+
+
+def initialize_rpacket_trackers(
+    ENABLE_RPACKET_TRACKING, no_of_packets, INITIAL_ARRAY_TRACKING_LENGTH
+):
+    pass
+
+
+@numba.extending.overload(initialize_rpacket_trackers)
+def ol_initialize_rpacket_trackers(
+    ENABLE_RPACKET_TRACKING, no_of_packets, INITIAL_ARRAY_TRACKING_LENGTH
+):
+    if ENABLE_RPACKET_TRACKING.literal_value:
+
+        def initialize(
+            ENABLE_RPACKET_TRACKING,
+            no_of_packets,
+            INITIAL_ARRAY_TRACKING_LENGTH,
+        ):
+            rpacket_trackers = List()
+            for i in range(no_of_packets):
+                rpacket_trackers.append(
+                    RPacketTracker(INITIAL_ARRAY_TRACKING_LENGTH)
+                )
+            return rpacket_trackers
+
+        return initialize
+    else:
+        return (
+            lambda ENABLE_RPACKET_TRACKING, no_of_packets, INITIAL_ARRAY_TRACKING_LENGTH: None
+        )
+
+
+def get_rpacket_tracker(ENABLE_RPACKET_TRACKING, rpacket_trackers, index):
+    pass
+
+
+@numba.extending.overload(get_rpacket_tracker)
+def ol_get_rpacket_tracker(ENABLE_RPACKET_TRACKING, rpacket_trackers, index):
+    if ENABLE_RPACKET_TRACKING.literal_value:
+        return lambda ENABLE_RPACKET_TRACKING, rpacket_trackers, index: rpacket_trackers[index]
+    else:
+        return lambda ENABLE_RPACKET_TRACKING, rpacket_trackers, index: None

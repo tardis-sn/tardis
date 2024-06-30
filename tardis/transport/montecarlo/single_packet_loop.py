@@ -1,13 +1,10 @@
+import numba
 from numba import njit
 
 from tardis import constants as const
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
-)
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-    get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_bound_free_estimators,
@@ -101,9 +98,7 @@ def single_packet_loop(
         SURVIVAL_PROBABILITY,
         CONTINUUM_PROCESSES_ENABLED,
     )
-
-    if ENABLE_RPACKET_TRACKING:
-        rpacket_tracker.track(r_packet)
+    track_rpacket(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet)
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
@@ -283,8 +278,8 @@ def single_packet_loop(
             )
         else:
             pass
-        if ENABLE_RPACKET_TRACKING:
-            rpacket_tracker.track(r_packet)
+        if interaction_type != InteractionType.BOUNDARY:
+            track_rpacket(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet)
 
 
 @njit
@@ -327,3 +322,18 @@ def set_packet_props_full_relativity(r_packet, time_explosion):
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
     r_packet.mu = (r_packet.mu + beta) / (1 + beta * r_packet.mu)
+
+
+def track_rpacket(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet):
+    pass
+
+
+@numba.extending.overload(track_rpacket)
+def ol_track_rpacket(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet):
+    if ENABLE_RPACKET_TRACKING.literal_value:
+        def track(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet):
+            rpacket_tracker.track(r_packet)
+            return None
+        return track
+    else:
+        return lambda ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet: None
