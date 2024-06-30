@@ -17,9 +17,6 @@ from tardis.transport.montecarlo.r_packet import (
     InteractionType,
     PacketStatus,
 )
-from tardis.transport.montecarlo import (
-    montecarlo_configuration as TempMonteCarloConfiguration,
-)
 from tardis.transport.montecarlo.vpacket import trace_vpacket_volley
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
@@ -86,7 +83,7 @@ def single_packet_loop(
         montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
     )
 
-    if TempMonteCarloConfiguration.ENABLE_RPACKET_TRACKING:
+    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
         rpacket_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
@@ -269,7 +266,7 @@ def single_packet_loop(
             pass
         if (
             interaction_type != InteractionType.BOUNDARY
-            and TempMonteCarloConfiguration.ENABLE_RPACKET_TRACKING
+            and montecarlo_configuration.ENABLE_RPACKET_TRACKING
         ):
             rpacket_tracker.track(r_packet)
 
