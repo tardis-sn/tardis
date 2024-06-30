@@ -6,6 +6,9 @@ import numpy as np
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.transport.montecarlo.r_packet import InteractionType
+from tardis.transport.montecarlo.packet_trackers import (
+    rpacket_trackers_to_dataframe,
+)
 from tardis.base import run_tardis
 
 
