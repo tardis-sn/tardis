@@ -7,8 +7,6 @@ from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
 )
 
-from tardis.io.configuration.config_reader import Configuration
-from tardis.base import run_tardis
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
@@ -140,28 +138,3 @@ def random_call_fixture():
         np.random.random()
 
     return njit(random_call)
-
-
-@pytest.fixture(scope="module")
-def config_rpacket_tracker(example_configuration_dir):
-    """Config object for rpacket tracker"""
-    return Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_verysimple.yml"
-    )
-
-
-@pytest.fixture(scope="module")
-def simulation_rpacket_tracking_enabled(config_rpacket_tracker, atomic_dataset):
-    """Simulation object with track_rpacket enabled"""
-    config_rpacket_tracker.montecarlo.iterations = 1
-    config_rpacket_tracker.montecarlo.no_of_packets = 4000
-    config_rpacket_tracker.montecarlo.last_no_of_packets = -1
-    config_rpacket_tracker.montecarlo.tracking.track_rpacket = True
-    config_rpacket_tracker.spectrum.num = 2000
-    atomic_data = deepcopy(atomic_dataset)
-    sim = run_tardis(
-        config_rpacket_tracker,
-        atom_data=atomic_data,
-        show_convergence_plots=False,
-    )
-    return sim
