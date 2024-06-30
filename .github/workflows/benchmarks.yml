@@ -85,7 +85,7 @@ jobs:
       - name: Install asv
         run: pip install asv
 
-      - run: git remote add upstream https://github.com/tardis-sn/tardis.git
+      - run: git remote add upstream https://github.com/tardis-sn/tardis
       - run: git fetch upstream master
 
       - name: Accept all asv questions
@@ -126,12 +126,6 @@ jobs:
       - name: Run benchmarks
         if: github.event_name == 'pull_request_target'
         run: asv run --config asv.conf.json
-      
-      - name: Fetch the latest changes
-        if: github.event_name == 'pull_request_target'
-        run: | 
-          git remote add upstream https://github.com/tardis-sn/tardis.git
-          git fetch upstream master
 
       - name: Compare Master and PR head
         run: asv compare upstream/master HEAD --config asv.conf.json | tee asv-compare-output.log
@@ -151,29 +145,30 @@ jobs:
         with:
           path: asv-compare-changed-output.log
 
-      - name: Remove .asv
-        run: rm -rf .asv
-
       - name: Run benchmarks for base to head commits of PR
         if: github.event_name == 'pull_request_target'
         run: |
-          asv run master..${{ github.event.pull_request.head.ref }} | tee asv-output-PR.log  
+          echo $(git rev-parse HEAD) > commit_hashes.txt
+          echo $(git merge-base HEAD upstream/master) >> commit_hashes.txt
+
+          asv run HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
             if grep -q failed asv-output-PR.log; then 
               echo "Some benchmarks have failed!"
               exit 1
             fi
-          mkdir -p PR-${{ github.event.number }}
-          cp -r .asv PR-${{ github.event.number }}
-      
+
       - name: Generate Graphs and HTML of PR
         if: github.event_name == 'pull_request_target'
         run: |
-          cd PR-${{ github.event.number }}
           asv publish
 
       - name: Delete env files of PR
         if: github.event_name == 'pull_request_target'
-        run: rm -r PR-${{ github.event.number }}/.asv/env
+        run: rm -r .asv/env
+      
+      - name: Move .asv to PR folder
+        if: github.event_name == 'pull_request_target'
+        run: mv .asv PR-${{ github.event.number }}
 
       - name: Push results of PR to results repository
         if: github.event_name == 'pull_request_target'
