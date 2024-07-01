@@ -4,7 +4,10 @@ from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
 
 from tardis.transport.montecarlo import njit_dict
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
+from tardis.transport.montecarlo.packet_trackers import (
+    RPacketTracker,
+    RPacketLastInteractionTracker,
+)
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
     consolidate_vpacket_tracker,
@@ -72,6 +75,7 @@ def montecarlo_main_loop(
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
     rpacket_trackers = List()
+    rpacket_last_interaction_trackers = List()
     for i in range(no_of_packets):
         vpacket_collections.append(
             VPacketCollection(
@@ -87,6 +91,9 @@ def montecarlo_main_loop(
             RPacketTracker(
                 montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
             )
+        )
+        rpacket_last_interaction_trackers.append(
+            RPacketLastInteractionTracker()
         )
 
     # Get the ID of the main thread and the number of threads
@@ -130,6 +137,7 @@ def montecarlo_main_loop(
 
         # RPacket Tracker for this thread
         rpacket_tracker = rpacket_trackers[i]
+        rpacket_last_interaction_tracker = rpacket_last_interaction_trackers[i]
 
         loop = single_packet_loop(
             r_packet,
@@ -139,6 +147,7 @@ def montecarlo_main_loop(
             local_estimators,
             vpacket_collection,
             rpacket_tracker,
+            rpacket_last_interaction_tracker,
             montecarlo_configuration,
         )
         packet_collection.output_nus[i] = r_packet.nu
@@ -194,4 +203,5 @@ def montecarlo_main_loop(
         last_interaction_tracker,
         vpacket_tracker,
         rpacket_trackers,
+        rpacket_last_interaction_trackers,
     )

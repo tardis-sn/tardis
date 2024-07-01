@@ -4,24 +4,32 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
+from tardis.io.configuration.config_reader import Configuration
 from tardis.base import run_tardis
 from tardis.transport.montecarlo.packet_trackers import (
     rpacket_trackers_to_dataframe,
 )
 
 
-@pytest.fixture(scope="module")
-def simulation_rpacket_tracking_enabled(config_verysimple, atomic_dataset):
-    config_verysimple.montecarlo.iterations = 3
-    config_verysimple.montecarlo.no_of_packets = 4000
-    config_verysimple.montecarlo.last_no_of_packets = -1
-    config_verysimple.spectrum.virtual.virtual_packet_logging = True
-    config_verysimple.montecarlo.no_of_virtual_packets = 1
-    config_verysimple.montecarlo.tracking.track_rpacket = True
-    config_verysimple.spectrum.num = 2000
+@pytest.fixture()
+def config_rpacket_tracker(example_configuration_dir):
+    """Config object for rpacket tracker"""
+    return Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
+
+
+@pytest.fixture()
+def simulation_rpacket_tracking_enabled(config_rpacket_tracker, atomic_dataset):
+    """Simulation object with track_rpacket enabled"""
+    config_rpacket_tracker.montecarlo.iterations = 3
+    config_rpacket_tracker.montecarlo.no_of_packets = 4000
+    config_rpacket_tracker.montecarlo.last_no_of_packets = -1
+    config_rpacket_tracker.montecarlo.tracking.track_rpacket = True
+    config_rpacket_tracker.spectrum.num = 2000
     atomic_data = deepcopy(atomic_dataset)
     sim = run_tardis(
-        config_verysimple,
+        config_rpacket_tracker,
         atom_data=atomic_data,
         show_convergence_plots=False,
     )
@@ -29,8 +37,9 @@ def simulation_rpacket_tracking_enabled(config_verysimple, atomic_dataset):
 
 
 def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
-    sim = simulation_rpacket_tracking_enabled
-    transport_state = sim.transport.transport_state
+    transport_state = (
+        simulation_rpacket_tracking_enabled.transport.transport_state
+    )
     rtracker_df = rpacket_trackers_to_dataframe(transport_state.rpacket_tracker)
 
     # check df shape and column names
