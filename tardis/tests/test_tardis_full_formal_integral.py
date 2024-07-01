@@ -60,7 +60,9 @@ class TestTransportSimpleFormalIntegral:
             return simulation
         else:
             simulation.spectrum_solver.hdf_properties = ["spectrum"]
-            simulation.spectrum_solver.to_hdf(tardis_ref_data, "", self.name, overwrite=True)
+            simulation.spectrum_solver.to_hdf(
+                tardis_ref_data, "", self.name, overwrite=True
+            )
             simulation.transport.hdf_properties = ["transport_state"]
             simulation.transport.to_hdf(
                 tardis_ref_data, "", self.name, overwrite=True
@@ -97,5 +99,6 @@ class TestTransportSimpleFormalIntegral:
         )
 
         assert_quantity_allclose(
-            simulation.spectrum_solver.spectrum_integrated.luminosity, luminosity
+            simulation.spectrum_solver.spectrum_integrated.luminosity,
+            luminosity,
         )
