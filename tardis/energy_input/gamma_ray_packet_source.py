@@ -746,21 +746,37 @@ class GammaRayPacketSource(BasePacketSource):
 
         return decay_times
 
-    def sample_decay_times_uniformly(
-        self, times, time_indices, number_of_packets
-    ):
+    def sample_decay_times_uniformly(self, time, number_of_packets, seed):
+        """
+        Sample decay times uniformly
+
+        Parameters
+        ----------
+        time : array
+            Array of time steps in seconds
+        number_of_packets : int
+            Number of packets
+
+        Returns
+        -------
+        decay_times : array
+            Array of decay times for each packet
+
+        """
 
         decay_times = np.zeros(number_of_packets)
 
-        for i in range(number_of_packets):
-            decay_times[i] = np.random.uniform(
-                times[time_indices[i]], times[time_indices[i] + 1]
-            )
+        np.random.seed(seed)
+        decay_times[0] = self.times[0]
+        decay_times[-1] = self.times[-1]
+
+        for j in range(1, number_of_packets - 1):
+            decay_times[j] = np.random.uniform(time[j - 1], time[j])
 
         return decay_times
 
     def create_packets(
-        self, decays_per_isotope, number_of_packets, *args, **kwargs
+        self, decays_per_isotope, number_of_packets, seed, *args, **kwargs
     ):
         """Initialize a collection of GXPacket objects for the simulation
         to operate on.
@@ -813,23 +829,25 @@ class GammaRayPacketSource(BasePacketSource):
         # sample radii at time = 0
         initial_radii = self.create_packet_radii(sampled_packets_df)
         # sample decay times
-        sampled_times = sampled_packets_df.index.get_level_values("time")
-        sampled_time_indices = np.searchsorted(times, sampled_times)
+        sampled_times = (
+            sampled_packets_df.index.get_level_values("time") * 86400.0
+        )
+        # Get the indices of the time steps from the sampled times
 
         decay_times = self.sample_decay_times_uniformly(
-            sampled_times, sampled_time_indices, number_of_packets
+            sampled_times, number_of_packets, seed
         )
 
-        # get the time step index of the packets
-        # decay_time_indices = []
-        # for i in range(number_of_packets):
-        #    decay_time_indices.append(
-        #        get_index(decay_times[i], self.effective_times)
-        #    )
-
         # get the time of the middle of the step for each packet
-        decay_time_indices = np.searchsorted(self.effective_times, decay_times)
+        # decay_time_indices = np.searchsorted(self.effective_times, decay_times)
         # 3D locations
+
+        decay_time_indices = []
+        for i in range(number_of_packets):
+            decay_time_indices.append(
+                get_index(decay_times[i], self.effective_times)
+            )
+
         locations = (
             initial_radii.values
             * self.effective_times[decay_time_indices]
@@ -857,7 +875,7 @@ class GammaRayPacketSource(BasePacketSource):
         nus_rf = np.zeros(number_of_packets)
 
         doppler_factors = doppler_factor_3D_all_packets(
-            directions, locations, times
+            directions, locations, decay_times
         )
 
         packet_energies_rf = packet_energies_cmf / doppler_factors

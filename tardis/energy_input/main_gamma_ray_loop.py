@@ -205,7 +205,7 @@ def run_gamma_ray_loop(
     )
     logger.info("Creating packets")
     packet_collection = packet_source.create_packets(
-        cumulative_decays_df, num_decays
+        cumulative_decays_df, num_decays, seed
     )
     logger.info("Creating packet list")
     packets = []
@@ -241,7 +241,10 @@ def run_gamma_ray_loop(
     logger.info(f"Total CMF energy is {total_cmf_energy}")
     logger.info(f"Total RF energy is {total_rf_energy}")
 
-    (energy_out, packets_array,) = gamma_packet_loop(
+    (
+        energy_out,
+        packets_array,
+    ) = gamma_packet_loop(
         packets,
         grey_opacity,
         photoabsorption_opacity,
@@ -274,7 +277,7 @@ def run_gamma_ray_loop(
     )
 
     escape_energy = pd.DataFrame(
-        data=energy_out, columns=times[:-1], index=energy_bins
+        data=energy_out, columns=effective_time_array, index=energy_bins
     )
 
     return escape_energy, packets_df_escaped

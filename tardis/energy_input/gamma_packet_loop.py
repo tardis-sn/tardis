@@ -3,7 +3,7 @@ import numpy as np
 from numba import njit
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.opacities import (
+from tardis.opacities.opacities import (
     compton_opacity_calculation,
     photoabsorption_opacity_calculation,
     pair_creation_opacity_calculation,
@@ -114,7 +114,7 @@ def gamma_packet_loop(
 
     for i in range(packet_count):
         packet = packets[i]
-        time_index = get_index(packet.time_current, times)
+        time_index = get_index(packet.time_current, effective_time_array)
         if time_index < 0:
             print(packet.time_current, time_index)
             raise ValueError("Packet time index less than 0!")
