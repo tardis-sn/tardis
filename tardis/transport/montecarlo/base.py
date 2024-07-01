@@ -18,7 +18,6 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
 )
-from tardis.transport.montecarlo.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.montecarlo_configuration import (
     MonteCarloConfiguration,
     configuration_initialize,
@@ -58,7 +57,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         virtual_spectrum_spawn_range,
         enable_full_relativity,
         line_interaction_type,
-        integrator_settings,
         spectrum_method,
         packet_source,
         enable_virtual_packet_logging=False,
@@ -74,9 +72,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         self.virtual_spectrum_spawn_range = virtual_spectrum_spawn_range
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
-        self.integrator_settings = integrator_settings
         self.spectrum_method = spectrum_method
-        self._integrator = None
 
         self.use_gpu = use_gpu
 
@@ -132,10 +128,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         transport_state.enable_full_relativity = (
             self.montecarlo_configuration.ENABLE_FULL_RELATIVITY
         )
-        transport_state.integrator_settings = self.integrator_settings
-        transport_state._integrator = FormalIntegrator(
-            simulation_state, plasma, self
-        )
+
         configuration_initialize(
             self.montecarlo_configuration, self, no_of_virtual_packets
         )
@@ -295,7 +288,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,
             line_interaction_type=config.plasma.line_interaction_type,
-            integrator_settings=config.spectrum.integrated,
             spectrum_method=config.spectrum.method,
             packet_source=packet_source,
             debug_packets=config.montecarlo.debug_packets,

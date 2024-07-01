@@ -191,10 +191,10 @@ class SDECData:
                     transport_state.vpacket_tracker.energies, "erg"
                 ),
                 r_inner=r_inner,
-                spectrum_delta_frequency=transport_state.spectrum_virtual.delta_frequency,
-                spectrum_frequency_bins=transport_state.spectrum_virtual._frequency,
-                spectrum_luminosity_density_lambda=transport_state.spectrum_virtual.luminosity_density_lambda,
-                spectrum_wavelength=transport_state.spectrum_virtual.wavelength,
+                spectrum_delta_frequency=sim.spectrum_solver.spectrum_virtual.delta_frequency,
+                spectrum_frequency_bins=sim.spectrum_solver.spectrum_virtual._frequency,
+                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_virtual.luminosity_density_lambda,
+                spectrum_wavelength=sim.spectrum_solver.spectrum_virtual.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -227,10 +227,10 @@ class SDECData:
                     transport_state.emitted_packet_mask
                 ],
                 r_inner=r_inner,
-                spectrum_delta_frequency=transport_state.spectrum.delta_frequency,
-                spectrum_frequency_bins=transport_state.spectrum._frequency,
-                spectrum_luminosity_density_lambda=transport_state.spectrum.luminosity_density_lambda,
-                spectrum_wavelength=transport_state.spectrum.wavelength,
+                spectrum_delta_frequency=sim.spectrum_solver.spectrum.delta_frequency,
+                spectrum_frequency_bins=sim.spectrum_solver.spectrum._frequency,
+                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum.luminosity_density_lambda,
+                spectrum_wavelength=sim.spectrum_solver.spectrum.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )

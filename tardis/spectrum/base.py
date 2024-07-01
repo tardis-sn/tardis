@@ -3,13 +3,25 @@ import warnings
 import numpy as np
 from astropy import units as u
 
+from tardis.io.util import HDFWriterMixin
 from tardis.spectrum.formal_integral import IntegrationError
 from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.util.base import (
     quantity_linspace,
 )
 
-class SpectrumSolver:
+
+class SpectrumSolver(HDFWriterMixin):
+    hdf_properties = [
+        "montecarlo_virtual_luminosity",
+        "spectrum",
+        "spectrum_virtual",
+        "spectrum_reabsorbed",
+        "spectrum_integrated",
+    ]
+
+    hdf_name = "spectrum"
+
     def __init__(self, transport_state, spectrum_frequency):
         self.transport_state = transport_state
         self.spectrum_frequency = spectrum_frequency
@@ -82,7 +94,7 @@ class SpectrumSolver:
                 "Please run the montecarlo simulation at least once.",
                 UserWarning,
             )
-        if self.enable_full_relativity:
+        if self.transport_state.enable_full_relativity:
             raise NotImplementedError(
                 "The FormalIntegrator is not yet implemented for the full "
                 "relativity mode. "
@@ -96,7 +108,7 @@ class SpectrumSolver:
         return u.Quantity(
             np.histogram(
                 self.transport_state.reabsorbed_packet_nu,
-                weights=self.reabsorbed_packet_luminosity,
+                weights=self.transport_state.reabsorbed_packet_luminosity,
                 bins=self.spectrum_frequency,
             )[0],
             "erg / s",
@@ -107,7 +119,7 @@ class SpectrumSolver:
         return u.Quantity(
             np.histogram(
                 self.transport_state.emitted_packet_nu,
-                weights=self.emitted_packet_luminosity,
+                weights=self.transport_state.emitted_packet_luminosity,
                 bins=self.spectrum_frequency,
             )[0],
             "erg / s",
