@@ -378,8 +378,8 @@ def test_full_formal_integral(
 
     L_cuda = formal_integrator_cuda.integrator.formal_integral(
         formal_integrator_cuda.simulation_state.t_inner,
-        sim.transport.transport_state.spectrum.frequency,
-        sim.transport.transport_state.spectrum.frequency.shape[0],
+        sim.spectrum_solver.spectrum.frequency,
+        sim.spectrum_solver.spectrum.frequency.shape[0],
         att_S_ul_cuda,
         Jred_lu_cuda,
         Jblue_lu_cuda,
@@ -390,8 +390,8 @@ def test_full_formal_integral(
 
     L_numba = formal_integrator_numba.integrator.formal_integral(
         formal_integrator_numba.simulation_state.t_inner,
-        sim.transport.transport_state.spectrum.frequency,
-        sim.transport.transport_state.spectrum.frequency.shape[0],
+        sim.spectrum_solver.spectrum.frequency,
+        sim.spectrum_solver.spectrum.frequency.shape[0],
         att_S_ul_numba,
         Jred_lu_numba,
         Jblue_lu_numba,

@@ -43,7 +43,7 @@ class TestTransportSimpleFormalIntegral:
     _name = "test_transport_simple_integral"
 
     @pytest.fixture(scope="class")
-    def transport(
+    def simulation(
         self, config, atomic_data_fname, tardis_ref_data, generate_reference
     ):
         config.atom_data = atomic_data_fname
@@ -57,8 +57,10 @@ class TestTransportSimpleFormalIntegral:
         simulation.run_final()
 
         if not generate_reference:
-            return simulation.transport
+            return simulation
         else:
+            simulation.spectrum_solver.hdf_properties = ["spectrum"]
+            simulation.spectrum_solver.to_hdf(tardis_ref_data, "", self.name, overwrite=True)
             simulation.transport.hdf_properties = ["transport_state"]
             simulation.transport.to_hdf(
                 tardis_ref_data, "", self.name, overwrite=True
@@ -72,28 +74,28 @@ class TestTransportSimpleFormalIntegral:
 
         return get_ref_data
 
-    def test_j_blue_estimators(self, transport, refdata):
+    def test_j_blue_estimators(self, simulation, refdata):
         j_blue_estimator = refdata("transport_state/j_blue_estimator").values
 
         npt.assert_allclose(
-            transport.transport_state.radfield_mc_estimators.j_blue_estimator,
+            simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator,
             j_blue_estimator,
         )
 
-    def test_spectrum(self, transport, refdata):
+    def test_spectrum(self, simulation, refdata):
         luminosity = u.Quantity(
             refdata("transport_state/spectrum/luminosity"), "erg /s"
         )
 
         assert_quantity_allclose(
-            transport.transport_state.spectrum.luminosity, luminosity
+            simulation.spectrum_solver.spectrum.luminosity, luminosity
         )
 
-    def test_spectrum_integrated(self, transport, refdata):
+    def test_spectrum_integrated(self, simulation, refdata):
         luminosity = u.Quantity(
             refdata("transport_state/spectrum_integrated/luminosity"), "erg /s"
         )
 
         assert_quantity_allclose(
-            transport.transport_state.spectrum_integrated.luminosity, luminosity
+            simulation.spectrum_solver.spectrum_integrated.luminosity, luminosity
         )
