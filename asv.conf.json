@@ -9,7 +9,7 @@
         "python setup.py build",
         "PIP_NO_BUILD_ISOLATION=false python -mpip wheel --no-deps --no-index -w {build_cache_dir} {build_dir}"
     ],
-    "branches": ["master"],
+    "branches": ["upstream/master", "HEAD"],
     "environment_type": "mamba",
     "show_commit_url": "https://github.com/tardis-sn/tardis/commit/",
     "conda_environment_file": "tardis_env3.yml",
