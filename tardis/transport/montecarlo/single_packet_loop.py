@@ -28,6 +28,9 @@ from tardis.transport.montecarlo.r_packet_transport import (
     move_r_packet,
     trace_packet,
 )
+from tardis.transport.montecarlo.overload_utils.ENABLE_RPACKET_TRACKING import (
+    track_rpacket,
+)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -322,18 +325,3 @@ def set_packet_props_full_relativity(r_packet, time_explosion):
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
     r_packet.mu = (r_packet.mu + beta) / (1 + beta * r_packet.mu)
-
-
-def track_rpacket(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet):
-    pass
-
-
-@numba.extending.overload(track_rpacket)
-def ol_track_rpacket(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet):
-    if ENABLE_RPACKET_TRACKING.literal_value:
-        def track(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet):
-            rpacket_tracker.track(r_packet)
-            return None
-        return track
-    else:
-        return lambda ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet: None

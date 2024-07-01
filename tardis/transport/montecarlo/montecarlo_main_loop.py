@@ -19,6 +19,11 @@ from tardis.transport.montecarlo.single_packet_loop import (
     single_packet_loop,
 )
 from tardis.util.base import update_packet_pbar
+from tardis.transport.montecarlo.overload_utils.ENABLE_RPACKET_TRACKING import (
+    initialize_rpacket_trackers,
+    get_rpacket_tracker,
+    finalize_rpacket_trackers,
+)
 
 
 @njit(**njit_dict)
@@ -205,10 +210,7 @@ def montecarlo_main_loop(
             -1,
             1,
         )
-
-    if ENABLE_RPACKET_TRACKING:
-        for rpacket_tracker in rpacket_trackers:
-            rpacket_tracker.finalize_array()
+    finalize_rpacket_trackers(ENABLE_RPACKET_TRACKING, rpacket_trackers)
 
     return (
         v_packets_energy_hist,
@@ -216,46 +218,3 @@ def montecarlo_main_loop(
         vpacket_tracker,
         rpacket_trackers,
     )
-
-
-def initialize_rpacket_trackers(
-    ENABLE_RPACKET_TRACKING, no_of_packets, INITIAL_ARRAY_TRACKING_LENGTH
-):
-    pass
-
-
-@numba.extending.overload(initialize_rpacket_trackers)
-def ol_initialize_rpacket_trackers(
-    ENABLE_RPACKET_TRACKING, no_of_packets, INITIAL_ARRAY_TRACKING_LENGTH
-):
-    if ENABLE_RPACKET_TRACKING.literal_value:
-
-        def initialize(
-            ENABLE_RPACKET_TRACKING,
-            no_of_packets,
-            INITIAL_ARRAY_TRACKING_LENGTH,
-        ):
-            rpacket_trackers = List()
-            for i in range(no_of_packets):
-                rpacket_trackers.append(
-                    RPacketTracker(INITIAL_ARRAY_TRACKING_LENGTH)
-                )
-            return rpacket_trackers
-
-        return initialize
-    else:
-        return (
-            lambda ENABLE_RPACKET_TRACKING, no_of_packets, INITIAL_ARRAY_TRACKING_LENGTH: None
-        )
-
-
-def get_rpacket_tracker(ENABLE_RPACKET_TRACKING, rpacket_trackers, index):
-    pass
-
-
-@numba.extending.overload(get_rpacket_tracker)
-def ol_get_rpacket_tracker(ENABLE_RPACKET_TRACKING, rpacket_trackers, index):
-    if ENABLE_RPACKET_TRACKING.literal_value:
-        return lambda ENABLE_RPACKET_TRACKING, rpacket_trackers, index: rpacket_trackers[index]
-    else:
-        return lambda ENABLE_RPACKET_TRACKING, rpacket_trackers, index: None
