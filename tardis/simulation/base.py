@@ -138,7 +138,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         show_convergence_plots,
         convergence_plots_kwargs,
         show_progress_bars,
-        integrator_settings
+        integrator_settings,
     ):
         super(Simulation, self).__init__(
             iterations, simulation_state.no_of_shells
@@ -210,7 +210,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
     def estimate_t_inner(
-        self, input_t_inner, luminosity_requested, emitted_luminosity, t_inner_update_exponent=-0.5
+        self,
+        input_t_inner,
+        luminosity_requested,
+        emitted_luminosity,
+        t_inner_update_exponent=-0.5,
     ):
         luminosity_ratios = (
             (emitted_luminosity / luminosity_requested).to(1).value
@@ -381,7 +385,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             iteration=self.iterations_executed,
         )
 
-        self.transport.run(
+        v_packets_energy_hist = self.transport.run(
             transport_state,
             time_explosion=self.simulation_state.time_explosion,
             iteration=self.iterations_executed,
@@ -389,9 +393,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             show_progress_bars=self.show_progress_bars,
         )
 
-        self.spectrum_solver = SpectrumSolver(transport_state, self.transport.spectrum_frequency)
+        self.spectrum_solver = SpectrumSolver(
+            transport_state, self.transport.spectrum_frequency
+        )
 
         self.spectrum_solver.integrator_settings = self.integrator_settings
+
+        self.spectrum_solver._montecarlo_virtual_luminosity.value[
+            :
+        ] = v_packets_energy_hist
 
         self.spectrum_solver._integrator = FormalIntegrator(
             self.simulation_state, self.plasma, self.transport
@@ -403,10 +413,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = (
-            self.spectrum_solver.calculate_emitted_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end
-            )
+        emitted_luminosity = self.spectrum_solver.calculate_emitted_luminosity(
+            self.luminosity_nu_start, self.luminosity_nu_end
         )
         reabsorbed_luminosity = (
             self.spectrum_solver.calculate_reabsorbed_luminosity(
@@ -761,5 +769,5 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             convergence_strategy=config.montecarlo.convergence_strategy,
             convergence_plots_kwargs=convergence_plots_kwargs,
             show_progress_bars=show_progress_bars,
-            integrator_settings=config.spectrum.integrated
+            integrator_settings=config.spectrum.integrated,
         )

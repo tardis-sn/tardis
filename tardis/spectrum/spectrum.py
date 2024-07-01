@@ -40,9 +40,7 @@ class TARDISSpectrum(HDFWriterMixin):
         self.luminosity = luminosity.to("erg / s")
 
         l_nu_unit = u.def_unit(r"erg s^{-1} Hz^{-1}", u.Unit("erg/(s Hz)"))
-        l_lambda_unit = u.def_unit(
-            r"erg s^{-1} \AA^{-1}", u.Unit("erg/(s AA)")
-        )
+        l_lambda_unit = u.def_unit(r"erg s^{-1} \AA^{-1}", u.Unit("erg/(s AA)"))
 
         self.frequency = self._frequency[:-1]
         self.delta_frequency = self._frequency[1] - self._frequency[0]

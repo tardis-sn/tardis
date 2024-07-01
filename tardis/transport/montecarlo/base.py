@@ -217,6 +217,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
         )
 
+        return v_packets_energy_hist
+
     @classmethod
     def from_config(
         cls, config, packet_source, enable_virtual_packet_logging=False
