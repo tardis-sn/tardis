@@ -28,9 +28,6 @@ from tardis.transport.montecarlo.r_packet_transport import (
     move_r_packet,
     trace_packet,
 )
-from tardis.transport.montecarlo.overload_utils.ENABLE_RPACKET_TRACKING import (
-    track_rpacket,
-)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -101,7 +98,8 @@ def single_packet_loop(
         SURVIVAL_PROBABILITY,
         CONTINUUM_PROCESSES_ENABLED,
     )
-    track_rpacket(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet)
+    if rpacket_tracker is not None:
+        rpacket_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
@@ -281,8 +279,11 @@ def single_packet_loop(
             )
         else:
             pass
-        if interaction_type != InteractionType.BOUNDARY:
-            track_rpacket(ENABLE_RPACKET_TRACKING, rpacket_tracker, r_packet)
+        if (
+            interaction_type != InteractionType.BOUNDARY
+            and rpacket_tracker is not None
+        ):
+            rpacket_tracker.track(r_packet)
 
 
 @njit
