@@ -832,11 +832,12 @@ class GammaRayPacketSource(BasePacketSource):
         sampled_times = (
             sampled_packets_df.index.get_level_values("time") * 86400.0
         )
+
         # Get the indices of the time steps from the sampled times
 
-        decay_times = self.sample_decay_times_uniformly(
-            sampled_times, number_of_packets, seed
-        )
+        # decay_times = self.sample_decay_times_uniformly(
+        #    sampled_times, number_of_packets, seed
+        # )
 
         # get the time of the middle of the step for each packet
         # decay_time_indices = np.searchsorted(self.effective_times, decay_times)
@@ -845,7 +846,7 @@ class GammaRayPacketSource(BasePacketSource):
         decay_time_indices = []
         for i in range(number_of_packets):
             decay_time_indices.append(
-                get_index(decay_times[i], self.effective_times)
+                get_index(sampled_times[i], self.effective_times)
             )
 
         locations = (
@@ -875,7 +876,7 @@ class GammaRayPacketSource(BasePacketSource):
         nus_rf = np.zeros(number_of_packets)
 
         doppler_factors = doppler_factor_3D_all_packets(
-            directions, locations, decay_times
+            directions, locations, sampled_times.values
         )
 
         packet_energies_rf = packet_energies_cmf / doppler_factors
@@ -890,7 +891,7 @@ class GammaRayPacketSource(BasePacketSource):
             nus_cmf,
             statuses,
             shells,
-            decay_times,
+            sampled_times.values,
         )
 
     def calculate_positron_fraction(self, isotopes):

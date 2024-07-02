@@ -12,12 +12,14 @@ import tardis
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import ConfigurationError
+from tardis.io.model.parse_packet_source_configuration import (
+    initialize_packet_source,
+)
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
-from tardis.model.parse_input import initialize_packet_source
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
@@ -677,12 +679,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     atom_data=atom_data,
                     legacy_mode_enabled=legacy_mode_enabled,
                 )
+            # Override with custom packet source from function argument if present
             if packet_source is not None:
                 simulation_state.packet_source = initialize_packet_source(
-                    config,
-                    simulation_state.geometry,
-                    packet_source,
-                    legacy_mode_enabled,
+                    packet_source, config, simulation_state.geometry
                 )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
