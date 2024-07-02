@@ -184,13 +184,13 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             time_explosion.cgs.value,
             transport_state.opacity_state,
             self.montecarlo_configuration,
-            ENABLE_RPACKET_TRACKING,
             transport_state.radfield_mc_estimators,
             transport_state.spectrum_frequency.value,
             number_of_vpackets,
             iteration=iteration,
             show_progress_bars=show_progress_bars,
             total_iterations=total_iterations,
+            ENABLE_RPACKET_TRACKING=ENABLE_RPACKET_TRACKING,
         )
 
         transport_state._montecarlo_virtual_luminosity.value[
