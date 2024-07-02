@@ -17,6 +17,7 @@ from tardis.transport.montecarlo.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.montecarlo_configuration import (
     MonteCarloConfiguration,
     configuration_initialize,
+    obj2strkeydict,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
@@ -168,6 +169,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
 
+        montecarlo_configuration_jit = obj2strkeydict(
+            self.montecarlo_configuration, "Montecarlo configuration"
+        )
+
         (
             v_packets_energy_hist,
             last_interaction_tracker,
@@ -178,7 +183,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             transport_state.geometry_state,
             time_explosion.cgs.value,
             transport_state.opacity_state,
-            self.montecarlo_configuration,
+            montecarlo_configuration_jit,
             transport_state.radfield_mc_estimators,
             transport_state.spectrum_frequency.value,
             number_of_vpackets,

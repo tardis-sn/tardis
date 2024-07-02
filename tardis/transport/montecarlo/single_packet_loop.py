@@ -1,13 +1,10 @@
+import numba
 from numba import njit
 
 from tardis import constants as const
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
-)
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-    get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_bound_free_estimators,
@@ -44,7 +41,7 @@ def single_packet_loop(
     estimators,
     vpacket_collection,
     rpacket_tracker,
-    montecarlo_configuration,
+    montecarlo_config_func,
 ):
     """
     Parameters
@@ -63,16 +60,31 @@ def single_packet_loop(
         This function does not return anything but changes the r_packet object
         and if virtual packets are requested - also updates the vpacket_collection
     """
-    line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
+    # unpack configuration parts we need
+    montecarlo_configuration = montecarlo_config_func()
+    LINE_INTERACTION_TYPE = montecarlo_configuration["LINE_INTERACTION_TYPE"]
+    ENABLE_FULL_RELATIVITY = montecarlo_configuration["ENABLE_FULL_RELATIVITY"]
+    VPACKET_TAU_RUSSIAN = montecarlo_configuration["VPACKET_TAU_RUSSIAN"]
+    SURVIVAL_PROBABILITY = montecarlo_configuration["SURVIVAL_PROBABILITY"]
+    CONTINUUM_PROCESSES_ENABLED = montecarlo_configuration[
+        "CONTINUUM_PROCESSES_ENABLED"
+    ]
+    ENABLE_RPACKET_TRACKING = montecarlo_configuration[
+        "ENABLE_RPACKET_TRACKING"
+    ]
+    DISABLE_LINE_SCATTERING = montecarlo_configuration[
+        "DISABLE_LINE_SCATTERING"
+    ]
+    line_interaction_type = LINE_INTERACTION_TYPE
 
-    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+    if ENABLE_FULL_RELATIVITY:
         set_packet_props_full_relativity(r_packet, time_explosion)
     else:
         set_packet_props_partial_relativity(r_packet, time_explosion)
     r_packet.initialize_line_id(
         opacity_state,
         time_explosion,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+        ENABLE_FULL_RELATIVITY,
     )
 
     trace_vpacket_volley(
@@ -81,13 +93,12 @@ def single_packet_loop(
         numba_radial_1d_geometry,
         time_explosion,
         opacity_state,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-        montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-        montecarlo_configuration.SURVIVAL_PROBABILITY,
-        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+        ENABLE_FULL_RELATIVITY,
+        VPACKET_TAU_RUSSIAN,
+        SURVIVAL_PROBABILITY,
+        CONTINUUM_PROCESSES_ENABLED,
     )
-
-    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+    if rpacket_tracker is not None:
         rpacket_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
@@ -98,14 +109,14 @@ def single_packet_loop(
             r_packet.r,
             r_packet.mu,
             time_explosion,
-            montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+            ENABLE_FULL_RELATIVITY,
         )
 
         comov_nu = r_packet.nu * doppler_factor
         chi_e = chi_electron_calculator(
             opacity_state, comov_nu, r_packet.current_shell_id
         )
-        if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        if CONTINUUM_PROCESSES_ENABLED:
             (
                 chi_bf_tot,
                 chi_bf_contributions,
@@ -118,7 +129,7 @@ def single_packet_loop(
             chi_continuum = chi_e + chi_bf_tot + chi_ff
 
             escat_prob = chi_e / chi_continuum  # probability of e-scatter
-            if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+            if ENABLE_FULL_RELATIVITY:
                 chi_continuum *= doppler_factor
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
@@ -128,9 +139,9 @@ def single_packet_loop(
                 estimators,
                 chi_continuum,
                 escat_prob,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.DISABLE_LINE_SCATTERING,
+                CONTINUUM_PROCESSES_ENABLED,
+                ENABLE_FULL_RELATIVITY,
+                DISABLE_LINE_SCATTERING,
             )
             update_bound_free_estimators(
                 comov_nu,
@@ -146,7 +157,7 @@ def single_packet_loop(
         else:
             escat_prob = 1.0
             chi_continuum = chi_e
-            if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+            if ENABLE_FULL_RELATIVITY:
                 chi_continuum *= doppler_factor
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
@@ -156,9 +167,9 @@ def single_packet_loop(
                 estimators,
                 chi_continuum,
                 escat_prob,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.DISABLE_LINE_SCATTERING,
+                CONTINUUM_PROCESSES_ENABLED,
+                ENABLE_FULL_RELATIVITY,
+                DISABLE_LINE_SCATTERING,
             )
 
         # If continuum processes: update continuum estimators
@@ -169,7 +180,7 @@ def single_packet_loop(
                 distance,
                 time_explosion,
                 estimators,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                ENABLE_FULL_RELATIVITY,
             )
             move_packet_across_shell_boundary(
                 r_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
@@ -182,15 +193,15 @@ def single_packet_loop(
                 distance,
                 time_explosion,
                 estimators,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                ENABLE_FULL_RELATIVITY,
             )
             line_scatter(
                 r_packet,
                 time_explosion,
                 line_interaction_type,
                 opacity_state,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                CONTINUUM_PROCESSES_ENABLED,
+                ENABLE_FULL_RELATIVITY,
             )
             trace_vpacket_volley(
                 r_packet,
@@ -198,10 +209,10 @@ def single_packet_loop(
                 numba_radial_1d_geometry,
                 time_explosion,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+                ENABLE_FULL_RELATIVITY,
+                VPACKET_TAU_RUSSIAN,
+                SURVIVAL_PROBABILITY,
+                CONTINUUM_PROCESSES_ENABLED,
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
@@ -212,12 +223,12 @@ def single_packet_loop(
                 distance,
                 time_explosion,
                 estimators,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                ENABLE_FULL_RELATIVITY,
             )
             thomson_scatter(
                 r_packet,
                 time_explosion,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                ENABLE_FULL_RELATIVITY,
             )
 
             trace_vpacket_volley(
@@ -226,13 +237,13 @@ def single_packet_loop(
                 numba_radial_1d_geometry,
                 time_explosion,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+                ENABLE_FULL_RELATIVITY,
+                VPACKET_TAU_RUSSIAN,
+                SURVIVAL_PROBABILITY,
+                CONTINUUM_PROCESSES_ENABLED,
             )
         elif (
-            montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+            CONTINUUM_PROCESSES_ENABLED
             and interaction_type == InteractionType.CONTINUUM_PROCESS
         ):
             r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
@@ -241,7 +252,7 @@ def single_packet_loop(
                 distance,
                 time_explosion,
                 estimators,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                ENABLE_FULL_RELATIVITY,
             )
             continuum_event(
                 r_packet,
@@ -251,8 +262,8 @@ def single_packet_loop(
                 chi_ff,
                 chi_bf_contributions,
                 current_continua,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                CONTINUUM_PROCESSES_ENABLED,
+                ENABLE_FULL_RELATIVITY,
             )
 
             trace_vpacket_volley(
@@ -261,14 +272,17 @@ def single_packet_loop(
                 numba_radial_1d_geometry,
                 time_explosion,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+                ENABLE_FULL_RELATIVITY,
+                VPACKET_TAU_RUSSIAN,
+                SURVIVAL_PROBABILITY,
+                CONTINUUM_PROCESSES_ENABLED,
             )
         else:
             pass
-        if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+        if (
+            interaction_type != InteractionType.BOUNDARY
+            and rpacket_tracker is not None
+        ):
             rpacket_tracker.track(r_packet)
 
 
