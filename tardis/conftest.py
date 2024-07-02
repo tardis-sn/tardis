@@ -177,16 +177,24 @@ def tardis_ref_data(tardis_ref_path, generate_reference):
 
 @pytest.fixture(scope="function")
 def tardis_config_verysimple():
+    path = Path(
+        Path(__file__).parent,
+        "io/configuration/tests/data/tardis_configv1_verysimple.yml",
+    ).resolve()
     return yaml_load_file(
-        "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml",
+        path,
         YAMLLoader,
     )
 
 
 @pytest.fixture(scope="function")
 def tardis_config_verysimple_nlte():
+    path = Path(
+        Path(__file__).parent,
+        "io/configuration/tests/data/tardis_configv1_nlte.yml",
+    ).resolve()
     return yaml_load_file(
-        "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml",
+        path,
         YAMLLoader,
     )
 
@@ -204,12 +212,18 @@ def hdf_file_path(tmpdir_factory):
 
 @pytest.fixture(scope="session")
 def example_model_file_dir():
-    return Path("tardis/io/model/readers/tests/data")
+    return Path(
+        Path(__file__).parent,
+        "io/model/readers/tests/data",
+    ).resolve()
 
 
 @pytest.fixture(scope="session")
 def example_configuration_dir():
-    return Path("tardis/io/configuration/tests/data")
+    return Path(
+        Path(__file__).parent,
+        "io/configuration/tests/data",
+    ).resolve()
 
 
 @pytest.fixture(scope="session")
