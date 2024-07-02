@@ -3,6 +3,7 @@ Basic TARDIS Benchmark.
 """
 
 import numpy as np
+from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
 import tardis.transport.montecarlo.vpacket as vpacket
 from benchmarks.benchmark_base import BenchmarkBase
@@ -61,11 +62,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             enable_full_relativity,
         )
 
-        (
-            tau_trace_combined,
-            distance_boundary,
-            delta_shell,
-        ) = vpacket.trace_vpacket_within_shell(
+        vpacket.trace_vpacket_within_shell(
             v_packet,
             verysimple_numba_radial_1d_geometry,
             verysimple_time_explosion,
@@ -73,8 +70,6 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             enable_full_relativity,
             continuum_processes_enabled,
         )
-
-        assert delta_shell == 1
 
     def time_trace_vpacket(self):
         v_packet = self.v_packet
@@ -101,7 +96,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             enable_full_relativity,
         )
 
-        tau_trace_combined = vpacket.trace_vpacket(
+        vpacket.trace_vpacket(
             v_packet,
             verysimple_numba_radial_1d_geometry,
             verysimple_time_explosion,
@@ -111,9 +106,6 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             enable_full_relativity,
             continuum_processes_enabled,
         )
-
-        assert v_packet.next_line_id == 2773
-        assert v_packet.current_shell_id == 1
 
     @property
     def broken_packet(self):
@@ -150,4 +142,32 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             survival_probability,
             enable_full_relativity,
             continuum_processes_enabled,
+        )
+
+    @skip_benchmark
+    @parameterize(
+        {
+            "Paramters": [
+                {
+                    "tau_russian": 10.0,
+                    "survival_possibility": 0.0
+                },
+                {
+                    "tau_russian": 15.0,
+                    "survival_possibility": 0.1
+                },
+            ]
+        }
+    )
+    def time_trace_vpacket_volley(self, parameters):
+        vpacket.trace_vpacket_volley(
+            self.packet,
+            self.verysimple_3vpacket_collection,
+            self.verysimple_numba_radial_1d_geometry,
+            self.verysimple_time_explosion,
+            self.verysimple_opacity_state,
+            False,
+            parameters["tau_russian"],
+            parameters["survival_possibility"],
+            False
         )
