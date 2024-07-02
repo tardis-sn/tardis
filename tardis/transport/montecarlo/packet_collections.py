@@ -54,10 +54,12 @@ def initialize_last_interaction_tracker(no_of_packets):
     )
     last_interaction_types = -1 * np.ones(no_of_packets, dtype=np.int64)
     last_interaction_in_nus = np.zeros(no_of_packets, dtype=np.float64)
+    last_interaction_in_rs = np.zeros(no_of_packets, dtype=np.float64)
 
     return LastInteractionTracker(
         last_interaction_types,
         last_interaction_in_nus,
+        last_interaction_in_rs,
         last_line_interaction_in_ids,
         last_line_interaction_out_ids,
         last_line_interaction_shell_ids,
@@ -67,6 +69,7 @@ def initialize_last_interaction_tracker(no_of_packets):
 last_interaction_tracker_spec = [
     ("types", int64[:]),
     ("in_nus", float64[:]),
+    ("in_rs", float64[:]),
     ("in_ids", int64[:]),
     ("out_ids", int64[:]),
     ("shell_ids", int64[:]),
@@ -79,12 +82,14 @@ class LastInteractionTracker:
         self,
         types,
         in_nus,
+        in_rs,
         in_ids,
         out_ids,
         shell_ids,
     ):
         self.types = types
         self.in_nus = in_nus
+        self.in_rs = in_rs
         self.in_ids = in_ids
         self.out_ids = out_ids
         self.shell_ids = shell_ids
@@ -92,6 +97,7 @@ class LastInteractionTracker:
     def update_last_interaction(self, r_packet, i):
         self.types[i] = r_packet.last_interaction_type
         self.in_nus[i] = r_packet.last_interaction_in_nu
+        self.in_rs[i] = r_packet.last_interaction_in_r
         self.in_ids[i] = r_packet.last_line_interaction_in_id
         self.out_ids[i] = r_packet.last_line_interaction_out_id
         self.shell_ids[i] = r_packet.last_line_interaction_shell_id
@@ -110,6 +116,7 @@ vpacket_collection_spec = [
     ("number_of_vpackets", int64),
     ("length", int64),
     ("last_interaction_in_nu", float64[:]),
+    ("last_interaction_in_r", float64[:]),
     ("last_interaction_type", int64[:]),
     ("last_interaction_in_id", int64[:]),
     ("last_interaction_out_id", int64[:]),
@@ -139,6 +146,9 @@ class VPacketCollection:
         self.last_interaction_in_nu = np.zeros(
             temporary_v_packet_bins, dtype=np.float64
         )
+        self.last_interaction_in_r = np.zeros(
+            temporary_v_packet_bins, dtype=np.float64
+        )
         self.last_interaction_type = -1 * np.ones(
             temporary_v_packet_bins, dtype=np.int64
         )
@@ -162,6 +172,7 @@ class VPacketCollection:
         initial_mu,
         initial_r,
         last_interaction_in_nu,
+        last_interaction_in_r,
         last_interaction_type,
         last_interaction_in_id,
         last_interaction_out_id,
@@ -182,6 +193,8 @@ class VPacketCollection:
             Initial r of the packet.
         last_interaction_in_nu : float
             Frequency of the last interaction of the packet.
+        last_interaction_in_r : float
+            Radius of the last interaction of the packet.
         last_interaction_type : int
             Type of the last interaction of the packet.
         last_interaction_in_id : int
@@ -205,6 +218,7 @@ class VPacketCollection:
             temp_last_interaction_in_nu = np.empty(
                 temp_length, dtype=np.float64
             )
+            temp_last_interaction_in_r = np.empty(temp_length, dtype=np.float64)
             temp_last_interaction_type = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_in_id = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_out_id = np.empty(temp_length, dtype=np.int64)
@@ -219,6 +233,9 @@ class VPacketCollection:
             temp_last_interaction_in_nu[
                 : self.length
             ] = self.last_interaction_in_nu
+            temp_last_interaction_in_r[
+                : self.length
+            ] = self.last_interaction_in_r
             temp_last_interaction_type[
                 : self.length
             ] = self.last_interaction_type
@@ -237,6 +254,7 @@ class VPacketCollection:
             self.initial_mus = temp_initial_mus
             self.initial_rs = temp_initial_rs
             self.last_interaction_in_nu = temp_last_interaction_in_nu
+            self.last_interaction_in_r = temp_last_interaction_in_r
             self.last_interaction_type = temp_last_interaction_type
             self.last_interaction_in_id = temp_last_interaction_in_id
             self.last_interaction_out_id = temp_last_interaction_out_id
@@ -248,6 +266,7 @@ class VPacketCollection:
         self.initial_mus[self.idx] = initial_mu
         self.initial_rs[self.idx] = initial_r
         self.last_interaction_in_nu[self.idx] = last_interaction_in_nu
+        self.last_interaction_in_r[self.idx] = last_interaction_in_r
         self.last_interaction_type[self.idx] = last_interaction_type
         self.last_interaction_in_id[self.idx] = last_interaction_in_id
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
@@ -268,6 +287,7 @@ class VPacketCollection:
         self.initial_mus = self.initial_mus[: self.idx]
         self.initial_rs = self.initial_rs[: self.idx]
         self.last_interaction_in_nu = self.last_interaction_in_nu[: self.idx]
+        self.last_interaction_in_r = self.last_interaction_in_r[: self.idx]
         self.last_interaction_type = self.last_interaction_type[: self.idx]
         self.last_interaction_in_id = self.last_interaction_in_id[: self.idx]
         self.last_interaction_out_id = self.last_interaction_out_id[: self.idx]
@@ -328,6 +348,9 @@ def consolidate_vpacket_tracker(
         vpacket_tracker.last_interaction_in_nu[
             current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
         ] = vpacket_collection.last_interaction_in_nu
+        vpacket_tracker.last_interaction_in_r[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.last_interaction_in_r
 
         vpacket_tracker.last_interaction_type[
             current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx

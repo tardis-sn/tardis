@@ -28,6 +28,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         "emitted_packet_mask",
         "last_interaction_type",
         "last_interaction_in_nu",
+        "last_interaction_in_r",
         "last_line_interaction_out_id",
         "last_line_interaction_in_id",
         "last_line_interaction_shell_id",
@@ -39,6 +40,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         "virt_packet_initial_rs",
         "virt_packet_initial_mus",
         "virt_packet_last_interaction_in_nu",
+        "virt_packet_last_interaction_in_r",
         "virt_packet_last_interaction_type",
         "virt_packet_last_line_interaction_in_id",
         "virt_packet_last_line_interaction_out_id",
@@ -49,6 +51,7 @@ class MonteCarloTransportState(HDFWriterMixin):
 
     last_interaction_type = None
     last_interaction_in_nu = None
+    last_interaction_in_r = None
     last_line_interaction_out_id = None
     last_line_interaction_in_id = None
     last_line_interaction_shell_id = None
@@ -392,6 +395,20 @@ class MonteCarloTransportState(HDFWriterMixin):
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_interaction_in_nu:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virt_packet_last_interaction_in_r(self):
+        try:
+            return u.Quantity(self.vpacket_tracker.last_interaction_in_r, u.cm)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virt_packet_last_interaction_in_r:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
