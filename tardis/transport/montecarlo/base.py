@@ -76,7 +76,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         self.use_gpu = use_gpu
 
         self.enable_vpacket_tracking = enable_virtual_packet_logging
-        self.enable_rpacket_tracking = enable_rpacket_tracking
+        self.enable_rpacket_tracking = True if enable_rpacket_tracking else None
         self.montecarlo_configuration = montecarlo_configuration
 
         self.packet_source = packet_source
@@ -167,11 +167,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         self.transport_state = transport_state
 
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
-        ENABLE_RPACKET_TRACKING = (
-            True
-            if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING
-            else None
-        )
 
         (
             v_packets_energy_hist,
@@ -184,7 +179,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             time_explosion.cgs.value,
             transport_state.opacity_state,
             self.montecarlo_configuration,
-            ENABLE_RPACKET_TRACKING,
             transport_state.radfield_mc_estimators,
             transport_state.spectrum_frequency.value,
             number_of_vpackets,
