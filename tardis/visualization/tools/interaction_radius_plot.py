@@ -256,7 +256,8 @@ class InteractionRadiusPlotter:
         cmapname="jet",
         species_list=None,
         log_scale=False,
-        bins_range=None,
+        num_bins=None,
+        velocity_range=None,
     ):
         """
         Generate the last interaction radius distribution plot using matplotlib.
@@ -275,8 +276,10 @@ class InteractionRadiusPlotter:
             List of species to plot.
         log_scale : bool, optional
             If True, both axes are scaled logarithmically. Default is False.
-        bins_range : tuple of int, optional
-            Range of bins to plot, e.g., (3, 9). Default is None, which plots all bins.
+        num_bins : int, optional
+            Number of bins for regrouping within the same range. Default is None
+        velocity_range : tuple, optional
+            Limits for the x-axis. If specified, overrides any automatically determined limits.
 
         Returns
         -------
@@ -287,8 +290,12 @@ class InteractionRadiusPlotter:
         plot_data, plot_colors = self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to("km/s")
 
-        if bins_range:
-            bin_edges = bin_edges[bins_range[0] - 1 : bins_range[1] + 1]
+        if num_bins and len(bin_edges) > num_bins:
+            new_bin_edges = np.linspace(
+                bin_edges[0], bin_edges[-1], num_bins + 1
+            )
+        else:
+            new_bin_edges = bin_edges
 
         if ax is None:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
@@ -298,8 +305,8 @@ class InteractionRadiusPlotter:
         for data, color, name in zip(
             plot_data, plot_colors, self._species_name
         ):
-            hist, _ = np.histogram(data, bins=bin_edges)
-            step_x = np.repeat(bin_edges, 2)[1:-1]
+            hist, _ = np.histogram(data, bins=new_bin_edges)
+            step_x = np.repeat(new_bin_edges, 2)[1:-1]
             step_y = np.repeat(hist, 2)
             self.ax.plot(
                 step_x,
@@ -321,6 +328,8 @@ class InteractionRadiusPlotter:
         if log_scale:
             self.ax.set_xscale("log")
             self.ax.set_yscale("log")
+        if velocity_range:
+            plt.xlim(velocity_range[0], velocity_range[1])
         plt.tight_layout()
 
         return self.ax
@@ -333,7 +342,8 @@ class InteractionRadiusPlotter:
         cmapname="jet",
         species_list=None,
         log_scale=False,
-        bins_range=None,
+        num_bins=None,
+        velocity_range=None,
     ):
         """
         Generate the last interaction radius distribution plot using plotly.
@@ -352,8 +362,10 @@ class InteractionRadiusPlotter:
             List of species to plot.
         log_scale : bool, optional
             If True, both axes are scaled logarithmically. Default is False.
-        bins_range : tuple of int, optional
-            Range of bins to plot, e.g., (3, 9). Default is None, which plots all bins.
+        num_bins : int, optional
+            Number of bins for regrouping within the same range. Default is None
+        velocity_range : tuple, optional
+            Limits for the x-axis. If specified, overrides any automatically determined limits.
 
         Returns
         -------
@@ -364,15 +376,19 @@ class InteractionRadiusPlotter:
         plot_data, plot_colors = self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to("km/s")
 
-        if bins_range:
-            bin_edges = bin_edges[bins_range[0] - 1 : bins_range[1] + 1]
+        if num_bins and len(bin_edges) > num_bins:
+            new_bin_edges = np.linspace(
+                bin_edges[0], bin_edges[-1], num_bins + 1
+            )
+        else:
+            new_bin_edges = bin_edges
 
         fig = go.Figure()
         for data, color, name in zip(
             plot_data, plot_colors, self._species_name
         ):
-            hist, _ = np.histogram(data, bins=bin_edges)
-            step_x = np.repeat(bin_edges, 2)[1:-1]
+            hist, _ = np.histogram(data, bins=new_bin_edges)
+            step_x = np.repeat(new_bin_edges, 2)[1:-1]
             step_y = np.repeat(hist, 2)
             fig.add_trace(
                 go.Scatter(
@@ -399,5 +415,8 @@ class InteractionRadiusPlotter:
         if log_scale:
             fig.update_xaxes(type="log")
             fig.update_yaxes(type="log", dtick=1)
+
+        if velocity_range:
+            fig.update_xaxes(range=velocity_range)
 
         return fig
