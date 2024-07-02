@@ -16,6 +16,9 @@ on:
       - labeled # benchmarks label required
   workflow_dispatch:
 
+env: 
+  DEPLOY_BRANCH: main
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -111,19 +114,16 @@ jobs:
         if: github.event_name != 'pull_request_target'
         run: rm -r .asv/env
 
-      - name: Push results to results repository
+      - name: Deploy asv page
         if: github.event_name != 'pull_request_target'
-        continue-on-error: true
-        uses: cpina/github-action-push-to-another-repository@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          source-directory: .asv
-          destination-github-username: tardis-sn
-          destination-repository-name: tardis-benchmarks
-          user-email: tardis.sn.bot@gmail.com
-          target-branch: main
-          target-directory: .asv
+          personal_token: ${{ secrets.PERSONAL_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
+          publish_dir: .asv/html
+          external_repository: tardis-sn/tardis-benchmarks
+          user_name: "TARDIS Bot"
+          user_email: "tardis.sn.bot@gmail.com"
 
       - name: Run benchmarks
         if: github.event_name == 'pull_request_target'
@@ -167,25 +167,62 @@ jobs:
       - name: Delete env files of PR
         if: github.event_name == 'pull_request_target'
         run: rm -r .asv/env
-      
-      - name: Move .asv to PR folder
-        if: github.event_name == 'pull_request_target'
-        run: mv .asv PR-${{ github.event.number }}
 
-      - name: Push results of PR to results repository
+      - name: Set destination directory
         if: github.event_name == 'pull_request_target'
-        continue-on-error: true
-        uses: cpina/github-action-push-to-another-repository@main 
+        run: |
+          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+          if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
+
+            if [[ $BRANCH == $DEFAULT ]]; then
+              echo "DEST_DIR=" >> $GITHUB_ENV
+            else
+              echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
+            fi
+
+          elif [[ $EVENT == pull_request_target ]]; then
+            echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+
+          else
+            echo "Unexpected event trigger $EVENT"
+            exit 1
+
+          fi
+
+          cat $GITHUB_ENV
         env:
-          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
-        with:
-          source-directory: PR-${{ github.event.number }}
-          destination-github-username: tardis-sn
-          destination-repository-name: tardis-benchmarks
-          user-email: tardis.sn.bot@gmail.com
-          target-branch: main
-          target-directory: PR
+          DEFAULT: ${{ github.event.repository.default_branch }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.number }}
 
+      - name: Set clean branch option
+        if: github.event_name == 'pull_request_target'
+        run: |
+          if [[ $EVENT == workflow_dispatch ]]; then
+            echo "CLEAN_BRANCH=true" >> $GITHUB_ENV
+
+          else
+            echo "CLEAN_BRANCH=false" >> $GITHUB_ENV
+
+          fi
+
+          cat $GITHUB_ENV
+        env:
+          EVENT: ${{ github.event_name }}
+
+      - name: Deploy ${{ env.DEST_DIR }}
+        if: github.event_name == 'pull_request_target'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.PERSONAL_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
+          publish_dir: .asv/html
+          destination_dir: ${{ env.DEST_DIR }}
+          keep_files: true
+          force_orphan: ${{ env.CLEAN_BRANCH }}
+          external_repository: tardis-sn/tardis-benchmarks
+          user_name: "TARDIS Bot"
+          user_email: "tardis.sn.bot@gmail.com"
       
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
@@ -231,7 +268,7 @@ jobs:
             If you want to see the graph of the results, you can check it [**here**](${{ env.URL_PAGES }})
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
-          URL_PAGES: https://tardis-sn.github.io/tardis-benchmarks/PR-${{ github.event.number }}
+          URL_PAGES: https://tardis-sn.github.io/tardis-benchmarks/pull/${{ github.event.number }}
 
       - name: Save results artifact
         uses: actions/upload-artifact@v4
