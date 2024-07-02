@@ -10,9 +10,6 @@ from tardis.transport.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
-from tardis.transport.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
 from tardis.tests.fixtures.regression_data import RegressionData
 
 
