@@ -45,7 +45,7 @@ def single_packet_loop(
     vpacket_collection,
     rpacket_tracker,
     montecarlo_configuration,
-    ENABLE_RPACKET_TRACKING,
+    ENABLE_RPACKET_TRACKING=None,
 ):
     """
     Parameters

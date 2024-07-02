@@ -27,13 +27,13 @@ def montecarlo_main_loop(
     time_explosion,
     opacity_state,
     montecarlo_configuration,
-    ENABLE_RPACKET_TRACKING,
     estimators,
     spectrum_frequency,
     number_of_vpackets,
     iteration,
     show_progress_bars,
     total_iterations,
+    ENABLE_RPACKET_TRACKING=None,
 ):
     """This is the main loop of the MonteCarlo routine that generates packets
     and sends them through the ejecta.
