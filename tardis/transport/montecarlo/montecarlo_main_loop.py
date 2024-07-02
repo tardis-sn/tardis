@@ -27,7 +27,6 @@ def montecarlo_main_loop(
     time_explosion,
     opacity_state,
     montecarlo_configuration,
-    ENABLE_RPACKET_TRACKING,
     estimators,
     spectrum_frequency,
     number_of_vpackets,
@@ -72,7 +71,7 @@ def montecarlo_main_loop(
     # Pre-allocate a list of vpacket collections for later storage
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
-    if ENABLE_RPACKET_TRACKING is None:
+    if montecarlo_configuration.ENABLE_RPACKET_TRACKING is None:
         rpacket_trackers = None
     else:
         rpacket_trackers = List()
@@ -134,7 +133,7 @@ def montecarlo_main_loop(
         vpacket_collection = vpacket_collections[i]
 
         # RPacket Tracker for this thread
-        if ENABLE_RPACKET_TRACKING is None:
+        if montecarlo_configuration.ENABLE_RPACKET_TRACKING is None:
             rpacket_tracker = None
         else:
             rpacket_tracker = rpacket_trackers[i]
@@ -148,7 +147,6 @@ def montecarlo_main_loop(
             vpacket_collection,
             rpacket_tracker,
             montecarlo_configuration,
-            ENABLE_RPACKET_TRACKING,
         )
         packet_collection.output_nus[i] = r_packet.nu
 
@@ -194,7 +192,7 @@ def montecarlo_main_loop(
             1,
         )
 
-    if ENABLE_RPACKET_TRACKING is not None:
+    if montecarlo_configuration.ENABLE_RPACKET_TRACKING is not None:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 
