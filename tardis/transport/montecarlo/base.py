@@ -167,11 +167,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         self.transport_state = transport_state
 
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
-        ENABLE_RPACKET_TRACKING = (
-            True
-            if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING
-            else None
-        )
 
         (
             v_packets_energy_hist,
@@ -190,7 +185,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             iteration=iteration,
             show_progress_bars=show_progress_bars,
             total_iterations=total_iterations,
-            ENABLE_RPACKET_TRACKING=ENABLE_RPACKET_TRACKING,
+            ENABLE_RPACKET_TRACKING=self.montecarlo_configuration.ENABLE_RPACKET_TRACKING,
         )
 
         transport_state._montecarlo_virtual_luminosity.value[

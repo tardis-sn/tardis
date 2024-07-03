@@ -1,5 +1,5 @@
 from astropy import units as u
-from numba import float64, int64, boolean
+from numba import float64, int64, boolean, optional
 from numba.experimental import jitclass
 import numpy as np
 
@@ -20,7 +20,12 @@ numba_config_spec = [
     ("VPACKET_TAU_RUSSIAN", float64),
     ("INITIAL_TRACKING_ARRAY_LENGTH", int64),
     ("LEGACY_MODE_ENABLED", boolean),
-    ("ENABLE_RPACKET_TRACKING", boolean),
+    (
+        "ENABLE_RPACKET_TRACKING",
+        optional(
+            boolean,
+        ),
+    ),
     ("CONTINUUM_PROCESSES_ENABLED", boolean),
     ("VPACKET_SPAWN_START_FREQUENCY", float64),
     ("VPACKET_SPAWN_END_FREQUENCY", float64),
@@ -45,7 +50,7 @@ class MonteCarloConfiguration(object):
         self.INITIAL_TRACKING_ARRAY_LENGTH = 0
         self.LEGACY_MODE_ENABLED = False
 
-        self.ENABLE_RPACKET_TRACKING = False
+        self.ENABLE_RPACKET_TRACKING = None
         self.CONTINUUM_PROCESSES_ENABLED = False
 
         self.VPACKET_SPAWN_START_FREQUENCY = 0
@@ -81,4 +86,5 @@ def configuration_initialize(config, transport, number_of_vpackets):
         ).value
     )
     config.ENABLE_VPACKET_TRACKING = transport.enable_vpacket_tracking
-    config.ENABLE_RPACKET_TRACKING = transport.enable_rpacket_tracking
+    if transport.enable_rpacket_tracking:
+        config.ENABLE_RPACKET_TRACKING = transport.enable_rpacket_tracking
