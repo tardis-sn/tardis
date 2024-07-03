@@ -98,6 +98,7 @@ jobs:
           personal_token: ${{ secrets.PERSONAL_TOKEN }}
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: .asv/html
+          keep_files: true
           external_repository: tardis-sn/tardis-benchmarks
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
