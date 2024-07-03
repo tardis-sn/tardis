@@ -59,7 +59,10 @@ class TestTransportSimpleFormalIntegral:
         if not generate_reference:
             return simulation
         else:
-            simulation.spectrum_solver.hdf_properties = ["spectrum"]
+            simulation.spectrum_solver.hdf_properties = [
+                "spectrum",
+                "spectrum_integrated",
+            ]
             simulation.spectrum_solver.to_hdf(
                 tardis_ref_data, "", self.name, overwrite=True
             )
@@ -85,9 +88,7 @@ class TestTransportSimpleFormalIntegral:
         )
 
     def test_spectrum(self, simulation, refdata):
-        luminosity = u.Quantity(
-            refdata("transport_state/spectrum/luminosity"), "erg /s"
-        )
+        luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
 
         assert_quantity_allclose(
             simulation.spectrum_solver.spectrum.luminosity, luminosity
@@ -95,7 +96,7 @@ class TestTransportSimpleFormalIntegral:
 
     def test_spectrum_integrated(self, simulation, refdata):
         luminosity = u.Quantity(
-            refdata("transport_state/spectrum_integrated/luminosity"), "erg /s"
+            refdata("spectrum_integrated/luminosity"), "erg /s"
         )
 
         assert_quantity_allclose(

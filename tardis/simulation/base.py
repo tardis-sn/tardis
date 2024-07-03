@@ -119,6 +119,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         "iterations_t_rad",
         "iterations_electron_densities",
         "iterations_t_inner",
+        "spectrum_solver",
     ]
     hdf_name = "simulation"
 

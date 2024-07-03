@@ -63,7 +63,7 @@ class TestTransportSimple:
         return pd.read_hdf(self.regression_data.fpath, key)
 
     def test_j_blue_estimators(self, simulation):
-        key = "transport_state/j_blue_estimator"
+        key = "simulation/transport/transport_state/j_blue_estimator"
         expected = self.get_expected_data(key)
 
         npt.assert_allclose(
@@ -72,7 +72,7 @@ class TestTransportSimple:
         )
 
     def test_spectrum(self, simulation):
-        key = "transport_state/spectrum/luminosity"
+        key = "simulation/spectrum_solver/spectrum/luminosity"
         expected = self.get_expected_data(key)
 
         luminosity = u.Quantity(expected, "erg /s")
@@ -82,7 +82,7 @@ class TestTransportSimple:
         )
 
     def test_virtual_spectrum(self, simulation):
-        key = "transport_state/spectrum_virtual/luminosity"
+        key = "simulation/spectrum_solver/spectrum_virtual/luminosity"
         expected = self.get_expected_data(key)
 
         luminosity = u.Quantity(expected, "erg /s")
