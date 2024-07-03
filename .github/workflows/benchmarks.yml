@@ -95,7 +95,7 @@ jobs:
         if: github.event_name != 'pull_request_target'
         uses: peaceiris/actions-gh-pages@v4
         with:
-          personal_token: ${{ secrets.PERSONAL_TOKEN }}
+          personal_token: ${{ secrets.BOT_TOKEN }}
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: .asv/html
           keep_files: true
@@ -192,7 +192,7 @@ jobs:
         if: github.event_name == 'pull_request_target'
         uses: peaceiris/actions-gh-pages@v4
         with:
-          personal_token: ${{ secrets.PERSONAL_TOKEN }}
+          personal_token: ${{ secrets.BOT_TOKEN }}
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: .asv/html
           destination_dir: ${{ env.DEST_DIR }}
