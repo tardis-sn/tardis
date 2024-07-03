@@ -48,31 +48,8 @@ jobs:
           fetch-depth: 0
         if: github.event_name == 'pull_request_target'
 
-      - name: Restore Atom Data
-        uses: actions/cache/restore@v4
-        id: atom-data-restore
-        with:
-          path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
-          key: atom-data
-
-      - name: Download Atom Data
-        if: steps.atom-data-restore.outputs.cache-hit != 'true'
-        run: |
-          REPO_URL="https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata"
-          wget -q "$REPO_URL/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&versionType=branch&version=master&resolveLfs=true" -O benchmarks/data/kurucz_cd23_chianti_H_He.h5
-
-      - name: Save Atom Data
-        uses: actions/cache/save@v4
-        if: ${{ steps.atom-data-restore.outputs.cache-hit != 'true'  && always() || false }}
-        id: atom-data-cache-save
-        with:
-          path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
-          key: atom-data
-
-      - name: Copy atom data to refdata
-        run: |
-          mkdir -p tardis-refdata/atom_data
-          cp benchmarks/data/kurucz_cd23_chianti_H_He.h5 tardis-refdata/atom_data/
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
 
       - name: Setup Mamba
         uses: mamba-org/setup-micromamba@v1
