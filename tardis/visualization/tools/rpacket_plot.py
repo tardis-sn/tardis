@@ -137,8 +137,9 @@ class RPacketPlotter:
             rpacket_y,
             rpacket_interactions,
         ) = self.get_coordinates_multiple_packets(
-            self.sim.transport.transport_state.rpacket_tracker_df.loc[0: (
-                self.no_of_packets)],
+            self.sim.transport.transport_state.rpacket_tracker_df.loc[
+                0 : (self.no_of_packets)
+            ],
         )
 
         # making the coordinate arrays of all packets equal
@@ -562,16 +563,14 @@ class RPacketPlotter:
                 rpacket_x[packet_no],
                 rpacket_x[packet_no][-1]
                 * np.ones(
-                    [rpacket_step_no_array_max_size -
-                        len(rpacket_x[packet_no])]
+                    [rpacket_step_no_array_max_size - len(rpacket_x[packet_no])]
                 ),
             )
             rpacket_y[packet_no] = np.append(
                 rpacket_y[packet_no],
                 rpacket_y[packet_no][-1]
                 * np.ones(
-                    [rpacket_step_no_array_max_size -
-                        len(rpacket_y[packet_no])]
+                    [rpacket_step_no_array_max_size - len(rpacket_y[packet_no])]
                 ),
             )
             interactions[packet_no] = np.append(
