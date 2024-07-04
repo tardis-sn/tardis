@@ -19,7 +19,7 @@ In the diagram, each physics step is shown in a box with the name of the step (b
 Background Material
 ===================
 
-TARDIS is home to an incredibly diverse, multidiciplinary team. As such, we believe that it is important to make an understanding of the physics of TARDIS accessible to all, from students just getting started with physics and astronomy to expert researchers. The following pages are designed to give an overview of the basic physics that TARDIS relies upon to new students or anyone else in need of a refresher!
+TARDIS is home to an incredibly diverse, multidisciplinary team. As such, we believe that it is important to make an understanding of the physics of TARDIS accessible to all, from students just getting started with physics and astronomy to expert researchers. The following pages are designed to give an overview of the basic physics that TARDIS relies upon to new students or anyone else in need of a refresher!
 
 .. toctree::
     light_and_matter

@@ -1,5 +1,9 @@
 """Tests for Convergence Plots."""
+from copy import deepcopy
+
 import pytest
+from tardis.tests.test_util import monkeysession
+from tardis import run_tardis
 from tardis.visualization.tools.convergence_plot import (
     ConvergencePlots,
     transition_colors,
@@ -205,3 +209,19 @@ def test_override_plot_parameters(convergence_plots):
     assert (
         convergence_plots.plasma_plot["layout"]["xaxis2"]["showgrid"] == False
     )
+
+
+def test_convergence_plot_command_line(
+    config_verysimple, atomic_dataset, monkeysession
+):
+    monkeysession.setattr(
+        "tardis.simulation.base.is_notebook",
+        lambda: False,
+    )
+    atomic_data = deepcopy(atomic_dataset)
+    with pytest.raises(RuntimeError):
+        run_tardis(
+            config_verysimple,
+            atom_data=atomic_data,
+            show_convergence_plots=True,
+        )
