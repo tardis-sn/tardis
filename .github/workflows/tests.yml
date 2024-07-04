@@ -57,9 +57,9 @@ jobs:
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
 
-      # - name: Download Lock File
-      #   run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ matrix.label }}.lock
-      #   if: matrix.pip == true
+      - name: Download Lock File
+        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ matrix.label }}.lock
+        if: matrix.pip == true
       
       - name: Generate Cache Key
         run: | 
