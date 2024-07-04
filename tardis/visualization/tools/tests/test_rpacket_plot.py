@@ -59,7 +59,7 @@ class TestRPacketPlotter:
         """
         sim = simulation_simple
         rpacket_plotter = RPacketPlotter.from_simulation(sim)
-        single_packet_df = sim.runner.rpacket_tracker_df.loc[0]
+        single_packet_df = sim.simulation_state.rpacket_tracker_df.loc[0]
         (
             rpacket_x,
             rpacket_y,
@@ -67,7 +67,7 @@ class TestRPacketPlotter:
         ) = rpacket_plotter.get_coordinates_with_theta_init(
             single_packet_df["r"],
             single_packet_df["mu"],
-            sim.model.time_explosion.value,
+            sim.simulation_state.time_explosion.value,
             single_packet_df["interaction_type"],
             0,
         )
@@ -82,7 +82,7 @@ class TestRPacketPlotter:
         expected_radius_array = (
             (single_packet_df["r"].to_numpy())
             * 1e-5
-            / sim.model.time_explosion.value
+            / sim.simulation_state.time_explosion.value
         )
         npt.assert_array_equal(
             np.floor(radius_array),
@@ -107,8 +107,8 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(
             sim, no_of_packets=no_of_packets
         )
-        multiple_packet_df = sim.runner.rpacket_tracker_df.loc[
-            0 : (no_of_packets - 1)
+        multiple_packet_df = sim.simulation_state.rpacket_tracker_df.loc[
+            0: (no_of_packets - 1)
         ]
         (
             rpackets_x,
@@ -124,7 +124,7 @@ class TestRPacketPlotter:
 
         # checking coordinates of every packet
         for rpacket in range(no_of_packets):
-            single_packet_df = sim.runner.rpacket_tracker_df.loc[rpacket]
+            single_packet_df = sim.simulation_state.rpacket_tracker_df.loc[rpacket]
             (
                 expected_rpacket_x,
                 expected_rpacket_y,
@@ -132,7 +132,7 @@ class TestRPacketPlotter:
             ) = rpacket_plotter.get_coordinates_with_theta_init(
                 single_packet_df["r"],
                 single_packet_df["mu"],
-                sim.model.time_explosion.value,
+                sim.simulation_state.time_explosion.value,
                 single_packet_df["interaction_type"],
                 thetas[rpacket],
             )
@@ -158,8 +158,8 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(
             sim, no_of_packets=no_of_packets
         )
-        multiple_packet_df = sim.runner.rpacket_tracker_df.loc[
-            0 : (no_of_packets - 1)
+        multiple_packet_df = sim.simulation_state.rpacket_tracker_df.loc[
+            0: (no_of_packets - 1)
         ]
         (
             multiple_packet_x,
@@ -232,8 +232,8 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(
             sim, no_of_packets=no_of_packets
         )
-        multiple_packet_df = sim.runner.rpacket_tracker_df.loc[
-            0 : (no_of_packets - 1)
+        multiple_packet_df = sim.simulation_state.rpacket_tracker_df.loc[
+            0: (no_of_packets - 1)
         ]
         (
             multiple_packet_x,
@@ -289,8 +289,8 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(
             sim, no_of_packets=no_of_packets
         )
-        multiple_packet_df = sim.runner.rpacket_tracker_df.loc[
-            0 : (no_of_packets - 1)
+        multiple_packet_df = sim.simulation_state.rpacket_tracker_df.loc[
+            0: (no_of_packets - 1)
         ]
         (
             multiple_packet_x,
@@ -308,7 +308,7 @@ class TestRPacketPlotter:
 
         fig = rpacket_plotter.generate_plot(theme=theme)
 
-        shell_radii = sim.model.velocity.to_value(u.km / u.s)
+        shell_radii = sim.simulation_state.velocity.to_value(u.km / u.s)
 
         # testing the shells and the photosphere
         for index, shell in enumerate(fig.layout.shapes):

@@ -95,7 +95,7 @@ class RPacketPlotter:
         RPacketPlotter
         """
         logger = logging.getLogger(__name__)
-        if hasattr(sim.runner, "rpacket_tracker_df"):
+        if hasattr(sim.transport.transport_state, "rpacket_tracker_df"):
             if sim.last_no_of_packets >= no_of_packets:
                 return cls(sim, no_of_packets)
             else:
@@ -129,7 +129,7 @@ class RPacketPlotter:
         self.fig = go.Figure()
 
         # getting velocity of different shells
-        v_shells = self.sim.model.velocity.to_value(u.km / u.s)
+        v_shells = self.sim.simulation_state.velocity.to_value(u.km / u.s)
 
         # getting coordinates and interactions of all packets
         (
@@ -137,7 +137,8 @@ class RPacketPlotter:
             rpacket_y,
             rpacket_interactions,
         ) = self.get_coordinates_multiple_packets(
-            self.sim.runner.rpacket_tracker_df.loc[0 : (self.no_of_packets)],
+            self.sim.transport.transport_state.rpacket_tracker_df.loc[0: (
+                self.no_of_packets)],
         )
 
         # making the coordinate arrays of all packets equal
@@ -172,7 +173,7 @@ class RPacketPlotter:
         )
 
         # adding the shells and photosphere
-        for shell_no in range(len(self.sim.model.radius.value)):
+        for shell_no in range(len(self.sim.simulation_state.radius.value)):
             if shell_no == 0:
                 # photosphere
                 self.fig.add_shape(
@@ -189,7 +190,7 @@ class RPacketPlotter:
                     fillcolor=self.theme_colors[theme]["photosphere_fillcolor"],
                     opacity=1,
                 )
-            elif shell_no == (len(self.sim.model.radius.value) - 1):
+            elif shell_no == (len(self.sim.simulation_state.radius.value) - 1):
                 # outermost shell
                 self.fig.add_shape(
                     type="circle",
@@ -515,7 +516,7 @@ class RPacketPlotter:
             ) = self.get_coordinates_with_theta_init(
                 r_packet_tracker.loc[packet_no]["r"],
                 r_packet_tracker.loc[packet_no]["mu"],
-                self.sim.model.time_explosion.value,
+                self.sim.simulation_state.time_explosion.value,
                 r_packet_tracker.loc[packet_no]["interaction_type"],
                 thetas[packet_no],
             )
@@ -561,14 +562,16 @@ class RPacketPlotter:
                 rpacket_x[packet_no],
                 rpacket_x[packet_no][-1]
                 * np.ones(
-                    [rpacket_step_no_array_max_size - len(rpacket_x[packet_no])]
+                    [rpacket_step_no_array_max_size -
+                        len(rpacket_x[packet_no])]
                 ),
             )
             rpacket_y[packet_no] = np.append(
                 rpacket_y[packet_no],
                 rpacket_y[packet_no][-1]
                 * np.ones(
-                    [rpacket_step_no_array_max_size - len(rpacket_y[packet_no])]
+                    [rpacket_step_no_array_max_size -
+                        len(rpacket_y[packet_no])]
                 ),
             )
             interactions[packet_no] = np.append(
