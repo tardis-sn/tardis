@@ -7,18 +7,14 @@ supernova:
 atom_data: kurucz_atom_pure_simple.h5
 
 model:
-
     structure:
         type: specific
-
         velocity:
             start: 1.1e4 km/s
             stop: 2.0e4 km/s
             num: 20
-
         density:
             type: branch85_w7
-
     abundances:
         type: uniform
         He: 1

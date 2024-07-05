@@ -1,19 +1,19 @@
 import numpy as np
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.opacities import (
-    compton_opacity_calculation,
-    SIGMA_T,
-    photoabsorption_opacity_calculation,
-)
 from tardis.energy_input.util import (
+    ELECTRON_MASS_ENERGY_KEV,
+    H_CGS_KEV,
     angle_aberration_gamma,
     doppler_factor_3d,
-    H_CGS_KEV,
-    ELECTRON_MASS_ENERGY_KEV,
-    kappa_calculation,
 )
+from tardis.opacities.opacities import (
+    SIGMA_T,
+    compton_opacity_calculation,
+    kappa_calculation,
+    photoabsorption_opacity_calculation,
+)
+from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 def compton_emissivity_estimator(packet, distance):
@@ -32,7 +32,6 @@ def compton_emissivity_estimator(packet, distance):
     float64, int
         Unnormalized emissivity estimator, line index
     """
-
     cmf_direction = angle_aberration_gamma(
         packet.get_direction_vector(), packet.location_r
     )

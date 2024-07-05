@@ -125,24 +125,3 @@ needed is:
 
     > python setup.py test --args="--integration=integration.yml -m integration
     --less-packets" --remote-data
-
-
-Setting up the DokuWiki report
-==============================
-
-A normal `DokuWiki <https://www.dokuwiki.org/dokuwiki>`_ installation is performed on the required server. Before the
-connection works one is requires to set the option remote access in the
-settings. If this is not done the ``dokuwiki`` python plugin will not connect
-with the warning ``DokuWikiError: syntax error: line 1, column 0``. One also
-has to enable this for users (``remoteuser`` option) otherwise the error:
-``ProtocolError for xmlrpc.php?p=xxxxxx&u=tardistester: 403 Forbidden``
-will appear.
-
-Another important configuration option is to enable embedded html ``htmlok``;
-otherwise, it won't show nice html page reports.
-
-Finally, one has to call the `python setup.py test` with the ``--remote-data``
-option to allow posting to an external DokuWiki server.
-
-
-

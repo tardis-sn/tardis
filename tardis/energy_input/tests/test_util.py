@@ -1,15 +1,16 @@
-from random import random
-import pytest
-import astropy.units as u
-import numpy.testing as npt
 import numpy as np
+import numpy.testing as npt
+import pytest
 
-import tardis.energy_input.util as util
 from tardis.energy_input.util import (
     R_ELECTRON_SQUARED,
     get_perpendicular_vector,
+    klein_nishina,
+    spherical_to_cartesian,
 )
-from tardis import constants as const
+from tardis.opacities.opacities import (
+    kappa_calculation,
+)
 
 
 @pytest.mark.parametrize(
@@ -25,7 +26,7 @@ from tardis import constants as const
 def test_spherical_to_cartesian(
     r, theta, phi, expected_x, expected_y, expected_z
 ):
-    actual_x, actual_y, actual_z = util.spherical_to_cartesian(r, theta, phi)
+    actual_x, actual_y, actual_z = spherical_to_cartesian(r, theta, phi)
     npt.assert_almost_equal(actual_x, expected_x)
     npt.assert_almost_equal(actual_y, expected_y)
     npt.assert_almost_equal(actual_z, expected_z)
@@ -41,27 +42,6 @@ def test_doppler_gamma():
 def test_angle_aberration_gamma():
     """Test the angle aberration equation"""
     assert False
-
-
-@pytest.mark.parametrize(
-    ["energy", "expected"],
-    [
-        (511.0, 1.0000021334560507),
-        (255.5, 0.5000010667280254),
-        (0.0, 0.0),
-        (511.0e7, 10000021.334560508),
-    ],
-)
-def test_kappa_calculation(energy, expected):
-    """
-
-    Parameters
-    ----------
-    energy : float
-    expected : float
-    """
-    kappa = util.kappa_calculation(energy)
-    npt.assert_almost_equal(kappa, expected)
 
 
 @pytest.mark.xfail(reason="To be removed")
@@ -94,9 +74,9 @@ def test_klein_nishina(energy, theta_C):
     theta_C : float
         In radians
     """
-    actual = util.klein_nishina(energy, theta_C)
+    actual = klein_nishina(energy, theta_C)
 
-    kappa = util.kappa_calculation(energy)
+    kappa = kappa_calculation(energy)
 
     expected = (
         R_ELECTRON_SQUARED

@@ -8,25 +8,27 @@ on:
   release:
     types: [published]
 
-  workflow_dispatch:  # manual trigger
+  workflow_dispatch: # manual trigger
 
 jobs:
   changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: tardis-sn/tardis
           token: ${{ secrets.BOT_TOKEN }}
           fetch-depth: 0
 
-      - name: Install github-changes
-        run: sudo npm install -g github-changes
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --verbose
+        env:
+          OUTPUT: CHANGELOG.md
 
-      - name: Update changelog
-        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.BOT_TOKEN }}
-
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: changelog
           path: CHANGELOG.md
@@ -34,15 +36,15 @@ jobs:
   citation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Wait for Zenodo webhook
         run: sleep 180
 
       - name: Setup Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Install doi2cff
         run: pip install git+https://github.com/citation-file-format/doi2cff
@@ -52,7 +54,7 @@ jobs:
           rm CITATION.cff
           doi2cff init 10.5281/zenodo.592480
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: citation
           path: CITATION.cff
@@ -60,23 +62,23 @@ jobs:
   credits:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Wait for Zenodo webhook
         run: sleep 180
 
       - name: Setup Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
-      - name: Install rst-include 
+      - name: Install rst-include
         run: pip install rst-include==2.1.2.2 requests==2.27.1
 
       - name: Update README.rst
         run: python .ci-helpers/update_credits.py
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: credits
           path: |
@@ -87,9 +89,9 @@ jobs:
     needs: [changelog, citation, credits]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: /tmp
 

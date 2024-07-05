@@ -84,9 +84,6 @@ lint.ignore = [
     "FIX001",  # Line contains FIXME.  this should be fixed or at least FIXME replaced with TODO
     "FIX004",  # Line contains HACK. replace HACK with NOTE.
 
-    # flake8-import-conventions (ICN)  : use conventional import aliases
-    "ICN001",  # import-conventions
-
     # pep8-naming (N)
     # NOTE: some of these can/should be fixed, but this changes the API.
     "N801",  # invalid-class-name
@@ -107,14 +104,10 @@ lint.ignore = [
     "PERF203",  # `try`-`except` within a loop incurs performance overhead
     "PERF401",  # Use a list comprehension to create a transformed list
 
-    # pygrep-hooks (PGH)
-    "PGH001",  # eval
-
     # Pylint (PLC, PLE, PLR, PLW)
     "PLE0101",  # return-in-init
     "PLR0124",  # Name compared with itself
     "PLR0402",  # ConsiderUsingFromImport
-    "PLR0911",  # too-many-return-statements
     "PLR0912",  # too-many-branches
     "PLR0913",  # too-many-args
     "PLR0915",  # too-many-statements
@@ -163,8 +156,6 @@ lint.ignore = [
     "RET502",  # implicit-return-value
     "RET503",  # implicit-return
     "RET504",  # unnecessary-assign
-    "RET505",  # superfluous-else-return
-    "RET506",  # superfluous-else-raise
     "RET507",  # superfluous-else-continue
 
     # flake8-raise (RSE)
@@ -214,9 +205,7 @@ lint.ignore = [
     "TRY002",  # raise-vanilla-class
     "TRY003",  # raise-vanilla-args
     "TRY004",  # prefer-type-error
-    "TRY200",  # reraise-no-cause
     "TRY201",  # verbose-raise
-    "TRY300",  # Consider `else` block
     "TRY301",  # raise-within-try
 
     # flake8-quotes (Q)

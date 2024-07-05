@@ -5,27 +5,27 @@ from pathlib import Path
 import numpy as np
 from astropy import units as u
 
-from tardis import constants
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.parse_composition_configuration import (
+    parse_composition_from_config,
+    parse_composition_from_csvy,
+)
+from tardis.io.model.parse_geometry_configuration import (
+    parse_geometry_from_config,
+    parse_geometry_from_csvy,
+)
+from tardis.io.model.parse_packet_source_configuration import (
+    parse_packet_source_from_config,
+)
+from tardis.io.model.parse_radiation_field_configuration import (
+    parse_radiation_field_state_from_config,
+    parse_radiation_field_state_from_csvy,
+)
 from tardis.io.model.readers.csvy import (
     load_csvy,
 )
 from tardis.io.util import HDFWriterMixin
-from tardis.model.matter.composition import Composition
-from tardis.model.parse_input import (
-    parse_abundance_config,
-    parse_csvy_composition,
-    parse_csvy_geometry,
-    parse_csvy_radiation_field_state,
-    parse_radiation_field_state,
-    parse_structure_config,
-    parse_packet_source,
-)
-from tardis.montecarlo.packet_source import BlackBodySimpleSource
-from tardis.model.radiation_field_state import (
-    DiluteBlackBodyRadiationFieldState,
-)
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
@@ -162,6 +162,45 @@ class SimulationState(HDFWriterMixin):
             )
 
     @property
+    def elemental_number_density(self):
+        elemental_number_density = (
+            (
+                self.composition.elemental_mass_fraction
+                * self.composition.density
+            )
+            .divide(self.composition.element_masses, axis=0)
+            .dropna()
+        )
+        elemental_number_density = elemental_number_density.iloc[
+            :,
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+        ]
+        elemental_number_density.columns = range(
+            len(elemental_number_density.columns)
+        )
+        return elemental_number_density
+
+    @property
+    def isotopic_number_density(self):
+        isotopic_number_density = (
+            self.composition.isotopic_mass_fraction * self.composition.density
+        ).divide(
+            self.composition.isotope_masses.loc[
+                self.composition.isotopic_mass_fraction.index
+            ]
+            * u.u.to(u.g),
+            axis=0,
+        )
+        isotopic_number_density = isotopic_number_density.iloc[
+            :,
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+        ]
+        isotopic_number_density.columns = range(
+            len(isotopic_number_density.columns)
+        )
+        return isotopic_number_density
+
+    @property
     def radius(self):
         return self.time_explosion * self.velocity
 
@@ -235,7 +274,7 @@ class SimulationState(HDFWriterMixin):
         return self.geometry.no_of_shells
 
     @classmethod
-    def from_config(cls, config, atom_data):
+    def from_config(cls, config, atom_data, legacy_mode_enabled=False):
         """
         Create a new SimulationState instance from a Configuration object.
 
@@ -250,29 +289,18 @@ class SimulationState(HDFWriterMixin):
         """
         time_explosion = config.supernova.time_explosion.cgs
 
-        (
-            electron_densities,
-            t_radiative,
-            geometry,
-            density,
-        ) = parse_structure_config(config, time_explosion)
+        geometry = parse_geometry_from_config(config, time_explosion)
 
-        nuclide_mass_fraction, raw_isotope_abundance = parse_abundance_config(
-            config, geometry, time_explosion
+        composition, electron_densities = parse_composition_from_config(
+            atom_data, config, time_explosion, geometry
         )
 
-        # using atom_data.mass.copy() to ensure that the original atom_data is not modified
-        composition = Composition(
-            density,
-            nuclide_mass_fraction,
-            raw_isotope_abundance,
-            atom_data.atom_data.mass.copy(),
+        packet_source = parse_packet_source_from_config(
+            config, geometry, legacy_mode_enabled
         )
 
-        packet_source = parse_packet_source(config, geometry)
-        radiation_field_state = parse_radiation_field_state(
+        radiation_field_state = parse_radiation_field_state_from_config(
             config,
-            t_radiative,
             geometry,
             dilution_factor=None,
             packet_source=packet_source,
@@ -288,7 +316,7 @@ class SimulationState(HDFWriterMixin):
         )
 
     @classmethod
-    def from_csvy(cls, config, atom_data=None):
+    def from_csvy(cls, config, atom_data=None, legacy_mode_enabled=False):
         """
         Create a new SimulationState instance from a Configuration object.
 
@@ -354,11 +382,11 @@ class SimulationState(HDFWriterMixin):
 
         electron_densities = None
 
-        geometry = parse_csvy_geometry(
+        geometry = parse_geometry_from_csvy(
             config, csvy_model_config, csvy_model_data, time_explosion
         )
 
-        composition = parse_csvy_composition(
+        composition = parse_composition_from_csvy(
             atom_data,
             csvy_model_config,
             csvy_model_data,
@@ -366,9 +394,11 @@ class SimulationState(HDFWriterMixin):
             geometry,
         )
 
-        packet_source = parse_packet_source(config, geometry)
+        packet_source = parse_packet_source_from_config(
+            config, geometry, legacy_mode_enabled
+        )
 
-        radiation_field_state = parse_csvy_radiation_field_state(
+        radiation_field_state = parse_radiation_field_state_from_csvy(
             config, csvy_model_config, csvy_model_data, geometry, packet_source
         )
 

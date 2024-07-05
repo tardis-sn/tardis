@@ -12,17 +12,17 @@ class STELLAModel:
 
 
 HEADER_RE_STR = [
-    ("\s+days post max Lbol\s+(\d+\.\d*)", "t_max"),
-    ("\s+zones\s+(\d+)", "zones"),
+    (r"\s+days post max Lbol\s+(\d+\.\d*)", "t_max"),
+    (r"\s+zones\s+(\d+)", "zones"),
     (
-        "\s+inner boundary mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+",
-        "inner_boundary_mass",
+        r"\s+inner boundary mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+",
+        r"inner_boundary_mass",
     ),
-    ("\s+total mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", "total_mass"),
+    (r"\s+total mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", "total_mass"),
 ]
 
 DATA_START_ROW = 5
-COLUMN_WITH_UNIT_RE = re.compile("(.+)\s+\((.+)\)")
+COLUMN_WITH_UNIT_RE = re.compile(r"(.+)\s+\((.+)\)")
 
 
 def read_stella_model(fname):
@@ -74,7 +74,11 @@ def read_stella_model(fname):
     # and the actual data
     data = pd.read_csv(
         fname,
-        delim_whitespace=True,
+        # The argument `delim_whitespace` was changed to `sep`
+        #   because the first one is deprecated since version 2.2.0.
+        #   The regular expression means: the separation is one or
+        #   more spaces together (simple space, tabs, new lines).
+        sep=r"\s+",
         skiprows=DATA_START_ROW + 1,
         header=None,
         index_col=0,

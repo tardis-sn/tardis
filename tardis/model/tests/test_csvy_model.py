@@ -178,7 +178,7 @@ def test_read_csvy_abundances(
     # to be decayed after being loaded into SimulationState.
     #  Now the abundances are decayed before
     # assert model_isotopes.shape == reference_input_isotopes_shape
-    # Same applies to the comparison - we are summing up the mass_fraction to compare pre/post decay
+    # Same applies to the comparison - we are summing up the mass_fractions to compare pre/post decay
     npt.assert_array_almost_equal(
         reference_input_isotopes.to_numpy()[0],
         model_isotopes.sum(axis=0).to_numpy(),

@@ -1,8 +1,8 @@
 import numpy as np
 from astropy import units as u
 
-from tardis.montecarlo.packet_source import BasePacketSource
-from tardis.montecarlo.montecarlo_numba.numba_interface import OpacityState
+from tardis.transport.montecarlo.packet_source import BasePacketSource
+from tardis.opacities.opacity_state import OpacityState
 
 
 class MonteCarloRadiationFieldState:

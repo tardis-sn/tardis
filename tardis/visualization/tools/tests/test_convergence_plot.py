@@ -1,4 +1,5 @@
 """Tests for Convergence Plots."""
+
 from copy import deepcopy
 
 import pytest
@@ -143,7 +144,9 @@ def test_update_plasma_plots(convergence_plots):
         # check values for t_rad subplot
         assert convergence_plots.plasma_plot.data[index].xaxis == "x"
         assert convergence_plots.plasma_plot.data[index].yaxis == "y"
-        assert convergence_plots.plasma_plot.data[index].y == tuple(t_rad_val)
+        assert (
+            convergence_plots.plasma_plot.data[index].y[:-1] == tuple(t_rad_val)
+        ).all()
         assert convergence_plots.plasma_plot.data[index].x == tuple(
             velocity.to(u.km / u.s).value
         )
@@ -152,7 +155,9 @@ def test_update_plasma_plots(convergence_plots):
         # check values for w subplot
         assert convergence_plots.plasma_plot.data[index].xaxis == "x2"
         assert convergence_plots.plasma_plot.data[index].yaxis == "y2"
-        assert convergence_plots.plasma_plot.data[index].y == tuple(w_val)
+        assert (
+            convergence_plots.plasma_plot.data[index].y[:-1] == tuple(w_val)
+        ).all()
         assert convergence_plots.plasma_plot.data[index].x == tuple(
             velocity.to(u.km / u.s).value
         )

@@ -429,7 +429,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         convergence_section_dict : dict
             dictionary
         """
-        convergence_parameters = ["damping_constant", "threshold"]
+        convergence_parameters = ["damping_constant", "threshold", "type"]
 
         for convergence_variable in ["t_inner", "t_rad", "w"]:
             if convergence_variable not in convergence_section_dict:
