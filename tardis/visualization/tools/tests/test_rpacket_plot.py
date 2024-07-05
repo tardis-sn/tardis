@@ -60,7 +60,9 @@ class TestRPacketPlotter:
         """
         sim = simulation_simple
         rpacket_plotter = RPacketPlotter.from_simulation(sim)
-        single_packet_df = sim.simulation_state.rpacket_tracker_df.loc[0]
+        single_packet_df = sim.transport.transport_state.rpacket_tracker_df.loc[
+            0
+        ]
         (
             rpacket_x,
             rpacket_y,
@@ -108,9 +110,11 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(
             sim, no_of_packets=no_of_packets
         )
-        multiple_packet_df = sim.simulation_state.rpacket_tracker_df.loc[
-            0 : (no_of_packets - 1)
-        ]
+        multiple_packet_df = (
+            sim.transport.transport_state.rpacket_tracker_df.loc[
+                0 : (no_of_packets - 1)
+            ]
+        )
         (
             rpackets_x,
             rpackets_y,
@@ -125,9 +129,9 @@ class TestRPacketPlotter:
 
         # checking coordinates of every packet
         for rpacket in range(no_of_packets):
-            single_packet_df = sim.simulation_state.rpacket_tracker_df.loc[
-                rpacket
-            ]
+            single_packet_df = (
+                sim.transport.transport_state.rpacket_tracker_df.loc[rpacket]
+            )
             (
                 expected_rpacket_x,
                 expected_rpacket_y,
@@ -161,9 +165,11 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(
             sim, no_of_packets=no_of_packets
         )
-        multiple_packet_df = sim.simulation_state.rpacket_tracker_df.loc[
-            0 : (no_of_packets - 1)
-        ]
+        multiple_packet_df = (
+            sim.transport.transport_state.rpacket_tracker_df.loc[
+                0 : (no_of_packets - 1)
+            ]
+        )
         (
             multiple_packet_x,
             multiple_packet_y,
@@ -235,9 +241,11 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(
             sim, no_of_packets=no_of_packets
         )
-        multiple_packet_df = sim.simulation_state.rpacket_tracker_df.loc[
-            0 : (no_of_packets - 1)
-        ]
+        multiple_packet_df = (
+            sim.transport.transport_state.rpacket_tracker_df.loc[
+                0 : (no_of_packets - 1)
+            ]
+        )
         (
             multiple_packet_x,
             multiple_packet_y,
@@ -292,9 +300,11 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(
             sim, no_of_packets=no_of_packets
         )
-        multiple_packet_df = sim.simulation_state.rpacket_tracker_df.loc[
-            0 : (no_of_packets - 1)
-        ]
+        multiple_packet_df = (
+            sim.transport.transport_state.rpacket_tracker_df.loc[
+                0 : (no_of_packets - 1)
+            ]
+        )
         (
             multiple_packet_x,
             multiple_packet_y,
