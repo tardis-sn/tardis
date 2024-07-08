@@ -13,9 +13,9 @@ import tardis.visualization.tools.sdec_plot as sdec
 from tardis.visualization import plot_util as pu
 
 
-class InteractionRadiusPlotter:
+class LIVPlotter:
     """
-    Plotting interface for the interaction radius plot.
+    Plotting interface for the last interaction velocity plot.
     """
 
     def __init__(self, data, time_explosion, velocity):
@@ -25,7 +25,7 @@ class InteractionRadiusPlotter:
         Parameters
         ----------
         data : dict of SDECData
-            Dictionary to store data required for interaction radius plot,
+            Dictionary to store data required for last interaction velocity plot,
             for both packet modes (real, virtual).
 
         time_explosion : astropy.units.Quantity
@@ -52,7 +52,7 @@ class InteractionRadiusPlotter:
 
         Returns
         -------
-        InteractionRadiusPlotter
+        LIVPlotter
         """
 
         return cls(
@@ -76,7 +76,7 @@ class InteractionRadiusPlotter:
 
         Returns
         -------
-        InteractionRadiusPlotter
+        LIVPlotter
         """
         with pd.HDFStore(hdf_fpath, "r") as hdf:
             time_explosion = (
@@ -149,12 +149,10 @@ class InteractionRadiusPlotter:
         """
         Generate colors for the species to be plotted.
 
-        Creates a list of colors corresponding to the species names.
+        This method creates a list of colors corresponding to the species names.
+        The colors are generated based on the species present in the model and
+        the requested species list.
         """
-        # the colours depends on the species present in the model and what's requested
-        # some species need to be shown in the same colour, so the exact colours have to be
-        # worked out
-
         color_list = []
         species_keys = list(self._species_mapped.keys())
         num_species = len(species_keys)
@@ -213,22 +211,45 @@ class InteractionRadiusPlotter:
 
         return plot_data, plot_colors
 
-    def _prepare_plot(self, packets_mode, species_list, cmapname):
+    def _prepare_plot_data(
+        self, packets_mode, species_list, cmapname, num_bins
+    ):
         """
-        Helper function to prepare the plot data and colors.
+        Prepare data and settings required for generating a plot.
+
+        This method handles the common logic for preparing data and settings
+        needed to generate both matplotlib and plotly plots. It parses the species
+        list, generates color labels and colormap, and bins the velocity data.
 
         Parameters
         ----------
         packets_mode : str
             Packet mode, either 'virtual' or 'real'.
         species_list : list of str
-            List of species to plot.
+            List of species to plot. Species can be specified as an ion
+            (e.g., Si II), an element (e.g., Si), a range of ions (e.g., Si I-V),
+            or any combination of these.
+        cmapname : str
+            Name of the colormap to use. A specific colormap can be chosen, such
+            as "jet", "viridis", "plasma", etc.
+        num_bins : int, optional
+            Number of bins for regrouping within the same range. If None,
+            no regrouping is done.
 
         Raises
         ------
         ValueError
-            If no species provided or no valid species found.
+            If no species are provided for plotting, or if no valid species are
+            found in the model.
 
+        Returns
+        -------
+        plot_data : list
+            List of velocity data for each species.
+        plot_colors : list
+            List of colors corresponding to each species.
+        new_bin_edges : np.ndarray
+            Array of bin edges for the velocity data.
         """
         self._parse_species_list(species_list)
         species_in_model = np.unique(
@@ -247,6 +268,17 @@ class InteractionRadiusPlotter:
         self._make_colorbar_labels()
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
         self._make_colorbar_colors()
+        plot_data, plot_colors = self._generate_plot_data(packets_mode)
+        bin_edges = (self.velocity).to("km/s")
+
+        if num_bins and len(bin_edges) > num_bins:
+            new_bin_edges = np.linspace(
+                bin_edges[0], bin_edges[-1], num_bins + 1
+            )
+        else:
+            new_bin_edges = bin_edges
+
+        return plot_data, plot_colors, new_bin_edges
 
     def generate_plot_mpl(
         self,
@@ -254,13 +286,13 @@ class InteractionRadiusPlotter:
         ax=None,
         figsize=(11, 5),
         cmapname="jet",
-        species_list=None,
+        species_list=[],
         log_scale=False,
         num_bins=None,
         velocity_range=None,
     ):
         """
-        Generate the last interaction radius distribution plot using matplotlib.
+        Generate the last interaction velocity distribution plot using matplotlib.
 
         Parameters
         ----------
@@ -269,7 +301,7 @@ class InteractionRadiusPlotter:
         ax : matplotlib.axes.Axes, optional
             Axes object to plot on. If None, creates a new figure.
         figsize : tuple, optional
-            Size of the figure. Default is (11, 6).
+            Size of the figure. Default is (11, 5).
         cmapname : str, optional
             Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
         species_list : list of str
@@ -286,16 +318,9 @@ class InteractionRadiusPlotter:
         matplotlib.axes.Axes
             Axes object with the plot.
         """
-        self._prepare_plot(packets_mode, species_list, cmapname)
-        plot_data, plot_colors = self._generate_plot_data(packets_mode)
-        bin_edges = (self.velocity).to("km/s")
-
-        if num_bins and len(bin_edges) > num_bins:
-            new_bin_edges = np.linspace(
-                bin_edges[0], bin_edges[-1], num_bins + 1
-            )
-        else:
-            new_bin_edges = bin_edges
+        plot_data, plot_colors, new_bin_edges = self._prepare_plot_data(
+            packets_mode, species_list, cmapname, num_bins
+        )
 
         if ax is None:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
@@ -323,14 +348,13 @@ class InteractionRadiusPlotter:
         self.ax.set_xlabel("Last Interaction Velocity (km/s)", fontsize=14)
         self.ax.set_ylabel("Packet Count", fontsize=14)
         self.ax.grid(True, which="both", linestyle="--", linewidth=0.5)
-        self.ax.legend(fontsize=15)
-        plt.legend(bbox_to_anchor=(1.0, 1.0), loc="upper left")
+        self.ax.legend(fontsize=15, bbox_to_anchor=(1.0, 1.0), loc="upper left")
+        self.ax.figure.tight_layout()
         if log_scale:
             self.ax.set_xscale("log")
             self.ax.set_yscale("log")
         if velocity_range:
-            plt.xlim(velocity_range[0], velocity_range[1])
-        plt.tight_layout()
+            self.ax.set_xlim(velocity_range[0], velocity_range[1])
 
         return self.ax
 
@@ -338,15 +362,15 @@ class InteractionRadiusPlotter:
         self,
         packets_mode="virtual",
         fig=None,
-        graph_height=500,
+        figsize=(1000, 500),
         cmapname="jet",
-        species_list=None,
+        species_list=[],
         log_scale=False,
         num_bins=None,
         velocity_range=None,
     ):
         """
-        Generate the last interaction radius distribution plot using plotly.
+        Generate the last interaction velocity distribution plot using plotly.
 
         Parameters
         ----------
@@ -354,8 +378,8 @@ class InteractionRadiusPlotter:
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         fig : plotly.graph_objects.Figure, optional
             Plotly figure object to add the plot to. If None, creates a new figure.
-        graph_height : int, optional
-            Height of the graph in pixels. Default is 500.
+        figsize : tuple, optional
+            Size of the figure. Default is (1000, 500).
         cmapname : str, optional
             Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
         species_list : list of str
@@ -372,25 +396,22 @@ class InteractionRadiusPlotter:
         plotly.graph_objects.Figure
             Plotly figure object with the plot.
         """
-        self._prepare_plot(packets_mode, species_list, cmapname)
-        plot_data, plot_colors = self._generate_plot_data(packets_mode)
-        bin_edges = (self.velocity).to("km/s")
+        plot_data, plot_colors, new_bin_edges = self._prepare_plot_data(
+            packets_mode, species_list, cmapname, num_bins
+        )
 
-        if num_bins and len(bin_edges) > num_bins:
-            new_bin_edges = np.linspace(
-                bin_edges[0], bin_edges[-1], num_bins + 1
-            )
+        if fig is None:
+            self.fig = go.Figure()
         else:
-            new_bin_edges = bin_edges
+            self.fig = fig
 
-        fig = go.Figure()
         for data, color, name in zip(
             plot_data, plot_colors, self._species_name
         ):
             hist, _ = np.histogram(data, bins=new_bin_edges)
             step_x = np.repeat(new_bin_edges, 2)[1:-1]
             step_y = np.repeat(hist, 2)
-            fig.add_trace(
+            self.fig.add_trace(
                 go.Scatter(
                     x=step_x,
                     y=step_y,
@@ -404,8 +425,9 @@ class InteractionRadiusPlotter:
                     opacity=0.75,
                 )
             )
-        fig.update_layout(
-            height=graph_height,
+        self.fig.update_layout(
+            width=figsize[0],
+            height=figsize[1],
             xaxis_title="Last Interaction Velocity (km/s)",
             yaxis_title="Packet Count",
             font=dict(size=14),
@@ -413,10 +435,10 @@ class InteractionRadiusPlotter:
             xaxis=dict(exponentformat="power" if log_scale else "none"),
         )
         if log_scale:
-            fig.update_xaxes(type="log")
-            fig.update_yaxes(type="log", dtick=1)
+            self.fig.update_xaxes(type="log")
+            self.fig.update_yaxes(type="log", dtick=1)
 
         if velocity_range:
-            fig.update_xaxes(range=velocity_range)
+            self.fig.update_xaxes(range=velocity_range)
 
-        return fig
+        return self.fig
