@@ -137,6 +137,7 @@ def montecarlo_main_loop(
         if ENABLE_RPACKET_TRACKING is None:
             rpacket_tracker = None
         else:
+            assert ENABLE_RPACKET_TRACKING is not None
             rpacket_tracker = rpacket_trackers[i]
 
         loop = single_packet_loop(
