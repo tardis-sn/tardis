@@ -282,11 +282,11 @@ class LIVPlotter:
 
     def generate_plot_mpl(
         self,
+        species_list,
         packets_mode="virtual",
         ax=None,
         figsize=(11, 5),
         cmapname="jet",
-        species_list=[],
         log_scale=False,
         num_bins=None,
         velocity_range=None,
@@ -296,6 +296,8 @@ class LIVPlotter:
 
         Parameters
         ----------
+        species_list : list of str
+            List of species to plot.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         ax : matplotlib.axes.Axes, optional
@@ -304,8 +306,6 @@ class LIVPlotter:
             Size of the figure. Default is (11, 5).
         cmapname : str, optional
             Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
-        species_list : list of str
-            List of species to plot.
         log_scale : bool, optional
             If True, both axes are scaled logarithmically. Default is False.
         num_bins : int, optional
@@ -360,11 +360,11 @@ class LIVPlotter:
 
     def generate_plot_ply(
         self,
+        species_list,
         packets_mode="virtual",
         fig=None,
         figsize=(1000, 500),
         cmapname="jet",
-        species_list=[],
         log_scale=False,
         num_bins=None,
         velocity_range=None,
@@ -374,6 +374,8 @@ class LIVPlotter:
 
         Parameters
         ----------
+        species_list : list of str
+            List of species to plot.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         fig : plotly.graph_objects.Figure, optional
@@ -382,8 +384,6 @@ class LIVPlotter:
             Size of the figure. Default is (1000, 500).
         cmapname : str, optional
             Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
-        species_list : list of str
-            List of species to plot.
         log_scale : bool, optional
             If True, both axes are scaled logarithmically. Default is False.
         num_bins : int, optional
