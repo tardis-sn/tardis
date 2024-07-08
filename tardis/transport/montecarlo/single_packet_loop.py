@@ -46,8 +46,8 @@ def single_packet_loop(
     rpacket_tracker,
     rpacket_last_interaction_tracker,
     montecarlo_configuration,
-    ENABLE_RPACKET_TRACKING = None,
-    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = True,
+    ENABLE_RPACKET_TRACKING=None,
+    ENABLE_RPACKET_LAST_INTERACTION_TRACKING=True,
 ):
     """
     Parameters

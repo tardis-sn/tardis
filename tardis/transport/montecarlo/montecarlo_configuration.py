@@ -20,8 +20,18 @@ numba_config_spec = [
     ("VPACKET_TAU_RUSSIAN", float64),
     ("INITIAL_TRACKING_ARRAY_LENGTH", int64),
     ("LEGACY_MODE_ENABLED", boolean),
-    ("ENABLE_RPACKET_TRACKING", optional(boolean,)),
-    ("ENABLE_RPACKET_LAST_INTERACTION_TRACKING", optional(boolean,)),
+    (
+        "ENABLE_RPACKET_TRACKING",
+        optional(
+            boolean,
+        ),
+    ),
+    (
+        "ENABLE_RPACKET_LAST_INTERACTION_TRACKING",
+        optional(
+            boolean,
+        ),
+    ),
     ("CONTINUUM_PROCESSES_ENABLED", boolean),
     ("VPACKET_SPAWN_START_FREQUENCY", float64),
     ("VPACKET_SPAWN_END_FREQUENCY", float64),

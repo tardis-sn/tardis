@@ -109,8 +109,12 @@ def test_tracking_manual(static_packet):
 
 
 def test_config_flags(nb_simulation_verysimple):
-    ENABLE_RPACKET_TRACKING = nb_simulation_verysimple.transport.montecarlo_configuration.ENABLE_RPACKET_TRACKING
-    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = nb_simulation_verysimple.transport.montecarlo_configuration.ENABLE_RPACKET_LAST_INTERACTION_TRACKING
+    ENABLE_RPACKET_TRACKING = (
+        nb_simulation_verysimple.transport.montecarlo_configuration.ENABLE_RPACKET_TRACKING
+    )
+    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = (
+        nb_simulation_verysimple.transport.montecarlo_configuration.ENABLE_RPACKET_LAST_INTERACTION_TRACKING
+    )
 
     assert ENABLE_RPACKET_TRACKING == None
     assert ENABLE_RPACKET_LAST_INTERACTION_TRACKING == True

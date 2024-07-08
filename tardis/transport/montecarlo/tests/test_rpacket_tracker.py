@@ -131,8 +131,12 @@ def nu_rpacket_tracker(rpacket_tracker):
 
 
 def test_config_flags(simulation_rpacket_tracking_enabled):
-    ENABLE_RPACKET_TRACKING = simulation_rpacket_tracking_enabled.transport.montecarlo_configuration.ENABLE_RPACKET_TRACKING
-    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = simulation_rpacket_tracking_enabled.transport.montecarlo_configuration.ENABLE_RPACKET_LAST_INTERACTION_TRACKING
+    ENABLE_RPACKET_TRACKING = (
+        simulation_rpacket_tracking_enabled.transport.montecarlo_configuration.ENABLE_RPACKET_TRACKING
+    )
+    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = (
+        simulation_rpacket_tracking_enabled.transport.montecarlo_configuration.ENABLE_RPACKET_LAST_INTERACTION_TRACKING
+    )
 
     assert ENABLE_RPACKET_TRACKING == True
     assert ENABLE_RPACKET_LAST_INTERACTION_TRACKING == None

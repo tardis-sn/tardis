@@ -186,8 +186,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             iteration=iteration,
             show_progress_bars=show_progress_bars,
             total_iterations=total_iterations,
-            ENABLE_RPACKET_TRACKING = self.montecarlo_configuration.ENABLE_RPACKET_TRACKING,
-            ENABLE_RPACKET_LAST_INTERACTION_TRACKING = self.montecarlo_configuration.ENABLE_RPACKET_LAST_INTERACTION_TRACKING,
+            ENABLE_RPACKET_TRACKING=self.montecarlo_configuration.ENABLE_RPACKET_TRACKING,
+            ENABLE_RPACKET_LAST_INTERACTION_TRACKING=self.montecarlo_configuration.ENABLE_RPACKET_LAST_INTERACTION_TRACKING,
         )
 
         transport_state._montecarlo_virtual_luminosity.value[

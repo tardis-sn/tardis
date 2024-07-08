@@ -36,8 +36,8 @@ def montecarlo_main_loop(
     iteration,
     show_progress_bars,
     total_iterations,
-    ENABLE_RPACKET_TRACKING = None,
-    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = True,
+    ENABLE_RPACKET_TRACKING=None,
+    ENABLE_RPACKET_LAST_INTERACTION_TRACKING=True,
 ):
     """This is the main loop of the MonteCarlo routine that generates packets
     and sends them through the ejecta.
@@ -81,15 +81,20 @@ def montecarlo_main_loop(
     else:
         rpacket_trackers = List()
         for i in range(no_of_packets):
-            rpacket_trackers.append(RPacketTracker(montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH))
-
+            rpacket_trackers.append(
+                RPacketTracker(
+                    montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+                )
+            )
 
     if ENABLE_RPACKET_LAST_INTERACTION_TRACKING is None:
         rpacket_last_interaction_trackers = None
     else:
         rpacket_last_interaction_trackers = List()
         for i in range(no_of_packets):
-            rpacket_last_interaction_trackers.append(RPacketLastInteractionTracker())
+            rpacket_last_interaction_trackers.append(
+                RPacketLastInteractionTracker()
+            )
 
     for i in range(no_of_packets):
         vpacket_collections.append(
@@ -151,7 +156,9 @@ def montecarlo_main_loop(
         if ENABLE_RPACKET_LAST_INTERACTION_TRACKING is None:
             rpacket_last_interaction_tracker = None
         else:
-            rpacket_last_interaction_tracker = rpacket_last_interaction_trackers[i]
+            rpacket_last_interaction_tracker = (
+                rpacket_last_interaction_trackers[i]
+            )
 
         loop = single_packet_loop(
             r_packet,
@@ -163,8 +170,8 @@ def montecarlo_main_loop(
             rpacket_tracker,
             rpacket_last_interaction_tracker,
             montecarlo_configuration,
-            ENABLE_RPACKET_TRACKING = ENABLE_RPACKET_TRACKING,
-            ENABLE_RPACKET_LAST_INTERACTION_TRACKING = ENABLE_RPACKET_LAST_INTERACTION_TRACKING,
+            ENABLE_RPACKET_TRACKING=ENABLE_RPACKET_TRACKING,
+            ENABLE_RPACKET_LAST_INTERACTION_TRACKING=ENABLE_RPACKET_LAST_INTERACTION_TRACKING,
         )
         packet_collection.output_nus[i] = r_packet.nu
 
