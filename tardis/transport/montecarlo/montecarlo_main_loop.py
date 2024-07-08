@@ -117,7 +117,7 @@ def montecarlo_main_loop(
     # so we iterate from 0 to n_threads-1 to create the estimator_list
     estimator_list = estimators.create_estimator_list(n_threads)
 
-    for i in prange(no_of_packets):
+    for i in range(no_of_packets):
         thread_id = get_thread_id()
         if show_progress_bars:
             if thread_id == main_thread_id:
