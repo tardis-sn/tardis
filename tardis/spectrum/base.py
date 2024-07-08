@@ -179,7 +179,7 @@ class SpectrumSolver(HDFWriterMixin):
         ].sum()
 
     @classmethod
-    def from_config(cls, config, v_packets_energy_hist):
+    def from_config(cls, config):
         spectrum_frequency = quantity_linspace(
             config.spectrum.stop.to("Hz", u.spectral()),
             config.spectrum.start.to("Hz", u.spectral()),
