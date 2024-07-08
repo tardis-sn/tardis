@@ -314,7 +314,7 @@ class SDECData:
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/scalars"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
