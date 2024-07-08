@@ -96,3 +96,6 @@ def configuration_initialize(config, transport, number_of_vpackets):
     if transport.enable_rpacket_tracking:
         config.ENABLE_RPACKET_TRACKING = True
         config.ENABLE_RPACKET_LAST_INTERACTION_TRACKING = None
+    else:
+        config.ENABLE_RPACKET_TRACKING = None
+        config.ENABLE_RPACKET_LAST_INTERACTION_TRACKING = True
