@@ -72,17 +72,18 @@ class TestTransportSimple:
         )
 
     def test_spectrum(self, simulation):
-        key = "simulation/spectrum_solver/spectrum/luminosity"
+        key = "simulation/spectrum_solver/spectrum_real_packets/luminosity"
         expected = self.get_expected_data(key)
 
         luminosity = u.Quantity(expected, "erg /s")
 
         assert_quantity_allclose(
-            simulation.spectrum_solver.spectrum.luminosity, luminosity
+            simulation.spectrum_solver.spectrum_real_packets.luminosity,
+            luminosity,
         )
 
     def test_virtual_spectrum(self, simulation):
-        key = "simulation/spectrum_solver/spectrum_virtual/luminosity"
+        key = "simulation/spectrum_solver/spectrum_virtual_packets/luminosity"
         expected = self.get_expected_data(key)
 
         luminosity = u.Quantity(expected, "erg /s")

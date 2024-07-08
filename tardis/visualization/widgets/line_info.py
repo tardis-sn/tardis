@@ -138,8 +138,8 @@ class LineInfoWidget:
                 )
                 for filter_mode in cls.FILTER_MODES
             },
-            spectrum_wavelength=spectrum_solver.spectrum.wavelength,
-            spectrum_luminosity_density_lambda=spectrum_solver.spectrum.luminosity_density_lambda.to(
+            spectrum_wavelength=spectrum_solver.spectrum_real_packets.wavelength,
+            spectrum_luminosity_density_lambda=spectrum_solver.spectrum_real_packets.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
             virt_spectrum_wavelength=spectrum_solver.spectrum_virtual_packets.wavelength,

@@ -60,7 +60,7 @@ class TestTransportSimpleFormalIntegral:
             return simulation
         else:
             simulation.spectrum_solver.hdf_properties = [
-                "spectrum",
+                "spectrum_real_packets",
                 "spectrum_integrated",
             ]
             simulation.spectrum_solver.to_hdf(
