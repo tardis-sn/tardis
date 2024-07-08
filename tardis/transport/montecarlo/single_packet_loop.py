@@ -92,7 +92,7 @@ def single_packet_loop(
 
     if ENABLE_RPACKET_TRACKING is not None:
         rpacket_tracker.track(r_packet)
-    elif ENABLE_RPACKET_LAST_INTERACTION_TRACKING is not None:
+    if ENABLE_RPACKET_LAST_INTERACTION_TRACKING is not None:
         rpacket_last_interaction_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
@@ -276,7 +276,7 @@ def single_packet_loop(
         if interaction_type != InteractionType.BOUNDARY:
             if ENABLE_RPACKET_TRACKING is not None:
                 rpacket_tracker.track(r_packet)
-            elif ENABLE_RPACKET_LAST_INTERACTION_TRACKING is not None:
+            if ENABLE_RPACKET_LAST_INTERACTION_TRACKING is not None:
                 rpacket_last_interaction_tracker.track(r_packet)
 
 
