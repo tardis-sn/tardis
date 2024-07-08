@@ -1,7 +1,7 @@
 """Tests for SDEC Plots."""
 import os
 from copy import deepcopy
-
+from pathlib import Path
 import astropy.units as u
 import numpy as np
 import pandas as pd
@@ -13,6 +13,9 @@ from matplotlib.lines import Line2D
 from tardis.base import run_tardis
 from tardis.visualization.tools.sdec_plot import SDECPlotter
 
+OBSERVED_SPECTRUM_TEST_DATA_PATH = str(
+    Path(__file__).parent / "data" / "observed_spectrum_test_data.dat"
+)
 
 def make_valid_name(testid):
     """
@@ -138,9 +141,7 @@ class TestSDECPlotter:
         -------
         Tuple of two astropy.units.quantity.Quantity values.
         """
-        test_data = np.loadtxt(
-            "tardis/visualization/tools/tests/data/observed_spectrum_test_data.dat"
-        )
+        test_data = np.loadtxt(OBSERVED_SPECTRUM_TEST_DATA_PATH)
         observed_spectrum_wavelength, observed_spectrum_flux = test_data.T
         observed_spectrum_wavelength = observed_spectrum_wavelength * u.AA
         observed_spectrum_flux = (
