@@ -36,6 +36,8 @@ def montecarlo_main_loop(
     iteration,
     show_progress_bars,
     total_iterations,
+    ENABLE_RPACKET_TRACKING = None,
+    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = True,
 ):
     """This is the main loop of the MonteCarlo routine that generates packets
     and sends them through the ejecta.
@@ -74,8 +76,21 @@ def montecarlo_main_loop(
     # Pre-allocate a list of vpacket collections for later storage
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
-    rpacket_trackers = List()
-    rpacket_last_interaction_trackers = List()
+    if ENABLE_RPACKET_TRACKING is None:
+        rpacket_trackers = None
+    else:
+        rpacket_trackers = List()
+        for i in range(no_of_packets):
+            rpacket_trackers.append(RPacketTracker(montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH))
+
+
+    if ENABLE_RPACKET_LAST_INTERACTION_TRACKING is None:
+        rpacket_last_interaction_trackers = None
+    else:
+        rpacket_last_interaction_trackers = List()
+        for i in range(no_of_packets):
+            rpacket_last_interaction_trackers.append(RPacketLastInteractionTracker())
+
     for i in range(no_of_packets):
         vpacket_collections.append(
             VPacketCollection(
@@ -86,14 +101,6 @@ def montecarlo_main_loop(
                 number_of_vpackets,
                 montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
             )
-        )
-        rpacket_trackers.append(
-            RPacketTracker(
-                montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
-            )
-        )
-        rpacket_last_interaction_trackers.append(
-            RPacketLastInteractionTracker()
         )
 
     # Get the ID of the main thread and the number of threads
@@ -136,8 +143,15 @@ def montecarlo_main_loop(
         vpacket_collection = vpacket_collections[i]
 
         # RPacket Tracker for this thread
-        rpacket_tracker = rpacket_trackers[i]
-        rpacket_last_interaction_tracker = rpacket_last_interaction_trackers[i]
+        if ENABLE_RPACKET_TRACKING is None:
+            rpacket_tracker = None
+        else:
+            rpacket_tracker = rpacket_trackers[i]
+
+        if ENABLE_RPACKET_LAST_INTERACTION_TRACKING is None:
+            rpacket_last_interaction_tracker = None
+        else:
+            rpacket_last_interaction_tracker = rpacket_last_interaction_trackers[i]
 
         loop = single_packet_loop(
             r_packet,
@@ -149,6 +163,8 @@ def montecarlo_main_loop(
             rpacket_tracker,
             rpacket_last_interaction_tracker,
             montecarlo_configuration,
+            ENABLE_RPACKET_TRACKING = ENABLE_RPACKET_TRACKING,
+            ENABLE_RPACKET_LAST_INTERACTION_TRACKING = ENABLE_RPACKET_LAST_INTERACTION_TRACKING,
         )
         packet_collection.output_nus[i] = r_packet.nu
 
@@ -194,7 +210,7 @@ def montecarlo_main_loop(
             1,
         )
 
-    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+    if ENABLE_RPACKET_TRACKING is not None:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 

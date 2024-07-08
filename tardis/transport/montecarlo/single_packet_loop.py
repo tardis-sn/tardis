@@ -46,6 +46,8 @@ def single_packet_loop(
     rpacket_tracker,
     rpacket_last_interaction_tracker,
     montecarlo_configuration,
+    ENABLE_RPACKET_TRACKING = None,
+    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = True,
 ):
     """
     Parameters
@@ -88,9 +90,9 @@ def single_packet_loop(
         montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
     )
 
-    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+    if ENABLE_RPACKET_TRACKING is not None:
         rpacket_tracker.track(r_packet)
-    else:
+    elif ENABLE_RPACKET_LAST_INTERACTION_TRACKING is not None:
         rpacket_last_interaction_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
@@ -272,9 +274,9 @@ def single_packet_loop(
         else:
             pass
         if interaction_type != InteractionType.BOUNDARY:
-            if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+            if ENABLE_RPACKET_TRACKING is not None:
                 rpacket_tracker.track(r_packet)
-            else:
+            elif ENABLE_RPACKET_LAST_INTERACTION_TRACKING is not None:
                 rpacket_last_interaction_tracker.track(r_packet)
 
 

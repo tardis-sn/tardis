@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 import numpy.testing as npt
 
+from tardis.transport.montecarlo.r_packet import InteractionType
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketLastInteractionTracker,
 )
@@ -25,7 +26,7 @@ def shell_id_last_interaction_class_old(
     """Last interaction types of rpacket from LastInteractionTracker"""
     transport_state = nb_simulation_verysimple.transport.transport_state
     shell_id = transport_state.last_line_interaction_shell_id
-    mask = interaction_type_last_interaction_class_old == 2
+    mask = interaction_type_last_interaction_class_old == InteractionType.LINE
     return shell_id[mask]
 
 
@@ -58,7 +59,7 @@ def shell_id_last_interaction_class_new(
         transport_state.rpacket_tracker
     ):
         shell_id[i] = last_interaction_tracker.shell_id
-    mask = interaction_type_last_interaction_class_new == 2
+    mask = interaction_type_last_interaction_class_new == InteractionType.LINE
     return shell_id[mask]
 
 
@@ -105,6 +106,14 @@ def test_tracking_manual(static_packet):
     npt.assert_almost_equal(tracker.r, 7.5e14)
     npt.assert_almost_equal(tracker.nu, 0.4)
     npt.assert_almost_equal(tracker.energy, 0.9)
+
+
+def test_config_flags(nb_simulation_verysimple):
+    ENABLE_RPACKET_TRACKING = nb_simulation_verysimple.transport.montecarlo_configuration.ENABLE_RPACKET_TRACKING
+    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = nb_simulation_verysimple.transport.montecarlo_configuration.ENABLE_RPACKET_LAST_INTERACTION_TRACKING
+
+    assert ENABLE_RPACKET_TRACKING == None
+    assert ENABLE_RPACKET_LAST_INTERACTION_TRACKING == True
 
 
 @pytest.mark.parametrize(
