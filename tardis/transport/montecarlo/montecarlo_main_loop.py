@@ -150,12 +150,14 @@ def montecarlo_main_loop(
         # RPacket Tracker for this thread
         if ENABLE_RPACKET_TRACKING is None:
             rpacket_tracker = None
-        elif ENABLE_RPACKET_TRACKING is not None:
+        else:
+            assert ENABLE_RPACKET_TRACKING is not None
             rpacket_tracker = rpacket_trackers[i]
 
         if ENABLE_RPACKET_LAST_INTERACTION_TRACKING is None:
             rpacket_last_interaction_tracker = None
-        elif ENABLE_RPACKET_LAST_INTERACTION_TRACKING is not None:
+        else:
+            assert ENABLE_RPACKET_LAST_INTERACTION_TRACKING is not None
             rpacket_last_interaction_tracker = (
                 rpacket_last_interaction_trackers[i]
             )
