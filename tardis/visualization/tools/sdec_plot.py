@@ -191,10 +191,10 @@ class SDECData:
                     transport_state.vpacket_tracker.energies, "erg"
                 ),
                 r_inner=r_inner,
-                spectrum_delta_frequency=sim.spectrum_solver.spectrum_virtual.delta_frequency,
-                spectrum_frequency_bins=sim.spectrum_solver.spectrum_virtual._frequency,
-                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_virtual.luminosity_density_lambda,
-                spectrum_wavelength=sim.spectrum_solver.spectrum_virtual.wavelength,
+                spectrum_delta_frequency=sim.spectrum_solver.spectrum_virtual_packets.delta_frequency,
+                spectrum_frequency_bins=sim.spectrum_solver.spectrum_virtual_packets._frequency,
+                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
+                spectrum_wavelength=sim.spectrum_solver.spectrum_virtual_packets.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -227,10 +227,10 @@ class SDECData:
                     transport_state.emitted_packet_mask
                 ],
                 r_inner=r_inner,
-                spectrum_delta_frequency=sim.spectrum_solver.spectrum.delta_frequency,
-                spectrum_frequency_bins=sim.spectrum_solver.spectrum._frequency,
-                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum.luminosity_density_lambda,
-                spectrum_wavelength=sim.spectrum_solver.spectrum.wavelength,
+                spectrum_delta_frequency=sim.spectrum_solver.spectrum_real_packets.delta_frequency,
+                spectrum_frequency_bins=sim.spectrum_solver.spectrum_real_packets._frequency,
+                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
+                spectrum_wavelength=sim.spectrum_solver.spectrum_real_packets.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -320,19 +320,19 @@ class SDECData:
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/_frequency"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/luminosity_density_lambda"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",  # luminosity_density_lambda is saved in hdf in CGS
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/wavelength"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/wavelength"
                         ].to_numpy(),
                         "cm",  # wavelength is saved in hdf in CGS
                     ).to("AA"),
@@ -384,25 +384,25 @@ class SDECData:
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/scalars"
+                            "/simulation/spectrum_solver/spectrum_real_packets/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/_frequency"
+                            "/simulation/spectrum_solver/spectrum_real_packets/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/luminosity_density_lambda"
+                            "/simulation/spectrum_solver/spectrum_real_packets/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/wavelength"
+                            "/simulation/spectrum_solver/spectrum_real_packets/wavelength"
                         ].to_numpy(),
                         "cm",
                     ).to("AA"),

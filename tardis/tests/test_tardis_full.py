@@ -88,5 +88,6 @@ class TestTransportSimple:
         luminosity = u.Quantity(expected, "erg /s")
 
         assert_quantity_allclose(
-            simulation.spectrum_solver.spectrum_virtual.luminosity, luminosity
+            simulation.spectrum_solver.spectrum_virtual_packets.luminosity,
+            luminosity,
         )

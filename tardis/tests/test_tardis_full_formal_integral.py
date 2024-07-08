@@ -91,7 +91,8 @@ class TestTransportSimpleFormalIntegral:
         luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
 
         assert_quantity_allclose(
-            simulation.spectrum_solver.spectrum.luminosity, luminosity
+            simulation.spectrum_solver.spectrum_real_packets.luminosity,
+            luminosity,
         )
 
     def test_spectrum_integrated(self, simulation, refdata):

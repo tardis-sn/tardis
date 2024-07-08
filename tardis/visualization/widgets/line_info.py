@@ -1,4 +1,5 @@
 """Class to create and display Line Info Widget."""
+
 import re
 
 from astropy import units as u
@@ -141,8 +142,8 @@ class LineInfoWidget:
             spectrum_luminosity_density_lambda=spectrum_solver.spectrum.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
-            virt_spectrum_wavelength=spectrum_solver.spectrum_virtual.wavelength,
-            virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual.luminosity_density_lambda.to(
+            virt_spectrum_wavelength=spectrum_solver.spectrum_virtual_packets.wavelength,
+            virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
         )
@@ -324,9 +325,9 @@ class LineInfoWidget:
 
             if group_mode == "both":
                 # Group by both exc. line ids and de-exc. line ids
-                current_last_lines_in[
-                    "line_id_out"
-                ] = current_last_lines_out.line_id
+                current_last_lines_in["line_id_out"] = (
+                    current_last_lines_out.line_id
+                )
                 grouped_line_interactions = current_last_lines_in.groupby(
                     ["line_id", "line_id_out"]
                 )

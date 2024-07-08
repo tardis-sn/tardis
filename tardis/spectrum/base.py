@@ -14,9 +14,9 @@ from tardis.util.base import (
 class SpectrumSolver(HDFWriterMixin):
     hdf_properties = [
         "montecarlo_virtual_luminosity",
-        "spectrum",
-        "spectrum_virtual",
-        "spectrum_reabsorbed",
+        "spectrum_real_packets",
+        "spectrum_virtual_packets",
+        "spectrum_real_packets_reabsorbed",
         "spectrum_integrated",
     ]
 
@@ -33,22 +33,22 @@ class SpectrumSolver(HDFWriterMixin):
         self._spectrum_integrated = None
 
     @property
-    def spectrum(self):
+    def spectrum_real_packets(self):
         return TARDISSpectrum(
             self.spectrum_frequency, self.montecarlo_emitted_luminosity
         )
 
     @property
-    def spectrum_reabsorbed(self):
+    def spectrum_real_packets_reabsorbed(self):
         return TARDISSpectrum(
             self.spectrum_frequency, self.montecarlo_reabsorbed_luminosity
         )
 
     @property
-    def spectrum_virtual(self):
+    def spectrum_virtual_packets(self):
         if np.all(self.montecarlo_virtual_luminosity == 0):
             warnings.warn(
-                "MontecarloTransport.spectrum_virtual"
+                "SpectrumSolver.spectrum_virtual_packets"
                 "is zero. Please run the montecarlo simulation with"
                 "no_of_virtual_packets > 0",
                 UserWarning,
