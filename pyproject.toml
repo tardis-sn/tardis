@@ -152,6 +152,17 @@ edit_on_github = false
 test = ['pytest-astropy']
 docs = ["sphinx-astropy"]
 
+[project.scripts]
+cmfgen2tardis = "tardis.scripts.cmfgen2tardis:main"
+tardis_test_runner = "tardis.tests.integration_tests.runner:run_tests"
+
+[project.urls]
+Homepage = "https://tardis-sn.github.io/"
+Documentation = "https://tardis-sn.github.io/tardis/"
+Repository = "https://github.com/tardis-sn/tardis"
+Issues = "https://github.com/tardis-sn/tardis/issues/"
+Changelog = "https://tardis-sn.github.io/tardis/contributing/CHANGELOG.html"
+
 [tool.setuptools.package-data]
 tardis = ["data/*"]
 tardis.grid = ["tests/data/*", "./"]
@@ -167,9 +178,8 @@ tardis.scripts = ["debug/*"]
 tardis.tests.integration_tests = ["**/*"]
 tardis.visualization = ["tools/tests/data/*"]
 
-[project.urls]
-Homepage = "https://tardis-sn.github.io/"
-Documentation = "https://tardis-sn.github.io/tardis/"
-Repository = "https://github.com/tardis-sn/tardis"
-Issues = "https://github.com/tardis-sn/tardis/issues/"
-Changelog = "https://tardis-sn.github.io/tardis/contributing/CHANGELOG.html"
+[tool.pytest.ini_options]
+testpaths = ["tardis"]
+addopts = "--astropy-header"
+# doctest_plus = "disabled"
+text_file_format = "rst"
