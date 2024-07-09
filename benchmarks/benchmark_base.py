@@ -24,6 +24,7 @@ from tardis.transport.montecarlo.numba_interface import opacity_state_initialize
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
 )
+from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 
 
 class BenchmarkBase:
@@ -361,8 +362,8 @@ class BenchmarkBase:
         return montecarlo_configuration.MonteCarloConfiguration()
 
     @property
-    def rpacket_tracker(self):
-        return self.simulation_rpacket_tracking_enabled.transport.transport_state.rpacket_tracker
+    def rpacket_tracker(self): 
+        return RPacketTracker(0)
 
     @property
     def transport_state(self):
