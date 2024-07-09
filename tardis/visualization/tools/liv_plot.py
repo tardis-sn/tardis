@@ -271,7 +271,9 @@ class LIVPlotter:
         plot_data, plot_colors = self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to("km/s")
 
-        if num_bins and len(bin_edges) > num_bins:
+        if num_bins:
+            if num_bins < 1:
+                raise ValueError("Number of bins must be positive")
             new_bin_edges = np.linspace(
                 bin_edges[0], bin_edges[-1], num_bins + 1
             )
@@ -279,6 +281,29 @@ class LIVPlotter:
             new_bin_edges = bin_edges
 
         return plot_data, plot_colors, new_bin_edges
+
+    def _get_step_plot_data(self, data, bin_edges):
+        """
+        Generate step plot data from histogram data.
+
+        Parameters
+        ----------
+        data : array-like
+            Data to be binned into a histogram.
+        bin_edges : array-like
+            Edges of the bins for the histogram.
+
+        Returns
+        -------
+        step_x : np.ndarray
+            x-coordinates for the step plot.
+        step_y : np.ndarray
+            y-coordinates for the step plot.
+        """
+        hist, _ = np.histogram(data, bins=bin_edges)
+        step_x = np.repeat(bin_edges, 2)[1:-1]
+        step_y = np.repeat(hist, 2)
+        return step_x, step_y
 
     def generate_plot_mpl(
         self,
@@ -318,7 +343,7 @@ class LIVPlotter:
         matplotlib.axes.Axes
             Axes object with the plot.
         """
-        plot_data, plot_colors, new_bin_edges = self._prepare_plot_data(
+        plot_data, plot_colors, bin_edges = self._prepare_plot_data(
             packets_mode, species_list, cmapname, num_bins
         )
 
@@ -330,9 +355,7 @@ class LIVPlotter:
         for data, color, name in zip(
             plot_data, plot_colors, self._species_name
         ):
-            hist, _ = np.histogram(data, bins=new_bin_edges)
-            step_x = np.repeat(new_bin_edges, 2)[1:-1]
-            step_y = np.repeat(hist, 2)
+            step_x, step_y = self._get_step_plot_data(data, bin_edges)
             self.ax.plot(
                 step_x,
                 step_y,
@@ -396,7 +419,7 @@ class LIVPlotter:
         plotly.graph_objects.Figure
             Plotly figure object with the plot.
         """
-        plot_data, plot_colors, new_bin_edges = self._prepare_plot_data(
+        plot_data, plot_colors, bin_edges = self._prepare_plot_data(
             packets_mode, species_list, cmapname, num_bins
         )
 
@@ -408,9 +431,7 @@ class LIVPlotter:
         for data, color, name in zip(
             plot_data, plot_colors, self._species_name
         ):
-            hist, _ = np.histogram(data, bins=new_bin_edges)
-            step_x = np.repeat(new_bin_edges, 2)[1:-1]
-            step_y = np.repeat(hist, 2)
+            step_x, step_y = self._get_step_plot_data(data, bin_edges)
             self.fig.add_trace(
                 go.Scatter(
                     x=step_x,
