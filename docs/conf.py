@@ -30,6 +30,8 @@ import sys
 import datetime
 import tardis  # FIXME: this import is required by astropy.constants
 from importlib import import_module
+import toml
+from pathlib import Path
 
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
@@ -45,7 +47,16 @@ from configparser import ConfigParser
 conf = ConfigParser()
 
 conf.read([os.path.join(os.path.dirname(__file__), "..", "setup.cfg")])
-setup_cfg = dict(conf.items("metadata"))
+# setup_cfg = dict(conf.items("metadata"))
+
+#Get configuration from pyproject.toml
+toml_conf_path = Path(__file__).parent.parent / "pyproject.toml"
+
+with open(toml_conf_path, 'r') as f_toml:
+    toml_config = toml.load(f_toml)
+toml_config_dict = toml_config["metadata"]
+for k,v in toml_config_dict.items():
+    print(k,v)
 
 # -- General configuration ----------------------------------------------------
 
@@ -182,16 +193,16 @@ else:
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
-project = setup_cfg["name"]
-author = setup_cfg["author"]
+project = toml_config_dict["name"]
+author = toml_config_dict["author"]
 copyright = "2013-{0}, {1}".format(datetime.datetime.now().year, author)
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-import_module(setup_cfg["name"])
-package = sys.modules[setup_cfg["name"]]
+import_module(toml_config_dict["name"])
+package = sys.modules[toml_config_dict["name"]]
 
 # The short X.Y version.
 version = "latest"  # package.__version__.split("-", 1)[0]
@@ -277,11 +288,11 @@ man_pages = [
 
 # -- Options for the edit_on_github extension ---------------------------------
 
-if setup_cfg.get("edit_on_github").lower() == "true":
+if toml_config_dict.get("edit_on_github") == "true":
 
     extensions += ["sphinx_astropy.ext.edit_on_github"]
 
-    edit_on_github_project = setup_cfg["github_project"]
+    edit_on_github_project = toml_config_dict["github_project"]
     edit_on_github_branch = "main"
 
     edit_on_github_source_root = ""
@@ -289,7 +300,7 @@ if setup_cfg.get("edit_on_github").lower() == "true":
 
 # -- Resolving issue number to links in changelog -----------------------------
 github_issues_url = "https://github.com/{0}/issues/".format(
-    setup_cfg["github_project"]
+    toml_config_dict["github_project"]
 )
 
 
