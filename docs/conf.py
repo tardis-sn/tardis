@@ -54,7 +54,7 @@ toml_conf_path = Path(__file__).parent.parent / "pyproject.toml"
 
 with open(toml_conf_path, 'r') as f_toml:
     toml_config = toml.load(f_toml)
-toml_config_dict = toml_config["metadata"]
+toml_config_dict = toml_config["project"]
 for k,v in toml_config_dict.items():
     print(k,v)
 
@@ -194,7 +194,7 @@ else:
 
 # This does not *have* to match the package name, but typically does
 project = toml_config_dict["name"]
-author = toml_config_dict["author"]
+author = toml_config_dict["authors"][0]["name"]
 copyright = "2013-{0}, {1}".format(datetime.datetime.now().year, author)
 
 # The version info for the project you"re documenting, acts as replacement for
@@ -299,9 +299,8 @@ if toml_config_dict.get("edit_on_github") == "true":
     edit_on_github_doc_root = "docs"
 
 # -- Resolving issue number to links in changelog -----------------------------
-github_issues_url = "https://github.com/{0}/issues/".format(
-    toml_config_dict["github_project"]
-)
+github_issues_url = toml_config_dict['urls']['Issues']
+print("HERE:", github_issues_url)
 
 
 # -- Options for linkcheck output -------------------------------------------
