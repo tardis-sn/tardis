@@ -165,18 +165,18 @@ Changelog = "https://tardis-sn.github.io/tardis/contributing/CHANGELOG.html"
 
 [tool.setuptools.package-data]
 tardis = ["data/*"]
-tardis.grid = ["tests/data/*", "./"]
-tardis.io = [
+tardis_grid = ["tests/data/*", "./"]
+tardis_io = [
     "configuration/schemas/*",
     "configuration/tests/data/*", 
     "model/readers/tests/data/*"
 ]
-tardis.model.tests = ["data/*"]
-tardis.montecarlo.tests = ["data/*"]
-tardis.plasma.tests = ["data/*"]
-tardis.scripts = ["debug/*"]
-tardis.tests.integration_tests = ["**/*"]
-tardis.visualization = ["tools/tests/data/*"]
+tardis_model_tests = ["data/*"]
+tardis_montecarlo_tests = ["data/*"]
+tardis_plasma_tests = ["data/*"]
+tardis_scripts = ["debug/*"]
+tardis_tests_integration_tests = ["**/*"]
+tardis_visualization = ["tools/tests/data/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tardis"]
