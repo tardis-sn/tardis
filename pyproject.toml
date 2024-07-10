@@ -10,7 +10,7 @@ dependencies = ["astropy"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-test = ['pytest-astropy']
+test = ["pytest-astropy"]
 docs = ["sphinx-astropy"]
 
 [project.scripts]
@@ -27,11 +27,11 @@ Changelog = "https://tardis-sn.github.io/tardis/contributing/CHANGELOG.html"
 requires = ["setuptools",
             "setuptools_scm",
             "wheel"]
-build-backend = 'setuptools.build_meta'
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 80
-target-version = ['py36']
+target-version = ["py36"]
 exclude = '''
 (
   /(
@@ -184,8 +184,7 @@ tardis_visualization = ["tools/tests/data/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tardis"]
-# astropy_header = true
-# doctest_plus = "disabled"
+astropy_header = true
 text_file_format = "rst"
 
 [tool.tardis]
