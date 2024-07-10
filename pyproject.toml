@@ -186,3 +186,6 @@ text_file_format = "rst"
 
 [tool.tardis]
 edit_on_github = false
+
+[tool.setuptools]
+packages = ["tardis"]
