@@ -151,9 +151,9 @@ dynamic = ["version"]
 test = ['pytest-astropy']
 docs = ["sphinx-astropy"]
 
-[project.scripts]
-cmfgen2tardis = "tardis.scripts.cmfgen2tardis:main"
-tardis_test_runner = "tardis.tests.integration_tests.runner:run_tests"
+# [project.scripts]
+# cmfgen2tardis = "tardis.scripts.cmfgen2tardis:main"
+# tardis_test_runner = "tardis.tests.integration_tests.runner:run_tests"
 
 [project.urls]
 Homepage = "https://tardis-sn.github.io/"
