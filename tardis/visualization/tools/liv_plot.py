@@ -251,6 +251,17 @@ class LIVPlotter:
         new_bin_edges : np.ndarray
             Array of bin edges for the velocity data.
         """
+        if species_list is None:
+            # Extract all unique elements from the packets data
+            species_in_model = np.unique(
+                self.data[packets_mode]
+                .packets_df_line_interaction["last_line_interaction_species"]
+                .values
+            )
+            species_list = [
+                f"{atomic_number2element_symbol(specie // 100)}"
+                for specie in species_in_model
+            ]
         self._parse_species_list(species_list)
         species_in_model = np.unique(
             self.data[packets_mode]
@@ -307,12 +318,13 @@ class LIVPlotter:
 
     def generate_plot_mpl(
         self,
-        species_list,
+        species_list=None,
         packets_mode="virtual",
         ax=None,
         figsize=(11, 5),
         cmapname="jet",
-        log_scale=False,
+        xlog_scale=False,
+        ylog_scale=False,
         num_bins=None,
         velocity_range=None,
     ):
@@ -321,8 +333,8 @@ class LIVPlotter:
 
         Parameters
         ----------
-        species_list : list of str
-            List of species to plot.
+        species_list : list of str, optional
+            List of species to plot. Default is None which plots all species in the model.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         ax : matplotlib.axes.Axes, optional
@@ -331,10 +343,12 @@ class LIVPlotter:
             Size of the figure. Default is (11, 5).
         cmapname : str, optional
             Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
-        log_scale : bool, optional
-            If True, both axes are scaled logarithmically. Default is False.
+        xlog_scale : bool, optional
+            If True, x-axis is scaled logarithmically. Default is False.
+        ylog_scale : bool, optional
+            If True, y-axis is scaled logarithmically. Default is False.
         num_bins : int, optional
-            Number of bins for regrouping within the same range. Default is None
+            Number of bins for regrouping within the same range. Default is None.
         velocity_range : tuple, optional
             Limits for the x-axis. If specified, overrides any automatically determined limits.
 
@@ -367,14 +381,14 @@ class LIVPlotter:
             )
 
         self.ax.ticklabel_format(axis="y", scilimits=(0, 0))
-        self.ax.tick_params("both", labelsize=14)
+        self.ax.tick_params("both", labelsize=15)
         self.ax.set_xlabel("Last Interaction Velocity (km/s)", fontsize=14)
-        self.ax.set_ylabel("Packet Count", fontsize=14)
-        self.ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+        self.ax.set_ylabel("Packet Count", fontsize=15)
         self.ax.legend(fontsize=15, bbox_to_anchor=(1.0, 1.0), loc="upper left")
         self.ax.figure.tight_layout()
-        if log_scale:
+        if xlog_scale:
             self.ax.set_xscale("log")
+        if ylog_scale:
             self.ax.set_yscale("log")
         if velocity_range:
             self.ax.set_xlim(velocity_range[0], velocity_range[1])
@@ -383,12 +397,13 @@ class LIVPlotter:
 
     def generate_plot_ply(
         self,
-        species_list,
+        species_list=None,
         packets_mode="virtual",
         fig=None,
         figsize=(1000, 500),
         cmapname="jet",
-        log_scale=False,
+        xlog_scale=False,
+        ylog_scale=False,
         num_bins=None,
         velocity_range=None,
     ):
@@ -397,8 +412,8 @@ class LIVPlotter:
 
         Parameters
         ----------
-        species_list : list of str
-            List of species to plot.
+        species_list : list of str, optional
+            List of species to plot. Default is None which plots all species in the model.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         fig : plotly.graph_objects.Figure, optional
@@ -407,10 +422,12 @@ class LIVPlotter:
             Size of the figure. Default is (1000, 500).
         cmapname : str, optional
             Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
-        log_scale : bool, optional
-            If True, both axes are scaled logarithmically. Default is False.
+        xlog_scale : bool, optional
+            If True, x-axis is scaled logarithmically. Default is False.
+        ylog_scale : bool, optional
+            If True, y-axis is scaled logarithmically. Default is False.
         num_bins : int, optional
-            Number of bins for regrouping within the same range. Default is None
+            Number of bins for regrouping within the same range. Default is None.
         velocity_range : tuple, optional
             Limits for the x-axis. If specified, overrides any automatically determined limits.
 
@@ -451,12 +468,13 @@ class LIVPlotter:
             height=figsize[1],
             xaxis_title="Last Interaction Velocity (km/s)",
             yaxis_title="Packet Count",
-            font=dict(size=14),
-            yaxis=dict(exponentformat="power" if log_scale else "e"),
-            xaxis=dict(exponentformat="power" if log_scale else "none"),
+            font=dict(size=15),
+            yaxis=dict(exponentformat="power" if ylog_scale else "e"),
+            xaxis=dict(exponentformat="power" if xlog_scale else "none"),
         )
-        if log_scale:
+        if xlog_scale:
             self.fig.update_xaxes(type="log")
+        if ylog_scale:
             self.fig.update_yaxes(type="log", dtick=1)
 
         if velocity_range:
