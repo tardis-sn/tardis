@@ -186,6 +186,10 @@ tardis_visualization = ["tools/tests/data/*"]
 testpaths = ["tardis"]
 astropy_header = true
 text_file_format = "rst"
+markers = [
+    # continuum tests
+    "continuum",
+]
 
 [tool.tardis]
 edit_on_github = false
