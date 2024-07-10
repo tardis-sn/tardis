@@ -41,15 +41,7 @@ except ImportError:
     )
     sys.exit(1)
 
-# Get configuration information from setup.cfg
-from configparser import ConfigParser
-
-conf = ConfigParser()
-
-conf.read([os.path.join(os.path.dirname(__file__), "..", "setup.cfg")])
-# setup_cfg = dict(conf.items("metadata"))
-
-#Get configuration from pyproject.toml
+#Get configuration information from pyproject.toml
 toml_conf_path = Path(__file__).parent.parent / "pyproject.toml"
 
 with open(toml_conf_path, 'r') as f_toml:
