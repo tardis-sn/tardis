@@ -1,3 +1,4 @@
+import logging
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import plotly.graph_objects as go
@@ -11,6 +12,8 @@ from tardis.util.base import (
 )
 import tardis.visualization.tools.sdec_plot as sdec
 from tardis.visualization import plot_util as pu
+
+logger = logging.getLogger(__name__)
 
 
 class LIVPlotter:
@@ -285,9 +288,15 @@ class LIVPlotter:
         if num_bins:
             if num_bins < 1:
                 raise ValueError("Number of bins must be positive")
-            new_bin_edges = np.linspace(
-                bin_edges[0], bin_edges[-1], num_bins + 1
-            )
+            elif len(bin_edges) - 1 < num_bins:
+                logger.info(
+                    "Number of bins must be less than or equal to number of shells"
+                )
+                new_bin_edges = bin_edges
+            else:
+                new_bin_edges = np.linspace(
+                    bin_edges[0], bin_edges[-1], num_bins + 1
+                )
         else:
             new_bin_edges = bin_edges
 
