@@ -11,6 +11,7 @@ from tardis.transport.montecarlo.estimators.continuum_radfield_properties import
 from tardis.simulation import Simulation
 
 
+@pytest.mark.continuum
 def test_continuum_estimators(
     continuum_config,
     nlte_atomic_dataset,
