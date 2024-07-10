@@ -184,7 +184,7 @@ tardis_visualization = ["tools/tests/data/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tardis"]
-astropy_header = true
+# astropy_header = true
 doctest_plus = "disabled"
 text_file_format = "rst"
 
