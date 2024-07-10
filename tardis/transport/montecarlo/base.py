@@ -32,7 +32,7 @@ from tardis.util.base import (
     update_iterations_pbar,
 )
 
-from tardis.transport.montecarlo import montecarlo_configuration
+from tardis.transport.montecarlo import montecarlo_globals
 
 logger = logging.getLogger(__name__)
 
@@ -113,8 +113,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         opacity_state = opacity_state_initialize(
             plasma,
             self.line_interaction_type,
-            montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+            montecarlo_globals.DISABLE_LINE_SCATTERING,
+            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED,
         )
         transport_state = MonteCarloTransportState(
             packet_collection,
@@ -125,10 +125,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
 
         transport_state.enable_full_relativity = (
-            montecarlo_configuration.ENABLE_FULL_RELATIVITY
+            montecarlo_globals.ENABLE_FULL_RELATIVITY
         )
         transport_state.integrator_settings = self.integrator_settings
-        transport_state._integrator = FormalIntegrator(
+        transport_state.integrator = FormalIntegrator(
             simulation_state, plasma, self
         )
         configuration_initialize(
