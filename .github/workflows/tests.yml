@@ -100,7 +100,7 @@ jobs:
           echo "TARDIS_PIP_PATH=$directory_path" >> $GITHUB_ENV
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m not continuum
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "not continuum"
         working-directory: ${{ env.TARDIS_PIP_PATH }}
         if: always()
 
