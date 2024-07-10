@@ -15,7 +15,6 @@ from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
 )
 from tardis.transport.montecarlo.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.montecarlo_configuration import (
-    MonteCarloConfiguration,
     configuration_initialize,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
@@ -32,6 +31,8 @@ from tardis.util.base import (
     refresh_packet_pbar,
     update_iterations_pbar,
 )
+
+from tardis.transport.montecarlo import montecarlo_configuration
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +63,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         debug_packets=False,
         logger_buffer=1,
         use_gpu=False,
-        montecarlo_configuration=None,
     ):
         # inject different packets
         self.spectrum_frequency = spectrum_frequency
@@ -77,8 +77,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         self.enable_vpacket_tracking = enable_virtual_packet_logging
         self.enable_rpacket_tracking = enable_rpacket_tracking
-        self.montecarlo_configuration = montecarlo_configuration
-
         self.packet_source = packet_source
 
         # Setting up the Tracking array for storing all the RPacketTracker instances
@@ -115,8 +113,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         opacity_state = opacity_state_initialize(
             plasma,
             self.line_interaction_type,
-            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+            montecarlo_configuration.DISABLE_LINE_SCATTERING,
+            montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
         )
         transport_state = MonteCarloTransportState(
             packet_collection,
@@ -127,14 +125,14 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
 
         transport_state.enable_full_relativity = (
-            self.montecarlo_configuration.ENABLE_FULL_RELATIVITY
+            montecarlo_configuration.ENABLE_FULL_RELATIVITY
         )
         transport_state.integrator_settings = self.integrator_settings
         transport_state._integrator = FormalIntegrator(
             simulation_state, plasma, self
         )
         configuration_initialize(
-            self.montecarlo_configuration, self, no_of_virtual_packets
+            montecarlo_configuration, self, no_of_virtual_packets
         )
 
         return transport_state
@@ -166,7 +164,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
 
-        number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
+        number_of_vpackets = montecarlo_configuration.NUMBER_OF_VPACKETS
 
         (
             v_packets_energy_hist,
@@ -178,7 +176,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             transport_state.geometry_state,
             time_explosion.cgs.value,
             transport_state.opacity_state,
-            self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
             transport_state.spectrum_frequency.value,
             number_of_vpackets,
@@ -202,7 +199,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             last_interaction_tracker.shell_ids
         )
 
-        if self.montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
+        if montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
             number_of_vpackets > 0
         ):
             transport_state.vpacket_tracker = vpacket_tracker
@@ -210,7 +207,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
         # Condition for Checking if RPacket Tracking is enabled
-        if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+        if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
             transport_state.rpacket_tracker = rpacket_trackers
 
         if self.transport_state.rpacket_tracker is not None:
@@ -220,7 +217,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 )
             )
         transport_state.virt_logging = (
-            self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
+            montecarlo_configuration.ENABLE_VPACKET_TRACKING
         )
 
     @classmethod
@@ -275,8 +272,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 valid values are 'GPU', 'CPU', and 'Automatic'."""
             )
 
-        montecarlo_configuration = MonteCarloConfiguration()
-
         montecarlo_configuration.DISABLE_LINE_SCATTERING = (
             config.plasma.disable_line_scattering
         )
@@ -306,5 +301,4 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
             nthreads=config.montecarlo.nthreads,
             use_gpu=use_gpu,
-            montecarlo_configuration=montecarlo_configuration,
         )

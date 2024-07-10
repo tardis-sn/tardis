@@ -19,6 +19,7 @@ from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
+from tardis.transport.montecarlo import montecarlo_configuration
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
@@ -199,7 +200,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
-        self.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED = (
+        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED = (
             not self.plasma.continuum_interaction_species.empty
         )
 

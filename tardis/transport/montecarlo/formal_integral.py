@@ -1,30 +1,30 @@
 import warnings
+
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
-from scipy.interpolate import interp1d
 from astropy import units as u
+from numba import njit, prange
+from scipy.interpolate import interp1d
+
 from tardis import constants as const
-from numba import njit, char, float64, int64, typeof, byte, prange
-from numba.experimental import jitclass
-
-
 from tardis.opacities.opacity_state import (
-    OpacityState,
     opacity_state_initialize,
 )
-from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
-from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
-from tardis.transport.montecarlo.numba_interface import (
-    opacity_state_initialize,
-    OpacityState,
+from tardis.spectrum import TARDISSpectrum
+from tardis.transport.montecarlo import (
+    montecarlo_configuration,
+    njit_dict,
+    njit_dict_no_parallel,
 )
 from tardis.transport.montecarlo.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
-
-from tardis.spectrum import TARDISSpectrum
+from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
+from tardis.transport.montecarlo.numba_interface import (
+    opacity_state_initialize,
+)
 
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
@@ -60,8 +60,7 @@ def numba_formal_integral(
         intensities at each p-ray multiplied by p
         frequency x p-ray grid
     """
-
-    # todo: add all the original todos
+    # TODO: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
     # global read-only values
@@ -214,7 +213,7 @@ def numba_formal_integral(
 
 
 # @jitclass(integrator_spec)
-class NumbaFormalIntegrator(object):
+class NumbaFormalIntegrator:
     """
     Helper class for performing the formal integral
     with numba.
@@ -257,7 +256,7 @@ class NumbaFormalIntegrator(object):
         )
 
 
-class FormalIntegrator(object):
+class FormalIntegrator:
     """
     Class containing the formal integrator.
 
@@ -280,16 +279,12 @@ class FormalIntegrator(object):
         self.simulation_state = simulation_state
         self.transport = transport
         self.points = points
-        if transport:
-            self.montecarlo_configuration = (
-                self.transport.montecarlo_configuration
-            )
         if plasma:
             self.plasma = opacity_state_initialize(
                 plasma,
                 transport.line_interaction_type,
-                self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-                self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+                montecarlo_configuration.DISABLE_LINE_SCATTERING,
+                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
@@ -297,7 +292,8 @@ class FormalIntegrator(object):
 
     def generate_numba_objects(self):
         """instantiate the numba interface objects
-        needed for computing the formal integral"""
+        needed for computing the formal integral
+        """
         from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
         self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
@@ -311,8 +307,8 @@ class FormalIntegrator(object):
         self.opacity_state = opacity_state_initialize(
             self.original_plasma,
             self.transport.line_interaction_type,
-            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+            montecarlo_configuration.DISABLE_LINE_SCATTERING,
+            montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
         )
         if self.transport.use_gpu:
             self.integrator = CudaFormalIntegrator(
@@ -354,7 +350,7 @@ class FormalIntegrator(object):
                     "FormalIntegrator."
                 )
 
-        if not self.transport.line_interaction_type in [
+        if self.transport.line_interaction_type not in [
             "downbranch",
             "macroatom",
         ]:
@@ -364,7 +360,7 @@ class FormalIntegrator(object):
                 'and line_interaction_type == "macroatom"'
             )
 
-        if self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
             return raise_or_return(
                 "The FormalIntegrator currently does not work for "
                 "continuum interactions."
@@ -614,7 +610,8 @@ class FormalIntegrator(object):
 
     def formal_integral(self, nu, N):
         """Do the formal integral with the numba
-        routines"""
+        routines
+        """
         # TODO: get rid of storage later on
 
         res = self.make_source_function()
