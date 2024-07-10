@@ -42,7 +42,7 @@ After running the simulation, the following information can be retrieved:
     * - ``transport.virt_packet_last_interaction_in_nu``
       - Numpy array
       - Frequencies of the r-packets which spawned the virtual packet
-      * - ``transport.virt_packet_last_interaction_in_r``
+    * - ``transport.virt_packet_last_interaction_in_r``
       - Numpy array
       - Radii of the r-packets which spawned the virtual packet
     * - ``transport.virt_packet_last_line_interaction_in_id``
