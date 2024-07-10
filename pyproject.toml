@@ -146,7 +146,6 @@ readme = { file = "README.rst", content-type = "text/x-rst" }
 requires-python = ">=3.7"
 dependencies = ["astropy"]
 dynamic = ["version"]
-edit_on_github = false
 
 [project.optional-dependencies]
 test = ['pytest-astropy']
@@ -183,3 +182,6 @@ testpaths = ["tardis"]
 addopts = "--astropy-header"
 # doctest_plus = "disabled"
 text_file_format = "rst"
+
+[tool.tardis]
+edit_on_github = false

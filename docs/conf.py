@@ -54,8 +54,9 @@ toml_conf_path = Path(__file__).parent.parent / "pyproject.toml"
 
 with open(toml_conf_path, 'r') as f_toml:
     toml_config = toml.load(f_toml)
-toml_config_dict = toml_config["project"]
-for k,v in toml_config_dict.items():
+toml_config_project_dict = toml_config["project"]
+toml_config_tool_dict = toml_config['tool']
+for k,v in toml_config_project_dict.items():
     print(k,v)
 
 # -- General configuration ----------------------------------------------------
@@ -193,16 +194,16 @@ else:
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
-project = toml_config_dict["name"]
-author = toml_config_dict["authors"][0]["name"]
+project = toml_config_project_dict["name"]
+author = toml_config_project_dict["authors"][0]["name"]
 copyright = "2013-{0}, {1}".format(datetime.datetime.now().year, author)
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-import_module(toml_config_dict["name"])
-package = sys.modules[toml_config_dict["name"]]
+import_module(toml_config_project_dict["name"])
+package = sys.modules[toml_config_project_dict["name"]]
 
 # The short X.Y version.
 version = "latest"  # package.__version__.split("-", 1)[0]
@@ -288,20 +289,18 @@ man_pages = [
 
 # -- Options for the edit_on_github extension ---------------------------------
 
-if toml_config_dict.get("edit_on_github") == "true":
+if toml_config_tool_dict["tardis"]['edit_on_github'] == True:
 
     extensions += ["sphinx_astropy.ext.edit_on_github"]
 
-    edit_on_github_project = toml_config_dict["github_project"]
+    edit_on_github_project = toml_config_project_dict["github_project"]
     edit_on_github_branch = "main"
 
     edit_on_github_source_root = ""
     edit_on_github_doc_root = "docs"
 
 # -- Resolving issue number to links in changelog -----------------------------
-github_issues_url = toml_config_dict['urls']['Issues']
-print("HERE:", github_issues_url)
-
+github_issues_url = toml_config_project_dict['urls']['Issues']
 
 # -- Options for linkcheck output -------------------------------------------
 linkcheck_retry = 5
