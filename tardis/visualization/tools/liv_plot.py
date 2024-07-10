@@ -409,7 +409,7 @@ class LIVPlotter:
         species_list=None,
         packets_mode="virtual",
         fig=None,
-        figsize=(1000, 500),
+        graph_height=600,
         cmapname="jet",
         xlog_scale=False,
         ylog_scale=False,
@@ -427,8 +427,8 @@ class LIVPlotter:
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         fig : plotly.graph_objects.Figure, optional
             Plotly figure object to add the plot to. If None, creates a new figure.
-        figsize : tuple, optional
-            Size of the figure. Default is (1000, 500).
+        graph_height : int, optional
+            Height (in px) of the plotly graph to display. Default value is 600.
         cmapname : str, optional
             Colormap name. Default is 'jet'. A specific colormap can be chosen, such as "jet", "viridis", "plasma", etc.
         xlog_scale : bool, optional
@@ -473,8 +473,7 @@ class LIVPlotter:
                 )
             )
         self.fig.update_layout(
-            width=figsize[0],
-            height=figsize[1],
+            height=graph_height,
             xaxis_title="Last Interaction Velocity (km/s)",
             yaxis_title="Packet Count",
             font=dict(size=15),
