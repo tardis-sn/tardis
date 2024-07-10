@@ -96,9 +96,9 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         )
 
         # the following line probably can be removed as well
-        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = (
-            0.0
-        )
+        stimulated_emission_factor[
+            np.isneginf(stimulated_emission_factor)
+        ] = 0.0
         stimulated_emission_factor[
             meta_stable_upper & (stimulated_emission_factor < 0)
         ] = 0.0
