@@ -86,13 +86,19 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             metastability, lines_upper_level_index
         )
 
-        stimulated_emission_factor = 1 - (
-            (g_lower * n_upper) / (g_upper * n_lower)
+        # In theory the factor should be 1 for n_lower = 0, but in practice the opacity is reduced to 0 anyway
+        stimulated_emission_factor = np.zeros(n_lower.shape, dtype=np.float64)
+
+        n_lower_zero_mask = n_lower == 0.0
+        stimulated_emission_factor[~n_lower_zero_mask] = 1 - (
+            (g_lower * n_upper)[~n_lower_zero_mask]
+            / (g_upper * n_lower)[~n_lower_zero_mask]
         )
-        stimulated_emission_factor[n_lower == 0.0] = 0.0
-        stimulated_emission_factor[
-            np.isneginf(stimulated_emission_factor)
-        ] = 0.0
+
+        # the following line probably can be removed as well
+        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = (
+            0.0
+        )
         stimulated_emission_factor[
             meta_stable_upper & (stimulated_emission_factor < 0)
         ] = 0.0
