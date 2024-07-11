@@ -7,6 +7,7 @@ from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,
 )
+from asv_runner.benchmarks.mark import parameterize
 
 
 

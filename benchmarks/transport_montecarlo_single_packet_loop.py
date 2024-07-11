@@ -4,6 +4,7 @@ Basic TARDIS Benchmark.
 
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo import single_packet_loop
+from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
 
 class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
@@ -11,6 +12,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
     Class to benchmark the single packet loop function.
     """
 
+    @skip_benchmark
     def time_single_packet_loop(self):
         single_packet_loop.single_packet_loop(
             self.packet,

@@ -3,9 +3,10 @@ Basic TARDIS Benchmark.
 """
 
 import numpy as np
-from asv_runner.benchmarks.mark import parameterize, skip_benchmark
+from asv_runner.benchmarks.mark import parameterize
 
 import tardis.transport.montecarlo.vpacket as vpacket
+from tardis.transport.montecarlo.r_packet import RPacket
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
@@ -26,6 +27,17 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             energy=0.9,
             current_shell_id=0,
             next_line_id=0,
+            index=0,
+        )
+    
+    @property
+    def r_packet(self):
+        return RPacket(
+            r=7.5e14,
+            nu=4e18,
+            mu=self.verysimple_packet_collection.initial_mus[0],
+            energy=self.verysimple_packet_collection.initial_energies[0],
+            seed=1963,
             index=0,
         )
 
@@ -144,7 +156,6 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             continuum_processes_enabled,
         )
 
-    @skip_benchmark
     @parameterize(
         {
             "Paramters": [
@@ -161,7 +172,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
     )
     def time_trace_vpacket_volley(self, parameters):
         vpacket.trace_vpacket_volley(
-            self.packet,
+            self.r_packet,
             self.verysimple_3vpacket_collection,
             self.verysimple_numba_radial_1d_geometry,
             self.verysimple_time_explosion,
@@ -171,3 +182,4 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             parameters["survival_possibility"],
             False
         )
+

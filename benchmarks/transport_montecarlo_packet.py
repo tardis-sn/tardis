@@ -10,6 +10,7 @@ from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_line_estimators,
 )
+from asv_runner.benchmarks.mark import parameterize
 
 
 class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
