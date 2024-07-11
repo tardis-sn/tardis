@@ -1,17 +1,46 @@
 import logging
 import sys
+from ipywidgets import Output, Tab, Layout
+from IPython.display import display
 
 from tardis.io.logger.colored_logger import ColoredFormatter, formatter_message
 
 logging.captureWarnings(True)
 logger = logging.getLogger("tardis")
 
-console_handler = logging.StreamHandler(sys.stdout)
-console_formatter = ColoredFormatter()
-console_handler.setFormatter(console_formatter)
+# Create Output widgets for each log level
+log_outputs = {
+    "DEBUG": Output(layout=Layout(height='300px', overflow_y='auto')),
+    "INFO": Output(layout=Layout(height='300px', overflow_y='auto')),
+    "WARNING": Output(layout=Layout(height='300px', overflow_y='auto')),
+    "ERROR": Output(layout=Layout(height='300px', overflow_y='auto')),
+    "CRITICAL": Output(layout=Layout(height='300px', overflow_y='auto'))
+}
 
-logger.addHandler(console_handler)
-logging.getLogger("py.warnings").addHandler(console_handler)
+# Create a Tab widget to hold the Output widgets
+tab = Tab(children=[log_outputs[level] for level in log_outputs.keys()])
+for i, level in enumerate(log_outputs.keys()):
+    tab.set_title(i, level)
+
+display(tab)
+
+class WidgetHandler(logging.Handler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        level_name = record.levelname
+        if level_name in log_outputs:
+            with log_outputs[level_name]:
+                print(log_entry)
+
+# Setup widget handler
+widget_handler = WidgetHandler()
+widget_handler.setFormatter(ColoredFormatter())
+
+logger.addHandler(widget_handler)
+logging.getLogger("py.warnings").addHandler(widget_handler)
 
 LOGGING_LEVELS = {
     "NOTSET": logging.NOTSET,
@@ -49,7 +78,7 @@ class FilterLog(object):
         Parameters
         ----------
         log_record : logging.record
-            which the paricular record upon which the
+            which the particular record upon which the
             filter will be applied
 
         Returns
