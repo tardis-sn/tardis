@@ -99,7 +99,7 @@ class LIVPlotter:
                 velocity,
             )
 
-    def _parse_species_list(self, species_list):
+    def _parse_species_list(self, species_list, packets_mode, nelements=None):
         """
         Parse user requested species list and create list of species ids to be used.
 
@@ -109,6 +109,10 @@ class LIVPlotter:
             List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
             Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
             (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
+        packets_mode : str, optional
+            Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
+        nelements : int, optional
+            Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
 
         Raises
         ------
@@ -120,6 +124,23 @@ class LIVPlotter:
         self._species_list = self.sdec_plotter._species_list
         self._species_mapped = self.sdec_plotter._species_mapped
         self._keep_colour = self.sdec_plotter._keep_colour
+
+        if nelements:
+            interaction_counts = (
+                self.data[packets_mode]
+                .packets_df_line_interaction["last_line_interaction_species"]
+                .value_counts()
+            )
+            interaction_counts.index = interaction_counts.index // 100
+            element_counts = interaction_counts.groupby(
+                interaction_counts.index
+            ).sum()
+            top_elements = element_counts.nlargest(nelements).index
+            top_species_list = [
+                atomic_number2element_symbol(element)
+                for element in top_elements
+            ]
+            self._parse_species_list(top_species_list, packets_mode)
 
     def _make_colorbar_labels(self):
         """
@@ -215,7 +236,7 @@ class LIVPlotter:
         return plot_data, plot_colors
 
     def _prepare_plot_data(
-        self, packets_mode, species_list, cmapname, num_bins
+        self, packets_mode, species_list, cmapname, num_bins, nelements
     ):
         """
         Prepare data and settings required for generating a plot.
@@ -265,7 +286,7 @@ class LIVPlotter:
                 f"{atomic_number2element_symbol(specie // 100)}"
                 for specie in species_in_model
             ]
-        self._parse_species_list(species_list)
+        self._parse_species_list(species_list, packets_mode, nelements)
         species_in_model = np.unique(
             self.data[packets_mode]
             .packets_df_line_interaction["last_line_interaction_species"]
@@ -328,6 +349,7 @@ class LIVPlotter:
     def generate_plot_mpl(
         self,
         species_list=None,
+        nelements=None,
         packets_mode="virtual",
         ax=None,
         figsize=(11, 5),
@@ -344,6 +366,8 @@ class LIVPlotter:
         ----------
         species_list : list of str, optional
             List of species to plot. Default is None which plots all species in the model.
+        nelements : int, optional
+            Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         ax : matplotlib.axes.Axes, optional
@@ -366,8 +390,15 @@ class LIVPlotter:
         matplotlib.axes.Axes
             Axes object with the plot.
         """
+        # If species_list and nelements requested, tell user that nelements is ignored
+        if species_list is not None and nelements is not None:
+            logger.info(
+                "Both nelements and species_list were requested. Species_list takes priority; nelements is ignored"
+            )
+            nelements = None
+
         plot_data, plot_colors, bin_edges = self._prepare_plot_data(
-            packets_mode, species_list, cmapname, num_bins
+            packets_mode, species_list, cmapname, num_bins, nelements
         )
 
         if ax is None:
@@ -407,6 +438,7 @@ class LIVPlotter:
     def generate_plot_ply(
         self,
         species_list=None,
+        nelements=None,
         packets_mode="virtual",
         fig=None,
         graph_height=600,
@@ -423,6 +455,8 @@ class LIVPlotter:
         ----------
         species_list : list of str, optional
             List of species to plot. Default is None which plots all species in the model.
+        nelements : int, optional
+            Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         fig : plotly.graph_objects.Figure, optional
@@ -445,8 +479,15 @@ class LIVPlotter:
         plotly.graph_objects.Figure
             Plotly figure object with the plot.
         """
+        # If species_list and nelements requested, tell user that nelements is ignored
+        if species_list is not None and nelements is not None:
+            logger.info(
+                "Both nelements and species_list were requested. Species_list takes priority; nelements is ignored"
+            )
+            nelements = None
+
         plot_data, plot_colors, bin_edges = self._prepare_plot_data(
-            packets_mode, species_list, cmapname, num_bins
+            packets_mode, species_list, cmapname, num_bins, nelements
         )
 
         if fig is None:
