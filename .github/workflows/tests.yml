@@ -39,9 +39,9 @@ jobs:
     strategy:
       matrix:
         pip: [true, false]
-        label: [osx-64, linux-64]
+        label: [osx-arm64, linux-64]
         include:
-          - label: osx-64
+          - label: osx-arm64
             os: macos-latest
             prefix: /Users/runner/miniconda3/envs/tardis
 
