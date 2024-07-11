@@ -21,7 +21,7 @@ from tardis.transport.montecarlo import (
 from tardis.transport.montecarlo.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
-from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )

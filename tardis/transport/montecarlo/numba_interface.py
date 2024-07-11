@@ -1,5 +1,3 @@
-from enum import IntEnum
-
 from numba import float64, int64
 from numba.experimental import jitclass
 import numpy as np
@@ -248,9 +246,3 @@ def opacity_state_initialize(
         photo_ion_activation_idx,
         k_packet_idx,
     )
-
-
-class LineInteractionType(IntEnum):
-    SCATTER = 0
-    DOWNBRANCH = 1
-    MACROATOM = 2

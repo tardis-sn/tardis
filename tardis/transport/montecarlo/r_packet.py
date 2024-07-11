@@ -11,7 +11,7 @@ from tardis.transport.montecarlo import (
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
-from tardis.transport.montecarlo import numba_config as nc
+from tardis.transport.montecarlo.configuration import constants as nc
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
 

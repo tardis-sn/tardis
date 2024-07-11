@@ -3,7 +3,8 @@ from numba import njit, objmode, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
 
-from tardis.transport.montecarlo import montecarlo_configuration, njit_dict
+from tardis.transport.montecarlo import njit_dict
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
     consolidate_vpacket_tracker,

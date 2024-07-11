@@ -8,15 +8,19 @@ from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
 from tardis.transport.montecarlo import (
     montecarlo_main_loop,
-    numba_config,
+)
+from tardis.transport.montecarlo.configuration import (
+    constants,
+    montecarlo_globals,
+)
+from tardis.transport.montecarlo.configuration.base import (
+    configuration_initialize,
+    MonteCarloConfiguration,
 )
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
 )
 from tardis.transport.montecarlo.formal_integral import FormalIntegrator
-from tardis.transport.montecarlo.montecarlo_configuration import (
-    configuration_initialize,
-)
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
@@ -31,8 +35,6 @@ from tardis.util.base import (
     refresh_packet_pbar,
     update_iterations_pbar,
 )
-
-from tardis.transport.montecarlo import montecarlo_globals
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +65,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         debug_packets=False,
         logger_buffer=1,
         use_gpu=False,
+        montecarlo_configuration=None,
     ):
         # inject different packets
         self.spectrum_frequency = spectrum_frequency
@@ -77,6 +80,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         self.enable_vpacket_tracking = enable_virtual_packet_logging
         self.enable_rpacket_tracking = enable_rpacket_tracking
+        self.montecarlo_configuration = montecarlo_configuration
+
         self.packet_source = packet_source
 
         # Setting up the Tracking array for storing all the RPacketTracker instances
@@ -128,11 +133,11 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             montecarlo_globals.ENABLE_FULL_RELATIVITY
         )
         transport_state.integrator_settings = self.integrator_settings
-        transport_state.integrator = FormalIntegrator(
+        transport_state._integrator = FormalIntegrator(
             simulation_state, plasma, self
         )
         configuration_initialize(
-            montecarlo_configuration, self, no_of_virtual_packets
+            self.montecarlo_configuration, self, no_of_virtual_packets
         )
 
         return transport_state
@@ -164,7 +169,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
 
-        number_of_vpackets = montecarlo_configuration.NUMBER_OF_VPACKETS
+        number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
 
         (
             v_packets_energy_hist,
@@ -199,7 +204,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             last_interaction_tracker.shell_ids
         )
 
-        if montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
+        if montecarlo_globals.ENABLE_VPACKET_TRACKING and (
             number_of_vpackets > 0
         ):
             transport_state.vpacket_tracker = vpacket_tracker
@@ -207,7 +212,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
         # Condition for Checking if RPacket Tracking is enabled
-        if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+        if montecarlo_globals.ENABLE_RPACKET_TRACKING:
             transport_state.rpacket_tracker = rpacket_trackers
 
         if self.transport_state.rpacket_tracker is not None:
@@ -217,7 +222,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 )
             )
         transport_state.virt_logging = (
-            montecarlo_configuration.ENABLE_VPACKET_TRACKING
+            montecarlo_globals.ENABLE_VPACKET_TRACKING
         )
 
     @classmethod
@@ -242,10 +247,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 "Likely bug in formal integral - "
                 "will not give same results."
             )
-            numba_config.SIGMA_THOMSON = 1e-200
+            constants.SIGMA_THOMSON = 1e-200
         else:
             logger.debug("Electron scattering switched on")
-            numba_config.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
+            constants.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
         spectrum_frequency = quantity_linspace(
             config.spectrum.stop.to("Hz", u.spectral()),
@@ -272,13 +277,15 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 valid values are 'GPU', 'CPU', and 'Automatic'."""
             )
 
-        montecarlo_configuration.DISABLE_LINE_SCATTERING = (
+        montecarlo_globals.DISABLE_LINE_SCATTERING = (
             config.plasma.disable_line_scattering
         )
 
-        montecarlo_configuration.DISABLE_ELECTRON_SCATTERING = (
+        montecarlo_globals.DISABLE_ELECTRON_SCATTERING = (
             config.plasma.disable_electron_scattering
         )
+
+        montecarlo_configuration = MonteCarloConfiguration()
 
         montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH = (
             config.montecarlo.tracking.initial_array_length
@@ -301,4 +308,5 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
             nthreads=config.montecarlo.nthreads,
             use_gpu=use_gpu,
+            montecarlo_configuration=montecarlo_configuration,
         )
