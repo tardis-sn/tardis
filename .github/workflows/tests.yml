@@ -22,7 +22,7 @@ on:
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
-                --cov=tardis --cov-report=xml --cov-report=html 
+                --cov=tardis --cov-report=xml --cov-report=html
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 concurrency:
@@ -39,9 +39,9 @@ jobs:
     strategy:
       matrix:
         pip: [true, false]
-        label: [osx-64, linux-64]
+        label: [osx-arm64, linux-64]
         include:
-          - label: osx-64
+          - label: osx-arm64
             os: macos-latest
             prefix: /Users/runner/miniconda3/envs/tardis
 
@@ -56,25 +56,11 @@ jobs:
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
-
-      - name: Download Lock File
-        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ matrix.label }}.lock
-        if: matrix.pip == true
       
-      - name: Generate Cache Key
-        run: | 
-          file_hash=$(cat conda-${{ matrix.label }}.lock | shasum -a 256 | cut -d' ' -f1)
-          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
-        id: cache-environment-key
-        
-      - uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: conda-${{ matrix.label }}.lock
-          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          environment-name: tardis
-          cache-environment: true
-          cache-downloads: true
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with: 
+          os-label: ${{ matrix.label }}
 
       - name: Install package editable
         run: |
@@ -100,7 +86,12 @@ jobs:
           echo "TARDIS_PIP_PATH=$directory_path" >> $GITHUB_ENV
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }}
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "not continuum"
+        working-directory: ${{ env.TARDIS_PIP_PATH }}
+        if: always()
+
+      - name: Run continuum tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m continuum
         working-directory: ${{ env.TARDIS_PIP_PATH }}
         if: always()
 

@@ -1,12 +1,37 @@
+[project]
+name = "tardis"
+authors = [{ name = "TARDIS Collaboration", email = "wkerzendorf@gmail.com" }]
+license = { text = "BSD-3-Clause" }
+classifiers = ["License :: OSI Approved :: BSD License"]
+description = "TARDIS - Temperature And Radiative Diffusion In Supernovae"
+readme = { file = "README.rst", content-type = "text/x-rst" }
+requires-python = ">=3.7"
+dependencies = ["astropy"]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+test = ["pytest-astropy"]
+docs = ["sphinx-astropy"]
+
+[project.scripts]
+cmfgen2tardis = "tardis.scripts.cmfgen2tardis:main"
+
+[project.urls]
+Homepage = "https://tardis-sn.github.io/"
+Documentation = "https://tardis-sn.github.io/tardis/"
+Repository = "https://github.com/tardis-sn/tardis"
+Issues = "https://github.com/tardis-sn/tardis/issues/"
+Changelog = "https://tardis-sn.github.io/tardis/contributing/CHANGELOG.html"
+
 [build-system]
 requires = ["setuptools",
             "setuptools_scm",
             "wheel"]
-build-backend = 'setuptools.build_meta'
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 80
-target-version = ['py36']
+target-version = ["py36"]
 exclude = '''
 (
   /(
@@ -137,3 +162,34 @@ known-first-party = ["tardis", "carsus", "stardis"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
+
+[tool.setuptools]
+packages = ["tardis"]
+license-files = ["LICENSE.rst", "licenses/*.rst"]
+
+[tool.setuptools.package-data]
+tardis = ["data/*"]
+tardis_grid = ["tests/data/*", "./"]
+tardis_io = [
+    "configuration/schemas/*",
+    "configuration/tests/data/*", 
+    "model/readers/tests/data/*"
+]
+tardis_model_tests = ["data/*"]
+tardis_montecarlo_tests = ["data/*"]
+tardis_plasma_tests = ["data/*"]
+tardis_scripts = ["debug/*"]
+tardis_tests_integration_tests = ["**/*"]
+tardis_visualization = ["tools/tests/data/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tardis"]
+astropy_header = true
+text_file_format = "rst"
+markers = [
+    # continuum tests
+    "continuum",
+]
+
+[tool.tardis]
+edit_on_github = false
