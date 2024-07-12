@@ -64,6 +64,10 @@ jobs:
         uses: ./.github/actions/setup_tardis
         with: 
           os-label: ${{ inputs.run_label }}
+      
+      - name: Install package editable
+        run: |
+          pip install -e . --user
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "not continuum"
@@ -85,6 +89,10 @@ jobs:
           uses: ./.github/actions/setup_tardis
           with: 
             os-label: ${{ inputs.run_label }}
+
+        - name: Install package editable
+          run: |
+            pip install -e .
 
         - name: Run continuum tests
           run: pytest tardis ${{ env.PYTEST_FLAGS }} -m continuum

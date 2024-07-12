@@ -120,11 +120,4 @@ runs:
         environment-name: tardis
         cache-environment: true
         cache-downloads: true
-    
-    - run: ls
-      shell: bash
-    
-    - name: Install package editable
-      shell: bash
-      run: |
-        pip install -e tardis --user
+
