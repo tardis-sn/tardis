@@ -1,0 +1,125 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: tests
+
+on:
+  push:
+    branches:
+    - '*'
+
+  pull_request:
+    branches:
+    - '*'
+    
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
+                --cov=tardis --cov-report=xml --cov-report=html
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -l {0}
+  
+
+
+jobs:
+  build:
+    if: github.repository_owner == 'tardis-sn'
+    strategy:
+      matrix:
+        label: [osx-arm64, linux-64]
+        include:
+          - label: osx-arm64
+            os: macos-latest
+            prefix: /Users/runner/miniconda3/envs/tardis
+
+          - label: linux-64
+            os: ubuntu-latest
+            prefix: /usr/share/miniconda3/envs/tardis
+
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
+      
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with: 
+          os-label: ${{ matrix.label }}
+
+      - name: Install package editable
+        run: |
+          pip install -e .
+
+      - name: Run continuum tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m continuum
+        if: always()
+
+      - name: Upload to Codecov
+        run: bash <(curl -s https://codecov.io/bash)
+      
+      - name: Refdata Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
+        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
+    
+  continuum_tests:
+    if: github.repository_owner == 'tardis-sn'
+    strategy:
+        matrix:
+          label: [osx-arm64, linux-64]
+          include:
+          - label: osx-arm64
+            os: macos-latest
+            prefix: /Users/runner/miniconda3/envs/tardis
+
+          - label: linux-64
+            os: ubuntu-latest
+            prefix: /usr/share/miniconda3/envs/tardis
+
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    steps:
+        - uses: actions/checkout@v4
+
+        - name: Setup LFS
+          uses: ./.github/actions/setup_lfs
+      
+        - name: Setup environment
+          uses: ./.github/actions/setup_env
+          with: 
+            os-label: ${{ matrix.label }}
+
+        - name: Install package editable
+          run: |
+            pip install -e .
+
+        - name: Run tests
+          run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "not continuum"
+          if: always()
+
+        - name: Run continuum tests
+          run: pytest tardis ${{ env.PYTEST_FLAGS }} -m continuum
+          if: always()
+
+        - name: Upload to Codecov
+          run: bash <(curl -s https://codecov.io/bash)
+        
+        - name: Refdata Generation tests
+          run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
+          if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
