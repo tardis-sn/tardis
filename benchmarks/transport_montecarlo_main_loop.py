@@ -8,7 +8,7 @@ from tardis.transport.montecarlo.montecarlo_main_loop import montecarlo_main_loo
 
 class BenchmarkTransportMontecarloMainLoop(BenchmarkBase):
     """
-    class to benchmark montecarlo_main_loop
+    class to benchmark montecarlo_main_loop function.
     """
 
     def time_montecarlo_main_loop(self):
