@@ -88,27 +88,17 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
 
-      - name: Generate Cache Key
-        run: |
-          file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
-          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
-        id: cache-environment-key
-
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
+      
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with: 
+          os-label: linux-64
 
       - name: Copy atom_data
         run: |
           mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-refdata/atom_data/. ~/Downloads/tardis-data
-
-      - uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: conda-linux-64.lock
-          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          environment-name: tardis
-          cache-environment: true
-          cache-downloads: true
 
       - name: Install package
         run: pip install -e .
