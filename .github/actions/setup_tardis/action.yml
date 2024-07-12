@@ -121,11 +121,9 @@ runs:
         cache-environment: true
         cache-downloads: true
     
-    - name: Install package editable
+    - run: ls
       shell: bash
-      run: |
-        pip install -e . --user
-
+    
     - name: Install package editable
       shell: bash
       run: |
