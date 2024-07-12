@@ -60,7 +60,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         spectrum_method,
         packet_source,
         enable_virtual_packet_logging=False,
-        enable_rpacket_tracking=False,
         nthreads=1,
         debug_packets=False,
         logger_buffer=1,
@@ -79,7 +78,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         self.use_gpu = use_gpu
 
         self.enable_vpacket_tracking = enable_virtual_packet_logging
-        self.enable_rpacket_tracking = enable_rpacket_tracking
         self.montecarlo_configuration = montecarlo_configuration
 
         self.packet_source = packet_source
@@ -129,15 +127,14 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             opacity_state=opacity_state,
         )
 
-        transport_state.enable_full_relativity = (
-            montecarlo_globals.ENABLE_FULL_RELATIVITY
-        )
         transport_state.integrator_settings = self.integrator_settings
         transport_state._integrator = FormalIntegrator(
             simulation_state, plasma, self
         )
-        configuration_initialize(
-            self.montecarlo_configuration, self, no_of_virtual_packets
+
+        self.montecarlo_configuration.NUMBER_OF_VPACKETS = no_of_virtual_packets
+        self.montecarlo_configuration.TEMPORARY_V_PACKET_BINS = (
+            no_of_virtual_packets
         )
 
         return transport_state
@@ -187,11 +184,12 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             iteration=iteration,
             show_progress_bars=show_progress_bars,
             total_iterations=total_iterations,
+            montecarlo_configuration=self.montecarlo_configuration,
         )
 
-        transport_state._montecarlo_virtual_luminosity.value[
-            :
-        ] = v_packets_energy_hist
+        transport_state._montecarlo_virtual_luminosity.value[:] = (
+            v_packets_energy_hist
+        )
         transport_state.last_interaction_type = last_interaction_tracker.types
         transport_state.last_interaction_in_nu = last_interaction_tracker.in_nus
         transport_state.last_line_interaction_in_id = (
@@ -277,18 +275,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 valid values are 'GPU', 'CPU', and 'Automatic'."""
             )
 
-        montecarlo_globals.DISABLE_LINE_SCATTERING = (
-            config.plasma.disable_line_scattering
-        )
-
-        montecarlo_globals.DISABLE_ELECTRON_SCATTERING = (
-            config.plasma.disable_electron_scattering
-        )
-
         montecarlo_configuration = MonteCarloConfiguration()
-
-        montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH = (
-            config.montecarlo.tracking.initial_array_length
+        configuration_initialize(
+            montecarlo_configuration, config, enable_virtual_packet_logging
         )
 
         return cls(
@@ -305,7 +294,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 config.spectrum.virtual.virtual_packet_logging
                 | enable_virtual_packet_logging
             ),
-            enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
             nthreads=config.montecarlo.nthreads,
             use_gpu=use_gpu,
             montecarlo_configuration=montecarlo_configuration,

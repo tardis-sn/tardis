@@ -274,7 +274,11 @@ class SimulationState(HDFWriterMixin):
         return self.geometry.no_of_shells
 
     @classmethod
-    def from_config(cls, config, atom_data, legacy_mode_enabled=False):
+    def from_config(
+        cls,
+        config,
+        atom_data,
+    ):
         """
         Create a new SimulationState instance from a Configuration object.
 
@@ -314,7 +318,11 @@ class SimulationState(HDFWriterMixin):
         )
 
     @classmethod
-    def from_csvy(cls, config, atom_data=None, legacy_mode_enabled=False):
+    def from_csvy(
+        cls,
+        config,
+        atom_data=None,
+    ):
         """
         Create a new SimulationState instance from a Configuration object.
 

@@ -234,9 +234,7 @@ class BenchmarkBase:
 
     @property
     def verysimple_packet_collection(self):
-        return (
-            self.nb_simulation_verysimple.transport.transport_state.packet_collection
-        )
+        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
 
     @property
     def nb_simulation_verysimple(self):
@@ -257,37 +255,15 @@ class BenchmarkBase:
         return opacity_state_initialize(
             self.nb_simulation_verysimple.plasma,
             line_interaction_type="macroatom",
-            disable_line_scattering=self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            continuum_processes_enabled=self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
-        )
-
-    @property
-    def verysimple_enable_full_relativity(self):
-        return self.nb_simulation_verysimple.transport.enable_full_relativity
-
-    @property
-    def verysimple_disable_line_scattering(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
-        )
-
-    @property
-    def verysimple_continuum_processes_enabled(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
         )
 
     @property
     def verysimple_tau_russian(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
 
     @property
     def verysimple_survival_probability(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
 
     @property
     def static_packet(self):

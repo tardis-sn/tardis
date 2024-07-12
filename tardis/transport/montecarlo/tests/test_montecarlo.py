@@ -393,7 +393,9 @@ def test_compute_distance2line(packet_params, expected_params):
     time_explosion = 5.2e7
 
     doppler_factor = get_doppler_factor(
-        packet.r, packet.mu, time_explosion, False
+        packet.r,
+        packet.mu,
+        time_explosion,
     )
     comov_nu = packet.nu * doppler_factor
 
@@ -463,7 +465,9 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     # model.full_relativity = full_relativity
 
     doppler_factor = get_doppler_factor(
-        packet.r, packet.mu, time_explosion, full_relativity
+        packet.r,
+        packet.mu,
+        time_explosion,
     )
     numba_estimator = RadiationFieldMCEstimators(
         packet_params["j"], packet_params["nu_bar"], 0, 0
@@ -567,8 +571,7 @@ methods related to continuum interactions.
 )
 def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     packet = r_packet.RPacket(r=r, mu=mu, energy=0.9, nu=0.4)
-    mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
-    mc.ENABLE_FULL_RELATIVITY = full_relativity
+    ENABLE_FULL_RELATIVITY = bool(full_relativity)
 
     inverse_doppler_factor = r_packet.get_inverse_doppler_factor(
         r, mu, 1 / inv_t_exp
@@ -576,7 +579,7 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     r_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, packet.mu)
 
     doppler_factor = get_doppler_factor(r, mu, 1 / inv_t_exp)
-    mc.ENABLE_FULL_RELATIVITY = False
+    ENABLE_FULL_RELATIVITY = False
 
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
 

@@ -39,7 +39,9 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
     # to other methods or introduction of some temporary variables
 
     obtained = frame_transformations.get_doppler_factor(
-        r, mu, time_explosion, False
+        r,
+        mu,
+        time_explosion,
     )
 
     # Perform required assertions
@@ -130,7 +132,9 @@ def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
     # to other methods or introduction of some temporary variables
 
     obtained = frame_transformations.get_inverse_doppler_factor(
-        r, mu, time_explosion, enable_full_relativity=False
+        r,
+        mu,
+        time_explosion,
     )
 
     # Perform required assertions

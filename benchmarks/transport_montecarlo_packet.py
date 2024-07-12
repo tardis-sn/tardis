@@ -103,14 +103,12 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
         expected_params = parameters["expected"]
         nu_line = packet_params["nu_line"]
         is_last_line = packet_params["is_last_line"]
-        enable_full_relativity = parameters["enable_full_relativity"]
 
         time_explosion = self.model
         doppler_factor = frame_transformations.get_doppler_factor(
             self.static_packet.r,
             self.static_packet.mu,
             time_explosion,
-            enable_full_relativity,
         )
         comov_nu = self.static_packet.nu * doppler_factor
 
@@ -122,7 +120,6 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
                 is_last_line,
                 nu_line,
                 time_explosion,
-                enable_full_relativity,
             )
         except utils.MonteCarloException:
             obtained_tardis_error = utils.MonteCarloException
@@ -215,7 +212,6 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
             cur_line_id,
             distance_trace,
             time_explosion,
-            enable_full_relativity,
         )
 
     @parameterize(

@@ -616,7 +616,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         virtual_packet_logging=False,
         show_convergence_plots=False,
         show_progress_bars=True,
-        legacy_mode_enabled=False,
         **kwargs,
     ):
         """
@@ -672,13 +671,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 simulation_state = SimulationState.from_csvy(
                     config,
                     atom_data=atom_data,
-                    legacy_mode_enabled=legacy_mode_enabled,
                 )
             else:
                 simulation_state = SimulationState.from_config(
                     config,
                     atom_data=atom_data,
-                    legacy_mode_enabled=legacy_mode_enabled,
                 )
             # Override with custom packet source from function argument if present
             if packet_source is not None:

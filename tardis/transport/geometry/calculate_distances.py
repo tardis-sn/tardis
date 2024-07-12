@@ -12,6 +12,9 @@ from tardis.transport.montecarlo.configuration.constants import (
     SIGMA_THOMSON,
     CLOSE_LINE_THRESHOLD,
 )
+from tardis.transport.montecarlo.configuration.montecarlo_globals import (
+    ENABLE_FULL_RELATIVITY,
+)
 
 from tardis.transport.montecarlo.utils import MonteCarloException
 from tardis.transport.montecarlo.r_packet import (
@@ -68,7 +71,6 @@ def calculate_distance_line(
     is_last_line,
     nu_line,
     time_explosion,
-    enable_full_relativity,
 ):
     """
     Calculate distance until RPacket is in resonance with the next line
@@ -105,7 +107,7 @@ def calculate_distance_line(
     else:
         raise MonteCarloException("nu difference is less than 0.0")
 
-    if enable_full_relativity:
+    if ENABLE_FULL_RELATIVITY:
         return calculate_distance_line_full_relativity(
             nu_line, nu, time_explosion, r_packet
         )

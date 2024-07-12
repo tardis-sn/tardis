@@ -2,13 +2,16 @@ from math import exp
 
 from numba import njit
 
+from tardis.transport.frame_transformations import (
+    calc_packet_energy,
+    calc_packet_energy_full_relativity,
+)
 from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
 )
 from tardis.transport.montecarlo.configuration.constants import KB, H
-from tardis.transport.frame_transformations import (
-    calc_packet_energy,
-    calc_packet_energy_full_relativity,
+from tardis.transport.montecarlo.configuration.montecarlo_globals import (
+    ENABLE_FULL_RELATIVITY,
 )
 
 
@@ -65,9 +68,9 @@ def update_bound_free_estimators(
         photo_ion_rate_estimator_increment = (
             comov_energy * distance * x_sect_bfs[i] / comov_nu
         )
-        estimator_state.photo_ion_estimator[
-            current_continuum, shell_id
-        ] += photo_ion_rate_estimator_increment
+        estimator_state.photo_ion_estimator[current_continuum, shell_id] += (
+            photo_ion_rate_estimator_increment
+        )
         estimator_state.stim_recomb_estimator[current_continuum, shell_id] += (
             photo_ion_rate_estimator_increment * boltzmann_factor
         )
@@ -79,12 +82,12 @@ def update_bound_free_estimators(
         bf_heating_estimator_increment = (
             comov_energy * distance * x_sect_bfs[i] * (1 - nu_th / comov_nu)
         )
-        estimator_state.bf_heating_estimator[
-            current_continuum, shell_id
-        ] += bf_heating_estimator_increment
+        estimator_state.bf_heating_estimator[current_continuum, shell_id] += (
+            bf_heating_estimator_increment
+        )
         estimator_state.stim_recomb_cooling_estimator[
             current_continuum, shell_id
-        ] += (bf_heating_estimator_increment * boltzmann_factor)
+        ] += bf_heating_estimator_increment * boltzmann_factor
 
 
 @njit(**njit_dict_no_parallel)
@@ -94,7 +97,6 @@ def update_line_estimators(
     cur_line_id,
     distance_trace,
     time_explosion,
-    enable_full_relativity,
 ):
     """
     Function to update the line estimators
@@ -107,14 +109,14 @@ def update_line_estimators(
     distance_trace : float
     time_explosion : float
     """
-    if not enable_full_relativity:
+    if not ENABLE_FULL_RELATIVITY:
         energy = calc_packet_energy(r_packet, distance_trace, time_explosion)
     else:
         energy = calc_packet_energy_full_relativity(r_packet)
 
     radfield_mc_estimators.j_blue_estimator[
         cur_line_id, r_packet.current_shell_id
-    ] += (energy / r_packet.nu)
+    ] += energy / r_packet.nu
     radfield_mc_estimators.Edotlu_estimator[
         cur_line_id, r_packet.current_shell_id
     ] += energy

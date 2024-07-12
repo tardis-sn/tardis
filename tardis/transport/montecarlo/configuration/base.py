@@ -40,52 +40,47 @@ class MonteCarloConfiguration:
 
 
 def configuration_initialize(
-    montecarlo_configuration, transport_solver, number_of_vpackets
+    montecarlo_configuration, config, enable_virtual_packet_logging
 ):
-    if transport_solver.line_interaction_type == "macroatom":
+    if config.plasma.line_interaction_type == "macroatom":
         montecarlo_globals.LINE_INTERACTION_TYPE = LineInteractionType.MACROATOM
-    elif transport_solver.line_interaction_type == "downbranch":
+    elif config.plasma.line_interaction_type == "downbranch":
         montecarlo_globals.LINE_INTERACTION_TYPE = (
             LineInteractionType.DOWNBRANCH
         )
-    elif transport_solver.line_interaction_type == "scatter":
+    elif config.plasma.line_interaction_type == "scatter":
         montecarlo_globals.LINE_INTERACTION_TYPE = LineInteractionType.SCATTER
     else:
         raise ValueError(
             f'Line interaction type must be one of "macroatom",'
             f'"downbranch", or "scatter" but is '
-            f"{transport_solver.line_interaction_type}"
+            f"{config.plasma.line_interaction_type}"
         )
-    montecarlo_configuration.NUMBER_OF_VPACKETS = number_of_vpackets
-    montecarlo_configuration.TEMPORARY_V_PACKET_BINS = number_of_vpackets
     montecarlo_globals.ENABLE_FULL_RELATIVITY = (
-        transport_solver.enable_full_relativity
+        config.montecarlo.enable_full_relativity
     )
-    montecarlo_configuration.MONTECARLO_SEED = (
-        transport_solver.packet_source.base_seed
-    )
+    montecarlo_configuration.MONTECARLO_SEED = config.montecarlo.seed
     montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY = (
-        transport_solver.virtual_spectrum_spawn_range.end.to(
+        config.montecarlo.virtual_spectrum_spawn_range.end.to(
             u.Hz, equivalencies=u.spectral()
         ).value
     )
     montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY = (
-        transport_solver.virtual_spectrum_spawn_range.start.to(
+        config.montecarlo.virtual_spectrum_spawn_range.start.to(
             u.Hz, equivalencies=u.spectral()
         ).value
     )
     montecarlo_globals.ENABLE_VPACKET_TRACKING = (
-        transport_solver.enable_vpacket_tracking
+        config.spectrum.virtual.virtual_packet_logging
+        | enable_virtual_packet_logging
     )
     montecarlo_globals.ENABLE_RPACKET_TRACKING = (
-        transport_solver.enable_rpacket_tracking
+        config.montecarlo.tracking.track_rpacket
     )
-
-    montecarlo_globals.LEGACY_MODE_ENABLED = transport_solver.enable_legacy_mode
 
     montecarlo_globals.DISABLE_ELECTRON_SCATTERING = (
-        transport_solver.disable_electron_scattering
+        config.plasma.disable_electron_scattering
     )
     montecarlo_globals.DISABLE_LINE_SCATTERING = (
-        transport_solver.disable_line_scattering
+        config.plasma.disable_line_scattering
     )
