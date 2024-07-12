@@ -34,4 +34,5 @@ jobs:
     uses: ./.github/workflows/new_tests.yml # calls the one above ^
     with:
       run_label: ${{ matrix.label }}
+      run_os: ${{ matrix.os }}
     secrets: inherit

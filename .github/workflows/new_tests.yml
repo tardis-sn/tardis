@@ -10,6 +10,9 @@ on:
       run_label: 
         required: true
         type: string
+      run_os: 
+          required: true
+          type: string
 
   # push:
   #   branches:
@@ -34,13 +37,11 @@ env:
 defaults:
   run:
     shell: bash -l {0}
-  
-
-
+ 
 jobs:
   non-continuum:
     name: non-continuum-${{ inputs.run_label }}
-    runs-on: ${{ inputs.run_label }}
+    runs-on: ${{ inputs.run_os }}
     steps:
       - name: Setup tardis
         uses: ./.github/actions/setup_tardis
