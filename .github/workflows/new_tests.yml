@@ -43,12 +43,14 @@ defaults:
 
 jobs:
   non-continuum:
-    if: github.repository_owner == 'tardis-sn'
     name: non-continuum-${{ inputs.run_label }}
     runs-on: ${{ inputs.run_label }}
     steps:
       - name: Setup tardis
         uses: ./.github/actions/setup_tardis
+        with: 
+          os-label: ${{ inputs.run_label }}
+
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "not continuum"
@@ -59,12 +61,14 @@ jobs:
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
     
   continuum_tests:
-    if: github.repository_owner == 'tardis-sn'
     name: continuum-${{ inputs.run_label }}
     runs-on: ${{ inputs.run_label }}
     steps:
         - name: Setup tardis
           uses: ./.github/actions/setup_tardis
+          with: 
+            os-label: ${{ inputs.run_label }}
+  
 
         - name: Run continuum tests
           run: pytest tardis ${{ env.PYTEST_FLAGS }} -m continuum
