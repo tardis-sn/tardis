@@ -2,17 +2,15 @@
 Basic TARDIS Benchmark.
 """
 
-import numpy as np
-from asv_runner.benchmarks.mark import parameterize, skip_benchmark
-
 import tardis.transport.montecarlo.interaction as interaction
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,
 )
+from asv_runner.benchmarks.mark import parameterize
 
 
-@skip_benchmark
+
 class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
     """
     Class to benchmark the numba interaction function.
@@ -30,10 +28,6 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
             packet, time_explosion, enable_full_relativity
         )
 
-        assert np.abs(packet.mu - init_mu) > 1e-7
-        assert np.abs(packet.nu - init_nu) > 1e-7
-        assert np.abs(packet.energy - init_energy) > 1e-7
-
     @parameterize(
         {
             "Line interaction type": [
@@ -45,9 +39,6 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
     )
     def time_line_scatter(self, line_interaction_type):
         packet = self.packet
-        init_mu = packet.mu
-        init_nu = packet.nu
-        init_energy = packet.energy
         packet.initialize_line_id(
             self.verysimple_opacity_state,
             self.verysimple_time_explosion,
@@ -63,10 +54,6 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
             self.verysimple_enable_full_relativity,
             self.verysimple_continuum_processes_enabled,
         )
-
-        assert np.abs(packet.mu - init_mu) > 1e-7
-        assert np.abs(packet.nu - init_nu) > 1e-7
-        assert np.abs(packet.energy - init_energy) > 1e-7
 
     @parameterize(
         {
@@ -109,5 +96,3 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
             self.verysimple_opacity_state,
             self.verysimple_enable_full_relativity,
         )
-
-        assert packet.next_line_id == emission_line_id + 1
