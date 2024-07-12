@@ -3,7 +3,8 @@ Basic TARDIS Benchmark.
 """
 
 import numpy as np
-from asv_runner.benchmarks.mark import parameterize, skip_benchmark
+from asv_runner.benchmarks.mark import parameterize
+from numba import config
 
 import tardis.transport.montecarlo.formal_integral as formal_integral
 from benchmarks.benchmark_base import BenchmarkBase
@@ -12,8 +13,8 @@ from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
-# Error in all functions: Terminating: fork() called from a process already using GNU OpenMP, this is unsafe. 
-@skip_benchmark
+config.THREADING_LAYER='workqueue'
+
 class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     """
     Class to benchmark the numba formal integral function.
@@ -21,10 +22,12 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
 
     def __init__(self):
         super().__init__()
+
         self.config = None
         filename = "data/tardis_configv1_benchmark.yml"
         path = self.get_relative_path(filename)
         self.config = Configuration.from_yaml(path)
+
         self.Simulation = run_tardis(
             self.config, log_level="ERROR", show_progress_bars=False
         )
@@ -105,79 +108,20 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         # time taken for a photon to move 1 cm
         return 1 / c.c.cgs.value
 
-    # Error: Terminating: fork() called from a process already using GNU OpenMP, this is unsafe.
-    @skip_benchmark
     @parameterize({"p": [0.0, 0.5, 1.0], "Test data": TESTDATA})
     def time_calculate_z(self, p, test_data):
-        func = formal_integral.calculate_z
         inv_t = 1.0 / self.verysimple_time_explosion
         r_outer = self.formal_integral_geometry(test_data).r_outer
 
         for r in r_outer:
-            func(r, p, inv_t)
+            formal_integral.calculate_z(r, p, inv_t)
 
-    @skip_benchmark
-    @parameterize({"p": [0, 0.5, 1], "Test data": TESTDATA})
-    def time_populate_z_photosphere(self, p, test_data):
-        formal_integral.FormalIntegrator(
-            self.formal_integral_geometry(test_data), None, None
-        )
-        r_inner = self.formal_integral_geometry(test_data).r_inner
-        self.formal_integral_geometry(test_data).r_outer
-
-        p = r_inner[0] * p
-        oz = np.zeros_like(r_inner)
-        oshell_id = np.zeros_like(oz, dtype=np.int64)
-
-        formal_integral.populate_z(
-            self.formal_integral_geometry(test_data),
-            self.formal_integral_geometry(test_data),
-            p,
-            oz,
-            oshell_id,
-        )
-
-    @skip_benchmark
-    @parameterize({"p": [1e-5, 0.5, 0.99, 1], "Test data": TESTDATA})
-    def time_populate_z_shells(self, p, test_data) -> None:
-        func = formal_integral.populate_z
-
-        size = len(self.formal_integral_geometry(test_data).r_inner)
-        r_inner = self.formal_integral_geometry(test_data).r_inner
-        r_outer = self.formal_integral_geometry(test_data).r_outer
-
-        p = r_inner[0] + (r_outer[-1] - r_inner[0]) * p
-
-        oz = np.zeros(size * 2)
-        oshell_id = np.zeros_like(oz, dtype=np.int64)
-
-        func(
-            self.formal_integral_geometry(test_data),
-            self.formal_integral_geometry(test_data),
-            p,
-            oz,
-            oshell_id,
-        )
-
-    # Error: Terminating: fork() called from a process already using GNU OpenMP, this is unsafe.
-    @skip_benchmark
-    @parameterize(
-        {
-            "Parameters": [
-                {
-                    "N": [100, 1000, 10000]
-                }
-            ]
-        }
-    )
-    def time_calculate_p_values(self, Parameters):
+    @parameterize({"N": [100, 1000, 10000]})
+    def time_calculate_p_values(self, N):
         r = 1.0
-        formal_integral.calculate_p_values(r, Parameters["N"])
+        formal_integral.calculate_p_values(r, N)
 
     # Benchmark for functions in FormalIntegrator class
-
-    # Error: Terminating: fork() called from a process already using GNU OpenMP, this is unsafe.
-    @skip_benchmark  
     def time_FormalIntegrator_functions(self):
         self.FormalIntegrator.calculate_spectrum(
             self.Simulation.transport.transport_state.spectrum.frequency
