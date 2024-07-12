@@ -13,7 +13,7 @@ def test_thomson_scatter(packet, verysimple_time_explosion):
     init_energy = packet.energy
     time_explosion = verysimple_time_explosion
 
-    interaction.thomson_scatter(packet, time_explosion, False)
+    interaction.thomson_scatter(packet, time_explosion)
 
     assert np.abs(packet.mu - init_mu) > 1e-7
     assert np.abs(packet.nu - init_nu) > 1e-7

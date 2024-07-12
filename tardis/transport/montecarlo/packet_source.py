@@ -119,7 +119,11 @@ class BasePacketSource(abc.ABC):
         astropy.units.Quantity
         """
         return (
-            4 * np.pi * const.sigma_sb * self.radius**2 * self.temperature**4
+            4
+            * np.pi
+            * const.sigma_sb
+            * self.radius**2
+            * self.temperature**4
         ).to("erg/s")
 
 
@@ -271,7 +275,8 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
         """
         self.temperature = (
-            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb)) ** 0.25
+            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
+            ** 0.25
         ).to("K")
 
 

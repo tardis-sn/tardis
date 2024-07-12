@@ -6,6 +6,7 @@ import pytest
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo.configuration.montecarlo_globals import (
     LEGACY_MODE_ENABLED,
+    ENABLE_VPACKET_TRACKING,
 )
 
 
@@ -86,6 +87,7 @@ def test_montecarlo_main_loop_vpacket_log(
     regression_data,
     atomic_dataset,
 ):
+    ENABLE_VPACKET_TRACKING = True
     atomic_dataset = deepcopy(atomic_dataset)
     montecarlo_main_loop_config.montecarlo.no_of_virtual_packets = 5
 
@@ -99,7 +101,7 @@ def test_montecarlo_main_loop_vpacket_log(
 
     transport = montecarlo_main_loop_simulation.transport
 
-    assert transport.montecarlo_configuration.ENABLE_VPACKET_TRACKING is True
+    assert ENABLE_VPACKET_TRACKING is True
 
     expected_hdf_store = regression_data.sync_hdf_store(
         montecarlo_main_loop_simulation
