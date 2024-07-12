@@ -37,7 +37,7 @@ class WidgetHandler(logging.Handler):
 
 # Setup widget handler
 widget_handler = WidgetHandler()
-widget_handler.setFormatter(ColoredFormatter())
+widget_handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))  # TODO: Make ColoredFormatter work here
 
 logger.addHandler(widget_handler)
 logging.getLogger("py.warnings").addHandler(widget_handler)
