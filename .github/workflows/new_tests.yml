@@ -39,10 +39,27 @@ defaults:
     shell: bash -l {0}
  
 jobs:
-  non-continuum:
-    name: non-continuum-${{ inputs.run_label }}
+  base:
+    name: base-${{ inputs.run_label }}
     runs-on: ${{ inputs.run_os }}
     steps:
+      - uses: actions/checkout@v4
+      - run: ls
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tardis-repo
+          path: tardis
+          retention-days: 1
+
+  non-continuum:
+    # name: non-continuum-${{ inputs.run_label }}
+    runs-on: ${{ inputs.run_os }}
+    needs: base
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: tardis-repo
+          path: tardis
       - name: Setup tardis
         uses: ./.github/actions/setup_tardis
         with: 
@@ -58,9 +75,14 @@ jobs:
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
     
   continuum_tests:
-    name: continuum-${{ inputs.run_label }}
+    # name: continuum-${{ inputs.run_label }}
     runs-on: ${{ inputs.run_label }}
     steps:
+        - uses: actions/download-artifact@v4
+          with:
+            name: tardis-repo
+            path: tardis
+            
         - name: Setup tardis
           uses: ./.github/actions/setup_tardis
           with: 
