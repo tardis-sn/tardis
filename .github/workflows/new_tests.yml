@@ -60,7 +60,7 @@ jobs:
     
   continuum_tests:
     if: github.repository_owner == 'tardis-sn'
-    name: ${{ inputs.run_label }}
+    name: continuum-${{ inputs.run_label }}
     runs-on: ${{ inputs.run_label }}
     steps:
         - name: Setup tardis
