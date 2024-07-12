@@ -65,11 +65,15 @@ class RPacket(object):
         self.last_line_interaction_shell_id = -1
 
     def initialize_line_id(
-        self, opacity_state, time_explosion, enable_full_relativity
+        self,
+        opacity_state,
+        time_explosion,
     ):
         inverse_line_list_nu = opacity_state.line_list_nu[::-1]
         doppler_factor = get_doppler_factor(
-            self.r, self.mu, time_explosion, enable_full_relativity
+            self.r,
+            self.mu,
+            time_explosion,
         )
         comov_nu = self.nu * doppler_factor
         next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(

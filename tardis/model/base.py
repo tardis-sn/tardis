@@ -295,9 +295,7 @@ class SimulationState(HDFWriterMixin):
             atom_data, config, time_explosion, geometry
         )
 
-        packet_source = parse_packet_source_from_config(
-            config, geometry, legacy_mode_enabled
-        )
+        packet_source = parse_packet_source_from_config(config, geometry)
 
         radiation_field_state = parse_radiation_field_state_from_config(
             config,
@@ -394,9 +392,7 @@ class SimulationState(HDFWriterMixin):
             geometry,
         )
 
-        packet_source = parse_packet_source_from_config(
-            config, geometry, legacy_mode_enabled
-        )
+        packet_source = parse_packet_source_from_config(config, geometry)
 
         radiation_field_state = parse_radiation_field_state_from_csvy(
             config, csvy_model_config, csvy_model_data, geometry, packet_source

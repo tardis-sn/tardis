@@ -8,6 +8,10 @@ from tardis.transport.montecarlo.packet_source import (
     BlackBodySimpleSourceRelativistic,
 )
 
+from tardis.transport.montecarlo.configuration.montecarlo_globals import (
+    LEGACY_MODE_ENABLED,
+)
+
 
 class TestBlackBodySimpleSource:
     @pytest.fixture(scope="class")
@@ -19,14 +23,15 @@ class TestBlackBodySimpleSource:
         -------
         tardis.transport.montecarlo.packet_source.BlackBodySimpleSource
         """
+        LEGACY_MODE_ENABLED = True
         cls = type(self)
         bb = BlackBodySimpleSource(
             radius=123,
             temperature=10000 * u.K,
             base_seed=1963,
             legacy_second_seed=2508,
-            legacy_mode_enabled=True,
         )
+        LEGACY_MODE_ENABLED = False
         yield bb
 
     def test_bb_nus(self, regression_data, blackbodysimplesource):
@@ -68,14 +73,15 @@ class TestBlackBodySimpleSourceRel:
         -------
         tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
         """
+        LEGACY_MODE_ENABLED = True
         bb_rel = BlackBodySimpleSourceRelativistic(
             time_explosion=1123187,
             base_seed=1963,
             legacy_second_seed=2508,
-            legacy_mode_enabled=True,
         )
         bb_rel.temperature = 10000 * u.K
         bb_rel.beta = 0.25
+        LEGACY_MODE_ENABLED = False
         yield bb_rel
 
     def test_bb_nus(self, regression_data, blackbody_simplesource_relativistic):

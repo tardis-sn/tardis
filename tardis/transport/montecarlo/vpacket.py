@@ -21,6 +21,10 @@ from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
     SIGMA_THOMSON,
 )
+from tardis.transport.montecarlo.configuration.montecarlo_globals import (
+    CONTINUUM_PROCESSES_ENABLED,
+    ENABLE_FULL_RELATIVITY,
+)
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
 )
@@ -68,8 +72,6 @@ def trace_vpacket_within_shell(
     numba_radial_1d_geometry,
     time_explosion,
     opacity_state,
-    enable_full_relativity,
-    continuum_processes_enabled,
 ):
     """
     Trace VPacket within one shell (relatively simple operation)
@@ -95,12 +97,11 @@ def trace_vpacket_within_shell(
         v_packet.r,
         v_packet.mu,
         time_explosion,
-        enable_full_relativity,
     )
 
     comov_nu = v_packet.nu * doppler_factor
 
-    if continuum_processes_enabled:
+    if CONTINUUM_PROCESSES_ENABLED:
         (
             chi_bf_tot,
             chi_bf_contributions,
@@ -115,7 +116,7 @@ def trace_vpacket_within_shell(
     else:
         chi_continuum = chi_e
 
-    if enable_full_relativity:
+    if ENABLE_FULL_RELATIVITY:
         chi_continuum *= doppler_factor
 
     tau_continuum = chi_continuum * distance_boundary
@@ -142,7 +143,6 @@ def trace_vpacket_within_shell(
             is_last_line,
             nu_line,
             time_explosion,
-            enable_full_relativity,
         )
 
         if distance_boundary <= distance_trace_line:
@@ -166,8 +166,6 @@ def trace_vpacket(
     opacity_state,
     tau_russian,
     survival_probability,
-    enable_full_relativity,
-    continuum_processes_enabled,
 ):
     """
     Trace single vpacket.
@@ -193,8 +191,6 @@ def trace_vpacket(
             numba_radial_1d_geometry,
             time_explosion,
             opacity_state,
-            enable_full_relativity,
-            continuum_processes_enabled,
         )
         tau_trace_combined += tau_trace_combined_shell
 
@@ -236,10 +232,8 @@ def trace_vpacket_volley(
     numba_radial_1d_geometry,
     time_explosion,
     opacity_state,
-    enable_full_relativity,
     tau_russian,
     survival_probability,
-    continuum_processes_enabled,
 ):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many)
@@ -274,7 +268,7 @@ def trace_vpacket_volley(
         r_inner_over_r = numba_radial_1d_geometry.r_inner[0] / r_packet.r
         mu_min = -math.sqrt(1 - r_inner_over_r * r_inner_over_r)
         v_packet_on_inner_boundary = False
-        if enable_full_relativity:
+        if ENABLE_FULL_RELATIVITY:
             mu_min = angle_aberration_LF_to_CMF(
                 r_packet, time_explosion, mu_min
             )
@@ -282,7 +276,7 @@ def trace_vpacket_volley(
         v_packet_on_inner_boundary = True
         mu_min = 0.0
 
-        if enable_full_relativity:
+        if ENABLE_FULL_RELATIVITY:
             inv_c = 1 / C_SPEED_OF_LIGHT
             inv_t = 1 / time_explosion
             beta_inner = numba_radial_1d_geometry.r_inner[0] * inv_t * inv_c
@@ -292,13 +286,12 @@ def trace_vpacket_volley(
         r_packet.r,
         r_packet.mu,
         time_explosion,
-        enable_full_relativity,
     )
     for i in range(no_of_vpackets):
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
         if v_packet_on_inner_boundary:  # The weights are described in K&S 2014
-            if not enable_full_relativity:
+            if not ENABLE_FULL_RELATIVITY:
                 weight = 2 * v_packet_mu / no_of_vpackets
             else:
                 weight = (
@@ -312,7 +305,7 @@ def trace_vpacket_volley(
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
         # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
-        if enable_full_relativity:
+        if ENABLE_FULL_RELATIVITY:
             v_packet_mu = angle_aberration_CMF_to_LF(
                 r_packet, time_explosion, v_packet_mu
             )
@@ -320,7 +313,6 @@ def trace_vpacket_volley(
             r_packet.r,
             v_packet_mu,
             time_explosion,
-            enable_full_relativity,
         )
 
         # transform between r_packet mu and v_packet_mu
@@ -351,8 +343,6 @@ def trace_vpacket_volley(
             opacity_state,
             tau_russian,
             survival_probability,
-            enable_full_relativity,
-            continuum_processes_enabled,
         )
 
         v_packet.energy *= math.exp(-tau_vpacket)

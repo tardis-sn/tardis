@@ -5,22 +5,19 @@ import tardis.opacities.opacities as opacities
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.estimators.radfield_mc_estimators
+import tardis.transport.montecarlo.numba_interface as numba_interface
+import tardis.transport.montecarlo.r_packet as r_packet
+import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
+import tardis.transport.montecarlo.utils as utils
+from tardis import constants as const
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.configuration.montecarlo_globals import (
     ENABLE_FULL_RELATIVITY,
 )
-import tardis.transport.montecarlo.numba_interface as numba_interface
-import tardis.transport.montecarlo.r_packet as r_packet
-import tardis.transport.montecarlo.utils as utils
-import tardis.transport.frame_transformations as frame_transformations
-import tardis.transport.geometry.calculate_distances as calculate_distances
-import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
-from tardis import constants as const
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_line_estimators,
 )
 
-C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
 from numpy.testing import (
@@ -114,7 +111,9 @@ def test_calculate_distance_line(
     is_last_line = packet_params["is_last_line"]
 
     doppler_factor = frame_transformations.get_doppler_factor(
-        static_packet.r, static_packet.mu, time_explosion, False
+        static_packet.r,
+        static_packet.mu,
+        time_explosion,
     )
     comov_nu = static_packet.nu * doppler_factor
 
@@ -127,7 +126,6 @@ def test_calculate_distance_line(
             is_last_line,
             nu_line,
             time_explosion,
-            enable_full_relativity=False,
         )
     except utils.MonteCarloException:
         obtained_tardis_error = utils.MonteCarloException
@@ -219,7 +217,6 @@ def test_update_line_estimators(
         cur_line_id,
         distance_trace,
         time_explosion,
-        enable_full_relativity=False,
     )
 
     assert_allclose(estimators.j_blue_estimator, expected_j_blue)
@@ -245,9 +242,6 @@ def test_trace_packet(
         verysimple_time_explosion,
         verysimple_opacity_state,
         verysimple_estimators,
-        continuum_processes_enabled=False,
-        enable_full_relativity=False,
-        disable_line_scattering=False,
     )
 
     assert delta_shell == 1
@@ -256,7 +250,7 @@ def test_trace_packet(
 
 
 @pytest.mark.xfail(reason="bug in full relativity")
-@pytest.mark.parametrize("ENABLE_FULL_RELATIVITY", [True, False])
+@pytest.mark.parametrize("enable_full_relativity", [True, False])
 @pytest.mark.parametrize(
     ["packet_params", "expected_params"],
     [
@@ -286,7 +280,7 @@ def test_move_r_packet(
     packet,
     time_explosion,
     estimators,
-    ENABLE_FULL_RELATIVITY,
+    enable_full_relativity,
 ):
     distance = 1.0e13
     packet.nu = packet_params["nu"]
@@ -294,10 +288,9 @@ def test_move_r_packet(
     packet.energy = packet_params["energy"]
     packet.r = packet_params["r"]
 
-    ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
     r_packet_transport.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
     doppler_factor = frame_transformations.get_doppler_factor(
-        packet.r, packet.mu, time_explosion, ENABLE_FULL_RELATIVITY
+        packet.r, packet.mu, time_explosion
     )
 
     r_packet_transport.move_r_packet(
@@ -305,7 +298,6 @@ def test_move_r_packet(
         distance,
         time_explosion,
         estimators,
-        ENABLE_FULL_RELATIVITY,
     )
 
     assert_almost_equal(packet.mu, expected_params["mu"])
@@ -314,11 +306,13 @@ def test_move_r_packet(
     expected_j = expected_params["j"]
     expected_nubar = expected_params["nubar"]
 
+    ENABLE_FULL_RELATIVITY = enable_full_relativity
+
     if ENABLE_FULL_RELATIVITY:
         expected_j *= doppler_factor
         expected_nubar *= doppler_factor
 
-    numba_config.ENABLE_FULL_RELATIVITY = False
+    ENABLE_FULL_RELATIVITY = False
     assert_allclose(
         estimators.j_estimator[packet.current_shell_id], expected_j, rtol=5e-7
     )

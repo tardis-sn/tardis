@@ -1,13 +1,17 @@
 import abc
 
-import numpy as np
 import numexpr as ne
+import numpy as np
+from astropy import units as u
+
 from tardis import constants as const
+from tardis.io.util import HDFWriterMixin
+from tardis.transport.montecarlo.configuration.montecarlo_globals import (
+    LEGACY_MODE_ENABLED,
+)
 from tardis.transport.montecarlo.packet_collections import (
     PacketCollection,
 )
-from tardis.io.util import HDFWriterMixin
-from astropy import units as u
 
 
 class BasePacketSource(abc.ABC):
@@ -27,12 +31,9 @@ class BasePacketSource(abc.ABC):
     # seed val to the maximum allowed by numpy.
     MAX_SEED_VAL = 2**32 - 1
 
-    def __init__(
-        self, base_seed=None, legacy_mode_enabled=False, legacy_second_seed=None
-    ):
+    def __init__(self, base_seed=None, legacy_second_seed=None):
         self.base_seed = base_seed
-        self.legacy_mode_enabled = legacy_mode_enabled
-        if self.legacy_mode_enabled and legacy_second_seed is not None:
+        if LEGACY_MODE_ENABLED and legacy_second_seed is not None:
             np.random.seed(legacy_second_seed)
         else:
             np.random.seed(self.base_seed)
@@ -118,11 +119,7 @@ class BasePacketSource(abc.ABC):
         astropy.units.Quantity
         """
         return (
-            4
-            * np.pi
-            * const.sigma_sb
-            * self.radius**2
-            * self.temperature**4
+            4 * np.pi * const.sigma_sb * self.radius**2 * self.temperature**4
         ).to("erg/s")
 
 
@@ -213,7 +210,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         l_coef = np.pi**4 / 90.0
 
         # For testing purposes
-        if self.legacy_mode_enabled:
+        if LEGACY_MODE_ENABLED:
             xis = np.random.random((5, no_of_packets))
         else:
             xis = self.rng.random((5, no_of_packets))
@@ -241,7 +238,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         """
 
         # For testing purposes
-        if self.legacy_mode_enabled:
+        if LEGACY_MODE_ENABLED:
             return np.sqrt(np.random.random(no_of_packets))
         else:
             return np.sqrt(self.rng.random(no_of_packets))
@@ -274,8 +271,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
         """
         self.temperature = (
-            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
-            ** 0.25
+            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb)) ** 0.25
         ).to("K")
 
 
