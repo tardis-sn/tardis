@@ -44,11 +44,10 @@ jobs:
     runs-on: ${{ inputs.run_os }}
     steps:
       - uses: actions/checkout@v4
-      - run: ls
       - uses: actions/upload-artifact@v4
         with:
-          name: tardis-repo
-          path: tardis
+          name: tardis-repo-${{ inputs.run_label }}
+          path: ./
           retention-days: 1
 
   non-continuum:
@@ -58,8 +57,9 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: tardis-repo
-          path: tardis
+          name: tardis-repo-${{ inputs.run_label }}
+          path: ./
+
       - name: Setup tardis
         uses: ./.github/actions/setup_tardis
         with: 
@@ -80,9 +80,9 @@ jobs:
     steps:
         - uses: actions/download-artifact@v4
           with:
-            name: tardis-repo
-            path: tardis
-            
+            name: tardis-repo-${{ inputs.run_label }}
+            path: ./
+
         - name: Setup tardis
           uses: ./.github/actions/setup_tardis
           with: 

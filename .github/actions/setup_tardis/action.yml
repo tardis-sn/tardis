@@ -124,4 +124,4 @@ runs:
     - name: Install package editable
       shell: bash
       run: |
-        pip install -e .
+        pip install -e . --user
