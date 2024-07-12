@@ -2,7 +2,7 @@ import pytest
 import numpy.testing as npt
 import numpy as np
 import tardis.transport.montecarlo.interaction as interaction
-from tardis.transport.montecarlo.numba_config import (
+from tardis.transport.montecarlo.configuration.constants import (
     LineInteractionType,
 )
 

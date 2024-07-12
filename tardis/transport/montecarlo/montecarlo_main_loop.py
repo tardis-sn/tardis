@@ -33,6 +33,7 @@ def montecarlo_main_loop(
     iteration,
     show_progress_bars,
     total_iterations,
+    montecarlo_configuration,
 ):
     """This is the main loop of the MonteCarlo routine that generates packets
     and sends them through the ejecta.
@@ -168,7 +169,7 @@ def montecarlo_main_loop(
     for sub_estimator in estimator_list:
         estimators.increment(sub_estimator)
 
-    if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
+    if montecarlo_globals.ENABLE_VPACKET_TRACKING:
         vpacket_tracker = consolidate_vpacket_tracker(
             vpacket_collections,
             spectrum_frequency,
@@ -185,7 +186,7 @@ def montecarlo_main_loop(
             1,
         )
 
-    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 

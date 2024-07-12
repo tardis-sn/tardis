@@ -5,7 +5,9 @@ import tardis.opacities.opacities as opacities
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.estimators.radfield_mc_estimators
-import tardis.transport.montecarlo.montecarlo_configuration as numba_config
+from tardis.transport.montecarlo.configuration.montecarlo_globals import (
+    ENABLE_FULL_RELATIVITY,
+)
 import tardis.transport.montecarlo.numba_interface as numba_interface
 import tardis.transport.montecarlo.r_packet as r_packet
 import tardis.transport.montecarlo.utils as utils
@@ -292,7 +294,7 @@ def test_move_r_packet(
     packet.energy = packet_params["energy"]
     packet.r = packet_params["r"]
 
-    numba_config.ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
+    ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
     r_packet_transport.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
     doppler_factor = frame_transformations.get_doppler_factor(
         packet.r, packet.mu, time_explosion, ENABLE_FULL_RELATIVITY

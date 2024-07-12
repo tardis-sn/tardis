@@ -7,7 +7,8 @@ from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
     macro_atom,
 )
-from tardis.transport.montecarlo.numba_config import (
+
+from tardis.transport.montecarlo.configuration.constants import (
     LineInteractionType,
 )
 from tardis.transport.montecarlo.r_packet import (

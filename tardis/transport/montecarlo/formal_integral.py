@@ -14,14 +14,14 @@ from tardis.opacities.opacity_state import (
 )
 from tardis.spectrum import TARDISSpectrum
 from tardis.transport.montecarlo import (
-    montecarlo_configuration,
     njit_dict,
     njit_dict_no_parallel,
 )
+from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 from tardis.transport.montecarlo.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
-from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )
@@ -283,8 +283,8 @@ class FormalIntegrator:
             self.plasma = opacity_state_initialize(
                 plasma,
                 transport.line_interaction_type,
-                montecarlo_configuration.DISABLE_LINE_SCATTERING,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+                montecarlo_globals.DISABLE_LINE_SCATTERING,
+                montecarlo_globals.CONTINUUM_PROCESSES_ENABLED,
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
@@ -307,8 +307,8 @@ class FormalIntegrator:
         self.opacity_state = opacity_state_initialize(
             self.original_plasma,
             self.transport.line_interaction_type,
-            montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+            montecarlo_globals.DISABLE_LINE_SCATTERING,
+            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED,
         )
         if self.transport.use_gpu:
             self.integrator = CudaFormalIntegrator(
@@ -360,7 +360,7 @@ class FormalIntegrator:
                 'and line_interaction_type == "macroatom"'
             )
 
-        if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
             return raise_or_return(
                 "The FormalIntegrator currently does not work for "
                 "continuum interactions."

@@ -1,10 +1,9 @@
-import sys
-import numpy as np
-from astropy import units as u
-from numba import float64, int64, cuda
 import math
 
-from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
+import numpy as np
+from numba import cuda
+
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
@@ -65,8 +64,7 @@ def cuda_formal_integral(
     z : array(float64, 2d, C)
     shell_id : array(int64, 2d, C)
     """
-
-    # todo: add all the original todos
+    # TODO: add all the original todos
 
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
@@ -210,7 +208,7 @@ def cuda_formal_integral(
     )
 
 
-class CudaFormalIntegrator(object):
+class CudaFormalIntegrator:
     """
     Helper class for performing the formal integral
     with CUDA.
@@ -376,8 +374,6 @@ class BoundsError(IndexError):
     binary search
     """
 
-    pass
-
 
 @cuda.jit(device=True)
 def line_search_cuda(nu, nu_insert, number_of_lines):
@@ -465,7 +461,6 @@ def trapezoid_integration_cuda(arr, dx):
     arr : (array(float64, 1d, C)
     dx : np.float64
     """
-
     result = arr[0] + arr[-1]
 
     for x in range(1, len(arr) - 1):
@@ -510,5 +505,4 @@ def calculate_p_values(R_max, N):
     -------
     float64
     """
-
     return np.arange(N).astype(np.float64) * R_max / (N - 1)
