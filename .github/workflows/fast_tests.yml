@@ -2,7 +2,7 @@
 #
 #    https://tardis-sn.github.io/tardis/development/continuous_integration.html
 
-name: fast tests
+name: tests
 
 on:
   push:
@@ -11,11 +11,6 @@ on:
   pull_request:
     branches:
     - '*'
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - labeled
 
 
 env:
@@ -32,24 +27,34 @@ jobs:
   test-matrix:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - id: set-matrix
         run: |
           sudo apt-get install jq
-          echo 'folder-matrix=$(find "tardis" -mindepth 1 -maxdepth 1 -type d | grep -v '__pycache__' | jq -R . | jq -cs .)' >> "$GITHUB_OUTPUT"
           echo 'os-matrix=["ubuntu-latest", "macos-latest"]' >> "$GITHUB_OUTPUT"
+          folder_matrix=$(find "tardis" -mindepth 1 -maxdepth 1 -type d | grep -v '__pycache__' | jq -R . | jq -cs .)
+          echo "folder-matrix=$folder_matrix" >> "$GITHUB_OUTPUT"
+      - run: |
+          echo "$JOB_CONTEXT"
+          echo "$JOB_CONTEXT2"
+        env: 
+          JOB_CONTEXT: ${{ steps.set-matrix.outputs.folder-matrix }}
+          JOB_CONTEXT2: ${{ steps.set-matrix.outputs.os-matrix }}
     outputs:
       folder-matrix: ${{ steps.set-matrix.outputs.folder-matrix }}
       os-matrix: ${{ steps.set-matrix.outputs.os-matrix }}
 
   non-continuum:
+    if: always()
     needs: test-matrix
     strategy:
       matrix:
         test-path: ${{fromJson(needs.test-matrix.outputs.folder-matrix)}}
         os: ${{fromJson(needs.test-matrix.outputs.os-matrix)}}
     runs-on: ${{ matrix.os }}
+    name: nct-${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tardis
         uses: ./.github/actions/setup_tardis
@@ -68,14 +73,16 @@ jobs:
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
     
   continuum_tests:
+    if: always()
     needs: test-matrix
     strategy:
       matrix:
         test-path: ${{fromJson(needs.test-matrix.outputs.folder-matrix)}}
         os: ${{fromJson(needs.test-matrix.outputs.os-matrix)}}
     runs-on: ${{ matrix.os }}
+    name: ct-${{ matrix.os }}
     steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
 
         - name: Setup tardis
           uses: ./.github/actions/setup_tardis
