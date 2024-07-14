@@ -28,29 +28,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - id: set-matrix
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: discover-tests
+          create-args: >-
+            python=3.10
+            pytest
+      - name: Discover continuum tests
+        id: discover-ct
         run: |
-          sudo apt-get install jq
-          echo 'os-matrix=["ubuntu-latest", "macos-latest"]' >> "$GITHUB_OUTPUT"
-          folder_matrix=$(find "tardis" -mindepth 1 -maxdepth 1 -type d | grep -v '__pycache__' | jq -R . | jq -cs .)
-          echo "folder-matrix=$folder_matrix" >> "$GITHUB_OUTPUT"
-      - run: |
-          echo "$JOB_CONTEXT"
-          echo "$JOB_CONTEXT2"
-        env: 
-          JOB_CONTEXT: ${{ steps.set-matrix.outputs.folder-matrix }}
-          JOB_CONTEXT2: ${{ steps.set-matrix.outputs.os-matrix }}
+         output=$(pytest tardis -m "continuum" --collect-only -qq -p no:warnings)
+         folder_matrix=$(echo "$output" | cut -d':' -f1 | cut -d'/' -f1-2 | sort -u | jq -R . | jq -cs .)
+         echo "cont-folder-matrix=$folder_matrix" >> "$GITHUB_OUTPUT"
+      - name: Discover non 
+        id: discover-nct
+        run: |
+         output=$(pytest tardis -m "not continuum" --collect-only -qq -p no:warnings)
+         folder_matrix=$(echo "$output" | cut -d':' -f1 | cut -d'/' -f1-2 | sort -u | jq -R . | jq -cs .)
+         echo "not-cont-folder-matrix=$folder_matrix" >> "$GITHUB_OUTPUT"
     outputs:
-      folder-matrix: ${{ steps.set-matrix.outputs.folder-matrix }}
-      os-matrix: ${{ steps.set-matrix.outputs.os-matrix }}
+      discover-nct: ${{ steps.discover-nct.outputs.not-cont-folder-matrix }}
+      discover-ct: ${{ steps.discover-ct.outputs.cont-folder-matrix }}
 
   non-continuum:
     if: always()
     needs: test-matrix
     strategy:
       matrix:
-        test-path: ${{fromJson(needs.test-matrix.outputs.folder-matrix)}}
-        os: ${{fromJson(needs.test-matrix.outputs.os-matrix)}}
+        test-path: ${{fromJson(needs.test-matrix.outputs.discover-nct)}}
+        os: ["macos-latest", "ubuntu-latest"]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     name: nct-${{ matrix.os }}-${{ matrix.test-path }}
@@ -78,8 +84,8 @@ jobs:
     needs: test-matrix
     strategy:
       matrix:
-        test-path: ${{fromJson(needs.test-matrix.outputs.folder-matrix)}}
-        os: ${{fromJson(needs.test-matrix.outputs.os-matrix)}}
+        test-path: ${{fromJson(needs.test-matrix.outputs.discover-nct)}}
+        os: ["macos-latest", "ubuntu-latest"]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     name: ct-${{ matrix.os }}-${{ matrix.test-path }}
