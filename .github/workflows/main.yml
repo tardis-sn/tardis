@@ -31,7 +31,7 @@ jobs:
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
 
-    uses: ./.github/workflows/new_tests.yml # calls the one above ^
+    uses: ./.github/workflows/new_tests.yml
     with:
       run_label: ${{ matrix.label }}
       run_os: ${{ matrix.os }}

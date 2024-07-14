@@ -51,7 +51,6 @@ jobs:
           retention-days: 1
 
   non-continuum:
-    # name: non-continuum-${{ inputs.run_label }}
     runs-on: ${{ inputs.run_os }}
     needs: base
     steps:
@@ -77,7 +76,7 @@ jobs:
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
     
   continuum_tests:
-    # name: continuum-${{ inputs.run_label }}
+    needs: base
     runs-on: ${{ inputs.run_label }}
     steps:
         - uses: actions/download-artifact@v4
