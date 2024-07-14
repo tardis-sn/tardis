@@ -1,0 +1,94 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: fast tests
+
+on:
+  push:
+    branches:
+    - '*'
+  pull_request:
+    branches:
+    - '*'
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
+                --cov=tardis --cov-report=xml --cov-report=html
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+defaults:
+  run:
+    shell: bash -l {0}
+ 
+jobs:
+  test-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - id: set-matrix
+        run: |
+          sudo apt-get install jq
+          echo 'folder-matrix=$(find "tardis" -mindepth 1 -maxdepth 1 -type d | grep -v '__pycache__' | jq -R . | jq -cs .)' >> "$GITHUB_OUTPUT"
+          echo 'os-matrix=["ubuntu-latest", "macos-latest"]' >> "$GITHUB_OUTPUT"
+    outputs:
+      folder-matrix: ${{ steps.set-matrix.outputs.folder-matrix }}
+      os-matrix: ${{ steps.set-matrix.outputs.os-matrix }}
+
+  non-continuum:
+    needs: test-matrix
+    strategy:
+      matrix:
+        test-path: ${{fromJson(needs.test-matrix.outputs.folder-matrix)}}
+        os: ${{fromJson(needs.test-matrix.outputs.os-matrix)}}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup tardis
+        uses: ./.github/actions/setup_tardis
+        with: 
+          os-label: ${{ matrix.os=='macos-latest' && 'osx-arm64' || 'linux-64' }}
+      
+      - name: Install package editable
+        run: |
+          pip install -e .
+
+      - name: Run tests
+        run: pytest ${{ matrix.test-path }} ${{ env.PYTEST_FLAGS }} -m "not continuum"
+      
+      - name: Refdata Generation tests
+        run: pytest ${{ matrix.test-path }} ${{ env.PYTEST_FLAGS }} --generate-reference
+        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
+    
+  continuum_tests:
+    needs: test-matrix
+    strategy:
+      matrix:
+        test-path: ${{fromJson(needs.test-matrix.outputs.folder-matrix)}}
+        os: ${{fromJson(needs.test-matrix.outputs.os-matrix)}}
+    runs-on: ${{ matrix.os }}
+    steps:
+        - uses: actions/checkout@v3
+
+        - name: Setup tardis
+          uses: ./.github/actions/setup_tardis
+          with: 
+            os-label: ${{ matrix.os=='macos-latest' && 'osx-arm64' || 'linux-64' }}
+
+        - name: Install package editable
+          run: |
+            pip install -e .
+
+        - name: Run continuum tests
+          run: pytest ${{ matrix.test-path }} ${{ env.PYTEST_FLAGS }} -m continuum
+
+        - name: Refdata Generation tests
+          run: pytest ${{ matrix.test-path }} ${{ env.PYTEST_FLAGS }} --generate-reference
+          if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
