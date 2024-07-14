@@ -51,6 +51,7 @@ jobs:
       matrix:
         test-path: ${{fromJson(needs.test-matrix.outputs.folder-matrix)}}
         os: ${{fromJson(needs.test-matrix.outputs.os-matrix)}}
+      fail-fast: false
     runs-on: ${{ matrix.os }}
     name: nct-${{ matrix.os }}-${{ matrix.test-path }}
     steps:
@@ -79,6 +80,7 @@ jobs:
       matrix:
         test-path: ${{fromJson(needs.test-matrix.outputs.folder-matrix)}}
         os: ${{fromJson(needs.test-matrix.outputs.os-matrix)}}
+      fail-fast: false
     runs-on: ${{ matrix.os }}
     name: ct-${{ matrix.os }}-${{ matrix.test-path }}
     steps:
