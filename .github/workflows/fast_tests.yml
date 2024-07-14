@@ -32,7 +32,7 @@ jobs:
         uses: ./.github/actions/setup_env
         with: 
           os-label: linux-64
-          
+
       - name: Discover continuum tests
         id: discover-ct
         run: |
@@ -83,7 +83,7 @@ jobs:
     needs: test-matrix
     strategy:
       matrix:
-        test-path: ${{fromJson(needs.test-matrix.outputs.discover-nct)}}
+        test-path: ${{fromJson(needs.test-matrix.outputs.discover-ct)}}
         os: ["macos-latest", "ubuntu-latest"]
       fail-fast: false
     runs-on: ${{ matrix.os }}
@@ -100,7 +100,7 @@ jobs:
           run: |
             pip install -e .
 
-        - name: Run continuum tests
+        - name: Run tests
           run: pytest ${{ matrix.test-path }} ${{ env.PYTEST_FLAGS }} -m continuum
 
         - name: Refdata Generation tests
