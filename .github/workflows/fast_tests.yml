@@ -28,12 +28,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-name: discover-tests
-          create-args: >-
-            python=3.10
-            pytest
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with: 
+          os-label: linux-64
+          
       - name: Discover continuum tests
         id: discover-ct
         run: |
