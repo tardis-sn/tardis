@@ -309,9 +309,9 @@ class LIVPlotter:
         if num_bins:
             if num_bins < 1:
                 raise ValueError("Number of bins must be positive")
-            elif len(bin_edges) - 1 < num_bins:
-                logger.info(
-                    "Number of bins must be less than or equal to number of shells"
+            elif num_bins > len(bin_edges) - 1:
+                logger.warn(
+                    "Number of bins must be less than or equal to number of shells. Plotting with number of bins equals to number of shells."
                 )
                 new_bin_edges = bin_edges
             else:
