@@ -1,0 +1,19 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "definitions": {
+        "foo": {
+          "$id": "http://example.com/great-scott",
+          "foo": "bar"
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/great-scott",
+      "error": true
+    }
+  ]
+}

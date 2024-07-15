@@ -1,0 +1,85 @@
+# This file created by conda-build 3.20.5
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Nov  3 15:13:44 2020
+# ------------------------------------------------
+
+package:
+    name: fribidi
+    version: 1.0.10
+source:
+    patches:
+        - meson-rpaths.patch
+    sha256: 7f1c687c7831499bcacae5e8675945a39bacbad16ecaa945e9454a32df653c01
+    url: https://github.com/fribidi/fribidi/releases/download/v1.0.10/fribidi-1.0.10.tar.xz
+build:
+    number: '0'
+    run_exports:
+        - fribidi >=1.0.10,<2.0a0
+    string: h36c2ea0_0
+requirements:
+    build:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - binutils_impl_linux-64 2.35 h18a2f87_9
+        - binutils_linux-64 2.35 hc3fd857_29
+        - ca-certificates 2020.6.20 hecda079_0
+        - certifi 2020.6.20 py39h079e4ff_2
+        - gcc_impl_linux-64 7.5.0 hda68d29_13
+        - gcc_linux-64 7.5.0 he2a3fca_29
+        - kernel-headers_linux-64 2.6.32 h77966d4_13
+        - ld_impl_linux-64 2.35 h769bd43_9
+        - libffi 3.2.1 he1b5a44_1007
+        - libgcc-ng 9.3.0 h5dbcf3e_17
+        - libgomp 9.3.0 h5dbcf3e_17
+        - libstdcxx-ng 9.3.0 h2ae2ef3_17
+        - meson 0.56.0 pyhd8ed1ab_0
+        - ncurses 6.2 he1b5a44_2
+        - ninja 1.10.1 hfc4b9b4_2
+        - openssl 1.1.1h h516909a_0
+        - python 3.9.0 h2a148a8_4_cpython
+        - python_abi 3.9 1_cp39
+        - readline 8.0 he28a2e2_2
+        - setuptools 49.6.0 py39h079e4ff_2
+        - sqlite 3.33.0 h4cf870e_1
+        - sysroot_linux-64 2.12 h77966d4_13
+        - tk 8.6.10 hed695b0_1
+        - tzdata 2020d h516909a_0
+        - xz 5.2.5 h516909a_1
+        - zlib 1.2.11 h516909a_1010
+    host:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - libgcc-ng 9.3.0 h5dbcf3e_17
+        - libgomp 9.3.0 h5dbcf3e_17
+    run:
+        - libgcc-ng >=7.5.0
+test:
+    commands:
+        - conda inspect linkages -p $PREFIX $PKG_NAME
+        - fribidi -h
+about:
+    description: 'One of the missing links stopping the penetration of free software
+        in Middle
+
+        East is the lack of support for the Arabic and Hebrew alphabets. In order
+        to
+
+        have proper Arabic and Hebrew support, the bidi algorithm needs to be
+
+        implemented. It is our hope that this library will stimulate more free
+
+        software in the Middle Eastern countries.
+
+        '
+    dev_url: https://github.com/fribidi/fribidi
+    doc_url: https://github.com/fribidi/fribidi
+    home: https://github.com/fribidi/fribidi
+    license: LGPL-2.1
+    license_file: COPYING
+    summary: The Free Implementation of the Unicode Bidirectional Algorithm.
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - mariusvniekerk
+        - msarahan

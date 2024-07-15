@@ -1,0 +1,13 @@
+{
+  "cxx_compiler": "gxx",
+  "c_stdlib_version": "2.12",
+  "c_compiler": "gcc",
+  "zlib_ng": "2.2",
+  "zstd": "1.5",
+  "channel_targets": "conda-forge main",
+  "cxx_compiler_version": "12",
+  "c_compiler_version": "12",
+  "lz4_c": "1.9.3",
+  "target_platform": "linux-64",
+  "c_stdlib": "sysroot"
+}

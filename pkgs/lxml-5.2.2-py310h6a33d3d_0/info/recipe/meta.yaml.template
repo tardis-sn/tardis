@@ -1,0 +1,64 @@
+{% set version = "5.2.2" %}
+
+package:
+  name: lxml
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/l/lxml/lxml-{{ version }}.tar.gz
+  sha256: bb2dc4898180bea79863d5487e5f9c7c34297414bad54bcd0f0852aee9cfdb87
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - cython                                 # [build_platform != target_platform]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - pkg-config
+  host:
+    - libxml2
+    - python
+    - pip
+    - cython
+    - libxslt
+    - zlib
+  run:
+    - python
+
+test:
+  imports:
+    - lxml
+    - lxml.etree
+    - lxml.objectify
+  requires:
+    - pip
+    - jq  # [unix]
+  commands:
+    - pip check
+    # ensuring that test.py is not contained. Otherwise ZPL-2.0 and GPL-2.0-only licenses needs to be porpagated.
+    - test_file=$(jq '.files[] | select( . | endswith("/test.py"))' $CONDA_PREFIX/conda-meta/{{ PKG_NAME }}-{{ PKG_VERSION }}-${PKG_BUILD_STRING}.json)  # [unix]
+    - if [[ ${test_file} ]]; then echo "found test.py file being packaged ${test_file}"; exit 1; fi  # [unix]
+
+about:
+  home: http://lxml.de/
+  # ElementTree comes with a supposedly custom license that is simply MIT-CMU with a different copyright holder.
+  license: BSD-3-Clause and MIT-CMU
+  license_file: LICENSES.txt
+  summary: Pythonic binding for the C libraries libxml2 and libxslt.
+  description: |
+    The lxml XML toolkit is a Pythonic binding for the C libraries libxml2 and
+    libxslt. It is unique in that it combines the speed and XML feature
+    completeness of these libraries with the simplicity of a native Python API,
+    mostly compatible but superior to the well-known ElementTree API.
+  doc_url: http://lxml.de/index.html#documentation
+  dev_url: https://github.com/lxml/lxml
+  doc_source_url: https://github.com/lxml/lxml/tree/master/doc
+
+extra:
+  recipe-maintainers:
+    - ocefpaf
+    - zklaus

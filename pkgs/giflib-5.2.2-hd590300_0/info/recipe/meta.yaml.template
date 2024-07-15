@@ -1,0 +1,54 @@
+{% set version = "5.2.2" %}
+
+package:
+  name: giflib
+  version: {{ version }}
+
+source:
+  - url: https://downloads.sourceforge.net/project/giflib/giflib-{{ version }}.tar.gz
+    sha256: be7ffbd057cadebe2aa144542fd90c6838c6a083b5e8a9048b8ee3b66b29d5fb
+    patches:
+      - fix_win.patch  # [win]
+      - stdbool_h.patch  # [win]
+  # add a getopt polyfill
+  - path: getopt.h  # [win]
+
+build:
+  number: 0
+  skip: true  # [win and vc<14]
+  run_exports:
+    # SONAME changes at minor revs.
+    #    https://abi-laboratory.pro/tracker/timeline/giflib/
+    - {{ pin_subpackage('giflib', max_pin='x.x') }}
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - make  # [not win]
+    - git  # [win]
+    - cmake
+
+test:
+  commands:
+    - gif2rgb -h
+    - gifbuild -h
+    - giffix -h
+    - giftext -h
+    - gifclrmp -h
+
+about:
+  home: http://giflib.sourceforge.net
+  license: MIT
+  license_file:
+    - COPYING
+    - getopt_LICENSE.txt  # [win]
+  summary: Library for reading and writing gif images
+
+extra:
+  recipe-maintainers:
+    - ocefpaf
+    - 183amir
+    - msarahan
+    - isuruf
+    - wolfv
+    - katietz

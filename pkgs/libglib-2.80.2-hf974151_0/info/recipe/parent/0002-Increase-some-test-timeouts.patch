@@ -1,0 +1,20 @@
+From e612970e267a599dc2c94b3a3bf4390632ea8134 Mon Sep 17 00:00:00 2001
+From: Peter Williams <peter@newton.cx>
+Date: Mon, 3 Sep 2018 23:20:56 -0400
+Subject: [PATCH 2/2] Increase some test timeouts.
+
+---
+
+diff --git a/gobject/tests/meson.build b/gobject/tests/meson.build
+index 9b3a9b4..e3dd905 100644
+--- a/gobject/tests/meson.build
++++ b/gobject/tests/meson.build
+@@ -113,7 +113,7 @@ gobject_tests = {
+   'properties-refcount1' : {},
+   'properties-refcount2' : {'suite' : ['slow']},
+   'properties-refcount3' : {'suite' : ['slow']},
+-  'properties-refcount4' : {},
++  'properties-refcount4' : {'suite' : ['slow']},
+   'signals-refcount1' : {
+     'source' : 'signals-refcount.c',
+     'c_args' : ['-DTESTNUM=1'],

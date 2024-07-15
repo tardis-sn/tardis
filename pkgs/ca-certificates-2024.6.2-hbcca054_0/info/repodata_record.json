@@ -1,0 +1,21 @@
+{
+    "arch": "x86_64",
+    "build": "hbcca054_0",
+    "build_number": 0,
+    "build_string": "hbcca054_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [],
+    "fn": "ca-certificates-2024.6.2-hbcca054_0.conda",
+    "license": "ISC",
+    "md5": "847c3c2905cc467cea52c24f9cfa8080",
+    "name": "ca-certificates",
+    "platform": "linux",
+    "sha256": "979af0932b2a5a26112044891a2d79e402e5ae8166f50fa48b8ebae47c0a2d65",
+    "size": 156035,
+    "subdir": "linux-64",
+    "timestamp": 1717311767102,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/ca-certificates-2024.6.2-hbcca054_0.conda",
+    "version": "2024.6.2"
+}

@@ -1,0 +1,17 @@
+{
+  "paths": [
+    {
+      "_path": "ssl/cacert.pem",
+      "path_type": "hardlink",
+      "sha256": "1605d0d39c5e25d67e7838da6a17dcf2e8c6cfa79030e8fb0318e35f5495493c",
+      "size_in_bytes": 293951
+    },
+    {
+      "_path": "ssl/cert.pem",
+      "path_type": "softlink",
+      "sha256": "1605d0d39c5e25d67e7838da6a17dcf2e8c6cfa79030e8fb0318e35f5495493c",
+      "size_in_bytes": 293951
+    }
+  ],
+  "paths_version": 1
+}

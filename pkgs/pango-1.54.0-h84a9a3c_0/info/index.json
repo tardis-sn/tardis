@@ -1,0 +1,22 @@
+{
+  "arch": "x86_64",
+  "build": "h84a9a3c_0",
+  "build_number": 0,
+  "depends": [
+    "cairo >=1.18.0,<2.0a0",
+    "fontconfig >=2.14.2,<3.0a0",
+    "fonts-conda-ecosystem",
+    "freetype >=2.12.1,<3.0a0",
+    "fribidi >=1.0.10,<2.0a0",
+    "harfbuzz >=8.5.0,<9.0a0",
+    "libgcc-ng >=12",
+    "libglib >=2.80.2,<3.0a0",
+    "libpng >=1.6.43,<1.7.0a0"
+  ],
+  "license": "LGPL-2.1-or-later",
+  "name": "pango",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1718027397723,
+  "version": "1.54.0"
+}

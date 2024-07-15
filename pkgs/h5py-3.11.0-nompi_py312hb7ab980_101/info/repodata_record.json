@@ -1,0 +1,28 @@
+{
+    "arch": "x86_64",
+    "build": "nompi_py312hb7ab980_101",
+    "build_number": 101,
+    "build_string": "nompi_py312hb7ab980_101",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "cached-property",
+        "hdf5 >=1.14.3,<1.14.4.0a0",
+        "libgcc-ng >=12",
+        "numpy >=1.19,<3",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "h5py-3.11.0-nompi_py312hb7ab980_101.conda",
+    "license": "BSD-3-Clause",
+    "md5": "be2eb8eeca809ba97dcbbac7957211e2",
+    "name": "h5py",
+    "platform": "linux",
+    "sha256": "24267c94345703c0122efc24bca1100c60347766bb4107c9db06845065d9dffa",
+    "size": 1240505,
+    "subdir": "linux-64",
+    "timestamp": 1715968255375,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/h5py-3.11.0-nompi_py312hb7ab980_101.conda",
+    "version": "3.11.0"
+}

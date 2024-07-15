@@ -1,0 +1,10 @@
+{
+  "_libgcc_mutex": "0.1 conda_forge",
+  "target_platform": "linux-64",
+  "triplet": "x86_64-conda-linux-gnu",
+  "cross_target_platform": "linux-64",
+  "cross_target_stdlib_version": "2.12",
+  "libgomp_ver": "1.0.0",
+  "cross_target_stdlib": "sysroot",
+  "channel_targets": "conda-forge main"
+}

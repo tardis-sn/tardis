@@ -1,0 +1,24 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "fqdn",
+    "idna",
+    "isoduration",
+    "jsonpointer >1.13",
+    "jsonschema >=4.22.0,<4.22.1.0a0",
+    "python",
+    "rfc3339-validator",
+    "rfc3986-validator >0.1.0",
+    "uri-template",
+    "webcolors >=1.11"
+  ],
+  "license": "MIT",
+  "name": "jsonschema-with-format-nongpl",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1714573279350,
+  "version": "4.22.0"
+}

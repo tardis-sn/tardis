@@ -1,0 +1,8 @@
+prefix=/home/conda/feedstock_root/build_artifacts/cairo_1697028164804/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place
+includedir=${prefix}/include
+
+Name: cairo-xlib
+Description: Xlib surface backend for cairo graphics library
+Version: 1.18.0
+Requires: cairo, x11, xext
+Cflags: -I${includedir}

@@ -1,0 +1,54 @@
+{% set name = "debugpy" %}
+{% set version = "1.8.2" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.zip
+  sha256: 95378ed08ed2089221896b9b3a8d021e642c24edc8fef20e5d4342ca8be65c00
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - {{ compiler('cxx') }}
+  host:
+    - python
+    - pip
+    - setuptools
+  run:
+    - python
+
+test:
+  requires:
+    - pip
+  commands:
+    - pip check
+  imports:
+    - debugpy
+    - debugpy.adapter
+    - debugpy.common
+    - debugpy.launcher
+    - debugpy.server
+
+about:
+  home: https://github.com/Microsoft/debugpy
+  license: MIT
+  license_family: MIT
+  license_file:
+    - LICENSE
+    - ThirdPartyNotices.txt
+  summary: An implementation of the Debug Adapter Protocol for Python
+  dev_url: https://github.com/microsoft/debugpy
+
+extra:
+  recipe-maintainers:
+    - jtilly
+    - xhochy

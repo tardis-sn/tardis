@@ -1,0 +1,33 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "$id": "http://example.com/",
+      "$defs": {
+        "foo": {
+          "$id": "http://example.com/nested",
+          "$defs": {
+            "inner": { "foo": "bar" }
+          }
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "base_uri": "http://example.com/nested",
+      "ref": "#/$defs/inner",
+      "target": { "foo": "bar" }
+    },
+    {
+      "base_uri": "http://example.com/",
+      "ref": "nested",
+      "target": {
+        "$id": "http://example.com/nested",
+        "$defs": {
+          "inner": { "foo": "bar" }
+        }
+      }
+    }
+  ]
+}

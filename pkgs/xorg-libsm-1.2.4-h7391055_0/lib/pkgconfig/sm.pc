@@ -1,0 +1,13 @@
+prefix=/home/conda/feedstock_root/build_artifacts/xorg-libsm_1685453497712/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: SM
+Description: X Session Management Library
+Version: 1.2.4
+Requires:
+Requires.private: ice xproto uuid
+Cflags: -I${includedir}
+Libs: -L${libdir} -lSM
+Libs.private: 

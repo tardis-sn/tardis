@@ -1,0 +1,68 @@
+# This file created by conda-build 3.20.5
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Nov 11 22:56:16 2020
+# ------------------------------------------------
+
+package:
+    name: libsodium
+    version: 1.0.18
+source:
+    sha256: 6f504490b342a4f8a4c4a02fc9b866cbef8622d5df4e5452b46be121e46636c1
+    url: https://download.libsodium.org/libsodium/releases/libsodium-1.0.18.tar.gz
+build:
+    number: '1'
+    run_exports:
+        - libsodium >=1.0.18,<1.0.19.0a0
+    string: h36c2ea0_1
+requirements:
+    build:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - binutils_impl_linux-64 2.35 h18a2f87_9
+        - binutils_linux-64 2.35 hc3fd857_29
+        - gcc_impl_linux-64 7.5.0 hda68d29_13
+        - gcc_linux-64 7.5.0 he2a3fca_29
+        - kernel-headers_linux-64 2.6.32 h77966d4_13
+        - ld_impl_linux-64 2.35 h769bd43_9
+        - libgcc-ng 9.3.0 h5dbcf3e_17
+        - libgomp 9.3.0 h5dbcf3e_17
+        - libstdcxx-ng 9.3.0 h2ae2ef3_17
+        - libtool 2.4.6 h58526e2_1006
+        - make 4.3 hd18ef5c_1
+        - sysroot_linux-64 2.12 h77966d4_13
+    host:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - libgcc-ng 9.3.0 h5dbcf3e_17
+        - libgomp 9.3.0 h5dbcf3e_17
+    run:
+        - libgcc-ng >=7.5.0
+test:
+    commands:
+        - test -f ${PREFIX}/include/sodium.h
+        - test -f ${PREFIX}/lib/libsodium.a
+        - test -f ${PREFIX}/lib/libsodium.so
+about:
+    description: 'Sodium is a new, easy-to-use software library for encryption, decryption,
+
+        signatures, password hashing and more. It is a portable, cross-compilable,
+
+        installable, packageable fork of NaCl, with a compatible API, and an
+
+        extended API to improve usability even further. Its goal is to provide all
+
+        of the core operations needed to build higher-level cryptographic tools.
+
+        '
+    dev_url: https://github.com/jedisct1/libsodium
+    doc_url: https://download.libsodium.org/doc
+    home: http://libsodium.org
+    license: ISC
+    license_file: LICENSE
+    summary: A modern and easy-to-use crypto library.
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - jakirkham
+        - minrk

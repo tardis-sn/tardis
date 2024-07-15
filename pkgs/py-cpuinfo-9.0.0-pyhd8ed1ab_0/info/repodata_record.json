@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "fn": "py-cpuinfo-9.0.0-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "6f6d42b894118f8378fce11887ccdaff",
+    "name": "py-cpuinfo",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "1bb0459fdebf2f3155ee511e99097c5506ef206acbdd871b74ae9fc4b0c4a019",
+    "size": 24947,
+    "subdir": "noarch",
+    "timestamp": 1666774595872,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/py-cpuinfo-9.0.0-pyhd8ed1ab_0.tar.bz2",
+    "version": "9.0.0"
+}

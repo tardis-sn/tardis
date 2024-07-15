@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.9"
+    ],
+    "fn": "alabaster-0.7.16-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "def531a3ac77b7fb8c21d17bb5d0badb",
+    "name": "alabaster",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "fd39ad2fabec1569bbb0dfdae34ab6ce7de6ec09dcec8638f83dad0373594069",
+    "size": 18365,
+    "subdir": "noarch",
+    "timestamp": 1704848898483,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/alabaster-0.7.16-pyhd8ed1ab_0.conda",
+    "version": "0.7.16"
+}

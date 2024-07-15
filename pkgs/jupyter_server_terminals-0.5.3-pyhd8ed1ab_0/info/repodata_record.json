@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8",
+        "terminado >=0.8.3"
+    ],
+    "fn": "jupyter_server_terminals-0.5.3-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "219b3833aa8ed91d47d1be6ca03f30be",
+    "name": "jupyter_server_terminals",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "038efbc7e4b2e72d49ed193cfb2bbbe9fbab2459786ce9350301f466a32567db",
+    "size": 19818,
+    "subdir": "noarch",
+    "timestamp": 1710262791393,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/jupyter_server_terminals-0.5.3-pyhd8ed1ab_0.conda",
+    "version": "0.5.3"
+}

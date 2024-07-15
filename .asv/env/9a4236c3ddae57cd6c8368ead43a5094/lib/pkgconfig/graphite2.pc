@@ -1,0 +1,7 @@
+
+Name: Graphite2
+Description: Font rendering engine for Complex Scripts
+Version: 3.0.1
+Libs: -L/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/lib -lgraphite2
+Cflags: -I/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/include
+

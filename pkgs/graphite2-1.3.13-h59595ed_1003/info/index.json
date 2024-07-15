@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "h59595ed_1003",
+  "build_number": 1003,
+  "depends": [
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12"
+  ],
+  "license": "LGPL-2.0-or-later",
+  "name": "graphite2",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1711634169756,
+  "version": "1.3.13"
+}

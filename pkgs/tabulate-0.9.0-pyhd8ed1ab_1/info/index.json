@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_1",
+  "build_number": 1,
+  "depends": [
+    "python >=3.7"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "tabulate",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1665138565317,
+  "version": "0.9.0"
+}

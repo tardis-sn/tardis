@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "h4ab18f5_3",
+  "build_number": 3,
+  "constrains": [
+    "pyopenssl >=22.1"
+  ],
+  "depends": [
+    "ca-certificates",
+    "libgcc-ng >=12"
+  ],
+  "license": "Apache-2.0",
+  "license_family": "Apache",
+  "name": "openssl",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1716468354865,
+  "version": "3.3.0"
+}

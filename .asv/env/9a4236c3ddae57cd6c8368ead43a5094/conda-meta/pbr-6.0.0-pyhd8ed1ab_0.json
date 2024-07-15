@@ -1,0 +1,796 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "pip",
+        "python >=3.6"
+    ],
+    "extracted_package_dir": "pkgs/pbr-6.0.0-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/AUTHORS",
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/LICENSE",
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/METADATA",
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/RECORD",
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/WHEEL",
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/entry_points.txt",
+        "lib/python3.12/site-packages/pbr-6.0.0.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/pbr/__init__.py",
+        "lib/python3.12/site-packages/pbr/build.py",
+        "lib/python3.12/site-packages/pbr/cmd/__init__.py",
+        "lib/python3.12/site-packages/pbr/cmd/main.py",
+        "lib/python3.12/site-packages/pbr/core.py",
+        "lib/python3.12/site-packages/pbr/extra_files.py",
+        "lib/python3.12/site-packages/pbr/find_package.py",
+        "lib/python3.12/site-packages/pbr/git.py",
+        "lib/python3.12/site-packages/pbr/hooks/__init__.py",
+        "lib/python3.12/site-packages/pbr/hooks/backwards.py",
+        "lib/python3.12/site-packages/pbr/hooks/base.py",
+        "lib/python3.12/site-packages/pbr/hooks/commands.py",
+        "lib/python3.12/site-packages/pbr/hooks/files.py",
+        "lib/python3.12/site-packages/pbr/hooks/metadata.py",
+        "lib/python3.12/site-packages/pbr/options.py",
+        "lib/python3.12/site-packages/pbr/packaging.py",
+        "lib/python3.12/site-packages/pbr/pbr_json.py",
+        "lib/python3.12/site-packages/pbr/sphinxext.py",
+        "lib/python3.12/site-packages/pbr/testr_command.py",
+        "lib/python3.12/site-packages/pbr/tests/__init__.py",
+        "lib/python3.12/site-packages/pbr/tests/base.py",
+        "lib/python3.12/site-packages/pbr/tests/test_commands.py",
+        "lib/python3.12/site-packages/pbr/tests/test_core.py",
+        "lib/python3.12/site-packages/pbr/tests/test_files.py",
+        "lib/python3.12/site-packages/pbr/tests/test_hooks.py",
+        "lib/python3.12/site-packages/pbr/tests/test_integration.py",
+        "lib/python3.12/site-packages/pbr/tests/test_packaging.py",
+        "lib/python3.12/site-packages/pbr/tests/test_pbr_json.py",
+        "lib/python3.12/site-packages/pbr/tests/test_setup.py",
+        "lib/python3.12/site-packages/pbr/tests/test_util.py",
+        "lib/python3.12/site-packages/pbr/tests/test_version.py",
+        "lib/python3.12/site-packages/pbr/tests/test_wsgi.py",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/CHANGES.txt",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/LICENSE.txt",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/MANIFEST.in",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/README.txt",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/data_files/a.txt",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/data_files/b.txt",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/data_files/c.rst",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/conf.py",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/index.rst",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/installation.rst",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/usage.rst",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/extra-file.txt",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/git-extra-file.txt",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__init__.py",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/_setup_hooks.py",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/cmd.py",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/extra.py",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/package_data/1.txt",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/package_data/2.txt",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/wsgi.py",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/setup.cfg",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/setup.py",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/src/testext.c",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/test-requirements.txt",
+        "lib/python3.12/site-packages/pbr/tests/util.py",
+        "lib/python3.12/site-packages/pbr/util.py",
+        "lib/python3.12/site-packages/pbr/version.py",
+        "lib/python3.12/site-packages/pbr/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/build.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/cmd/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/cmd/__pycache__/main.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/core.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/extra_files.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/find_package.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/git.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/hooks/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/hooks/__pycache__/backwards.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/hooks/__pycache__/base.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/hooks/__pycache__/commands.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/hooks/__pycache__/files.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/hooks/__pycache__/metadata.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/options.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/packaging.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/pbr_json.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/sphinxext.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/testr_command.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/base.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_commands.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_core.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_files.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_hooks.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_integration.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_packaging.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_pbr_json.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_setup.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_util.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_version.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/test_wsgi.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/__pycache__/conf.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/_setup_hooks.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/cmd.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/extra.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/wsgi.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/testpackage/__pycache__/setup.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/tests/__pycache__/util.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/util.cpython-312.pyc",
+        "lib/python3.12/site-packages/pbr/__pycache__/version.cpython-312.pyc",
+        "bin/pbr"
+    ],
+    "fn": "pbr-6.0.0-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "license_family": "Apache",
+    "link": {
+        "source": "pkgs/pbr-6.0.0-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "8dbab5ba746ed14aa32cb232dc437f8f",
+    "name": "pbr",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/pbr-6.0.0-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/AUTHORS",
+                "path_type": "hardlink",
+                "sha256": "2353c44e5c9cc48e16025ff051e0ae14dd2c2ba71af0ced52066ce84798bbf8e",
+                "sha256_in_prefix": "2353c44e5c9cc48e16025ff051e0ae14dd2c2ba71af0ced52066ce84798bbf8e",
+                "size_in_bytes": 1064
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/LICENSE",
+                "path_type": "hardlink",
+                "sha256": "5df2a0d87d6c562f0ea11c688ac52532aa28d744cabc7994ff0537f64b3b3320",
+                "sha256_in_prefix": "5df2a0d87d6c562f0ea11c688ac52532aa28d744cabc7994ff0537f64b3b3320",
+                "size_in_bytes": 10143
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "dccce0be8adb5ebd21df46ed3b406dcaa1defe2bc111574ed11b4a1c7e56b2df",
+                "sha256_in_prefix": "dccce0be8adb5ebd21df46ed3b406dcaa1defe2bc111574ed11b4a1c7e56b2df",
+                "size_in_bytes": 1307
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "afb2ebfd46c9ea78a0be6a56174905a0bbf075589773d39a6cb77ccd13094195",
+                "sha256_in_prefix": "afb2ebfd46c9ea78a0be6a56174905a0bbf075589773d39a6cb77ccd13094195",
+                "size_in_bytes": 8111
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "3f64fee9ea6fb57436701384fd4d4ae3f9e8aa5245377b63d7976332012ee0d3",
+                "sha256_in_prefix": "3f64fee9ea6fb57436701384fd4d4ae3f9e8aa5245377b63d7976332012ee0d3",
+                "size_in_bytes": 110
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "89c4ecbe19cd809669df4b278e7e9af7fff603d228ce994b15a857d0185a6f79",
+                "sha256_in_prefix": "89c4ecbe19cd809669df4b278e7e9af7fff603d228ce994b15a857d0185a6f79",
+                "size_in_bytes": 99
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/entry_points.txt",
+                "path_type": "hardlink",
+                "sha256": "b0ece41ff9f0959edd01ecff23117fe2100681eba490a5da4a45b2c66b582373",
+                "sha256_in_prefix": "b0ece41ff9f0959edd01ecff23117fe2100681eba490a5da4a45b2c66b582373",
+                "size_in_bytes": 148
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr-6.0.0.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "5f743d5617f663126e979eb8c6ca3451c2f9e6ef43ef98da06e19979d8af5321",
+                "sha256_in_prefix": "5f743d5617f663126e979eb8c6ca3451c2f9e6ef43ef98da06e19979d8af5321",
+                "size_in_bytes": 4
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/build.py",
+                "path_type": "hardlink",
+                "sha256": "0ff477f5db46b53e622d6579f4f280b7075d469d60cc741e43f49e0397261a81",
+                "sha256_in_prefix": "0ff477f5db46b53e622d6579f4f280b7075d469d60cc741e43f49e0397261a81",
+                "size_in_bytes": 2678
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/cmd/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/cmd/main.py",
+                "path_type": "hardlink",
+                "sha256": "515c894a7a0c895a172d0cee190e9ef02e1f1099e8bb5823c24c8a8be652b03b",
+                "sha256_in_prefix": "515c894a7a0c895a172d0cee190e9ef02e1f1099e8bb5823c24c8a8be652b03b",
+                "size_in_bytes": 3695
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/core.py",
+                "path_type": "hardlink",
+                "sha256": "935f5d2fa50633b68b519c4e141c048ba3c1f9afacdc981be4939529773e4415",
+                "sha256_in_prefix": "935f5d2fa50633b68b519c4e141c048ba3c1f9afacdc981be4939529773e4415",
+                "size_in_bytes": 6374
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/extra_files.py",
+                "path_type": "hardlink",
+                "sha256": "eeb695f5ba2677f67469d28551afea04df9931bb679436f1a1cf5ed201626fbb",
+                "sha256_in_prefix": "eeb695f5ba2677f67469d28551afea04df9931bb679436f1a1cf5ed201626fbb",
+                "size_in_bytes": 1096
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/find_package.py",
+                "path_type": "hardlink",
+                "sha256": "bbc5e6f19f424182c104158dac78bb614192d6f85eb70d4275836ebf6469bc92",
+                "sha256_in_prefix": "bbc5e6f19f424182c104158dac78bb614192d6f85eb70d4275836ebf6469bc92",
+                "size_in_bytes": 1043
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/git.py",
+                "path_type": "hardlink",
+                "sha256": "6b386a60fd446a595eada8808f12bd113912790c09b54e9e69a39038d0b67b25",
+                "sha256_in_prefix": "6b386a60fd446a595eada8808f12bd113912790c09b54e9e69a39038d0b67b25",
+                "size_in_bytes": 11580
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "bfac6da2c631709b09a84dec560d4814d51af85217a49b2e4f4cdabe0c5d6d43",
+                "sha256_in_prefix": "bfac6da2c631709b09a84dec560d4814d51af85217a49b2e4f4cdabe0c5d6d43",
+                "size_in_bytes": 1086
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/backwards.py",
+                "path_type": "hardlink",
+                "sha256": "bb3d687e78ac8305ee133d90283011927c3f1a479ac9639b2831e2dfa7a44b60",
+                "sha256_in_prefix": "bb3d687e78ac8305ee133d90283011927c3f1a479ac9639b2831e2dfa7a44b60",
+                "size_in_bytes": 1176
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/base.py",
+                "path_type": "hardlink",
+                "sha256": "0502dc05f15df9fd79d5a48e38e637e7daca60d6f62ca39a7ad8f8845db95d8e",
+                "sha256_in_prefix": "0502dc05f15df9fd79d5a48e38e637e7daca60d6f62ca39a7ad8f8845db95d8e",
+                "size_in_bytes": 1038
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/commands.py",
+                "path_type": "hardlink",
+                "sha256": "a8a17694340d63c0abe3e4ab7bb396741fbf55a9885ccbe15e380a10038b0f6a",
+                "sha256_in_prefix": "a8a17694340d63c0abe3e4ab7bb396741fbf55a9885ccbe15e380a10038b0f6a",
+                "size_in_bytes": 2380
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/files.py",
+                "path_type": "hardlink",
+                "sha256": "5ef293505e77dec7d57fc92b67706a8ea1bd0d5302eb95d7d676eb364d0b643c",
+                "sha256_in_prefix": "5ef293505e77dec7d57fc92b67706a8ea1bd0d5302eb95d7d676eb364d0b643c",
+                "size_in_bytes": 4745
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/metadata.py",
+                "path_type": "hardlink",
+                "sha256": "7f781c2d7d53358245d8e99a7b1c807bda21d9a5cbb1dc69f3828bdf40cff084",
+                "sha256_in_prefix": "7f781c2d7d53358245d8e99a7b1c807bda21d9a5cbb1dc69f3828bdf40cff084",
+                "size_in_bytes": 1076
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/options.py",
+                "path_type": "hardlink",
+                "sha256": "a69a5521e94c4e91caa54029f264cfc4b210b7081d1308f7305a23137d98c23a",
+                "sha256_in_prefix": "a69a5521e94c4e91caa54029f264cfc4b210b7081d1308f7305a23137d98c23a",
+                "size_in_bytes": 2371
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/packaging.py",
+                "path_type": "hardlink",
+                "sha256": "69ab33a24f37b33c9e5e85e5491d98b455f6593387cfffd04bac748a9e41ef23",
+                "sha256_in_prefix": "69ab33a24f37b33c9e5e85e5491d98b455f6593387cfffd04bac748a9e41ef23",
+                "size_in_bytes": 31234
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/pbr_json.py",
+                "path_type": "hardlink",
+                "sha256": "b44341a3ea177a3106e2c5014b841e47c6a7c060a83ddbbb408785990818ecd0",
+                "sha256_in_prefix": "b44341a3ea177a3106e2c5014b841e47c6a7c060a83ddbbb408785990818ecd0",
+                "size_in_bytes": 1250
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/sphinxext.py",
+                "path_type": "hardlink",
+                "sha256": "bbc2ec1f013d765e702e597da3909ca5ec9b551cfe15a32c0cf937139e31ebc7",
+                "sha256_in_prefix": "bbc2ec1f013d765e702e597da3909ca5ec9b551cfe15a32c0cf937139e31ebc7",
+                "size_in_bytes": 3207
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/testr_command.py",
+                "path_type": "hardlink",
+                "sha256": "093d0470335442eb89e9652488933bdd0fcce56e60c3c7c75768f1adc404174e",
+                "sha256_in_prefix": "093d0470335442eb89e9652488933bdd0fcce56e60c3c7c75768f1adc404174e",
+                "size_in_bytes": 5867
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "5d7f7ba4a799799d97da79d119394221b9c1c5a55df5605d05908a8b95447928",
+                "sha256_in_prefix": "5d7f7ba4a799799d97da79d119394221b9c1c5a55df5605d05908a8b95447928",
+                "size_in_bytes": 985
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/base.py",
+                "path_type": "hardlink",
+                "sha256": "d6dc56ef5c31e9f71844f5762715ac200f81794aa612f2989f50f5c242331045",
+                "sha256_in_prefix": "d6dc56ef5c31e9f71844f5762715ac200f81794aa612f2989f50f5c242331045",
+                "size_in_bytes": 8933
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_commands.py",
+                "path_type": "hardlink",
+                "sha256": "1e968032d2c2879658981f2fbcb2a54ca2f7bfd5d47032ff894474d2ba509459",
+                "sha256_in_prefix": "1e968032d2c2879658981f2fbcb2a54ca2f7bfd5d47032ff894474d2ba509459",
+                "size_in_bytes": 3694
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_core.py",
+                "path_type": "hardlink",
+                "sha256": "216c689361457fe7468edba13a376f2f3246a5a7d21b210edb410a27f56f5f1b",
+                "sha256_in_prefix": "216c689361457fe7468edba13a376f2f3246a5a7d21b210edb410a27f56f5f1b",
+                "size_in_bytes": 5482
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_files.py",
+                "path_type": "hardlink",
+                "sha256": "74a41056265dc5dcd9eeb72f55c3c4a29ca23de55429292e58836dca2ce39d64",
+                "sha256_in_prefix": "74a41056265dc5dcd9eeb72f55c3c4a29ca23de55429292e58836dca2ce39d64",
+                "size_in_bytes": 5465
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_hooks.py",
+                "path_type": "hardlink",
+                "sha256": "5e33dbf01e2cfeebebdb2b07d300e919a5345a753ccfa4feda9cd17970f2139e",
+                "sha256_in_prefix": "5e33dbf01e2cfeebebdb2b07d300e919a5345a753ccfa4feda9cd17970f2139e",
+                "size_in_bytes": 3007
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_integration.py",
+                "path_type": "hardlink",
+                "sha256": "9bbd5152637aa27aecd29d5faefbe061c14149988589e4e95d691ace8da8ff2a",
+                "sha256_in_prefix": "9bbd5152637aa27aecd29d5faefbe061c14149988589e4e95d691ace8da8ff2a",
+                "size_in_bytes": 11844
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_packaging.py",
+                "path_type": "hardlink",
+                "sha256": "f54cdc52bbe0cf310a4ece2c8a28e26d2cdaf2cd9bf3b4b72330d086cebce935",
+                "sha256_in_prefix": "f54cdc52bbe0cf310a4ece2c8a28e26d2cdaf2cd9bf3b4b72330d086cebce935",
+                "size_in_bytes": 51900
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_pbr_json.py",
+                "path_type": "hardlink",
+                "sha256": "ae8ea0c6cb9306ad8bee005fe274c68769789b20af6f051a06cb123ea5615f16",
+                "sha256_in_prefix": "ae8ea0c6cb9306ad8bee005fe274c68769789b20af6f051a06cb123ea5615f16",
+                "size_in_bytes": 1221
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_setup.py",
+                "path_type": "hardlink",
+                "sha256": "d4dfcfa1d7cfb9455ef084c2d7a5068d0e8b1a08fee33d56905f8018ad65a73a",
+                "sha256_in_prefix": "d4dfcfa1d7cfb9455ef084c2d7a5068d0e8b1a08fee33d56905f8018ad65a73a",
+                "size_in_bytes": 9501
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_util.py",
+                "path_type": "hardlink",
+                "sha256": "1213423b19b5e1eb7796d8bbcbbeb3002b03ff9e5a92e331975eff65d066e442",
+                "sha256_in_prefix": "1213423b19b5e1eb7796d8bbcbbeb3002b03ff9e5a92e331975eff65d066e442",
+                "size_in_bytes": 10563
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_version.py",
+                "path_type": "hardlink",
+                "sha256": "d5cfb9b3be65adf0000c4d41a7bc957818a470037f4c3b3bbdeb4b2ed6524525",
+                "sha256_in_prefix": "d5cfb9b3be65adf0000c4d41a7bc957818a470037f4c3b3bbdeb4b2ed6524525",
+                "size_in_bytes": 14100
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/test_wsgi.py",
+                "path_type": "hardlink",
+                "sha256": "91b9087713d2f1ece71fd65eb155a526e30746d95f15621f6d78925f38a6ce6d",
+                "sha256_in_prefix": "91b9087713d2f1ece71fd65eb155a526e30746d95f15621f6d78925f38a6ce6d",
+                "size_in_bytes": 5741
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/CHANGES.txt",
+                "path_type": "hardlink",
+                "sha256": "37abf10c0608e8cc78d86ee952408d9adac1420062a05484897d101a139c009a",
+                "sha256_in_prefix": "37abf10c0608e8cc78d86ee952408d9adac1420062a05484897d101a139c009a",
+                "size_in_bytes": 4020
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/LICENSE.txt",
+                "path_type": "hardlink",
+                "sha256": "eb4a8c8791f6caab1cf36df26db2b6f4e2ddda52657b060ff7f02abc63910aef",
+                "sha256_in_prefix": "eb4a8c8791f6caab1cf36df26db2b6f4e2ddda52657b060ff7f02abc63910aef",
+                "size_in_bytes": 1464
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/MANIFEST.in",
+                "path_type": "hardlink",
+                "sha256": "a5d3c31f25631ec6aabfe399e7eb9834f3541f6e4f94f6ed1bb5924bdc8425df",
+                "sha256_in_prefix": "a5d3c31f25631ec6aabfe399e7eb9834f3541f6e4f94f6ed1bb5924bdc8425df",
+                "size_in_bytes": 54
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/README.txt",
+                "path_type": "hardlink",
+                "sha256": "8b670d4406bd50274faa295a65712358c40a2229005f219d67de81433fe007bd",
+                "sha256_in_prefix": "8b670d4406bd50274faa295a65712358c40a2229005f219d67de81433fe007bd",
+                "size_in_bytes": 6674
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/data_files/a.txt",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/data_files/b.txt",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/data_files/c.rst",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/conf.py",
+                "path_type": "hardlink",
+                "sha256": "0d40620beca0fe7990a337731327623e759abaf369efa9f4317f32d1d4eaef6b",
+                "sha256_in_prefix": "0d40620beca0fe7990a337731327623e759abaf369efa9f4317f32d1d4eaef6b",
+                "size_in_bytes": 1912
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/index.rst",
+                "path_type": "hardlink",
+                "sha256": "e2abedb564d093df94bb3c92eace448d2ba1aa5731ca17106a00622743e7daa3",
+                "sha256_in_prefix": "e2abedb564d093df94bb3c92eace448d2ba1aa5731ca17106a00622743e7daa3",
+                "size_in_bytes": 479
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/installation.rst",
+                "path_type": "hardlink",
+                "sha256": "24bfe6e49ec15fcf01abe8403f8c48f5aea4b76117c56efa9cadd8c6775b70f4",
+                "sha256_in_prefix": "24bfe6e49ec15fcf01abe8403f8c48f5aea4b76117c56efa9cadd8c6775b70f4",
+                "size_in_bytes": 202
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/usage.rst",
+                "path_type": "hardlink",
+                "sha256": "53966f9b3b92616124680dded5685f37cf85a58def16d79a91c475bdc97d209a",
+                "sha256_in_prefix": "53966f9b3b92616124680dded5685f37cf85a58def16d79a91c475bdc97d209a",
+                "size_in_bytes": 83
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/extra-file.txt",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/git-extra-file.txt",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "2e53e7250a8060e9a04d8ad9a8967d853d2110105e562a8518c8a38d1017045f",
+                "sha256_in_prefix": "2e53e7250a8060e9a04d8ad9a8967d853d2110105e562a8518c8a38d1017045f",
+                "size_in_bytes": 94
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/_setup_hooks.py",
+                "path_type": "hardlink",
+                "sha256": "de0ec27dffd54623358a9000e1580e0a952834c62bc697d5bcefc5ec722ef896",
+                "sha256_in_prefix": "de0ec27dffd54623358a9000e1580e0a952834c62bc697d5bcefc5ec722ef896",
+                "size_in_bytes": 2310
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/cmd.py",
+                "path_type": "hardlink",
+                "sha256": "4f4798b4e8d8fa3be0db53527d58d30d02e43b2aaba77ab735c164840e0ba221",
+                "sha256_in_prefix": "4f4798b4e8d8fa3be0db53527d58d30d02e43b2aaba77ab735c164840e0ba221",
+                "size_in_bytes": 798
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/extra.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/package_data/1.txt",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/package_data/2.txt",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/wsgi.py",
+                "path_type": "hardlink",
+                "sha256": "7b77c795ea97fde0e48d921c80e910edf658a99c13cb03242c3dacd28b91d00f",
+                "sha256_in_prefix": "7b77c795ea97fde0e48d921c80e910edf658a99c13cb03242c3dacd28b91d00f",
+                "size_in_bytes": 1321
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/setup.cfg",
+                "path_type": "hardlink",
+                "sha256": "de8a2235366c5690ea915eb12e02e527daae1113c6102d33d162dc081f552370",
+                "sha256_in_prefix": "de8a2235366c5690ea915eb12e02e527daae1113c6102d33d162dc081f552370",
+                "size_in_bytes": 1721
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/setup.py",
+                "path_type": "hardlink",
+                "sha256": "1afcdd7041602308123bcc24f0dce8254526a069efad845142bdca7fd99bb6ec",
+                "sha256_in_prefix": "1afcdd7041602308123bcc24f0dce8254526a069efad845142bdca7fd99bb6ec",
+                "size_in_bytes": 692
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/src/testext.c",
+                "path_type": "hardlink",
+                "sha256": "f9f7b306e8cbff96efa0a7ed0d04b2c4370d8657983d1e3d9e99e76e8cbe3fc5",
+                "sha256_in_prefix": "f9f7b306e8cbff96efa0a7ed0d04b2c4370d8657983d1e3d9e99e76e8cbe3fc5",
+                "size_in_bytes": 673
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/test-requirements.txt",
+                "path_type": "hardlink",
+                "sha256": "845381ea4bde47dfe2848e40fbe050baa5357b86cfd5700ee8adacb30215cde5",
+                "sha256_in_prefix": "845381ea4bde47dfe2848e40fbe050baa5357b86cfd5700ee8adacb30215cde5",
+                "size_in_bytes": 48
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/util.py",
+                "path_type": "hardlink",
+                "sha256": "a7d2c16c25e8be8711ac67eec9fcfcf3b176c33c9b088d55b41b38d3d37c5cb8",
+                "sha256_in_prefix": "a7d2c16c25e8be8711ac67eec9fcfcf3b176c33c9b088d55b41b38d3d37c5cb8",
+                "size_in_bytes": 2662
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/util.py",
+                "path_type": "hardlink",
+                "sha256": "0a249861377c8155c22931452489fcc9c538827faf27266063e12c0604cd0799",
+                "sha256_in_prefix": "0a249861377c8155c22931452489fcc9c538827faf27266063e12c0604cd0799",
+                "size_in_bytes": 23560
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/version.py",
+                "path_type": "hardlink",
+                "sha256": "9f83ec4f58956b98ed073463eee688f920d3b8ab561fe8e8d232d110ea9fbc1c",
+                "sha256_in_prefix": "9f83ec4f58956b98ed073463eee688f920d3b8ab561fe8e8d232d110ea9fbc1c",
+                "size_in_bytes": 20542
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/build.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/cmd/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/cmd/__pycache__/main.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/core.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/extra_files.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/find_package.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/git.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/__pycache__/backwards.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/__pycache__/base.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/__pycache__/commands.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/__pycache__/files.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/hooks/__pycache__/metadata.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/options.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/packaging.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/pbr_json.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/sphinxext.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/testr_command.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/base.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_commands.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_core.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_files.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_hooks.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_integration.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_packaging.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_pbr_json.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_setup.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_util.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_version.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/test_wsgi.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/doc/source/__pycache__/conf.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/_setup_hooks.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/cmd.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/extra.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/pbr_testpackage/__pycache__/wsgi.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/testpackage/__pycache__/setup.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/tests/__pycache__/util.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/util.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/pbr/__pycache__/version.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "bin/pbr",
+                "path_type": "unix_python_entry_point"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "",
+    "sha256": "4c83853fc6349de163c2871613e064e5fdab91723db9b50bcda681adc05e4b87",
+    "size": 73106,
+    "subdir": "noarch",
+    "timestamp": 1699384879677,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pbr-6.0.0-pyhd8ed1ab_0.conda",
+    "version": "6.0.0"
+}

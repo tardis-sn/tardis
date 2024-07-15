@@ -1,0 +1,35 @@
+{
+  "paths": [
+    {
+      "_path": "include/brotli/decode.h",
+      "path_type": "hardlink",
+      "sha256": "20d0a87a96bc25a3af7557075be87be4393e88a5fb564db08e92884dee17d841",
+      "size_in_bytes": 16886
+    },
+    {
+      "_path": "include/brotli/encode.h",
+      "path_type": "hardlink",
+      "sha256": "3403a597eff24ff45903128feb471e4dd5138f624104ebe058a9d90ed905550c",
+      "size_in_bytes": 19841
+    },
+    {
+      "_path": "include/brotli/port.h",
+      "path_type": "hardlink",
+      "sha256": "d87dae6cce00aff76192a1db4fedc2a817967e14e652829349b8a75088f9e467",
+      "size_in_bytes": 11439
+    },
+    {
+      "_path": "include/brotli/shared_dictionary.h",
+      "path_type": "hardlink",
+      "sha256": "86230f0aaf533044d85d92f84b5aec8b7e4e231d4b64b098604083e7866e8097",
+      "size_in_bytes": 3535
+    },
+    {
+      "_path": "include/brotli/types.h",
+      "path_type": "hardlink",
+      "sha256": "96c9330e790aa6fe53f4cdd328d0a4b98e361b82913baa3219db73aadb11272c",
+      "size_in_bytes": 2615
+    }
+  ],
+  "paths_version": 1
+}

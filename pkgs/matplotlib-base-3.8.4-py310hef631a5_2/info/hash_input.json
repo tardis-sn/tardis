@@ -1,0 +1,15 @@
+{
+  "numpy": "2.0",
+  "c_compiler_version": "12",
+  "c_stdlib": "sysroot",
+  "c_compiler": "gcc",
+  "c_stdlib_version": "2.12",
+  "tk": "8.6",
+  "channel_targets": "conda-forge main",
+  "python": "3.10.* *_cpython",
+  "cxx_compiler_version": "12",
+  "target_platform": "linux-64",
+  "cxx_compiler": "gxx",
+  "freetype": "2",
+  "zlib": "1.2"
+}

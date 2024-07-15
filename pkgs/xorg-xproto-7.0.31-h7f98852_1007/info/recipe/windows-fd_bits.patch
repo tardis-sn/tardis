@@ -1,0 +1,11 @@
+--- configure.ac.orig	2017-02-03 10:04:23.243912983 -0500
++++ configure.ac	2017-02-03 10:04:32.643958586 -0500
+@@ -49,7 +49,7 @@
+ # Handle Xpoll.h.in
+ # Avoid determining fds_bits on WIN32 hosts (not including cygwin)
+ case $host_os in
+-	mingw*)		fds_bits_found=true;;
++	mingw*|*msys*)		fds_bits_found=true;;
+ 	*)		fds_bits_found=false;;
+ esac
+ 

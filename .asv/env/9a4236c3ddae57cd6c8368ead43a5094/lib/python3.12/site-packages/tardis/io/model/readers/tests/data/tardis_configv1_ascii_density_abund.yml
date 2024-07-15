@@ -1,0 +1,50 @@
+#New configuration for TARDIS based on YAML
+#IMPORTANT any pure floats need to have a +/- after the e e.g. 2e+5
+#Hopefully pyyaml will fix this soon.
+---
+#Currently only simple1d is allowed
+tardis_config_version: v1.0
+supernova:
+    luminosity_requested: 9.44 log_lsun
+    time_explosion: 13 day
+
+atom_data: kurucz_atom_pure_simple.h5
+
+model:
+    structure:
+        type: file
+        filename: density.dat
+        filetype: simple_ascii
+        v_inner_boundary: 11000 km/s
+        v_outer_boundary: 20000 km/s
+    abundances:
+        type: file
+        filename: abund.dat
+        filetype: simple_ascii
+
+plasma:
+    disable_electron_scattering: no
+    ionization: lte
+    excitation: lte
+    radiative_rates_type: dilute-blackbody
+    line_interaction_type: macroatom
+
+montecarlo:
+    seed: 23111963
+    no_of_packets : 1.0e+5
+    iterations: 20
+    last_no_of_packets: 1.e+5
+    no_of_virtual_packets: 5
+    convergence_strategy:
+        type: damped
+        damping_constant: 1.0
+        threshold: 0.05
+        fraction: 0.8
+        hold_iterations: 3
+        t_inner:
+            damping_constant: 1.0
+
+spectrum:
+    start : 500 angstrom
+    stop : 20000 angstrom
+    num: 10000

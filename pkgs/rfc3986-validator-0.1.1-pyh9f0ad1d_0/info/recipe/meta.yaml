@@ -1,0 +1,80 @@
+# This file created by conda-build 3.19.2
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Fri Aug 21 15:35:32 2020
+# ------------------------------------------------
+
+package:
+    name: rfc3986-validator
+    version: 0.1.1
+source:
+    sha256: 3d44bde7921b3b9ec3ae4e3adca370438eccebc676456449b145d533b240d055
+    url: https://pypi.io/packages/source/r/rfc3986_validator/rfc3986_validator-0.1.1.tar.gz
+build:
+    noarch: python
+    number: '0'
+    script: /home/conda/feedstock_root/build_artifacts/rfc3986-validator_1598024191506/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla/bin/python
+        -m pip install . -vv
+    string: pyh9f0ad1d_0
+requirements:
+    host:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - attrs 20.1.0 pyh9f0ad1d_0
+        - ca-certificates 2020.6.20 hecda079_0
+        - certifi 2020.6.20 py36h9f0ad1d_0
+        - importlib-metadata 1.7.0 py36h9f0ad1d_0
+        - importlib_metadata 1.7.0 0
+        - iniconfig 1.0.1 pyh9f0ad1d_0
+        - ld_impl_linux-64 2.34 hc38a660_9
+        - libffi 3.2.1 he1b5a44_1007
+        - libgcc-ng 9.3.0 h24d8f2e_15
+        - libgomp 9.3.0 h24d8f2e_15
+        - libstdcxx-ng 9.3.0 hdf63c60_15
+        - more-itertools 8.4.0 py_0
+        - ncurses 6.2 he1b5a44_1
+        - openssl 1.1.1g h516909a_1
+        - packaging 20.4 pyh9f0ad1d_0
+        - pip 20.2.2 py_0
+        - pluggy 0.13.1 py36h9f0ad1d_2
+        - py 1.9.0 pyh9f0ad1d_0
+        - pyparsing 2.4.7 pyh9f0ad1d_0
+        - pytest 6.0.1 py36h9f0ad1d_0
+        - pytest-runner 5.2 py_0
+        - python 3.6.11 h4d41432_2_cpython
+        - python_abi 3.6 1_cp36m
+        - readline 8.0 he28a2e2_2
+        - setuptools 49.6.0 py36h9f0ad1d_0
+        - six 1.15.0 pyh9f0ad1d_0
+        - sqlite 3.33.0 h4cf870e_0
+        - tk 8.6.10 hed695b0_0
+        - toml 0.10.1 pyh9f0ad1d_0
+        - wheel 0.35.1 pyh9f0ad1d_0
+        - xz 5.2.5 h516909a_1
+        - zipp 3.1.0 py_0
+        - zlib 1.2.11 h516909a_1007
+    run:
+        - python
+test:
+    commands:
+        - pip check
+    imports:
+        - rfc3986_validator
+    requires:
+        - pip
+about:
+    description: 'Pure python rfc3986 validator
+
+        '
+    dev_url: https://github.com/naimetti/rfc3986-validator
+    doc_source_url: https://github.com/naimetti/rfc3986-validator
+    doc_url: https://github.com/naimetti/rfc3986-validator
+    home: https://github.com/naimetti/rfc3986-validator
+    license: MIT
+    license_file: LICENSE
+    summary: Pure python rfc3986 validator
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - akchinSTC
+        - lresende

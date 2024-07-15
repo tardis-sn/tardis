@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6"
+    ],
+    "fn": "mpmath-1.3.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "dbf6e2d89137da32fa6670f3bffc024e",
+    "name": "mpmath",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "a4f025c712ec1502a55c471b56a640eaeebfce38dd497d5a1a33729014cac47a",
+    "size": 438339,
+    "subdir": "noarch",
+    "timestamp": 1678228210181,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/mpmath-1.3.0-pyhd8ed1ab_0.conda",
+    "version": "1.3.0"
+}

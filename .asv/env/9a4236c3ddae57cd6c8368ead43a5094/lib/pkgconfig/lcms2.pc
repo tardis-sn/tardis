@@ -1,0 +1,11 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: lcms2
+Description: LCMS Color Management Library
+Version: 2.16
+Libs: -L${libdir} -llcms2 
+Libs.private: -lm -lpthread
+Cflags: -I${includedir}

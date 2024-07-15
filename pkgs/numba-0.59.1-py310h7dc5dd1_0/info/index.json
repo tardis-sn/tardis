@@ -1,0 +1,30 @@
+{
+  "arch": "x86_64",
+  "build": "py310h7dc5dd1_0",
+  "build_number": 0,
+  "constrains": [
+    "cudatoolkit >=11.2",
+    "cuda-python >=11.6",
+    "cuda-version >=11.2",
+    "numpy >=1.22.3,<1.27",
+    "libopenblas !=0.3.6",
+    "scipy >=1.0",
+    "tbb >=2021.6.0"
+  ],
+  "depends": [
+    "_openmp_mutex >=4.5",
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12",
+    "llvmlite >=0.42.0,<0.43.0a0",
+    "numpy >=1.22.4,<2.0a0",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310"
+  ],
+  "license": "BSD-2-Clause",
+  "license_family": "BSD",
+  "name": "numba",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1711475336305,
+  "version": "0.59.1"
+}

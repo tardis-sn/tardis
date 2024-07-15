@@ -1,0 +1,58 @@
+{% set name = "httpx" %}
+{% set version = "0.27.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: a0cb88a46f32dc874e04ee956e4c2764aba2aa228f650b06788ba6bda2962ab5
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv
+  noarch: python
+  entry_points:
+    - httpx=httpx:main
+
+requirements:
+  host:
+    - python >=3.8
+    - hatchling
+    - hatch-fancy-pypi-readme
+    - pip
+  run:
+    - python >=3.8
+    - certifi
+    - httpcore =1.*
+    - idna
+    - anyio
+    - sniffio
+
+test:
+  imports:
+    - httpx
+  requires:
+    - click ==8.*
+    - pip
+    - pygments ==2.*
+    - rich >=10,<13
+  commands:
+    - pip check
+    - httpx --help
+
+about:
+  home: https://github.com/encode/httpx
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE.md
+  summary: A next-generation HTTP client for Python.
+  doc_url: https://www.encode.io/httpx/
+  dev_url: https://github.com/encode/httpx
+
+extra:
+  recipe-maintainers:
+    - primozgodec
+    - florimondmanca
+    - thewchan

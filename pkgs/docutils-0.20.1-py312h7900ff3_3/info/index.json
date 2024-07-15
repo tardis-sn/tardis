@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "py312h7900ff3_3",
+  "build_number": 3,
+  "depends": [
+    "python >=3.12,<3.13.0a0",
+    "python_abi 3.12.* *_cp312"
+  ],
+  "license": "CC-PDDC AND BSD-3-Clause AND BSD-2-Clause AND ZPL-2.1",
+  "name": "docutils",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1701882735141,
+  "version": "0.20.1"
+}

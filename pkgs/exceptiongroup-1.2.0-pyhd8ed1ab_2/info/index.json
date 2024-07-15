@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_2",
+  "build_number": 2,
+  "depends": [
+    "python >=3.7"
+  ],
+  "license": "MIT and PSF-2.0",
+  "name": "exceptiongroup",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1704921321122,
+  "version": "1.2.0"
+}

@@ -1,0 +1,10 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+libdir=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/lib
+includedir=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/include
+
+Name: libturbojpeg
+Description: A SIMD-accelerated JPEG codec that provides the TurboJPEG API
+Version: 3.0.0
+Libs: -L${libdir} -lturbojpeg
+Cflags: -I${includedir}

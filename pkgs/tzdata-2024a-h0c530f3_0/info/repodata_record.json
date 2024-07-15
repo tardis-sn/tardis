@@ -1,0 +1,22 @@
+{
+    "arch": null,
+    "build": "h0c530f3_0",
+    "build_number": 0,
+    "build_string": "h0c530f3_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [],
+    "fn": "tzdata-2024a-h0c530f3_0.conda",
+    "license": "LicenseRef-Public-Domain",
+    "md5": "161081fc7cec0bfda0d86d7cb595f8d8",
+    "name": "tzdata",
+    "noarch": "generic",
+    "platform": null,
+    "sha256": "7b2b69c54ec62a243eb6fba2391b5e443421608c3ae5dbff938ad33ca8db5122",
+    "size": 119815,
+    "subdir": "noarch",
+    "timestamp": 1706886945727,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/tzdata-2024a-h0c530f3_0.conda",
+    "version": "2024a"
+}

@@ -1,0 +1,61 @@
+{% set name = "llvmlite" %}
+{% set version = "0.43.0" %}
+{% set sha256 = "ae2b5b5c3ef67354824fb75517c8db5fbe93bc02cd9671f3c62271626bc041d5" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  # don't use github generated tar-ball as the sha256 value may not be stable
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: 0
+  skip: true  # [py<39]
+  script_env:
+    - PY_VCRUNTIME_REDIST
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - {{ stdlib('c') }}
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - cmake
+    - make                   # [unix]
+  host:
+    - python
+    - setuptools
+    - llvmdev 14.0.*
+    - llvm 14.0.*
+    - zlib
+    - vs2015_runtime  # [win]
+  run:
+    - python
+    - vs2015_runtime  # [win]
+
+test:
+  imports:
+    - llvmlite
+    - llvmlite.binding
+  commands:
+    - python -m llvmlite.tests
+
+about:
+  home: http://llvmlite.pydata.org
+  license: BSD-2-Clause
+  license_file: LICENSE
+  summary: A lightweight LLVM python binding for writing JIT compilers.
+  doc_url: http://llvmlite.pydata.org/
+  dev_url: https://github.com/numba/llvmlite
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - souravsingh
+    - marcelotrevisani
+    - xhochy
+    - mbargull

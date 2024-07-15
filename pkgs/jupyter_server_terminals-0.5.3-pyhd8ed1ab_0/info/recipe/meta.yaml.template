@@ -1,0 +1,51 @@
+{% set version = "0.5.3" %}
+
+package:
+  name: jupyter_server_terminals
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/j/jupyter-server-terminals/jupyter_server_terminals-{{ version }}.tar.gz
+  sha256: 5ae0295167220e9ace0edcfdb212afd2b01ee8d179fe6f23c899590e9b8a5269
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - hatchling >=1.5
+    - pip
+    - python >=3.8
+  run:
+    - python >=3.8
+    - terminado >=0.8.3
+    # - pywinpty >=2.0.3  # rely on terminado to provide this
+
+test:
+  source_files:
+    - tests
+  imports:
+    - jupyter_server_terminals
+  commands:
+    - pip check
+    - coverage run --source=jupyter_server_terminals --branch -m pytest -vv --color=yes --tb=long
+    - coverage report --show-missing --skip-covered --fail-under=80
+  requires:
+    - coverage
+    - jupyter_server >=2.0.0rc8
+    - pip
+    - pytest >=7.0
+    - pytest-jupyter-server >=0.5.3
+    - pytest-timeout
+
+about:
+  home: https://github.com/jupyter-server/jupyter_server_terminals
+  summary: A Jupyter Server Extension Providing Terminals.
+  license: BSD-3-Clause
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - conda-forge/jupyter_server

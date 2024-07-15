@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.9",
+        "sphinx >=5"
+    ],
+    "fn": "sphinxcontrib-applehelp-1.0.8-pyhd8ed1ab_0.conda",
+    "license": "BSD-2-Clause",
+    "license_family": "BSD",
+    "md5": "611a35a27914fac3aa37611a6fe40bb5",
+    "name": "sphinxcontrib-applehelp",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "710013443a063518d587d2af82299e92ab6d6695edf35a676ac3a0ccc9e3f8e6",
+    "size": 29539,
+    "subdir": "noarch",
+    "timestamp": 1705126465971,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-1.0.8-pyhd8ed1ab_0.conda",
+    "version": "1.0.8"
+}

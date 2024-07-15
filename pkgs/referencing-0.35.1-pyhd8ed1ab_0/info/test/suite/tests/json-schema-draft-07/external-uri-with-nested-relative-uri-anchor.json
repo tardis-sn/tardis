@@ -1,0 +1,27 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "definitions": {
+        "foo": {
+          "$id": "foo",
+          "definitions": {
+            "spam": {
+              "$id": "#bar",
+              "baz": "quux"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/foo#bar",
+      "target": {
+        "$id": "#bar",
+        "baz": "quux"
+      }
+    }
+  ]
+}

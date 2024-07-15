@@ -1,0 +1,114 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu Jun  6 09:05:46 2024
+# ------------------------------------------------
+
+package:
+  name: h5py
+  version: 3.11.0
+source:
+  sha256: 034ec21f28f2f2edc4542515a9ae45356a25bb459048acf9622e6b1143b3fae7
+  url: https://github.com/h5py/h5py/archive/3.11.0.tar.gz
+build:
+  number: '102'
+  script_env: null
+  string: nompi_py310hf054cd7_102
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_2
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_2
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libsanitizer 12.3.0 hb8811af_7
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _numpy_rc 1 h23db71c_0
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.28.1 hd590300_0
+    - ca-certificates 2024.6.2 hbcca054_0
+    - cython 0.29.37 py310hc6cd4ac_0
+    - hdf5 1.14.3 nompi_hdf9ad27_105
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 hf3520f5_2
+    - libaec 1.1.3 h59595ed_0
+    - libblas 3.9.0 22_linux64_openblas
+    - libcblas 3.9.0 22_linux64_openblas
+    - libcurl 8.8.0 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgfortran-ng 13.2.0 h69a702a_7
+    - libgfortran5 13.2.0 hca663fb_7
+    - libgomp 13.2.0 h77fa898_7
+    - liblapack 3.9.0 22_linux64_openblas
+    - libnghttp2 1.58.0 h47da74e_1
+    - libnsl 2.0.1 hd590300_0
+    - libopenblas 0.3.27 pthreads_h413a1c8_0
+    - libsqlite 3.45.3 h2797004_0
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - ncurses 6.5 h59595ed_0
+    - numpy 2.0.0rc2 py310h515e003_0
+    - openssl 3.3.1 h4ab18f5_0
+    - pip 24.0 pyhd8ed1ab_0
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - pkgconfig 1.5.5 pyhd8ed1ab_4
+    - python 3.10.14 hd12c33a_0_cpython
+    - python_abi 3.10 4_cp310
+    - readline 8.2 h8228510_1
+    - setuptools 70.0.0 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.6 ha6fb4c9_0
+  run:
+    - cached-property
+    - hdf5 >=1.14.3,<1.14.4.0a0
+    - libgcc-ng >=12
+    - numpy >=1.19,<3
+    - python >=3.10,<3.11.0a0
+    - python_abi 3.10.* *_cp310
+test:
+  commands:
+    - pip check
+  imports:
+    - h5py
+  requires:
+    - pip
+    - pytest
+    - pytest-mpi
+about:
+  dev_url: https://github.com/h5py/h5py
+  home: http://www.h5py.org/
+  license: BSD-3-Clause
+  license_file: licenses/license.txt
+  summary: Read and write HDF5 files from Python
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240606.1.1
+  recipe-maintainers:
+    - jakirkham
+    - jan-janssen
+    - minrk
+    - ocefpaf
+    - scopatz
+    - tacaswell
+  remote_url: https://github.com/conda-forge/h5py-feedstock
+  sha: d742663333407a835745e0160b613e63a3feb095

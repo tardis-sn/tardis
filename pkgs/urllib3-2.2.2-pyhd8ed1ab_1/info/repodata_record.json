@@ -1,0 +1,29 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_1",
+    "build_number": 1,
+    "build_string": "pyhd8ed1ab_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "brotli-python >=1.0.9",
+        "h2 >=4,<5",
+        "pysocks >=1.5.6,<2.0,!=1.5.7",
+        "python >=3.8",
+        "zstandard >=0.18.0"
+    ],
+    "fn": "urllib3-2.2.2-pyhd8ed1ab_1.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "e804c43f58255e977093a2298e442bb8",
+    "name": "urllib3",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "00c47c602c03137e7396f904eccede8cc64cc6bad63ce1fc355125df8882a748",
+    "size": 95048,
+    "subdir": "noarch",
+    "timestamp": 1719391384778,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/urllib3-2.2.2-pyhd8ed1ab_1.conda",
+    "version": "2.2.2"
+}

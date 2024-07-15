@@ -1,0 +1,78 @@
+# This file created by conda-build 3.20.2
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Fri Sep 18 00:07:00 2020
+# ------------------------------------------------
+
+package:
+    name: munkres
+    version: 1.1.4
+source:
+    fn: munkres-1.1.4.tar.gz
+    sha256: 6a297282895e4f7c27902bb5ad045d06458905daafb80a9ce14b9d87ca391205
+    url: https://github.com/bmc/munkres/archive/release-1.1.4.tar.gz
+build:
+    noarch: python
+    number: '0'
+    script: python setup.py install --single-version-externally-managed --record record.txt
+    string: pyh9f0ad1d_0
+requirements:
+    build:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - ca-certificates 2020.6.20 hecda079_0
+        - certifi 2020.6.20 py36h9f0ad1d_0
+        - ld_impl_linux-64 2.35 h769bd43_9
+        - libffi 3.2.1 he1b5a44_1007
+        - libgcc-ng 9.3.0 h24d8f2e_16
+        - libgomp 9.3.0 h24d8f2e_16
+        - libstdcxx-ng 9.3.0 hdf63c60_16
+        - ncurses 6.2 he1b5a44_1
+        - openssl 1.1.1g h516909a_1
+        - python 3.6.11 h4d41432_2_cpython
+        - python_abi 3.6 1_cp36m
+        - readline 8.0 he28a2e2_2
+        - setuptools 49.6.0 py36h9f0ad1d_1
+        - sqlite 3.33.0 h4cf870e_0
+        - tk 8.6.10 hed695b0_0
+        - xz 5.2.5 h516909a_1
+        - zlib 1.2.11 h516909a_1009
+    run:
+        - python
+test:
+    commands:
+        - py.test
+    imports:
+        - munkres
+    requires:
+        - pytest
+    source_files:
+        - test/*
+about:
+    description: 'The Munkres module provides an O(n^3) implementation of the Munkres
+
+        algorithm (also called the Hungarian algorithm or the Kuhn-Munkres
+
+        algorithm). The algorithm models an assignment problem as an NxM cost
+
+        matrix, where each element represents the cost of assigning the ith worker
+
+        to the jth job, and it figures out the least-cost solution, choosing a
+
+        single item from each row and column in the matrix, such that no row and
+
+        no column are used more than once.
+
+        '
+    dev_url: https://github.com/bmc/munkres
+    doc_url: http://software.clapper.org/munkres/
+    home: https://github.com/bmc/munkres
+    license: Apache-2.0
+    license_family: Apache
+    license_file: LICENSE.md
+    summary: The Munkres module provides an O(n^3) implementation of the Munkres algorithm
+        (also called the Hungarian algorithm or the Kuhn-Munkres algorithm).
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - CJ-Wright

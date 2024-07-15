@@ -1,0 +1,34 @@
+From 15054c6bfa9fae638cd2eab04e17da0fa9477a22 Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Sat, 31 Dec 2022 00:57:18 +0000
+Subject: [PATCH 4/4] Fix dependencies for gvplugin_gd
+
+---
+ plugin/gd/CMakeLists.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/plugin/gd/CMakeLists.txt b/plugin/gd/CMakeLists.txt
+index 55229d716..41a0a0a79 100644
+--- a/plugin/gd/CMakeLists.txt
++++ b/plugin/gd/CMakeLists.txt
+@@ -24,6 +24,8 @@ if(GD_FOUND)
+   )
+ 
+   target_include_directories(gvplugin_gd SYSTEM PRIVATE
++    ${CAIRO_INCLUDE_DIRS}/cairo
++    ${PANGOCAIRO_INCLUDE_DIRS}
+     ${GD_INCLUDE_DIRS}
+   )
+ 
+@@ -31,6 +33,8 @@ if(GD_FOUND)
+     cgraph
+     gvc
+     pathplan
++    ${CAIRO_LINK_LIBRARIES}
++    ${PANGOCAIRO_LINK_LIBRARIES}
+     ${GD_LIBRARIES}
+   )
+ 
+-- 
+2.45.1
+

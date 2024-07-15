@@ -1,0 +1,147 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun Jun  2 09:22:17 2024
+# ------------------------------------------------
+
+package:
+  name: hdf5
+  version: 1.14.3
+source:
+  patches:
+    - patches/testpar_Makefile.am.patch
+  sha256: 09cdb287aa7a89148c1638dd20891fdbae08102cf433ef128fd345338aa237c7
+  url: https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.14/hdf5-1.14.3/src/hdf5-1.14.3.tar.gz
+build:
+  number: '103'
+  run_exports:
+    - hdf5 >=1.14.3,<1.14.4.0a0
+  string: nompi_hdf9ad27_103
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - autoconf 2.71 pl5321h2b4cb7a_1
+    - automake 1.16.5 pl5321ha770c72_0
+    - binutils_impl_linux-64 2.40 ha1999f0_1
+    - binutils_linux-64 2.40 hdade7a5_3
+    - ca-certificates 2024.6.2 hbcca054_0
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gfortran_impl_linux-64 12.3.0 h1645026_7
+    - gfortran_linux-64 12.3.0 h617cb40_3
+    - gnuconfig 2020.11.07 hd8ed1ab_0
+    - gxx_impl_linux-64 12.3.0 h2a574ab_7
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_1
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgfortran5 13.2.0 hca663fb_7
+    - libgomp 13.2.0 h77fa898_7
+    - libsanitizer 12.3.0 hb8811af_7
+    - libstdcxx-devel_linux-64 12.3.0 h0223996_107
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libtool 2.4.7 h27087fc_0
+    - libxcrypt 4.4.36 hd590300_1
+    - m4 1.4.18 h516909a_1001
+    - make 4.3 hd18ef5c_1
+    - openssl 3.3.0 h4ab18f5_3
+    - perl 5.32.1 7_hd590300_perl5
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - c-ares 1.28.1 hd590300_0
+    - ca-certificates 2024.6.2 hbcca054_0
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - libaec 1.1.3 h59595ed_0
+    - libcurl 8.8.0 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgfortran-ng 13.2.0 h69a702a_7
+    - libgfortran5 13.2.0 hca663fb_7
+    - libgomp 13.2.0 h77fa898_7
+    - libnghttp2 1.58.0 h47da74e_1
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libzlib 1.2.13 h4ab18f5_6
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.0 h4ab18f5_3
+    - zlib 1.2.13 h4ab18f5_6
+    - zstd 1.5.6 ha6fb4c9_0
+  run:
+    - libaec >=1.1.3,<2.0a0
+    - libcurl >=8.8.0,<9.0a0
+    - libgcc-ng >=12
+    - libgfortran-ng
+    - libgfortran5 >=12.3.0
+    - libstdcxx-ng >=12
+    - libzlib >=1.2.13,<2.0a0
+    - openssl >=3.3.0,<4.0a0
+test:
+  commands:
+    - command -v h5c++
+    - command -v h5cc
+    - command -v h5fc
+    - command -v h5redeploy
+    - command -v h5perf_serial
+    - command -v gif2h5
+    - command -v h52gif
+    - command -v h5copy
+    - command -v h5debug
+    - command -v h5diff
+    - command -v h5dump
+    - command -v h5import
+    - command -v h5jam
+    - command -v h5ls
+    - command -v h5mkgrp
+    - command -v h5repack
+    - command -v h5repart
+    - command -v h5stat
+    - command -v h5unjam
+    - test -f $PREFIX/lib/libhdf5${SHLIB_EXT}
+    - test -f $PREFIX/lib/libhdf5_cpp${SHLIB_EXT}
+    - test -f $PREFIX/lib/libhdf5_hl${SHLIB_EXT}
+    - test -f $PREFIX/lib/libhdf5_hl_cpp${SHLIB_EXT}
+    - h5dump --filedriver=ros3 "http://s3.amazonaws.com/hdfgroup/data/hdf5demo/tall.h5"
+      | grep '^HDF5'
+  files:
+    - test
+  requires:
+    - cmake
+    - gcc_linux-64 12.*
+    - gfortran_linux-64 12.*
+    - gxx_linux-64 12.*
+    - make
+    - pkg-config
+    - zlib
+about:
+  dev_url: https://github.com/HDFGroup/hdf5
+  doc_url: https://portal.hdfgroup.org/display/HDF5/HDF5
+  home: https://www.hdfgroup.org/solutions/hdf5/
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: COPYING
+  summary: HDF5 is a data model, library, and file format for storing and managing
+    data
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240602.1.1
+  recipe-maintainers:
+    - SylvainCorlay
+    - astrofrog
+    - davidbrochart
+    - gillins
+    - groutr
+    - hmaarrfk
+    - jakirkham
+    - marcelotrevisani
+    - marqh
+    - ocefpaf
+    - scopatz
+    - varlackc
+  remote_url: https://github.com/conda-forge/hdf5-feedstock
+  sha: 5eafd6b3fcbf0a72af42691266cc305110a53cf4

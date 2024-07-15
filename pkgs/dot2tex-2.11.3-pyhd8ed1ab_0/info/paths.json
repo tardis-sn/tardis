@@ -1,0 +1,83 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/AUTHORS",
+      "path_type": "hardlink",
+      "sha256": "dc0c452c1ef7c827f5da86424b0b3a4d931c2fc5ef31c4262466a101fd9fe58c",
+      "size_in_bytes": 303
+    },
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "6b8c33daf68bb6c1b58bad56b8e82917069cf9ad34451e8176cd236412f4eee0",
+      "size_in_bytes": 1137
+    },
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "31eb4cda37dccc5fac4bc7b44004fe621f99f7f60a8326aee7306d489a6790fe",
+      "size_in_bytes": 1496
+    },
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "6076ddc7fb3896cd89d4c2f20b6fd6b6b55ac241bddb338ae7785c926fd34131",
+      "size_in_bytes": 1401
+    },
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "4bacde3c36d4023ccc9a960e8367070f1b98156c3b5a2397b7aa2033a8480794",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "b76da7d8664640137aae17800de9ce11375e2d00470aae82307ea260762cee94",
+      "size_in_bytes": 103
+    },
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "4415d28aaff8501a5914cacde4f62d072bd05f62c3966f22e7ad0084fd4fcc49",
+      "size_in_bytes": 50
+    },
+    {
+      "_path": "site-packages/dot2tex-2.11.3.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "4fc63fc931c8b179dee980e3f354325ea88a8a228b6e7976745d0fceaeaca827",
+      "size_in_bytes": 8
+    },
+    {
+      "_path": "site-packages/dot2tex/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "9a3ac35739a2df99473fcad6034e5279800edfab933e7790b8845ef9cca6bd15",
+      "size_in_bytes": 1972
+    },
+    {
+      "_path": "site-packages/dot2tex/dot2tex.py",
+      "path_type": "hardlink",
+      "sha256": "98363d50e25e55f8221a3dd09eb7097a7fb0c4b5e30aa9d721256d14e0343ce0",
+      "size_in_bytes": 108577
+    },
+    {
+      "_path": "site-packages/dot2tex/dotparsing.py",
+      "path_type": "hardlink",
+      "sha256": "8a5f39c4aa85d512eac6375418eb114053a25cf5c737587639d29746c6052be0",
+      "size_in_bytes": 35520
+    }
+  ],
+  "paths_version": 1
+}

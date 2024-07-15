@@ -1,0 +1,53 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/entrypoints-0.4.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/entrypoints-0.4.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "de5fcd7349cdf399b0707a2a024833c4704743650133c72d6f0ff7561a03a848",
+      "size_in_bytes": 1098
+    },
+    {
+      "_path": "site-packages/entrypoints-0.4.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "952c55cf89ff4db06017f89650be1c91c93631b9289835a0f4c3e289e7acd267",
+      "size_in_bytes": 2589
+    },
+    {
+      "_path": "site-packages/entrypoints-0.4.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "a1088879fda1c9204aa1eba75df99f8f9108d177d25fb09f51032552efa4e53d",
+      "size_in_bytes": 699
+    },
+    {
+      "_path": "site-packages/entrypoints-0.4.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/entrypoints-0.4.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "8cf311fc3ce47385f889c42d9b3f35967358fe402c7e883baf2eeaa11bd82d7c",
+      "size_in_bytes": 81
+    },
+    {
+      "_path": "site-packages/entrypoints-0.4.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "2ee554c1059859f68f76aa4735f9e4e81043182606c83c04453acb51867c62a7",
+      "size_in_bytes": 107
+    },
+    {
+      "_path": "site-packages/entrypoints.py",
+      "path_type": "hardlink",
+      "sha256": "1fde7c2c1985ae0201a14925bdc162a847f58d5d24c5520f10d34613541a51dd",
+      "size_in_bytes": 8264
+    }
+  ],
+  "paths_version": 1
+}

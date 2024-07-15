@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "arrow >=0.15.0",
+        "python >=3.7"
+    ],
+    "fn": "isoduration-20.11.0-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "md5": "4cb68948e0b8429534380243d063a27a",
+    "name": "isoduration",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "7bb5c4d994361022f47a807b5e7d101b3dce16f7dd8a0af6ffad9f479d346493",
+    "size": 17189,
+    "subdir": "noarch",
+    "timestamp": 1638811664194,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/isoduration-20.11.0-pyhd8ed1ab_0.tar.bz2",
+    "version": "20.11.0"
+}

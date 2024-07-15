@@ -1,0 +1,84 @@
+# This file created by conda-build 3.27.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu Nov 23 18:34:40 2023
+# ------------------------------------------------
+
+package:
+  name: pytest-html
+  version: 4.1.1
+source:
+  sha256: 70a01e8ae5800f4a074b56a4cb1025c8f4f9b038bba5fe31e3c98eb996686f07
+  url: https://pypi.io/packages/source/p/pytest-html/pytest_html-4.1.1.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/pytest-html_1700764553976/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold/bin/python
+    -m pip install . -vv --no-deps --no-build-isolation
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - editables 0.3 pyhd8ed1ab_0
+    - hatch-vcs 0.3.0 pyhd8ed1ab_0
+    - hatchling 1.18.0 pyhd8ed1ab_0
+    - importlib-metadata 6.8.0 pyha770c72_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_3
+    - libgomp 13.2.0 h807b86a_3
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.1 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.1.4 hd590300_0
+    - packaging 23.2 pyhd8ed1ab_0
+    - pathspec 0.11.2 pyhd8ed1ab_0
+    - pip 23.3.1 pyhd8ed1ab_0
+    - pluggy 1.3.0 pyhd8ed1ab_0
+    - python 3.12.0 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 68.2.2 pyhd8ed1ab_0
+    - setuptools-scm 8.0.4 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - trove-classifiers 2023.11.22 pyhd8ed1ab_0
+    - typing-extensions 4.8.0 hd8ed1ab_0
+    - typing_extensions 4.8.0 pyha770c72_0
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.41.3 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.17.0 pyhd8ed1ab_0
+  run:
+    - jinja2 >=3.0.0
+    - pytest >=7.0.0
+    - pytest-metadata >=2.0.0
+    - python >=3.8
+test:
+  commands:
+    - pip check
+  imports:
+    - pytest_html
+  requires:
+    - pip
+about:
+  home: https://github.com/pytest-dev/pytest-html
+  license: MPL-2.0
+  license_file: LICENSE
+  summary: pytest plugin for generating HTML reports
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20231123.5.1
+  recipe-maintainers:
+    - '0xbe7a'
+    - birdsarah
+    - davehunt
+    - dbast
+    - nicoddemus
+  remote_url: https://github.com/conda-forge/pytest-html-feedstock
+  sha: eb0edc1dc2de133cdb2a4184b9b95b2477889b28

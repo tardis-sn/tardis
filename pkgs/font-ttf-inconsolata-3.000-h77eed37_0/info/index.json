@@ -1,0 +1,14 @@
+{
+  "arch": null,
+  "build": "h77eed37_0",
+  "build_number": 0,
+  "depends": [],
+  "license": "OFL-1.1",
+  "license_family": "Other",
+  "name": "font-ttf-inconsolata",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1620479909603,
+  "version": "3.000"
+}

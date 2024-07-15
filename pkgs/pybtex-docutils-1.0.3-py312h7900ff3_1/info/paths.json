@@ -1,0 +1,77 @@
+{
+  "paths": [
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils-1.0.3.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils-1.0.3.dist-info/LICENSE.rst",
+      "path_type": "hardlink",
+      "sha256": "dcfe39b39207996a3c33cee0bb55a556298675f144aed4940c8c22eb92a72f64",
+      "size_in_bytes": 1151
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils-1.0.3.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "354783d3a3209dd8c865fe50c110de4f6094f1d9eaf3cb5266fe483a86553d2e",
+      "size_in_bytes": 4181
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils-1.0.3.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "bc56d4508899b602dd0f0e92787eaf9da1a3a47507e0d915ffc65a86d4f969fe",
+      "size_in_bytes": 1055
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils-1.0.3.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils-1.0.3.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "c903798389a0e00c9b4639208bef72cb889010589b1909a5cfbf0f8a4e4eafe0",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils-1.0.3.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "d374a2b3fedcac02f0084079b8959716ae522591491196cfffa1d8f697a1266a",
+      "size_in_bytes": 111
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils-1.0.3.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "ca3299eddf31c20b352c3ef49c8f814a296d9de7d4b650bfca8c91f7e9859a12",
+      "size_in_bytes": 53
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils-1.0.3.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "c1e908003c4608ddaa9bf2a76378d381cb3686b28a7e454030f2dc16f42ead6d",
+      "size_in_bytes": 16
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "822c48b3a9700a5d86e59b54ca2075e76880b4d1a424dd440b6af0de64640dd7",
+      "size_in_bytes": 8124
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "d124e0dc9bb77af5f0f6956cd7006c1be707b8114c53f2220c69e415e3db9c9d",
+      "size_in_bytes": 12195
+    },
+    {
+      "_path": "lib/python3.12/site-packages/pybtex_docutils/py.typed",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    }
+  ],
+  "paths_version": 1
+}

@@ -1,0 +1,10 @@
+prefix=/home/conda/feedstock_root/build_artifacts/graphviz_1700901306837/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/graphviz
+
+Name: liblab_gamut
+Description: data library for default color labeling
+Version: 9.0.0
+Libs: -L${libdir} -llab_gamut
+Cflags: -I${includedir}

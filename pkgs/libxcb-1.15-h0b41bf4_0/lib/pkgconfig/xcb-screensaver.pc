@@ -1,0 +1,11 @@
+prefix=/home/conda/feedstock_root/build_artifacts/libxcb_1682082200176/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: XCB Screensaver
+Description: XCB Screensaver Extension
+Version: 1.15
+Requires.private: xcb
+Libs: -L${libdir} -lxcb-screensaver
+Cflags: -I${includedir}

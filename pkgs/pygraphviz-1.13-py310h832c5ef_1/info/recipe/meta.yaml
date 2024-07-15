@@ -1,0 +1,153 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat Jun 15 08:31:54 2024
+# ------------------------------------------------
+
+package:
+  name: pygraphviz
+  version: '1.13'
+source:
+  fn: pygraphviz-1.13.tar.gz
+  sha256: 6ad8aa2f26768830a5a1cfc8a14f022d13df170a8f6fdfd68fd1aa1267000964
+  url: https://pypi.io/packages/source/p/pygraphviz/pygraphviz-1.13.tar.gz
+build:
+  number: '1'
+  script: /home/conda/feedstock_root/build_artifacts/pygraphviz_1718440379026/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_/bin/python
+    -m pip install . --no-deps -vv
+  string: py310h832c5ef_1
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_4
+    - binutils_linux-64 2.40 hb3c18ed_7
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_9
+    - gcc_linux-64 12.3.0 h9528a6a_7
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_4
+    - libgcc-devel_linux-64 12.3.0 h6b66f73_109
+    - libgcc-ng 13.2.0 h77fa898_9
+    - libgomp 13.2.0 h77fa898_9
+    - libsanitizer 12.3.0 hb8811af_9
+    - libstdcxx-ng 13.2.0 hc0a3c3a_9
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - atk-1.0 2.38.0 h04ea711_2
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.6.2 hbcca054_0
+    - cairo 1.18.0 h3faef2a_0
+    - expat 2.6.2 h59595ed_0
+    - font-ttf-dejavu-sans-mono 2.37 hab24e00_0
+    - font-ttf-inconsolata 3.000 h77eed37_0
+    - font-ttf-source-code-pro 2.038 h77eed37_0
+    - font-ttf-ubuntu 0.83 h77eed37_2
+    - fontconfig 2.14.2 h14ed4e7_0
+    - fonts-conda-ecosystem 1 0
+    - fonts-conda-forge 1 0
+    - freetype 2.12.1 h267a509_2
+    - fribidi 1.0.10 h36c2ea0_0
+    - gdk-pixbuf 2.42.12 hb9ae30d_0
+    - giflib 5.2.2 hd590300_0
+    - graphite2 1.3.13 h59595ed_1003
+    - graphviz 11.0.0 hc68bbd7_0
+    - gtk2 2.24.33 h280cfa0_4
+    - gts 0.7.6 h977cf35_4
+    - harfbuzz 8.5.0 hfac3d4d_0
+    - icu 73.2 h59595ed_0
+    - ld_impl_linux-64 2.40 hf3520f5_4
+    - lerc 4.0.0 h27087fc_0
+    - libdeflate 1.20 hd590300_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_9
+    - libgd 2.3.3 h119a65a_9
+    - libglib 2.80.2 hf974151_0
+    - libgomp 13.2.0 h77fa898_9
+    - libiconv 1.17 hd590300_2
+    - libjpeg-turbo 3.0.0 hd590300_1
+    - libnsl 2.0.1 hd590300_0
+    - libpng 1.6.43 h2797004_0
+    - librsvg 2.58.0 hadf69e7_1
+    - libsqlite 3.46.0 hde9e2c9_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_9
+    - libtiff 4.6.0 h1dd3fc0_3
+    - libuuid 2.38.1 h0b41bf4_0
+    - libwebp 1.4.0 h2c329e2_0
+    - libwebp-base 1.4.0 hd590300_0
+    - libxcb 1.15 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libxml2 2.12.7 hc051c1a_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.1 h4ab18f5_0
+    - pango 1.54.0 h84a9a3c_0
+    - pcre2 10.43 hcad00b1_0
+    - pip 24.0 pyhd8ed1ab_0
+    - pixman 0.43.2 h59595ed_0
+    - pthread-stubs 0.4 h36c2ea0_1001
+    - python 3.10.14 hd12c33a_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 70.0.0 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xorg-kbproto 1.0.7 h7f98852_1002
+    - xorg-libice 1.1.1 hd590300_0
+    - xorg-libsm 1.2.4 h7391055_0
+    - xorg-libx11 1.8.9 h8ee46fc_0
+    - xorg-libxau 1.0.11 hd590300_0
+    - xorg-libxdmcp 1.1.3 h7f98852_0
+    - xorg-libxext 1.3.4 h0b41bf4_2
+    - xorg-libxrender 0.9.11 hd590300_0
+    - xorg-renderproto 0.11.1 h7f98852_1002
+    - xorg-xextproto 7.3.0 h0b41bf4_1003
+    - xorg-xproto 7.0.31 h7f98852_1007
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.3.1 h4ab18f5_1
+    - zstd 1.5.6 ha6fb4c9_0
+  run:
+    - graphviz >=11.0.0,<12.0a0
+    - graphviz >=11.0.0,<12.0a0
+    - libgcc-ng >=12
+    - python >=3.10,<3.11.0a0
+    - python_abi 3.10.* *_cp310
+test:
+  commands:
+    - pytest --doctest-modules --durations=10 --pyargs pygraphviz
+  imports:
+    - pygraphviz
+    - pygraphviz.tests
+  requires:
+    - pytest
+  source_files:
+    - pygraphviz/tests
+about:
+  description: 'PyGraphviz is a Python interface to the Graphviz graph layout and
+
+    visualization package. With PyGraphviz you can create, edit, read, write,
+
+    and draw graphs using Python to access the Graphviz graph data structure
+
+    and layout algorithms. PyGraphviz provides a similar programming
+
+    interface to NetworkX (http://networkx.github.io).
+
+    '
+  dev_url: https://github.com/pygraphviz/pygraphviz
+  doc_url: https://graphviz.readthedocs.io
+  home: http://pygraphviz.github.io
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Python interface to Graphviz
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240615.1.1
+  recipe-maintainers:
+    - nehaljwani
+  remote_url: https://github.com/conda-forge/pygraphviz-feedstock
+  sha: a76cc4df5adac1ba91309453a301039dd2596f43

@@ -1,0 +1,8 @@
+prefix=/home/conda/feedstock_root/build_artifacts/pango_1718027182142/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place
+includedir=${prefix}/include
+
+Name: Pango FC
+Description: Fontconfig support for Pango
+Version: 1.54.0
+Requires: pangoft2
+Cflags: -I${includedir}/pango-1.0

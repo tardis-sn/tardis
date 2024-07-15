@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6"
+    ],
+    "fn": "send2trash-1.8.0-pyhd8ed1ab_0.tar.bz2",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "edab14119efe85c3bf131ad747e9005c",
+    "name": "send2trash",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "1a8e79f256e747bae4e7aefd3b06261f428f30cdd14e61fbe7bbe628b31df224",
+    "size": 17545,
+    "subdir": "noarch",
+    "timestamp": 1628511372662,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/send2trash-1.8.0-pyhd8ed1ab_0.tar.bz2",
+    "version": "1.8.0"
+}

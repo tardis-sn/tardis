@@ -1,0 +1,6 @@
+{
+  "c_compiler_version": "9",
+  "c_compiler": "gcc",
+  "channel_targets": "conda-forge main",
+  "target_platform": "linux-64"
+}

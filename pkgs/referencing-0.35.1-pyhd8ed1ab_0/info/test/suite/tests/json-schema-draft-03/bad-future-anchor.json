@@ -1,0 +1,20 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "properties": {
+        "foo": {
+          "$anchor": "foo",
+          "foo": "bar"
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "base_uri": "http://example.com/",
+      "ref": "#foo",
+      "error": true
+    }
+  ]
+}

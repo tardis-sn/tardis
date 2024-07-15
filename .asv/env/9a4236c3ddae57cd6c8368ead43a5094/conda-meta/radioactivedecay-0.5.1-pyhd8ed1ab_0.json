@@ -1,0 +1,450 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "importlib_resources",
+        "matplotlib-base",
+        "networkx",
+        "numpy",
+        "pandas",
+        "python >=3.8",
+        "scipy",
+        "setuptools",
+        "sympy"
+    ],
+    "extracted_package_dir": "pkgs/radioactivedecay-0.5.1-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/LICENSE",
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/LICENSE.AMDC",
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/LICENSE.ICRP-07",
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/METADATA",
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/RECORD",
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/WHEEL",
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/radioactivedecay/__init__.py",
+        "lib/python3.12/site-packages/radioactivedecay/converters.py",
+        "lib/python3.12/site-packages/radioactivedecay/decaydata.py",
+        "lib/python3.12/site-packages/radioactivedecay/fileio.py",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/__init__.py",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/atomic_masses_sympy_1.8.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/atomic_masses_sympy_1.9.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_inv_scipy.npz",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_inv_sympy_1.8.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_inv_sympy_1.9.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_scipy.npz",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_sympy_1.8.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_sympy_1.9.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/decay_consts_sympy_1.8.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/decay_consts_sympy_1.9.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/decay_data.npz",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/year_conversion_sympy_1.8.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/year_conversion_sympy_1.9.pickle",
+        "lib/python3.12/site-packages/radioactivedecay/inventory.py",
+        "lib/python3.12/site-packages/radioactivedecay/nuclide.py",
+        "lib/python3.12/site-packages/radioactivedecay/plots.py",
+        "lib/python3.12/site-packages/radioactivedecay/utils.py",
+        "lib/python3.12/site-packages/tests/__init__.py",
+        "lib/python3.12/site-packages/tests/test_converters.py",
+        "lib/python3.12/site-packages/tests/test_decaydata.py",
+        "lib/python3.12/site-packages/tests/test_fileio.py",
+        "lib/python3.12/site-packages/tests/test_inventory.py",
+        "lib/python3.12/site-packages/tests/test_nuclide.py",
+        "lib/python3.12/site-packages/tests/test_plots.py",
+        "lib/python3.12/site-packages/tests/test_utils.py",
+        "lib/python3.12/site-packages/radioactivedecay/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/radioactivedecay/__pycache__/converters.cpython-312.pyc",
+        "lib/python3.12/site-packages/radioactivedecay/__pycache__/decaydata.cpython-312.pyc",
+        "lib/python3.12/site-packages/radioactivedecay/__pycache__/fileio.cpython-312.pyc",
+        "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/radioactivedecay/__pycache__/inventory.cpython-312.pyc",
+        "lib/python3.12/site-packages/radioactivedecay/__pycache__/nuclide.cpython-312.pyc",
+        "lib/python3.12/site-packages/radioactivedecay/__pycache__/plots.cpython-312.pyc",
+        "lib/python3.12/site-packages/radioactivedecay/__pycache__/utils.cpython-312.pyc",
+        "lib/python3.12/site-packages/tests/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/tests/__pycache__/test_converters.cpython-312.pyc",
+        "lib/python3.12/site-packages/tests/__pycache__/test_decaydata.cpython-312.pyc",
+        "lib/python3.12/site-packages/tests/__pycache__/test_fileio.cpython-312.pyc",
+        "lib/python3.12/site-packages/tests/__pycache__/test_inventory.cpython-312.pyc",
+        "lib/python3.12/site-packages/tests/__pycache__/test_nuclide.cpython-312.pyc",
+        "lib/python3.12/site-packages/tests/__pycache__/test_plots.cpython-312.pyc",
+        "lib/python3.12/site-packages/tests/__pycache__/test_utils.cpython-312.pyc"
+    ],
+    "fn": "radioactivedecay-0.5.1-pyhd8ed1ab_0.conda",
+    "license": "MIT AND LicenseRef-AMDC AND LicenseRef-ICRP-07",
+    "link": {
+        "source": "pkgs/radioactivedecay-0.5.1-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "9fc71a62309a874f06c90dac73fa0db5",
+    "name": "radioactivedecay",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/radioactivedecay-0.5.1-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/LICENSE",
+                "path_type": "hardlink",
+                "sha256": "18a416b72a70373dfb151daa1ed443f600c7383684ddda37d3ec73ff506d4485",
+                "sha256_in_prefix": "18a416b72a70373dfb151daa1ed443f600c7383684ddda37d3ec73ff506d4485",
+                "size_in_bytes": 1090
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/LICENSE.AMDC",
+                "path_type": "hardlink",
+                "sha256": "4b6946deb9d8a4d1a581a96341769642778e7c95f5fcab53c5d2f72de90fb666",
+                "sha256_in_prefix": "4b6946deb9d8a4d1a581a96341769642778e7c95f5fcab53c5d2f72de90fb666",
+                "size_in_bytes": 704
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/LICENSE.ICRP-07",
+                "path_type": "hardlink",
+                "sha256": "b6447c5ef17325c49f0128ed4fd6b38d5b6ce9766d7783b3f8e6ccba73181be9",
+                "sha256_in_prefix": "b6447c5ef17325c49f0128ed4fd6b38d5b6ce9766d7783b3f8e6ccba73181be9",
+                "size_in_bytes": 1583
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "5e0dfdc3c8946be88536bd8713a00f729427249273e7439b1eaac9efeb1daca9",
+                "sha256_in_prefix": "5e0dfdc3c8946be88536bd8713a00f729427249273e7439b1eaac9efeb1daca9",
+                "size_in_bytes": 13129
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "28cd1784442641c9227ef13c2473796fc50afa15f80478e534c710442b2509db",
+                "sha256_in_prefix": "28cd1784442641c9227ef13c2473796fc50afa15f80478e534c710442b2509db",
+                "size_in_bytes": 4947
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+                "sha256_in_prefix": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "f71e85d17c2e3ccce47ac8169c7ee6fa8b9967a671e6a17bdb1a1d5f1989e5af",
+                "sha256_in_prefix": "f71e85d17c2e3ccce47ac8169c7ee6fa8b9967a671e6a17bdb1a1d5f1989e5af",
+                "size_in_bytes": 112
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay-0.5.1.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "ccea0c1f79dbf7baf538751c9adbf33f675b83da2593d303685758fa6f1f669b",
+                "sha256_in_prefix": "ccea0c1f79dbf7baf538751c9adbf33f675b83da2593d303685758fa6f1f669b",
+                "size_in_bytes": 23
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "154003b171aadd53902e1f2f3411075c99a0c5d94cf49e7edbea19ca78a262dd",
+                "sha256_in_prefix": "154003b171aadd53902e1f2f3411075c99a0c5d94cf49e7edbea19ca78a262dd",
+                "size_in_bytes": 1253
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/converters.py",
+                "path_type": "hardlink",
+                "sha256": "357a27e68619cf20d1cd1459692a117d7b511c8dd7ff2b3b09cf68149e7ef6f0",
+                "sha256_in_prefix": "357a27e68619cf20d1cd1459692a117d7b511c8dd7ff2b3b09cf68149e7ef6f0",
+                "size_in_bytes": 15860
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/decaydata.py",
+                "path_type": "hardlink",
+                "sha256": "47e7ec98e1e69b96858eae2e2c423eefbf5a241e3617ecae7c8ae8d746dd45f4",
+                "sha256_in_prefix": "47e7ec98e1e69b96858eae2e2c423eefbf5a241e3617ecae7c8ae8d746dd45f4",
+                "size_in_bytes": 27845
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/fileio.py",
+                "path_type": "hardlink",
+                "sha256": "8251704c2f2a6db835d98e67f899da819832b219ae50442055910a0d479af4c3",
+                "sha256_in_prefix": "8251704c2f2a6db835d98e67f899da819832b219ae50442055910a0d479af4c3",
+                "size_in_bytes": 5719
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "f8922dde0d5e05fe1b55034d41de0905e40d03ba342cad16f6d60a297febe6cf",
+                "sha256_in_prefix": "f8922dde0d5e05fe1b55034d41de0905e40d03ba342cad16f6d60a297febe6cf",
+                "size_in_bytes": 22
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/atomic_masses_sympy_1.8.pickle",
+                "path_type": "hardlink",
+                "sha256": "118896cd41c7bd38a34f06ab65bedf119da68d9270fad6e99e4114ae2cc89aa4",
+                "sha256_in_prefix": "118896cd41c7bd38a34f06ab65bedf119da68d9270fad6e99e4114ae2cc89aa4",
+                "size_in_bytes": 34601
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/atomic_masses_sympy_1.9.pickle",
+                "path_type": "hardlink",
+                "sha256": "ad740185890d3a7a23513190e2f422e6943b8158edc324a00e2e8f8afbd8da81",
+                "sha256_in_prefix": "ad740185890d3a7a23513190e2f422e6943b8158edc324a00e2e8f8afbd8da81",
+                "size_in_bytes": 53647
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_inv_scipy.npz",
+                "path_type": "hardlink",
+                "sha256": "fa9c5bc98c86df14bdb3555a6f4072a69364ba427a49c6e6deac001d28361921",
+                "sha256_in_prefix": "fa9c5bc98c86df14bdb3555a6f4072a69364ba427a49c6e6deac001d28361921",
+                "size_in_bytes": 38089
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_inv_sympy_1.8.pickle",
+                "path_type": "hardlink",
+                "sha256": "e3069b5f22fac70d698efa23d9021d71f4645fbf781cb2f682f6847cd395ca72",
+                "sha256_in_prefix": "e3069b5f22fac70d698efa23d9021d71f4645fbf781cb2f682f6847cd395ca72",
+                "size_in_bytes": 251290
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_inv_sympy_1.9.pickle",
+                "path_type": "hardlink",
+                "sha256": "18cadcfec445faa56ad4227800ab68a15449997444c2497cef8359cf65ebf3f0",
+                "sha256_in_prefix": "18cadcfec445faa56ad4227800ab68a15449997444c2497cef8359cf65ebf3f0",
+                "size_in_bytes": 237753
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_scipy.npz",
+                "path_type": "hardlink",
+                "sha256": "34795a1a9248acdccab2bdf5c1f000bce2c84a3e0ec352b3e27cf24297c83f4b",
+                "sha256_in_prefix": "34795a1a9248acdccab2bdf5c1f000bce2c84a3e0ec352b3e27cf24297c83f4b",
+                "size_in_bytes": 45646
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_sympy_1.8.pickle",
+                "path_type": "hardlink",
+                "sha256": "6b98407ff1758bfd7094a5a83d6085c9c85ed42fff11a9e637bbf02fd9fc1405",
+                "sha256_in_prefix": "6b98407ff1758bfd7094a5a83d6085c9c85ed42fff11a9e637bbf02fd9fc1405",
+                "size_in_bytes": 268341
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/c_sympy_1.9.pickle",
+                "path_type": "hardlink",
+                "sha256": "5adc1874ba233ad186cc74e43d6dca9844581b153b1b2338dfe9a55f122ad6bb",
+                "sha256_in_prefix": "5adc1874ba233ad186cc74e43d6dca9844581b153b1b2338dfe9a55f122ad6bb",
+                "size_in_bytes": 247511
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/decay_consts_sympy_1.8.pickle",
+                "path_type": "hardlink",
+                "sha256": "f2484d68e66d4b800351c5175c595001f0f1d7e554bd253e2dffeb670f11716e",
+                "sha256_in_prefix": "f2484d68e66d4b800351c5175c595001f0f1d7e554bd253e2dffeb670f11716e",
+                "size_in_bytes": 32336
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/decay_consts_sympy_1.9.pickle",
+                "path_type": "hardlink",
+                "sha256": "71e94b46f4a7ee9f354167edcd1e2440b20cb19e538f35c3e03355548db6cc8f",
+                "sha256_in_prefix": "71e94b46f4a7ee9f354167edcd1e2440b20cb19e538f35c3e03355548db6cc8f",
+                "size_in_bytes": 43669
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/decay_data.npz",
+                "path_type": "hardlink",
+                "sha256": "810c2f6c5907946450cac2d11b58e3f16169aaba97bfe2478da48f629389580d",
+                "sha256_in_prefix": "810c2f6c5907946450cac2d11b58e3f16169aaba97bfe2478da48f629389580d",
+                "size_in_bytes": 65888
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/year_conversion_sympy_1.8.pickle",
+                "path_type": "hardlink",
+                "sha256": "cce0ad68c5dc1e00601449745def2f624f29fb2ccd858ece95ca2e59d21e338f",
+                "sha256_in_prefix": "cce0ad68c5dc1e00601449745def2f624f29fb2ccd858ece95ca2e59d21e338f",
+                "size_in_bytes": 61
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/year_conversion_sympy_1.9.pickle",
+                "path_type": "hardlink",
+                "sha256": "f587fe6a98678482139025c31f3141f38c080aa863f4d1a47ba175ea3b9d938f",
+                "sha256_in_prefix": "f587fe6a98678482139025c31f3141f38c080aa863f4d1a47ba175ea3b9d938f",
+                "size_in_bytes": 58
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/inventory.py",
+                "path_type": "hardlink",
+                "sha256": "ea821b349b872d792ece96923f02fcb7aabf10ee804caf4c247379b2477282a7",
+                "sha256_in_prefix": "ea821b349b872d792ece96923f02fcb7aabf10ee804caf4c247379b2477282a7",
+                "size_in_bytes": 68272
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/nuclide.py",
+                "path_type": "hardlink",
+                "sha256": "db118e3ca5f7edb5254ad9ddf337339c9d5f7cdc552c8dc53c3976c91f003189",
+                "sha256_in_prefix": "db118e3ca5f7edb5254ad9ddf337339c9d5f7cdc552c8dc53c3976c91f003189",
+                "size_in_bytes": 15157
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/plots.py",
+                "path_type": "hardlink",
+                "sha256": "490e164dc7355ed0e45cf74b7df37c7fbd81a05d5d8a498f35db6a0f9fd7dc32",
+                "sha256_in_prefix": "490e164dc7355ed0e45cf74b7df37c7fbd81a05d5d8a498f35db6a0f9fd7dc32",
+                "size_in_bytes": 6496
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/utils.py",
+                "path_type": "hardlink",
+                "sha256": "ed7d054d6f8b2f92658fe79481a1f936ab904775ba421522a0d2dc5a3a44b7e8",
+                "sha256_in_prefix": "ed7d054d6f8b2f92658fe79481a1f936ab904775ba421522a0d2dc5a3a44b7e8",
+                "size_in_bytes": 14684
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "f8922dde0d5e05fe1b55034d41de0905e40d03ba342cad16f6d60a297febe6cf",
+                "sha256_in_prefix": "f8922dde0d5e05fe1b55034d41de0905e40d03ba342cad16f6d60a297febe6cf",
+                "size_in_bytes": 22
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/test_converters.py",
+                "path_type": "hardlink",
+                "sha256": "89e51672c47aa96f3efd33f7a34230c74f6362b757ef8851be982f85dec2c86f",
+                "sha256_in_prefix": "89e51672c47aa96f3efd33f7a34230c74f6362b757ef8851be982f85dec2c86f",
+                "size_in_bytes": 37295
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/test_decaydata.py",
+                "path_type": "hardlink",
+                "sha256": "494e3a559c139827caa10c5d18c13e14f9bd333cabb584465b7f7fdbe4d8761c",
+                "sha256_in_prefix": "494e3a559c139827caa10c5d18c13e14f9bd333cabb584465b7f7fdbe4d8761c",
+                "size_in_bytes": 25154
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/test_fileio.py",
+                "path_type": "hardlink",
+                "sha256": "ddc6a52a299570c3fb3ffd03ed7815050c6729f59a4b15a71428964611da401e",
+                "sha256_in_prefix": "ddc6a52a299570c3fb3ffd03ed7815050c6729f59a4b15a71428964611da401e",
+                "size_in_bytes": 5054
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/test_inventory.py",
+                "path_type": "hardlink",
+                "sha256": "b7339c8518be6c68baf95ab2b6dbcf036849d2447c36a558196f21acc6e13724",
+                "sha256_in_prefix": "b7339c8518be6c68baf95ab2b6dbcf036849d2447c36a558196f21acc6e13724",
+                "size_in_bytes": 39059
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/test_nuclide.py",
+                "path_type": "hardlink",
+                "sha256": "1d52f7601b2fdb5b22776707964456938004367592594d3740374ec0539dd75f",
+                "sha256_in_prefix": "1d52f7601b2fdb5b22776707964456938004367592594d3740374ec0539dd75f",
+                "size_in_bytes": 5269
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/test_plots.py",
+                "path_type": "hardlink",
+                "sha256": "a72cdf733e048360625ccd630b8986d4db7efd990d1a06b666104209b15b3d95",
+                "sha256_in_prefix": "a72cdf733e048360625ccd630b8986d4db7efd990d1a06b666104209b15b3d95",
+                "size_in_bytes": 5247
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/test_utils.py",
+                "path_type": "hardlink",
+                "sha256": "df7e0314580f109b0e3ea8b6f9f7e87b9346940b2cc453725513b403289adea8",
+                "sha256_in_prefix": "df7e0314580f109b0e3ea8b6f9f7e87b9346940b2cc453725513b403289adea8",
+                "size_in_bytes": 15442
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/__pycache__/converters.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/__pycache__/decaydata.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/__pycache__/fileio.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/icrp107_ame2020_nubase2020/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/__pycache__/inventory.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/__pycache__/nuclide.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/__pycache__/plots.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/radioactivedecay/__pycache__/utils.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/__pycache__/test_converters.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/__pycache__/test_decaydata.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/__pycache__/test_fileio.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/__pycache__/test_inventory.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/__pycache__/test_nuclide.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/__pycache__/test_plots.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/tests/__pycache__/test_utils.cpython-312.pyc",
+                "path_type": "pyc_file"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "radioactivedecay",
+    "sha256": "932dc074f91169cf6ca91295b458221b8533f74b9fcc6d8ef7b963420209e451",
+    "size": 649170,
+    "subdir": "noarch",
+    "timestamp": 1718689432930,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/radioactivedecay-0.5.1-pyhd8ed1ab_0.conda",
+    "version": "0.5.1"
+}

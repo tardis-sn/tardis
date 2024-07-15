@@ -1,0 +1,46 @@
+{% set name = "Send2Trash" %}
+{% set version = "1.8.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: d2c24762fd3759860a0aff155e45871447ea58d2be6bdd39b5c8f966a0c99c2d
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+  entry_points:
+    - send2trash = send2trash.__main__:main
+
+requirements:
+  host:
+    - python >=3.6
+    - pip
+  run:
+    - python >=3.6
+
+test:
+  imports:
+    - send2trash
+  requires:
+    - pip
+  commands:
+    - pip check
+    - send2trash -h
+    - echo test > test.txt
+    - python -c "from send2trash import *; send2trash('test.txt')"
+
+about:
+  home: https://github.com/arsenetar/send2trash
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Python library to natively send files to Trash (or Recycle bin) on all platforms.
+
+extra:
+  recipe-maintainers:
+    - bollwyvl

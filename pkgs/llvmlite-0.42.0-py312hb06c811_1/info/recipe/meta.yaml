@@ -1,0 +1,116 @@
+# This file created by conda-build 3.28.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat Feb  3 00:49:33 2024
+# ------------------------------------------------
+
+package:
+  name: llvmlite
+  version: 0.42.0
+source:
+  sha256: f92b09243c0cc3f457da8b983f67bd8e1295d0f5b3746c7a1861d7a99403854a
+  url: https://pypi.io/packages/source/l/llvmlite/llvmlite-0.42.0.tar.gz
+build:
+  number: '1'
+  script_env:
+    - PY_VCRUNTIME_REDIST
+  string: py312hb06c811_1
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_2
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.26.0 hd590300_0
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cmake 3.28.2 hcfe8598_0
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h76fc315_2
+    - gxx_impl_linux-64 12.3.0 he2b93b0_5
+    - gxx_linux-64 12.3.0 h8a814eb_2
+    - kernel-headers_linux-64 2.6.32 he073ed8_16
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libcurl 8.5.0 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.5.0 hcb278e6_1
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_105
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuv 1.46.0 hd590300_0
+    - libzlib 1.2.13 hd590300_5
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_16
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.5 hfc55251_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libllvm14 14.0.6 hcd5def8_4
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - llvm 14.0.6 h32600fe_4
+    - llvm-tools 14.0.6 hcd5def8_4
+    - llvmdev 14.0.6 hcd5def8_4
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.2.13 hd590300_5
+  run:
+    - libgcc-ng >=12
+    - libllvm14 >=14.0.6,<14.1.0a0
+    - libstdcxx-ng >=12
+    - libzlib >=1.2.13,<1.3.0a0
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+test:
+  commands:
+    - python -m llvmlite.tests
+  imports:
+    - llvmlite
+    - llvmlite.binding
+about:
+  dev_url: https://github.com/numba/llvmlite
+  doc_url: http://llvmlite.pydata.org/
+  home: http://llvmlite.pydata.org
+  license: BSD-2-Clause
+  license_file: LICENSE
+  summary: A lightweight LLVM python binding for writing JIT compilers.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240202.5.1
+  recipe-maintainers:
+    - jakirkham
+    - marcelotrevisani
+    - mbargull
+    - souravsingh
+    - xhochy
+  remote_url: https://github.com/conda-forge/llvmlite-feedstock
+  sha: ca6e60523541905df2482e8f2ff893dce40fede8

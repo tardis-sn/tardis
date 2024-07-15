@@ -1,0 +1,55 @@
+# This file created by conda-build 3.20.5
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Nov 23 16:01:10 2020
+# ------------------------------------------------
+
+package:
+    name: pthread-stubs
+    version: '0.4'
+source:
+    fn: libpthread-stubs-0.4.tar.bz2
+    sha256: e4d05911a3165d3b18321cc067fdd2f023f06436e391c6a28dff618a78d2e733
+    url: https://www.x.org/releases/individual/xcb/libpthread-stubs-0.4.tar.bz2
+build:
+    detect_binary_files_with_prefix: true
+    number: '1001'
+    string: h36c2ea0_1001
+requirements:
+    build:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - binutils_impl_linux-64 2.35.1 h17ad2fc_0
+        - binutils_linux-64 2.35 hc3fd857_29
+        - gcc_impl_linux-64 7.5.0 hda68d29_13
+        - gcc_linux-64 7.5.0 he2a3fca_29
+        - kernel-headers_linux-64 2.6.32 h77966d4_13
+        - ld_impl_linux-64 2.35.1 hed1e6ac_0
+        - libgcc-ng 9.3.0 h5dbcf3e_17
+        - libgomp 9.3.0 h5dbcf3e_17
+        - libstdcxx-ng 9.3.0 h2ae2ef3_17
+        - make 4.3 hd18ef5c_1
+        - pkg-config 0.29.2 h36c2ea0_1008
+        - sysroot_linux-64 2.12 h77966d4_13
+    host:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - libgcc-ng 9.3.0 h5dbcf3e_17
+        - libgomp 9.3.0 h5dbcf3e_17
+        - xorg-util-macros 1.19.2 h36c2ea0_1001
+    run:
+        - libgcc-ng >=7.5.0
+test:
+    commands: null
+about:
+    home: https://xcb.freedesktop.org/
+    license: MIT
+    license_family: MIT
+    license_file: COPYING
+    summary: Stubs missing from libc for standard pthread functions
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - ccordoba12
+        - mingwandroid
+        - pkgw

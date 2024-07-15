@@ -1,0 +1,107 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/LICENSE.rst",
+      "path_type": "hardlink",
+      "sha256": "05d8ec3643773431cb5447b10711f119d79955470cdfbb8ca2e670a4432a153c",
+      "size_in_bytes": 1491
+    },
+    {
+      "_path": "site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "931c70f6798ca2254034da8719300e1fa61ee8ff367adeb522216a5a0d7a2889",
+      "size_in_bytes": 5120
+    },
+    {
+      "_path": "site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "2ebc1de777555c42d99a8c64db3ad303c5dd9c1804c32d2fef2106e148c7d0fa",
+      "size_in_bytes": 1881
+    },
+    {
+      "_path": "site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "eed2a1b930d7ebc2c90ea18cbb7a46188a9d7a3e053101457107305ad8048b79",
+      "size_in_bytes": 113
+    },
+    {
+      "_path": "site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "c947a82ad47d0f89688b6bdeebb65ea4a9ee0f21fd42318cbed5df992f7b43d1",
+      "size_in_bytes": 18
+    },
+    {
+      "_path": "site-packages/astropy_iers_data/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "ceab355ebd7268e4cc751292c9a6c7f2b5359a077df542d225fcc85eef93bf61",
+      "size_in_bytes": 1236
+    },
+    {
+      "_path": "site-packages/astropy_iers_data/_version.py",
+      "path_type": "hardlink",
+      "sha256": "f8af1981a9d32ecb356a1b8e780249ecfd925c9efba621eaf22979a64bc9b58a",
+      "size_in_bytes": 443
+    },
+    {
+      "_path": "site-packages/astropy_iers_data/data/Leap_Second.dat",
+      "path_type": "hardlink",
+      "sha256": "705048f2e90e8e923ab9d374d3769e43b1b541c1de740b12bf8f2cb18d909de2",
+      "size_in_bytes": 1359
+    },
+    {
+      "_path": "site-packages/astropy_iers_data/data/README.rst",
+      "path_type": "hardlink",
+      "sha256": "ed153bf939ef9f77af904b4f3594c3066a214543c4e12412f9317713529e66f0",
+      "size_in_bytes": 245
+    },
+    {
+      "_path": "site-packages/astropy_iers_data/data/ReadMe.eopc04",
+      "path_type": "hardlink",
+      "sha256": "42d7890543fae69df024219d1d36f242b4fcd847f6f8a756c7d37c5dfd100243",
+      "size_in_bytes": 3275
+    },
+    {
+      "_path": "site-packages/astropy_iers_data/data/ReadMe.finals2000A",
+      "path_type": "hardlink",
+      "sha256": "7c6182cc0fd0cbece39711f648d15e48b49168925602e360a5709c5ccc8d5a12",
+      "size_in_bytes": 3429
+    },
+    {
+      "_path": "site-packages/astropy_iers_data/data/eopc04.1962-now",
+      "path_type": "hardlink",
+      "sha256": "47adf0b5b5df2ee13287cbfe4a9feeeca55026587457eca2f80508f9708baaeb",
+      "size_in_bytes": 4988677
+    },
+    {
+      "_path": "site-packages/astropy_iers_data/data/finals2000A.all",
+      "path_type": "hardlink",
+      "sha256": "3e76adcc7068a72eb92209cf6b13388805098b0906cbe22d00d4f90bd2442eeb",
+      "size_in_bytes": 3610916
+    },
+    {
+      "_path": "site-packages/astropy_iers_data/tests/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "d43fa5dd355bc0864763bf00fac07b91ce25765757f19684abe36da61e75595c",
+      "size_in_bytes": 108
+    }
+  ],
+  "paths_version": 1
+}

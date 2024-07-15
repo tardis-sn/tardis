@@ -1,0 +1,10 @@
+{
+  "noarch": {
+    "entry_points": [
+      "futurize = libfuturize.main:main",
+      "pasteurize = libpasteurize.main:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.7"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "sphinx_bootstrap_theme",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1644048455967,
+  "version": "0.8.1"
+}

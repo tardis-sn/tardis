@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.5"
+    ],
+    "fn": "sphinxcontrib-jsmath-1.0.1-pyhd8ed1ab_0.conda",
+    "license": "BSD-2-Clause",
+    "license_family": "BSD",
+    "md5": "da1d979339e2714c30a8e806a33ec087",
+    "name": "sphinxcontrib-jsmath",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "d4337d83b8edba688547766fc80f1ac86d6ec86ceeeda93f376acc04079c5ce2",
+    "size": 10431,
+    "subdir": "noarch",
+    "timestamp": 1691604844204,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-jsmath-1.0.1-pyhd8ed1ab_0.conda",
+    "version": "1.0.1"
+}

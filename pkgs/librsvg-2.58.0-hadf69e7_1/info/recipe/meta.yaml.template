@@ -1,0 +1,97 @@
+{% set name = "librsvg" %}
+{% set version = "2.58.0" %}
+{% set abi_version = "2.0" %}
+{% set version_majmin = version.rsplit('.', 1)[0] %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  url: https://download.gnome.org/sources/{{ name }}/{{ version_majmin }}/{{ name }}-{{ version }}.tar.xz
+  sha256: d7c444a926406b59790be0deae196e18ed26059da573fa1aa9ec9ca7658a559c
+  patches:
+    - add_rust_lto.patch
+
+build:
+  number: 1
+  run_exports:
+    # Looks good but no new info after 2.43 so keeping it x.x for safety.
+    # https://abi-laboratory.pro/?view=timeline&l=librsvg
+    - {{ pin_subpackage('librsvg', max_pin='x') }}
+
+requirements:
+  build:
+    - cmake  # [win]
+    - make  # [unix]
+    - docutils
+    - gi-docgen
+    - gobject-introspection
+    - pkg-config
+    - {{ compiler('rust') }} >=1.77
+    - {{ compiler('c') }}
+    - {{ stdlib('c') }}
+    - gnuconfig  # [unix]
+    - glib        # [build_platform != target_platform]
+    - libxml2     # [build_platform != target_platform]
+    - cairo       # [build_platform != target_platform]
+    - gdk-pixbuf  # [build_platform != target_platform]
+    - pango       # [build_platform != target_platform]
+  host:
+    - glib
+    - libxml2
+    - cairo
+    - gdk-pixbuf
+    - pango
+    - harfbuzz  # [linux]
+    - libpng    # [linux]
+    - freetype  # [linux]
+
+test:
+  requires:
+    - pkg-config
+  commands:
+    - rsvg-convert --version
+
+    {% set name_abi = name + "-" + abi_version %}
+    {% set lib = name + "-" + abi_version.split('.', 1)[0] %}  # [unix]
+    {% set lib = "rsvg-" + abi_version %}  # [win]
+    {% set vs_major = dict(vs2015="14", vs2017="15", vs2019="16", vs2022="17").get(c_compiler, "XX") %}  # [win]
+
+    # verify that libs get installed and can be located through pkg-config
+    - test -f $PREFIX/lib/{{ lib }}${SHLIB_EXT}  # [unix]
+    - test ! -f $PREFIX/lib/{{ lib }}.a  # [unix]
+    - test -f `pkg-config --variable=libdir --dont-define-prefix {{ name_abi }}`/{{ lib }}${SHLIB_EXT}  # [unix]
+    - if not exist %PREFIX%\\Library\\bin\\{{ lib }}-vs{{ vs_major }}.dll exit 1  # [win]
+    - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=exec_prefix --dont-define-prefix {{ name_abi }}`) do if not exist "%%a/bin/{{ lib }}-vs{{ vs_major }}.dll" exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\lib\\{{ lib }}.lib exit 1  # [win]
+    - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=libdir --dont-define-prefix {{ name_abi }}`) do if not exist "%%a/{{ lib }}.lib" exit 1  # [win]
+
+    # verify that gdk-pixbuf loader library gets installed
+    - test -f $PREFIX/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so  # [unix]
+    - test ! -f $PREFIX/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.a  # [unix]
+    - if not exist %PREFIX%\\Library\\lib\\gdk-pixbuf-2.0\\2.10.0\\loaders\\libpixbufloader-svg.dll exit 1  # [win]
+
+    # verify that headers get installed
+    - test -f $PREFIX/include/{{ name_abi }}/{{ name }}/rsvg-features.h  # [unix]
+    - test -f $PREFIX/include/{{ name_abi }}/{{ name }}/rsvg-cairo.h  # [unix]
+    - test -f $PREFIX/include/{{ name_abi }}/{{ name }}/rsvg.h  # [unix]
+    - if not exist %PREFIX%\\Library\\include\\{{ name_abi }}\\{{ name }}\\rsvg-features.h exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\include\\{{ name_abi }}\\{{ name }}\\rsvg-cairo.h exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\include\\{{ name_abi }}\\{{ name }}\\rsvg.h exit 1  # [win]
+
+    # test for gobject-introspection files
+    - test -f $PREFIX/lib/girepository-1.0/Rsvg-2.0.typelib  # [unix]
+    - if not exist %LIBRARY_LIB%\\girepository-1.0\\Rsvg-2.0.typelib exit 1  # [win]
+
+about:
+  home: https://wiki.gnome.org/Projects/LibRsvg
+  license: LGPL-2.1-or-later
+  license_file: COPYING.LIB
+  summary: librsvg is a library to render SVG files using cairo.
+
+extra:
+  recipe-maintainers:
+    - pkgw
+    - tschoonj
+    - xhochy 

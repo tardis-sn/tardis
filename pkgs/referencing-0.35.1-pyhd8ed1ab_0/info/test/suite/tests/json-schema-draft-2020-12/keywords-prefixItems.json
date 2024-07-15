@@ -1,0 +1,23 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "prefixItems": [
+        { "title": "First!" },
+        { "$id": "http://example.com/0", "title": "Second!" },
+        { "title": "Third!" },
+        { "$id": "http://example.com/1", "title": "Fourth!" }
+      ]
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/0",
+      "target": { "$id": "http://example.com/0", "title": "Second!" }
+    },
+    {
+      "ref": "http://example.com/1",
+      "target": { "$id": "http://example.com/1", "title": "Fourth!" }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "c_compiler": "gcc",
+  "c_compiler_version": "12",
+  "libxcb": "1.15",
+  "channel_targets": "conda-forge main",
+  "target_platform": "linux-64"
+}

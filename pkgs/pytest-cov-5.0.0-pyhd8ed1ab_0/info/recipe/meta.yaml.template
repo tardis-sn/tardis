@@ -1,0 +1,46 @@
+{% set name = "pytest-cov" %}
+{% set version = "5.0.0" %}
+{% set sha256 = "5837b58e9f6ebd335b0f8060eecce69b662415b16dc503883a02f45dfeb14857" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+  number: 0
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+    - setuptools
+
+  run:
+    - python >=3.8
+    - pytest >=4.6
+    - coverage >=5.2.1
+    - toml
+
+test:
+  commands:
+    - pytest --traceconfig | grep pytest-cov-{{ version }}
+
+about:
+  home: https://github.com/pytest-dev/pytest-cov
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Pytest plugin for measuring coverage
+  dev_url: https://github.com/pytest-dev/pytest-cov
+
+extra:
+  recipe-maintainers:
+    - dopplershift
+    - nicoddemus

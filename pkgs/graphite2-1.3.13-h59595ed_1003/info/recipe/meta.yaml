@@ -1,0 +1,86 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu Mar 28 13:52:00 2024
+# ------------------------------------------------
+
+package:
+  name: graphite2
+  version: 1.3.13
+source:
+  patches: null
+  sha256: dd63e169b0d3cf954b397c122551ab9343e0696fb2045e1b326db0202d875f06
+  url: https://github.com/silnrsi/graphite/releases/download/1.3.13/graphite2-1.3.13.tgz
+build:
+  detect_binary_files_with_prefix: true
+  number: '1003'
+  string: h59595ed_1003
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.27.0 hd590300_0
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cmake 3.29.0 hcfe8598_0
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gxx_impl_linux-64 12.3.0 he2b93b0_5
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libcurl 8.7.1 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_105
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuv 1.48.0 hd590300_0
+    - libzlib 1.2.13 hd590300_5
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.2.1 hd590300_1
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.5 hfc55251_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+  run:
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+test:
+  commands:
+    - test -f $PREFIX/lib/pkgconfig/graphite2.pc
+    - test -f $PREFIX/share/graphite2/graphite2.cmake
+    - test -f $PREFIX/include/graphite2/Font.h
+    - test -f $PREFIX/lib/libgraphite2${SHLIB_EXT}
+    - conda inspect linkages -p $PREFIX $PKG_NAME
+about:
+  home: http://graphite.sil.org/
+  license: LGPL-2.0-or-later
+  license_file: COPYING
+  summary: A "smart font" system that handles the complexities of lesser-known languages
+    of the world.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240328.4.1
+  recipe-maintainers:
+    - ocefpaf
+    - pkgw
+  remote_url: https://github.com/conda-forge/graphite2-feedstock
+  sha: 926f9bb4817c480ed38f2580ca56739f0939b372

@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.5"
+    ],
+    "fn": "webcolors-24.6.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "419f2f6cf90fc7a6feee657752cd0f7b",
+    "name": "webcolors",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "6377de3bc05b80f25c5fe75f180a81fc8a6aa601d4b228161f75f78862d00a0f",
+    "size": 18291,
+    "subdir": "noarch",
+    "timestamp": 1717667379821,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/webcolors-24.6.0-pyhd8ed1ab_0.conda",
+    "version": "24.6.0"
+}

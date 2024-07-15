@@ -1,0 +1,26 @@
+{
+    "arch": "x86_64",
+    "build": "h4ab18f5_1",
+    "build_number": 1,
+    "build_string": "h4ab18f5_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [
+        "zlib 1.3.1 *_1"
+    ],
+    "depends": [
+        "libgcc-ng >=12"
+    ],
+    "fn": "libzlib-1.3.1-h4ab18f5_1.conda",
+    "license": "Zlib",
+    "license_family": "Other",
+    "md5": "57d7dc60e9325e3de37ff8dffd18e814",
+    "name": "libzlib",
+    "platform": "linux",
+    "sha256": "adf6096f98b537a11ae3729eaa642b0811478f0ea0402ca67b5108fe2cb0010d",
+    "size": 61574,
+    "subdir": "linux-64",
+    "timestamp": 1716874187109,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.3.1-h4ab18f5_1.conda",
+    "version": "1.3.1"
+}

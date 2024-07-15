@@ -1,0 +1,15 @@
+site-packages/overrides-7.7.0.dist-info/INSTALLER
+site-packages/overrides-7.7.0.dist-info/LICENSE
+site-packages/overrides-7.7.0.dist-info/METADATA
+site-packages/overrides-7.7.0.dist-info/RECORD
+site-packages/overrides-7.7.0.dist-info/REQUESTED
+site-packages/overrides-7.7.0.dist-info/WHEEL
+site-packages/overrides-7.7.0.dist-info/direct_url.json
+site-packages/overrides-7.7.0.dist-info/top_level.txt
+site-packages/overrides/__init__.py
+site-packages/overrides/enforce.py
+site-packages/overrides/final.py
+site-packages/overrides/overrides.py
+site-packages/overrides/py.typed
+site-packages/overrides/signature.py
+site-packages/overrides/typing_utils.py

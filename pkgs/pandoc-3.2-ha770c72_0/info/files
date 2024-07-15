@@ -1,0 +1,3 @@
+bin/pandoc
+bin/pandoc-lua
+bin/pandoc-server

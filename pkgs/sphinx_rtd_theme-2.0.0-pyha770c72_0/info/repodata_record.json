@@ -1,0 +1,27 @@
+{
+    "arch": null,
+    "build": "pyha770c72_0",
+    "build_number": 0,
+    "build_string": "pyha770c72_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "docutils <0.21",
+        "python >=3.6",
+        "sphinx >=5,<8",
+        "sphinxcontrib-jquery >=4,<5"
+    ],
+    "fn": "sphinx_rtd_theme-2.0.0-pyha770c72_0.conda",
+    "license": "MIT",
+    "md5": "baf6d9a33df1a789ca55e3b404c7ea28",
+    "name": "sphinx_rtd_theme",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "8545c806d03092fd0236db6663c88036eab2dc99e34c91cd36c0704db03b148a",
+    "size": 2614217,
+    "subdir": "noarch",
+    "timestamp": 1701183633165,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinx_rtd_theme-2.0.0-pyha770c72_0.conda",
+    "version": "2.0.0"
+}

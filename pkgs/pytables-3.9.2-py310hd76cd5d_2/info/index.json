@@ -1,0 +1,27 @@
+{
+  "arch": "x86_64",
+  "build": "py310hd76cd5d_2",
+  "build_number": 2,
+  "depends": [
+    "blosc >=1.21.5,<2.0a0",
+    "bzip2 >=1.0.8,<2.0a0",
+    "c-blosc2 >=2.14.4,<3.0a0",
+    "hdf5 >=1.14.3,<1.14.4.0a0",
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12",
+    "libzlib >=1.2.13,<1.3.0a0",
+    "lzo >=2.10,<3.0a0",
+    "numexpr",
+    "numpy >=1.22.4,<2.0a0",
+    "packaging",
+    "py-cpuinfo",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "pytables",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1712794618702,
+  "version": "3.9.2"
+}

@@ -1,0 +1,12 @@
+prefix=/home/conda/feedstock_root/build_artifacts/graphviz_1716133930453/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+plugins=6
+
+Name: libgvc
+Description: The GraphVizContext library 
+Version: 11.0.0
+Libs: -L${libdir} -lgvc -lcgraph -lcdt
+Cflags: -I${includedir} -I${includedir}/graphviz
+

@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "h0b41bf4_1003",
+  "build_number": 1003,
+  "depends": [
+    "libgcc-ng >=12"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "xorg-xextproto",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1677036833037,
+  "version": "7.3.0"
+}

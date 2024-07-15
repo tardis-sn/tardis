@@ -1,0 +1,14 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "extends": [{ "id": "http://example.com/0", "title": "First!" }]
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/0",
+      "target": { "id": "http://example.com/0", "title": "First!" }
+    }
+  ]
+}

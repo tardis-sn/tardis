@@ -1,0 +1,71 @@
+{% set version = "5.10.4" %}
+
+package:
+  name: nbformat
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/n/nbformat/nbformat-{{ version }}.tar.gz
+  sha256: 322168b14f937a5d11362988ecac2a4952d3d8e3a2cbeb2319584631226d5b3a
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+  entry_points:
+    - jupyter-trust = nbformat.sign:TrustNotebookApp.launch_instance
+
+requirements:
+  host:
+    - hatch-nodejs-version
+    - hatchling >=1.5
+    - pip
+    - python >=3.8
+  run:
+    - jsonschema >=2.6
+    - jupyter_core >=4.12,!=5.0.*
+    - python >=3.8
+    - python-fastjsonschema >=2.15
+    - traitlets >=5.1
+
+test:
+  source_files:
+    - tests
+  commands:
+    - pip check
+    - pip list | grep -iE nbformat
+    - pip list | grep -iE 'nbformat\s*{{ version.replace('.', '\.') }}'
+    - python -c "v = __import__('nbformat').__version__; print(v); assert v == '{{ version }}'"
+    - jupyter trust --version
+    - jupyter-trust --help
+    - pytest -vv --cov=nbformat --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=76
+  requires:
+    - m2-grep  # [win]
+    - pep440
+    - pip
+    - pytest
+    - pytest-cov
+    - testpath
+  imports:
+    - nbformat
+
+about:
+  home: https://jupyter.org
+  license: BSD-3-Clause
+  summary: The Jupyter Notebook format
+  description: |-
+    This package contains the base implementation of the Jupyter Notebook format,
+    and Python APIs for working with notebooks.
+  license_file: LICENSE
+  doc_url: https://nbformat.readthedocs.io
+  dev_url: https://github.com/jupyter/nbformat
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - minrk
+    - pelson
+    - takluyver
+    - ocefpaf
+    - mpacer
+    - bollwyvl

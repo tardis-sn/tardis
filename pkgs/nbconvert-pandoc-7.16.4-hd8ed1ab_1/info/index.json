@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "hd8ed1ab_1",
+  "build_number": 1,
+  "depends": [
+    "nbconvert-core 7.16.4 pyhd8ed1ab_1",
+    "pandoc"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "nbconvert-pandoc",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1718135533429,
+  "version": "7.16.4"
+}

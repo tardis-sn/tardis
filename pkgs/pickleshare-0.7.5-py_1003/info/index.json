@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "py_1003",
+  "build_number": 1003,
+  "depends": [
+    "python >=3"
+  ],
+  "license": "MIT",
+  "name": "pickleshare",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1602536313357,
+  "version": "0.7.5"
+}

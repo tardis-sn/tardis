@@ -1,0 +1,15 @@
+diff --git a/setup.py b/setup.py
+index 09003bf..8e2f22a 100755
+--- a/setup.py
++++ b/setup.py
+@@ -29,8 +29,8 @@ NUMPY_MIN_VERSIONS = [
+     # Numpy    Python
+     ('1.12',   "=='3.6'"),
+     ('1.14.5', "=='3.7'"),
+-    ('1.17.5', "=='3.8'"),
+-    ('1.19.3', ">='3.9'"),
++    ('1.16.0', "=='3.8'"),
++    ('1.19.0', ">='3.9'"),
+ ]
+ 
+ # these are required to use h5py

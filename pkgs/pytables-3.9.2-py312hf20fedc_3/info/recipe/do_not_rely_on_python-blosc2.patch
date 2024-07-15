@@ -1,0 +1,22 @@
+diff --git a/pyproject.toml b/pyproject.toml
+index b503ab65..774ec525 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -12,7 +12,7 @@ requires = [
+     # Included here for seamless wheel builds.
+     # Packagers can choose to replace it by externally provided
+     # c-blosc2 library and headers
+-    "blosc2 >=2.3.0",
++    # "blosc2 >=2.3.0",
+ ]
+ build-backend = "setuptools.build_meta"
+ # build-backend = "mesonpy"  # and replace ``setuptools`` above
+@@ -72,7 +72,7 @@ dependencies = [
+     "numexpr >= 2.6.2",
+     "packaging",
+     "py-cpuinfo",
+-    "blosc2 >= 2.3.0",
++    # "blosc2 >= 2.3.0",
+ ]
+ 
+ 

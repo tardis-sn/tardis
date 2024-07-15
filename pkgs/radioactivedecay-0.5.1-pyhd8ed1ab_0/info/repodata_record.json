@@ -1,0 +1,32 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "importlib_resources",
+        "matplotlib-base",
+        "networkx",
+        "numpy",
+        "pandas",
+        "python >=3.8",
+        "scipy",
+        "setuptools",
+        "sympy"
+    ],
+    "fn": "radioactivedecay-0.5.1-pyhd8ed1ab_0.conda",
+    "license": "MIT AND LicenseRef-AMDC AND LicenseRef-ICRP-07",
+    "md5": "9fc71a62309a874f06c90dac73fa0db5",
+    "name": "radioactivedecay",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "932dc074f91169cf6ca91295b458221b8533f74b9fcc6d8ef7b963420209e451",
+    "size": 649170,
+    "subdir": "noarch",
+    "timestamp": 1718689432930,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/radioactivedecay-0.5.1-pyhd8ed1ab_0.conda",
+    "version": "0.5.1"
+}

@@ -1,0 +1,233 @@
+[build-system]
+requires = ["hatchling >=1.5"]
+build-backend = "hatchling.build"
+
+[project]
+name = "traitlets"
+authors = [{name = "IPython Development Team", email = "ipython-dev@python.org"}]
+description = "Traitlets Python configuration system"
+license = {file = "LICENSE"}
+readme = "README.md"
+keywords = ["Interactive", "Interpreter", "Shell", "Web"]
+classifiers = [
+    "Framework :: IPython",
+    "Framework :: Jupyter",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python",
+    "Typing :: Typed",
+]
+requires-python = ">=3.8"
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/ipython/traitlets"
+Documentation = "https://traitlets.readthedocs.io"
+Source = "https://github.com/ipython/traitlets"
+Funding = "https://numfocus.org"
+Tracker = "https://github.com/ipython/traitlets/issues"
+
+[project.optional-dependencies]
+test = [
+    "argcomplete>=3.0.3",
+    "mypy>=1.7.0",
+    "pre-commit",
+    "pytest-mock",
+    "pytest-mypy-testing",
+    "pytest>=7.0,<8.2",
+]
+docs = [
+    "myst-parser",
+    "pydata-sphinx-theme",
+    "sphinx"
+]
+
+[tool.hatch.version]
+path = "traitlets/_version.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.envs.docs]
+features = ["docs"]
+[tool.hatch.envs.docs.scripts]
+build = "make -C docs html SPHINXOPTS='-W'"
+
+[tool.hatch.envs.test]
+features = ["test"]
+[tool.hatch.envs.test.scripts]
+test = "python -m pytest -vv {args}"
+nowarn = "test -W default {args}"
+
+[tool.hatch.envs.cov]
+features = ["test"]
+dependencies = ["coverage[toml]", "pytest-cov"]
+[tool.hatch.envs.cov.scripts]
+test = "python -m pytest -vv --cov traitlets --cov-branch --cov-report term-missing:skip-covered {args}"
+nowarn = "test -W default {args}"
+
+[tool.hatch.envs.typing]
+dependencies = ["pre-commit"]
+detached = true
+[tool.hatch.envs.typing.scripts]
+test = "pre-commit run --all-files --hook-stage manual mypy"
+
+[tool.hatch.envs.lint]
+dependencies = ["pre-commit"]
+detached = true
+[tool.hatch.envs.lint.scripts]
+build = [
+  "pre-commit run --all-files ruff",
+  "pre-commit run --all-files ruff-format"
+]
+
+[tool.mypy]
+files = "traitlets"
+python_version = "3.8"
+strict = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+pretty = true
+show_error_context = true
+warn_unreachable = true
+exclude = ["examples/docs/configs", "traitlets/tests/test_typing.py"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+xfail_strict = true
+log_cli_level = "info"
+addopts = [
+  "-ra", "--durations=10", "--color=yes", "--doctest-modules",
+   "--showlocals", "--strict-markers", "--strict-config",
+   "--ignore=examples/docs/configs"
+]
+testpaths = [
+    "tests",
+    "examples",
+]
+filterwarnings = [
+    "ignore",
+    "ignore:Passing unrecognized arguments",
+    "ignore:Keyword .* is deprecated",
+    "ignore:Supporting extra quotes around",
+    "ignore:DeprecatedApp._config_changed is deprecated in traitlets",
+    "ignore:A parent of DeprecatedApp._config_changed has adopted",
+    "ignore:KeyValueConfigLoader is deprecated since Traitlets",
+    "ignore:Traits should be given as instances",
+    "ignore:Explicit using of Undefined as",
+    "ignore:on_trait_change is deprecated",
+    "ignore:.*use @observe and @unobserve instead",
+    "ignore:.*for no default is deprecated in traitlets",
+    "ignore:.*use @validate decorator instead",
+    "ignore:.*has adopted the new \\(traitlets 4.1\\) @observe\\(change\\) API",
+    "ignore:.*will be removed in Jinja 3.1.:DeprecationWarning",
+    "ignore: the imp module is deprecated in favour of importlib",
+    "ignore:IPython.core.inputsplitter is deprecated since IPython 7 in favor of `IPython.core.inputtransformer2`:DeprecationWarning",
+    "ignore:pyee.EventEmitter is deprecated and will be removed in a future major version", # you should instead use either pyee.AsyncIOEventEmitter, pyee.TwistedEventEmitter, pyee.ExecutorEventEmitter, pyee.TrioEventEmitter, or pyee.BaseEventEmitter.:DeprecationWarning
+    "ignore:Your element with mimetype.*",
+]
+markers = [
+    "network: marks tests which require network connection (nbconvert)",
+    "integration_tests: notebook mark (notebook)",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "if self.debug:",
+  "if settings.DEBUG",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if 0:",
+  "if __name__ == .__main__.:",
+  "class .*\bProtocol\\):",
+"@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.run]
+relative_files = true
+source = ["traitlets"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+extend-select = [
+  "B",           # flake8-bugbear
+  "I",           # isort
+  "ARG",         # flake8-unused-arguments
+  "C4",          # flake8-comprehensions
+  # "EM",          # flake8-errmsg
+  "ICN",         # flake8-import-conventions
+  "G",           # flake8-logging-format
+  "PGH",         # pygrep-hooks
+  "PIE",         # flake8-pie
+  "PL",          # pylint
+  # "PTH",         # flake8-use-pathlib
+  "PT",          # flake8-pytest-style
+  "RET",         # flake8-return
+  "RUF",         # Ruff-specific
+  "SIM",         # flake8-simplify
+  "T20",         # flake8-print
+  "UP",          # pyupgrade
+  "YTT",         # flake8-2020
+  "EXE",         # flake8-executable
+  "PYI",         # flake8-pyi
+  "S",           # flake8-bandit
+]
+ignore = [
+  "PLR",    # Design related pylint codes
+  "B027",   # Allow non-abstract empty methods in abstract base classes
+  "S101",   # Use of `assert` detected
+  "E501",   # Line too long
+  "S105", "S106",   # Possible hardcoded password
+  "S110",   # S110 `try`-`except`-`pass` detected
+  "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+  "UP006",  # non-pep585-annotation
+  "UP007",  # non-pep604-annotation
+  "ARG001", "ARG002",  # Unused function argument
+  "RET503",  # Missing explicit `return` at the end of function
+  "RET505",  # Unnecessary `else` after `return` statement
+  "SIM102", # Use a single `if` statement instead of nested `if` statements
+  "SIM105", # Use `contextlib.suppress(ValueError)`
+  "SIM108", # Use ternary operator
+  "SIM114", # Combine `if` branches using logical `or` operator"
+  "PLW2901", # `for` loop variable `path` overwritten by assignment target
+  # https://github.com/astral-sh/ruff/issues/8796#issuecomment-1825907715
+  "PT001", "PT004", "PT005", "PT02", "PT009"
+]
+unfixable = [
+  # Don't touch noqa lines
+  "RUF100",
+]
+isort.required-imports = ["from __future__ import annotations"]
+
+[tool.ruff.lint.per-file-ignores]
+# B011 Do not call assert False since python -O removes these calls
+# F841 local variable 'foo' is assigned to but never used
+# C408 Unnecessary `dict` call
+# E402 Module level import not at top of file
+# T201 `print` found
+# B007 Loop control variable `i` not used within the loop body.
+# N802 Function name `assertIn` should be lowercase
+# F841 Local variable `t` is assigned to but never used
+# B018 Found useless expression
+# S301 `pickle` and modules that wrap..."
+# PGH003 Use specific rule codes when ignoring type issues
+"tests/*" = ["B011", "F841", "C408", "E402", "T201", "B007", "N802", "F841",
+                       "B018", "S301", "ARG", "PGH003"]
+"traitlets/config/application.py" = ["T201"]
+# B003 Assigning to os.environ doesn't clear the environment
+"tests/config/*" = ["B003", "B018", "S301"]
+# F401 `_version.__version__` imported but unused
+# F403 `from .traitlets import *` used; unable to detect undefined names
+"traitlets/*__init__.py" = ["F401", "F403"]
+"examples/*" = ["T201"]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+parametrize-names-type = "csv"

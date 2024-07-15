@@ -1,0 +1,43 @@
+{
+    "arch": "x86_64",
+    "build": "ha770c72_0",
+    "build_number": 0,
+    "build_string": "ha770c72_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [],
+    "extracted_package_dir": "pkgs/git-lfs-3.5.1-ha770c72_0",
+    "files": [
+        "bin/git-lfs"
+    ],
+    "fn": "git-lfs-3.5.1-ha770c72_0.conda",
+    "license": "MIT",
+    "link": {
+        "source": "pkgs/git-lfs-3.5.1-ha770c72_0",
+        "type": 1
+    },
+    "md5": "bcba64281c71698f6dbb773e61908912",
+    "name": "git-lfs",
+    "package_tarball_full_path": "pkgs/git-lfs-3.5.1-ha770c72_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "bin/git-lfs",
+                "path_type": "hardlink",
+                "sha256": "aa7c4495760aac4c03b041ffeb970620bd24204303696afd8d662610ce027e7f",
+                "sha256_in_prefix": "aa7c4495760aac4c03b041ffeb970620bd24204303696afd8d662610ce027e7f",
+                "size_in_bytes": 11444224
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": "linux",
+    "requested_spec": "git-lfs",
+    "sha256": "8b4ca86fdf6bbab529ea9804477dae1a8e1506ce8ffc3d2ebe822d759db6ac22",
+    "size": 3817202,
+    "subdir": "linux-64",
+    "timestamp": 1709855456854,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/git-lfs-3.5.1-ha770c72_0.conda",
+    "version": "3.5.1"
+}

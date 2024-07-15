@@ -1,0 +1,58 @@
+diff --git a/Projects/VC2019/jpegicc/jpegicc.vcxproj b/Projects/VC2019/jpegicc/jpegicc.vcxproj
+index 584683b..b5a3ce9 100644
+--- a/Projects/VC2019/jpegicc/jpegicc.vcxproj
++++ b/Projects/VC2019/jpegicc/jpegicc.vcxproj
+@@ -150,7 +150,7 @@
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+-      <AdditionalDependencies>libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <TargetMachine>MachineX86</TargetMachine>
+@@ -172,7 +172,7 @@
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+-      <AdditionalDependencies>libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+@@ -192,7 +192,7 @@
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+-      <AdditionalDependencies>libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+@@ -217,7 +217,7 @@
+       <BrowseInformation>false</BrowseInformation>
+     </ClCompile>
+     <Link>
+-      <AdditionalDependencies>libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+@@ -248,7 +248,7 @@
+       <BrowseInformation>false</BrowseInformation>
+     </ClCompile>
+     <Link>
+-      <AdditionalDependencies>libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+@@ -277,7 +277,7 @@
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+-      <AdditionalDependencies>libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalDependencies>jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>

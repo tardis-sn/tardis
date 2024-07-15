@@ -1,0 +1,138 @@
+# This file created by conda-build 24.5.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu May 16 15:24:38 2024
+# ------------------------------------------------
+
+package:
+  name: astropy
+  version: 6.1.0
+source:
+  patches:
+    - pyproject.toml.patch
+  sha256: 6c3b915f10b1576190730ddce45f6245f9927dda3de6e3f692db45779708950f
+  url: https://pypi.io/packages/source/a/astropy/astropy-6.1.0.tar.gz
+build:
+  entry_points:
+    - fits2bitmap = astropy.visualization.scripts.fits2bitmap:main
+    - fitscheck = astropy.io.fits.scripts.fitscheck:main
+    - fitsdiff = astropy.io.fits.scripts.fitsdiff:main
+    - fitsheader = astropy.io.fits.scripts.fitsheader:main
+    - fitsinfo = astropy.io.fits.scripts.fitsinfo:main
+    - samp_hub = astropy.samp.hub_script:hub_script
+    - volint = astropy.io.votable.volint:main
+    - wcslint = astropy.wcs.wcslint:main
+  number: '1'
+  script: /home/conda/feedstock_root/build_artifacts/astropy_1715873145597/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla/bin/python
+    -m pip install . -vv
+  string: py312h085067d_1
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha885e6a_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libsanitizer 12.3.0 hb8811af_7
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _numpy_rc 1 h23db71c_0
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cython 3.0.10 py312h30efb56_0
+    - extension-helpers 1.1.1 pyhd8ed1ab_0
+    - jinja2 3.1.4 pyhd8ed1ab_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libblas 3.9.0 22_linux64_openblas
+    - libcblas 3.9.0 22_linux64_openblas
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgfortran-ng 13.2.0 h69a702a_7
+    - libgfortran5 13.2.0 hca663fb_7
+    - libgomp 13.2.0 h77fa898_7
+    - liblapack 3.9.0 22_linux64_openblas
+    - libnsl 2.0.1 hd590300_0
+    - libopenblas 0.3.27 pthreads_h413a1c8_0
+    - libsqlite 3.45.3 h2797004_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - markupsafe 2.1.5 py312h98912ed_0
+    - ncurses 6.5 h59595ed_0
+    - numpy 2.0.0rc2 py312h22e1c76_0
+    - openssl 3.3.0 hd590300_0
+    - packaging 24.0 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - python_abi 3.12 4_cp312
+    - readline 8.2 h8228510_1
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - setuptools-scm 8.1.0 pyhd8ed1ab_0
+    - setuptools_scm 8.1.0 hd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - typing-extensions 4.11.0 hd8ed1ab_0
+    - typing_extensions 4.11.0 pyha770c72_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - astropy-iers-data >=0.2024.4.29.0.28.48
+    - importlib-metadata
+    - libgcc-ng >=12
+    - numpy >=1.19,<3
+    - numpy >=1.23
+    - packaging >=19.0
+    - pyerfa >=2.0.1.1
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+    - pyyaml >=3.13
+test:
+  commands:
+    - fits2bitmap --help
+    - fitscheck --help
+    - fitsdiff --help
+    - fitsheader --help
+    - fitsinfo --help
+    - samp_hub --help
+    - volint --help
+    - wcslint --help
+  imports:
+    - astropy
+  requires:
+    - pytest-astropy
+about:
+  description: 'The Astropy Project is a community effort to develop a single package
+    for
+
+    Astronomy in Python. It contains core functionality and common tools
+
+    needed for performing astronomy and astrophysics research with Python.
+
+    '
+  dev_url: https://github.com/astropy/astropy
+  doc_url: http://docs.astropy.org/en/stable/
+  home: http://www.astropy.org/
+  license: BSD-3-Clause
+  license_file: LICENSE.rst
+  summary: Community-developed Python Library for Astronomy
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240516.3.1
+  recipe-maintainers:
+    - astrofrog
+    - bsipocz
+    - mwcraig
+  remote_url: https://github.com/conda-forge/astropy-feedstock
+  sha: debadb37df6c6e64167595630c6a33ad35dc1372

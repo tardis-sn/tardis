@@ -1,0 +1,3 @@
+[console_scripts]
+dot2tex = dot2tex.dot2tex:main
+

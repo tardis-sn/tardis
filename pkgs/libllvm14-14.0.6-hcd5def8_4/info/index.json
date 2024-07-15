@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "hcd5def8_4",
+  "build_number": 4,
+  "depends": [
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12",
+    "libzlib >=1.2.13,<1.3.0a0"
+  ],
+  "license": "Apache-2.0 WITH LLVM-exception",
+  "license_family": "Apache",
+  "name": "libllvm14",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1690557554081,
+  "version": "14.0.6"
+}

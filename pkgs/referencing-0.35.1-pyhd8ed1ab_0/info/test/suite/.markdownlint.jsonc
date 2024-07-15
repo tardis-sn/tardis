@@ -1,0 +1,8 @@
+{
+  "default": true,
+  "MD007": {
+    // indent lists
+    "start_indented": true,
+  },
+  "MD013": false, // disable line length checking, use one sentence per line
+}

@@ -1,0 +1,14 @@
+{
+  "c_stdlib": "sysroot",
+  "channel_targets": "conda-forge main",
+  "libffi": "3.4",
+  "cxx_compiler_version": "12",
+  "target_platform": "linux-64",
+  "cxx_compiler": "gxx",
+  "c_compiler": "gcc",
+  "zlib": "1.2",
+  "c_compiler_version": "12",
+  "libiconv": "1",
+  "c_stdlib_version": "2.12",
+  "pcre2": "10.43"
+}

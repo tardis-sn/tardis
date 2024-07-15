@@ -1,0 +1,65 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/rfc3986_validator-0.1.1.dist-info/AUTHORS.rst",
+      "path_type": "hardlink",
+      "sha256": "42ec0c4be6eb89016e3c756660ff474d2924225d0723c82720285ede0a46e5f3",
+      "size_in_bytes": 162
+    },
+    {
+      "_path": "site-packages/rfc3986_validator-0.1.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/rfc3986_validator-0.1.1.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "5ba1a4f03626ccca6dcbf53a554545e4f776a335bfdaa233ec3bfe9bb7fac15d",
+      "size_in_bytes": 1074
+    },
+    {
+      "_path": "site-packages/rfc3986_validator-0.1.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "feddd8265433ba7be465e1649b486ec83c4c78f593f36284e7ae6d655cae163c",
+      "size_in_bytes": 1713
+    },
+    {
+      "_path": "site-packages/rfc3986_validator-0.1.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "6be9bcfc1fc0dfcce260d51fcd0bfa104d8e696295019655f4cdbf12a66ab4fc",
+      "size_in_bytes": 972
+    },
+    {
+      "_path": "site-packages/rfc3986_validator-0.1.1.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/rfc3986_validator-0.1.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "00329ec9a1b2285e43c01344d2c444e69bd6f9b4a414c25f06e873677adc78fe",
+      "size_in_bytes": 110
+    },
+    {
+      "_path": "site-packages/rfc3986_validator-0.1.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "cd218b2738e3d4d85a12445084f114836ab9d0257382fc74c5da98f5a687a802",
+      "size_in_bytes": 113
+    },
+    {
+      "_path": "site-packages/rfc3986_validator-0.1.1.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "2e71ab0c89c18acbffcb5d075c7279a02b4ee32aca81e132f28e1ad2651a2dd1",
+      "size_in_bytes": 18
+    },
+    {
+      "_path": "site-packages/rfc3986_validator.py",
+      "path_type": "hardlink",
+      "sha256": "95fc6d48642f111952b25c040947765bccba669210c8c140b7ed9647fd7e470c",
+      "size_in_bytes": 4395
+    }
+  ],
+  "paths_version": 1
+}

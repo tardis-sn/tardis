@@ -1,0 +1,25 @@
+From 3a2c3c9ee7da0a43f5233bb5e3bbd5ca7cd90419 Mon Sep 17 00:00:00 2001
+From: "Dougal J. Sutherland" <dougal@gmail.com>
+Date: Mon, 11 Sep 2017 16:11:05 +0100
+Subject: [PATCH 1/6] change static lib output name on windows
+
+---
+ CMakeLists.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 85afe58..a1a10db 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -282,6 +282,8 @@ set_target_properties(snappy
+ target_compile_definitions(snappy PRIVATE -DHAVE_CONFIG_H)
+ if(BUILD_SHARED_LIBS)
+   set_target_properties(snappy PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
++elseif(MSVC)
++  set_target_properties(snappy PROPERTIES OUTPUT_NAME snappy_static)
+ endif(BUILD_SHARED_LIBS)
+
+ if(SNAPPY_BUILD_TESTS OR SNAPPY_BUILD_BENCHMARKS)
+--
+2.39.3 (Apple Git-146)
+

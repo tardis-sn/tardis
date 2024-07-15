@@ -1,0 +1,25 @@
+{
+    "arch": "x86_64",
+    "build": "py310hff52083_5",
+    "build_number": 5,
+    "build_string": "py310hff52083_5",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "python >=3.10,<3.11.0a0",
+        "python_abi 3.10.* *_cp310"
+    ],
+    "fn": "pysocks-1.7.1-py310hff52083_5.tar.bz2",
+    "license": "BSD 3-Clause",
+    "license_family": "BSD",
+    "md5": "378f2260e871f3ea46c6fa58d9f05277",
+    "name": "pysocks",
+    "platform": "linux",
+    "sha256": "cb6e4821234cee05acd1996cef88e40dfc2d5ab12cf12c5b1d6ed9118f7f41a7",
+    "size": 28554,
+    "subdir": "linux-64",
+    "timestamp": 1648857341451,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/pysocks-1.7.1-py310hff52083_5.tar.bz2",
+    "version": "1.7.1"
+}

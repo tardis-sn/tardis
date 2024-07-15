@@ -1,0 +1,39 @@
+{% set version = "1.4.1" %}
+
+package:
+  name: imagesize
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/i/imagesize/imagesize-{{ version }}.tar.gz
+  sha256: 69150444affb9cb0d5cc5a92b3676f0b2fb7cd9ae39e947a5e11a36b4497cd4a
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - python >=3.4
+    - pip
+  run:
+    - python >=3.4
+
+test:
+  imports:
+    - imagesize
+
+about:
+  home: https://github.com/shibukawa/imagesize_py
+  license: MIT
+  license_file: LICENSE.rst
+  summary: Getting image size from png/jpeg/jpeg2000/gif file
+  description: |
+    This module analyzes jpeg/jpeg2000/png/gif image header and
+    return image size.
+  dev_url: https://github.com/shibukawa/imagesize_py
+
+extra:
+  recipe-maintainers:
+    - chohner

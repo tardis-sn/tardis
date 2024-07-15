@@ -1,0 +1,26 @@
+{
+    "arch": "x86_64",
+    "build": "py312h9a8786e_0",
+    "build_number": 0,
+    "build_string": "py312h9a8786e_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "tornado-6.4.1-py312h9a8786e_0.conda",
+    "license": "Apache-2.0",
+    "license_family": "Apache",
+    "md5": "fd9c83fde763b494f07acee1404c280e",
+    "name": "tornado",
+    "platform": "linux",
+    "sha256": "fcf92fde5bac323921d97f8f2e66ee134ea01094f14d4e99c56f98187241c638",
+    "size": 839315,
+    "subdir": "linux-64",
+    "timestamp": 1717723013620,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/tornado-6.4.1-py312h9a8786e_0.conda",
+    "version": "6.4.1"
+}

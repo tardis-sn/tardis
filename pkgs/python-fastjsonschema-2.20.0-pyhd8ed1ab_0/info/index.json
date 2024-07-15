@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.3"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "python-fastjsonschema",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1718477110630,
+  "version": "2.20.0"
+}

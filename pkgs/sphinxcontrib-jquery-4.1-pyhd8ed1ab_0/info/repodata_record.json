@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=2.7",
+        "sphinx >=1.8"
+    ],
+    "fn": "sphinxcontrib-jquery-4.1-pyhd8ed1ab_0.conda",
+    "license": "0BSD AND MIT",
+    "md5": "914897066d5873acfb13e75705276ad1",
+    "name": "sphinxcontrib-jquery",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "2e5f16a2d58f9a31443ffbb8ce3852cfccf533a6349045828cd2e994ef0679ca",
+    "size": 112985,
+    "subdir": "noarch",
+    "timestamp": 1678809100921,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-jquery-4.1-pyhd8ed1ab_0.conda",
+    "version": "4.1"
+}

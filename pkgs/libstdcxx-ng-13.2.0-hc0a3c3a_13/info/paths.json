@@ -1,0 +1,29 @@
+{
+  "paths": [
+    {
+      "_path": "lib/libstdc++.so",
+      "path_type": "softlink",
+      "sha256": "e5e4f21cff83a8dd33d3df71f4753ab75a8e33430ded7099467cbf5728efd999",
+      "size_in_bytes": 13799136
+    },
+    {
+      "_path": "lib/libstdc++.so.6",
+      "path_type": "softlink",
+      "sha256": "e5e4f21cff83a8dd33d3df71f4753ab75a8e33430ded7099467cbf5728efd999",
+      "size_in_bytes": 13799136
+    },
+    {
+      "_path": "lib/libstdc++.so.6.0.32",
+      "path_type": "hardlink",
+      "sha256": "e5e4f21cff83a8dd33d3df71f4753ab75a8e33430ded7099467cbf5728efd999",
+      "size_in_bytes": 13799136
+    },
+    {
+      "_path": "share/licenses/libstdc++/RUNTIME.LIBRARY.EXCEPTION",
+      "path_type": "hardlink",
+      "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+      "size_in_bytes": 3324
+    }
+  ],
+  "paths_version": 1
+}

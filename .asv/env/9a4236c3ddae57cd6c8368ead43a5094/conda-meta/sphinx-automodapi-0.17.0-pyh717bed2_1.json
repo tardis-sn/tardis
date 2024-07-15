@@ -1,0 +1,1449 @@
+{
+    "arch": null,
+    "build": "pyh717bed2_1",
+    "build_number": 1,
+    "build_string": "pyh717bed2_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8",
+        "sphinx >=4"
+    ],
+    "extracted_package_dir": "pkgs/sphinx-automodapi-0.17.0-pyh717bed2_1",
+    "files": [
+        "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/LICENSE.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/METADATA",
+        "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/RECORD",
+        "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/WHEEL",
+        "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/sphinx_automodapi/__init__.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/autodoc_enhancements.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/automodapi.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/automodsumm.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/smart_resolver.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/templates/autosummary_core/base.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/templates/autosummary_core/class.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/templates/autosummary_core/module.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/__init__.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/output/api/sphinx_automodapi.tests.example_module.abstract_classes.SequenceSubclass.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/output/api/sphinx_automodapi.tests.example_module.Egg.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/output/api/sphinx_automodapi.tests.example_module.Spam.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/output/api/sphinx_automodapi.tests.example_module.classes.Egg.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/output/api/sphinx_automodapi.tests.example_module.classes.Egg.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/output/api/sphinx_automodapi.tests.example_module.classes.Spam.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/api/sphinx_automodapi.tests.example_module.classes.Egg.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/api/sphinx_automodapi.tests.example_module.classes.Spam.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/api/sphinx_automodapi.tests.example_module.other_classes.Foo.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/api/sphinx_automodapi.tests.example_module.Egg.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/api/sphinx_automodapi.tests.example_module.Spam.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/api/sphinx_automodapi.tests.example_module.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/api/sphinx_automodapi.tests.example_module.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.Egg.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.FUNNY_WALK_STEPS.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.PARROT_STATE.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.Spam.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/api/sphinx_automodapi.tests.example_module.Egg.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/api/sphinx_automodapi.tests.example_module.Spam.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/api/sphinx_automodapi.tests.example_module.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/api/sphinx_automodapi.tests.example_module.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/input/tests/example_module/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/input/tests/example_module/references.txt",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/output/api/sphinx_automodapi.tests.example_module.functions_with_ref.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/output/api/sphinx_automodapi.tests.example_module.functions_with_ref.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/output/tests/example_module/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/output/tests/example_module/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/api/sphinx_automodapi.tests.example_module.nonascii.NonAsciiÄöüßő.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/api/sphinx_automodapi.tests.example_module.slots.DerivedParam.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/api/sphinx_automodapi.tests.example_module.slots.DerivedSlotParam.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/api/sphinx_automodapi.tests.example_module.slots.SlotDict.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/input/src/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/output/src/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/output/src/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/output/src/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/output/src/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/README.md",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/input/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/output/api/sphinx_automodapi.tests.example_module.variables.FUNNY_WALK_STEPS.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/output/api/sphinx_automodapi.tests.example_module.variables.PARROT_STATE.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/output/index.rst.automodapi",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/output/index.rst.automodsumm",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/__init__.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/docs/conf.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/docs/foo.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/docs/index.rst",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/__init__.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/foo/__init__.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/foo/foo.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__init__.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/abstract_classes.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/classes.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/functions.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/functions_with_ref.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/mixed.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/noall.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/nonascii.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/other_classes.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/slots.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/stdlib.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/variables.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/helpers.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/test_autodoc_enhancements.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/test_automodapi.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/test_automodsumm.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/test_cases.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/test_utils.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/utils.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/version.py",
+        "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/autodoc_enhancements.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/automodapi.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/automodsumm.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/smart_resolver.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/docs/__pycache__/conf.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/foo/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/foo/__pycache__/foo.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/abstract_classes.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/classes.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/functions.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/functions_with_ref.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/mixed.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/noall.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/nonascii.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/other_classes.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/slots.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/stdlib.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/variables.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/helpers.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_autodoc_enhancements.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_automodapi.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_automodsumm.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_cases.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_utils.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/utils.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/version.cpython-312.pyc"
+    ],
+    "fn": "sphinx-automodapi-0.17.0-pyh717bed2_1.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "link": {
+        "source": "pkgs/sphinx-automodapi-0.17.0-pyh717bed2_1",
+        "type": 1
+    },
+    "md5": "ee327fec39b9a01d03d3010463df3ee1",
+    "name": "sphinx-automodapi",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/sphinx-automodapi-0.17.0-pyh717bed2_1.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/LICENSE.rst",
+                "path_type": "hardlink",
+                "sha256": "b864c378cd4722f2fe6f1a60725b1428e79c700a0a6049f2ed94ba82a44c2a57",
+                "sha256_in_prefix": "b864c378cd4722f2fe6f1a60725b1428e79c700a0a6049f2ed94ba82a44c2a57",
+                "size_in_bytes": 1496
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "858022d26a39701aa8325dff22dd4ac76c4428471c1ace4763ab12623eb927b0",
+                "sha256_in_prefix": "858022d26a39701aa8325dff22dd4ac76c4428471c1ace4763ab12623eb927b0",
+                "size_in_bytes": 2876
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "084dc38cfc8dbaf1acf2856036615e53856e3cccb9dd91dec6c452244c1c5415",
+                "sha256_in_prefix": "084dc38cfc8dbaf1acf2856036615e53856e3cccb9dd91dec6c452244c1c5415",
+                "size_in_bytes": 22772
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+                "sha256_in_prefix": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "70f702c5c22eddbc2638807d8b4906ff6a77b55ddf3029666fc464732c8da85a",
+                "sha256_in_prefix": "70f702c5c22eddbc2638807d8b4906ff6a77b55ddf3029666fc464732c8da85a",
+                "size_in_bytes": 113
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi-0.17.0.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "c9693a4b0a258c17e088bd68e491c0976aca193cee3db0f8c276a2e5aa8502c3",
+                "sha256_in_prefix": "c9693a4b0a258c17e088bd68e491c0976aca193cee3db0f8c276a2e5aa8502c3",
+                "size_in_bytes": 18
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "5d65b29fd21f99b02c38db5c0033c1a2ada01819eda6902507ef5ec12d6430a2",
+                "sha256_in_prefix": "5d65b29fd21f99b02c38db5c0033c1a2ada01819eda6902507ef5ec12d6430a2",
+                "size_in_bytes": 52
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/autodoc_enhancements.py",
+                "path_type": "hardlink",
+                "sha256": "b46850d992434647162ccaeb2255606e5f29bc347c4b3303c3cc87a46d76d9d1",
+                "sha256_in_prefix": "b46850d992434647162ccaeb2255606e5f29bc347c4b3303c3cc87a46d76d9d1",
+                "size_in_bytes": 2726
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/automodapi.py",
+                "path_type": "hardlink",
+                "sha256": "fa92008f103fd49a92640451d43fdeff35bba4925df4fa93c467298ad7182512",
+                "sha256_in_prefix": "fa92008f103fd49a92640451d43fdeff35bba4925df4fa93c467298ad7182512",
+                "size_in_bytes": 17731
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/automodsumm.py",
+                "path_type": "hardlink",
+                "sha256": "24fee85004e1ad1f8d0b06af3d9711076ebab3703d8e152d737507a5ebb31c9e",
+                "sha256_in_prefix": "24fee85004e1ad1f8d0b06af3d9711076ebab3703d8e152d737507a5ebb31c9e",
+                "size_in_bytes": 28124
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/smart_resolver.py",
+                "path_type": "hardlink",
+                "sha256": "132e0cd42bad4ab4410f43bcff0b36f3cda6db450d41cfd84a25075a484d0936",
+                "sha256_in_prefix": "132e0cd42bad4ab4410f43bcff0b36f3cda6db450d41cfd84a25075a484d0936",
+                "size_in_bytes": 5819
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/templates/autosummary_core/base.rst",
+                "path_type": "hardlink",
+                "sha256": "158a55adf7a568936325eace2a63f56b1dc8ea5fb6b033643301ce01be12a8e2",
+                "sha256_in_prefix": "158a55adf7a568936325eace2a63f56b1dc8ea5fb6b033643301ce01be12a8e2",
+                "size_in_bytes": 170
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/templates/autosummary_core/class.rst",
+                "path_type": "hardlink",
+                "sha256": "32ad364afdc705f6feac906eca6a33aa9957a6392e1c2ef4129627594b65c00e",
+                "sha256_in_prefix": "32ad364afdc705f6feac906eca6a33aa9957a6392e1c2ef4129627594b65c00e",
+                "size_in_bytes": 1211
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/templates/autosummary_core/module.rst",
+                "path_type": "hardlink",
+                "sha256": "4ca6f7510e8b80a80dfb6c061ee47c6f296f0ab8127e5cbdde93ebd728e21ab0",
+                "sha256_in_prefix": "4ca6f7510e8b80a80dfb6c061ee47c6f296f0ab8127e5cbdde93ebd728e21ab0",
+                "size_in_bytes": 703
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "792c6c111c3e3d9def5482f7f59b95edf4f5d9b33aeb8c0242e19fd23697ea38",
+                "sha256_in_prefix": "792c6c111c3e3d9def5482f7f59b95edf4f5d9b33aeb8c0242e19fd23697ea38",
+                "size_in_bytes": 1676
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/README.md",
+                "path_type": "hardlink",
+                "sha256": "56b48a1969dc8195231b4b168c203cf9776dbe5c03064e74c8572e895593197a",
+                "sha256_in_prefix": "56b48a1969dc8195231b4b168c203cf9776dbe5c03064e74c8572e895593197a",
+                "size_in_bytes": 207
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "1a532bb3378c300fc2bf83c0469622270edcf4bf378fcf60a10bd51374e5bbc5",
+                "sha256_in_prefix": "1a532bb3378c300fc2bf83c0469622270edcf4bf378fcf60a10bd51374e5bbc5",
+                "size_in_bytes": 72
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/output/api/sphinx_automodapi.tests.example_module.abstract_classes.SequenceSubclass.rst",
+                "path_type": "hardlink",
+                "sha256": "c70daa507b1c9eee08bdf9ca0f9dcdb7014a359be280f593cc114b93f99b532e",
+                "sha256_in_prefix": "c70daa507b1c9eee08bdf9ca0f9dcdb7014a359be280f593cc114b93f99b532e",
+                "size_in_bytes": 490
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "1e2819e807b04ac4094bcd08bb34782493d48f8b38c40f953222f6c2b2ca4a90",
+                "sha256_in_prefix": "1e2819e807b04ac4094bcd08bb34782493d48f8b38c40f953222f6c2b2ca4a90",
+                "size_in_bytes": 493
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/abstract_classes/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "e1d2d99108686bd4b6773b4b70c7522d133a70abcc400dd7d9b79322b94aef02",
+                "sha256_in_prefix": "e1d2d99108686bd4b6773b4b70c7522d133a70abcc400dd7d9b79322b94aef02",
+                "size_in_bytes": 133
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/README.md",
+                "path_type": "hardlink",
+                "sha256": "8da7ad40607a2c4cf8c9243037bc2c891f3fc0a8e7eefd8bb875d7c9461ad11b",
+                "sha256_in_prefix": "8da7ad40607a2c4cf8c9243037bc2c891f3fc0a8e7eefd8bb875d7c9461ad11b",
+                "size_in_bytes": 138
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "6ce8152a6814cf439cbb0d880b01d11d59587d330c53f55575340785bbdcff48",
+                "sha256_in_prefix": "6ce8152a6814cf439cbb0d880b01d11d59587d330c53f55575340785bbdcff48",
+                "size_in_bytes": 129
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/output/api/sphinx_automodapi.tests.example_module.Egg.rst",
+                "path_type": "hardlink",
+                "sha256": "5ef405fd1953ee7571d20bea26185b9111ecf68f3a1295497a1aafa5acdf74d2",
+                "sha256_in_prefix": "5ef405fd1953ee7571d20bea26185b9111ecf68f3a1295497a1aafa5acdf74d2",
+                "size_in_bytes": 424
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/output/api/sphinx_automodapi.tests.example_module.Spam.rst",
+                "path_type": "hardlink",
+                "sha256": "ddb0ec920b42ab26a5146d21afa3936c1f5bca8820dc74fcd4e62818df18f83a",
+                "sha256_in_prefix": "ddb0ec920b42ab26a5146d21afa3936c1f5bca8820dc74fcd4e62818df18f83a",
+                "size_in_bytes": 112
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "b1e113bdb1425f27198a7cd7c3df36292aeacbc0e144cdba424d48fbac3f14d6",
+                "sha256_in_prefix": "b1e113bdb1425f27198a7cd7c3df36292aeacbc0e144cdba424d48fbac3f14d6",
+                "size_in_bytes": 560
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/allowed_names/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "cfc3b5fdbda8d79e22df2d52491f455cdb81e9aa949f55ccc1dc0911380009cb",
+                "sha256_in_prefix": "cfc3b5fdbda8d79e22df2d52491f455cdb81e9aa949f55ccc1dc0911380009cb",
+                "size_in_bytes": 112
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/README.md",
+                "path_type": "hardlink",
+                "sha256": "0bfd0e41f97df535e9c5fb0c9f52b04dc8f369733958cedabba899a704e756a2",
+                "sha256_in_prefix": "0bfd0e41f97df535e9c5fb0c9f52b04dc8f369733958cedabba899a704e756a2",
+                "size_in_bytes": 73
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "26c248420342ea1e6effe7e5e1b8321e8bdbf5dd439aa28d44e2a898465fec1f",
+                "sha256_in_prefix": "26c248420342ea1e6effe7e5e1b8321e8bdbf5dd439aa28d44e2a898465fec1f",
+                "size_in_bytes": 78
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/output/api/sphinx_automodapi.tests.example_module.classes.Egg.rst",
+                "path_type": "hardlink",
+                "sha256": "843b68bedf8f81ccee9cc7d1eb729506372922b686290134a07b6fa59fb97ab3",
+                "sha256_in_prefix": "843b68bedf8f81ccee9cc7d1eb729506372922b686290134a07b6fa59fb97ab3",
+                "size_in_bytes": 432
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "1b9f9d0c7f30834d85a4f71cdb89dfe3d9b26b46f94644df3bc40ab26511fbba",
+                "sha256_in_prefix": "1b9f9d0c7f30834d85a4f71cdb89dfe3d9b26b46f94644df3bc40ab26511fbba",
+                "size_in_bytes": 480
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_no_inherit/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "7a56380c65d3de408834d910537cdf1a57f15f04cfd94257aac56b7805ccf7cc",
+                "sha256_in_prefix": "7a56380c65d3de408834d910537cdf1a57f15f04cfd94257aac56b7805ccf7cc",
+                "size_in_bytes": 111
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/README.md",
+                "path_type": "hardlink",
+                "sha256": "70cf3f73d98632f30cc627bfda39e547ce11f05df6b266c3d2983232296ebbdf",
+                "sha256_in_prefix": "70cf3f73d98632f30cc627bfda39e547ce11f05df6b266c3d2983232296ebbdf",
+                "size_in_bytes": 105
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "72c02abbd033e36952d7b61d96cd5a92ff3ffe9bba16868ea2230ddf060c3751",
+                "sha256_in_prefix": "72c02abbd033e36952d7b61d96cd5a92ff3ffe9bba16868ea2230ddf060c3751",
+                "size_in_bytes": 63
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/output/api/sphinx_automodapi.tests.example_module.classes.Egg.rst",
+                "path_type": "hardlink",
+                "sha256": "843b68bedf8f81ccee9cc7d1eb729506372922b686290134a07b6fa59fb97ab3",
+                "sha256_in_prefix": "843b68bedf8f81ccee9cc7d1eb729506372922b686290134a07b6fa59fb97ab3",
+                "size_in_bytes": 432
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/output/api/sphinx_automodapi.tests.example_module.classes.Spam.rst",
+                "path_type": "hardlink",
+                "sha256": "7bf364ac260b49adb5099b4bcb6be0d382982df9130856b0557f1923e2a9f6a2",
+                "sha256_in_prefix": "7bf364ac260b49adb5099b4bcb6be0d382982df9130856b0557f1923e2a9f6a2",
+                "size_in_bytes": 120
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "46e014d926fab00b0d70d9dd30595443731cfffe24842f703363d3e84a3ca4da",
+                "sha256_in_prefix": "46e014d926fab00b0d70d9dd30595443731cfffe24842f703363d3e84a3ca4da",
+                "size_in_bytes": 448
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/classes_with_inherit/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "5d113158a0e9430feb6f98a0889359a6fbe4a3d414f2d2ce1d05b0454cb831a6",
+                "sha256_in_prefix": "5d113158a0e9430feb6f98a0889359a6fbe4a3d414f2d2ce1d05b0454cb831a6",
+                "size_in_bytes": 120
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/README.md",
+                "path_type": "hardlink",
+                "sha256": "2e7c0e2d8682b7e941aefe761e937b2d88d899f042fbe944198a1794ea7cbdc2",
+                "sha256_in_prefix": "2e7c0e2d8682b7e941aefe761e937b2d88d899f042fbe944198a1794ea7cbdc2",
+                "size_in_bytes": 73
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "ebe404008028c45f785a14252bac0b789ed8cb73b936f19ba856fb2d8e6fb877",
+                "sha256_in_prefix": "ebe404008028c45f785a14252bac0b789ed8cb73b936f19ba856fb2d8e6fb877",
+                "size_in_bytes": 83
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+                "path_type": "hardlink",
+                "sha256": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "sha256_in_prefix": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "size_in_bytes": 100
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "sha256_in_prefix": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "size_in_bytes": 115
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "58c1d044c1f7e8ac9306aa7bb20db8120ae8ae9d59839e8f3741211e3d4da4a8",
+                "sha256_in_prefix": "58c1d044c1f7e8ac9306aa7bb20db8120ae8ae9d59839e8f3741211e3d4da4a8",
+                "size_in_bytes": 306
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_headings/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "sha256_in_prefix": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "size_in_bytes": 139
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/README.md",
+                "path_type": "hardlink",
+                "sha256": "b13d881ca54bb0c182ea616adaa7ea18da3f742fb78b62f8b13b7654430c18e6",
+                "sha256_in_prefix": "b13d881ca54bb0c182ea616adaa7ea18da3f742fb78b62f8b13b7654430c18e6",
+                "size_in_bytes": 74
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "381b1b2a7f1841a92fedde4ff455ab092cc13f953929e6e86794409d7e191d45",
+                "sha256_in_prefix": "381b1b2a7f1841a92fedde4ff455ab092cc13f953929e6e86794409d7e191d45",
+                "size_in_bytes": 81
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+                "path_type": "hardlink",
+                "sha256": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "sha256_in_prefix": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "size_in_bytes": 100
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "sha256_in_prefix": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "size_in_bytes": 115
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "3b2675c9aa2a98c0b4f1d37bff509adc8635baf1dd4283dba7720de0ee7d5220",
+                "sha256_in_prefix": "3b2675c9aa2a98c0b4f1d37bff509adc8635baf1dd4283dba7720de0ee7d5220",
+                "size_in_bytes": 192
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_noheading/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "sha256_in_prefix": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "size_in_bytes": 139
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/README.md",
+                "path_type": "hardlink",
+                "sha256": "8a154bd4a18c8f4fcea2e5d5b8945fecfc820e4cfdf794b552c22be9db413382",
+                "sha256_in_prefix": "8a154bd4a18c8f4fcea2e5d5b8945fecfc820e4cfdf794b552c22be9db413382",
+                "size_in_bytes": 68
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "3bb9b0823fed4f9a5b733e6fbfc2e634a29f99477aba56ffe2d90900f80016e8",
+                "sha256_in_prefix": "3bb9b0823fed4f9a5b733e6fbfc2e634a29f99477aba56ffe2d90900f80016e8",
+                "size_in_bytes": 85
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+                "path_type": "hardlink",
+                "sha256": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "sha256_in_prefix": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "size_in_bytes": 100
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "sha256_in_prefix": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "size_in_bytes": 115
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "3cbaf2276a9e8e9fb235cec75485345f40b158fd1b5bee20dc304110e49f86a5",
+                "sha256_in_prefix": "3cbaf2276a9e8e9fb235cec75485345f40b158fd1b5bee20dc304110e49f86a5",
+                "size_in_bytes": 242
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_nomaindocstring/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "sha256_in_prefix": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "size_in_bytes": 139
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/README.md",
+                "path_type": "hardlink",
+                "sha256": "ca5b0b540be8df7e40eaf67b570cb2e7f8ab504688c4e407aa36f4db5b08ce8d",
+                "sha256_in_prefix": "ca5b0b540be8df7e40eaf67b570cb2e7f8ab504688c4e407aa36f4db5b08ce8d",
+                "size_in_bytes": 36
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "566a8ed7241dbb14c4e79362bcd99bfff3f15a99ff22a0f13f80119d69b0fba5",
+                "sha256_in_prefix": "566a8ed7241dbb14c4e79362bcd99bfff3f15a99ff22a0f13f80119d69b0fba5",
+                "size_in_bytes": 65
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+                "path_type": "hardlink",
+                "sha256": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "sha256_in_prefix": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "size_in_bytes": 100
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "sha256_in_prefix": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "size_in_bytes": 115
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "889697de61799532e7e6732519d3046afaaf15ed3d74a752b61f8ae1c520ec7d",
+                "sha256_in_prefix": "889697de61799532e7e6732519d3046afaaf15ed3d74a752b61f8ae1c520ec7d",
+                "size_in_bytes": 306
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/func_simple/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "sha256_in_prefix": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "size_in_bytes": 139
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/README.md",
+                "path_type": "hardlink",
+                "sha256": "76eb3b3126699cf3ae954fd32f91f199dbcefd2734e79e043c0566f2d8c30dfd",
+                "sha256_in_prefix": "76eb3b3126699cf3ae954fd32f91f199dbcefd2734e79e043c0566f2d8c30dfd",
+                "size_in_bytes": 267
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "2c44c11b90fe47dd3e33699b3aaf3e75df4b18b2bc0d833f148bf96fde7ca45a",
+                "sha256_in_prefix": "2c44c11b90fe47dd3e33699b3aaf3e75df4b18b2bc0d833f148bf96fde7ca45a",
+                "size_in_bytes": 156
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/api/sphinx_automodapi.tests.example_module.classes.Egg.rst",
+                "path_type": "hardlink",
+                "sha256": "843b68bedf8f81ccee9cc7d1eb729506372922b686290134a07b6fa59fb97ab3",
+                "sha256_in_prefix": "843b68bedf8f81ccee9cc7d1eb729506372922b686290134a07b6fa59fb97ab3",
+                "size_in_bytes": 432
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/api/sphinx_automodapi.tests.example_module.classes.Spam.rst",
+                "path_type": "hardlink",
+                "sha256": "f91bea0bd7737162e02b0511c4cdb7f78976deab0532976ca53dcebc991e300b",
+                "sha256_in_prefix": "f91bea0bd7737162e02b0511c4cdb7f78976deab0532976ca53dcebc991e300b",
+                "size_in_bytes": 291
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/api/sphinx_automodapi.tests.example_module.other_classes.Foo.rst",
+                "path_type": "hardlink",
+                "sha256": "b23d92c9fc760e1732eeb14b74964aaa5a4a51e7f776ed2dcf5354f74fca6a5d",
+                "sha256_in_prefix": "b23d92c9fc760e1732eeb14b74964aaa5a4a51e7f776ed2dcf5354f74fca6a5d",
+                "size_in_bytes": 254
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "efd8d3170e9c0eea2d301b4f693a0d2e44c54ddf7abf2b59cf409f3a3911df91",
+                "sha256_in_prefix": "efd8d3170e9c0eea2d301b4f693a0d2e44c54ddf7abf2b59cf409f3a3911df91",
+                "size_in_bytes": 952
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/inherited_members/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "eaba55a8b9e30a5aa62a47d307444d030122fcc4e0a66465577c61bf12b9a91e",
+                "sha256_in_prefix": "eaba55a8b9e30a5aa62a47d307444d030122fcc4e0a66465577c61bf12b9a91e",
+                "size_in_bytes": 261
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/README.md",
+                "path_type": "hardlink",
+                "sha256": "ea71b0d80ec0ec99fb2446400b7de8b19603c742fc183d4cc0f1e6332873afc4",
+                "sha256_in_prefix": "ea71b0d80ec0ec99fb2446400b7de8b19603c742fc183d4cc0f1e6332873afc4",
+                "size_in_bytes": 157
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "f5eebd6036073c0f5c77eb800f79f334467777b2d57703d940d642f27142e4dd",
+                "sha256_in_prefix": "f5eebd6036073c0f5c77eb800f79f334467777b2d57703d940d642f27142e4dd",
+                "size_in_bytes": 55
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/api/sphinx_automodapi.tests.example_module.Egg.rst",
+                "path_type": "hardlink",
+                "sha256": "5ef405fd1953ee7571d20bea26185b9111ecf68f3a1295497a1aafa5acdf74d2",
+                "sha256_in_prefix": "5ef405fd1953ee7571d20bea26185b9111ecf68f3a1295497a1aafa5acdf74d2",
+                "size_in_bytes": 424
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/api/sphinx_automodapi.tests.example_module.Spam.rst",
+                "path_type": "hardlink",
+                "sha256": "ddb0ec920b42ab26a5146d21afa3936c1f5bca8820dc74fcd4e62818df18f83a",
+                "sha256_in_prefix": "ddb0ec920b42ab26a5146d21afa3936c1f5bca8820dc74fcd4e62818df18f83a",
+                "size_in_bytes": 112
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/api/sphinx_automodapi.tests.example_module.add.rst",
+                "path_type": "hardlink",
+                "sha256": "885c3bc57f9c33db3cdb47f52f46e83c8d4ac7c93dc248d3075d43ca5480bfa2",
+                "sha256_in_prefix": "885c3bc57f9c33db3cdb47f52f46e83c8d4ac7c93dc248d3075d43ca5480bfa2",
+                "size_in_bytes": 90
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/api/sphinx_automodapi.tests.example_module.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "0edc76d11a8e8991e314c6d14060273bcdca45a2194e4618789ff9a63b16db75",
+                "sha256_in_prefix": "0edc76d11a8e8991e314c6d14060273bcdca45a2194e4618789ff9a63b16db75",
+                "size_in_bytes": 105
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "4f9c295506478566cba956f49877596f5e3fdee3b703c27807060398f45f5b15",
+                "sha256_in_prefix": "4f9c295506478566cba956f49877596f5e3fdee3b703c27807060398f45f5b15",
+                "size_in_bytes": 527
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "393a4c10525d2d572602fad785a11dcd948c6da22844237de75967143bd09150",
+                "sha256_in_prefix": "393a4c10525d2d572602fad785a11dcd948c6da22844237de75967143bd09150",
+                "size_in_bytes": 241
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/README.md",
+                "path_type": "hardlink",
+                "sha256": "49228f38a2c68542c9d9dd429e14ad7c348d2eccfb8854fff8c1302b53c59433",
+                "sha256_in_prefix": "49228f38a2c68542c9d9dd429e14ad7c348d2eccfb8854fff8c1302b53c59433",
+                "size_in_bytes": 170
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "43ae56b1b469f0b58eb1a54b3919afe21e022182c02eb441fcd1167d62b9f19b",
+                "sha256_in_prefix": "43ae56b1b469f0b58eb1a54b3919afe21e022182c02eb441fcd1167d62b9f19b",
+                "size_in_bytes": 81
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.Egg.rst",
+                "path_type": "hardlink",
+                "sha256": "5ef405fd1953ee7571d20bea26185b9111ecf68f3a1295497a1aafa5acdf74d2",
+                "sha256_in_prefix": "5ef405fd1953ee7571d20bea26185b9111ecf68f3a1295497a1aafa5acdf74d2",
+                "size_in_bytes": 424
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.FUNNY_WALK_STEPS.rst",
+                "path_type": "hardlink",
+                "sha256": "83c7e2066dfd2c2ba340ddc404a7e0ca48e80e1172e4d385994db182dc97569a",
+                "sha256_in_prefix": "83c7e2066dfd2c2ba340ddc404a7e0ca48e80e1172e4d385994db182dc97569a",
+                "size_in_bytes": 125
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.PARROT_STATE.rst",
+                "path_type": "hardlink",
+                "sha256": "78947447eff3d3c42130e935c8f840d1da67f3cc983a0b16a4ecbeaeb57074ea",
+                "sha256_in_prefix": "78947447eff3d3c42130e935c8f840d1da67f3cc983a0b16a4ecbeaeb57074ea",
+                "size_in_bytes": 113
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.Spam.rst",
+                "path_type": "hardlink",
+                "sha256": "ddb0ec920b42ab26a5146d21afa3936c1f5bca8820dc74fcd4e62818df18f83a",
+                "sha256_in_prefix": "ddb0ec920b42ab26a5146d21afa3936c1f5bca8820dc74fcd4e62818df18f83a",
+                "size_in_bytes": 112
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.add.rst",
+                "path_type": "hardlink",
+                "sha256": "885c3bc57f9c33db3cdb47f52f46e83c8d4ac7c93dc248d3075d43ca5480bfa2",
+                "sha256_in_prefix": "885c3bc57f9c33db3cdb47f52f46e83c8d4ac7c93dc248d3075d43ca5480bfa2",
+                "size_in_bytes": 90
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/api/sphinx_automodapi.tests.example_module.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "0edc76d11a8e8991e314c6d14060273bcdca45a2194e4618789ff9a63b16db75",
+                "sha256_in_prefix": "0edc76d11a8e8991e314c6d14060273bcdca45a2194e4618789ff9a63b16db75",
+                "size_in_bytes": 105
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "003a66d6e5499497cb5c820df4bfcf42315822b597817dca4199dc8ef9e99df2",
+                "sha256_in_prefix": "003a66d6e5499497cb5c820df4bfcf42315822b597817dca4199dc8ef9e99df2",
+                "size_in_bytes": 644
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_all_objects/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "f3f7bc41b17a0b7a5aa85991379d73a7aaa56e72c8eae905c7cd2d03cd8e3cac",
+                "sha256_in_prefix": "f3f7bc41b17a0b7a5aa85991379d73a7aaa56e72c8eae905c7cd2d03cd8e3cac",
+                "size_in_bytes": 374
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/README.md",
+                "path_type": "hardlink",
+                "sha256": "aa791c599877f5c83feb89387bbedca7e9ec7d8c8a19a98c421fa17651034bec",
+                "sha256_in_prefix": "aa791c599877f5c83feb89387bbedca7e9ec7d8c8a19a98c421fa17651034bec",
+                "size_in_bytes": 83
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "8368459a60925856779daf8fdd8303e667c1ce44b808d45459f7bb9bdd537217",
+                "sha256_in_prefix": "8368459a60925856779daf8fdd8303e667c1ce44b808d45459f7bb9bdd537217",
+                "size_in_bytes": 83
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/api/sphinx_automodapi.tests.example_module.Egg.rst",
+                "path_type": "hardlink",
+                "sha256": "5ef405fd1953ee7571d20bea26185b9111ecf68f3a1295497a1aafa5acdf74d2",
+                "sha256_in_prefix": "5ef405fd1953ee7571d20bea26185b9111ecf68f3a1295497a1aafa5acdf74d2",
+                "size_in_bytes": 424
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/api/sphinx_automodapi.tests.example_module.Spam.rst",
+                "path_type": "hardlink",
+                "sha256": "ddb0ec920b42ab26a5146d21afa3936c1f5bca8820dc74fcd4e62818df18f83a",
+                "sha256_in_prefix": "ddb0ec920b42ab26a5146d21afa3936c1f5bca8820dc74fcd4e62818df18f83a",
+                "size_in_bytes": 112
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/api/sphinx_automodapi.tests.example_module.add.rst",
+                "path_type": "hardlink",
+                "sha256": "885c3bc57f9c33db3cdb47f52f46e83c8d4ac7c93dc248d3075d43ca5480bfa2",
+                "sha256_in_prefix": "885c3bc57f9c33db3cdb47f52f46e83c8d4ac7c93dc248d3075d43ca5480bfa2",
+                "size_in_bytes": 90
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/api/sphinx_automodapi.tests.example_module.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "0edc76d11a8e8991e314c6d14060273bcdca45a2194e4618789ff9a63b16db75",
+                "sha256_in_prefix": "0edc76d11a8e8991e314c6d14060273bcdca45a2194e4618789ff9a63b16db75",
+                "size_in_bytes": 105
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "f3d849f12199fd222d28bc537390c0142d2bc2094de7168a8ac51ed1c44c541f",
+                "sha256_in_prefix": "f3d849f12199fd222d28bc537390c0142d2bc2094de7168a8ac51ed1c44c541f",
+                "size_in_bytes": 379
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/mixed_toplevel_nodiagram/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "393a4c10525d2d572602fad785a11dcd948c6da22844237de75967143bd09150",
+                "sha256_in_prefix": "393a4c10525d2d572602fad785a11dcd948c6da22844237de75967143bd09150",
+                "size_in_bytes": 241
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/README.md",
+                "path_type": "hardlink",
+                "sha256": "901846fd90a5c52dbfd91833819d0e7c8e18a24c891513833fd43bb77546c813",
+                "sha256_in_prefix": "901846fd90a5c52dbfd91833819d0e7c8e18a24c891513833fd43bb77546c813",
+                "size_in_bytes": 87
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "83549c108e1659c6577c53236b3c7300192ed9e0f77b9ee9d234b7b69a42f9a7",
+                "sha256_in_prefix": "83549c108e1659c6577c53236b3c7300192ed9e0f77b9ee9d234b7b69a42f9a7",
+                "size_in_bytes": 60
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/input/tests/example_module/index.rst",
+                "path_type": "hardlink",
+                "sha256": "ad512abf40c79236e07e9e0ba022e3668377b0b474fe52ac697d881a0d00dc9a",
+                "sha256_in_prefix": "ad512abf40c79236e07e9e0ba022e3668377b0b474fe52ac697d881a0d00dc9a",
+                "size_in_bytes": 74
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/input/tests/example_module/references.txt",
+                "path_type": "hardlink",
+                "sha256": "9549cf508ac1449eb580fed2bab340fc8478286fd62c47c7e1ff86a729354856",
+                "sha256_in_prefix": "9549cf508ac1449eb580fed2bab340fc8478286fd62c47c7e1ff86a729354856",
+                "size_in_bytes": 36
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/output/api/sphinx_automodapi.tests.example_module.functions_with_ref.add.rst",
+                "path_type": "hardlink",
+                "sha256": "76b92c1c0a2b409f204ccaa8632cdcf80612f2652bf54fe0aa45dc931f768e01",
+                "sha256_in_prefix": "76b92c1c0a2b409f204ccaa8632cdcf80612f2652bf54fe0aa45dc931f768e01",
+                "size_in_bytes": 162
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/output/api/sphinx_automodapi.tests.example_module.functions_with_ref.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "caf48372205dc64cc36f1e993ce1d78249b2dd70113a0ca8b768c24c11f6353b",
+                "sha256_in_prefix": "caf48372205dc64cc36f1e993ce1d78249b2dd70113a0ca8b768c24c11f6353b",
+                "size_in_bytes": 177
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/output/tests/example_module/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "782aa2459dc3c9fc80d1466d110adb1c06ac33ff56e767094c346f95bb4ac6e3",
+                "sha256_in_prefix": "782aa2459dc3c9fc80d1466d110adb1c06ac33ff56e767094c346f95bb4ac6e3",
+                "size_in_bytes": 348
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/nested/output/tests/example_module/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "8136d1bf0d27268b381eaef9b15bebd0249d2304d6b3546a297aa9a2f747319f",
+                "sha256_in_prefix": "8136d1bf0d27268b381eaef9b15bebd0249d2304d6b3546a297aa9a2f747319f",
+                "size_in_bytes": 141
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/README.md",
+                "path_type": "hardlink",
+                "sha256": "2d8944d1f1cd258b219b846ae675ea65ff28f199c3f2ac87d4e2ba7b7274bb75",
+                "sha256_in_prefix": "2d8944d1f1cd258b219b846ae675ea65ff28f199c3f2ac87d4e2ba7b7274bb75",
+                "size_in_bytes": 21
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "9a7d5ea20725f5b90f5c7cedcded8c76de614ab0ab3d8c37c6b8486087e4ed42",
+                "sha256_in_prefix": "9a7d5ea20725f5b90f5c7cedcded8c76de614ab0ab3d8c37c6b8486087e4ed42",
+                "size_in_bytes": 189
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+                "path_type": "hardlink",
+                "sha256": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "sha256_in_prefix": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "size_in_bytes": 100
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "sha256_in_prefix": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "size_in_bytes": 115
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/api/sphinx_automodapi.tests.example_module.nonascii.NonAsciiÄöüßő.rst",
+                "path_type": "hardlink",
+                "sha256": "9df32d4d6ea1f0571fff4db775b07e9f6bc7ef7e365cc2122f9c7674486f0054",
+                "sha256_in_prefix": "9df32d4d6ea1f0571fff4db775b07e9f6bc7ef7e365cc2122f9c7674486f0054",
+                "size_in_bytes": 377
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "33d3174e712158da61cb6bbd061821b85ee12f2e12ae9d7189e38aa6a71f2bd8",
+                "sha256_in_prefix": "33d3174e712158da61cb6bbd061821b85ee12f2e12ae9d7189e38aa6a71f2bd8",
+                "size_in_bytes": 820
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/non_ascii/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "df45ed92770e54f9df0411b00c3f00f7f39ff5687a14dbcfcd040d134084f276",
+                "sha256_in_prefix": "df45ed92770e54f9df0411b00c3f00f7f39ff5687a14dbcfcd040d134084f276",
+                "size_in_bytes": 267
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/README.md",
+                "path_type": "hardlink",
+                "sha256": "11927784ac5404dbbb8e5dc10a6899026ee01760bb908d786abeadb7ec650e68",
+                "sha256_in_prefix": "11927784ac5404dbbb8e5dc10a6899026ee01760bb908d786abeadb7ec650e68",
+                "size_in_bytes": 48
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "b3498ccfdfc801ab6b98afad6b697df6cff13254b7c604bf443ac0cfa4155627",
+                "sha256_in_prefix": "b3498ccfdfc801ab6b98afad6b697df6cff13254b7c604bf443ac0cfa4155627",
+                "size_in_bytes": 61
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/api/sphinx_automodapi.tests.example_module.slots.DerivedParam.rst",
+                "path_type": "hardlink",
+                "sha256": "a24e6e794b72ff3eb3189d3279f1e942f894ed3d475d7fb1a9b33fc77155bb58",
+                "sha256_in_prefix": "a24e6e794b72ff3eb3189d3279f1e942f894ed3d475d7fb1a9b33fc77155bb58",
+                "size_in_bytes": 336
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/api/sphinx_automodapi.tests.example_module.slots.DerivedSlotParam.rst",
+                "path_type": "hardlink",
+                "sha256": "b8f5d291c8a2214224bdc34e01ed5a729fcffe8a61de23b7c127087a26994901",
+                "sha256_in_prefix": "b8f5d291c8a2214224bdc34e01ed5a729fcffe8a61de23b7c127087a26994901",
+                "size_in_bytes": 519
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/api/sphinx_automodapi.tests.example_module.slots.SlotDict.rst",
+                "path_type": "hardlink",
+                "sha256": "b9188b2d75e15e6271269eb721d1584af4b35a4ed11f7a3a80dc6aa73e09e220",
+                "sha256_in_prefix": "b9188b2d75e15e6271269eb721d1584af4b35a4ed11f7a3a80dc6aa73e09e220",
+                "size_in_bytes": 503
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "8f8f8ff8e48e1f48e83fd203c1c6a729c4862d83fc13d485d49c49cddfb4a6be",
+                "sha256_in_prefix": "8f8f8ff8e48e1f48e83fd203c1c6a729c4862d83fc13d485d49c49cddfb4a6be",
+                "size_in_bytes": 438
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/slots/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "7c8a30b0130941957a5ae250c6fa36760a28ef1e935b804f562904af99b312f1",
+                "sha256_in_prefix": "7c8a30b0130941957a5ae250c6fa36760a28ef1e935b804f562904af99b312f1",
+                "size_in_bytes": 152
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/README.md",
+                "path_type": "hardlink",
+                "sha256": "ce2f632f8a5db6b728cae3d71c58eab8bbb730ac28b03e7157adf24cff3c374b",
+                "sha256_in_prefix": "ce2f632f8a5db6b728cae3d71c58eab8bbb730ac28b03e7157adf24cff3c374b",
+                "size_in_bytes": 43
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/input/src/index.rst",
+                "path_type": "hardlink",
+                "sha256": "566a8ed7241dbb14c4e79362bcd99bfff3f15a99ff22a0f13f80119d69b0fba5",
+                "sha256_in_prefix": "566a8ed7241dbb14c4e79362bcd99bfff3f15a99ff22a0f13f80119d69b0fba5",
+                "size_in_bytes": 65
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/output/src/api/sphinx_automodapi.tests.example_module.functions.add.rst",
+                "path_type": "hardlink",
+                "sha256": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "sha256_in_prefix": "2315390e32af5b5d1a79f5a6bbde322b7727a7a9ecb8e370f3e7e16b564134a9",
+                "size_in_bytes": 100
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/output/src/api/sphinx_automodapi.tests.example_module.functions.multiply.rst",
+                "path_type": "hardlink",
+                "sha256": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "sha256_in_prefix": "af45149a2f3e45bfc2ac9fb532007fafd5f6564ba17da862daf64a81eb124c31",
+                "size_in_bytes": 115
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/output/src/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "889697de61799532e7e6732519d3046afaaf15ed3d74a752b61f8ae1c520ec7d",
+                "sha256_in_prefix": "889697de61799532e7e6732519d3046afaaf15ed3d74a752b61f8ae1c520ec7d",
+                "size_in_bytes": 306
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/source_dir/output/src/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "sha256_in_prefix": "e39ebba9f76b1a44b34ccdcb1620bf9d6ecafebb06295c41a102d65cec405b30",
+                "size_in_bytes": 139
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/README.md",
+                "path_type": "hardlink",
+                "sha256": "0c6b299fbe80e75e6bd9c7bea9e67d0e70b341e0b6e2494628bf757bae3dc753",
+                "sha256_in_prefix": "0c6b299fbe80e75e6bd9c7bea9e67d0e70b341e0b6e2494628bf757bae3dc753",
+                "size_in_bytes": 43
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/input/index.rst",
+                "path_type": "hardlink",
+                "sha256": "f96129b18acdd23da4c787914e5c780c0e265b98a057c12abda63752eb8e73e6",
+                "sha256_in_prefix": "f96129b18acdd23da4c787914e5c780c0e265b98a057c12abda63752eb8e73e6",
+                "size_in_bytes": 91
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/output/api/sphinx_automodapi.tests.example_module.variables.FUNNY_WALK_STEPS.rst",
+                "path_type": "hardlink",
+                "sha256": "4e6d695715bb424b2ff2512a5a106a10a128dc3ea04d381949890823f08f007c",
+                "sha256_in_prefix": "4e6d695715bb424b2ff2512a5a106a10a128dc3ea04d381949890823f08f007c",
+                "size_in_bytes": 135
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/output/api/sphinx_automodapi.tests.example_module.variables.PARROT_STATE.rst",
+                "path_type": "hardlink",
+                "sha256": "ac16a0e41849e1aea9d9f3d20c6de7ca221ce48f53ff7f90b0746f0937ca3ccc",
+                "sha256_in_prefix": "ac16a0e41849e1aea9d9f3d20c6de7ca221ce48f53ff7f90b0746f0937ca3ccc",
+                "size_in_bytes": 123
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/output/index.rst.automodapi",
+                "path_type": "hardlink",
+                "sha256": "fdffe077d5cba314422ea1aaa65ebc8c2d72b1fb6b648095155e820d18571a69",
+                "sha256_in_prefix": "fdffe077d5cba314422ea1aaa65ebc8c2d72b1fb6b648095155e820d18571a69",
+                "size_in_bytes": 306
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/cases/variables/output/index.rst.automodsumm",
+                "path_type": "hardlink",
+                "sha256": "4c66d45cf0aca805121fdd50a987c385991fe339b7932ece1f0b8fa35a112f54",
+                "sha256_in_prefix": "4c66d45cf0aca805121fdd50a987c385991fe339b7932ece1f0b8fa35a112f54",
+                "size_in_bytes": 143
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/docs/conf.py",
+                "path_type": "hardlink",
+                "sha256": "550e9a2cdc83894d15d9e50ff3455935f79b2d3ac791f97ccc3ed0eee89f5efb",
+                "sha256_in_prefix": "550e9a2cdc83894d15d9e50ff3455935f79b2d3ac791f97ccc3ed0eee89f5efb",
+                "size_in_bytes": 189
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/docs/foo.rst",
+                "path_type": "hardlink",
+                "sha256": "ae84d2cf3c46905844c6a237ce0034d86acf4677f47b06bad3f2a6d49a642947",
+                "sha256_in_prefix": "ae84d2cf3c46905844c6a237ce0034d86acf4677f47b06bad3f2a6d49a642947",
+                "size_in_bytes": 146
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/docs/index.rst",
+                "path_type": "hardlink",
+                "sha256": "cca16484660912b508dfc0a28969627ce9fd825ebc36cc9939abc6b05eada259",
+                "sha256_in_prefix": "cca16484660912b508dfc0a28969627ce9fd825ebc36cc9939abc6b05eada259",
+                "size_in_bytes": 464
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e16fb825bbfa350f6f99300ba16786b08a06ca2102b3ac1450887e03de6003d7",
+                "sha256_in_prefix": "e16fb825bbfa350f6f99300ba16786b08a06ca2102b3ac1450887e03de6003d7",
+                "size_in_bytes": 48
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/foo/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "22b5d82b7bbaaa8bb8aedab60d23590ee58e6863c56ba15fba629e79a0e34737",
+                "sha256_in_prefix": "22b5d82b7bbaaa8bb8aedab60d23590ee58e6863c56ba15fba629e79a0e34737",
+                "size_in_bytes": 47
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/foo/foo.py",
+                "path_type": "hardlink",
+                "sha256": "d3dcab160521d30246c9b76551cbee02a127fc58670c989418fa1a5f3471629a",
+                "sha256_in_prefix": "d3dcab160521d30246c9b76551cbee02a127fc58670c989418fa1a5f3471629a",
+                "size_in_bytes": 173
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "82ac70e769f7e442dbbb4c51c691c6e1043e65f056f5d5372046e6c504459f39",
+                "sha256_in_prefix": "82ac70e769f7e442dbbb4c51c691c6e1043e65f056f5d5372046e6c504459f39",
+                "size_in_bytes": 97
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/abstract_classes.py",
+                "path_type": "hardlink",
+                "sha256": "e5994aab708d8e4d70ba8000e3c68b8882f1a74537e9b6b4f412a581801587c8",
+                "sha256_in_prefix": "e5994aab708d8e4d70ba8000e3c68b8882f1a74537e9b6b4f412a581801587c8",
+                "size_in_bytes": 718
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/classes.py",
+                "path_type": "hardlink",
+                "sha256": "68e692380dc51ecc153be5736612b480afa43f878d01ff38885b0d41e4cced7a",
+                "sha256_in_prefix": "68e692380dc51ecc153be5736612b480afa43f878d01ff38885b0d41e4cced7a",
+                "size_in_bytes": 727
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/functions.py",
+                "path_type": "hardlink",
+                "sha256": "b380ed560a78d391b9b9a08b2c7815c1a2db76e449671455c6a1cdc8f5273ab8",
+                "sha256_in_prefix": "b380ed560a78d391b9b9a08b2c7815c1a2db76e449671455c6a1cdc8f5273ab8",
+                "size_in_bytes": 314
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/functions_with_ref.py",
+                "path_type": "hardlink",
+                "sha256": "e616eb8409a33e7a27ae087fffdbf9a8e03a4ec4a4f14476d60db3c8fe52bfa4",
+                "sha256_in_prefix": "e616eb8409a33e7a27ae087fffdbf9a8e03a4ec4a4f14476d60db3c8fe52bfa4",
+                "size_in_bytes": 310
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/mixed.py",
+                "path_type": "hardlink",
+                "sha256": "af9e26ace8085fb4bb9a6a9d776ac831fdfad6737c62d7e18dc39ed726e9fb6f",
+                "sha256_in_prefix": "af9e26ace8085fb4bb9a6a9d776ac831fdfad6737c62d7e18dc39ed726e9fb6f",
+                "size_in_bytes": 325
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/noall.py",
+                "path_type": "hardlink",
+                "sha256": "5f562aa509f33d513827b1b9f6ca68926ac136bf841a3b22b10621380cbe9691",
+                "sha256_in_prefix": "5f562aa509f33d513827b1b9f6ca68926ac136bf841a3b22b10621380cbe9691",
+                "size_in_bytes": 334
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/nonascii.py",
+                "path_type": "hardlink",
+                "sha256": "8bcba86e5a348a04dfa6f06ae6406f80744a006f1622ede364e7e1ebe3a5fd35",
+                "sha256_in_prefix": "8bcba86e5a348a04dfa6f06ae6406f80744a006f1622ede364e7e1ebe3a5fd35",
+                "size_in_bytes": 315
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/other_classes.py",
+                "path_type": "hardlink",
+                "sha256": "57175d76ce99920f23e73c2db9b2d8f8b8ef574d3fed1c9c87ed09fd99b0e4e5",
+                "sha256_in_prefix": "57175d76ce99920f23e73c2db9b2d8f8b8ef574d3fed1c9c87ed09fd99b0e4e5",
+                "size_in_bytes": 276
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/slots.py",
+                "path_type": "hardlink",
+                "sha256": "87e900284b15fe5aa3c25791f7521a4d9748bfe320223f6842dff06693503df8",
+                "sha256_in_prefix": "87e900284b15fe5aa3c25791f7521a4d9748bfe320223f6842dff06693503df8",
+                "size_in_bytes": 3417
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/stdlib.py",
+                "path_type": "hardlink",
+                "sha256": "f1168beb5a89d4cb4394d246e75554fa7d6c3d7b3ead96009d9144ff04d3bda7",
+                "sha256_in_prefix": "f1168beb5a89d4cb4394d246e75554fa7d6c3d7b3ead96009d9144ff04d3bda7",
+                "size_in_bytes": 222
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/variables.py",
+                "path_type": "hardlink",
+                "sha256": "4476c4648e54690f42b7de89c862f02e28eeefc19f1b5a6115ef464fb98ccd0c",
+                "sha256_in_prefix": "4476c4648e54690f42b7de89c862f02e28eeefc19f1b5a6115ef464fb98ccd0c",
+                "size_in_bytes": 500
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/helpers.py",
+                "path_type": "hardlink",
+                "sha256": "1bae1227774d718679854123443a88a1a2b45641cb71493af77136b344e5a67a",
+                "sha256_in_prefix": "1bae1227774d718679854123443a88a1a2b45641cb71493af77136b344e5a67a",
+                "size_in_bytes": 1562
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/test_autodoc_enhancements.py",
+                "path_type": "hardlink",
+                "sha256": "37ccd63afa3485f6440de2ce4ddbf0ef403483c92e63ca2cf830df3913e8abfe",
+                "sha256_in_prefix": "37ccd63afa3485f6440de2ce4ddbf0ef403483c92e63ca2cf830df3913e8abfe",
+                "size_in_bytes": 1340
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/test_automodapi.py",
+                "path_type": "hardlink",
+                "sha256": "da5b99ac82ddf165a58d377f50b0808fba5a2e5436f608dc724166639c355dc7",
+                "sha256_in_prefix": "da5b99ac82ddf165a58d377f50b0808fba5a2e5436f608dc724166639c355dc7",
+                "size_in_bytes": 11832
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/test_automodsumm.py",
+                "path_type": "hardlink",
+                "sha256": "70c5c1893704355f1435bc485d8de20e15a1e5f4e824a9fbcbda45cbfc7f2ecc",
+                "sha256_in_prefix": "70c5c1893704355f1435bc485d8de20e15a1e5f4e824a9fbcbda45cbfc7f2ecc",
+                "size_in_bytes": 4771
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/test_cases.py",
+                "path_type": "hardlink",
+                "sha256": "ec6391dc869c24c62b1ea12e171f6d724de30a92aad13d8c166a668f034778f7",
+                "sha256_in_prefix": "ec6391dc869c24c62b1ea12e171f6d724de30a92aad13d8c166a668f034778f7",
+                "size_in_bytes": 5542
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/test_utils.py",
+                "path_type": "hardlink",
+                "sha256": "977d23dde72b40e0ae9f99d4edc68adb6eae9fa7db096531e1cb0219d3690b10",
+                "sha256_in_prefix": "977d23dde72b40e0ae9f99d4edc68adb6eae9fa7db096531e1cb0219d3690b10",
+                "size_in_bytes": 1401
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/utils.py",
+                "path_type": "hardlink",
+                "sha256": "455b0b1a7e7fc3f97f21463ee80677331cad9af6c369a6327259f91f132f1131",
+                "sha256_in_prefix": "455b0b1a7e7fc3f97f21463ee80677331cad9af6c369a6327259f91f132f1131",
+                "size_in_bytes": 7841
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/version.py",
+                "path_type": "hardlink",
+                "sha256": "90142b8ab8361c006725475ad54d1ae99988a9e0aa44b68f64ec2cf3ce2c4d6f",
+                "sha256_in_prefix": "90142b8ab8361c006725475ad54d1ae99988a9e0aa44b68f64ec2cf3ce2c4d6f",
+                "size_in_bytes": 413
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/autodoc_enhancements.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/automodapi.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/automodsumm.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/smart_resolver.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/docs/__pycache__/conf.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/foo/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/duplicated_warning/duplicated/foo/__pycache__/foo.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/abstract_classes.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/classes.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/functions.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/functions_with_ref.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/mixed.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/noall.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/nonascii.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/other_classes.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/slots.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/stdlib.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/example_module/__pycache__/variables.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/helpers.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_autodoc_enhancements.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_automodapi.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_automodsumm.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_cases.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/tests/__pycache__/test_utils.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/utils.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_automodapi/__pycache__/version.cpython-312.pyc",
+                "path_type": "pyc_file"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "",
+    "sha256": "d4e40ab1628240b2a9cc7932dfabfba406d0803ca01301fd687273bca74b2692",
+    "size": 50543,
+    "subdir": "noarch",
+    "timestamp": 1712426102415,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinx-automodapi-0.17.0-pyh717bed2_1.conda",
+    "version": "0.17.0"
+}

@@ -1,0 +1,10 @@
+prefix=/home/conda/feedstock_root/build_artifacts/graphviz_1700901306837/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/graphviz
+
+Name: libcdt
+Description: Container DataType library
+Version: 9.0.0
+Libs: -L${libdir} -lcdt
+Cflags: -I${includedir}

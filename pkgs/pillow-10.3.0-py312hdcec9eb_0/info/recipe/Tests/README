@@ -1,0 +1,6 @@
+Pillow tests against some images that it cannot keep in-repo
+due to anti-virus software triggering. Copy those images from
+https://github.com/python-pillow/pillow-depends/tree/main/test_images
+
+For a slightly longer explanation, see:
+https://github.com/conda-forge/pillow-feedstock/pull/104#issuecomment-1005245444

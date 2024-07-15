@@ -1,0 +1,63 @@
+From 42ee77e2b093c222ea65bc762705278a6c1b337b Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Mon, 15 Feb 2021 18:07:41 -0500
+Subject: [PATCH 2/4] Remove requirement of hard coded DLLs in PATH
+
+---
+ cmake/FindCAIRO.cmake      | 5 -----
+ cmake/FindGTS.cmake        | 3 ---
+ cmake/FindPANGOCAIRO.cmake | 8 --------
+ 3 files changed, 16 deletions(-)
+
+diff --git a/cmake/FindCAIRO.cmake b/cmake/FindCAIRO.cmake
+index 65bb42f7a..77dc94867 100644
+--- a/cmake/FindCAIRO.cmake
++++ b/cmake/FindCAIRO.cmake
+@@ -18,11 +18,6 @@ if(WIN32)
+     CAIRO_INCLUDE_DIR
+ 
+     CAIRO_LIBRARY
+-
+-    CAIRO_RUNTIME_LIBRARY
+-    EXPAT_RUNTIME_LIBRARY
+-    FONTCONFIG_RUNTIME_LIBRARY
+-    PIXMAN_RUNTIME_LIBRARY
+   )
+ 
+   set(CAIRO_INCLUDE_DIRS ${CAIRO_INCLUDE_DIR})
+diff --git a/cmake/FindGTS.cmake b/cmake/FindGTS.cmake
+index 8e544e98f..a319905b7 100644
+--- a/cmake/FindGTS.cmake
++++ b/cmake/FindGTS.cmake
+@@ -18,9 +18,6 @@ if(WIN32)
+ 
+     GTS_LIBRARY
+     GLIB_LIBRARY
+-
+-    GTS_RUNTIME_LIBRARY
+-    GLIB_RUNTIME_LIBRARY
+   )
+ 
+   set(GTS_INCLUDE_DIRS
+diff --git a/cmake/FindPANGOCAIRO.cmake b/cmake/FindPANGOCAIRO.cmake
+index b92e5bea9..76e8ede19 100644
+--- a/cmake/FindPANGOCAIRO.cmake
++++ b/cmake/FindPANGOCAIRO.cmake
+@@ -35,14 +35,6 @@ if(WIN32)
+     PANGO_LIBRARY
+     PANGOCAIRO_LIBRARY
+     HARFBUZZ_LIBRARY
+-
+-    GLIB_RUNTIME_LIBRARY
+-    GOBJECT_RUNTIME_LIBRARY
+-    HARFBUZZ_RUNTIME_LIBRARY
+-    PANGO_RUNTIME_LIBRARY
+-    PANGOCAIRO_RUNTIME_LIBRARY
+-    PANGOFT_RUNTIME_LIBRARY
+-    PANGOWIN_RUNTIME_LIBRARY
+   )
+ 
+   set(PANGOCAIRO_INCLUDE_DIRS
+-- 
+2.33.1
+

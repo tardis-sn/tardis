@@ -1,0 +1,103 @@
+==> /opt/conda/bin/git log -n1 <==
+commit 05548f0281f13e7cb6a293a422ef8c1a90021413
+Author: Aaron Meurer <asmeurer@gmail.com>
+Date:   Fri Jan 19 16:00:19 2024 -0700
+
+    Bump version to 1.4.1
+==> /opt/conda/bin/git describe --tags --dirty <==
+1.4.1
+==> /opt/conda/bin/git status <==
+HEAD detached at 05548f0
+nothing to commit, working tree clean
+==> /opt/conda/bin/git log -n1 <==
+commit 1a7be5d895d266a870af7a6ed258e5bcf9838277
+Merge: c56f33434 8bb0d164f
+Author: Matt Borland <matt@mattborland.com>
+Date:   Wed Jun 28 08:27:30 2023 +0200
+
+    Merge pull request #999 from boostorg/develop
+    
+    Merge develop for 1.83
+==> /opt/conda/bin/git describe --tags --dirty <==
+boost-1.83.0
+==> /opt/conda/bin/git status <==
+HEAD detached at 1a7be5d89
+nothing to commit, working tree clean
+==> /opt/conda/bin/git log -n1 <==
+commit 4a122958a82e67e725d08153e099efe4dad099a2
+Merge: 885c5de95 92735c09d
+Author: Ralf Gommers <ralf.gommers@gmail.com>
+Date:   Mon Jul 18 18:47:28 2022 +0200
+
+    Merge pull request #58 from mckib2/2022-07-16-highs-update
+    
+    ENH: HiGHS submodule update
+==> /opt/conda/bin/git describe --tags --dirty <==
+commit 4a122958a82e67e725d08153e099efe4dad099a2
+Merge: 885c5de95 92735c09d
+Author: Ralf Gommers <ralf.gommers@gmail.com>
+Date:   Mon Jul 18 18:47:28 2022 +0200
+
+    Merge pull request #58 from mckib2/2022-07-16-highs-update
+    
+    ENH: HiGHS submodule update
+==> /opt/conda/bin/git status <==
+HEAD detached at 4a122958a
+nothing to commit, working tree clean
+==> /opt/conda/bin/git log -n1 <==
+commit 9367142748fcc9696a1c9e5a99b76ed9897c9daa
+Merge: 0bf2b51 fbe3c10
+Author: Tyler Reddy <tyler.je.reddy@gmail.com>
+Date:   Mon Mar 25 15:46:05 2024 -0600
+
+    Merge pull request #3 from tylerjereddy/treddy_disable_aligned_alloc
+    
+    MAINT, BUG: sync with upstream to unconditionaly disable use of aligned_alloc
+==> /opt/conda/bin/git describe --tags --dirty <==
+commit 9367142748fcc9696a1c9e5a99b76ed9897c9daa
+Merge: 0bf2b51 fbe3c10
+Author: Tyler Reddy <tyler.je.reddy@gmail.com>
+Date:   Mon Mar 25 15:46:05 2024 -0600
+
+    Merge pull request #3 from tylerjereddy/treddy_disable_aligned_alloc
+    
+    MAINT, BUG: sync with upstream to unconditionaly disable use of aligned_alloc
+==> /opt/conda/bin/git status <==
+HEAD detached at 9367142
+nothing to commit, working tree clean
+==> /opt/conda/bin/git log -n1 <==
+commit 21810c856880bb2f1b3071c8ac4aaf634983b338
+Author: Tirth Patel <tirthasheshpatel@gmail.com>
+Date:   Wed Feb 21 01:02:02 2024 -0700
+
+    Remove hooke (#14)
+==> /opt/conda/bin/git describe --tags --dirty <==
+commit 21810c856880bb2f1b3071c8ac4aaf634983b338
+Author: Tirth Patel <tirthasheshpatel@gmail.com>
+Date:   Wed Feb 21 01:02:02 2024 -0700
+
+    Remove hooke (#14)
+==> /opt/conda/bin/git status <==
+HEAD detached at 21810c8
+nothing to commit, working tree clean
+==> /opt/conda/bin/git log -n1 <==
+commit a9ed9736ad52ff76ae1777922b700b13ca2bf0ae
+Merge: 96f6800 cd4e3d3
+Author: Ralf Gommers <ralf.gommers@gmail.com>
+Date:   Tue Feb 27 09:03:53 2024 +0100
+
+    Merge pull request #7 from thalassemia/wrapped_blas
+    
+    ENH: Use wrapped BLAS functions
+==> /opt/conda/bin/git describe --tags --dirty <==
+commit a9ed9736ad52ff76ae1777922b700b13ca2bf0ae
+Merge: 96f6800 cd4e3d3
+Author: Ralf Gommers <ralf.gommers@gmail.com>
+Date:   Tue Feb 27 09:03:53 2024 +0100
+
+    Merge pull request #7 from thalassemia/wrapped_blas
+    
+    ENH: Use wrapped BLAS functions
+==> /opt/conda/bin/git status <==
+HEAD detached at a9ed973
+nothing to commit, working tree clean

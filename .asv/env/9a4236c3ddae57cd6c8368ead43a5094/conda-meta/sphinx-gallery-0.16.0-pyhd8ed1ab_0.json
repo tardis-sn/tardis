@@ -1,0 +1,1118 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "pillow",
+        "python >=3.8",
+        "sphinx >=4"
+    ],
+    "extracted_package_dir": "pkgs/sphinx-gallery-0.16.0-pyhd8ed1ab_0",
+    "files": [
+        "bin/sphinx_gallery_py2jupyter",
+        "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/LICENSE",
+        "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/METADATA",
+        "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/RECORD",
+        "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/WHEEL",
+        "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/entry_points.txt",
+        "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/sphinx_gallery/__init__.py",
+        "lib/python3.12/site-packages/sphinx_gallery/_static/binder_badge_logo.svg",
+        "lib/python3.12/site-packages/sphinx_gallery/_static/broken_example.png",
+        "lib/python3.12/site-packages/sphinx_gallery/_static/jupyterlite_badge_logo.svg",
+        "lib/python3.12/site-packages/sphinx_gallery/_static/no_image.png",
+        "lib/python3.12/site-packages/sphinx_gallery/_static/sg_gallery-binder.css",
+        "lib/python3.12/site-packages/sphinx_gallery/_static/sg_gallery-dataframe.css",
+        "lib/python3.12/site-packages/sphinx_gallery/_static/sg_gallery-rendered-html.css",
+        "lib/python3.12/site-packages/sphinx_gallery/_static/sg_gallery.css",
+        "lib/python3.12/site-packages/sphinx_gallery/backreferences.py",
+        "lib/python3.12/site-packages/sphinx_gallery/block_parser.py",
+        "lib/python3.12/site-packages/sphinx_gallery/directives.py",
+        "lib/python3.12/site-packages/sphinx_gallery/docs_resolv.py",
+        "lib/python3.12/site-packages/sphinx_gallery/downloads.py",
+        "lib/python3.12/site-packages/sphinx_gallery/gen_gallery.py",
+        "lib/python3.12/site-packages/sphinx_gallery/gen_rst.py",
+        "lib/python3.12/site-packages/sphinx_gallery/interactive_example.py",
+        "lib/python3.12/site-packages/sphinx_gallery/load_style.py",
+        "lib/python3.12/site-packages/sphinx_gallery/notebook.py",
+        "lib/python3.12/site-packages/sphinx_gallery/py_source_parser.py",
+        "lib/python3.12/site-packages/sphinx_gallery/recommender.py",
+        "lib/python3.12/site-packages/sphinx_gallery/scrapers.py",
+        "lib/python3.12/site-packages/sphinx_gallery/sorting.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__init__.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/conftest.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/reference_parse.txt",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_backreferences.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_block_parser.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_docs_resolv.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_full.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_full_noexec.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_gen_gallery.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_gen_rst.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_interactive_example.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_load_style.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_notebook.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_py_source_parser.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_recommender.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_scrapers.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/test_sorting.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/index.rst",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/README.txt",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/plot_1.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/plot_2.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/plot_3.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/Makefile",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/_static_nonstandard/demo.png",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/_templates/module.rst",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/binder/requirements.txt",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/conf.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/index.rst",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/make.bat",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/minigallery.rst",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/README.txt",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__init__.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/README.rst",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/plot_future_imports.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/plot_future_imports_broken.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/isentropic.m",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/julia_sample.jl",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/local_module.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/parse_this.cpp",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_animation.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_command_line_args.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_defer_figures.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_log.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_matplotlib_alt.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_matplotlib_backend.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_numpy_matplotlib.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_pickle.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_repr.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_scraper_broken.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_second_future_imports.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_svg.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_webp.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir1/README.txt",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir1/plot_sub1.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir2/index.rst",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir2/plot_sub2.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/index.rst",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/plot_examp.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/README.txt",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/plot_boo.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/plot_cos.py",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/rst_example1.rst",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/rst_example2.rst",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/utils.py",
+        "lib/python3.12/site-packages/sphinx_gallery/utils.py",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/backreferences.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/block_parser.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/directives.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/docs_resolv.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/downloads.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/gen_gallery.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/gen_rst.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/interactive_example.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/load_style.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/notebook.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/py_source_parser.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/recommender.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/scrapers.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/sorting.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/conftest.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_backreferences.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_block_parser.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_docs_resolv.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_full.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_full_noexec.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_gen_gallery.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_gen_rst.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_interactive_example.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_load_style.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_notebook.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_py_source_parser.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_recommender.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_scrapers.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_sorting.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/__pycache__/plot_1.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/__pycache__/plot_2.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/__pycache__/plot_3.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/__pycache__/conf.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/__pycache__/plot_future_imports.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/__pycache__/plot_future_imports_broken.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/local_module.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_animation.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_command_line_args.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_defer_figures.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_log.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_matplotlib_alt.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_matplotlib_backend.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_numpy_matplotlib.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_pickle.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_repr.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_scraper_broken.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_second_future_imports.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_svg.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_webp.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir1/__pycache__/plot_sub1.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir2/__pycache__/plot_sub2.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/__pycache__/plot_examp.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/__pycache__/plot_boo.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/__pycache__/plot_cos.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/__pycache__/utils.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx_gallery/__pycache__/utils.cpython-312.pyc"
+    ],
+    "fn": "sphinx-gallery-0.16.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "link": {
+        "source": "pkgs/sphinx-gallery-0.16.0-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "add28691ee89e875b190eda07929d5d4",
+    "name": "sphinx-gallery",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/sphinx-gallery-0.16.0-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "bin/sphinx_gallery_py2jupyter",
+                "path_type": "hardlink",
+                "sha256": "e2a0ce235f04cb19f289b16c42d74195c9d03670f3413fa1e053ba1316943724",
+                "sha256_in_prefix": "8f2641e6e9f7b14e50b2693730fd504d54afc842f61011550644ff952d14b4c2",
+                "size_in_bytes": 539
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/LICENSE",
+                "path_type": "hardlink",
+                "sha256": "9aaff9bdd581076d17896398a19d388482bb400e24bf0e6cd7097ca6c80e3adc",
+                "sha256_in_prefix": "9aaff9bdd581076d17896398a19d388482bb400e24bf0e6cd7097ca6c80e3adc",
+                "size_in_bytes": 1486
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "74ac48e474e5643fe24739acb9d1c0414d4ddda7816290c683c453de946174bb",
+                "sha256_in_prefix": "74ac48e474e5643fe24739acb9d1c0414d4ddda7816290c683c453de946174bb",
+                "size_in_bytes": 8256
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "5297076b998af05b361543b5166a0cf95f88c660e21feecfd5fd514dd0d14a21",
+                "sha256_in_prefix": "5297076b998af05b361543b5166a0cf95f88c660e21feecfd5fd514dd0d14a21",
+                "size_in_bytes": 14471
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+                "sha256_in_prefix": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "204c28fc3136e6fea06f0ff75f2ebb1e37799939998d3cfe2198f802e3a78603",
+                "sha256_in_prefix": "204c28fc3136e6fea06f0ff75f2ebb1e37799939998d3cfe2198f802e3a78603",
+                "size_in_bytes": 110
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/entry_points.txt",
+                "path_type": "hardlink",
+                "sha256": "43b86792b1aa8c8df840b472e0974143e85fa976f60a649a50c880eb5b4533e2",
+                "sha256_in_prefix": "43b86792b1aa8c8df840b472e0974143e85fa976f60a649a50c880eb5b4533e2",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery-0.16.0.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "7ef5268577fe96f46d9a7f9465415ba7c834de70a6ee9983b9642c22e899ac6d",
+                "sha256_in_prefix": "7ef5268577fe96f46d9a7f9465415ba7c834de70a6ee9983b9642c22e899ac6d",
+                "size_in_bytes": 15
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "09734bcfa8926d4bbc0b75676af7d39a5b1c28c5ab94a2801ac9b3a59f67dab0",
+                "sha256_in_prefix": "09734bcfa8926d4bbc0b75676af7d39a5b1c28c5ab94a2801ac9b3a59f67dab0",
+                "size_in_bytes": 349
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/_static/binder_badge_logo.svg",
+                "path_type": "hardlink",
+                "sha256": "91ba4be2d595806b31d0a138b1b8e4d518fb917cb6a4dfdcff0c055e4731237b",
+                "sha256_in_prefix": "91ba4be2d595806b31d0a138b1b8e4d518fb917cb6a4dfdcff0c055e4731237b",
+                "size_in_bytes": 3380
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/_static/broken_example.png",
+                "path_type": "hardlink",
+                "sha256": "731c44974e4bff7a2fe2c12b15b8e3fe76ae37c9c11b5f753a8c6328b40fc227",
+                "sha256_in_prefix": "731c44974e4bff7a2fe2c12b15b8e3fe76ae37c9c11b5f753a8c6328b40fc227",
+                "size_in_bytes": 21404
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/_static/jupyterlite_badge_logo.svg",
+                "path_type": "hardlink",
+                "sha256": "adb8b2ee68216fc5199e92a866c166f95fa4a3c2887bfc483f182eaee46ba7ca",
+                "sha256_in_prefix": "adb8b2ee68216fc5199e92a866c166f95fa4a3c2887bfc483f182eaee46ba7ca",
+                "size_in_bytes": 6936
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/_static/no_image.png",
+                "path_type": "hardlink",
+                "sha256": "27b8fc9492dd62400179aa80668486731484df204fb87e045eb85601dfb0963b",
+                "sha256_in_prefix": "27b8fc9492dd62400179aa80668486731484df204fb87e045eb85601dfb0963b",
+                "size_in_bytes": 4315
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/_static/sg_gallery-binder.css",
+                "path_type": "hardlink",
+                "sha256": "121678c211341ebc4d4ddf1586bde453a57c51645a3e8d0f4f661116a8092f68",
+                "sha256_in_prefix": "121678c211341ebc4d4ddf1586bde453a57c51645a3e8d0f4f661116a8092f68",
+                "size_in_bytes": 167
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/_static/sg_gallery-dataframe.css",
+                "path_type": "hardlink",
+                "sha256": "423624778cb7332b5adb93c02aa3d573b5a4595e85d271f9a2931c649390867b",
+                "sha256_in_prefix": "423624778cb7332b5adb93c02aa3d573b5a4595e85d271f9a2931c649390867b",
+                "size_in_bytes": 1152
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/_static/sg_gallery-rendered-html.css",
+                "path_type": "hardlink",
+                "sha256": "21f5275113064283a5050885285ee2b627aa4cee07f51efc9e18f5a5b636ceb7",
+                "sha256_in_prefix": "21f5275113064283a5050885285ee2b627aa4cee07f51efc9e18f5a5b636ceb7",
+                "size_in_bytes": 4330
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/_static/sg_gallery.css",
+                "path_type": "hardlink",
+                "sha256": "c4604098da31f5cb9358fc59a5121a6b408aa3c39f57203fb8aeef6e78a34ee1",
+                "sha256_in_prefix": "c4604098da31f5cb9358fc59a5121a6b408aa3c39f57203fb8aeef6e78a34ee1",
+                "size_in_bytes": 9530
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/backreferences.py",
+                "path_type": "hardlink",
+                "sha256": "197a7ed86e244bd9ae7d2c83092b52359c98f18fd9f9924afb65a6eee6be6abb",
+                "sha256_in_prefix": "197a7ed86e244bd9ae7d2c83092b52359c98f18fd9f9924afb65a6eee6be6abb",
+                "size_in_bytes": 16288
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/block_parser.py",
+                "path_type": "hardlink",
+                "sha256": "d6a8c1bfb840c6c1953eaf838e05eef404e7aa8a95d5107dd2361249ebbe8d4f",
+                "sha256_in_prefix": "d6a8c1bfb840c6c1953eaf838e05eef404e7aa8a95d5107dd2361249ebbe8d4f",
+                "size_in_bytes": 15003
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/directives.py",
+                "path_type": "hardlink",
+                "sha256": "2cdb9991e4519df6ce940bd18ed841a5fe17e733274033955bcf70c410c0daa5",
+                "sha256_in_prefix": "2cdb9991e4519df6ce940bd18ed841a5fe17e733274033955bcf70c410c0daa5",
+                "size_in_bytes": 11615
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/docs_resolv.py",
+                "path_type": "hardlink",
+                "sha256": "62cee7ba0baa683f571f5dcecbabcfb4810ff33e0c47991c29af34bc717ed236",
+                "sha256_in_prefix": "62cee7ba0baa683f571f5dcecbabcfb4810ff33e0c47991c29af34bc717ed236",
+                "size_in_bytes": 18196
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/downloads.py",
+                "path_type": "hardlink",
+                "sha256": "a80ac9efb52996a5e655518d2e4cce04ef5bdc343285f47de35af52a6f90d9ed",
+                "sha256_in_prefix": "a80ac9efb52996a5e655518d2e4cce04ef5bdc343285f47de35af52a6f90d9ed",
+                "size_in_bytes": 4424
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/gen_gallery.py",
+                "path_type": "hardlink",
+                "sha256": "238525432606a8c8749b73c1025db7102584d62f41a3cca2334b11d67198c42a",
+                "sha256_in_prefix": "238525432606a8c8749b73c1025db7102584d62f41a3cca2334b11d67198c42a",
+                "size_in_bytes": 57483
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/gen_rst.py",
+                "path_type": "hardlink",
+                "sha256": "8bac89473e8cf5dc077359927fdf9dddf9acec85e790758eaa4046228a64179f",
+                "sha256_in_prefix": "8bac89473e8cf5dc077359927fdf9dddf9acec85e790758eaa4046228a64179f",
+                "size_in_bytes": 55813
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/interactive_example.py",
+                "path_type": "hardlink",
+                "sha256": "d2137822d04588edde33fb58d1eeb64cefbacb1b401da5d5a7b3b86a91eec280",
+                "sha256_in_prefix": "d2137822d04588edde33fb58d1eeb64cefbacb1b401da5d5a7b3b86a91eec280",
+                "size_in_bytes": 16267
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/load_style.py",
+                "path_type": "hardlink",
+                "sha256": "936070d64ad7837bc23368e2c49eed69cf4beef2d3fa630bb71a6fd6de8084ce",
+                "sha256_in_prefix": "936070d64ad7837bc23368e2c49eed69cf4beef2d3fa630bb71a6fd6de8084ce",
+                "size_in_bytes": 752
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/notebook.py",
+                "path_type": "hardlink",
+                "sha256": "236539fc53469c1a3f9e3e1a695eb2d6e16514a43c217e3663af1c55dfb037fb",
+                "sha256_in_prefix": "236539fc53469c1a3f9e3e1a695eb2d6e16514a43c217e3663af1c55dfb037fb",
+                "size_in_bytes": 13164
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/py_source_parser.py",
+                "path_type": "hardlink",
+                "sha256": "8921fc05e4ce46b88fa0f2c2b04ff8bb1df0ac08bc10537ac3f071a91d0bdc35",
+                "sha256_in_prefix": "8921fc05e4ce46b88fa0f2c2b04ff8bb1df0ac08bc10537ac3f071a91d0bdc35",
+                "size_in_bytes": 7619
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/recommender.py",
+                "path_type": "hardlink",
+                "sha256": "80d7774abc11669cd30d8f421a00855e87f1cd1a265451cf446da001304e2311",
+                "sha256_in_prefix": "80d7774abc11669cd30d8f421a00855e87f1cd1a265451cf446da001304e2311",
+                "size_in_bytes": 9478
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/scrapers.py",
+                "path_type": "hardlink",
+                "sha256": "0c4bccdf58429865c1be53d591ba962b35ad23bcf9a48f8636627e718a1d5c7f",
+                "sha256_in_prefix": "0c4bccdf58429865c1be53d591ba962b35ad23bcf9a48f8636627e718a1d5c7f",
+                "size_in_bytes": 17558
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/sorting.py",
+                "path_type": "hardlink",
+                "sha256": "f2127b7315acc4662f89b493de42f32769bba85d69890d359524f08e3364feec",
+                "sha256_in_prefix": "f2127b7315acc4662f89b493de42f32769bba85d69890d359524f08e3364feec",
+                "size_in_bytes": 5605
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/conftest.py",
+                "path_type": "hardlink",
+                "sha256": "2e053e9ec13c3b5d554399cd26945985cd78f343bf06c779fe9c9fe607a6f49a",
+                "sha256_in_prefix": "2e053e9ec13c3b5d554399cd26945985cd78f343bf06c779fe9c9fe607a6f49a",
+                "size_in_bytes": 5932
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/reference_parse.txt",
+                "path_type": "hardlink",
+                "sha256": "d59848accf27e470866554c7fc10be8fb95b28859aa17b431d0ff85dde73fe50",
+                "sha256_in_prefix": "d59848accf27e470866554c7fc10be8fb95b28859aa17b431d0ff85dde73fe50",
+                "size_in_bytes": 3664
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_backreferences.py",
+                "path_type": "hardlink",
+                "sha256": "3498837e875738e52423468872ecc5f1b9fb18eade14cf9788a475c9aa77da0e",
+                "sha256_in_prefix": "3498837e875738e52423468872ecc5f1b9fb18eade14cf9788a475c9aa77da0e",
+                "size_in_bytes": 8045
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_block_parser.py",
+                "path_type": "hardlink",
+                "sha256": "5276d17a6b8d06539ebd2c2a605ab9c79ee22a38286c1ac1008d4569590e75e4",
+                "sha256_in_prefix": "5276d17a6b8d06539ebd2c2a605ab9c79ee22a38286c1ac1008d4569590e75e4",
+                "size_in_bytes": 6557
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_docs_resolv.py",
+                "path_type": "hardlink",
+                "sha256": "a4bbd5259febdd2071ad87d2c5f7b6d3b995e123f530f31bc98eb2ddb3ff6dd5",
+                "sha256_in_prefix": "a4bbd5259febdd2071ad87d2c5f7b6d3b995e123f530f31bc98eb2ddb3ff6dd5",
+                "size_in_bytes": 2709
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_full.py",
+                "path_type": "hardlink",
+                "sha256": "7f321fd338447f1c5d3e3db8d5814f5c554ead2f61c941b89c71838fceb67f51",
+                "sha256_in_prefix": "7f321fd338447f1c5d3e3db8d5814f5c554ead2f61c941b89c71838fceb67f51",
+                "size_in_bytes": 52615
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_full_noexec.py",
+                "path_type": "hardlink",
+                "sha256": "c717e6e94bdfc07e22c1c28fafa08380def690ee4bc292c4721b212394126e01",
+                "sha256_in_prefix": "c717e6e94bdfc07e22c1c28fafa08380def690ee4bc292c4721b212394126e01",
+                "size_in_bytes": 1874
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_gen_gallery.py",
+                "path_type": "hardlink",
+                "sha256": "28ce70b16f6f1930dcd37b482c70eedcabb38d7c6e736f4128acbfb4f27d18ed",
+                "sha256_in_prefix": "28ce70b16f6f1930dcd37b482c70eedcabb38d7c6e736f4128acbfb4f27d18ed",
+                "size_in_bytes": 24171
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_gen_rst.py",
+                "path_type": "hardlink",
+                "sha256": "a282efdba8471a0d075580cb52ffb398905758a7feae89771c7fdf28f62639dc",
+                "sha256_in_prefix": "a282efdba8471a0d075580cb52ffb398905758a7feae89771c7fdf28f62639dc",
+                "size_in_bytes": 39234
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_interactive_example.py",
+                "path_type": "hardlink",
+                "sha256": "64cca9e7445bc6876b7a0e064062e5e102d6aaa206c3cd787bd5e0959639336e",
+                "sha256_in_prefix": "64cca9e7445bc6876b7a0e064062e5e102d6aaa206c3cd787bd5e0959639336e",
+                "size_in_bytes": 9201
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_load_style.py",
+                "path_type": "hardlink",
+                "sha256": "750917bd97ce957d3173e0d1227d901421326be675b3aa488667674ad99a1675",
+                "sha256_in_prefix": "750917bd97ce957d3173e0d1227d901421326be675b3aa488667674ad99a1675",
+                "size_in_bytes": 718
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_notebook.py",
+                "path_type": "hardlink",
+                "sha256": "d7e077e702a4cc026b9bba29af9ec32ec5a9168ed46bf97373a061463d1b5c2b",
+                "sha256_in_prefix": "d7e077e702a4cc026b9bba29af9ec32ec5a9168ed46bf97373a061463d1b5c2b",
+                "size_in_bytes": 12015
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_py_source_parser.py",
+                "path_type": "hardlink",
+                "sha256": "4cc4ac5384ead1ec0b010ff6c2a09bdff40f9347756f1d229bd8a6b97030effa",
+                "sha256_in_prefix": "4cc4ac5384ead1ec0b010ff6c2a09bdff40f9347756f1d229bd8a6b97030effa",
+                "size_in_bytes": 3835
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_recommender.py",
+                "path_type": "hardlink",
+                "sha256": "c8302320bdca4b36be3c25482220c6ddad7232fe75a02623f75526ebfc3fb4c6",
+                "sha256_in_prefix": "c8302320bdca4b36be3c25482220c6ddad7232fe75a02623f75526ebfc3fb4c6",
+                "size_in_bytes": 3141
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_scrapers.py",
+                "path_type": "hardlink",
+                "sha256": "6ee4b4e412c8a5729a12d85c60c601ebd1c06ee9c78176ac3bceb30466754663",
+                "sha256_in_prefix": "6ee4b4e412c8a5729a12d85c60c601ebd1c06ee9c78176ac3bceb30466754663",
+                "size_in_bytes": 9748
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/test_sorting.py",
+                "path_type": "hardlink",
+                "sha256": "3631435ad210b1e9745ea1739e386b3f5dcdd283d8431e96b27bf5a795d19993",
+                "sha256_in_prefix": "3631435ad210b1e9745ea1739e386b3f5dcdd283d8431e96b27bf5a795d19993",
+                "size_in_bytes": 2561
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/index.rst",
+                "path_type": "hardlink",
+                "sha256": "83cf864b3520abe0b4e109850b2192da740a7961502449dad7276d0f764f2c0c",
+                "sha256_in_prefix": "83cf864b3520abe0b4e109850b2192da740a7961502449dad7276d0f764f2c0c",
+                "size_in_bytes": 57
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/README.txt",
+                "path_type": "hardlink",
+                "sha256": "da6e475c379c343467700ff3fcfe88576e586ef42190b0ecfadba5e97d8b4546",
+                "sha256_in_prefix": "da6e475c379c343467700ff3fcfe88576e586ef42190b0ecfadba5e97d8b4546",
+                "size_in_bytes": 34
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/plot_1.py",
+                "path_type": "hardlink",
+                "sha256": "8818f8dcacf1ecfbaf34dbc01e69152bcba787aaf0b5ff3894fcb579fc25fec0",
+                "sha256_in_prefix": "8818f8dcacf1ecfbaf34dbc01e69152bcba787aaf0b5ff3894fcb579fc25fec0",
+                "size_in_bytes": 112
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/plot_2.py",
+                "path_type": "hardlink",
+                "sha256": "292cc407fd004ad271dfa6a56ebb7d8dffb620e9f809c0e0dd3e278f0476d788",
+                "sha256_in_prefix": "292cc407fd004ad271dfa6a56ebb7d8dffb620e9f809c0e0dd3e278f0476d788",
+                "size_in_bytes": 84
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/plot_3.py",
+                "path_type": "hardlink",
+                "sha256": "29162544fa6fc25b4b49f980a9c8111386196e15966c1333f1407abd594f3c6e",
+                "sha256_in_prefix": "29162544fa6fc25b4b49f980a9c8111386196e15966c1333f1407abd594f3c6e",
+                "size_in_bytes": 295
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/Makefile",
+                "path_type": "hardlink",
+                "sha256": "83f1e752e847144c98b14e48c919e0d05242c411861c55bd69517280e3f8f365",
+                "sha256_in_prefix": "83f1e752e847144c98b14e48c919e0d05242c411861c55bd69517280e3f8f365",
+                "size_in_bytes": 574
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/_static_nonstandard/demo.png",
+                "path_type": "hardlink",
+                "sha256": "407ee150ba2c808302b4102130fd0c5ff8aef4706c0bcadd72ffaf701b1559e4",
+                "sha256_in_prefix": "407ee150ba2c808302b4102130fd0c5ff8aef4706c0bcadd72ffaf701b1559e4",
+                "size_in_bytes": 230273
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/_templates/module.rst",
+                "path_type": "hardlink",
+                "sha256": "aec79852991a0dede9508a250039d735fc05f989f41c4bc30437435daa2eb6eb",
+                "sha256_in_prefix": "aec79852991a0dede9508a250039d735fc05f989f41c4bc30437435daa2eb6eb",
+                "size_in_bytes": 992
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/binder/requirements.txt",
+                "path_type": "hardlink",
+                "sha256": "c5017ec4a8621b7db3cabf4154f7457f6105c6fbdd87a46b48b25a040def12bc",
+                "sha256_in_prefix": "c5017ec4a8621b7db3cabf4154f7457f6105c6fbdd87a46b48b25a040def12bc",
+                "size_in_bytes": 167
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/conf.py",
+                "path_type": "hardlink",
+                "sha256": "03fd6fb7a4a7f4f3759ced21a426e3a3a882d4299e8bca67125d22aa6869db43",
+                "sha256_in_prefix": "03fd6fb7a4a7f4f3759ced21a426e3a3a882d4299e8bca67125d22aa6869db43",
+                "size_in_bytes": 3377
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/index.rst",
+                "path_type": "hardlink",
+                "sha256": "0942f59d584cb842dffdf60eff6ecc81e98ea0da3a9db6fa6a8d43b499f6a7ea",
+                "sha256_in_prefix": "0942f59d584cb842dffdf60eff6ecc81e98ea0da3a9db6fa6a8d43b499f6a7ea",
+                "size_in_bytes": 766
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/make.bat",
+                "path_type": "hardlink",
+                "sha256": "034f5c3fbc067dd9065a955dcc28ef3248079d371e93e8727fb6bd7e037008e7",
+                "sha256_in_prefix": "034f5c3fbc067dd9065a955dcc28ef3248079d371e93e8727fb6bd7e037008e7",
+                "size_in_bytes": 977
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/minigallery.rst",
+                "path_type": "hardlink",
+                "sha256": "0c8fe276f750e431892ba84b25b20aec7b4171f774571b66d354ff21fe01b8c0",
+                "sha256_in_prefix": "0c8fe276f750e431892ba84b25b20aec7b4171f774571b66d354ff21fe01b8c0",
+                "size_in_bytes": 1413
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/README.txt",
+                "path_type": "hardlink",
+                "sha256": "4d9f8e120523fb72aabda4e72e81e25219d9c4f78114aa90b35daa7c1fee5dd7",
+                "sha256_in_prefix": "4d9f8e120523fb72aabda4e72e81e25219d9c4f78114aa90b35daa7c1fee5dd7",
+                "size_in_bytes": 56
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "65931b25f0372cd40f1b397dc2f304bde1ef1ded8df06894e15277c56f45bbc3",
+                "sha256_in_prefix": "65931b25f0372cd40f1b397dc2f304bde1ef1ded8df06894e15277c56f45bbc3",
+                "size_in_bytes": 155
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/README.rst",
+                "path_type": "hardlink",
+                "sha256": "494bb7eb26929d06e623925f300ace61f3e53152ccd5eb6366e0855c8f9880ce",
+                "sha256_in_prefix": "494bb7eb26929d06e623925f300ace61f3e53152ccd5eb6366e0855c8f9880ce",
+                "size_in_bytes": 99
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/plot_future_imports.py",
+                "path_type": "hardlink",
+                "sha256": "8c06273f4426f86131d0c2c9739991efaa1d5c3ecbfe8b2d4763b373952ed81f",
+                "sha256_in_prefix": "8c06273f4426f86131d0c2c9739991efaa1d5c3ecbfe8b2d4763b373952ed81f",
+                "size_in_bytes": 604
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/plot_future_imports_broken.py",
+                "path_type": "hardlink",
+                "sha256": "a402bbd88e508dee22d748241319f0fc9b10763e49f6b77ca6b3502f78c1fa6d",
+                "sha256_in_prefix": "a402bbd88e508dee22d748241319f0fc9b10763e49f6b77ca6b3502f78c1fa6d",
+                "size_in_bytes": 496
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/isentropic.m",
+                "path_type": "hardlink",
+                "sha256": "7845c2df6a6d8e9dd8c48ac0f8842fd644979266f181fb15b3132e0a31e18008",
+                "sha256_in_prefix": "7845c2df6a6d8e9dd8c48ac0f8842fd644979266f181fb15b3132e0a31e18008",
+                "size_in_bytes": 402
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/julia_sample.jl",
+                "path_type": "hardlink",
+                "sha256": "afbaf8b9951e4bdd77cf87b21ea2ebe909f6c1f09dc14e2c66427218bff2b658",
+                "sha256_in_prefix": "afbaf8b9951e4bdd77cf87b21ea2ebe909f6c1f09dc14e2c66427218bff2b658",
+                "size_in_bytes": 276
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/local_module.py",
+                "path_type": "hardlink",
+                "sha256": "944c01c95d17fd0f42413d2db30a483f143329e5111e1d7362121e16b5a77c49",
+                "sha256_in_prefix": "944c01c95d17fd0f42413d2db30a483f143329e5111e1d7362121e16b5a77c49",
+                "size_in_bytes": 80
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/parse_this.cpp",
+                "path_type": "hardlink",
+                "sha256": "92d5d8e2d9e12b1fbb478b4b78963feac0680bf5c2b678a30005473e595cf69e",
+                "sha256_in_prefix": "92d5d8e2d9e12b1fbb478b4b78963feac0680bf5c2b678a30005473e595cf69e",
+                "size_in_bytes": 764
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_animation.py",
+                "path_type": "hardlink",
+                "sha256": "9bb78da51b9aef88c9d68366a84a7627fe1d956caa9eff9d8aa30a67cbdbf0ca",
+                "sha256_in_prefix": "9bb78da51b9aef88c9d68366a84a7627fe1d956caa9eff9d8aa30a67cbdbf0ca",
+                "size_in_bytes": 721
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_command_line_args.py",
+                "path_type": "hardlink",
+                "sha256": "987c3f01d5237ec3ed043c7cfb50e33edbaffc8da1608dc39a8e46a1ad20fe1c",
+                "sha256_in_prefix": "987c3f01d5237ec3ed043c7cfb50e33edbaffc8da1608dc39a8e46a1ad20fe1c",
+                "size_in_bytes": 354
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_defer_figures.py",
+                "path_type": "hardlink",
+                "sha256": "db58b717f7eaa1210ff2a666304f6be2eccd72eccd93d19555e3fe4b70b5d862",
+                "sha256_in_prefix": "db58b717f7eaa1210ff2a666304f6be2eccd72eccd93d19555e3fe4b70b5d862",
+                "size_in_bytes": 343
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_log.py",
+                "path_type": "hardlink",
+                "sha256": "a7c48dcef39516325cfa0ee725fa604e45e04583f99978b15aaec63e5a1fc4b9",
+                "sha256_in_prefix": "a7c48dcef39516325cfa0ee725fa604e45e04583f99978b15aaec63e5a1fc4b9",
+                "size_in_bytes": 420
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_matplotlib_alt.py",
+                "path_type": "hardlink",
+                "sha256": "ad156cf1f2a58f3bd64ae600dad0956d045494e1f65fc8d7c82bde37933c3ff8",
+                "sha256_in_prefix": "ad156cf1f2a58f3bd64ae600dad0956d045494e1f65fc8d7c82bde37933c3ff8",
+                "size_in_bytes": 717
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_matplotlib_backend.py",
+                "path_type": "hardlink",
+                "sha256": "c484821b15db1a87b9257039a205f7cb07cc269d4dfce864fe57af57d57c0bc0",
+                "sha256_in_prefix": "c484821b15db1a87b9257039a205f7cb07cc269d4dfce864fe57af57d57c0bc0",
+                "size_in_bytes": 615
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_numpy_matplotlib.py",
+                "path_type": "hardlink",
+                "sha256": "2d7a9aafa8901f5e9cf1b5831400a26a57130eee98906e240cbd2f5a220cac25",
+                "sha256_in_prefix": "2d7a9aafa8901f5e9cf1b5831400a26a57130eee98906e240cbd2f5a220cac25",
+                "size_in_bytes": 1477
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_pickle.py",
+                "path_type": "hardlink",
+                "sha256": "4d82be9df90faf28cd8f52e3858db7698676827104fd20d51878ad1bf6767a77",
+                "sha256_in_prefix": "4d82be9df90faf28cd8f52e3858db7698676827104fd20d51878ad1bf6767a77",
+                "size_in_bytes": 465
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_repr.py",
+                "path_type": "hardlink",
+                "sha256": "f5ce54b178579f1e81dab1c9d0d4e27b3e0e78d679164670d783d4c179a5aa11",
+                "sha256_in_prefix": "f5ce54b178579f1e81dab1c9d0d4e27b3e0e78d679164670d783d4c179a5aa11",
+                "size_in_bytes": 262
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_scraper_broken.py",
+                "path_type": "hardlink",
+                "sha256": "005913d228018cf0152587e89defad679a7154ce382128d5bc40d5fb90d18000",
+                "sha256_in_prefix": "005913d228018cf0152587e89defad679a7154ce382128d5bc40d5fb90d18000",
+                "size_in_bytes": 230
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_second_future_imports.py",
+                "path_type": "hardlink",
+                "sha256": "2f297201f9ab3ec979de72591f646f8b7427eb22a929014289d57896cd411264",
+                "sha256_in_prefix": "2f297201f9ab3ec979de72591f646f8b7427eb22a929014289d57896cd411264",
+                "size_in_bytes": 868
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_svg.py",
+                "path_type": "hardlink",
+                "sha256": "616000f3c681e58ae9ede2c6d1a7460d29d44b473de38d3f43be72985d1e7a1d",
+                "sha256_in_prefix": "616000f3c681e58ae9ede2c6d1a7460d29d44b473de38d3f43be72985d1e7a1d",
+                "size_in_bytes": 364
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/plot_webp.py",
+                "path_type": "hardlink",
+                "sha256": "22fc74076d3fe8400aafc7e2f874189959093e2d0464f17dad3f24d21cfdbdbe",
+                "sha256_in_prefix": "22fc74076d3fe8400aafc7e2f874189959093e2d0464f17dad3f24d21cfdbdbe",
+                "size_in_bytes": 98
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir1/README.txt",
+                "path_type": "hardlink",
+                "sha256": "7fac833bbd685dbde1ad03278eed2837180823b70ab57b07ffd01e100d1028ec",
+                "sha256_in_prefix": "7fac833bbd685dbde1ad03278eed2837180823b70ab57b07ffd01e100d1028ec",
+                "size_in_bytes": 184
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir1/plot_sub1.py",
+                "path_type": "hardlink",
+                "sha256": "42cb3e7257330493da359e1742709ccd6306c5db4deb1220f9f6676678137f58",
+                "sha256_in_prefix": "42cb3e7257330493da359e1742709ccd6306c5db4deb1220f9f6676678137f58",
+                "size_in_bytes": 310
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir2/index.rst",
+                "path_type": "hardlink",
+                "sha256": "088d36c727aa8097953d49281e162cf4c635e68b6c9d91137b28d052caa682bd",
+                "sha256_in_prefix": "088d36c727aa8097953d49281e162cf4c635e68b6c9d91137b28d052caa682bd",
+                "size_in_bytes": 198
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir2/plot_sub2.py",
+                "path_type": "hardlink",
+                "sha256": "d5060fda2e699f20c6a870abd796d4a3abb0fa2abdf0e58cbba827800a2a08c2",
+                "sha256_in_prefix": "d5060fda2e699f20c6a870abd796d4a3abb0fa2abdf0e58cbba827800a2a08c2",
+                "size_in_bytes": 252
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/index.rst",
+                "path_type": "hardlink",
+                "sha256": "695889bc5141fe513adf64045f94532307633a168eddd1e2693ba1657d84a908",
+                "sha256_in_prefix": "695889bc5141fe513adf64045f94532307633a168eddd1e2693ba1657d84a908",
+                "size_in_bytes": 476
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/plot_examp.py",
+                "path_type": "hardlink",
+                "sha256": "aec9fa05b65fbded5ec4d571f73208e33ea6ab298cc0b690083f1006e126db4a",
+                "sha256_in_prefix": "aec9fa05b65fbded5ec4d571f73208e33ea6ab298cc0b690083f1006e126db4a",
+                "size_in_bytes": 288
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/README.txt",
+                "path_type": "hardlink",
+                "sha256": "a0a687434bea7baa48dde82c082c12d7956bcaf377b9b3b6cc60608704b5cf27",
+                "sha256_in_prefix": "a0a687434bea7baa48dde82c082c12d7956bcaf377b9b3b6cc60608704b5cf27",
+                "size_in_bytes": 1092
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/plot_boo.py",
+                "path_type": "hardlink",
+                "sha256": "6e3b6a4fff1d1c3a6738f5d3c1bb123e4b14ba5561395d6025433d355edb21c8",
+                "sha256_in_prefix": "6e3b6a4fff1d1c3a6738f5d3c1bb123e4b14ba5561395d6025433d355edb21c8",
+                "size_in_bytes": 254
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/plot_cos.py",
+                "path_type": "hardlink",
+                "sha256": "700ba8efe879dbbdb60d15e3eb28b029eac40202eed1d37fc729b02295414fc6",
+                "sha256_in_prefix": "700ba8efe879dbbdb60d15e3eb28b029eac40202eed1d37fc729b02295414fc6",
+                "size_in_bytes": 234
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/rst_example1.rst",
+                "path_type": "hardlink",
+                "sha256": "2f03486f4d53029902e70412c63844c23d5b47ef2a9cbd7d2545259ef52822c4",
+                "sha256_in_prefix": "2f03486f4d53029902e70412c63844c23d5b47ef2a9cbd7d2545259ef52822c4",
+                "size_in_bytes": 583
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/rst_example2.rst",
+                "path_type": "hardlink",
+                "sha256": "8734475e294e889a1650b13dbe670cfd60f7bdf243645565005a2cc89d0ad012",
+                "sha256_in_prefix": "8734475e294e889a1650b13dbe670cfd60f7bdf243645565005a2cc89d0ad012",
+                "size_in_bytes": 604
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/utils.py",
+                "path_type": "hardlink",
+                "sha256": "9bd349433e688e3ee63ea3ac2435c6e6b5a8a31e113371d8730587d6e0f4144b",
+                "sha256_in_prefix": "9bd349433e688e3ee63ea3ac2435c6e6b5a8a31e113371d8730587d6e0f4144b",
+                "size_in_bytes": 3012
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/utils.py",
+                "path_type": "hardlink",
+                "sha256": "461ae5b48dcded9c8d83a9b43800dae0a8abcd8a2051943de9491c38c2f18eda",
+                "sha256_in_prefix": "461ae5b48dcded9c8d83a9b43800dae0a8abcd8a2051943de9491c38c2f18eda",
+                "size_in_bytes": 5852
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/backreferences.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/block_parser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/directives.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/docs_resolv.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/downloads.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/gen_gallery.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/gen_rst.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/interactive_example.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/load_style.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/notebook.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/py_source_parser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/recommender.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/scrapers.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/sorting.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/conftest.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_backreferences.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_block_parser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_docs_resolv.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_full.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_full_noexec.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_gen_gallery.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_gen_rst.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_interactive_example.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_load_style.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_notebook.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_py_source_parser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_recommender.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_scrapers.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/__pycache__/test_sorting.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/__pycache__/plot_1.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/__pycache__/plot_2.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/testconfs/src/__pycache__/plot_3.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/doc/__pycache__/conf.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/__pycache__/plot_future_imports.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/future/__pycache__/plot_future_imports_broken.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/local_module.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_animation.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_command_line_args.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_defer_figures.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_log.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_matplotlib_alt.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_matplotlib_backend.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_numpy_matplotlib.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_pickle.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_repr.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_scraper_broken.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_second_future_imports.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_svg.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples/__pycache__/plot_webp.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir1/__pycache__/plot_sub1.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/examp_subdir2/__pycache__/plot_sub2.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_rst_index/__pycache__/plot_examp.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/__pycache__/plot_boo.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/examples_with_rst/__pycache__/plot_cos.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/tests/tinybuild/__pycache__/utils.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_gallery/__pycache__/utils.cpython-312.pyc",
+                "path_type": "pyc_file"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "",
+    "sha256": "46d9b644b2118d265fbc8095d1980344d2df40240dc30cce7c31bda0f64bb166",
+    "size": 376506,
+    "subdir": "noarch",
+    "timestamp": 1714467900533,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinx-gallery-0.16.0-pyhd8ed1ab_0.conda",
+    "version": "0.16.0"
+}

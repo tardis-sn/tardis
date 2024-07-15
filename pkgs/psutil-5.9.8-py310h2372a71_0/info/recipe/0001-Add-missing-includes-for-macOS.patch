@@ -1,0 +1,39 @@
+From 63d823164d6c9071a7bf6ec611d2911b46b88152 Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Sun, 17 Dec 2023 16:52:21 +0000
+Subject: [PATCH] Add missing includes for macOS
+
+xref: https://github.com/giampaolo/psutil/pull/2242
+---
+ psutil/arch/osx/net.c     | 1 +
+ psutil/arch/osx/sensors.c | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/psutil/arch/osx/net.c b/psutil/arch/osx/net.c
+index e9cc61e9..f3de7cf3 100644
+--- a/psutil/arch/osx/net.c
++++ b/psutil/arch/osx/net.c
+@@ -9,6 +9,7 @@
+ // https://github.com/giampaolo/psutil/blame/efd7ed3/psutil/_psutil_osx.c
+ 
+ #include <Python.h>
++#include <arpa/inet.h>
+ #include <net/if_dl.h>
+ #include <net/route.h>
+ #include <sys/sysctl.h>
+diff --git a/psutil/arch/osx/sensors.c b/psutil/arch/osx/sensors.c
+index a2faa157..99f71608 100644
+--- a/psutil/arch/osx/sensors.c
++++ b/psutil/arch/osx/sensors.c
+@@ -12,6 +12,8 @@
+ 
+ 
+ #include <Python.h>
++#include <CoreFoundation/CoreFoundation.h>
++#include <IOKit/IOKitLib.h>
+ #include <IOKit/ps/IOPowerSources.h>
+ #include <IOKit/ps/IOPSKeys.h>
+ 
+-- 
+2.33.1
+

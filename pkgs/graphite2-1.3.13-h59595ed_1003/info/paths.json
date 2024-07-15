@@ -1,0 +1,67 @@
+{
+  "paths": [
+    {
+      "_path": "include/graphite2/Font.h",
+      "path_type": "hardlink",
+      "sha256": "60bb74b198922c7995c8bf7c3b809117d7b6176a8bc45999d2e1022c96913db4",
+      "size_in_bytes": 18738
+    },
+    {
+      "_path": "include/graphite2/Log.h",
+      "path_type": "hardlink",
+      "sha256": "0e9e60eee1465a14eafcf7a78b90a03aab4c12748cd3f8c006586d8e5efeba60",
+      "size_in_bytes": 2963
+    },
+    {
+      "_path": "include/graphite2/Segment.h",
+      "path_type": "hardlink",
+      "sha256": "6654971a70a6ed798d25fdfc5d858a957fed29f9eb5d3c90f5cd9b8b65b8cca5",
+      "size_in_bytes": 20303
+    },
+    {
+      "_path": "include/graphite2/Types.h",
+      "path_type": "hardlink",
+      "sha256": "ef99b4fada039d434a86a2dda2a2aa6e31be8e772ad2a5b05e630ec0de026891",
+      "size_in_bytes": 3082
+    },
+    {
+      "_path": "lib/libgraphite2.so",
+      "path_type": "softlink",
+      "sha256": "f452c843cf2664ab1cf8739d0c635b1d459aa6653355b7a61fcab85ac2f9153b",
+      "size_in_bytes": 175648
+    },
+    {
+      "_path": "lib/libgraphite2.so.3",
+      "path_type": "softlink",
+      "sha256": "f452c843cf2664ab1cf8739d0c635b1d459aa6653355b7a61fcab85ac2f9153b",
+      "size_in_bytes": 175648
+    },
+    {
+      "_path": "lib/libgraphite2.so.3.2.1",
+      "path_type": "hardlink",
+      "sha256": "f452c843cf2664ab1cf8739d0c635b1d459aa6653355b7a61fcab85ac2f9153b",
+      "size_in_bytes": 175648
+    },
+    {
+      "_path": "lib/pkgconfig/graphite2.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/graphite2_1711634007359/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p",
+      "sha256": "7ddca1536b0e06047301b639d14f4a916e5516b6eab5358fe069a40f61fc991f",
+      "size_in_bytes": 642
+    },
+    {
+      "_path": "share/graphite2/graphite2-release.cmake",
+      "path_type": "hardlink",
+      "sha256": "c9779fcf4db3ab22b295ae14ef92e275fecb3b3b3eacc1ca092335ab8443a809",
+      "size_in_bytes": 906
+    },
+    {
+      "_path": "share/graphite2/graphite2.cmake",
+      "path_type": "hardlink",
+      "sha256": "470317aa6ce98701603ff39ed6b9069ceac9d7bfd0572304e7e30695c89b7bb0",
+      "size_in_bytes": 3934
+    }
+  ],
+  "paths_version": 1
+}

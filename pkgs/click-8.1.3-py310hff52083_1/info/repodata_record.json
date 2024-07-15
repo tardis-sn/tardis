@@ -1,0 +1,25 @@
+{
+    "arch": "x86_64",
+    "build": "py310hff52083_1",
+    "build_number": 1,
+    "build_string": "py310hff52083_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "python >=3.10,<3.11.0a0",
+        "python_abi 3.10.* *_cp310"
+    ],
+    "fn": "click-8.1.3-py310hff52083_1.tar.bz2",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "9bb8d28c0899d583a062c17b15ee3e89",
+    "name": "click",
+    "platform": "linux",
+    "sha256": "550b1266fed8a3bbfc2e7d5cbe646668aca5b5f1c3b4ac9a17ca2d215d06785a",
+    "size": 152387,
+    "subdir": "linux-64",
+    "timestamp": 1666770238122,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/click-8.1.3-py310hff52083_1.tar.bz2",
+    "version": "8.1.3"
+}

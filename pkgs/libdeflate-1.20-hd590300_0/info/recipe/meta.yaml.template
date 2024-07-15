@@ -1,0 +1,45 @@
+{% set version = "1.20" %}
+{% set sha256 = "ed1454166ced78913ff3809870a4005b7170a6fd30767dc478a09b96847b9c2a" %}
+
+package:
+  name: libdeflate
+  version: {{ version }}
+
+source:
+  url: https://github.com/ebiggers/libdeflate/archive/v{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: 0
+  run_exports:
+    - {{ pin_subpackage('libdeflate', max_pin='x.x') }}
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - make  # [unix]
+    - cmake
+    - ninja  # [win]
+
+test:
+  commands:
+    - test ! -f ${PREFIX}/lib/libdeflate.a          # [unix]
+    - test -f ${PREFIX}/lib/libdeflate${SHLIB_EXT}  # [unix]
+    - test -f ${PREFIX}/include/libdeflate.h        # [unix]
+    - libdeflate-gzip -h
+    - libdeflate-gunzip -h
+    - if not exist %LIBRARY_BIN%\\deflate.dll exit 1  # [win]
+    - if not exist %LIBRARY_LIB%\\deflate.lib exit 1  # [win]
+    - if not exist %LIBRARY_INC%\\libdeflate.h exit 1    # [win]
+
+about:
+  home: https://github.com/ebiggers/libdeflate
+  license: MIT
+  license_file: COPYING
+  summary: libdeflate is a library for fast, whole-buffer DEFLATE-based compression and decompression.
+
+extra:
+  recipe-maintainers:
+    - dpryan79
+    - rhpvorderman
+    - hmaarrfk

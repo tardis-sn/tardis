@@ -1,0 +1,105 @@
+# This file created by conda-build 24.1.2
+# meta.yaml template originally from:
+# /feedstock/recipe, last modified Thu Jun 13 14:12:40 2024
+# ------------------------------------------------
+
+package:
+  name: ipython
+  version: 8.25.0
+source:
+  sha256: c6ed726a140b6e725b911528f80439c534fac915246af3efc39440a6b0f9d716
+  url: https://pypi.io/packages/source/i/ipython/ipython-8.25.0.tar.gz
+build:
+  entry_points:
+    - ipython = IPython:start_ipython
+    - ipython3 = IPython:start_ipython
+  number: '0'
+  script: /croot/ipython_1718287989724/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold/bin/python
+    -m pip install . -vv --no-deps --no-build-isolation
+  string: py312h06a4308_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 main
+    - _openmp_mutex 5.1 1_gnu
+    - bzip2 1.0.8 h5eee18b_6
+    - ca-certificates 2024.3.11 h06a4308_0
+    - expat 2.6.2 h6a678d5_0
+    - ld_impl_linux-64 2.38 h1181459_1
+    - libffi 3.4.4 h6a678d5_1
+    - libgcc-ng 11.2.0 h1234567_1
+    - libgomp 11.2.0 h1234567_1
+    - libstdcxx-ng 11.2.0 h1234567_1
+    - libuuid 1.41.5 h5eee18b_0
+    - ncurses 6.4 h6a678d5_0
+    - openssl 3.0.13 h7f8727e_2
+    - pip 24.0 py312h06a4308_0
+    - python 3.12.3 h996f2a0_1
+    - readline 8.2 h5eee18b_0
+    - setuptools 69.5.1 py312h06a4308_0
+    - sqlite 3.45.3 h5eee18b_0
+    - tk 8.6.14 h39e8969_0
+    - tzdata 2024a h04d1e81_0
+    - wheel 0.43.0 py312h06a4308_0
+    - xz 5.4.6 h5eee18b_1
+    - zlib 1.2.13 h5eee18b_1
+  run:
+    - decorator
+    - jedi >=0.16
+    - matplotlib-inline
+    - pexpect >4.3
+    - prompt_toolkit >=3.0.41,<3.1.0
+    - pygments >=2.4.0
+    - python >=3.12,<3.13.0a0
+    - stack_data
+    - traitlets >=5.13.0
+test:
+  commands:
+    - pip check
+    - pygmentize -L | grep ipython
+    - ipython -h
+    - ipython3 -h
+    - export MIGRATING=false
+  requires:
+    - curio
+    - matplotlib-base !=3.2.0
+    - nbformat
+    - numpy >=1.23
+    - pandas
+    - pickleshare
+    - pip
+    - pytest
+    - pytest-asyncio <0.22
+    - testpath
+    - trio
+about:
+  description: 'IPython provides a rich architecture for interactive computing with
+
+    a powerful interactive shell, a kernel for Jupyter, high performance
+
+    tools for parallel computing, and more.
+
+    '
+  dev_url: https://github.com/ipython/ipython
+  doc_url: https://ipython.readthedocs.io
+  home: https://ipython.org
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: 'IPython: Productive Interactive Computing'
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: 922694fe-00d0-4252-a585-faf836e3d8bf
+  recipe-maintainers:
+    - Carreau
+    - blink1073
+    - bollwyvl
+    - ellisonbg
+    - fperez
+    - jakirkham
+    - minrk
+    - ocefpaf
+    - pelson
+    - takluyver
+  remote_url: git@github.com:AnacondaRecipes/ipython-feedstock.git
+  sha: dcb362dbb74c3f70fd8d7c392603e8c2ba87a4ca

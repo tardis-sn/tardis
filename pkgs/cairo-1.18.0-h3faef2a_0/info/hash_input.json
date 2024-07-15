@@ -1,0 +1,17 @@
+{
+  "cxx_compiler": "gxx",
+  "glib": "2",
+  "xz": "5",
+  "fontconfig": "2",
+  "c_compiler": "gcc",
+  "c_compiler_version": "12",
+  "libpng": "1.6",
+  "pixman": "0",
+  "cxx_compiler_version": "12",
+  "target_platform": "linux-64",
+  "freetype": "2",
+  "channel_targets": "conda-forge main",
+  "libxcb": "1.15",
+  "icu": "73",
+  "zlib": "1.2"
+}

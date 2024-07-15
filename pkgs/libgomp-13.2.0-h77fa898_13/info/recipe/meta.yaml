@@ -1,0 +1,50 @@
+# This file created by conda-build 24.5.2.dev35
+# ------------------------------------------------
+
+package:
+  name: libgomp
+  version: 13.2.0
+source:
+  - patches:
+      - patches/0021-Hardcode-HAVE_ALIGNED_ALLOC-1-in-libstdc-v3-configur.patch
+      - patches/libgomp-support-environ-null.patch
+      - patches/new-allow-commands-in-main-specfile.patch
+    sha256: 8cb4be3796651976f94b9356fa08d833524f62420d6292c5033a9a26af315078
+    url: https://ftp.gnu.org/gnu/gcc/gcc-13.2.0/gcc-13.2.0.tar.gz
+build:
+  detect_binary_files_with_prefix: false
+  missing_dso_whitelist:
+    - '*'
+  number: 13
+  run_exports:
+    strong:
+      - _openmp_mutex >=4.5
+  string: h77fa898_13
+requirements:
+  host:
+    - kernel-headers_linux-64 2.6.32 he073ed8_16
+    - sysroot_linux-64 2.12 he073ed8_16
+  run:
+    - _libgcc_mutex 0.1 conda_forge
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libgomp.so.1.0.0
+    - test ! -f ${PREFIX}/lib/libgomp.so.1
+  requires:
+    - sysroot_linux-64
+about:
+  home: https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html
+  license: GPL-3.0-only WITH GCC-exception-3.1
+  summary: The GCC OpenMP implementation.
+extra:
+  copy_test_source_files: true
+  feedstock-name: ctng-compilers-feedstock
+  final: true
+  flow_run_id: azure_20240623.2.1
+  recipe-maintainers:
+    - beckermr
+    - isuruf
+    - timsnyder
+    - xhochy
+  remote_url: https://github.com/conda-forge/ctng-compilers-feedstock
+  sha: 65d04ebbfb4ff200a87ef5ed03b83e3bdbf5f31f

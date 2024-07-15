@@ -1,0 +1,28 @@
+---
+name: model_full_csvy
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: csvy file with all quantities stored as CSV 
+tardis_model_config_version: v1.0
+datatype:
+  fields:
+    -  name: velocity
+       unit: km/s
+       desc: velocities of shell outer bounderies.
+    -  name: density
+       unit: g/cm^3
+       desc: density of shell.
+    -  name: H
+       desc: fractional H abundance
+    -  name: He
+       desc: fractional He abundance
+    -  name: Ni56
+       desc: fractional Ni56 abundance
+
+v_inner_boundary: 9000 km/s
+v_outer_boundary: 12000 km/s
+---
+velocity,density,H,He,Ni56
+9000, 5e-10, 1.0, 1.0, 1.0
+10500, 2.0e-10, 0.0, 0.99, 0.01
+12000, 9e-11, 0.4, 0.58, 0.02

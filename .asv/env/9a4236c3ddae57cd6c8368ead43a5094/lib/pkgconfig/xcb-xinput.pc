@@ -1,0 +1,11 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: XCB XInput
+Description: XCB XInput Extension (EXPERIMENTAL)
+Version: 1.16
+Requires.private: xcb xcb-xfixes
+Libs: -L${libdir} -lxcb-xinput
+Cflags: -I${includedir}

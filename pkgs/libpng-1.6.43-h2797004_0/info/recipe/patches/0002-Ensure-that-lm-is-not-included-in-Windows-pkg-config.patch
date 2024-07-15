@@ -1,0 +1,26 @@
+From ed4def04ed595c83ed8082845f5b807413b9400f Mon Sep 17 00:00:00 2001
+From: Mark Harfouche <mark.harfouche@gmail.com>
+Date: Wed, 6 Jul 2022 17:13:50 -0400
+Subject: [PATCH 2/2] Ensure that -lm is not included in Windows pkg-config
+
+---
+ CMakeLists.txt | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c20bd40..046246a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -990,7 +990,11 @@ if(1)
+   set(exec_prefix ${CMAKE_INSTALL_PREFIX})
+   set(libdir      ${CMAKE_INSTALL_FULL_LIBDIR})
+   set(includedir  ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+-  set(LIBS        "-lz -lm")
++  if(NOT "${M_LIBRARY}" STREQUAL "")
++    set(LIBS        "-lz -lm")
++  else()
++    set(LIBS        "-lz")
++  endif()
+   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libpng.pc.in
+                  ${CMAKE_CURRENT_BINARY_DIR}/libpng${PNGLIB_ABI_VERSION}.pc
+                  @ONLY)

@@ -1,0 +1,86 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun Jun 23 03:32:30 2024
+# ------------------------------------------------
+
+package:
+  name: coverage
+  version: 7.5.4
+source:
+  sha256: a44963520b069e12789d0faea4e9fdb1e410cdc4aab89d94f7f55cbb7fef0353
+  url: https://pypi.io/packages/source/c/coverage/coverage-7.5.4.tar.gz
+build:
+  entry_points:
+    - coverage = coverage.cmdline:main
+  number: '0'
+  string: py312h9a8786e_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_7
+    - binutils_linux-64 2.40 hb3c18ed_9
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_12
+    - gcc_linux-64 12.3.0 h9528a6a_9
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - libgcc-devel_linux-64 12.3.0 h6b66f73_112
+    - libgcc-ng 13.2.0 h77fa898_12
+    - libgomp 13.2.0 h77fa898_12
+    - libsanitizer 12.3.0 hb8811af_12
+    - libstdcxx-ng 13.2.0 hc0a3c3a_12
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.6.2 hbcca054_0
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_12
+    - libgomp 13.2.0 h77fa898_12
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.46.0 hde9e2c9_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.1 h4ab18f5_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.4 h194c7f8_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 70.1.0 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - libgcc-ng >=12
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+    - tomli
+test:
+  commands:
+    - pip check
+    - coverage --help
+  imports:
+    - coverage
+  requires:
+    - pip
+about:
+  home: https://coverage.readthedocs.io
+  license: Apache-2.0
+  license_file: LICENSE.txt
+  summary: Code coverage measurement for Python
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240622.2.1
+  recipe-maintainers:
+    - ericmjl
+    - jakirkham
+    - ocefpaf
+    - thewchan
+  remote_url: https://github.com/conda-forge/coverage-feedstock
+  sha: eab8147af0478196ba71832f8ffba4a24a50bd4c

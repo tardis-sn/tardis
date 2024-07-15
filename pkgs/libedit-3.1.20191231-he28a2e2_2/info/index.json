@@ -1,0 +1,16 @@
+{
+  "arch": "x86_64",
+  "build": "he28a2e2_2",
+  "build_number": 2,
+  "depends": [
+    "libgcc-ng >=7.5.0",
+    "ncurses >=6.2,<6.3.0a0"
+  ],
+  "license": "BSD-2-Clause",
+  "license_family": "BSD",
+  "name": "libedit",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1597616541093,
+  "version": "3.1.20191231"
+}

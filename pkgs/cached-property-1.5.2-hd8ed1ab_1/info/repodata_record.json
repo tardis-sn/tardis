@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "hd8ed1ab_1",
+    "build_number": 1,
+    "build_string": "hd8ed1ab_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "cached_property >=1.5.2,<1.5.3.0a0"
+    ],
+    "fn": "cached-property-1.5.2-hd8ed1ab_1.tar.bz2",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "9b347a7ec10940d3f7941ff6c460b551",
+    "name": "cached-property",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "561e6660f26c35d137ee150187d89767c988413c978e1b712d53f27ddf70ea17",
+    "size": 4134,
+    "subdir": "noarch",
+    "timestamp": 1615209571450,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/cached-property-1.5.2-hd8ed1ab_1.tar.bz2",
+    "version": "1.5.2"
+}

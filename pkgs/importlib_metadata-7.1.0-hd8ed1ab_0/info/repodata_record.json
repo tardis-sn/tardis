@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "hd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "hd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "importlib-metadata >=7.1.0,<7.1.1.0a0"
+    ],
+    "fn": "importlib_metadata-7.1.0-hd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "license_family": "APACHE",
+    "md5": "6ef2b72d291b39e479d7694efa2b2b98",
+    "name": "importlib_metadata",
+    "noarch": "generic",
+    "platform": null,
+    "sha256": "01dc057a45dedcc742a71599f67c7383ae2bf873be6018ebcbd06ac8d994dedb",
+    "size": 9444,
+    "subdir": "noarch",
+    "timestamp": 1710971502542,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/importlib_metadata-7.1.0-hd8ed1ab_0.conda",
+    "version": "7.1.0"
+}

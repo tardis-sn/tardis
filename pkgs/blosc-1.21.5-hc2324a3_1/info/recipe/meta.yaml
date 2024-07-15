@@ -1,0 +1,96 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Apr  9 16:54:03 2024
+# ------------------------------------------------
+
+package:
+  name: blosc
+  version: 1.21.5
+source:
+  sha256: 32e61961bbf81ffea6ff30e9d70fca36c86178afd3e3cfa13376adec8c687509
+  url: https://github.com/Blosc/c-blosc/archive/v1.21.5.tar.gz
+build:
+  number: '1'
+  run_exports:
+    - blosc >=1.21.5,<2.0a0
+  string: hc2324a3_1
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.28.1 hd590300_0
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cmake 3.29.1 hcfe8598_0
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gxx_impl_linux-64 12.3.0 he2b93b0_5
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libcurl 8.7.1 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_105
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuv 1.48.0 hd590300_0
+    - libzlib 1.2.13 hd590300_5
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.2.1 hd590300_1
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.5 hfc55251_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libzlib 1.2.13 hd590300_5
+    - lz4-c 1.9.3 h9c3ff4c_1
+    - snappy 1.2.0 hdb0a2a9_1
+    - zlib 1.2.13 hd590300_5
+    - zstd 1.5.5 hfc55251_0
+  run:
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+    - libzlib >=1.2.13,<1.3.0a0
+    - lz4-c >=1.9.3,<1.10.0a0
+    - snappy >=1.2.0,<1.3.0a0
+    - zstd >=1.5.5,<1.6.0a0
+test:
+  commands:
+    - test -e $PREFIX/include/blosc.h
+    - test -e $PREFIX/include/blosc-export.h
+    - test ! -e $PREFIX/lib/libblosc.a
+    - test -e $PREFIX/lib/libblosc${SHLIB_EXT}
+about:
+  home: https://github.com/Blosc/c-blosc
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: A blocking, shuffling and loss-less compression library that can be faster
+    than `memcpy()`
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240409.1.1
+  recipe-maintainers:
+    - FrancescElies
+    - hmaarrfk
+    - jakirkham
+    - zklaus
+  remote_url: https://github.com/conda-forge/blosc-feedstock
+  sha: 4c79571f33425a519363db7a2cec53da99e14725

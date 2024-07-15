@@ -1,0 +1,11 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libgvpr
+Description: The GVPR library
+Version: 11.0.0
+Libs: -L${libdir} -lgvpr -lcgraph -lcdt
+Cflags: -I${includedir} -I${includedir}/graphviz
+

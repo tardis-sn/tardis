@@ -1,0 +1,82 @@
+{% set version = "3.9.2" %}
+
+package:
+  name: pytables
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/t/tables/tables-{{ version }}.tar.gz
+  sha256: d470263c2e50c4b7c8635a0d99ac1ff2f9e704c24d71e5fa33c4529e7d0ad9c3
+  patches:
+    - do_not_rely_on_python-blosc2.patch
+
+build:
+  number: 3
+  entry_points:
+    - pt2to3 = tables.scripts.pt2to3:main
+    - ptdump = tables.scripts.ptdump:main
+    - ptrepack = tables.scripts.ptrepack:main
+    - pttree = tables.scripts.pttree:main
+  skip: true  # [py<39]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - cython 0                               # [build_platform != target_platform]
+    - numpy                                  # [build_platform != target_platform]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - {{ compiler('cxx') }}
+  host:
+    - python
+    - pip
+    - cython 0
+    - numpy
+    - zlib
+    - lzo  # [linux]
+    - bzip2
+    - hdf5
+    - numexpr
+    - blosc
+    - c-blosc2 >=2.14.4
+    - packaging
+    - py-cpuinfo
+  run:
+    - python
+    - {{ pin_compatible('numpy') }}
+    - numexpr
+    - packaging
+    - py-cpuinfo
+
+test:
+  requires:
+    - setuptools
+    - pip
+  commands:
+    - pt2to3 -h
+    - ptdump -h
+    - ptrepack -h
+    - pttree -h
+    - pip check
+
+about:
+  home: http://www.pytables.org
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: Brings together Python, HDF5 and NumPy to easily handle large amounts of data.
+  description: |
+    PyTables is a package for managing hierarchical datasets and designed to
+    efficiently and easily cope with extremely large amounts of data. PyTables
+    is built on top of the HDF5 library, using the Python language and the
+    NumPy package.
+  doc_url: http://www.pytables.org/
+  dev_url: https://github.com/PyTables
+
+extra:
+  recipe-maintainers:
+    - msarahan
+    - ocefpaf
+    - tomkooij
+    - scopatz
+    - avalentino

@@ -1,0 +1,11 @@
+prefix=/home/conda/feedstock_root/build_artifacts/libxcb_1693088751823/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: XCB Dbe
+Description: XCB Double Buffer Extension
+Version: 1.16
+Requires.private: xcb
+Libs: -L${libdir} -lxcb-dbe
+Cflags: -I${includedir}

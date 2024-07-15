@@ -1,0 +1,102 @@
+# This file created by conda-build 3.28.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Feb 19 17:16:52 2024
+# ------------------------------------------------
+
+package:
+  name: tornado
+  version: '6.4'
+source:
+  sha256: 72291fa6e6bc84e626589f1c29d90a5a6d593ef5ae68052ee2ef000dfd273dee
+  url: https://pypi.io/packages/source/t/tornado/tornado-6.4.tar.gz
+build:
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/tornado_1708363096407/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla/bin/python
+    -m pip install . -vv --no-deps --no-build-isolation
+  string: py312h98912ed_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_2
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h76fc315_2
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.1 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.2 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.1.0 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - libgcc-ng >=12
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+test:
+  commands:
+    - pip check
+  imports:
+    - tornado
+    - tornado.gen
+    - tornado.netutil
+    - tornado.platform
+    - tornado.test
+  requires:
+    - pip
+about:
+  description: 'Tornado is a Python web framework and asynchronous networking library.
+
+    By using non-blocking network I/O, Tornado can scale to tens of thousands
+
+    of open connections, making it ideal for long polling, WebSockets, and
+
+    other applications that require a long-lived connection to each user.
+
+    '
+  dev_url: https://github.com/tornadoweb/tornado
+  doc_source_url: https://github.com/tornadoweb/tornado/blob/stable/docs/index.rst
+  doc_url: https://www.tornadoweb.org/en/stable/
+  home: https://www.tornadoweb.org/
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE
+  license_url: https://www.apache.org/licenses/LICENSE-2.0
+  summary: A Python web framework and asynchronous networking library, originally
+    developed at FriendFeed.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240219.1.1
+  recipe-maintainers:
+    - jakirkham
+    - ocefpaf
+    - pelson
+  remote_url: https://github.com/conda-forge/tornado-feedstock
+  sha: d1cc7686100b434c3460fabfa84fd43bc2b2a0bc

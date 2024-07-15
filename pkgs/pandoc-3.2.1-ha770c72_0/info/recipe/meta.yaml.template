@@ -1,0 +1,51 @@
+{% set version = "3.2.1" %}
+
+package:
+  name: pandoc
+  version: {{ version }}
+
+source:
+  url: https://github.com/jgm/pandoc/releases/download/{{ version }}/pandoc-{{ version }}-linux-amd64.tar.gz  # [linux and not aarch64]
+  sha256: 3568b0ab38aa8c7ddce0812fa9f7bea8aa43d1657c5e1e816ed92807719c0e2d  # [linux and not aarch64]
+  url: https://github.com/jgm/pandoc/releases/download/{{ version }}/pandoc-{{ version }}-linux-arm64.tar.gz  # [linux and aarch64]
+  sha256: 23d30e7fcc113aabd85fc426d4b6f924f1b0eebb06c7efc36e9188d117ff58ec  # [linux and aarch64]
+  url: https://github.com/jgm/pandoc/releases/download/{{ version }}/pandoc-{{ version }}-x86_64-macOS.zip  # [osx and not arm64]
+  sha256: 84cc09fbb8b072076cba829a482ec5a8b46229b80dd9217ea87dcb2166e38245  # [osx and not arm64]
+  url: https://github.com/jgm/pandoc/releases/download/{{ version }}/pandoc-{{ version }}-arm64-macOS.zip  # [osx and arm64]
+  sha256: ba8121d7f8bd0ad1ad1b271b669b4f4ac11c1fe6d800fe45c3c6ceafbee6f9f1  # [osx and arm64]
+  url: https://github.com/jgm/pandoc/releases/download/{{ version }}/pandoc-{{ version }}-windows-x86_64.zip  # [win]
+  sha256: c6cfc71b092a42c8d25c0936390aa21d71762aee0ceee720bff1c8e32d35203e  # [win]
+
+build:
+  number: 0
+  binary_relocation: false  # [osx]
+  missing_dso_whitelist:
+    - /usr/lib/libiconv.2.dylib  # [osx]
+    - /usr/lib/libz.1.dylib  # [osx]
+    - /usr/lib/libcharset.1.dylib  # [osx]
+
+test:
+  commands:
+    - type pandoc  # [osx]
+    - pandoc --version
+    - pandoc --help
+
+about:
+  home: http://pandoc.org/
+  license: GPL-2.0-or-later
+  license_family: GPL
+  license_file: COPYRIGHT
+  summary: The universal markup converter
+  description: |
+    Pandoc is a Haskell library for converting from one markup format to
+    another, and a command-line tool that uses this library.
+  doc_url: http://pandoc.org/MANUAL.html
+  dev_url: https://github.com/jgm/pandoc
+  doc_source_url: https://github.com/jgm/pandoc/blob/master/MANUAL.txt
+
+extra:
+  recipe-maintainers:
+    - m-rossi
+    - jankatins
+    - ocefpaf
+    - kiwi0fruit

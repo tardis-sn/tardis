@@ -1,0 +1,1 @@
+{"weak": ["libbrotlicommon >=1.1.0,<1.2.0a0", "libbrotlienc >=1.1.0,<1.2.0a0", "libbrotlidec >=1.1.0,<1.2.0a0"]}

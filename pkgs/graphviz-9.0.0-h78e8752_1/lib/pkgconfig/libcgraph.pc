@@ -1,0 +1,10 @@
+prefix=/home/conda/feedstock_root/build_artifacts/graphviz_1700901306837/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/graphviz
+
+Name: libcgraph
+Description: Graph library (file i/o, dot language parsing, graph, subgraph, node, edge, attribute, data structure manipulation)
+Version: 9.0.0
+Libs: -L${libdir} -lcgraph -lcdt
+Cflags: -I${includedir}

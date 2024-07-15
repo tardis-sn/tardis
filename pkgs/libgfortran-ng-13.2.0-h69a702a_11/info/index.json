@@ -1,0 +1,14 @@
+{
+  "arch": "x86_64",
+  "build": "h69a702a_11",
+  "build_number": 11,
+  "depends": [
+    "libgfortran5 13.2.0 h3d2ce59_11"
+  ],
+  "license": "GPL-3.0-only WITH GCC-exception-3.1",
+  "name": "libgfortran-ng",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1718867040994,
+  "version": "13.2.0"
+}

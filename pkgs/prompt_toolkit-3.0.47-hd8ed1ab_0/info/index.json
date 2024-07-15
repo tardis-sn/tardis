@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "hd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "prompt-toolkit >=3.0.47,<3.0.48.0a0"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "prompt_toolkit",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1718048101184,
+  "version": "3.0.47"
+}

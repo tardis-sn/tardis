@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "py312hf412c99_100",
+  "build_number": 100,
+  "depends": [
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12",
+    "nomkl",
+    "numpy >=1.19,<3",
+    "python >=3.12,<3.13.0a0",
+    "python_abi 3.12.* *_cp312"
+  ],
+  "license": "MIT",
+  "name": "numexpr",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1716812268272,
+  "version": "2.10.0"
+}

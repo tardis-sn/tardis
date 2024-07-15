@@ -1,0 +1,50 @@
+{% set version = "2023.12.1" %}
+
+package:
+  name: jsonschema-specifications
+  version: {{ version }}
+
+source:
+  folder: src
+  url: https://pypi.io/packages/source/j/jsonschema-specifications/jsonschema_specifications-{{ version }}.tar.gz
+  sha256: 48a76787b3e70f5ed53f1160d2b81f586e4ca6d1548c5de7085d1682674764cc
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} {{ RECIPE_DIR }}/builder.py
+
+requirements:
+  host:
+    - hatch-vcs
+    - hatchling
+    - pip
+    - python >=3.8
+    - python-build
+  run:
+    - importlib_resources >=1.4.0
+    - python >=3.8
+    - referencing >=0.31.0
+
+test:
+  imports:
+    - jsonschema_specifications
+  commands:
+    - pip check
+    - coverage run --source jsonschema_specifications --branch -m pytest -vv --color=yes --tb=long --pyargs jsonschema_specifications
+    - coverage report --show-missing --skip-covered --fail-under=96
+  requires:
+    - pip
+    - pytest
+    - coverage
+
+about:
+  summary: The JSON Schema meta-schemas and vocabularies, exposed as a Registry
+  home: https://github.com/python-jsonschema/jsonschema-specifications
+  license: MIT
+  license_file: src/COPYING
+  doc_url: https://jsonschema-specifications.readthedocs.io
+
+extra:
+  recipe-maintainers:
+    - bollwyvl

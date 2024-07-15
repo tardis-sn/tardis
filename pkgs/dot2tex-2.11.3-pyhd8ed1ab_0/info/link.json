@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "entry_points": [
+      "dot2tex = dot2tex.dot2tex:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

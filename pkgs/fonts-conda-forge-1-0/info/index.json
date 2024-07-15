@@ -1,0 +1,19 @@
+{
+  "arch": null,
+  "build": "0",
+  "build_number": 0,
+  "depends": [
+    "font-ttf-dejavu-sans-mono",
+    "font-ttf-inconsolata",
+    "font-ttf-source-code-pro",
+    "font-ttf-ubuntu"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "fonts-conda-forge",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1566932280397,
+  "version": "1"
+}

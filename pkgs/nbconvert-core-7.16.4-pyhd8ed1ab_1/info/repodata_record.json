@@ -1,0 +1,43 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_1",
+    "build_number": 1,
+    "build_string": "pyhd8ed1ab_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [
+        "nbconvert =7.16.4=*_1",
+        "pandoc >=2.9.2,<4.0.0"
+    ],
+    "depends": [
+        "beautifulsoup4",
+        "bleach",
+        "defusedxml",
+        "entrypoints >=0.2.2",
+        "jinja2 >=3.0",
+        "jupyter_core >=4.7",
+        "jupyterlab_pygments",
+        "markupsafe >=2.0",
+        "mistune >=2.0.3,<4",
+        "nbclient >=0.5.0",
+        "nbformat >=5.1",
+        "packaging",
+        "pandocfilters >=1.4.1",
+        "pygments >=2.4.1",
+        "python >=3.8",
+        "tinycss2",
+        "traitlets >=5.0"
+    ],
+    "fn": "nbconvert-core-7.16.4-pyhd8ed1ab_1.conda",
+    "license": "BSD-3-Clause",
+    "md5": "e2d2abb421c13456a9a9f80272fdf543",
+    "name": "nbconvert-core",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "074d858c5808e0a832acc0da37cd70de1565e8d6e17a62d5a11b3902b5e78319",
+    "size": 189599,
+    "subdir": "noarch",
+    "timestamp": 1718135529468,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/nbconvert-core-7.16.4-pyhd8ed1ab_1.conda",
+    "version": "7.16.4"
+}

@@ -1,0 +1,11 @@
+site-packages/ptyprocess-0.7.0.dist-info/INSTALLER
+site-packages/ptyprocess-0.7.0.dist-info/LICENSE
+site-packages/ptyprocess-0.7.0.dist-info/METADATA
+site-packages/ptyprocess-0.7.0.dist-info/RECORD
+site-packages/ptyprocess-0.7.0.dist-info/REQUESTED
+site-packages/ptyprocess-0.7.0.dist-info/WHEEL
+site-packages/ptyprocess-0.7.0.dist-info/direct_url.json
+site-packages/ptyprocess/__init__.py
+site-packages/ptyprocess/_fork_pty.py
+site-packages/ptyprocess/ptyprocess.py
+site-packages/ptyprocess/util.py

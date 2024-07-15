@@ -1,0 +1,12 @@
+{
+  "c_stdlib_version": "2.12",
+  "c_compiler_version": "12",
+  "c_compiler": "gcc",
+  "mpi": "nompi",
+  "target_platform": "linux-64",
+  "c_stdlib": "sysroot",
+  "hdf5": "1.14.3",
+  "python": "3.12.* *_cpython",
+  "numpy": "2.0",
+  "channel_targets": "conda-forge main"
+}

@@ -1,0 +1,18 @@
+{
+  "arch": "x86_64",
+  "build": "h77fa898_7",
+  "build_number": 7,
+  "constrains": [
+    "libgomp 13.2.0 h77fa898_7"
+  ],
+  "depends": [
+    "_libgcc_mutex 0.1 conda_forge",
+    "_openmp_mutex >=4.5"
+  ],
+  "license": "GPL-3.0-only WITH GCC-exception-3.1",
+  "name": "libgcc-ng",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1715016057793,
+  "version": "13.2.0"
+}

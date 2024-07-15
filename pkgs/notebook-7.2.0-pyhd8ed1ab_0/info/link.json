@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "entry_points": [
+      "jupyter-notebook = notebook.app:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

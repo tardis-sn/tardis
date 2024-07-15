@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python !=3.0,!=3.1,!=3.2,!=3.3"
+    ],
+    "fn": "pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2",
+    "license": "BSD-3-Clause",
+    "md5": "457c2c8c08e54905d6954e79cb5b5db9",
+    "name": "pandocfilters",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "2bb9ba9857f4774b85900c2562f7e711d08dd48e2add9bee4e1612fbee27e16f",
+    "size": 11627,
+    "subdir": "noarch",
+    "timestamp": 1631603397334,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2",
+    "version": "1.5.0"
+}

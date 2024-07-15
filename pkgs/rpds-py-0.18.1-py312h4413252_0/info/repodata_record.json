@@ -1,0 +1,25 @@
+{
+    "arch": "x86_64",
+    "build": "py312h4413252_0",
+    "build_number": 0,
+    "build_string": "py312h4413252_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "rpds-py-0.18.1-py312h4413252_0.conda",
+    "license": "MIT",
+    "md5": "73da42918aaeb87d5618f82e2ac18d1f",
+    "name": "rpds-py",
+    "platform": "linux",
+    "sha256": "31891fb09afbe5263f0526388758f65e43ad9b7b3ccd75f791df55782667a8d1",
+    "size": 922258,
+    "subdir": "linux-64",
+    "timestamp": 1715090163612,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.18.1-py312h4413252_0.conda",
+    "version": "0.18.1"
+}

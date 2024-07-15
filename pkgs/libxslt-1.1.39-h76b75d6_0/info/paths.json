@@ -1,0 +1,581 @@
+{
+  "paths": [
+    {
+      "_path": "bin/xslt-config",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/libxslt_1701628586713/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+      "sha256": "0529b3c9e8977ae4c222e8b1341efcc46ef13f5902ae05c74bc0a66fdc7d64ab",
+      "size_in_bytes": 4097
+    },
+    {
+      "_path": "bin/xsltproc",
+      "path_type": "hardlink",
+      "sha256": "7a17b951d9cfbf698c083535bdfdeb2e3b0f1e5a91e5bedd90ca441d48c85b63",
+      "size_in_bytes": 36784
+    },
+    {
+      "_path": "include/libexslt/exslt.h",
+      "path_type": "hardlink",
+      "sha256": "7925b9b4c2407b049400d2ea93b00612253c6f605b08d4726ae1e77b3ee72925",
+      "size_in_bytes": 3114
+    },
+    {
+      "_path": "include/libexslt/exsltconfig.h",
+      "path_type": "hardlink",
+      "sha256": "2349b942eb7512abbba5ec966ac7912388ed3c2e443653a9e14b61c94608dd03",
+      "size_in_bytes": 1172
+    },
+    {
+      "_path": "include/libexslt/exsltexports.h",
+      "path_type": "hardlink",
+      "sha256": "d499bd2935e6d8551424867a57af94c39e721b404c50b5f7fe0a32c437762cbf",
+      "size_in_bytes": 1077
+    },
+    {
+      "_path": "include/libxslt/attributes.h",
+      "path_type": "hardlink",
+      "sha256": "a8ac337c67fbafcf5eb0b0bae6cf7a898256440facf84cecb36fd5e8c9a8d619",
+      "size_in_bytes": 957
+    },
+    {
+      "_path": "include/libxslt/documents.h",
+      "path_type": "hardlink",
+      "sha256": "9018a1807e69a91bc56a5866fdf3851ed2531614e905c9baf35c93e5dc60c1fc",
+      "size_in_bytes": 2704
+    },
+    {
+      "_path": "include/libxslt/extensions.h",
+      "path_type": "hardlink",
+      "sha256": "5b950cc89a943ffd73b7ab176749a07348002300c9ad9f208c1ca1cab5aabddf",
+      "size_in_bytes": 6899
+    },
+    {
+      "_path": "include/libxslt/extra.h",
+      "path_type": "hardlink",
+      "sha256": "e97dd6bb735d3edae5ab3f8aa28edd07eadc7279ecce2ea3df3839f7d8130728",
+      "size_in_bytes": 1640
+    },
+    {
+      "_path": "include/libxslt/functions.h",
+      "path_type": "hardlink",
+      "sha256": "7dce02663fbd29e047ccef7e59653f6cdaa6684640cf79fb34dc02948057935e",
+      "size_in_bytes": 1972
+    },
+    {
+      "_path": "include/libxslt/imports.h",
+      "path_type": "hardlink",
+      "sha256": "d7c9088e81aa7455d1eb709edd9b73c6c4e2615dd718aa5c8586a43143c3b942",
+      "size_in_bytes": 1840
+    },
+    {
+      "_path": "include/libxslt/keys.h",
+      "path_type": "hardlink",
+      "sha256": "d7abf6e55125b92ee3621820ea0605c15c6018c9fed5cb67961856593e117016",
+      "size_in_bytes": 1155
+    },
+    {
+      "_path": "include/libxslt/namespaces.h",
+      "path_type": "hardlink",
+      "sha256": "5687d29f62a49fe6b927244a0a66378cfa7b6a6432de7d3dbf3cb429442de2ad",
+      "size_in_bytes": 1666
+    },
+    {
+      "_path": "include/libxslt/numbersInternals.h",
+      "path_type": "hardlink",
+      "sha256": "120e60619e69de1d3f7b9c3223ad52fb413afc0ad5273bf4cabeb78fa054d9f7",
+      "size_in_bytes": 2019
+    },
+    {
+      "_path": "include/libxslt/pattern.h",
+      "path_type": "hardlink",
+      "sha256": "b49f813dfb3d51882264c3284196e18a3de0ef1569a58abb4ebacebb6e5e47b4",
+      "size_in_bytes": 2110
+    },
+    {
+      "_path": "include/libxslt/preproc.h",
+      "path_type": "hardlink",
+      "sha256": "0ff2e311d1e1b1dc819c402f7e59f0160a11e211946fbda480485792498f46cc",
+      "size_in_bytes": 896
+    },
+    {
+      "_path": "include/libxslt/security.h",
+      "path_type": "hardlink",
+      "sha256": "7d40f5732fd6c45093bd334017458e408538a7908d5a7d4b1c5c9925df85c795",
+      "size_in_bytes": 2652
+    },
+    {
+      "_path": "include/libxslt/templates.h",
+      "path_type": "hardlink",
+      "sha256": "6e7b7a26aba2e8a539a4d51d30d3db419919e5df954d6a82d1330690e955a08a",
+      "size_in_bytes": 2268
+    },
+    {
+      "_path": "include/libxslt/transform.h",
+      "path_type": "hardlink",
+      "sha256": "2024fb99e515d0e4c0c76ed668a56b2a3f9a52647d2d2a5335a38025dd944ad8",
+      "size_in_bytes": 6311
+    },
+    {
+      "_path": "include/libxslt/variables.h",
+      "path_type": "hardlink",
+      "sha256": "7100203dee1009c2b6b8a6d683b233fbda5e33dc561a6ee6dccea3426d2c8c80",
+      "size_in_bytes": 3143
+    },
+    {
+      "_path": "include/libxslt/xslt.h",
+      "path_type": "hardlink",
+      "sha256": "c26171d90df53ddf08ab6a61010a58f49dd041ab5bf255a0de0001b6a285804c",
+      "size_in_bytes": 1964
+    },
+    {
+      "_path": "include/libxslt/xsltInternals.h",
+      "path_type": "hardlink",
+      "sha256": "54aa6f94fc7881431861d9da4c5832cdcc1a99c191d28394a2ed22422f3e23d4",
+      "size_in_bytes": 57894
+    },
+    {
+      "_path": "include/libxslt/xsltconfig.h",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/libxslt_1701628586713/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+      "sha256": "0293f6278536b9025e38ceff5f9795ed0dd416060376bcdcd9e951c75d1cee65",
+      "size_in_bytes": 3911
+    },
+    {
+      "_path": "include/libxslt/xsltexports.h",
+      "path_type": "hardlink",
+      "sha256": "d7e96e1fed1b0888010252805e157e76a1c17f038040d0da9a261bc489537f49",
+      "size_in_bytes": 1124
+    },
+    {
+      "_path": "include/libxslt/xsltlocale.h",
+      "path_type": "hardlink",
+      "sha256": "a69c4612625f648260c1143308cd3fefba7d58d7a4116ab536b75866b425e081",
+      "size_in_bytes": 942
+    },
+    {
+      "_path": "include/libxslt/xsltutils.h",
+      "path_type": "hardlink",
+      "sha256": "d5e82e62047dfa378d395941524b476e86aaf952d7e895eb68ef344df6c044a3",
+      "size_in_bytes": 9085
+    },
+    {
+      "_path": "lib/cmake/libxslt/FindGcrypt.cmake",
+      "path_type": "hardlink",
+      "sha256": "7ed93c8e5b885a6d0b140d972c64753071529b6fb85abf3d6b8138a7576480ad",
+      "size_in_bytes": 1470
+    },
+    {
+      "_path": "lib/cmake/libxslt/libxslt-config.cmake",
+      "path_type": "hardlink",
+      "sha256": "75c861c98eee010c961036774b45744c2945c2873dcb3c6a48fe8c60ce81fbc9",
+      "size_in_bytes": 5271
+    },
+    {
+      "_path": "lib/libexslt.so",
+      "path_type": "softlink",
+      "sha256": "da5866b3b8f288708784cc6bd425b04c8b32b7491092f1612975125f73862449",
+      "size_in_bytes": 99296
+    },
+    {
+      "_path": "lib/libexslt.so.0",
+      "path_type": "softlink",
+      "sha256": "da5866b3b8f288708784cc6bd425b04c8b32b7491092f1612975125f73862449",
+      "size_in_bytes": 99296
+    },
+    {
+      "_path": "lib/libexslt.so.0.8.21",
+      "path_type": "hardlink",
+      "sha256": "da5866b3b8f288708784cc6bd425b04c8b32b7491092f1612975125f73862449",
+      "size_in_bytes": 99296
+    },
+    {
+      "_path": "lib/libxslt.so",
+      "path_type": "softlink",
+      "sha256": "2c63e3aa7b64f9579c006626cb714e807638259489ce60de45c76df6449be2a4",
+      "size_in_bytes": 300544
+    },
+    {
+      "_path": "lib/libxslt.so.1",
+      "path_type": "softlink",
+      "sha256": "2c63e3aa7b64f9579c006626cb714e807638259489ce60de45c76df6449be2a4",
+      "size_in_bytes": 300544
+    },
+    {
+      "_path": "lib/libxslt.so.1.1.39",
+      "file_mode": "binary",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/libxslt_1701628586713/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+      "sha256": "2c63e3aa7b64f9579c006626cb714e807638259489ce60de45c76df6449be2a4",
+      "size_in_bytes": 300544
+    },
+    {
+      "_path": "lib/pkgconfig/libexslt.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/libxslt_1701628586713/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+      "sha256": "91d7a858667cb1e74a26aae1aa4c73e52c3d45855a127c7b836933bc88cbe0bc",
+      "size_in_bytes": 510
+    },
+    {
+      "_path": "lib/pkgconfig/libxslt.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/libxslt_1701628586713/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+      "sha256": "e49a19909f05007219394dcafc97386599409650b5cdee6cd1601b23622f4ae4",
+      "size_in_bytes": 498
+    },
+    {
+      "_path": "lib/xsltConf.sh",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/libxslt_1701628586713/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+      "sha256": "bd0dfbac6092ff46ef61a7eb530b934f8d711766900d3895da89db33ea5ba282",
+      "size_in_bytes": 954
+    },
+    {
+      "_path": "share/aclocal/libxslt.m4",
+      "path_type": "hardlink",
+      "sha256": "d7bf2e8b1e2e88f77d6e2e414171e5cdae4b41e16f9df657c3e4c20ad633a28c",
+      "size_in_bytes": 8016
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/1.png",
+      "path_type": "hardlink",
+      "sha256": "d71cdb85fc4653c8f227c5abc863d553aedde2bbf93305e9eeb3b104b3d8d14a",
+      "size_in_bytes": 329
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/10.png",
+      "path_type": "hardlink",
+      "sha256": "fd5a21280c250817e23e66d1546608408fb2f57410b73041327f78568afdb357",
+      "size_in_bytes": 361
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/2.png",
+      "path_type": "hardlink",
+      "sha256": "009bf47671e175131cc41407621cd19a0063679039a1de87e4c6f041f3132bae",
+      "size_in_bytes": 353
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/3.png",
+      "path_type": "hardlink",
+      "sha256": "cdc9b53a380b848974f052e888879672a1e4d9b4fcc8eebb4dbea309c4b5e05f",
+      "size_in_bytes": 350
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/4.png",
+      "path_type": "hardlink",
+      "sha256": "4fb8be6aa2669f8a9e51dd5d39d19b1af260b950246d6ea9d9ed65d75dc5056e",
+      "size_in_bytes": 345
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/5.png",
+      "path_type": "hardlink",
+      "sha256": "3896cbacbe50eebb9046bad16ca91783e8a8744077972b3969c0b66cd2d80bbd",
+      "size_in_bytes": 348
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/6.png",
+      "path_type": "hardlink",
+      "sha256": "50ee85e5bf9f7dd02ae5435ef0a024e9a8e3da48c645adb6b3fefa1e08f7d57e",
+      "size_in_bytes": 355
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/7.png",
+      "path_type": "hardlink",
+      "sha256": "959986b33f56465e2acfe85004c168e0c0988b69ec726bf7f18f0936dacefa1f",
+      "size_in_bytes": 344
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/8.png",
+      "path_type": "hardlink",
+      "sha256": "d83c5780cc81d57722df16f34460fe9cca5a0a3671e46537ce2d1e4e8fb1c03d",
+      "size_in_bytes": 357
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/images/callouts/9.png",
+      "path_type": "hardlink",
+      "sha256": "906a831c2403ae43b66e8241b1b1babb2db03e3c9fbebd9ec642466995f5eaf5",
+      "size_in_bytes": 357
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/libxslt_tutorial.c",
+      "path_type": "hardlink",
+      "sha256": "65f98741635955304102e6006937d482cb5cc612869df4e8c4eda28ae5ff0b6a",
+      "size_in_bytes": 1864
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial/libxslttutorial.html",
+      "path_type": "hardlink",
+      "sha256": "16d7fd08b9d05e33b5db03dc2192e237b3ce6e0044a4899e4cec1c6f4fc7957b",
+      "size_in_bytes": 14637
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial2/libxslt_pipes.c",
+      "path_type": "hardlink",
+      "sha256": "a05b30fe073de334e31597b365dc2bae1ecbe7e23a41fd690cfcf7dc981df4da",
+      "size_in_bytes": 3676
+    },
+    {
+      "_path": "share/doc/libxslt/tutorial2/libxslt_pipes.html",
+      "path_type": "hardlink",
+      "sha256": "d508a3309e083177932a998b44a98586273bd66d9bdabb635c0e0b7ec77bda0f",
+      "size_in_bytes": 34731
+    },
+    {
+      "_path": "share/doc/libxslt/xsltproc.html",
+      "path_type": "hardlink",
+      "sha256": "9fcb341a59b91fdc7627bdc86c40c305bb39df7df26feaa1ffe364f04ae553c0",
+      "size_in_bytes": 16204
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/general.html",
+      "path_type": "hardlink",
+      "sha256": "3b3f1c269b9430a451ece38faa18e08504b0b7414cabd2825151a6f2e5957c24",
+      "size_in_bytes": 1631
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/home.png",
+      "path_type": "hardlink",
+      "sha256": "034c231513fea72bbc788109596f9b35db7b87e270c19c8b3dd22940fb35e6be",
+      "size_in_bytes": 654
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/index.html",
+      "path_type": "hardlink",
+      "sha256": "ebaf037d5e45a46382ad5b073e99226a0e549b489ca04dbe268047b8f0b0d93f",
+      "size_in_bytes": 1343
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/left.png",
+      "path_type": "hardlink",
+      "sha256": "9ae091e52c667a72d77eb6c41cd9afc7af60bc89bfc3023248b1dc3bb7dbf461",
+      "size_in_bytes": 459
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/libexslt-exslt.html",
+      "path_type": "hardlink",
+      "sha256": "611ac44a52b8b5dac6201bad1094995fd86111875b3b3ac5a84121e9beb6bfd4",
+      "size_in_bytes": 11824
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/libexslt-exsltexports.html",
+      "path_type": "hardlink",
+      "sha256": "ec3751d611465809ccd232fd716fc28c137f876398a9e17435c74dda368daaac",
+      "size_in_bytes": 3316
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/libexslt.devhelp2",
+      "path_type": "hardlink",
+      "sha256": "7233c14a4c2047a86e7ce1afb357883d65cd650a90f47555222287dfa2be318b",
+      "size_in_bytes": 3759
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/right.png",
+      "path_type": "hardlink",
+      "sha256": "17dcc0b175babc51d07f71382cf2083bcd4e9abfed091a45963f5ee982aa7b48",
+      "size_in_bytes": 472
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/style.css",
+      "path_type": "hardlink",
+      "sha256": "5f76bdb9ec782097f5cec4ebbda28bdf93aadf5d9c521d574bbb267350722481",
+      "size_in_bytes": 820
+    },
+    {
+      "_path": "share/gtk-doc/html/libexslt/up.png",
+      "path_type": "hardlink",
+      "sha256": "2af945c4c6ce288adfad716ae1747f37056f7bf67b8536d2e5e6b8e0ce84c872",
+      "size_in_bytes": 406
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/general.html",
+      "path_type": "hardlink",
+      "sha256": "563abc2eccee689a7213aa9951b76746faca896930672ed434184cae2367943f",
+      "size_in_bytes": 3365
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/home.png",
+      "path_type": "hardlink",
+      "sha256": "034c231513fea72bbc788109596f9b35db7b87e270c19c8b3dd22940fb35e6be",
+      "size_in_bytes": 654
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/index.html",
+      "path_type": "hardlink",
+      "sha256": "3eaced1a304f94145eba5a7b7d3b703a6fee0da424f7bd8948f2ba3bf085a186",
+      "size_in_bytes": 1552
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/left.png",
+      "path_type": "hardlink",
+      "sha256": "9ae091e52c667a72d77eb6c41cd9afc7af60bc89bfc3023248b1dc3bb7dbf461",
+      "size_in_bytes": 459
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-attributes.html",
+      "path_type": "hardlink",
+      "sha256": "756756c6f439422063fc30e057469521e531ff4ab0939d54061982fdc707e0c3",
+      "size_in_bytes": 5583
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-documents.html",
+      "path_type": "hardlink",
+      "sha256": "df2b5b0b8909cb706bd069fcb85c8c563e8345979e3da128fa4ededdeda7691f",
+      "size_in_bytes": 12808
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-extensions.html",
+      "path_type": "hardlink",
+      "sha256": "fadbe3ece40eba6de62c5dbeb8ec4554ed60bedf291dbdfce821228d348e317b",
+      "size_in_bytes": 44623
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-extra.html",
+      "path_type": "hardlink",
+      "sha256": "0ec473c198f4bc7587a399f440de4c3cf9e02f256788c84a88dff94697e855f4",
+      "size_in_bytes": 6672
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-functions.html",
+      "path_type": "hardlink",
+      "sha256": "6471a3bc9b0ad131e75df6af3d7d346089d2701b00ff5523d2fd820c6d0912c3",
+      "size_in_bytes": 10279
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-imports.html",
+      "path_type": "hardlink",
+      "sha256": "dfff949b29890914c0bea8adba1a1ba4d7ca0e153a2d09a860589a00164d4778",
+      "size_in_bytes": 9180
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-keys.html",
+      "path_type": "hardlink",
+      "sha256": "97a0674770d119ab438bab6462c3502aa3a74945bd0d978847d73d3c9d532002",
+      "size_in_bytes": 7625
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-namespaces.html",
+      "path_type": "hardlink",
+      "sha256": "8aa870207f5faa6baf0a511aa68a8620d4dda6fcf13b9d04a9e9b902f1824b44",
+      "size_in_bytes": 11867
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-numbersInternals.html",
+      "path_type": "hardlink",
+      "sha256": "b1a2a86bfc0d72d578084554b02243b8663290839afd43889ff5e0e657df940c",
+      "size_in_bytes": 4509
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-pattern.html",
+      "path_type": "hardlink",
+      "sha256": "49e10f9902eaf69b36ea37008607eb398da087e67d841a0c3cd15d18d599674a",
+      "size_in_bytes": 13965
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-preproc.html",
+      "path_type": "hardlink",
+      "sha256": "517ff4ef6c3d20433edd73cf38ecc81e0459882a41b1e38ea1c1997321346f85",
+      "size_in_bytes": 5149
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-security.html",
+      "path_type": "hardlink",
+      "sha256": "0bcf5fd85b0410e5207d2d00ee78c7db837b1d503d7f3ba14793e273e3209585",
+      "size_in_bytes": 16238
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-templates.html",
+      "path_type": "hardlink",
+      "sha256": "977bafa035713afe9c1bd9d6efb6ac901cf20739b32afba215266ab5496e5c06",
+      "size_in_bytes": 16972
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-transform.html",
+      "path_type": "hardlink",
+      "sha256": "c42109514c81e51d674a5bb0288c8116f64ac43b3e11df9b3e331500cdc3ddf6",
+      "size_in_bytes": 47140
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-variables.html",
+      "path_type": "hardlink",
+      "sha256": "75a27fca00030111b1d807ab0f96394189b346d17f763fa55e5e547b9dc690ef",
+      "size_in_bytes": 19160
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-xslt.html",
+      "path_type": "hardlink",
+      "sha256": "5715a0d8529dd4f6909fc9f1a3b553e4e349d7ff8013c5d17d829ca5b1f7a163",
+      "size_in_bytes": 5524
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-xsltInternals.html",
+      "path_type": "hardlink",
+      "sha256": "221d0346c86f2686f4f73ddbd380aebf65cba3e6118328c7ff5a416093f5b8be",
+      "size_in_bytes": 125341
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-xsltexports.html",
+      "path_type": "hardlink",
+      "sha256": "8391ad79a68784c9c34f216f64319510713b38d10a329e0695d681ae2ef79b27",
+      "size_in_bytes": 3523
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-xsltlocale.html",
+      "path_type": "hardlink",
+      "sha256": "36ddb95d2478d655f8fbf3293e411bd77d6f5d462dc7ea0479077489fc645e8e",
+      "size_in_bytes": 6202
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt-xsltutils.html",
+      "path_type": "hardlink",
+      "sha256": "9210373ec5a8b0c8ff283990e77fe93919ef3b34638a95e03677e1c403fbefeb",
+      "size_in_bytes": 48815
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/libxslt.devhelp2",
+      "path_type": "hardlink",
+      "sha256": "ed36286750aecebe04d8a7a1bd8e499022ec2777e6617bf2161933e28c5903bd",
+      "size_in_bytes": 59942
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/right.png",
+      "path_type": "hardlink",
+      "sha256": "17dcc0b175babc51d07f71382cf2083bcd4e9abfed091a45963f5ee982aa7b48",
+      "size_in_bytes": 472
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/style.css",
+      "path_type": "hardlink",
+      "sha256": "5f76bdb9ec782097f5cec4ebbda28bdf93aadf5d9c521d574bbb267350722481",
+      "size_in_bytes": 820
+    },
+    {
+      "_path": "share/gtk-doc/html/libxslt/up.png",
+      "path_type": "hardlink",
+      "sha256": "2af945c4c6ce288adfad716ae1747f37056f7bf67b8536d2e5e6b8e0ce84c872",
+      "size_in_bytes": 406
+    },
+    {
+      "_path": "share/man/man1/xsltproc.1",
+      "path_type": "hardlink",
+      "sha256": "0d86e4c42065fda1c0e14f880a61cb8b0e5c15b7460cb06300940fdfa4e1666b",
+      "size_in_bytes": 10028
+    },
+    {
+      "_path": "share/man/man3/libexslt.3",
+      "path_type": "hardlink",
+      "sha256": "b89c45c0f756a60b51aece92c58b8fa9ba27ed93bf14a1cf14aa7b99ec43fecb",
+      "size_in_bytes": 6521
+    },
+    {
+      "_path": "share/man/man3/libxslt.3",
+      "path_type": "hardlink",
+      "sha256": "9618580b02bb421fddda9a292920c55b71359fdc901e260286121c119e4b1085",
+      "size_in_bytes": 830
+    }
+  ],
+  "paths_version": 1
+}

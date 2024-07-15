@@ -1,0 +1,55 @@
+# This file created by conda-build 24.5.1
+# ------------------------------------------------
+
+package:
+  name: typing-extensions
+  version: 4.12.1
+source:
+  sha256: 915f5e35ff76f56588223f15fdd5938f9a1cf9195c0de25130c627e4d597f6d1
+  url: https://pypi.io/packages/source/t/typing_extensions/typing_extensions-4.12.1.tar.gz
+build:
+  noarch: python
+  number: 0
+  string: hd8ed1ab_0
+requirements:
+  build: []
+  run:
+    - typing_extensions 4.12.1 pyha770c72_0
+test:
+  imports:
+    - typing_extensions
+about:
+  description: 'The typing module was added to the standard library in Python 3.5,
+    but
+
+    many new features have been added to the module since then.
+
+    This means users of older Python versions who are unable to upgrade will not be
+
+    able to take advantage of new types added to the ``typing`` module, such as
+
+    typing.Protocol or typing.TypedDict.
+
+
+    The typing_extensions module contains both backports of these changes
+
+    as well as experimental types that will eventually be added to the typing
+
+    module, such as Protocol.
+
+    '
+  dev_url: https://github.com/python/typing_extensions
+  home: https://github.com/python/typing_extensions
+  license: PSF-2.0
+  license_family: PSF
+  license_file: LICENSE
+  summary: Backported and Experimental Type Hints for Python
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240601.2.1
+  recipe-maintainers:
+    - djsutherland
+    - synapticarbors
+  remote_url: https://github.com/conda-forge/typing_extensions-feedstock
+  sha: afb3a750dd1d26ee9dd2448ed9dec7ea320805be

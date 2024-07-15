@@ -1,0 +1,28 @@
+{
+    "arch": "x86_64",
+    "build": "hc051c1a_0",
+    "build_number": 0,
+    "build_string": "hc051c1a_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "icu >=73.2,<74.0a0",
+        "libgcc-ng >=12",
+        "libiconv >=1.17,<2.0a0",
+        "libzlib >=1.2.13,<1.3.0a0",
+        "xz >=5.2.6,<6.0a0"
+    ],
+    "fn": "libxml2-2.12.7-hc051c1a_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "5d801a4906adc712d480afc362623b59",
+    "name": "libxml2",
+    "platform": "linux",
+    "sha256": "2d8c402687f7045295d78d66688b140e3310857c7a070bba7547a3b9fcad5e7d",
+    "size": 705857,
+    "subdir": "linux-64",
+    "timestamp": 1715606286167,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.12.7-hc051c1a_0.conda",
+    "version": "2.12.7"
+}

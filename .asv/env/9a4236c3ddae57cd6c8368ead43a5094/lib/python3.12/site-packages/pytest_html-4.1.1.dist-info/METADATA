@@ -1,0 +1,92 @@
+Metadata-Version: 2.1
+Name: pytest-html
+Version: 4.1.1
+Summary: pytest plugin for generating HTML reports
+Project-URL: Homepage, https://github.com/pytest-dev/pytest-html
+Project-URL: Tracker, https://github.com/pytest-dev/pytest-html/issues
+Project-URL: Source, https://github.com/pytest-dev/pytest-html
+Author-email: Dave Hunt <dhunt@mozilla.com>, Jim Brannlund <jimbrannlund@fastmail.com>
+License-Expression: MPL-2.0
+License-File: LICENSE
+Keywords: html,pytest,report
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: Pytest
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Software Development :: Quality Assurance
+Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: Utilities
+Requires-Python: >=3.8
+Requires-Dist: jinja2>=3.0.0
+Requires-Dist: pytest-metadata>=2.0.0
+Requires-Dist: pytest>=7.0.0
+Provides-Extra: docs
+Requires-Dist: pip-tools>=6.13.0; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: assertpy>=1.1; extra == 'test'
+Requires-Dist: beautifulsoup4>=4.11.1; extra == 'test'
+Requires-Dist: black>=22.1.0; extra == 'test'
+Requires-Dist: flake8>=4.0.1; extra == 'test'
+Requires-Dist: pre-commit>=2.17.0; extra == 'test'
+Requires-Dist: pytest-mock>=3.7.0; extra == 'test'
+Requires-Dist: pytest-rerunfailures>=11.1.2; extra == 'test'
+Requires-Dist: pytest-xdist>=2.4.0; extra == 'test'
+Requires-Dist: selenium>=4.3.0; extra == 'test'
+Requires-Dist: tox>=3.24.5; extra == 'test'
+Description-Content-Type: text/x-rst
+
+pytest-html
+===========
+
+pytest-html is a plugin for `pytest <http://pytest.org>`_ that generates a HTML report for test results.
+
+.. image:: https://img.shields.io/badge/license-MPL%202.0-blue.svg
+   :target: https://github.com/pytest-dev/pytest-html/blob/master/LICENSE
+   :alt: License
+.. image:: https://img.shields.io/pypi/v/pytest-html.svg
+   :target: https://pypi.python.org/pypi/pytest-html/
+   :alt: PyPI
+.. image:: https://img.shields.io/conda/vn/conda-forge/pytest-html.svg
+   :target: https://anaconda.org/conda-forge/pytest-html
+   :alt: Conda Forge
+.. image:: https://github.com/pytest-dev/pytest-html/workflows/gh/badge.svg
+   :target: https://github.com/pytest-dev/pytest-html/actions
+   :alt: CI
+.. image:: https://img.shields.io/requires/github/pytest-dev/pytest-html.svg
+   :target: https://requires.io/github/pytest-dev/pytest-html/requirements/?branch=master
+   :alt: Requirements
+.. image:: https://codecov.io/gh/pytest-dev/pytest-html/branch/master/graph/badge.svg?token=Y0myNKkdbi
+   :target: https://codecov.io/gh/pytest-dev/pytest-html
+   :alt: Codecov
+
+Resources
+---------
+
+- `Documentation <https://pytest-html.readthedocs.io/en/latest/>`_
+- `Release Notes <https://pytest-html.readthedocs.io/en/latest/changelog.html>`_
+- `Issue Tracker <http://github.com/pytest-dev/pytest-html/issues>`_
+- `Code <http://github.com/pytest-dev/pytest-html/>`_
+
+Contributing
+------------
+
+We welcome contributions.
+
+To learn more, see `Development <https://pytest-html.readthedocs.io/en/latest/development.html>`_
+
+Screenshots
+-----------
+
+.. image:: https://cloud.githubusercontent.com/assets/122800/11952194/62daa964-a88e-11e5-9745-2aa5b714c8bb.png
+   :target: https://cloud.githubusercontent.com/assets/122800/11951695/f371b926-a88a-11e5-91c2-499166776bd3.png
+   :alt: Enhanced HTML report

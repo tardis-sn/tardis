@@ -1,0 +1,28 @@
+{
+    "arch": "x86_64",
+    "build": "hb9ae30d_0",
+    "build_number": 0,
+    "build_string": "hb9ae30d_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libglib >=2.80.2,<3.0a0",
+        "libjpeg-turbo >=3.0.0,<4.0a0",
+        "libpng >=1.6.43,<1.7.0a0",
+        "libtiff >=4.6.0,<4.7.0a0"
+    ],
+    "fn": "gdk-pixbuf-2.42.12-hb9ae30d_0.conda",
+    "license": "LGPL-2.1-or-later",
+    "license_family": "LGPL",
+    "md5": "201db6c2d9a3c5e46573ac4cb2e92f4f",
+    "name": "gdk-pixbuf",
+    "platform": "linux",
+    "sha256": "d5283b95a8d49dcd88d29b360d8b38694aaa905d968d156d72ab71d32b38facb",
+    "size": 528149,
+    "subdir": "linux-64",
+    "timestamp": 1715782983957,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/gdk-pixbuf-2.42.12-hb9ae30d_0.conda",
+    "version": "2.42.12"
+}

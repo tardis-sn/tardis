@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "pytest >=7.0.0,<9.0.0",
+        "python >=3.8.1,<4.0"
+    ],
+    "fn": "syrupy-4.6.1-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "md5": "7a566d6e1b00b1a521ef8db68aa95f4c",
+    "name": "syrupy",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "e9833ae370284f5cbdb62078d7db52a133498d44a3d30770c6914589de94a873",
+    "size": 43681,
+    "subdir": "noarch",
+    "timestamp": 1707319626819,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/syrupy-4.6.1-pyhd8ed1ab_0.conda",
+    "version": "4.6.1"
+}

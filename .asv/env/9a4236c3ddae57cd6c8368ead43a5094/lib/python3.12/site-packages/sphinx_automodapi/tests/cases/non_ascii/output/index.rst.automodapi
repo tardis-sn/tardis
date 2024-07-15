@@ -1,0 +1,34 @@
+Ceçi est un exemple qui inclus des charactères non-ASCII
+
+
+sphinx_automodapi.tests.example_module.functions Module
+-------------------------------------------------------
+
+.. automodule:: sphinx_automodapi.tests.example_module.functions
+
+Functions
+^^^^^^^^^
+
+.. automodsumm:: sphinx_automodapi.tests.example_module.functions
+    :functions-only:
+    :toctree: api
+
+
+sphinx_automodapi.tests.example_module.nonascii Module
+------------------------------------------------------
+
+.. automodule:: sphinx_automodapi.tests.example_module.nonascii
+
+Classes
+^^^^^^^
+
+.. automodsumm:: sphinx_automodapi.tests.example_module.nonascii
+    :classes-only:
+    :toctree: api
+
+Class Inheritance Diagram
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automod-diagram:: sphinx_automodapi.tests.example_module.nonascii
+    :private-bases:
+    :parts: 1

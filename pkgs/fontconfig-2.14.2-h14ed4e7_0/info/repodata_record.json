@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "h14ed4e7_0",
+    "build_number": 0,
+    "build_string": "h14ed4e7_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "expat >=2.5.0,<3.0a0",
+        "freetype >=2.12.1,<3.0a0",
+        "libgcc-ng >=12",
+        "libuuid >=2.32.1,<3.0a0",
+        "libzlib >=1.2.13,<1.3.0a0"
+    ],
+    "fn": "fontconfig-2.14.2-h14ed4e7_0.conda",
+    "license": "MIT",
+    "md5": "0f69b688f52ff6da70bccb7ff7001d1d",
+    "name": "fontconfig",
+    "platform": "linux",
+    "sha256": "155d534c9037347ea7439a2c6da7c24ffec8e5dd278889b4c57274a1d91e0a83",
+    "size": 272010,
+    "subdir": "linux-64",
+    "timestamp": 1674828850194,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/fontconfig-2.14.2-h14ed4e7_0.conda",
+    "version": "2.14.2"
+}

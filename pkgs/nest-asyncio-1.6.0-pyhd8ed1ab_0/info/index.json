@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.5"
+  ],
+  "license": "BSD-2-Clause",
+  "license_family": "BSD",
+  "name": "nest-asyncio",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1705850780510,
+  "version": "1.6.0"
+}

@@ -1,0 +1,185 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/snakeviz-2.2.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/snakeviz-2.2.0.dist-info/LICENSE.txt",
+      "path_type": "hardlink",
+      "sha256": "aa6731166c2ddd8d28cfa24923ac7d05968ba95218a4c98c55e496080e461086",
+      "size_in_bytes": 1435
+    },
+    {
+      "_path": "site-packages/snakeviz-2.2.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "0b744008d00768428aa4a1ed5a09126986667e5b4095103d9bb02d3a864154e6",
+      "size_in_bytes": 3567
+    },
+    {
+      "_path": "site-packages/snakeviz-2.2.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "395455d2495b1898c5eca72bfe0ff02d63c21c9fb5456f0b3b99c557613c7097",
+      "size_in_bytes": 2980
+    },
+    {
+      "_path": "site-packages/snakeviz-2.2.0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/snakeviz-2.2.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "6bece9151209cceab941fba10736e1880d5e1d3ccd0899fc39d46f85d357d119",
+      "size_in_bytes": 110
+    },
+    {
+      "_path": "site-packages/snakeviz-2.2.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "691080823a73ef2cc5c740088005f36db126f949eb244f7f60e18b4d5826de69",
+      "size_in_bytes": 104
+    },
+    {
+      "_path": "site-packages/snakeviz-2.2.0.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "ac9cfefb4f3989e3a929ff9e4e9ca91e802137414a699948756eb5a4b742712b",
+      "size_in_bytes": 47
+    },
+    {
+      "_path": "site-packages/snakeviz-2.2.0.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "d14e7db289a39affd6ed085de95ebcfd4dafaaf441e350739c6239bf6df578e8",
+      "size_in_bytes": 9
+    },
+    {
+      "_path": "site-packages/snakeviz/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "1453bec64d00e63bc7b35747e860e4df0ae6ffbdc49e7e6c6c54676ab381c0b2",
+      "size_in_bytes": 67
+    },
+    {
+      "_path": "site-packages/snakeviz/__main__.py",
+      "path_type": "hardlink",
+      "sha256": "4252e5aedaaa069839295ad00eff4804b5f8d29afeb823926df243eabd5c565e",
+      "size_in_bytes": 192
+    },
+    {
+      "_path": "site-packages/snakeviz/cli.py",
+      "path_type": "hardlink",
+      "sha256": "dad49c27c5177a83d447c482c01902f7596bff2b3917c4fb29bf5ec7d23403c1",
+      "size_in_bytes": 5806
+    },
+    {
+      "_path": "site-packages/snakeviz/ipymagic.py",
+      "path_type": "hardlink",
+      "sha256": "4330d12b24b84dccbe34b9947e8ff331fa2d24b0e8339f08a172fd8cb3ba033f",
+      "size_in_bytes": 7008
+    },
+    {
+      "_path": "site-packages/snakeviz/main.py",
+      "path_type": "hardlink",
+      "sha256": "5c92dd00c318394dc9baaf04cccaea7c1b43f0f58f4e3f8143d5fa09417a8982",
+      "size_in_bytes": 2057
+    },
+    {
+      "_path": "site-packages/snakeviz/static/drawsvg.js",
+      "path_type": "hardlink",
+      "sha256": "d833006d98c52dfdf788e80556f5f92c54bf8b6aec8e99e2b38b4f625061dd23",
+      "size_in_bytes": 11369
+    },
+    {
+      "_path": "site-packages/snakeviz/static/favicon.ico",
+      "path_type": "hardlink",
+      "sha256": "83ef155808e9843c510e6a4d2a2ff02c349db977a2f47bc9009eb6ee38120ddd",
+      "size_in_bytes": 1406
+    },
+    {
+      "_path": "site-packages/snakeviz/static/images/sort_asc.png",
+      "path_type": "hardlink",
+      "sha256": "ee6010bb0a8d17e58307136a0fbf0b196d949ab6c50eb66d1ff8f0a7d2a4d48b",
+      "size_in_bytes": 1118
+    },
+    {
+      "_path": "site-packages/snakeviz/static/images/sort_both.png",
+      "path_type": "hardlink",
+      "sha256": "624f0a471a2535c4754e1f6974b0e64ee70d6907738346e2a11d0bff20258b8c",
+      "size_in_bytes": 1136
+    },
+    {
+      "_path": "site-packages/snakeviz/static/images/sort_desc.png",
+      "path_type": "hardlink",
+      "sha256": "26da8e7eaf746a08dec2928977be21aa67212484540a12042b86aa2d904b80e8",
+      "size_in_bytes": 1127
+    },
+    {
+      "_path": "site-packages/snakeviz/static/snakeviz.css",
+      "path_type": "hardlink",
+      "sha256": "3e8f73d1daaaa275cb01a85a36883ba6b490293cd8336f577016a8180bfdda59",
+      "size_in_bytes": 5077
+    },
+    {
+      "_path": "site-packages/snakeviz/static/snakeviz.js",
+      "path_type": "hardlink",
+      "sha256": "502f232ec816ac8d522a47b7e3e99dc709d4faa6f64aa37a1c08a2eeafb3c6e7",
+      "size_in_bytes": 6756
+    },
+    {
+      "_path": "site-packages/snakeviz/static/vendor/d3.v3.min.js",
+      "path_type": "hardlink",
+      "sha256": "76c39718d1c0a3fb321676b3b7e29306c0907919a5716d5728bd1b08ae0169e7",
+      "size_in_bytes": 151725
+    },
+    {
+      "_path": "site-packages/snakeviz/static/vendor/immutable.min.js",
+      "path_type": "hardlink",
+      "sha256": "d77245cada7eb63f23b31afa1903952c281c61f314a363dac388d5ae75cb50f1",
+      "size_in_bytes": 57032
+    },
+    {
+      "_path": "site-packages/snakeviz/static/vendor/jquery-3.2.1.min.js",
+      "path_type": "hardlink",
+      "sha256": "87083882cc6015984eb0411a99d3981817f5dc5c90ba24f0940420c5548d82de",
+      "size_in_bytes": 86659
+    },
+    {
+      "_path": "site-packages/snakeviz/static/vendor/jquery.dataTables.min.css",
+      "path_type": "hardlink",
+      "sha256": "4e7b49da1230ca261cf062215b322df8fbd805f404e157f12679fe79ae64709b",
+      "size_in_bytes": 14112
+    },
+    {
+      "_path": "site-packages/snakeviz/static/vendor/jquery.dataTables.min.js",
+      "path_type": "hardlink",
+      "sha256": "8f4d3b47b47a8a31163dad5d7fb15e27a0056d07b0c34c6089fd9225664e847c",
+      "size_in_bytes": 83268
+    },
+    {
+      "_path": "site-packages/snakeviz/static/vendor/lodash.min.js",
+      "path_type": "hardlink",
+      "sha256": "f04e9051c160d4a4e7a4453c4c51a1a53187c397c9a81f6f0a6b373a10182eac",
+      "size_in_bytes": 71419
+    },
+    {
+      "_path": "site-packages/snakeviz/stats.py",
+      "path_type": "hardlink",
+      "sha256": "bfecb89c382aec9dea21ea891e079f111f4e83db14d1ad2eddec6d0e0340efce",
+      "size_in_bytes": 2175
+    },
+    {
+      "_path": "site-packages/snakeviz/templates/dir.html",
+      "path_type": "hardlink",
+      "sha256": "1a08c8414a98963c8359373d46c29085306f0b915a61adc968a10676137871ff",
+      "size_in_bytes": 1757
+    },
+    {
+      "_path": "site-packages/snakeviz/templates/viz.html",
+      "path_type": "hardlink",
+      "sha256": "a55669bbfbe913abf07e12e50705843f1eb389568a9abecb1185a786a1187cfc",
+      "size_in_bytes": 11485
+    }
+  ],
+  "paths_version": 1
+}

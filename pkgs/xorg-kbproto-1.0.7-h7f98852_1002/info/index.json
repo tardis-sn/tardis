@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "h7f98852_1002",
+  "build_number": 1002,
+  "depends": [
+    "libgcc-ng >=9.3.0"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "xorg-kbproto",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1610027759842,
+  "version": "1.0.7"
+}

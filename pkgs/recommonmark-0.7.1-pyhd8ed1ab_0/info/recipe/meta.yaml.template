@@ -1,0 +1,63 @@
+{% set version = "0.7.1" %}
+
+package:
+  name: recommonmark
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/r/recommonmark/recommonmark-{{ version }}.tar.gz
+  sha256: bdb4db649f2222dcd8d2d844f0006b958d627f732415d399791ee436a3686d67
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  entry_points:
+    - cm2html = recommonmark.scripts:cm2html
+    - cm2latex = recommonmark.scripts:cm2latex
+    - cm2man = recommonmark.scripts:cm2man
+    - cm2pseudoxml = recommonmark.scripts:cm2pseudoxml
+    - cm2xetex = recommonmark.scripts:cm2xetex
+    - cm2xml = recommonmark.scripts:cm2xml
+
+requirements:
+  host:
+    - python >=3
+    - pip
+  run:
+    - python >=3
+    - commonmark >=0.8.1
+    - docutils >=0.11
+    - sphinx >=1.3.1
+
+test:
+  imports:
+    - recommonmark
+  commands:
+    - pip check
+    - cm2html --help
+    - cm2latex --help
+    - cm2man --help
+    - cm2pseudoxml --help
+    - cm2xetex --help
+    - cm2xml --help
+  requires:
+    - pip
+
+about:
+  home: https://github.com/rtfd/recommonmark
+  license: MIT
+  license_family: MIT
+  license_file: license.md
+  summary: A docutils-compatibility bridge to CommonMark
+
+  description: |
+    A docutils-compatibility bridge to CommonMark.
+    This allows you to write CommonMark inside of Docutils & Sphinx projects.
+  doc_url: http://recommonmark.readthedocs.org
+  dev_url: https://github.com/rtfd/recommonmark
+
+extra:
+  recipe-maintainers:
+    - CJ-Wright
+    - ocefpaf

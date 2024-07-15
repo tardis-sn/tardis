@@ -1,0 +1,24 @@
+diff --git a/lib/meson.build b/lib/meson.build
+index 573d47f..19a219d 100644
+--- a/lib/meson.build
++++ b/lib/meson.build
+@@ -78,6 +78,7 @@ libfribidi = library('fribidi',
+   c_args: ['-DHAVE_CONFIG_H'] + visibility_args,
+   version: libversion,
+   soversion: soversion,
++  install_rpath: join_paths(get_option('prefix'), get_option('libdir')),
+   install: true)
+ 
+ libfribidi_dep = declare_dependency(link_with: libfribidi,
+diff --git a/bin/meson.build b/bin/meson.build
+index 66326d8..c1904c9 100644
+--- a/bin/meson.build
++++ b/bin/meson.build
+@@ -3,6 +3,7 @@ fribidi = executable('fribidi',
+   c_args: ['-DHAVE_CONFIG_H'] + visibility_args,
+   include_directories: incs,
+   link_with: libfribidi,
++  install_rpath: join_paths(get_option('prefix'), get_option('libdir')),
+   install: true)
+ 
+ executable('fribidi-benchmark',

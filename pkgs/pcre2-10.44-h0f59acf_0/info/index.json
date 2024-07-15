@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "h0f59acf_0",
+  "build_number": 0,
+  "depends": [
+    "bzip2 >=1.0.8,<2.0a0",
+    "libgcc-ng >=12",
+    "libzlib >=1.3.1,<2.0a0"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "pcre2",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1718466128333,
+  "version": "10.44"
+}

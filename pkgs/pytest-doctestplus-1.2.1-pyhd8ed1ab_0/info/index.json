@@ -1,0 +1,20 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "packaging >=17.0",
+    "pip",
+    "pytest >=4.6",
+    "python >=3.8",
+    "setuptools >=30.3"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "pytest-doctestplus",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1710135263353,
+  "version": "1.2.1"
+}

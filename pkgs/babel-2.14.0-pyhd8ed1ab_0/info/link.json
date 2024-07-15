@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "entry_points": [
+      "pybabel = babel.messages.frontend:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

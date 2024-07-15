@@ -1,0 +1,14 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=${prefix}
+symbol_prefix=
+libdir=${exec_prefix}/lib
+sharedlibdir=${libdir}
+includedir=${prefix}/include
+
+Name: zlib-ng
+Description: zlib-ng compression library
+Version: 2.2.0
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz-ng
+Cflags: -I${includedir} -DWITH_GZFILEOP

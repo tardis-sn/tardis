@@ -1,0 +1,23 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "jsonschema-with-format-nongpl >=4.18.0",
+    "python >=3.8",
+    "python-json-logger >=2.0.4",
+    "pyyaml >=5.3",
+    "referencing",
+    "rfc3339-validator",
+    "rfc3986-validator >=0.1.1",
+    "traitlets >=5.3"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "jupyter_events",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1710805759187,
+  "version": "0.10.0"
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "$defs": {
+        "foo": {
+          "$id": "http://example.org/foo",
+          "$defs": {
+            "bar": {
+              "$anchor": "baz",
+              "quux": "eggs"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/#/$defs/foo",
+      "target": {
+        "$id": "http://example.org/foo",
+        "$defs": { "bar": { "$anchor": "baz", "quux": "eggs" } }
+      },
+      "then": {
+        "ref": "#baz",
+        "target": { "$anchor": "baz", "quux": "eggs" }
+      }
+    },
+    {
+      "ref": "http://example.com/#/$defs/foo",
+      "target": {
+        "$id": "http://example.org/foo",
+        "$defs": { "bar": { "$anchor": "baz", "quux": "eggs" } }
+      },
+      "then": {
+        "ref": "http://example.org/foo#baz",
+        "target": { "$anchor": "baz", "quux": "eggs" }
+      }
+    },
+    {
+      "ref": "http://example.com/#baz",
+      "error": true
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+    "arch": "x86_64",
+    "build": "py312h06a4308_0",
+    "build_number": 0,
+    "build_string": "py312h06a4308_0",
+    "channel": "https://repo.anaconda.com/pkgs/main/linux-64",
+    "constrains": [],
+    "depends": [
+        "ptyprocess",
+        "python >=3.12,<3.13.0a0",
+        "tornado >=6.1.0"
+    ],
+    "fn": "terminado-0.17.1-py312h06a4308_0.conda",
+    "license": "BSD-2-Clause",
+    "license_family": "BSD",
+    "md5": "4bc05c7f0c2e64b82882f774752a0263",
+    "name": "terminado",
+    "platform": "linux",
+    "sha256": "d5b399b7c76c48185ff088c13dd9f3d6c8e3552e3e184f0dd446179a92f21005",
+    "size": 38605,
+    "subdir": "linux-64",
+    "timestamp": 1698874969755,
+    "track_features": "",
+    "url": "https://repo.anaconda.com/pkgs/main/linux-64/terminado-0.17.1-py312h06a4308_0.conda",
+    "version": "0.17.1"
+}

@@ -1,0 +1,4 @@
+{
+  "channel_targets": "conda-forge main",
+  "python": "3.6.* *_cpython"
+}

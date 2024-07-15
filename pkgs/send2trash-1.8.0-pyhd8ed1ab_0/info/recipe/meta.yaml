@@ -1,0 +1,67 @@
+# This file created by conda-build 3.21.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Aug  9 12:12:32 2021
+# ------------------------------------------------
+
+package:
+  name: send2trash
+  version: 1.8.0
+source:
+  sha256: d2c24762fd3759860a0aff155e45871447ea58d2be6bdd39b5c8f966a0c99c2d
+  url: https://pypi.io/packages/source/S/Send2Trash/Send2Trash-1.8.0.tar.gz
+build:
+  entry_points:
+    - send2trash = send2trash.__main__:main
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/send2trash_1628511208346/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - ca-certificates 2021.5.30 ha878542_0
+    - certifi 2021.5.30 py39hf3d152e_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.3 h58526e2_2
+    - libgcc-ng 11.1.0 hc902ee8_8
+    - libgomp 11.1.0 hc902ee8_8
+    - libstdcxx-ng 11.1.0 h56837e0_8
+    - ncurses 6.2 h58526e2_4
+    - openssl 1.1.1k h7f98852_0
+    - pip 21.2.3 pyhd8ed1ab_0
+    - python 3.9.6 h49503c6_1_cpython
+    - python_abi 3.9 2_cp39
+    - readline 8.1 h46c0cb4_0
+    - setuptools 49.6.0 py39hf3d152e_3
+    - sqlite 3.36.0 h9cd32fc_0
+    - tk 8.6.10 h21135ba_1
+    - tzdata 2021a he74cb21_1
+    - wheel 0.36.2 pyhd3deb0d_0
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h516909a_1010
+  run:
+    - python >=3.6
+test:
+  commands:
+    - pip check
+    - send2trash -h
+    - echo test > test.txt
+    - python -c "from send2trash import *; send2trash('test.txt')"
+  imports:
+    - send2trash
+  requires:
+    - pip
+about:
+  home: https://github.com/arsenetar/send2trash
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Python library to natively send files to Trash (or Recycle bin) on all
+    platforms.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - bollwyvl

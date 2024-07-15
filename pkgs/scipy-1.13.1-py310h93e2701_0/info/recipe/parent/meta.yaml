@@ -1,0 +1,293 @@
+{% set version = "1.13.1" %}
+
+{% if numpy is not defined %}
+{% set numpy = "2.0.0" %}
+{% endif %}
+{% set numpy_minor = numpy.split(".")[1] | int %}
+
+package:
+  name: scipy-split
+  version: {{ version }}
+
+source:
+  # The sdist distributed by scipy contains pre-compiled pythran sources,
+  # as well as the relevant submodules; by taking the tarball from github
+  # we can compile pythran ourselves (or not), but manually need to include
+  # the submodules (not in tarball due to dear-github/dear-github#214)
+  - url: https://github.com/scipy/scipy/archive/refs/tags/v{{ version }}.tar.gz
+    sha256: c05838ab4ba02b1e8329efbe2d12124ed209c68aa9df42169bab0f17ebcfc215
+  # https://github.com/scipy/scipy/tree/v{{ version }}/scipy/_lib
+  - git_url: https://github.com/data-apis/array-api-compat.git
+    git_rev: 05548f0281f13e7cb6a293a422ef8c1a90021413
+    folder: scipy/_lib/array_api_compat
+  - git_url: https://github.com/boostorg/math.git
+    git_rev: 1a7be5d895d266a870af7a6ed258e5bcf9838277
+    folder: scipy/_lib/boost_math
+  - git_url: https://github.com/scipy/highs.git
+    git_rev: 4a122958a82e67e725d08153e099efe4dad099a2
+    folder: scipy/_lib/highs
+  - git_url: https://github.com/scipy/pocketfft.git
+    git_rev: 9367142748fcc9696a1c9e5a99b76ed9897c9daa
+    folder: scipy/_lib/pocketfft
+  - git_url: https://github.com/scipy/unuran.git
+    git_rev: 21810c856880bb2f1b3071c8ac4aaf634983b338
+    folder: scipy/_lib/unuran
+  # https://github.com/scipy/scipy/tree/v{{ version }}/scipy/sparse/linalg/_propack
+  - git_url: https://github.com/scipy/PROPACK.git
+    git_rev: a9ed9736ad52ff76ae1777922b700b13ca2bf0ae
+    folder: scipy/sparse/linalg/_propack/PROPACK
+
+build:
+  number: 0
+  skip: true  # [py<39]
+  # pypy is currently broken and on its way out anyway
+  skip: true  # [python_impl == "pypy"]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - cython                                 # [build_platform != target_platform]
+    - numpy                                  # [build_platform != target_platform]
+    - pybind11                               # [build_platform != target_platform]
+    - meson-python                           # [build_platform != target_platform]
+    - cmake                                  # [build_platform != target_platform]
+    - ninja                                  # [build_platform != target_platform]
+    - pkg-config                             # [build_platform != target_platform]
+    - {{ compiler('c') }}
+    - {{ stdlib('c') }}
+    - {{ compiler('cxx') }}
+    - {{ compiler('fortran') }}              # [unix]
+    # pythran code needs clang-cl on windows
+    - clang                                  # [win]
+    # use flang as fortran compiler on windows (uses clang driver)
+    - flang <18                              # [win]
+    # use llvm linker for both of the above
+    - lld                                    # [win]
+  host:
+    - compiler-rt                            # [win]
+    - libblas
+    - libcblas
+    - liblapack
+    - python
+    - cython
+    - meson-python
+    # limit this for now because incompatible changes
+    # have accumulated in meson_dev channel for 1.4+
+    - meson <1.4                             # [win]
+    - ninja
+    - pkg-config
+    - python-build
+    - pybind11
+    - pythran
+    - numpy
+    - pip
+
+# the top-level build.{sh,bat} builds scipy, and then
+# build-output.{sh,bat} installs the files
+outputs:
+  - name: scipy
+    script: build-output.sh   # [not win]
+    script: build-output.bat  # [win]
+    version: {{ version }}
+    requirements:
+      build:
+        - python                                 # [build_platform != target_platform]
+        - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+        # only need these for the strong run exports
+        - {{ compiler('c') }}
+        - {{ stdlib('c') }}
+        - {{ compiler('cxx') }}
+        - {{ compiler('fortran') }}              # [unix]
+      host:
+        - libblas
+        - libcblas
+        - liblapack
+        - python
+        - cython
+        - meson-python
+        - ninja
+        - pkg-config
+        - python-build
+        - pybind11
+        - pythran
+        - numpy
+        - pip
+      run:
+        - python
+        # numpy's run-export only requires <3 because not every package
+        # is exposed as deeply to its ABI. scipy however only supports
+        # the two next minor versions after the numpy we build against, see
+        # https://scipy.github.io/devdocs/dev/core-dev/index.html#version-ranges-for-numpy-and-other-dependencies
+        - numpy <2.{{ numpy_minor + 3 }}
+    test:
+      requires:
+        - pytest
+        - hypothesis
+      imports:
+        - scipy
+        # reference for public API is effectively
+        # https://github.com/scipy/scipy/blob/main/scipy/_lib/tests/test_public_api.py
+        - scipy.cluster
+        - scipy.cluster.hierarchy
+        - scipy.cluster.vq
+        - scipy.constants
+        - scipy.datasets
+        - scipy.fft
+        - scipy.fftpack
+        - scipy.integrate
+        - scipy.interpolate
+        - scipy.io
+        - scipy.io.arff
+        - scipy.io.matlab
+        - scipy.io.wavfile
+        - scipy.linalg
+        - scipy.linalg.blas
+        - scipy.linalg.cython_blas
+        - scipy.linalg.cython_lapack
+        - scipy.linalg.interpolative
+        - scipy.linalg.lapack
+        - scipy.misc
+        - scipy.ndimage
+        - scipy.odr
+        - scipy.optimize
+        - scipy.signal
+        - scipy.signal.windows
+        - scipy.sparse
+        - scipy.sparse.csgraph
+        - scipy.sparse.linalg
+        - scipy.spatial
+        - scipy.spatial.distance
+        - scipy.spatial.transform
+        - scipy.special
+        - scipy.stats
+        - scipy.stats.contingency
+        - scipy.stats.distributions
+        - scipy.stats.mstats
+        - scipy.stats.qmc
+        - scipy.stats.sampling
+      commands:
+        # absence of tests (selection from test_folders_to_delete.txt)
+        {% set test_folders = [
+            "_lib/tests", "cluster/tests", "constants/tests", "datasets/tests",
+            "fftpack/tests", "fft/tests", "integrate/tests", "interpolate/tests",
+            "io/tests", "linalg/tests", "misc/tests", "ndimage/tests", "odr/tests",
+            "optimize/tests", "signal/tests", "sparse/tests", "spatial/tests",
+            "special/tests", "stats/tests"
+        ] %}
+        {% for each_folder in test_folders %}
+        - test ! -d $SP_DIR/scipy/{{ each_folder }}                               # [unix]
+        - if exist %SP_DIR%\scipy\{{ "\\".join(each_folder.split("/")) }} exit 1  # [win]
+        {% endfor %}
+
+        # absence of testing DSOs (selection from test_libraries_to_delete.txt)
+        {% set test_libraries = [
+            "_lib/_test_ccallback", "integrate/_test_multivariate", "io/_test_fortran",
+            "ndimage/_ctest", "ndimage/_cytest", "special/_test_internal"
+        ] %}
+        {% set PY_ABI = "cpython-" ~ PY_VER.replace(".", "") %}                         # [unix]
+        {% set PY_ABI = "cp" ~ PY_VER.replace(".", "") %}                               # [win]
+        {% set ARCH = "x86_64" if x86 else ("aarch64" if aarch64 else "powerpc64le")%}  # [linux]
+        {% for each_lib in test_libraries %}
+        - test ! -f $SP_DIR/scipy/{{ each_lib }}.{{ PY_ABI }}-{{ ARCH }}-linux-gnu.so                     # [linux]
+        - test ! -f $SP_DIR/scipy/{{ each_lib }}.{{ PY_ABI }}-darwin.so                                   # [osx]
+        - if exist %SP_DIR%\scipy\{{ "\\".join(each_lib.split("/")) }}.{{ PY_ABI }}-win_amd64.pyd exit 1  # [win]
+        {% endfor %}
+
+        # test that scipy.test raises an informative error
+        - python -c "import scipy; throw_away_the_return_value = scipy.test()" > testlog
+        - python -c "import sys; lines=open('testlog').readlines(); sys.exit(0 if any('conda-forge builds of' in x for x in lines) else 1)"
+        # same for `pytest --pyargs scipy` (uses exit code that's neither 0 or 1 on win, which breaks piping)
+        - (pytest --pyargs scipy || echo "failure was expected") > testlog   # [unix]
+        - (pytest --pyargs scipy || if !ERRORLEVEL! neq 0 exit 0) > testlog  # [win]
+        - python -c "import sys; lines=open('testlog').readlines(); sys.exit(0 if any('conda-forge builds of' in x for x in lines) else 1)"
+        # ensure only one test is left (namely, our hint)
+        - python -c "import sys; lines=open('testlog').readlines(); sys.exit(0 if any('======== 1 failed' in x for x in lines) else 1)"
+
+  - name: scipy-tests
+    script: build-output.sh   # [not win]
+    script: build-output.bat  # [win]
+    requirements:
+      build:
+        - python                                 # [build_platform != target_platform]
+        - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+        # only need these for the strong run exports
+        - {{ compiler('c') }}
+        - {{ stdlib('c') }}
+        - {{ compiler('cxx') }}
+        - {{ compiler('fortran') }}              # [unix]
+      host:
+        - {{ pin_subpackage('scipy', exact=True) }}
+        # need a minimum for (re-)installation of wheel
+        - python
+        - pip
+        - numpy
+        # make link check happy
+        - liblapack
+      run:
+        - {{ pin_subpackage('scipy', exact=True) }}
+        - python
+    test:
+      requires:
+        - pytest
+        - pytest-timeout
+        - pytest-xdist
+        - hypothesis
+        - mpmath
+        # needed for scipy.datasets
+        - pooch
+      commands:
+        {% set tests_to_skip = "_not_a_real_test" %}
+        # failing on windows as of 1.13.0
+        {% set tests_to_skip = tests_to_skip + " or test_nnls_inner_loop_case1" %}                        # [win]
+        # scipy/scipy#15533 - fails depending on BLAS/LAPACK implementation resp. CPU features
+        {% set tests_to_skip = tests_to_skip + " or test_x0_equals_Mb[nonsymposdef-bicgstab]" %}          # [win or aarch64]
+        # scipy/scipy#19210 - 60 failing tests!
+        {% set tests_to_skip = tests_to_skip + " or (TestQR and (delete_f or insert_f or update_f))" %}   # [aarch64]
+        {% set tests_to_skip = tests_to_skip + " or (TestLstsq and test_random_overdet)" %}               # [aarch64]
+        {% set tests_to_skip = tests_to_skip + " or (test_lapack.py and (" %}                             # [aarch64]
+            {% set tests_to_skip = tests_to_skip + " test_pftri or test_pstrf or test_pstf2" %}           # [aarch64]
+            {% set tests_to_skip = tests_to_skip + " or test_sfrk_hfrk or TestBlockedQR" %}               # [aarch64]
+        {% set tests_to_skip = tests_to_skip + "))" %}                                                    # [aarch64]
+        # on the slowest agents, these tests take more than 20min in emulation
+        {% set tests_to_skip = tests_to_skip + " or test_mixed_threads_processes or test_sf_gh18506" %}   # [aarch64 or ppc64le]
+        {% set tests_to_skip = tests_to_skip + " or (test_lsq_linear and test_large_rank_deficient)" %}   # [aarch64 or ppc64le]
+        {% set tests_to_skip = tests_to_skip + " or (test_iterative and test_precond_inverse)" %}         # [aarch64 or ppc64le]
+        {% set tests_to_skip = tests_to_skip + " or (test_multiprocess and fft)" %}                       # [aarch64 or ppc64le]
+        {% set tests_to_skip = tests_to_skip + " or (test_optimize and TestBrute and test_workers)" %}    # [aarch64 or ppc64le]
+        {% set tests_to_skip = tests_to_skip + " or (TestLstsq and test_random_complex_exact)" %}         # [aarch64 or ppc64le]
+        {% set tests_to_skip = tests_to_skip + " or (TestLevyStable and test_location_scale)" %}          # [aarch64 or ppc64le]
+        {% set tests_to_skip = tests_to_skip + " or (TestShgoArguments and test_19_parallelization)" %}   # [aarch64 or ppc64le]
+        {% set tests_to_skip = tests_to_skip + " or (TestDifferentialEvolutionSolver and (test_immediate_updating or test_parallel))" %}    # [aarch64 or ppc64le]
+        # tests that run into timeouts (set in scipy test suite) in emulation
+        {% set tests_to_skip = tests_to_skip + " or (test_propack and test_examples)" %}                  # [aarch64 or ppc64le]
+        # show SIMD features (some failures occur depending on presence/absence of e.g. AVX512)
+        - python -c "import numpy; numpy.show_config()"
+        # tests for ppc64le and aarch64 are run in emulation through QEMU; as this takes
+        # much longer, do not run the most heavy-weight tests, i.e. use label='fast'
+        {% set label = "'fast'" if (aarch64 or ppc64le) else "'full'" %}
+        # for signature of scipy.test see below (note default: label='fast'):
+        # https://github.com/scipy/scipy/blob/v1.7.0/scipy/_lib/_testutils.py#L27
+        {% set param = "verbose=1, label=" + label + ", tests=None" %}
+        {% set extra = "extra_argv=['-k', 'not (" + tests_to_skip + ")', '-nauto', '--timeout=1200', '--durations=50']" %}
+        - python -c "import scipy, sys; sys.exit(not scipy.test({{ param }}, {{ extra }}))"
+
+about:
+  home: http://www.scipy.org/
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: Scientific Library for Python
+  description: |
+    SciPy is a Python-based ecosystem of open-source software for mathematics,
+    science, and engineering.
+  doc_url: http://www.scipy.org/docs.html
+  dev_url: https://github.com/scipy/scipy
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - msarahan
+    - rgommers
+    - ocefpaf
+    - h-vetinari
+  feedstock-name: scipy

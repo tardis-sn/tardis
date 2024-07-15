@@ -1,0 +1,71 @@
+# This file created by conda-build 3.28.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Feb 14 17:43:16 2024
+# ------------------------------------------------
+
+package:
+  name: prometheus_client
+  version: 0.20.0
+source:
+  sha256: 287629d00b147a32dcb2be0b9df905da599b2d82f80377083ec8463309a4bb89
+  url: https://pypi.io/packages/source/p/prometheus_client/prometheus_client-0.20.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/prometheus_client_1707932675456/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla/bin/python
+    -m pip install . -vv --no-deps --no-build-isolation
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.1 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.8
+test:
+  commands:
+    - pip check
+  imports:
+    - prometheus_client
+    - prometheus_client.bridge
+  requires:
+    - pip
+about:
+  home: https://github.com/prometheus/client_python
+  license: Apache-2.0
+  license_family: Apache
+  license_file:
+    - LICENSE
+    - NOTICE
+  summary: Python client for the Prometheus monitoring system
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240214.2.1
+  recipe-maintainers:
+    - jessicaaustin
+    - kwilcox
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/prometheus_client-feedstock
+  sha: e05ac1695cbe271257acaea4c07deb30bad83a2d

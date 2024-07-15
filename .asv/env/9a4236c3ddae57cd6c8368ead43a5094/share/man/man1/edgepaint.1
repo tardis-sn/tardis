@@ -1,0 +1,71 @@
+.TH CLARIFY 1 "26 February 2014"
+.SH NAME
+edgepaint \- edge coloring to disambiguate crossing edges
+.SH SYNOPSIS
+.B
+[
+.I options
+]
+[
+.BI \-o
+.I outfile
+]
+[
+.I files
+]
+.SH DESCRIPTION
+.B edgepaint
+takes as input a graph in DOT format with node position information (the
+\fIpos\fR attribute) and colors the edges in a manner making it easier to tell
+them apart.
+.SH OPTIONS
+The following options are supported:
+.TP
+.BI \-\-accuracy=  e
+Accuracy with which to find the maximally different coloring for each node with
+regard to its neighbors. Default \fIe\fR = 0.01.
+.TP
+.BI \-\-angle= a
+Color two edges differently if their incidence angle is less than \fIa\fR
+degrees. Default \fIa\fR = 15.
+.TP
+.BI \-\-random_seed= s
+Random seed to use. \fIs\fR must be an integer. If \fIs\fR is negative, we do
+|\fIs\fR| iterations with different seeds and pick the best.
+.TP
+.BI \-\-lightness= "l1,l2"
+Only applies for the "lab" color scheme: \fIl1\fR and \fIl2\fR must integers,
+with 0 <= \fIl1\fR <= \fIl2\fR <=100. By default, we use "0,70".
+.TP
+.BI \-\-share_endpoint
+If this option is specified, edges that share a node are not considered in
+conflict if they are close to parallel but are on the opposite sides of the node
+(around 180 degree).
+.TP
+.BI \-o " f"
+Write output to file \fIf\fR (default: stdout).
+.TP
+.BI \-\-color_scheme= "c"
+Specifies the color scheme.  This can be "rgb", "gray", "lab" (default); or a
+comma-separated list of RGB colors in hex (e.g., "#ff0000,#aabbed,#eeffaa")
+representing a palette; or a string specifying a Brewer color scheme (e.g.,
+"accent7"; see https://graphviz.org/doc/info/colors.html#brewer).
+.TP
+.B \-v
+Turns on verbose mode.
+.TP
+.BI \-?
+Print usage and exit.
+
+.SH BUGS
+At present, \fBedgepaint\fR does not handle graphs with loops or directed
+multiedges. So, a graph with edges \fIa\~\->\~b\fR and \fIb\~\->\~a\fR is
+acceptable, but not if it has edges \fIa\~\->\~b\fR and \fIa\~\->\~b\fR or
+\fIa\~\-\-\~b\fR and \fIa\~\-\-\~b\fR. Ports are ignored in this analysis, so
+having \fIa.x\~\->\~b\fR and \fIa.y\~\->\~b\fR is also not supported.
+.SH AUTHOR
+Yifan Hu <yifanhu@yahoo.com>
+.SH "SEE ALSO"
+.PP
+gvmap(1), sfdp(1), neato (1), dot(1)
+.PP

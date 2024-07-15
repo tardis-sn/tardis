@@ -1,0 +1,1 @@
+Test classes that put attributes in `__slots__`.

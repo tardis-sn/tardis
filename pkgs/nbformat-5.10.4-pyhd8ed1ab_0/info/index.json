@@ -1,0 +1,19 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "jsonschema >=2.6",
+    "jupyter_core >=4.12,!=5.0.*",
+    "python >=3.8",
+    "python-fastjsonschema >=2.15",
+    "traitlets >=5.1"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "nbformat",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1712239122969,
+  "version": "5.10.4"
+}

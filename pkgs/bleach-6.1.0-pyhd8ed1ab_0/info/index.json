@@ -1,0 +1,20 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "packaging",
+    "python >=3.6",
+    "setuptools",
+    "six >=1.9.0",
+    "webencodings"
+  ],
+  "license": "Apache-2.0",
+  "license_family": "Apache",
+  "name": "bleach",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1696630354218,
+  "version": "6.1.0"
+}

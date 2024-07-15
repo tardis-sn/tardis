@@ -1,0 +1,11 @@
+prefix=/home/conda/feedstock_root/build_artifacts/harfbuzz_1715700719255/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: harfbuzz-icu
+Description: HarfBuzz text shaping library ICU integration
+Version: 8.5.0
+Requires: harfbuzz =  8.5.0
+Requires.private: icu-uc >=  49.0
+Libs: -L${libdir} -lharfbuzz-icu
+Cflags: -I${includedir}/harfbuzz

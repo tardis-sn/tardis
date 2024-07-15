@@ -1,0 +1,70 @@
+# This file created by conda-build 3.24.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun Oct 29 11:44:13 2023
+# ------------------------------------------------
+
+package:
+  name: executing
+  version: 2.0.1
+source:
+  sha256: 35afe2ce3affba8ee97f2d69927fa823b08b472b7b994e36a52a964b93d16147
+  url: https://pypi.io/packages/source/e/executing/executing-2.0.1.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/executing_1698579936712/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2023.7.22 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_2
+    - libgomp 13.2.0 h807b86a_2
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.43.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 hcb278e6_0
+    - openssl 3.1.4 hd590300_0
+    - packaging 23.2 pyhd8ed1ab_0
+    - pip 23.3.1 pyhd8ed1ab_0
+    - python 3.12.0 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 68.2.2 pyhd8ed1ab_0
+    - setuptools-scm 8.0.4 pyhd8ed1ab_0
+    - setuptools_scm 8.0.4 hd8ed1ab_0
+    - tk 8.6.13 h2797004_0
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - typing-extensions 4.8.0 hd8ed1ab_0
+    - typing_extensions 4.8.0 pyha770c72_0
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.41.2 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=2.7
+test:
+  commands:
+    - pip check
+  imports:
+    - executing
+  requires:
+    - pip
+about:
+  dev_url: https://github.com/alexmojaki/executing
+  home: https://pypi.org/project/executing
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: Get the currently executing AST node of a frame, and other information
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - alexmojaki
+    - anthchirp

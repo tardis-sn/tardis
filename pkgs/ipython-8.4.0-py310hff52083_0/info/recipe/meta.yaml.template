@@ -1,0 +1,116 @@
+{% set version = "8.4.0" %}
+
+{% set migrating = false %}
+
+package:
+  name: ipython
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/i/ipython/ipython-{{ version }}.tar.gz
+  sha256: f2db3a10254241d9b447232cec8b424847f338d9d36f9a577a6192c332a46abd
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv --no-deps
+
+  skip: true  # [py<38]
+  script_env:
+    - MIGRATING={{ migrating }}
+    # TODO: investigate removing when some pypy/coverage speed issues are resolved
+    - IPYTHON_TESTING_TIMEOUT_SCALE=10
+    - COV_THRESHOLD=73  # [unix]
+    - COV_THRESHOLD=72  # [win]
+  entry_points:
+    - ipython = IPython:start_ipython
+    - ipython3 = IPython:start_ipython
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+  host:
+    - pip
+    - python
+  run:
+    - python
+    - appnope  # [osx]
+    - backcall
+    - colorama  # [win]
+    - decorator
+    - jedi >=0.16
+    - matplotlib-inline
+    - pexpect >4.3  # [unix]
+    - pickleshare
+    - prompt-toolkit >=2.0.0,<3.1.0,!=3.0.0,!=3.0.1
+    - pygments >=2.4.0
+    - setuptools >=18.5
+    - stack_data
+    - traitlets >=5
+
+test:
+  requires:
+    - pip
+    {% if not migrating %}
+    - black
+    - curio
+    - matplotlib-base !=3.2.0
+    - nbformat
+    - numpy >=1.19
+    - pandas
+    - pygments
+    - pytest <7
+    - pytest-cov
+    - testpath
+    - trio
+    {% endif %}
+
+  imports:
+    - IPython
+    - IPython.core
+    - IPython.core.magics
+    - IPython.core.tests
+    - IPython.extensions
+    - IPython.extensions.tests
+    - IPython.external
+    - IPython.lib
+    - IPython.lib.tests
+    - IPython.sphinxext
+    - IPython.terminal
+    - IPython.terminal.pt_inputhooks
+    - IPython.terminal.tests
+    - IPython.testing
+    - IPython.testing.plugin
+    - IPython.testing.tests
+    - IPython.utils
+    - IPython.utils.tests
+  commands:
+    - pip check
+    - ipython -h
+    - ipython3 -h
+
+about:
+  home: https://ipython.org
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: 'IPython: Productive Interactive Computing'
+  description: |
+    IPython provides a rich architecture for interactive computing with
+    a powerful interactive shell, a kernel for Jupyter, high performance
+    tools for parallel computing, and more.
+  doc_url: https://ipython.readthedocs.io
+  dev_url: https://github.com/ipython/ipython
+
+extra:
+  recipe-maintainers:
+    - Carreau
+    - jakirkham
+    - fperez
+    - ellisonbg
+    - minrk
+    - ocefpaf
+    - pelson
+    - takluyver
+    - bollwyvl
+    - blink1073

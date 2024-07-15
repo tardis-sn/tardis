@@ -1,0 +1,46 @@
+{% set name = "pure_eval" %}
+{% set version = "0.2.2" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 2b45320af6dfaa1750f543d714b6d1c520a1688dec6fd24d339063ce0aaa9ac3
+
+build:
+  number: 0
+  script: '{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vvv '
+  noarch: python
+
+requirements:
+  host:
+    - pip
+    - python >=3.5
+    - setuptools >=44
+    - setuptools_scm >=3.4.3
+    - wheel
+  run:
+    - python >=3.5
+
+test:
+  imports:
+    - pure_eval
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: http://github.com/alexmojaki/pure_eval
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: Safely evaluate AST nodes without side effects
+  doc_url: http://github.com/alexmojaki/pure_eval
+  dev_url: http://github.com/alexmojaki/pure_eval
+
+extra:
+  recipe-maintainers:
+    - alexmojaki

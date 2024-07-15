@@ -1,0 +1,43 @@
+{% set name = "tomli" %}
+{% set version = "2.0.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/tomli-{{ version }}.tar.gz
+  sha256: de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    # Cannot use flit-core >3.3.0 due to cyclic dependency
+    - flit-core 3.3.0
+    - pip
+    - python >=3.7
+  run:
+    - python >=3.7
+
+test:
+  imports:
+    - tomli
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/hukkin/tomli
+  summary: A simple TOML parser
+  license: MIT
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - thewchan

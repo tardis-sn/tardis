@@ -1,0 +1,37 @@
+{% set version = "24.6.0" %}
+
+package:
+  name: webcolors
+  version: {{ version }}
+
+source:
+  fn: webcolors-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/w/webcolors/webcolors-{{ version }}.tar.gz
+  sha256: 1d160d1de46b3e81e58d0a280d0c78b467dc80f47294b91b1ad8029d2cedb55b
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - python >=3.5
+    - pip
+
+  run:
+    - python >=3.5
+
+test:
+  imports:
+    - webcolors
+
+about:
+  home: https://github.com/ubernostrum/webcolors
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: Library for working with HTML/CSS color formats in Python.
+
+extra:
+  recipe-maintainers:
+    - jakirkham

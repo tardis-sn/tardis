@@ -1,0 +1,84 @@
+{% set version = "6.1.0" %}
+
+package:
+  name: astropy
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/a/astropy/astropy-{{ version }}.tar.gz
+  sha256: 6c3b915f10b1576190730ddce45f6245f9927dda3de6e3f692db45779708950f
+  patches:
+    - pyproject.toml.patch
+
+build:
+  entry_points:
+    - fits2bitmap = astropy.visualization.scripts.fits2bitmap:main
+    - fitscheck = astropy.io.fits.scripts.fitscheck:main
+    - fitsdiff = astropy.io.fits.scripts.fitsdiff:main
+    - fitsheader = astropy.io.fits.scripts.fitsheader:main
+    - fitsinfo = astropy.io.fits.scripts.fitsinfo:main
+    - samp_hub = astropy.samp.hub_script:hub_script
+    - volint = astropy.io.votable.volint:main
+    - wcslint = astropy.wcs.wcslint:main
+  number: 1
+  script: {{ PYTHON }} -m pip install . -vv
+  skip: true  # [py<310]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - cython >=3.0.0,<3.1.0                          # [build_platform != target_platform]
+    - numpy                                  # [build_platform != target_platform]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+  host:
+    - python
+    - pip
+    - setuptools
+    - jinja2 >=3
+    - cython >=3.0.0,<3.1.0
+    - setuptools_scm >=6.2
+    - extension-helpers =1
+    - numpy
+  run:
+    - python
+    - numpy >=1.23
+    - pyerfa >=2.0.1.1
+    - astropy-iers-data >=0.2024.4.29.0.28.48
+    - importlib-metadata
+    - pyyaml >=3.13
+    - packaging >=19.0
+
+test:
+  requires:
+    - pytest-astropy
+  commands:
+    - fits2bitmap --help
+    - fitscheck --help
+    - fitsdiff --help
+    - fitsheader --help
+    - fitsinfo --help
+    - samp_hub --help
+    - volint --help
+    - wcslint --help
+  imports:
+    - astropy
+
+about:
+  home: http://www.astropy.org/
+  license: BSD-3-Clause
+  license_file: LICENSE.rst
+  summary: Community-developed Python Library for Astronomy
+  description: |
+    The Astropy Project is a community effort to develop a single package for
+    Astronomy in Python. It contains core functionality and common tools
+    needed for performing astronomy and astrophysics research with Python.
+  doc_url: http://docs.astropy.org/en/stable/
+  dev_url: https://github.com/astropy/astropy
+
+extra:
+  recipe-maintainers:
+    - astrofrog
+    - mwcraig
+    - bsipocz

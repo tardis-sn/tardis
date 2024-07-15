@@ -1,0 +1,62 @@
+# This file created by conda-build 3.21.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Fri Oct 15 06:46:46 2021
+# ------------------------------------------------
+
+package:
+  name: h2
+  version: 4.1.0
+source:
+  fn: h2-4.1.0.tar.gz
+  sha256: a83aca08fbe7aacb79fec788c9c0bac936343560ed9ec18b82a13a12c28d2abb
+  url: https://pypi.io/packages/source/h/h2/h2-4.1.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/h2_1634280454336/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehol/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - ca-certificates 2021.10.8 ha878542_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h9c3ff4c_4
+    - libgcc-ng 11.2.0 h1d223b6_11
+    - libgomp 11.2.0 h1d223b6_11
+    - libstdcxx-ng 11.2.0 he4da1e4_11
+    - libzlib 1.2.11 h36c2ea0_1013
+    - ncurses 6.2 h58526e2_4
+    - openssl 3.0.0 h7f98852_1
+    - pip 21.3 pyhd8ed1ab_0
+    - python 3.9.7 hf930737_3_cpython
+    - python_abi 3.9 2_cp39
+    - readline 8.1 h46c0cb4_0
+    - setuptools 58.2.0 py39hf3d152e_0
+    - sqlite 3.36.0 h9cd32fc_2
+    - tk 8.6.11 h27826a3_1
+    - tzdata 2021c he74cb21_0
+    - wheel 0.37.0 pyhd8ed1ab_1
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h36c2ea0_1013
+  run:
+    - hpack >=4.0,<5
+    - hyperframe >=6.0,<7
+    - python >=3.6.1
+test:
+  imports:
+    - h2
+about:
+  dev_url: https://github.com/python-hyper/hyper-h2
+  home: http://python-hyper.org/h2/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: HTTP/2 State-Machine based protocol implementation
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - primozgodec
+    - wiphoo

@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyha770c72_0",
+    "build_number": 0,
+    "build_string": "pyha770c72_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.5"
+    ],
+    "fn": "mypy_extensions-1.0.0-pyha770c72_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "4eccaeba205f0aed9ac3a9ea58568ca3",
+    "name": "mypy_extensions",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "f240217476e148e825420c6bc3a0c0efb08c0718b7042fae960400c02af858a3",
+    "size": 10492,
+    "subdir": "noarch",
+    "timestamp": 1675543414256,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/mypy_extensions-1.0.0-pyha770c72_0.conda",
+    "version": "1.0.0"
+}

@@ -1,0 +1,28 @@
+{
+    "arch": "x86_64",
+    "build": "py312h9c5d478_0",
+    "build_number": 0,
+    "build_string": "py312h9c5d478_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libllvm14 >=14.0.6,<14.1.0a0",
+        "libstdcxx-ng >=12",
+        "libzlib >=1.3.1,<2.0a0",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "llvmlite-0.43.0-py312h9c5d478_0.conda",
+    "license": "BSD-2-Clause",
+    "md5": "b7a63a49d7a0664376b27cd4f052a888",
+    "name": "llvmlite",
+    "platform": "linux",
+    "sha256": "02a2a1896e80ec8c17c186b120fc021d10b24682a810200f62a9aaacdc988463",
+    "size": 3437153,
+    "subdir": "linux-64",
+    "timestamp": 1718324460601,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/llvmlite-0.43.0-py312h9c5d478_0.conda",
+    "version": "0.43.0"
+}

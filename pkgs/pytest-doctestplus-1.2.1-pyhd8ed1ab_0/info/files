@@ -1,0 +1,17 @@
+site-packages/pytest_doctestplus-1.2.1.dist-info/INSTALLER
+site-packages/pytest_doctestplus-1.2.1.dist-info/LICENSE.rst
+site-packages/pytest_doctestplus-1.2.1.dist-info/METADATA
+site-packages/pytest_doctestplus-1.2.1.dist-info/RECORD
+site-packages/pytest_doctestplus-1.2.1.dist-info/REQUESTED
+site-packages/pytest_doctestplus-1.2.1.dist-info/WHEEL
+site-packages/pytest_doctestplus-1.2.1.dist-info/direct_url.json
+site-packages/pytest_doctestplus-1.2.1.dist-info/entry_points.txt
+site-packages/pytest_doctestplus-1.2.1.dist-info/top_level.txt
+site-packages/pytest_doctestplus/__init__.py
+site-packages/pytest_doctestplus/newhooks.py
+site-packages/pytest_doctestplus/output_checker.py
+site-packages/pytest_doctestplus/plugin.py
+site-packages/pytest_doctestplus/sphinx/__init__.py
+site-packages/pytest_doctestplus/sphinx/doctestplus.py
+site-packages/pytest_doctestplus/utils.py
+site-packages/pytest_doctestplus/version.py

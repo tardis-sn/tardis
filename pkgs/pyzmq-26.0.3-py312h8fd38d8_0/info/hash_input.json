@@ -1,0 +1,12 @@
+{
+  "c_stdlib": "sysroot",
+  "channel_targets": "conda-forge main",
+  "cxx_compiler_version": "12",
+  "cxx_compiler": "gxx",
+  "c_compiler_version": "12",
+  "target_platform": "linux-64",
+  "c_compiler": "gcc",
+  "zeromq": "4.3.5",
+  "python": "3.12.* *_cpython",
+  "c_stdlib_version": "2.12"
+}

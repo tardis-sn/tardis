@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyha770c72_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.6",
+    "soupsieve >=1.2"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "beautifulsoup4",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1705564819537,
+  "version": "4.12.3"
+}

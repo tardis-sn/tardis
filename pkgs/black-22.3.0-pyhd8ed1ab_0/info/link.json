@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "entry_points": [
+      "black = black:patched_main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

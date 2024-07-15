@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3",
+    "typing_extensions"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "h11",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1664132995560,
+  "version": "0.14.0"
+}

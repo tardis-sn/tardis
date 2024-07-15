@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "zipp-3.19.2-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "49808e59df5535116f6878b2a820d6f4",
+    "name": "zipp",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "e3e9c8501f581bfdc4700b83ea283395e237ec6b9b5cbfbedb556e1da6f4fdc9",
+    "size": 20917,
+    "subdir": "noarch",
+    "timestamp": 1718013395428,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/zipp-3.19.2-pyhd8ed1ab_0.conda",
+    "version": "3.19.2"
+}

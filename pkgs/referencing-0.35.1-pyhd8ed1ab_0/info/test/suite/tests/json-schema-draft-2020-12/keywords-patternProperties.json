@@ -1,0 +1,22 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "patternProperties": {
+        "foo": {
+          "$id": "http://example.com/oh-hey-a-subschema",
+          "abc": 123
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/oh-hey-a-subschema",
+      "target": {
+        "$id": "http://example.com/oh-hey-a-subschema",
+        "abc": 123
+      }
+    }
+  ]
+}

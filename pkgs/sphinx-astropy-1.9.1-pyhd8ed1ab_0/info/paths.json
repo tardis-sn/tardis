@@ -1,0 +1,149 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/sphinx_astropy-1.9.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/sphinx_astropy-1.9.1.dist-info/LICENSE.rst",
+      "path_type": "hardlink",
+      "sha256": "245e0d8c7137c7b74f3c10d9ac67e6afefa05f598d4e11f60a040a46cf8d3bed",
+      "size_in_bytes": 1496
+    },
+    {
+      "_path": "site-packages/sphinx_astropy-1.9.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "57a3ded392d1198730ced28c2f1a3aa9840682eb133218071e57395744f3165d",
+      "size_in_bytes": 3998
+    },
+    {
+      "_path": "site-packages/sphinx_astropy-1.9.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "abecb12b5277f721dcfdc55aaa5c974d8a9a6bf7e23aed3ff0a6871307fa9bf1",
+      "size_in_bytes": 3037
+    },
+    {
+      "_path": "site-packages/sphinx_astropy-1.9.1.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/sphinx_astropy-1.9.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "a6472d658cd44b8018567e9d27eef7ebb389662bc5d9ef1103d6ff6418e27f5f",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "site-packages/sphinx_astropy-1.9.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "3b74105e476d73fc880e99d5ab273db71b2904950a95f906c89067aa93217fd9",
+      "size_in_bytes": 110
+    },
+    {
+      "_path": "site-packages/sphinx_astropy-1.9.1.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "67ebd5a80d70612bcf7f6cf61d0d335ba96c1e8ae7548b8f61b649e025fa90a7",
+      "size_in_bytes": 15
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "5d65b29fd21f99b02c38db5c0033c1a2ada01819eda6902507ef5ec12d6430a2",
+      "size_in_bytes": 52
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/conf/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "9972731e7325265e3cc14afecb6dd7e7a65eb13e57f118ea2dffd86b84eef7e3",
+      "size_in_bytes": 942
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/conf/v1.py",
+      "path_type": "hardlink",
+      "sha256": "c0ea147b6b470ae838886d6eabe64257aee9decd3313146e215d518e07971a71",
+      "size_in_bytes": 13821
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/conf/v2.py",
+      "path_type": "hardlink",
+      "sha256": "f5364651623412226cf3af853458e70a4e3ac51c8ce75ad585cca46e022de9ac",
+      "size_in_bytes": 13430
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/ext/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_in_bytes": 1
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/ext/changelog_links.py",
+      "path_type": "hardlink",
+      "sha256": "0375c9e4375acf1c394e830aca34825976cee38b5914b524ca84c431f2378d91",
+      "size_in_bytes": 2976
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/ext/edit_on_github.py",
+      "path_type": "hardlink",
+      "sha256": "03477c34edd16f8b651f82dd73508aa8b958be31ffa710fedada8f336a597536",
+      "size_in_bytes": 5937
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/ext/generate_config.py",
+      "path_type": "hardlink",
+      "sha256": "f833494805617afbc3ca785ea1db9d4469f6309999ae915ab14ee26fdb7df673",
+      "size_in_bytes": 898
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/ext/intersphinx_toggle.py",
+      "path_type": "hardlink",
+      "sha256": "68f6ff3f9d36059e4d646ed2a5b9b85781bb95a803beba7bab19730662ba7429",
+      "size_in_bytes": 890
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/ext/missing_static.py",
+      "path_type": "hardlink",
+      "sha256": "dc36caf132545e255c3b3a3f854a07d0c3876925d1395b4a2cadc9f88f5b6a26",
+      "size_in_bytes": 967
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/local/python3_local_links.inv",
+      "path_type": "hardlink",
+      "sha256": "220c9bbd200c235bb09dfa6526116e8bdd0e339a68622317f2cbddae8df9a05c",
+      "size_in_bytes": 658
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/local/python3_local_links.txt",
+      "path_type": "hardlink",
+      "sha256": "36a6c88adca63947707f3e97c0e4c502b862cd7603a7c08b9cacd87b40933e0a",
+      "size_in_bytes": 2820
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/tests/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/tests/test_conf_v1.py",
+      "path_type": "hardlink",
+      "sha256": "1ce425c1d69378edb2c52149a0f6e01571ace9eccb97ae5bf4bb234d9ea5150e",
+      "size_in_bytes": 1207
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/tests/test_conf_v2.py",
+      "path_type": "hardlink",
+      "sha256": "9b22e14ba37a2bdd7f7f9cfc6ae8ca48c4b1bb2e6f0332710e07020e2a401016",
+      "size_in_bytes": 1248
+    },
+    {
+      "_path": "site-packages/sphinx_astropy/version.py",
+      "path_type": "hardlink",
+      "sha256": "5fad7822f84d5fb494af8fd9702098cea60af70d7fb97242a5980e47989942e8",
+      "size_in_bytes": 160
+    }
+  ],
+  "paths_version": 1
+}

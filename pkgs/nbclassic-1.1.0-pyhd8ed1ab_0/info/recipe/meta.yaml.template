@@ -1,0 +1,76 @@
+{% set version = "1.1.0" %}
+
+package:
+  name: nbclassic
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/n/nbclassic/nbclassic-{{ version }}.tar.gz
+  sha256: 77b77ba85f9e988f9bad85df345b514e9e64c7f0e822992ab1df4a78ac64fc1e
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vvv --no-deps --no-build-isolation
+  entry_points:
+    - jupyter-nbclassic = nbclassic.notebookapp:main
+    - jupyter-nbclassic-bundlerextension = nbclassic.bundler.bundlerextensions:main
+    - jupyter-nbclassic-extension = nbclassic.nbextensions:main
+    - jupyter-nbclassic-serverextension = nbclassic.serverextensions:main
+
+requirements:
+  host:
+    - babel
+    - jupyter-packaging >=0.9,<1
+    - jupyter_server >=1.17.0
+    - pip
+    - python >=3.7
+  run:
+    - ipykernel
+    - ipython_genutils
+    - nest-asyncio >=1.5
+    - notebook-shim >=0.2.3
+    - python >=3.7
+
+test:
+  imports:
+    - nbclassic
+  requires:
+    - pip
+  commands:
+    - pip check
+    - jupyter nbclassic --help
+    - jupyter nbclassic-extension --help
+    - jupyter nbclassic-serverextension --help
+    - jupyter nbclassic-bundlerextension --help
+    - jupyter server extension list
+    - jupyter server extension list 1>server_extensions 2>&1
+    - cat server_extensions | grep -iE "nbclassic.*enabled"
+    - cat server_extensions | grep -iE "nbclassic.*OK"
+    # #27: is this expected?
+    # - cat server_extensions | grep -iE "notebook_shim.*enabled"
+    # - cat server_extensions | grep -iE "notebook_shim.*OK"
+  downstreams:
+    - jupyterlab
+    - jupyterlab_server
+    # breaks with some =cuda* stuff in condabuild, maybe mambabuild
+    # - notebook
+
+about:
+  home: http://github.com/jupyterlab/nbclassic
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: A web-based notebook environment for interactive computing
+  doc_url: https://jupyter-notebook.readthedocs.io
+  description: |
+    The Jupyter NbClassic is a web application that allows you to create and
+    share documents that contain live code, equations, visualizations, and
+    explanatory text. The NbClassic has support for multiple programming
+    languages, sharing, and interactive widgets.
+
+extra:
+  recipe-maintainers:
+    - jasongrout
+    - afshin
+    - jtpio
+    - bollwyvl

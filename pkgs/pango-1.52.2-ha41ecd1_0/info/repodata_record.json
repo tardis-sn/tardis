@@ -1,0 +1,31 @@
+{
+    "arch": "x86_64",
+    "build": "ha41ecd1_0",
+    "build_number": 0,
+    "build_string": "ha41ecd1_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "cairo >=1.18.0,<2.0a0",
+        "fontconfig >=2.14.2,<3.0a0",
+        "fonts-conda-ecosystem",
+        "freetype >=2.12.1,<3.0a0",
+        "fribidi >=1.0.10,<2.0a0",
+        "harfbuzz >=8.3.0,<9.0a0",
+        "libgcc-ng >=12",
+        "libglib >=2.80.0,<3.0a0",
+        "libpng >=1.6.43,<1.7.0a0"
+    ],
+    "fn": "pango-1.52.2-ha41ecd1_0.conda",
+    "license": "LGPL-2.1-or-later",
+    "md5": "a658eeabf188c3040da36b0763de2bfd",
+    "name": "pango",
+    "platform": "linux",
+    "sha256": "5f6383ffd8f3b6f8f3ebb516c870b2bfebef68c4a21193de5f0609fa4cc0b358",
+    "size": 446864,
+    "subdir": "linux-64",
+    "timestamp": 1712103212459,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/pango-1.52.2-ha41ecd1_0.conda",
+    "version": "1.52.2"
+}

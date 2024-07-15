@@ -1,0 +1,14 @@
+site-packages/exceptiongroup-1.2.0.dist-info/INSTALLER
+site-packages/exceptiongroup-1.2.0.dist-info/LICENSE
+site-packages/exceptiongroup-1.2.0.dist-info/METADATA
+site-packages/exceptiongroup-1.2.0.dist-info/RECORD
+site-packages/exceptiongroup-1.2.0.dist-info/REQUESTED
+site-packages/exceptiongroup-1.2.0.dist-info/WHEEL
+site-packages/exceptiongroup-1.2.0.dist-info/direct_url.json
+site-packages/exceptiongroup/__init__.py
+site-packages/exceptiongroup/_catch.py
+site-packages/exceptiongroup/_exceptions.py
+site-packages/exceptiongroup/_formatting.py
+site-packages/exceptiongroup/_suppress.py
+site-packages/exceptiongroup/_version.py
+site-packages/exceptiongroup/py.typed

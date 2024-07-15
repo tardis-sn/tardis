@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "markupsafe >=2.0",
+    "python >=3.7"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "jinja2",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1715127275924,
+  "version": "3.1.4"
+}

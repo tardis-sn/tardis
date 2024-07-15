@@ -1,0 +1,83 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/recommonmark-0.7.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/recommonmark-0.7.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "1b8335dc6b50c220e6ad68bb907af7f6e5b260da743eb166de581f5b26783419",
+      "size_in_bytes": 463
+    },
+    {
+      "_path": "site-packages/recommonmark-0.7.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "307885d83fa7a77af7b76bf4fcdfc7932005cb4bbfa6a7653cdc43b181da5f7d",
+      "size_in_bytes": 1841
+    },
+    {
+      "_path": "site-packages/recommonmark-0.7.1.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/recommonmark-0.7.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "67e9f2629c2b712ab17ddbb1e4c6e7fc3439db988fec9d831b72601af398c934",
+      "size_in_bytes": 110
+    },
+    {
+      "_path": "site-packages/recommonmark-0.7.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "977169e1c6b674e29ca07244fb480630d3e3b39ecd841223626f5ca16fd6ed70",
+      "size_in_bytes": 108
+    },
+    {
+      "_path": "site-packages/recommonmark-0.7.1.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "ac22c8cb3f8ca33e52cbeb42d0958d6c9ebd77708dd2e95beef0e4023928603a",
+      "size_in_bytes": 263
+    },
+    {
+      "_path": "site-packages/recommonmark-0.7.1.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "ae6712b8455aa86fcadeea0362f574310bb6c76f4b4af515fd2c1897ede1fe50",
+      "size_in_bytes": 13
+    },
+    {
+      "_path": "site-packages/recommonmark/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "49c53fa23864fd717259167a0b68b47a8aa0ff3bbb3de3d39678c28e56a1d07c",
+      "size_in_bytes": 468
+    },
+    {
+      "_path": "site-packages/recommonmark/parser.py",
+      "path_type": "hardlink",
+      "sha256": "e559f165c029ea69b48dacd51e090079fd5f195418e8f93ec079fb549fcd13cf",
+      "size_in_bytes": 10145
+    },
+    {
+      "_path": "site-packages/recommonmark/scripts.py",
+      "path_type": "hardlink",
+      "sha256": "a2b0a6c1ab1160b37c856f6e839b7315a28104efcc15f5e0be0f8b1badf95eac",
+      "size_in_bytes": 1856
+    },
+    {
+      "_path": "site-packages/recommonmark/states.py",
+      "path_type": "hardlink",
+      "sha256": "640f274852cf2971d58555494c378d33e9e612244cf4aca69e08fa4dc545fdb4",
+      "size_in_bytes": 4624
+    },
+    {
+      "_path": "site-packages/recommonmark/transform.py",
+      "path_type": "hardlink",
+      "sha256": "577d5a1bd874fd848c1e59ade3a6cbf68e122c67bdf4fbff3740e4b4d60e8d6d",
+      "size_in_bytes": 11945
+    }
+  ],
+  "paths_version": 1
+}

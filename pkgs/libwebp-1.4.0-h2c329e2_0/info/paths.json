@@ -1,0 +1,77 @@
+{
+  "paths": [
+    {
+      "_path": "bin/cwebp",
+      "path_type": "hardlink",
+      "sha256": "41a2fd7ef68bc2ef62a262737b6bbf4dd930143cf39fc8f677110e21e5345dd2",
+      "size_in_bytes": 69096
+    },
+    {
+      "_path": "bin/dwebp",
+      "path_type": "hardlink",
+      "sha256": "68d7928ea265b3566f46bb73c58652309ab7b4b3e71190cb9ccc6e51d3a0040a",
+      "size_in_bytes": 35320
+    },
+    {
+      "_path": "bin/gif2webp",
+      "path_type": "hardlink",
+      "sha256": "19407ece9f8bab7008205a4ec0acc7465ba2a51aea5b37de5b465612d48add25",
+      "size_in_bytes": 35536
+    },
+    {
+      "_path": "bin/img2webp",
+      "path_type": "hardlink",
+      "sha256": "3cde0c2c8f2d7e471bff5262ec989d4ca114dc0722963e04dcafb4b9d4dfca4a",
+      "size_in_bytes": 56216
+    },
+    {
+      "_path": "bin/webpinfo",
+      "path_type": "hardlink",
+      "sha256": "965af5e9f4dd72b72f660232861e1a7202256955a0658fb5caffd13ac46093da",
+      "size_in_bytes": 33696
+    },
+    {
+      "_path": "bin/webpmux",
+      "path_type": "hardlink",
+      "sha256": "1ede992f3ffd17e9d46a8a037ae2915db9f88703aad06de0fd2e886562369a57",
+      "size_in_bytes": 39200
+    },
+    {
+      "_path": "share/man/man1/cwebp.1",
+      "path_type": "hardlink",
+      "sha256": "0424ad5f470cd8a2972d3e99cdcaaa50b07b859e1c1c96aa957944018c1b8bbf",
+      "size_in_bytes": 13438
+    },
+    {
+      "_path": "share/man/man1/dwebp.1",
+      "path_type": "hardlink",
+      "sha256": "b0951bc475a04eca23df4586f5ef8468d50b368bbfd139b4f251a7ee794b8887",
+      "size_in_bytes": 4824
+    },
+    {
+      "_path": "share/man/man1/gif2webp.1",
+      "path_type": "hardlink",
+      "sha256": "19c208659f284d4c815849df21b046b3040c3059fc8d8b67b1fa6ee2d242c0ab",
+      "size_in_bytes": 5564
+    },
+    {
+      "_path": "share/man/man1/img2webp.1",
+      "path_type": "hardlink",
+      "sha256": "3f1790e2cc86a308cebca2953608008ed7b4f0a3b4fe0f18a115d7aee1ac8f5e",
+      "size_in_bytes": 3983
+    },
+    {
+      "_path": "share/man/man1/webpinfo.1",
+      "path_type": "hardlink",
+      "sha256": "853501b8ecd65e25e4408c5e9011aa154968ac7fda9fcf44ed7e7967d171177b",
+      "size_in_bytes": 1825
+    },
+    {
+      "_path": "share/man/man1/webpmux.1",
+      "path_type": "hardlink",
+      "sha256": "928d14c35f09854a5fa9f62beb7b0069eebb5b40538e1370c530bfc8e8b7c91f",
+      "size_in_bytes": 6599
+    }
+  ],
+  "paths_version": 1
+}

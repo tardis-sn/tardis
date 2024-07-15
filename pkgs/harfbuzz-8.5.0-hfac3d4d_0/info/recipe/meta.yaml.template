@@ -1,0 +1,87 @@
+{% set name = "harfbuzz" %}
+{% set version = "8.5.0" %}
+{% set sha256 = "7ad8e4e23ce776efb6a322f653978b3eb763128fd56a90252775edb9fd327956" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/harfbuzz/harfbuzz/archive/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+  patches:
+    - gir-windows.patch  # [win]
+
+build:
+  number: 0
+  run_exports:
+    # pretty excellent forward compatibility
+    # https://abi-laboratory.pro/index.php?view=timeline&l=harfbuzz
+    - {{ pin_subpackage(name, max_pin='x') }}
+
+requirements:
+  build:
+    - gobject-introspection
+    - meson
+    - ninja
+    - pkg-config
+    - pthread-stubs
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - {{ compiler('cxx') }}
+    - cairo      # [build_platform != target_platform]
+    - glib       # [build_platform != target_platform]
+    - freetype   # [build_platform != target_platform]
+    - icu        # [build_platform != target_platform]
+    - graphite2  # [build_platform != target_platform]
+  host:
+    - cairo
+    - glib
+    - freetype
+    - icu
+    - graphite2
+  run:
+    - cairo
+    - freetype
+    - icu
+    - graphite2
+
+test:
+  requires:
+    - pygobject
+  commands:
+    # Libraries/headers.
+    {% set libs = [
+        "harfbuzz-cairo",
+        "harfbuzz-gobject",
+        "harfbuzz-icu",
+        "harfbuzz-subset",
+        "harfbuzz"
+        ] %}
+    {% for lib in libs %}
+    - test -f $PREFIX/lib/lib{{ lib }}${SHLIB_EXT}    # [unix]
+    - if not exist %PREFIX%\Library\bin\{{ lib }}.dll exit 1       # [win]
+    {% endfor %}
+    - test -f $PREFIX/include/harfbuzz/hb-ft.h    # [not win]
+    - if not exist %PREFIX%\Library\include\harfbuzz\hb-ft.h exit 1         # [win]
+    - test -f $PREFIX/lib/girepository-1.0/HarfBuzz-0.0.typelib    # [unix]
+    - if not exist %PREFIX%\Library\lib\girepository-1.0\HarfBuzz-0.0.typelib exit 1         # [win]
+    # CLI tests.
+    - hb-view --version  # [linux]
+
+about:
+  home: https://harfbuzz.github.io/
+  license: MIT
+  license_file: COPYING
+  summary: An OpenType text shaping engine.
+  description: |
+    HarfBuzz is a text shaping library. New Harbuzz targets various font
+    technologies while Old HarfBuzz targets only OpenType fonts.
+  doc_url: https://harfbuzz.github.io/
+  dev_url: https://github.com/harfbuzz/harfbuzz
+
+extra:
+  recipe-maintainers:
+    - ocefpaf
+    - pkgw
+    - tschoonj

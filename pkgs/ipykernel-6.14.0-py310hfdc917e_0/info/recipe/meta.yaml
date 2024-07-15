@@ -1,0 +1,144 @@
+# This file created by conda-build 3.21.9
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Jun 14 21:19:07 2022
+# ------------------------------------------------
+
+package:
+  name: ipykernel
+  version: 6.14.0
+source:
+  sha256: 720f2a07aadf70ca05b034f2cdd0590a8bd56581ddf3b7ec4a37075366270e89
+  url: https://pypi.io/packages/source/i/ipykernel/ipykernel-6.14.0.tar.gz
+build:
+  number: '0'
+  script:
+    - /home/conda/feedstock_root/build_artifacts/ipykernel_1655241617783/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+      -m pip install . --no-deps -vv
+    - /home/conda/feedstock_root/build_artifacts/ipykernel_1655241617783/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+      -m ipykernel install --sys-prefix
+  script_env:
+    - MIGRATING=False
+  string: py310hfdc917e_0
+requirements:
+  build: []
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - asttokens 2.0.5 pyhd8ed1ab_0
+    - backcall 0.2.0 pyh9f0ad1d_0
+    - backports 1.0 py_2
+    - backports.functools_lru_cache 1.6.4 pyhd8ed1ab_0
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2022.5.18.1 ha878542_0
+    - debugpy 1.6.0 py310hd8f1fbe_0
+    - decorator 5.1.1 pyhd8ed1ab_0
+    - editables 0.3 pyhd8ed1ab_0
+    - entrypoints 0.4 pyhd8ed1ab_0
+    - executing 0.8.3 pyhd8ed1ab_0
+    - hatchling 1.3.1 pyhd8ed1ab_0
+    - importlib-metadata 4.11.4 py310hff52083_0
+    - ipython 8.4.0 py310hff52083_0
+    - jedi 0.18.1 py310hff52083_1
+    - jupyter_client 7.3.4 pyhd8ed1ab_0
+    - jupyter_core 4.10.0 py310hff52083_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 12.1.0 h8d9b700_16
+    - libgomp 12.1.0 h8d9b700_16
+    - libnsl 2.0.0 h7f98852_0
+    - libsodium 1.0.18 h36c2ea0_1
+    - libstdcxx-ng 12.1.0 ha89aaad_16
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.12 h166bdaf_0
+    - matplotlib-inline 0.1.3 pyhd8ed1ab_0
+    - ncurses 6.3 h27087fc_1
+    - nest-asyncio 1.5.5 pyhd8ed1ab_0
+    - openssl 3.0.3 h166bdaf_0
+    - packaging 21.3 pyhd8ed1ab_0
+    - parso 0.8.3 pyhd8ed1ab_0
+    - pathspec 0.9.0 pyhd8ed1ab_0
+    - pexpect 4.8.0 pyh9f0ad1d_2
+    - pickleshare 0.7.5 py_1003
+    - pip 22.1.2 pyhd8ed1ab_0
+    - pluggy 1.0.0 py310hff52083_3
+    - prompt-toolkit 3.0.29 pyha770c72_0
+    - psutil 5.9.1 py310h5764c6d_0
+    - ptyprocess 0.7.0 pyhd3deb0d_0
+    - pure_eval 0.2.2 pyhd8ed1ab_0
+    - pygments 2.12.0 pyhd8ed1ab_0
+    - pyparsing 3.0.9 pyhd8ed1ab_0
+    - python 3.10.5 ha86cf86_0_cpython
+    - python-dateutil 2.8.2 pyhd8ed1ab_0
+    - python_abi 3.10 2_cp310
+    - pyzmq 23.1.0 py310h330234f_0
+    - readline 8.1.2 h0f457ee_0
+    - setuptools 62.3.4 py310hff52083_0
+    - six 1.16.0 pyh6c4a22f_0
+    - sqlite 3.38.5 h4ff8645_0
+    - stack_data 0.2.0 pyhd8ed1ab_0
+    - tk 8.6.12 h27826a3_0
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - tornado 6.1 py310h5764c6d_3
+    - traitlets 5.2.2.post1 pyhd8ed1ab_0
+    - tzdata 2022a h191b570_0
+    - wcwidth 0.2.5 pyh9f0ad1d_2
+    - wheel 0.37.1 pyhd8ed1ab_0
+    - xz 5.2.5 h516909a_1
+    - zeromq 4.3.4 h9c3ff4c_1
+    - zipp 3.8.0 pyhd8ed1ab_0
+    - zlib 1.2.12 h166bdaf_0
+  run:
+    - debugpy >=1.0
+    - ipython >=7.23.1
+    - jupyter_client >=6.1.12
+    - matplotlib-inline >=0.1
+    - nest-asyncio
+    - packaging
+    - psutil
+    - python >=3.10,<3.11.0a0
+    - python_abi 3.10.* *_cp310
+    - tornado >=6.1
+    - traitlets >=5.1.0
+test:
+  commands:
+    - pip check
+    - jupyter kernelspec list
+  imports:
+    - ipykernel
+  requires:
+    - curio
+    - flaky
+    - ipyparallel
+    - jupyter_client !=7.3.2=*_0
+    - matplotlib-base
+    - numpy
+    - pip
+    - pytest >=6.0
+    - pytest-cov
+    - pytest-timeout
+about:
+  description: 'A powerful interactive Python shell and a Jupyter kernel to work with
+
+    Python code in Jupyter notebooks and other interactive frontends.
+
+    '
+  dev_url: https://github.com/ipython/ipykernel
+  doc_source_url: https://github.com/ipython/ipykernel/blob/master/docs/index.rst
+  doc_url: https://ipython.readthedocs.io
+  home: https://ipython.org
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: COPYING.md
+  summary: IPython Kernel for Jupyter
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - Carreau
+    - blink1073
+    - bollwyvl
+    - davidbrochart
+    - jakirkham
+    - minrk
+    - ocefpaf
+    - pelson

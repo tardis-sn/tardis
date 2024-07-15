@@ -1,0 +1,74 @@
+{% set version = "2024a" %}
+
+package:
+  name: tzdata
+  version: {{ version }}
+
+source:
+  - url: https://data.iana.org/time-zones/releases/tzdata{{ version }}.tar.gz
+    sha256: 0d0434459acbd2059a7a8da1f3304a84a86591f6ed69c6248fffa502b6edffe3
+  - url: https://data.iana.org/time-zones/releases/tzcode{{ version }}.tar.gz
+    sha256: 80072894adff5a458f1d143e16e4ca1d8b2a122c9c5399da482cb68cba6a1ff8
+
+build:
+  number: 0
+  noarch: generic
+  # The recipe assumes building on Linux, but we don't have "skip" active since
+  # the linter will complain with "`noarch` packages can't have selectors".
+  # skip: True  # [not linux]
+  ignore_run_exports:
+    - libgcc-ng
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - sysroot_linux-64 2.17  # [linux64]
+    - make
+  host:
+  run:
+
+test:
+  commands:
+    - test -f "${PREFIX}/share/zoneinfo/leapseconds"
+    - test -f "${PREFIX}/share/zoneinfo/iso3166.tab"
+    - test -f "${PREFIX}/share/zoneinfo/zone1970.tab"
+    - test -f "${PREFIX}/share/zoneinfo/zone.tab"
+    - test -f "${PREFIX}/share/zoneinfo/tzdata.zi"
+    # Make sure we only package zoneinfo and nothing else.
+    - |
+      dirs="$(
+        find "${PREFIX}" -mindepth 1 -maxdepth 2 \
+        \! -path "${PREFIX}/share" \! -path "${PREFIX}/conda-meta*"
+      )"
+      test "${dirs}" = "${PREFIX}/share/zoneinfo"
+    # Make sure we only package timezone information files.
+    - |
+      heads="$(
+        find "${PREFIX}/share/zoneinfo" -type f \
+          \! -name \*.zi \! -name \*.tab \! -name leapseconds \
+          -exec head -c4 {} \; -printf \\n \
+          | uniq
+      )"
+      test "${heads}" = TZif
+
+about:
+  home: https://www.iana.org/time-zones
+  dev_url: https://github.com/eggert/tz
+  doc_url: https://data.iana.org/time-zones/tz-link.html
+  license: LicenseRef-Public-Domain
+  license_file: LICENSE
+  summary: The Time Zone Database (called tz, tzdb or zoneinfo) data
+
+  description: |
+    The Time Zone Database (called tz, tzdb or zoneinfo) contains code 
+    (the tzcode package) and data (this package) that represent the
+    history of local time for many representative
+    locations around the globe.  It is updated periodically to reflect
+    changes made by political bodies to time zone boundaries, UTC offsets,
+    and daylight-saving rules.
+
+extra:
+  recipe-maintainers:
+    - ocefpaf
+    - mbargull
+    - pganssle

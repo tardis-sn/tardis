@@ -1,0 +1,62 @@
+# This file created by conda-build 3.25.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Aug  9 18:10:31 2023
+# ------------------------------------------------
+
+package:
+  name: sphinxcontrib-jsmath
+  version: 1.0.1
+source:
+  sha256: a9925e4a4587247ed2191a22df5f6970656cb8ca2bd6284309578f2153e0c4b8
+  url: https://pypi.io/packages/source/s/sphinxcontrib-jsmath/sphinxcontrib-jsmath-1.0.1.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/sphinxcontrib-jsmath_1691604704163/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2023.7.22 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libnsl 2.0.0 h7f98852_0
+    - libsqlite 3.42.0 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 hcb278e6_0
+    - openssl 3.1.2 hd590300_0
+    - pip 23.2.1 pyhd8ed1ab_0
+    - python 3.11.4 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 68.0.0 pyhd8ed1ab_0
+    - tk 8.6.12 h27826a3_0
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.41.1 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.5
+test:
+  imports:
+    - sphinxcontrib
+    - sphinxcontrib.jsmath
+  requires:
+    - sphinx >=2
+about:
+  home: http://sphinx-doc.org/
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: A sphinx extension which renders display math in HTML via JavaScript
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - conda-forge/sphinx
+    - ocefpaf

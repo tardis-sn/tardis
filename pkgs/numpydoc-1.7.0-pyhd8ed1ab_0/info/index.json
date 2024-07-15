@@ -1,0 +1,18 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "jinja2 >=2.10",
+    "python >=3.7",
+    "sphinx >=5",
+    "tabulate >=0.8.10"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "numpydoc",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1711638408735,
+  "version": "1.7.0"
+}

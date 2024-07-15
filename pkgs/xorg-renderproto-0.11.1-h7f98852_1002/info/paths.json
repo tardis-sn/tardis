@@ -1,0 +1,25 @@
+{
+  "paths": [
+    {
+      "_path": "include/X11/extensions/render.h",
+      "path_type": "hardlink",
+      "sha256": "ef3f4aede97e1143656f9169868429d3b180fb8dfb0cbd4aa853e4f9a97a7a52",
+      "size_in_bytes": 7020
+    },
+    {
+      "_path": "include/X11/extensions/renderproto.h",
+      "path_type": "hardlink",
+      "sha256": "f34edcf5d8f289b810596ba7f646c4d07e14aa50590a11e1462993e5bccd732c",
+      "size_in_bytes": 14081
+    },
+    {
+      "_path": "lib/pkgconfig/renderproto.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/xorg-renderproto_1614866169432/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac",
+      "sha256": "c78e3f4db3afdf57a61e3d98e631c0be4cbc4120c935281c97b23825298f3727",
+      "size_in_bytes": 438
+    }
+  ],
+  "paths_version": 1
+}

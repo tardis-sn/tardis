@@ -1,0 +1,67 @@
+# This file created by conda-build 3.24.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Nov  1 10:11:22 2023
+# ------------------------------------------------
+
+package:
+  name: charset-normalizer
+  version: 3.3.2
+source:
+  sha256: f30c3cb33b24454a82faecaf01b19c18562b1e89558fb6c56de4d9118a032fd5
+  url: https://pypi.io/packages/source/c/charset-normalizer/charset-normalizer-3.3.2.tar.gz
+build:
+  entry_points:
+    - normalizer = charset_normalizer.cli:cli_detect
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/charset-normalizer_1698833585322/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2023.7.22 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_2
+    - libgomp 13.2.0 h807b86a_2
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.43.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.1.4 hd590300_0
+    - pip 23.3.1 pyhd8ed1ab_0
+    - python 3.12.0 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 68.2.2 pyhd8ed1ab_0
+    - tk 8.6.13 h2797004_0
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.41.3 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.7
+test:
+  commands:
+    - pip check
+    - normalizer --help
+  imports:
+    - charset_normalizer
+  requires:
+    - pip
+about:
+  home: https://github.com/Ousret/charset_normalizer
+  license: MIT
+  license_file:
+    - LICENSE
+    - data/NOTICE.md
+  summary: The Real First Universal Charset Detector. Open, modern and actively maintained
+    alternative to Chardet.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - ocefpaf

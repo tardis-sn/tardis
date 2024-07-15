@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7",
+        "six >=1.5"
+    ],
+    "fn": "python-dateutil-2.9.0-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "md5": "2cf4264fffb9e6eff6031c5b6884d61c",
+    "name": "python-dateutil",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "f3ceef02ac164a8d3a080d0d32f8e2ebe10dd29e3a685d240e38b3599e146320",
+    "size": 222742,
+    "subdir": "noarch",
+    "timestamp": 1709299922152,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/python-dateutil-2.9.0-pyhd8ed1ab_0.conda",
+    "version": "2.9.0"
+}

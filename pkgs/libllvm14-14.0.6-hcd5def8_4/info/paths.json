@@ -1,0 +1,23 @@
+{
+  "paths": [
+    {
+      "_path": "lib/libLLVM-14.so",
+      "path_type": "hardlink",
+      "sha256": "12226f035f9d8ee5c401c74e4086279632545ce157ec5256ff7e6d76ca9fc11e",
+      "size_in_bytes": 131769152
+    },
+    {
+      "_path": "lib/libLTO.so.14",
+      "path_type": "hardlink",
+      "sha256": "cdabc4dd3d5dca939b8ef72c3b59ee72433d52c0d79a5bad116683d983e1dc1c",
+      "size_in_bytes": 104760
+    },
+    {
+      "_path": "lib/libRemarks.so.14",
+      "path_type": "hardlink",
+      "sha256": "afefe1817677c53df5b1d93aa6323c02038d1a5c349100025523a00dc5e0a12d",
+      "size_in_bytes": 15256
+    }
+  ],
+  "paths_version": 1
+}

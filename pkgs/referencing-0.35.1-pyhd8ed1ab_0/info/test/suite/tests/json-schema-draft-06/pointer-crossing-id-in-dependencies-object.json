@@ -1,0 +1,29 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "dependencies": {
+        "foo": {
+          "$id": "http://example.com/oh-hey-a-subschema",
+          "definitions": {
+            "$id": {},
+            "foo": {
+              "$id": "foo",
+              "bar": "baz"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/#/dependencies/foo/definitions/foo",
+      "target": { "$id": "foo", "bar": "baz" },
+      "then": {
+        "ref": "#",
+        "target": { "$id": "foo", "bar": "baz" }
+      }
+    }
+  ]
+}

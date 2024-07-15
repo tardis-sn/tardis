@@ -1,0 +1,61 @@
+# This file created by conda-build 3.27.0
+# meta.yaml template originally from:
+# /work/perseverance-python-buildout/aggregate/pysocks-feedstock/recipe, last modified Wed Nov  1 02:15:11 2023
+# ------------------------------------------------
+
+package:
+  name: pysocks
+  version: 1.7.1
+source:
+  sha256: 3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0
+  url: https://pypi.io/packages/source/P/PySocks/PySocks-1.7.1.tar.gz
+build:
+  number: '0'
+  script: /work/perseverance-python-buildout/croot/pysocks_1698845478203/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place/bin/python
+    -m pip install . --no-deps -vv
+  string: py312h06a4308_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 main
+    - _openmp_mutex 5.1 1_gnu
+    - bzip2 1.0.8 h7b6447c_0
+    - ca-certificates 2023.08.22 h06a4308_0
+    - expat 2.5.0 h6a678d5_0
+    - ld_impl_linux-64 2.38 h1181459_1
+    - libffi 3.4.4 h6a678d5_0
+    - libgcc-ng 11.2.0 h1234567_1
+    - libgomp 11.2.0 h1234567_1
+    - libstdcxx-ng 11.2.0 h1234567_1
+    - libuuid 1.41.5 h5eee18b_0
+    - ncurses 6.4 h6a678d5_0
+    - openssl 3.0.11 h7f8727e_2
+    - pip 23.3 py312h06a4308_0
+    - python 3.12.0 h996f2a0_0
+    - readline 8.2 h5eee18b_0
+    - setuptools 68.0.0 py312h06a4308_0
+    - sqlite 3.41.2 h5eee18b_0
+    - tk 8.6.12 h1ccaba5_0
+    - tzdata 2023c h04d1e81_0
+    - wheel 0.41.2 py312h06a4308_0
+    - xz 5.4.2 h5eee18b_0
+    - zlib 1.2.13 h5eee18b_0
+  run:
+    - python >=3.12,<3.13.0a0
+test:
+  imports:
+    - socks
+about:
+  dev_url: https://github.com/Anorov/PySocks
+  doc_url: https://github.com/Anorov/PySocks/blob/master/README.md
+  home: https://github.com/Anorov/PySocks
+  license: BSD 3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: A Python SOCKS client module. See https://github.com/Anorov/PySocks for
+    more information.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - ocefpaf
+    - pmlandwehr

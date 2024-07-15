@@ -1,0 +1,7 @@
+.. currentmodule:: sphinx_automodapi.tests.example_module.functions_with_ref
+
+.. autosummary::
+    :toctree: ../../api
+
+    add
+    multiply

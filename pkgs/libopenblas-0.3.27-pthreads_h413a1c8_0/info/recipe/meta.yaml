@@ -1,0 +1,73 @@
+# This file created by conda-build 24.3.0
+# ------------------------------------------------
+
+package:
+  name: libopenblas
+  version: 0.3.27
+source:
+  sha256: aa2d68b1564fe2b13bc292672608e9cdeeeb6dc34995512e65c3b10f4599e897
+  url: https://github.com/OpenMathLib/OpenBLAS/archive/v0.3.27.tar.gz
+build:
+  number: 0
+  run_exports:
+    - libopenblas >=0.3.27,<1.0a0
+  string: pthreads_h413a1c8_0
+  track_features: null
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gfortran_impl_linux-64 12.3.0 hfcedea8_5
+    - gfortran_linux-64 12.3.0 h617cb40_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgfortran5 13.2.0 ha4646dd_5
+    - libgomp 13.2.0 h807b86a_5
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgfortran-ng 13.2.0 h69a702a_5
+    - libgfortran5 13.2.0 ha4646dd_5
+    - libgomp 13.2.0 h807b86a_5
+  run:
+    - libgcc-ng >=12
+    - libgfortran-ng
+    - libgfortran5 >=12.3.0
+  run_constrained:
+    - openblas >=0.3.27,<0.3.28.0a0
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libopenblasp-r0.3.27.so
+    - python -c "import ctypes; ctypes.cdll['${PREFIX}/lib/libopenblasp-r0.3.27.so']"
+  requires:
+    - python *
+about:
+  dev_url: https://github.com/OpenMathLib/OpenBLAS
+  home: http://www.openblas.net/
+  license: BSD-3-Clause
+  license_file:
+    - LICENSE
+    - lapack-netlib/LICENSE
+  summary: An optimized BLAS library based on GotoBLAS2 1.13 BSD version
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240405.1.1
+  recipe-maintainers:
+    - gillins
+    - groutr
+    - h-vetinari
+    - isuruf
+    - jakirkham
+  remote_url: https://github.com/conda-forge/openblas-feedstock
+  sha: 5218adfe394196cb2b1794417ca09dd5ea0219af

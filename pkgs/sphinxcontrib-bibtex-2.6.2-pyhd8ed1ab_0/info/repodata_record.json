@@ -1,0 +1,31 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "dataclasses",
+        "docutils >=0.8,!=0.18.*,!=0.19.*",
+        "importlib_metadata >=3.6",
+        "pybtex >=0.24",
+        "pybtex-docutils >=1.0.0",
+        "python >=3.7",
+        "sphinx >=3.5"
+    ],
+    "fn": "sphinxcontrib-bibtex-2.6.2-pyhd8ed1ab_0.conda",
+    "license": "BSD-2-Clause",
+    "license_family": "BSD",
+    "md5": "ac0947374ec8b703181808828bf5dfec",
+    "name": "sphinxcontrib-bibtex",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "67de4b2e9a50d9ee38914aca6faebd44f31b0821a43517b0a805afc889372311",
+    "size": 33070,
+    "subdir": "noarch",
+    "timestamp": 1704921850447,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-bibtex-2.6.2-pyhd8ed1ab_0.conda",
+    "version": "2.6.2"
+}

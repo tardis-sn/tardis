@@ -1,0 +1,62 @@
+# This file created by conda-build 3.21.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu Mar  4 13:55:09 2021
+# ------------------------------------------------
+
+package:
+  name: xorg-renderproto
+  version: 0.11.1
+source:
+  fn: xorg-renderproto-0.11.1.tar.bz2
+  sha256: 06735a5b92b20759204e4751ecd6064a2ad8a6246bb65b3078b862a00def2537
+  url: https://www.x.org/releases/individual/proto/renderproto-0.11.1.tar.bz2
+build:
+  detect_binary_files_with_prefix: true
+  number: '1002'
+  string: h7f98852_1002
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - autoconf 2.69 pl5320h36c2ea0_10
+    - automake 1.16.2 pl5320ha770c72_3
+    - binutils_impl_linux-64 2.35.1 h193b22a_2
+    - binutils_linux-64 2.35 h67ddf6f_30
+    - gcc_impl_linux-64 9.3.0 h70c0ae5_18
+    - gcc_linux-64 9.3.0 hf25ea35_30
+    - gettext 0.19.8.1 h0b5b191_1005
+    - gnuconfig 2020.11.07 hd8ed1ab_0
+    - kernel-headers_linux-64 2.6.32 h77966d4_13
+    - ld_impl_linux-64 2.35.1 hea4e1c9_2
+    - libffi 3.3 h58526e2_2
+    - libgcc-devel_linux-64 9.3.0 h7864c58_18
+    - libgcc-ng 9.3.0 h2828fa1_18
+    - libgomp 9.3.0 h2828fa1_18
+    - libstdcxx-ng 9.3.0 h6de172a_18
+    - libtool 2.4.6 h58526e2_1007
+    - m4 1.4.18 h516909a_1001
+    - make 4.3 hd18ef5c_1
+    - perl 5.32.0 h36c2ea0_0
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - sysroot_linux-64 2.12 h77966d4_13
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - libgcc-ng 9.3.0 h2828fa1_18
+    - libgomp 9.3.0 h2828fa1_18
+    - xorg-util-macros 1.19.3 h7f98852_0
+  run:
+    - libgcc-ng >=9.3.0
+test:
+  commands: null
+about:
+  home: https://www.x.org/
+  license: MIT
+  license_family: MIT
+  license_file: COPYING
+  summary: C prototypes for the XRender extension to X11.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - pkgw

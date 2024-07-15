@@ -1,0 +1,77 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/iniconfig-2.0.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/iniconfig-2.0.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "d8a7017790c416265c94efabb8ffeaccdef5a9c4cbd2136c0b0e4c08320f37a2",
+      "size_in_bytes": 2599
+    },
+    {
+      "_path": "site-packages/iniconfig-2.0.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "50a6ef6216337a5a06832a09f577fa60401551276140cb38765098841435ad36",
+      "size_in_bytes": 1180
+    },
+    {
+      "_path": "site-packages/iniconfig-2.0.0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/iniconfig-2.0.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "84a8bb008231eaa7e7b116ebd3ceefa5e267ad552e0e89031d969c3cf316efe6",
+      "size_in_bytes": 87
+    },
+    {
+      "_path": "site-packages/iniconfig-2.0.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "df079da53bcec5a5f05311d03e531a4974e29f4652d31c49afb3b52160afbd9b",
+      "size_in_bytes": 105
+    },
+    {
+      "_path": "site-packages/iniconfig-2.0.0.dist-info/licenses/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "2af680c39ef493fb82830356d1d3df1acb5a06033cba2dec7a19e21caa77a866",
+      "size_in_bytes": 1061
+    },
+    {
+      "_path": "site-packages/iniconfig/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "00b25235e9c08130fb44d8fcdb436080442ec9a669d90b1e4c24e11893dabe4d",
+      "size_in_bytes": 5473
+    },
+    {
+      "_path": "site-packages/iniconfig/_parse.py",
+      "path_type": "hardlink",
+      "sha256": "39618b6e613c1a3c5ca0c593be719b724d51a0db139b96ede5f89c21166a589f",
+      "size_in_bytes": 2436
+    },
+    {
+      "_path": "site-packages/iniconfig/_version.py",
+      "path_type": "hardlink",
+      "sha256": "58cf2b397a0be6ddb968c409a78a9b5365cfd3d9eb0ed9839eb0068474a4d169",
+      "size_in_bytes": 160
+    },
+    {
+      "_path": "site-packages/iniconfig/exceptions.py",
+      "path_type": "hardlink",
+      "sha256": "dd5d894b9ae7770898521f383cd612ff5cddf07f0807e45aafcd4044003b13db",
+      "size_in_bytes": 501
+    },
+    {
+      "_path": "site-packages/iniconfig/py.typed",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    }
+  ],
+  "paths_version": 1
+}

@@ -1,0 +1,137 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "docutils",
+        "jsonpointer",
+        "python >=3.6",
+        "pyyaml",
+        "requests",
+        "sphinx"
+    ],
+    "extracted_package_dir": "pkgs/sphinx-jsonschema-1.19.1-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/sphinx-jsonschema/__init__.py",
+        "lib/python3.12/site-packages/sphinx-jsonschema/example.py",
+        "lib/python3.12/site-packages/sphinx-jsonschema/wide_format.py",
+        "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/METADATA",
+        "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/RECORD",
+        "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/WHEEL",
+        "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/sphinx-jsonschema/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx-jsonschema/__pycache__/example.cpython-312.pyc",
+        "lib/python3.12/site-packages/sphinx-jsonschema/__pycache__/wide_format.cpython-312.pyc"
+    ],
+    "fn": "sphinx-jsonschema-1.19.1-pyhd8ed1ab_0.tar.bz2",
+    "license": "GPL-3.0-only",
+    "link": {
+        "source": "pkgs/sphinx-jsonschema-1.19.1-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "d340bddca07283d3362b0e46b1791568",
+    "name": "sphinx-jsonschema",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/sphinx-jsonschema-1.19.1-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/sphinx-jsonschema/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "f4ccc2fe2696425ce2a0de9f403c8d8001ea28f2cc69d520ecde4e83200fb5fc",
+                "sha256_in_prefix": "f4ccc2fe2696425ce2a0de9f403c8d8001ea28f2cc69d520ecde4e83200fb5fc",
+                "size_in_bytes": 13530
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx-jsonschema/example.py",
+                "path_type": "hardlink",
+                "sha256": "f5234f727010c68dea898febf959a57441a970d04c0502024e5720cc861bede6",
+                "sha256_in_prefix": "f5234f727010c68dea898febf959a57441a970d04c0502024e5720cc861bede6",
+                "size_in_bytes": 451
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx-jsonschema/wide_format.py",
+                "path_type": "hardlink",
+                "sha256": "d65da32004a0081d64e5f573e880f7dc922ff73ddffc3c3815068167db696c5e",
+                "sha256_in_prefix": "d65da32004a0081d64e5f573e880f7dc922ff73ddffc3c3815068167db696c5e",
+                "size_in_bytes": 23798
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "24343eaf97dc3f71bccf13820e5bee2310de66c81a9a1cb475daa914556a82a7",
+                "sha256_in_prefix": "24343eaf97dc3f71bccf13820e5bee2310de66c81a9a1cb475daa914556a82a7",
+                "size_in_bytes": 10249
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "8e6720e1b70938da858683a6473a9c31b1b7f7b0534b5351eabaa3df742aaa61",
+                "sha256_in_prefix": "8e6720e1b70938da858683a6473a9c31b1b7f7b0534b5351eabaa3df742aaa61",
+                "size_in_bytes": 1092
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "1b5e87e00dc87a84269cead8578b9e6462928e18a95f1f3373c9eef451a5bcc0",
+                "sha256_in_prefix": "1b5e87e00dc87a84269cead8578b9e6462928e18a95f1f3373c9eef451a5bcc0",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "f463fda58b27070228568ed3829e85055830c6840533cce93ccc8ab5d4e7e193",
+                "sha256_in_prefix": "f463fda58b27070228568ed3829e85055830c6840533cce93ccc8ab5d4e7e193",
+                "size_in_bytes": 113
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_jsonschema-1.19.1.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "68ca15bcb12df09e6142d9af65e2b7680b5f9a501c0fd0f81d432f8c26a56f24",
+                "sha256_in_prefix": "68ca15bcb12df09e6142d9af65e2b7680b5f9a501c0fd0f81d432f8c26a56f24",
+                "size_in_bytes": 18
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx-jsonschema/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx-jsonschema/__pycache__/example.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx-jsonschema/__pycache__/wide_format.cpython-312.pyc",
+                "path_type": "pyc_file"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "sphinx-jsonschema",
+    "sha256": "25eb01ba39b88283a5046a288d9deb88af96ed6c4c120072b3007ef20096ee55",
+    "size": 31700,
+    "subdir": "noarch",
+    "timestamp": 1651425623497,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinx-jsonschema-1.19.1-pyhd8ed1ab_0.tar.bz2",
+    "version": "1.19.1"
+}

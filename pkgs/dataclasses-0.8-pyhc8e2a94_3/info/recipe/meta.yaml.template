@@ -1,0 +1,55 @@
+{% set version = "0.8" %}
+{% set build_number = 1 %}
+
+package:
+  name: dataclasses
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/d/dataclasses/dataclasses-{{ version }}.tar.gz
+  sha256: 8479067f342acf957dc82ec415d355ab5edb7e7646b90dc6e2fd1d96ad084c97
+
+build:
+  {% if build_script == 'noop' %}
+  number: {{ build_number | int * 2 + 1 }}
+  script: bash {{ RECIPE_DIR }}/noop.sh
+  {% else %}
+  number: {{ build_number | int * 2 }}
+  script: {{ PYTHON }} -m pip install --no-deps --ignore-installed .
+  {% endif %}
+  noarch: python
+
+requirements:
+  host:
+    {% if build_script == 'noop' %}
+    - python >=3.7
+    {% else %}
+    - python >=3.6,<3.7
+    {% endif %}
+    - pip
+  run:
+    {% if build_script == 'noop' %}
+    - python >=3.7
+    {% else %}
+    - python >=3.6,<3.7
+    {% endif %}
+
+
+test:
+  requires:
+    - setuptools
+  imports:
+    - dataclasses
+  commands:
+    - python -c "from dataclasses import dataclass"
+    - python -c "import pkg_resources as p; p.get_distribution('dataclasses')"
+
+about:
+  home: https://github.com/ericvsmith/dataclasses
+  license: Apache-2.0
+  license_file: LICENSE.txt
+  summary: 'An implementation of PEP 557: Data Classes'
+
+extra:
+  recipe-maintainers:
+    - ocefpaf

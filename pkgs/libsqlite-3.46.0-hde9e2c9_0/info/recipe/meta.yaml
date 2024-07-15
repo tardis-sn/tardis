@@ -1,0 +1,75 @@
+# This file created by conda-build 24.5.1
+# ------------------------------------------------
+
+package:
+  name: libsqlite
+  version: 3.46.0
+source:
+  patches: null
+  sha256: 6f8e6a7b335273748816f9b3b62bbdc372a889de8782d7f048c653a447417a7d
+  url: https://www.sqlite.org/2024/sqlite-autoconf-3460000.tar.gz
+build:
+  number: 0
+  run_exports:
+    - libsqlite >=3.46.0,<4.0a0
+  string: hde9e2c9_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_3
+    - binutils_linux-64 2.40 hb3c18ed_4
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6b3dd4b_4
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_3
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libsanitizer 12.3.0 hb8811af_7
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libtool 2.4.7 h27087fc_0
+    - make 4.3 hd18ef5c_1
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libzlib 1.2.13 h4ab18f5_6
+    - zlib 1.2.13 h4ab18f5_6
+  run:
+    - libgcc-ng >=12
+    - libzlib >=1.2.13,<2.0a0
+test:
+  commands:
+    - test -f $PREFIX/lib/libsqlite3${SHLIB_EXT}
+    - test ! -f $PREFIX/lib/libsqlite3.a
+    - test -f $PREFIX/include/sqlite3.h
+    - test -f $PREFIX/include/sqlite3ext.h
+about:
+  description: 'SQLite is a self-contained, high-reliability, embedded, full-featured,
+
+    public-domain, SQL database engine.It is the most used database engine
+
+    in the world.
+
+    '
+  dev_url: https://github.com/mackyle/sqlite
+  doc_source_url: https://github.com/mackyle/sqlite/tree/master/doc
+  doc_url: http://www.sqlite.org/docs.html
+  home: http://www.sqlite.org/
+  license: Unlicense
+  license_url: http://www.sqlite.org/copyright.html
+  summary: Implements a self-contained, zero-configuration, SQL database engine
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240610.1.1
+  recipe-maintainers:
+    - jakirkham
+    - mingwandroid
+    - msarahan
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/sqlite-feedstock
+  sha: 01d86159255f61a51a83c0c37250ef10918e5f60

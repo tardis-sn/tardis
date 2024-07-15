@@ -1,0 +1,14 @@
+prefix=/home/conda/feedstock_root/build_artifacts/c-blosc2_1718953484603/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+sharedlibdir=${libdir}
+includedir=${prefix}/include
+
+Name: blosc2
+Description: A blocking, shuffling and lossless compression library
+URL: https://blosc.org/
+Version: 2.15.0
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lblosc2
+Cflags: -I${includedir}

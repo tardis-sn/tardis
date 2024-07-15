@@ -1,0 +1,28 @@
+diff --git a/src/fccfg.c b/src/fccfg.c
+index f62e228..eeaf18a 100644
+--- a/src/fccfg.c
++++ b/src/fccfg.c
+@@ -2360,9 +2360,7 @@ DllMain (HINSTANCE hinstDLL,
+ 
+ #endif /* !_WIN32 */
+ 
+-#ifndef FONTCONFIG_FILE
+-#define FONTCONFIG_FILE	"fonts.conf"
+-#endif
++#define FONTCONFIG_FILE	"@PREFIX@/etc/fonts/fonts.conf"
+ 
+ static FcChar8 *
+ FcConfigFileExists (const FcChar8 *dir, const FcChar8 *file)
+diff --git a/meson.build b/meson.build
+index a415d39..438a250 100644
+--- a/meson.build
++++ b/meson.build
+@@ -220,7 +220,7 @@ if default_fonts_dirs == ['yes']
+   elif host_machine.system() == 'darwin'
+     fc_fonts_paths = ['/System/Library/Fonts', '/Library/Fonts', '~/Library/Fonts', '/System/Library/Assets/com_apple_MobileAsset_Font3', '/System/Library/Assets/com_apple_MobileAsset_Font4']
+   else
+-    fc_fonts_paths = ['/usr/share/fonts', '/usr/local/share/fonts']
++    fc_fonts_paths = ['/usr/share/fonts', join_paths(prefix, 'fonts')]
+   endif
+ else
+   fc_fonts_paths = default_fonts_dirs

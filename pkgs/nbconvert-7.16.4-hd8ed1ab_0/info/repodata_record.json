@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "hd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "hd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "nbconvert-core 7.16.4 pyhd8ed1ab_0",
+        "nbconvert-pandoc 7.16.4 hd8ed1ab_0"
+    ],
+    "fn": "nbconvert-7.16.4-hd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "c9d64b8a7ee8e6bdbf0e7d8aa7f39601",
+    "name": "nbconvert",
+    "noarch": "generic",
+    "platform": null,
+    "sha256": "7a4a759b8930833cbfffbfd92da069f1d3fd43760ea629c8612b9e7ae9fff0e8",
+    "size": 8434,
+    "subdir": "noarch",
+    "timestamp": 1714477296945,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/nbconvert-7.16.4-hd8ed1ab_0.conda",
+    "version": "7.16.4"
+}

@@ -1,0 +1,16 @@
+{
+  "arch": "x86_64",
+  "build": "4_cp312",
+  "build_number": 4,
+  "constrains": [
+    "python 3.12.* *_cpython"
+  ],
+  "depends": [],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "python_abi",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1695147396604,
+  "version": "3.12"
+}

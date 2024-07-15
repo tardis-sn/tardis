@@ -1,0 +1,20 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "additionalProperties": {
+        "id": "http://example.com/oh-hey-an-additionalProperties",
+        "abc": 123
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/oh-hey-an-additionalProperties",
+      "target": {
+        "id": "http://example.com/oh-hey-an-additionalProperties",
+        "abc": 123
+      }
+    }
+  ]
+}

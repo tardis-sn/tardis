@@ -1,0 +1,13 @@
+{
+  "fontconfig": "2",
+  "c_compiler_version": "12",
+  "cairo": "1",
+  "harfbuzz": "8",
+  "freetype": "2",
+  "channel_targets": "conda-forge main",
+  "c_compiler": "gcc",
+  "glib": "2",
+  "pango": "1.50",
+  "gdk_pixbuf": "2",
+  "target_platform": "linux-64"
+}

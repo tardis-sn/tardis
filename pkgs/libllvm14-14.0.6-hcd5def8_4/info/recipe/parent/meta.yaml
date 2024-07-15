@@ -1,0 +1,187 @@
+{% set version = "14.0.6" %}
+{% set major_ver = version.split(".")[0] %}
+
+package:
+  name: llvm-package
+  version: {{ version }}
+
+source:
+  url: https://github.com/llvm/llvm-project/releases/download/llvmorg-{{ version.replace(".rc", "-rc") }}/llvm-project-{{ version.replace(".rc", "rc") }}.src.tar.xz
+  sha256: 8b3cfd7bc695bd6cea0f37f53f0981f34f87496e79e2529874fd03a2f9dd3a8a
+  patches:
+    # - patches/amd-roc-2.7.0.diff
+    - patches/0001-pass-through-QEMU_LD_PREFIX-SDKROOT.patch
+    - patches/0002-Always-copy-on-windows.patch
+    # backport https://reviews.llvm.org/D146938 to unblock numba on aarch
+    - patches/0003-RuntimeDyld-RuntimeDyldELF-Clear-GOTOffsetMap-when-r.patch
+    # Discussion about upstreaming: https://discourse.llvm.org/t/x86-finalizing-svml-support-in-llvm/70977
+    - patches/0004-Fixes-vectorizer-and-extends-SVML-support.patch
+
+build:
+  number: 4
+  merge_build_host: false
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+    - cmake
+    - ninja
+    - python >=3
+    - libcxx {{ cxx_compiler_version }}  # [osx]
+  host:
+    - libcxx {{ cxx_compiler_version }}  # [osx]
+    - zlib
+    - libxml2                            # [win]
+
+outputs:
+  # Contains everything
+  - name: llvmdev
+    script: install_llvm.sh  # [not win]
+    script: install_llvm.bat  # [win]
+    build:
+      skip: true  # [(win and vc<14)]
+      activate_in_script: true
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+        - cmake
+        - ninja
+        - python >=3
+        - m2-sed  # [win]
+      host:
+        - {{ pin_subpackage("libllvm" + major_ver, exact=True) }}
+        - {{ pin_subpackage("llvm-tools", exact=True) }}
+        - zlib
+      run:
+        - {{ pin_subpackage("libllvm" + major_ver, exact=True) }}
+        - {{ pin_subpackage("llvm-tools", exact=True) }}
+        - libcxx >={{ cxx_compiler_version }}                           # [osx]
+    test:
+      requires:
+        - ripgrep  # [win]
+      commands:
+        - $PREFIX/bin/llvm-config --libs                                # [not win]
+        - test -f $PREFIX/include/llvm/Pass.h                           # [not win]
+        - test -f $PREFIX/lib/libLLVMCore.a                             # [not win]
+        - $PREFIX/libexec/llvm/not false                                # [not win]
+        - if not exist %LIBRARY_INC%\\llvm\\Pass.h exit 1               # [win]
+        - if not exist "%LIBRARY_PREFIX%"\\libexec\llvm\not.exe exit 1  # [win]
+
+        # ensure we've correctly inserted %VSINSTALLDIR% into the CMake metadata for LLVM;
+        # we're looking for: `INTERFACE_LINK_LIBRARIES "$ENV{VSINSTALLDIR}/DIA SDK/lib/amd64/diaguids.lib;[...]`instead
+        - rg -e "INTERFACE_LINK_LIBRARIES\s\"\$ENV\{VSINSTALLDIR\}[/\w\s]+/diaguids\.lib" %LIBRARY_LIB%\cmake\llvm\LLVMExports.cmake  # [win]
+
+  # Contains the shared libraries. To make different LLVM libraries co-installable
+  # soversion is appended to the package name.
+  - name: libllvm{{ major_ver }}
+    script: install_llvm.sh  # [not win]
+    build:
+      skip: true  # [win and vc<14]
+      activate_in_script: true
+      run_exports:   # [not win]
+        - {{ pin_subpackage("libllvm" + major_ver, max_pin="x.x") }}  # [not win]
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+        - ninja                    # [not win]
+        - cmake                    # [not win]
+        - python >=3               # [not win]
+      host:
+        - libcxx >={{ cxx_compiler_version }}  # [osx]
+        - zlib
+      run:
+        - libcxx >={{ cxx_compiler_version }}  # [osx]
+    test:
+      commands:
+        - test -f $PREFIX/lib/libLLVM-{{ major_ver }}${SHLIB_EXT}     # [not win]
+
+  # This is a meta package so that people can use the latest libllvm and also
+  # for run_exports
+  - name: llvm
+    build:
+      skip: true  # [(win and vc<14)]
+      run_exports:   # [not win]
+        - {{ pin_subpackage("libllvm" + major_ver, max_pin="x.x") }}  # [not win]
+    requirements:
+      build:
+      host:
+        - {{ pin_subpackage("libllvm" + major_ver, exact=True) }}     # [not win]
+        - zlib
+      run:   # [not win]
+        - {{ pin_subpackage("libllvm" + major_ver, exact=True) }}     # [not win]
+      run_constrained:   # [not win]
+        - llvmdev   {{ version }}                                     # [not win]
+    test:
+      commands:
+        - echo "Hello World!"
+
+  # Contains LLVM tools
+  - name: llvm-tools
+    script: install_llvm.sh  # [not win]
+    script: install_llvm.bat  # [win]
+    build:
+      skip: true  # [(win and vc<14)]
+      activate_in_script: true
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+        - cmake
+        - ninja
+        - python >=3
+      host:
+        - {{ pin_subpackage("libllvm" + major_ver, exact=True) }}
+        - libxml2   # [win]
+        - zlib
+      run:
+        - {{ pin_subpackage("libllvm" + major_ver, exact=True) }}
+      run_constrained:
+        - llvmdev   {{ version }}
+    test:
+      commands:
+        - $PREFIX/bin/llc -version                               # [not win]
+        - if not exist "%LIBRARY_BIN%"\\llc.exe exit 1           # [win]
+        - llc -version                                           # [win]
+
+  - name: lit
+    build:
+      noarch: python
+      script: python -m pip install llvm/utils/lit --no-deps -vv
+      activate_in_script: true
+      skip: true  # [not linux64]
+      entry_points:
+        # upstream LLVM is inconsistent; there's one way specified in lit's setup.py...
+        - lit = lit.main:main
+        # ... and then the CMake files we install here (e.g. AddLLVM.cmake) look for another
+        - llvm-lit = lit.main:main
+    requirements:
+      host:
+        - python >=3
+        - pip
+      run:
+        - python
+    test:
+      imports:
+        - lit
+      commands:
+        - lit -h
+        - llvm-lit -h
+
+about:
+  home: http://llvm.org/
+  dev_url: https://github.com/llvm/llvm-project
+  license: Apache-2.0 WITH LLVM-exception
+  license_file: llvm/LICENSE.TXT
+  license_family: Apache
+  summary: Development headers and libraries for LLVM
+
+extra:
+  recipe-maintainers:
+    - inducer
+    - jakirkham
+    - mingwandroid
+    - SylvainCorlay
+    - isuruf
+    - timsnyder
+    - xhochy
+    - h-vetinari
+  feedstock-name: llvmdev

@@ -1,0 +1,35 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "definitions": {
+        "foo": {
+          "id": "#foo",
+          "definitions": {
+            "bar": { "baz": "quux" }
+          }
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "base_uri": "http://example.com/",
+      "ref": "#foo/definitions/bar",
+      "error": true
+    },
+    {
+      "base_uri": "http://example.com/",
+      "ref": "#foo#/definitions/bar",
+      "error": true
+    },
+    {
+      "ref": "http://example.com/#foo/definitions/bar",
+      "error": true
+    },
+    {
+      "ref": "http://example.com#foo/definitions/bar",
+      "error": true
+    }
+  ]
+}

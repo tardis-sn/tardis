@@ -1,0 +1,42 @@
+{% set version = "5.1.1" %}
+
+package:
+  name: decorator
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/d/decorator/decorator-{{ version }}.tar.gz
+  sha256: 637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.5
+    - pip
+  run:
+    - python >=3.5
+
+test:
+  requires:
+    - pip
+  commands:
+    - pip check
+  imports:
+    - decorator
+
+about:
+  home: https://github.com/micheles/decorator
+  license: BSD-2-Clause
+  license_file: LICENSE.txt
+  summary: Decorators for Humans
+
+extra:
+  recipe-maintainers:
+    - msarahan
+    - pelson
+    - ocefpaf
+    - scopatz

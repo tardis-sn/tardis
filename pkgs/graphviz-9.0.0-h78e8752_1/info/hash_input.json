@@ -1,0 +1,16 @@
+{
+  "cxx_compiler": "gxx",
+  "libwebp_base": "1",
+  "zlib": "1.2",
+  "gdk_pixbuf": "2",
+  "cairo": "1",
+  "c_compiler_version": "12",
+  "glib": "2",
+  "pango": "1.50",
+  "expat": "2",
+  "librsvg": "2",
+  "cxx_compiler_version": "12",
+  "channel_targets": "conda-forge main",
+  "c_compiler": "gcc",
+  "target_platform": "linux-64"
+}

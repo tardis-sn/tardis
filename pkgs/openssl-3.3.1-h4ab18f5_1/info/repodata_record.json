@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "h4ab18f5_1",
+    "build_number": 1,
+    "build_string": "h4ab18f5_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [
+        "pyopenssl >=22.1"
+    ],
+    "depends": [
+        "ca-certificates",
+        "libgcc-ng >=12"
+    ],
+    "fn": "openssl-3.3.1-h4ab18f5_1.conda",
+    "license": "Apache-2.0",
+    "license_family": "Apache",
+    "md5": "b1e9d076f14e8d776213fd5047b4c3d9",
+    "name": "openssl",
+    "platform": "linux",
+    "sha256": "ff3faf8d4c1c9aa4bd3263b596a68fcc6ac910297f354b2ce28718a3509db6d9",
+    "size": 2896610,
+    "subdir": "linux-64",
+    "timestamp": 1719363957188,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/openssl-3.3.1-h4ab18f5_1.conda",
+    "version": "3.3.1"
+}

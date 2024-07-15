@@ -1,0 +1,101 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/idna-3.7.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/idna-3.7.dist-info/LICENSE.md",
+      "path_type": "hardlink",
+      "sha256": "a59f0b0ef3635874109a4461ca44ff7a70d50696e814767bfaf721d4c9b0db0f",
+      "size_in_bytes": 1541
+    },
+    {
+      "_path": "site-packages/idna-3.7.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "3a2c4293e74a2d990fcbe31fbe23a688fbf02753b62bff2ba82ac58c2feec72e",
+      "size_in_bytes": 9888
+    },
+    {
+      "_path": "site-packages/idna-3.7.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "3b1b5f2f42efbe3dc8c619c0b6a282108f82e08cbe0d08006115d709360276ad",
+      "size_in_bytes": 1552
+    },
+    {
+      "_path": "site-packages/idna-3.7.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/idna-3.7.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "1196c6921ec87b83e865f450f08d19b8ff5592537f4ef719e83484e546abe33e",
+      "size_in_bytes": 81
+    },
+    {
+      "_path": "site-packages/idna-3.7.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "bd20416da7574c0461a86686f03086f78036270735b5d1b231f462bf0cc36410",
+      "size_in_bytes": 100
+    },
+    {
+      "_path": "site-packages/idna/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "28940dd5e401afc8882b948aac9e3b957bf11b4049ecb9b7f16e334f4bfff259",
+      "size_in_bytes": 849
+    },
+    {
+      "_path": "site-packages/idna/codec.py",
+      "path_type": "hardlink",
+      "sha256": "3d2ea6f9799d493ed68fb27bba544c6a43c3b7910127262b4f708fb6387eeede",
+      "size_in_bytes": 3426
+    },
+    {
+      "_path": "site-packages/idna/compat.py",
+      "path_type": "hardlink",
+      "sha256": "d3fb0e114313e02570f5da03defc91857f345f5f4fc2a168501b3b816b05304e",
+      "size_in_bytes": 321
+    },
+    {
+      "_path": "site-packages/idna/core.py",
+      "path_type": "hardlink",
+      "sha256": "972869a1edafba511a07feb9c615e6a0a80efb152a143bdcc31bb986934d3b81",
+      "size_in_bytes": 12663
+    },
+    {
+      "_path": "site-packages/idna/idnadata.py",
+      "path_type": "hardlink",
+      "sha256": "76a470cadce48c81cc05ad91d6562f1c3c0009e9d93edf1e195bb563c50113e1",
+      "size_in_bytes": 78320
+    },
+    {
+      "_path": "site-packages/idna/intranges.py",
+      "path_type": "hardlink",
+      "sha256": "601af87d162e587ee44ca4b6b579458ccdb8645d4f76f722afe6b2c278889ea8",
+      "size_in_bytes": 1881
+    },
+    {
+      "_path": "site-packages/idna/package_data.py",
+      "path_type": "hardlink",
+      "sha256": "4e4b742a721ec889671dd74e6b3f564a4922b25360a24240b84fa9e46a2b32aa",
+      "size_in_bytes": 21
+    },
+    {
+      "_path": "site-packages/idna/py.typed",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/idna/uts46data.py",
+      "path_type": "hardlink",
+      "sha256": "d4aba4b16a8bb9c70f5e6daec9156485f8852cd22133f1f69b86b309c9cea845",
+      "size_in_bytes": 206503
+    }
+  ],
+  "paths_version": 1
+}

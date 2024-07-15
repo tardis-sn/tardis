@@ -1,0 +1,23 @@
+{
+  "paths": [
+    {
+      "_path": "bin/pandoc",
+      "path_type": "hardlink",
+      "sha256": "aded018d1fe59942060050d5ffd7e23cc941424484d4f16f3a17159f53ac30df",
+      "size_in_bytes": 153169992
+    },
+    {
+      "_path": "bin/pandoc-lua",
+      "path_type": "softlink",
+      "sha256": "aded018d1fe59942060050d5ffd7e23cc941424484d4f16f3a17159f53ac30df",
+      "size_in_bytes": 153169992
+    },
+    {
+      "_path": "bin/pandoc-server",
+      "path_type": "softlink",
+      "sha256": "aded018d1fe59942060050d5ffd7e23cc941424484d4f16f3a17159f53ac30df",
+      "size_in_bytes": 153169992
+    }
+  ],
+  "paths_version": 1
+}

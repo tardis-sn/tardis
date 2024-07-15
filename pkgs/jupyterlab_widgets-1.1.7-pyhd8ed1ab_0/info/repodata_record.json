@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [
+        "jupyterlab >=3,<5"
+    ],
+    "depends": [
+        "python >=3.7"
+    ],
+    "fn": "jupyterlab_widgets-1.1.7-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "608e312cd17cb7119033fae7d7420572",
+    "name": "jupyterlab_widgets",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "5da1c9033838f15981b9000bf32ad5877b105e4ae6476982cad836fec42e14db",
+    "size": 113845,
+    "subdir": "noarch",
+    "timestamp": 1694608160914,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-1.1.7-pyhd8ed1ab_0.conda",
+    "version": "1.1.7"
+}

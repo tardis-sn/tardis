@@ -1,0 +1,54 @@
+# This file created by conda-build 24.5.2.dev34
+# ------------------------------------------------
+
+package:
+  name: libgcc-ng
+  version: 13.2.0
+source:
+  - patches:
+      - patches/0021-Hardcode-HAVE_ALIGNED_ALLOC-1-in-libstdc-v3-configur.patch
+      - patches/libgomp-support-environ-null.patch
+      - patches/new-allow-commands-in-main-specfile.patch
+    sha256: 8cb4be3796651976f94b9356fa08d833524f62420d6292c5033a9a26af315078
+    url: https://ftp.gnu.org/gnu/gcc/gcc-13.2.0/gcc-13.2.0.tar.gz
+build:
+  detect_binary_files_with_prefix: false
+  missing_dso_whitelist:
+    - '*'
+  number: 11
+  rpaths_patcher: patchelf
+  string: h77fa898_11
+requirements:
+  host:
+    - _openmp_mutex 4.5 2_gnu
+    - kernel-headers_linux-64 2.6.32 he073ed8_16
+    - libgomp 13.2.0 h77fa898_11
+    - sysroot_linux-64 2.12 he073ed8_16
+  run:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex >=4.5
+  run_constrained:
+    - libgomp 13.2.0 h77fa898_11
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libgcc_s.so
+    - test -f ${PREFIX}/lib/libgomp.so.1
+    - test `readlink ${PREFIX}/lib/libgomp.so.1` == "libgomp.so.1.0.0"
+  requires:
+    - sysroot_linux-64
+about:
+  home: https://gcc.gnu.org/onlinedocs/gccint/Libgcc.html
+  license: GPL-3.0-only WITH GCC-exception-3.1
+  summary: The GCC low-level runtime library
+extra:
+  copy_test_source_files: true
+  feedstock-name: ctng-compilers-feedstock
+  final: true
+  flow_run_id: azure_20240620.1.1
+  recipe-maintainers:
+    - beckermr
+    - isuruf
+    - timsnyder
+    - xhochy
+  remote_url: https://github.com/conda-forge/ctng-compilers-feedstock
+  sha: f164fc89bdc8b3d060e36527bd87897d5646ccd3

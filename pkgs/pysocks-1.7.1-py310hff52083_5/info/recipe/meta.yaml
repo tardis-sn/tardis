@@ -1,0 +1,64 @@
+# This file created by conda-build 3.21.8
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Fri Apr  1 23:53:28 2022
+# ------------------------------------------------
+
+package:
+  name: pysocks
+  version: 1.7.1
+source:
+  sha256: 3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0
+  url: https://pypi.io/packages/source/P/PySocks/PySocks-1.7.1.tar.gz
+build:
+  number: '5'
+  script: /home/conda/feedstock_root/build_artifacts/pysocks_1648857264958/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla/bin/python
+    -m pip install . --no-deps -vv
+  string: py310hff52083_5
+requirements:
+  build: []
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2021.10.8 ha878542_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 11.2.0 h1d223b6_14
+    - libgomp 11.2.0 h1d223b6_14
+    - libnsl 2.0.0 h7f98852_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.11 h166bdaf_1014
+    - ncurses 6.3 h9c3ff4c_0
+    - openssl 3.0.2 h166bdaf_1
+    - pip 22.0.4 pyhd8ed1ab_0
+    - python 3.10.4 h2660328_0_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1 h46c0cb4_0
+    - setuptools 61.3.0 py310hff52083_0
+    - sqlite 3.37.1 h4ff8645_0
+    - tk 8.6.12 h27826a3_0
+    - tzdata 2022a h191b570_0
+    - wheel 0.37.1 pyhd8ed1ab_0
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h166bdaf_1014
+  run:
+    - python >=3.10,<3.11.0a0
+    - python_abi 3.10.* *_cp310
+test:
+  imports:
+    - socks
+about:
+  dev_url: https://github.com/Anorov/PySocks
+  doc_url: https://github.com/Anorov/PySocks/blob/master/README.md
+  home: https://github.com/Anorov/PySocks
+  license: BSD 3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: A Python SOCKS client module. See https://github.com/Anorov/PySocks for
+    more information.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - ocefpaf
+    - pmlandwehr

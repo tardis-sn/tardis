@@ -1,0 +1,49 @@
+From 17ae3c508328f717f06f10a59ba4ce95326a45f8 Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Wed, 16 Aug 2017 11:45:28 +0100
+Subject: [PATCH 17/22] Do not pass -g to GCC when not Py_DEBUG
+
+This bloats our exe and our modules a lot.
+---
+ configure    | 6 +++---
+ configure.ac | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/configure b/configure
+index 4a3f0b6302..074830a032 100755
+--- a/configure
++++ b/configure
+@@ -5465,9 +5465,9 @@ if test $ac_test_CFLAGS; then
+   CFLAGS=$ac_save_CFLAGS
+ elif test $ac_cv_prog_cc_g = yes; then
+   if test "$GCC" = yes; then
+-    CFLAGS="-g -O2"
++    CFLAGS="-O2"
+   else
+-    CFLAGS="-g"
++    CFLAGS=
+   fi
+ else
+   if test "$GCC" = yes; then
+@@ -9335,7 +9335,7 @@ then
+ 	    if test "$Py_DEBUG" = 'true' ; then
+ 		OPT="-g $PYDEBUG_CFLAGS -Wall"
+ 	    else
+-		OPT="-g -O3 -Wall"
++		OPT="-O3 -Wall"
+ 	    fi
+ 	    ;;
+ 	*)
+diff --git a/configure.ac b/configure.ac
+index 058f1d1096..33dfd41aa9 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2247,7 +2247,7 @@ then
+ 	    if test "$Py_DEBUG" = 'true' ; then
+ 		OPT="-g $PYDEBUG_CFLAGS -Wall"
+ 	    else
+-		OPT="-g -O3 -Wall"
++		OPT="-O3 -Wall"
+ 	    fi
+ 	    ;;
+ 	*)

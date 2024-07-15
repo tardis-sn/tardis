@@ -1,0 +1,42 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "definitions": {
+        "foo": {
+          "$id": "http://example.org/foo",
+          "definitions": {
+            "bar": {
+              "$id": "#baz",
+              "quux": "eggs"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/#/definitions/foo",
+      "target": {
+        "$id": "http://example.org/foo",
+        "definitions": { "bar": { "$id": "#baz", "quux": "eggs" } }
+      },
+      "then": {
+        "ref": "#baz",
+        "target": { "$id": "#baz", "quux": "eggs" }
+      }
+    },
+    {
+      "ref": "http://example.com/#/definitions/foo",
+      "target": {
+        "$id": "http://example.org/foo",
+        "definitions": { "bar": { "$id": "#baz", "quux": "eggs" } }
+      },
+      "then": {
+        "ref": "http://example.org/foo#baz",
+        "target": { "$id": "#baz", "quux": "eggs" }
+      }
+    }
+  ]
+}

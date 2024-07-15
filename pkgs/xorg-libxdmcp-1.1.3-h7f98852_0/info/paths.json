@@ -1,0 +1,37 @@
+{
+  "paths": [
+    {
+      "_path": "include/X11/Xdmcp.h",
+      "path_type": "hardlink",
+      "sha256": "7326c6b4504939ba0ad61fece04238460020996ef230b8bd9e6b14e4ad5ca426",
+      "size_in_bytes": 6371
+    },
+    {
+      "_path": "lib/libXdmcp.so",
+      "path_type": "softlink",
+      "sha256": "fe32fc2938b0d122e4b5ae1c7f3a3bc53cf1445edd090cebdc30b1c5582da87f",
+      "size_in_bytes": 31056
+    },
+    {
+      "_path": "lib/libXdmcp.so.6",
+      "path_type": "softlink",
+      "sha256": "fe32fc2938b0d122e4b5ae1c7f3a3bc53cf1445edd090cebdc30b1c5582da87f",
+      "size_in_bytes": 31056
+    },
+    {
+      "_path": "lib/libXdmcp.so.6.0.0",
+      "path_type": "hardlink",
+      "sha256": "fe32fc2938b0d122e4b5ae1c7f3a3bc53cf1445edd090cebdc30b1c5582da87f",
+      "size_in_bytes": 31056
+    },
+    {
+      "_path": "lib/pkgconfig/xdmcp.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/xorg-libxdmcp_1610071640801/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho",
+      "sha256": "88ea3476e87080babae29889d4c1d7828e00cf1b80abbcb8241076d88ec0aea2",
+      "size_in_bytes": 491
+    }
+  ],
+  "paths_version": 1
+}

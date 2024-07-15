@@ -1,0 +1,81 @@
+# This file created by conda-build 3.22.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Oct 25 12:22:37 2022
+# ------------------------------------------------
+
+package:
+  name: colorama
+  version: 0.4.6
+source:
+  sha256: 08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44
+  url: https://pypi.io/packages/source/c/colorama/colorama-0.4.6.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/colorama_1666700638685/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2022.9.24 ha878542_0
+    - editables 0.3 pyhd8ed1ab_0
+    - hatchling 1.11.1 pyhd8ed1ab_0
+    - importlib-metadata 4.11.4 py310hff52083_0
+    - ld_impl_linux-64 2.39 hc81fddc_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 12.2.0 h65d4601_19
+    - libgomp 12.2.0 h65d4601_19
+    - libnsl 2.0.0 h7f98852_0
+    - libsqlite 3.39.4 h753d276_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.13 h166bdaf_4
+    - ncurses 6.3 h27087fc_1
+    - openssl 3.0.5 h166bdaf_2
+    - packaging 21.3 pyhd8ed1ab_0
+    - pathspec 0.10.1 pyhd8ed1ab_0
+    - pip 22.3 pyhd8ed1ab_0
+    - pluggy 1.0.0 py310hff52083_3
+    - pyparsing 3.0.9 pyhd8ed1ab_0
+    - python 3.10.6 ha86cf86_0_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1.2 h0f457ee_0
+    - setuptools 65.5.0 pyhd8ed1ab_0
+    - tk 8.6.12 h27826a3_0
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - tzdata 2022e h191b570_0
+    - wheel 0.37.1 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.10.0 pyhd8ed1ab_0
+  run:
+    - python >=3.7
+test:
+  commands:
+    - pip check
+  imports:
+    - colorama
+  requires:
+    - pip
+about:
+  description: 'colorama is a cross-platform colored terminal text.It makes
+
+    ANSI escape character sequences (for producing colored terminal text
+
+    and cursor positioning) work under MS Windows.
+
+    '
+  dev_url: https://github.com/tartley/colorama
+  doc_source_url: https://github.com/tartley/colorama/blob/master/README.rst
+  doc_url: http://pypi.python.org/pypi/colorama
+  home: https://github.com/tartley/colorama
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: Cross-platform colored terminal text
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - kwilcox
+    - ocefpaf

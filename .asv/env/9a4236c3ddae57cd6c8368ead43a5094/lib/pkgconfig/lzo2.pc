@@ -1,0 +1,21 @@
+#
+#  lzo2.pc -- LZO pkg-config configuration file
+#
+#  This file is part of the LZO data compression library.
+#    http://www.oberhumer.com/opensource/lzo/
+#
+#  Copyright (C) 1996-2017 Markus Franz Xaver Johannes Oberhumer
+#  All Rights Reserved.
+#
+
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/bin
+includedir=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/include
+libdir=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/lib
+
+Name: lzo2
+Version: 2.10
+Description: LZO - a real-time data compression library
+URL: http://www.oberhumer.com/opensource/lzo/
+Cflags: -I${includedir}/lzo
+Libs: -L${libdir} -llzo2

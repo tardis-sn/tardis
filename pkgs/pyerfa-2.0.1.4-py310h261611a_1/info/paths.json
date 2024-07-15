@@ -1,0 +1,155 @@
+{
+  "paths": [
+    {
+      "_path": "lib/python3.10/site-packages/erfa/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "a48f320ed95c8dbad6d8b5fcfea1f0fa1b8164d75f2ec55a46d476fad7d68f9f",
+      "size_in_bytes": 433
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/__pycache__/__init__.cpython-310.pyc",
+      "path_type": "hardlink",
+      "sha256": "da0929f98bcf099aad4eb7ace9853cf595c9b3f960790284e3dc3379f0b0b053",
+      "size_in_bytes": 444
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/__pycache__/_version.cpython-310.pyc",
+      "path_type": "hardlink",
+      "sha256": "ae6a96d8f5278bf6eb04978f353804614029004663af3dd953b2b5be59e717bf",
+      "size_in_bytes": 468
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/__pycache__/core.cpython-310.pyc",
+      "path_type": "hardlink",
+      "sha256": "b0228b9328d17b60e221f8496ecee8258287fb09e3cc8a24863df027aab1c98e",
+      "size_in_bytes": 740354
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/__pycache__/helpers.cpython-310.pyc",
+      "path_type": "hardlink",
+      "sha256": "1bf2dc0f969b7648fb11e2625a28c3b28d4e8a08f15e1ae45bff2e600d9ddba0",
+      "size_in_bytes": 11922
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/__pycache__/version.cpython-310.pyc",
+      "path_type": "hardlink",
+      "sha256": "dde0b670d3e6d74bd6390a900aa67396c332f7e17146919a18245312d6c064aa",
+      "size_in_bytes": 1219
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/_version.py",
+      "path_type": "hardlink",
+      "sha256": "10be8d9f474cb8dd6667ec515c3bc9c05ba69f898a6d88d997ecd1f0033fd6ff",
+      "size_in_bytes": 416
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/core.py",
+      "path_type": "hardlink",
+      "sha256": "1e07ca928accb0eaff3caf6d8a38f48ba38dcc26d96425213017044ddd31c119",
+      "size_in_bytes": 738450
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/helpers.py",
+      "path_type": "hardlink",
+      "sha256": "50c230c058ceba91e78f8f25286e965e1787afdbcf6d11049ebbe30f956c8e9c",
+      "size_in_bytes": 13629
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/tests/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "ca4a951e07b61262034cc39df7a8760f218768cfe0a69ff02b3dcad4c9596627",
+      "size_in_bytes": 64
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/tests/__pycache__/__init__.cpython-310.pyc",
+      "path_type": "hardlink",
+      "sha256": "0fcbc8d97bd3d13ff93a0266f4e6954de0c18c383d61cde0deee167c825a89a3",
+      "size_in_bytes": 144
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/tests/__pycache__/test_erfa.cpython-310.pyc",
+      "path_type": "hardlink",
+      "sha256": "1c50b90594c086ce6b5b462b8c1ec14bab0869d1657e0eb1f32675f68cdbee9d",
+      "size_in_bytes": 16731
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/tests/__pycache__/test_ufunc.cpython-310.pyc",
+      "path_type": "hardlink",
+      "sha256": "df5809d826777ec00b42cff7f23e27f5702754f2b5b76bfb902530c37bff82ca",
+      "size_in_bytes": 113681
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/tests/test_erfa.py",
+      "path_type": "hardlink",
+      "sha256": "8da80b35accd5676ef78aeaaef25d869d741f62af43f775528f1c6ac3652d6dc",
+      "size_in_bytes": 19973
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/tests/test_ufunc.py",
+      "path_type": "hardlink",
+      "sha256": "9cc9e87021ecd7d288ea754c9e6497c9cf2d8f93be973fd256f4ed32d87af11e",
+      "size_in_bytes": 154942
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/ufunc.abi3.so",
+      "path_type": "hardlink",
+      "sha256": "c5aaf399319799baed039c3762c00f51abb557fe43922e6a563868bb26809326",
+      "size_in_bytes": 637952
+    },
+    {
+      "_path": "lib/python3.10/site-packages/erfa/version.py",
+      "path_type": "hardlink",
+      "sha256": "65c02ae76f0d2092ad7057ac03a7eb9f447192661e9c8a8defa15b584814d686",
+      "size_in_bytes": 2049
+    },
+    {
+      "_path": "lib/python3.10/site-packages/pyerfa-2.0.1.4.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "lib/python3.10/site-packages/pyerfa-2.0.1.4.dist-info/LICENSE.rst",
+      "path_type": "hardlink",
+      "sha256": "0d404371a5d7d1478307ab142962091ec258b92a71f8cab3736fdb46b03cc716",
+      "size_in_bytes": 1494
+    },
+    {
+      "_path": "lib/python3.10/site-packages/pyerfa-2.0.1.4.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "836513f736a933e02b99165d1483528dc176ef7d177bd0451fb213e2831565b5",
+      "size_in_bytes": 5698
+    },
+    {
+      "_path": "lib/python3.10/site-packages/pyerfa-2.0.1.4.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "f930294474954a8ee453018024fe0bb0423143558137bd0f3850d7e11d272376",
+      "size_in_bytes": 1737
+    },
+    {
+      "_path": "lib/python3.10/site-packages/pyerfa-2.0.1.4.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.10/site-packages/pyerfa-2.0.1.4.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "f69cb7b12bbef78ec165c67d2bd594bab76a62183dc943f5706036b73f5d628d",
+      "size_in_bytes": 103
+    },
+    {
+      "_path": "lib/python3.10/site-packages/pyerfa-2.0.1.4.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "78a8a891c62ae055364553e170e534af875dbe66ff17d19b6edb9913573c7b6c",
+      "size_in_bytes": 102
+    },
+    {
+      "_path": "lib/python3.10/site-packages/pyerfa-2.0.1.4.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "c274e2c9308ba91e3c7e9bdea8e7e204edb12bac63d58e410b56a34162f35b36",
+      "size_in_bytes": 5
+    }
+  ],
+  "paths_version": 1
+}

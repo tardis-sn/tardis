@@ -1,0 +1,23 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "importlib_resources",
+    "matplotlib-base",
+    "networkx",
+    "numpy",
+    "pandas",
+    "python >=3.8",
+    "scipy",
+    "setuptools",
+    "sympy"
+  ],
+  "license": "MIT AND LicenseRef-AMDC AND LicenseRef-ICRP-07",
+  "name": "radioactivedecay",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1718689432930,
+  "version": "0.5.1"
+}

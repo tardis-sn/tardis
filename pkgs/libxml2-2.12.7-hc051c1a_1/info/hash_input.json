@@ -1,0 +1,13 @@
+{
+  "xz": "5",
+  "zlib": "1.2",
+  "libiconv": "1",
+  "c_compiler_version": "12",
+  "c_stdlib": "sysroot",
+  "target_platform": "linux-64",
+  "c_stdlib_version": "2.12",
+  "VERBOSE_AT": "V=1",
+  "channel_targets": "conda-forge main",
+  "c_compiler": "gcc",
+  "icu": "73"
+}

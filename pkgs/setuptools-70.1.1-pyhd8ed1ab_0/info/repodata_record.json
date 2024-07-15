@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "setuptools-70.1.1-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "985e9e86e1b0fc75a74a9bfab9309ef7",
+    "name": "setuptools",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "34ecbc63df6052a320838335a0e594b60050c92de79254045e52095bc27dde03",
+    "size": 496940,
+    "subdir": "noarch",
+    "timestamp": 1719325175003,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/setuptools-70.1.1-pyhd8ed1ab_0.conda",
+    "version": "70.1.1"
+}

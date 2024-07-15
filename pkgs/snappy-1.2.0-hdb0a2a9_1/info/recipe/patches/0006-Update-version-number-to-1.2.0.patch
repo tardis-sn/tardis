@@ -1,0 +1,26 @@
+From ac6b63f04232a7918f6477cb4aa4da9c626f4b0f Mon Sep 17 00:00:00 2001
+From: Julien Jerphanion <git@jjerphan.xyz>
+Date: Mon, 8 Apr 2024 14:14:45 +0200
+Subject: [PATCH 6/6] Update version number to 1.2.0
+
+Signed-off-by: Julien Jerphanion <git@jjerphan.xyz>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 85afe58..94bbc86 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -27,7 +27,7 @@
+ # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ cmake_minimum_required(VERSION 3.1)
+-project(Snappy VERSION 1.1.10 LANGUAGES C CXX)
++project(Snappy VERSION 1.2.0 LANGUAGES C CXX)
+
+ # C++ standard can be overridden when this is used as a sub-project.
+ if(NOT CMAKE_CXX_STANDARD)
+--
+2.43.0
+

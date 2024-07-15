@@ -1,0 +1,70 @@
+# This file created by conda-build 3.28.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Jan 24 16:17:36 2024
+# ------------------------------------------------
+
+package:
+  name: pexpect
+  version: 4.9.0
+source:
+  sha256: ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f
+  url: https://pypi.io/packages/source/p/pexpect/pexpect-4.9.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/pexpect_1706113125309/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla/bin/python
+    -m pip install . -vv --no-deps --no-build-isolation
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_3
+    - libgomp 13.2.0 h807b86a_3
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.0 hd590300_1
+    - pip 23.3.2 pyhd8ed1ab_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023d h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - ptyprocess >=0.5
+    - python >=3.7
+test:
+  commands:
+    - pip check
+  imports:
+    - pexpect
+  requires:
+    - pip
+about:
+  dev_url: https://github.com/pexpect/pexpect
+  home: https://pexpect.readthedocs.io/
+  license: ISC
+  license_file: LICENSE
+  summary: Pexpect allows easy control of interactive console applications.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240124.3.1
+  recipe-maintainers:
+    - jquast
+    - ocefpaf
+    - pelson
+    - takluyver
+  remote_url: https://github.com/conda-forge/pexpect-feedstock
+  sha: a7abf74ea338949502ae539d29dd2b1205e2672c

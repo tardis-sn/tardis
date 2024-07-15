@@ -1,0 +1,8 @@
+{
+  "libpng": "1.6",
+  "zlib": "1.2",
+  "c_compiler_version": "12",
+  "channel_targets": "conda-forge main",
+  "target_platform": "linux-64",
+  "c_compiler": "gcc"
+}

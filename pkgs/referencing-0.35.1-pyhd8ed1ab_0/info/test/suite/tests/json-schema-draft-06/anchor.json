@@ -1,0 +1,23 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "definitions": {
+        "foo": {
+          "$id": "#foo",
+          "foo": "bar"
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "base_uri": "http://example.com/",
+      "ref": "#foo",
+      "target": {
+        "$id": "#foo",
+        "foo": "bar"
+      }
+    }
+  ]
+}

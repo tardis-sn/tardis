@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "future-1.0.0-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "650a7807e689642dddd3590eb817beed",
+    "name": "future",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "8c918a63595ae01575b738ddf0bff10dc23a5002d4af4c8b445d1179a76a8efd",
+    "size": 364081,
+    "subdir": "noarch",
+    "timestamp": 1708610254418,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/future-1.0.0-pyhd8ed1ab_0.conda",
+    "version": "1.0.0"
+}

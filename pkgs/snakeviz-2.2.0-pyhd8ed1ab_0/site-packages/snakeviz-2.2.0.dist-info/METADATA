@@ -1,0 +1,78 @@
+Metadata-Version: 2.1
+Name: snakeviz
+Version: 2.2.0
+Summary: A web-based viewer for Python profiler output
+Author-email: Matt Davis <jiffyclub@gmail.com>
+License: Copyright (c) 2012, Matt Davis
+        All rights reserved.
+        
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are met:
+        
+        - Redistributions of source code must retain the above copyright notice, this
+          list of conditions and the following disclaimer.
+        
+        - Redistributions in binary form must reproduce the above copyright notice,
+          this list of conditions and the following disclaimer in the documentation
+          and/or other materials provided with the distribution.
+        
+        - The name Matt Davis may not be used to endorse or promote products derived
+          from this software without specific prior written permission.
+        
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+        ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+        FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+        SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+        CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+        OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+        
+Project-URL: homepage, https://jiffyclub.github.io/snakeviz/
+Project-URL: repository, https://github.com/jiffyclub/snakeviz.git
+Project-URL: changelog, https://github.com/jiffyclub/snakeviz/blob/master/CHANGES.rst
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: JavaScript
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Software Development
+Requires-Python: >=3.7
+Description-Content-Type: text/x-rst
+License-File: LICENSE.txt
+Requires-Dist: tornado (>=2.0)
+
+SnakeViz
+========
+
+.. image:: https://github.com/jiffyclub/snakeviz/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/jiffyclub/snakeviz/actions/workflows/ci.yml
+    :alt: Build Status
+
+.. image:: https://img.shields.io/pypi/v/snakeviz.svg
+    :target: https://pypi.python.org/pypi/snakeviz/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/pyversions/snakeviz.svg
+    :target: https://pypi.python.org/pypi/snakeviz/
+    :alt: Supported Python versions
+
+.. image:: https://img.shields.io/pypi/format/snakeviz.svg
+    :target: https://pypi.python.org/pypi/snakeviz/
+    :alt: Wheel Status
+
+About
+-----
+
+SnakeViz is a viewer for Python profiling data that runs as a web
+application in your browser. It is inspired by the wxPython profile viewer
+`RunSnakeRun <http://www.vrplumber.com/programming/runsnakerun/>`_.
+
+View the docs at https://jiffyclub.github.io/snakeviz/.

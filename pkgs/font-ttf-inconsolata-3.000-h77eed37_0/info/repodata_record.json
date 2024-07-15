@@ -1,0 +1,23 @@
+{
+    "arch": null,
+    "build": "h77eed37_0",
+    "build_number": 0,
+    "build_string": "h77eed37_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [],
+    "fn": "font-ttf-inconsolata-3.000-h77eed37_0.tar.bz2",
+    "license": "OFL-1.1",
+    "license_family": "Other",
+    "md5": "34893075a5c9e55cdafac56607368fc6",
+    "name": "font-ttf-inconsolata",
+    "noarch": "generic",
+    "platform": null,
+    "sha256": "c52a29fdac682c20d252facc50f01e7c2e7ceac52aa9817aaf0bb83f7559ec5c",
+    "size": 96530,
+    "subdir": "noarch",
+    "timestamp": 1620479909603,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/font-ttf-inconsolata-3.000-h77eed37_0.tar.bz2",
+    "version": "3.000"
+}

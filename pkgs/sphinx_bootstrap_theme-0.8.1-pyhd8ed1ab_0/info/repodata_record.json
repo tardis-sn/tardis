@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "fn": "sphinx_bootstrap_theme-0.8.1-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "6d1e1ad812c9991b6da549caa00d3771",
+    "name": "sphinx_bootstrap_theme",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "32bab5bafac03397e768887cfc07310391cf19e05ce9a9238f62997b33993fae",
+    "size": 652376,
+    "subdir": "noarch",
+    "timestamp": 1644048455967,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinx_bootstrap_theme-0.8.1-pyhd8ed1ab_0.tar.bz2",
+    "version": "0.8.1"
+}

@@ -1,0 +1,11 @@
+{
+  "paths": [
+    {
+      "_path": "fonts/DejaVuSans.ttf",
+      "path_type": "hardlink",
+      "sha256": "7da195a74c55bef988d0d48f9508bd5d849425c1770dba5d7bfc6ce9ed848954",
+      "size_in_bytes": 757076
+    }
+  ],
+  "paths_version": 1
+}

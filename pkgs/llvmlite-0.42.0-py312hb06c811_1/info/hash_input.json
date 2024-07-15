@@ -1,0 +1,10 @@
+{
+  "c_compiler_version": "12",
+  "zlib": "1.2",
+  "cxx_compiler": "gxx",
+  "c_compiler": "gcc",
+  "python": "3.12.* *_cpython",
+  "channel_targets": "conda-forge main",
+  "cxx_compiler_version": "12",
+  "target_platform": "linux-64"
+}

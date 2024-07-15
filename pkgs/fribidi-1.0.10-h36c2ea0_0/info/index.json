@@ -1,0 +1,14 @@
+{
+  "arch": "x86_64",
+  "build": "h36c2ea0_0",
+  "build_number": 0,
+  "depends": [
+    "libgcc-ng >=7.5.0"
+  ],
+  "license": "LGPL-2.1",
+  "name": "fribidi",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1604416621168,
+  "version": "1.0.10"
+}

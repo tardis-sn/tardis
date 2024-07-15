@@ -1,0 +1,80 @@
+# This file created by conda-build 24.1.2
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Mar  6 10:28:53 2024
+# ------------------------------------------------
+
+package:
+  name: pyparsing
+  version: 3.1.2
+source:
+  sha256: a1bac0ce561155ecc3ed78ca94d3c9378656ad4c94c1270de543f621420f94ad
+  url: https://pypi.io/packages/source/p/pyparsing/pyparsing-3.1.2.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/pyparsing_1709721012883/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - flit-core 3.9.0 pyhd8ed1ab_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.1 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.2 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.1.1 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.6
+test:
+  commands:
+    - pip check
+  imports:
+    - pyparsing
+  requires:
+    - pip
+about:
+  description: 'The pyparsing module is an alternative approach to creating and executing
+
+    simple grammars, vs. the traditional lex/yacc approach, or the use of
+
+    regular expressions. The pyparsing module provides a library of classes
+
+    that client code uses to construct the grammar directly in Python code.
+
+    '
+  dev_url: https://svn.code.sf.net/p/pyparsing/code/
+  doc_url: http://pyparsing.wikispaces.com/Documentation
+  home: http://pyparsing.wikispaces.com/
+  license: MIT
+  license_file: LICENSE
+  summary: Create and execute simple grammars
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240306.2.1
+  recipe-maintainers:
+    - jan-janssen
+    - msarahan
+    - ocefpaf
+    - thewchan
+  remote_url: https://github.com/conda-forge/pyparsing-feedstock
+  sha: 902e450e5f9f992ac389973afe1f4da1fdfc6453

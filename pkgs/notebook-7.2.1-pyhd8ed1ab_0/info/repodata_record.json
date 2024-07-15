@@ -1,0 +1,30 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "jupyter_server >=2.4.0,<3",
+        "jupyterlab >=4.2.0,<4.3",
+        "jupyterlab_server >=2.27.1,<3",
+        "notebook-shim >=0.2,<0.3",
+        "python >=3.8",
+        "tornado >=6.2.0"
+    ],
+    "fn": "notebook-7.2.1-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "08fa71a038c2cac2e636a5a456df15d5",
+    "name": "notebook",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "6b23256e63225ff15b0d5e91d49111936df05748bb31afa321b29556087f85f4",
+    "size": 3899981,
+    "subdir": "noarch",
+    "timestamp": 1717767864474,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/notebook-7.2.1-pyhd8ed1ab_0.conda",
+    "version": "7.2.1"
+}

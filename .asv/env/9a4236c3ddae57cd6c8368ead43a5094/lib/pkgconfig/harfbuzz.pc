@@ -1,0 +1,11 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: harfbuzz
+Description: HarfBuzz text shaping library
+Version: 8.5.0
+Requires.private: freetype2 >=  12.0.6, glib-2.0 >=  2.30.0, graphite2 >=  1.2.0
+Libs: -L${libdir} -lharfbuzz
+Libs.private: -pthread -lm
+Cflags: -I${includedir}/harfbuzz

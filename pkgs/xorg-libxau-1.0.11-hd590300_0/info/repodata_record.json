@@ -1,0 +1,24 @@
+{
+    "arch": "x86_64",
+    "build": "hd590300_0",
+    "build_number": 0,
+    "build_string": "hd590300_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12"
+    ],
+    "fn": "xorg-libxau-1.0.11-hd590300_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "2c80dc38fface310c9bd81b17037fee5",
+    "name": "xorg-libxau",
+    "platform": "linux",
+    "sha256": "309751371d525ce50af7c87811b435c176915239fc9e132b99a25d5e1703f2d4",
+    "size": 14468,
+    "subdir": "linux-64",
+    "timestamp": 1684637984591,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/xorg-libxau-1.0.11-hd590300_0.conda",
+    "version": "1.0.11"
+}

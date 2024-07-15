@@ -1,0 +1,18 @@
+{
+  "c_stdlib": "sysroot",
+  "c_compiler_version": "12",
+  "c_compiler": "gcc",
+  "libjpeg_turbo": "3",
+  "freetype": "2",
+  "openjpeg": "2",
+  "target_platform": "linux-64",
+  "libxcb": "1.16",
+  "python": "3.12.* *_cpython",
+  "tk": "8.6",
+  "c_stdlib_version": "2.12",
+  "lcms2": "2",
+  "zlib": "1",
+  "libwebp": "1",
+  "channel_targets": "conda-forge main",
+  "libtiff": "4.6"
+}

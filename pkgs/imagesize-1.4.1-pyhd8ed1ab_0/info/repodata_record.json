@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.4"
+    ],
+    "fn": "imagesize-1.4.1-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "md5": "7de5386c8fea29e76b303f37dde4c352",
+    "name": "imagesize",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "c2bfd7043e0c4c12d8b5593de666c1e81d67b83c474a0a79282cc5c4ef845460",
+    "size": 10164,
+    "subdir": "noarch",
+    "timestamp": 1656939625410,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/imagesize-1.4.1-pyhd8ed1ab_0.tar.bz2",
+    "version": "1.4.1"
+}

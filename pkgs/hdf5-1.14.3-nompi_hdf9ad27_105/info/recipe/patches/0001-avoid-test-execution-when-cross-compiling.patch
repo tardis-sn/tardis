@@ -1,0 +1,90 @@
+From abfc19a7732d6e72ff738a4c2ff6f205677c9fa2 Mon Sep 17 00:00:00 2001
+From: Min RK <benjaminrk@gmail.com>
+Date: Wed, 14 Jun 2023 16:20:49 +0200
+Subject: [PATCH 1/2] avoid test execution when cross-compiling
+
+---
+ configure.ac | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 2c3b041677..830dd176da 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -138,6 +138,9 @@ AC_SUBST([CPPFLAGS])
+ AC_SUBST([JNIFLAGS])
+ AC_SUBST([AR_FLAGS])
+ 
++AC_SUBST([cross_compiling])
++
++
+ ## H5_CFLAGS (and company) are for CFLAGS that should be used on HDF5, but
+ ## not exported to h5cc (or h5fc, etc.)
+ ##
+@@ -575,19 +578,21 @@ if test "X$HDF_FORTRAN" = "Xyes"; then
+   FLT128_DIG=0
+   LDBL_DIG=0
+ 
++  AC_SUBST([PAC_C_MAX_REAL_PRECISION])
++
++  if test -z "$PAC_C_MAX_REAL_PRECISION"; then
+   AC_CHECK_SIZEOF([__float128])
+   AC_CHECK_SIZEOF([_Quad])
+   AC_CHECK_HEADERS([quadmath.h], [HAVE_QUADMATH=1], [])
+   PAC_FC_LDBL_DIG
+ 
+-  AC_SUBST([PAC_C_MAX_REAL_PRECISION])
+-
+   if test "$ac_cv_sizeof___float128" != 0 && test "$FLT128_DIG" != 0 ; then
+     AC_DEFINE([HAVE_FLOAT128], [1], [Determine if __float128 is available])
+     PAC_C_MAX_REAL_PRECISION=$FLT128_DIG
+   else
+     PAC_C_MAX_REAL_PRECISION=$LDBL_DIG
+   fi
++  fi
+   AC_DEFINE_UNQUOTED([PAC_C_MAX_REAL_PRECISION], $PAC_C_MAX_REAL_PRECISION, [Determine the maximum decimal precision in C])
+   AC_MSG_RESULT([$PAC_C_MAX_REAL_PRECISION])
+ 
+@@ -679,6 +684,15 @@ if test "X$HDF_FORTRAN" = "Xyes"; then
+ 
+   ## See if the fortran compiler supports the intrinsic module "ISO_FORTRAN_ENV"
+   PAC_PROG_FC_ISO_FORTRAN_ENV
++
++  if test "$cross_compiling" = yes; then
++  ## defines from aclocal_fc.m4, but require execution
++        AC_DEFINE_UNQUOTED([PAC_FC_MAX_REAL_PRECISION], $PAC_FC_MAX_REAL_PRECISION, [Define Fortran Maximum Real Decimal Precision])
++        AC_DEFINE_UNQUOTED([H5CONFIG_F_NUM_RKIND], $H5CONFIG_F_NUM_RKIND, [Define number of valid Fortran REAL KINDs])
++        AC_DEFINE_UNQUOTED([H5CONFIG_F_NUM_IKIND], $H5CONFIG_F_NUM_IKIND, [Define number of valid Fortran INTEGER KINDs])
++        AC_DEFINE_UNQUOTED([H5CONFIG_F_RKIND], $H5CONFIG_F_RKIND, [Define valid Fortran REAL KINDs])
++        AC_DEFINE_UNQUOTED([H5CONFIG_F_IKIND], $H5CONFIG_F_IKIND, [Define valid Fortran INTEGER KINDs])
++  else
+   ## Check KIND and size of native integer
+   PAC_FC_NATIVE_INTEGER
+ 
+@@ -687,6 +701,7 @@ if test "X$HDF_FORTRAN" = "Xyes"; then
+   ## Find all sizeofs for available KINDs
+   PAC_FC_SIZEOF_INT_KINDS
+   PAC_FC_SIZEOF_REAL_KINDS
++  fi
+ 
+   AC_SUBST([PAC_FC_ALL_REAL_KINDS])
+   AC_SUBST([PAC_FC_MAX_REAL_PRECISION])
+@@ -782,9 +797,15 @@ if test "X$HDF_FORTRAN" = "Xyes"; then
+   AC_MSG_RESULT([$PAC_FC_ALL_REAL_KINDS])
+ 
+   dnl count the number of real kinds
++  if test -z "$H5CONFIG_F_NUM_RKIND"; then
+   H5CONFIG_F_NUM_RKIND="INTEGER, PARAMETER :: num_rkinds = `echo \"[$]PAC_FC_ALL_REAL_KINDS\" |  tr -d -c ',\n' | awk '{ print length + 1; }'`"
++  fi
++  if test -z "$H5CONFIG_F_RKIND"; then
+   H5CONFIG_F_RKIND="INTEGER, DIMENSION(1:num_rkinds) :: rkind = (/`echo $PAC_FC_ALL_REAL_KINDS | sed -e 's/{//g' | sed -e 's/}//g' | sed -e 's/ /,/g'`/)"
++  fi
++  if test -z "$H5CONFIG_F_RKIND_SIZEOF"; then
+   H5CONFIG_F_RKIND_SIZEOF="INTEGER, DIMENSION(1:num_rkinds) :: rkind_sizeof = (/`echo $PAC_FC_ALL_REAL_KINDS_SIZEOF | sed -e 's/{//g' | sed -e 's/}//g'| sed -e 's/ /,/g'`/)"
++  fi
+ 
+   AC_DEFINE_UNQUOTED([H5CONFIG_F_NUM_RKIND], $H5CONFIG_F_NUM_RKIND, [Define number of valid Fortran REAL KINDs])
+   AC_DEFINE_UNQUOTED([H5CONFIG_F_RKIND], $H5CONFIG_F_RKIND, [Define valid Fortran REAL KINDs])
+-- 
+2.34.1
+

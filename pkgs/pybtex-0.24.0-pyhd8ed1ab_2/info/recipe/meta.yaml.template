@@ -1,0 +1,75 @@
+{% set name = "pybtex" %}
+{% set version = "0.24.0" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/pybtex-{{ version }}.tar.gz
+  sha256: 818eae35b61733e5c007c3fcd2cfb75ed1bc8b4173c1f70b56cc4c0802d34755
+  patches:
+    # This can be removed next release https://bitbucket.org/pybtex-devs/pybtex/pull-requests/37
+    - backport_37.patch
+
+build:
+  number: 2
+  noarch: python
+  entry_points:
+    - pybtex = pybtex.__main__:main
+    - pybtex-convert = pybtex.database.convert.__main__:main
+    - pybtex-format = pybtex.database.format.__main__:main
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.6
+  run:
+    - python >=3.6
+    - setuptools
+    - pyyaml >=3.01
+    - latexcodec >=1.0.4
+    - six
+
+test:
+  imports:
+    - pybtex
+    - pybtex.backends
+    - pybtex.bibtex
+    - pybtex.charwidths
+    - pybtex.database
+    - pybtex.database.convert
+    - pybtex.database.format
+    - pybtex.database.input
+    - pybtex.database.output
+    - pybtex.markup
+    - pybtex.plugin
+    - pybtex.style
+    - pybtex.style.formatting
+    - pybtex.style.labels
+    - pybtex.style.names
+    - pybtex.style.sorting
+  commands:
+    - pip check
+    - pybtex --help
+    - pybtex-convert --help
+    - pybtex-format --help
+  requires:
+    - pip
+
+about:
+  home: https://pybtex.org/
+  license: MIT
+  license_family: MIT
+  license_file: COPYING
+  summary: A BibTeX-compatible bibliography processor in Python
+  description: Pybtex reads citation information from a file and produces a formatted bibliography. BibTeX style files are supported. Alternatively it is possible to write styles in Python.
+  doc_url: http://pythonhosted.org/pybtex/
+  dev_url: https://bitbucket.org/pybtex-devs/pybtex/
+
+extra:
+  recipe-maintainers:
+    - croth1
+    - ocefpaf

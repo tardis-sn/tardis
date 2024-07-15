@@ -1,0 +1,10 @@
+#!/bin/sh
+'''exec' /home/conda/feedstock_root/build_artifacts/sphinx-gallery_1714467801378/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeh/bin/python "$0" "$@"
+' '''
+# -*- coding: utf-8 -*-
+import re
+import sys
+from sphinx_gallery.notebook import python_to_jupyter_cli
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(python_to_jupyter_cli())

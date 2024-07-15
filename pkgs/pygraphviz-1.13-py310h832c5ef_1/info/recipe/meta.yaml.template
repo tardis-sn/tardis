@@ -1,0 +1,62 @@
+{% set name = "pygraphviz" %}
+{% set version = "1.13" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  # For some reason there are no .gz files here
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 6ad8aa2f26768830a5a1cfc8a14f022d13df170a8f6fdfd68fd1aa1267000964
+
+build:
+  number: 1
+  skip: true  # [py<310]
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - pkg-config
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+  host:
+    - python
+    - pip
+    - graphviz
+  run:
+    - python
+    - graphviz
+
+test:
+  imports:
+    - pygraphviz
+    - pygraphviz.tests
+  source_files:
+    - pygraphviz/tests
+  commands:
+    - pytest --doctest-modules --durations=10 --pyargs pygraphviz
+  requires:
+    - pytest
+
+about:
+  home: http://pygraphviz.github.io
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Python interface to Graphviz
+  description: |
+    PyGraphviz is a Python interface to the Graphviz graph layout and
+    visualization package. With PyGraphviz you can create, edit, read, write,
+    and draw graphs using Python to access the Graphviz graph data structure
+    and layout algorithms. PyGraphviz provides a similar programming
+    interface to NetworkX (http://networkx.github.io).
+  doc_url: https://graphviz.readthedocs.io
+  dev_url: https://github.com/pygraphviz/pygraphviz
+
+extra:
+  recipe-maintainers:
+    - nehaljwani

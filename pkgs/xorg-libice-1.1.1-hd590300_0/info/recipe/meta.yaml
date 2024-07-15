@@ -1,0 +1,69 @@
+# This file created by conda-build 3.24.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun May 28 20:54:35 2023
+# ------------------------------------------------
+
+package:
+  name: xorg-libice
+  version: 1.1.1
+source:
+  patches:
+    - time.patch
+  sha256: 03e77afaf72942c7ac02ccebb19034e6e20f456dcf8dddadfeb572aa5ad3e451
+  url: https://www.x.org/releases/individual/lib/libICE-1.1.1.tar.xz
+build:
+  detect_binary_files_with_prefix: true
+  number: '0'
+  run_exports:
+    - xorg-libice >=1.1.1,<2.0a0
+  string: hd590300_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - autoconf 2.71 pl5321h2b4cb7a_1
+    - automake 1.16.5 pl5321ha770c72_0
+    - binutils_impl_linux-64 2.39 he00db2b_1
+    - binutils_linux-64 2.39 h5fc0e48_13
+    - gcc_impl_linux-64 12.2.0 hcc96c02_19
+    - gcc_linux-64 12.2.0 h4798a0e_13
+    - gettext 0.21.1 h27087fc_0
+    - gnuconfig 2020.11.07 hd8ed1ab_0
+    - kernel-headers_linux-64 2.6.32 he073ed8_15
+    - ld_impl_linux-64 2.39 hcc3a1bd_1
+    - libgcc-devel_linux-64 12.2.0 h3b97bd3_19
+    - libgcc-ng 12.2.0 h65d4601_19
+    - libgomp 12.2.0 h65d4601_19
+    - libnsl 2.0.0 h7f98852_0
+    - libsanitizer 12.2.0 h46fd767_19
+    - libstdcxx-ng 12.2.0 h46fd767_19
+    - libtool 2.4.7 h27087fc_0
+    - m4 1.4.18 h516909a_1001
+    - make 4.3 hd18ef5c_1
+    - perl 5.32.1 2_h7f98852_perl5
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - sysroot_linux-64 2.12 he073ed8_15
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 12.2.0 h65d4601_19
+    - libgomp 12.2.0 h65d4601_19
+    - xorg-util-macros 1.19.3 h7f98852_0
+    - xorg-xproto 7.0.31 h7f98852_1007
+    - xorg-xtrans 1.4.0 h7f98852_0
+  run:
+    - libgcc-ng >=12
+test:
+  commands:
+    - test -f $PREFIX/lib/libICE.so
+about:
+  home: https://www.x.org/
+  license: MIT
+  license_family: MIT
+  license_file: COPYING
+  summary: The X.org Inter-Client Exchange library.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - pkgw

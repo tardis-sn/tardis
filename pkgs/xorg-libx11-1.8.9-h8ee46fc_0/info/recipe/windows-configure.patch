@@ -1,0 +1,15 @@
+diff --git a/configure.ac b/configure.ac
+index 15ccdd5..05c725f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1,6 +1,9 @@
+ 
+ # Initialize Autoconf
+-AC_PREREQ([2.70])
++# conda-forge patch: upstream nominally requires Autoconf 2.70, but our *current*
++# build framework only provides 2.69. The updated M2 epoch provides 2.71,
++# so we should upgrade to it! But the deps haven't been migrated yet.
++AC_PREREQ([2.69])
+ AC_INIT([libX11], [1.8.9],
+         [https://gitlab.freedesktop.org/xorg/lib/libx11/-/issues], [libX11])
+ AC_CONFIG_SRCDIR([Makefile.am])

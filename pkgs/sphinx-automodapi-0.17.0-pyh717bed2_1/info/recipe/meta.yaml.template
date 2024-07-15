@@ -1,0 +1,59 @@
+{% set name = "sphinx-automodapi" %}
+{% set version = "0.17.0" %}
+{% set git_url = "https://github.com/astropy/sphinx-automodapi" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 7ccdadad57add4aa9149d9f2bb5cf28c8f8b590280b4735b1156ea8355c423a1
+
+build:
+  noarch: python
+  number: 1
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+    - setuptools
+    - setuptools-scm
+  run:
+    - python >=3.8
+    - sphinx >=4
+
+test:
+  requires:
+    - graphviz
+    - pip
+    - pytest >=4.6
+  imports:
+    - sphinx_automodapi
+  commands:
+    # check metadata
+    - python -m pip check sphinx-automodapi
+    - python -m pip show sphinx-automodapi
+    # run test suite
+    - python -m pytest -ra --pyargs sphinx_automodapi -k 'not cython'
+
+about:
+  home: {{ git_url }}
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE.rst
+  summary: Sphinx extension for auto-generating API documentation for entire modules
+  description: |
+    This is a Sphinx extension to automatically generate API pages for whole
+    modules.
+  doc_url: {{ git_url }}
+  dev_url: {{ git_url }}
+
+extra:
+  recipe-maintainers:
+    - astrofrog
+    - drdavella
+    - mwcraig
+    - bsipocz

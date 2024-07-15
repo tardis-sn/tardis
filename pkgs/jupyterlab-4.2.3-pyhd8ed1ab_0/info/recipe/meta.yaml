@@ -1,0 +1,145 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Jun 26 16:16:45 2024
+# ------------------------------------------------
+
+package:
+  name: jupyterlab
+  version: 4.2.3
+source:
+  sha256: df6e46969ea51d66815167f23d92f105423b7f1f06fa604d4f44aeb018c82c7b
+  url: https://pypi.io/packages/source/j/jupyterlab/jupyterlab-4.2.3.tar.gz
+build:
+  entry_points:
+    - jlpm = jupyterlab.jlpmapp:main
+    - jupyter-lab = jupyterlab.labapp:main
+    - jupyter-labextension = jupyterlab.labextensions:main
+    - jupyter-labhub = jupyterlab.labhubapp:main
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/jupyterlab_1719418677442/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_/bin/python
+    -m pip install . -vv --no-deps --no-build-isolation
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.6.2 hbcca054_0
+    - colorama 0.4.6 pyhd8ed1ab_0
+    - editables 0.5 pyhd8ed1ab_0
+    - hatch-jupyter-builder 0.9.1 pyhd8ed1ab_0
+    - hatchling 1.25.0 pyhd8ed1ab_0
+    - importlib-metadata 8.0.0 pyha770c72_0
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_13
+    - libgomp 13.2.0 h77fa898_13
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.46.0 hde9e2c9_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.1 h4ab18f5_1
+    - packaging 24.1 pyhd8ed1ab_0
+    - pathspec 0.12.1 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - pluggy 1.5.0 pyhd8ed1ab_0
+    - pyproject_hooks 1.1.0 pyhd8ed1ab_0
+    - python 3.12.4 h194c7f8_0_cpython
+    - python-build 1.2.1 pyhd8ed1ab_0
+    - readline 8.2 h8228510_1
+    - setuptools 70.1.1 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - trove-classifiers 2024.5.22 pyhd8ed1ab_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.19.2 pyhd8ed1ab_0
+  run:
+    - async-lru >=1.0.0
+    - httpx >=0.25.0
+    - importlib_metadata >=4.8.3
+    - importlib_resources >=1.4
+    - ipykernel >=6.5.0
+    - jinja2 >=3.0.3
+    - jupyter-lsp >=2.0.0
+    - jupyter_core
+    - jupyter_server >=2.4.0,<3
+    - jupyterlab_server >=2.27.1,<3
+    - notebook-shim >=0.2
+    - packaging
+    - python >=3.8
+    - setuptools >=40.1.0
+    - tomli >=1.2.2
+    - tornado >=6.2.0
+    - traitlets
+test:
+  commands:
+    - pip check
+    - jupyter lab --version
+    - jlpm --version
+    - jupyter labextension list
+    - jupyter lab licenses
+    - jupyter lab path
+    - jupyter server extension list
+    - jupyter server extension list 1>server_extensions 2>&1
+    - grep -iE "jupyterlab.*4\.2\.3.*OK" server_extensions
+    - jupyter lab build --dev-build=False --minimize=False
+    - jupyter lab clean
+  imports:
+    - jupyterlab
+  requires:
+    - nodejs >=20,<21
+    - pip
+app:
+  entry: jupyter lab
+  icon: icon.png
+  summary: JupyterLab 4.2.3
+  type: desk
+about:
+  description: 'JupyterLab is the next-generation user interface for Project Jupyter.
+    It offers all the familiar building blocks of the classic Jupyter Notebook (notebook,
+    terminal, text editor, file browser, rich outputs, etc.) in a flexible and powerful
+    user inteface. Eventually, JupyterLab will replace the classic Jupyter Notebook.
+
+    JupyterLab can be extended using extensions that are npm packages and use our
+    public APIs. You can search for the GitHub topic or npm keyword `jupyterlab-extension`
+    to find extensions. To learn more about extensions, see our user documentation.
+
+    JupyterLab is suitable for general usage. For JupyterLab extension developers,
+    the extension APIs will continue to evolve.
+
+    '
+  dev_url: https://github.com/jupyterlab/jupyterlab
+  doc_url: https://jupyterlab.readthedocs.io
+  home: https://github.com/jupyterlab/jupyterlab
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file:
+    - LICENSE
+    - jupyterlab/static/third-party-licenses.json
+  summary: 'An extensible environment for interactive and reproducible computing,
+    based on the Jupyter Notebook and Architecture.
+
+    '
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240626.3.1
+  recipe-maintainers:
+    - afshin
+    - blink1073
+    - bollwyvl
+    - ellisonbg
+    - fcollonval
+    - ian-r-rose
+    - jasongrout
+    - jochym
+    - jtpio
+    - krassowski
+  remote_url: https://github.com/conda-forge/jupyterlab-feedstock
+  sha: 776704a5be6cd7f3b70da859598eb6f282992ab2

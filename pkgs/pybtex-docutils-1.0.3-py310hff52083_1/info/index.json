@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "py310hff52083_1",
+  "build_number": 1,
+  "depends": [
+    "docutils >=0.14",
+    "pybtex >=0.16",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310",
+    "setuptools"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "pybtex-docutils",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1695539433013,
+  "version": "1.0.3"
+}

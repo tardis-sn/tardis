@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyh04b8f61_3",
+    "build_number": 3,
+    "build_string": "pyh04b8f61_3",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "mpmath >=0.19",
+        "python >=3.8"
+    ],
+    "fn": "sympy-1.12.1-pyh04b8f61_3.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "2a2ecb906ec4efabca7e40bd36b627c8",
+    "name": "sympy",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "cd488f0c44dec1f1f5d0c65144d144ccb5f8325c63bfcc60ab81e557d8bfc2b2",
+    "size": 4237779,
+    "subdir": "noarch",
+    "timestamp": 1718625684067,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sympy-1.12.1-pyh04b8f61_3.conda",
+    "version": "1.12.1"
+}

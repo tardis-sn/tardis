@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "pytest >=7.0.0",
+        "python >=3.8"
+    ],
+    "fn": "pytest-metadata-3.1.1-pyhd8ed1ab_0.conda",
+    "license": "MPL-2.0",
+    "license_family": "OTHER",
+    "md5": "52b91ecba854d55b28ad916a8b10da24",
+    "name": "pytest-metadata",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "51bf04a99ad74e933fb270f52412320617f29d2014ca5cf8a03a3c5b8f37945b",
+    "size": 14577,
+    "subdir": "noarch",
+    "timestamp": 1707824772583,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pytest-metadata-3.1.1-pyhd8ed1ab_0.conda",
+    "version": "3.1.1"
+}

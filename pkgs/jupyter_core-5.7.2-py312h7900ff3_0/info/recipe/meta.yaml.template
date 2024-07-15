@@ -1,0 +1,91 @@
+{% set cov = "--cov=jupyter_core --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=64" %}
+{% set cov = "--cov=jupyter_core --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=64" %}
+{% set cov = "--cov=jupyter_core --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=64" %}
+{% set cov = "--cov=jupyter_core --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=64" %}
+{% set cov = "--cov=jupyter_core --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=64" %}
+{% set cov = "--cov=jupyter_core --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=64" %}
+{% set cov = "--cov=jupyter_core --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=64" %}
+{% set version = "5.7.2" %}
+
+package:
+  name: jupyter_core
+  version: {{ version }}
+
+source:
+  url: https://github.com/jupyter/jupyter_core/releases/download/v{{ version }}/jupyter_core-{{ version }}.tar.gz
+  sha256: aa5f8d32bbf6b431ac830496da7392035d6f61b4f54872f15c4bd2a9c3f536d9
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+  entry_points:
+    - jupyter = jupyter_core.command:main
+    - jupyter-migrate = jupyter_core.migrate:main
+    - jupyter-troubleshoot = jupyter_core.troubleshoot:main
+  skip: true  # [py<38 or (python_impl == 'pypy' and (aarch64 or ppc64le))]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+  host:
+    - pip
+    - python
+    - hatchling >=1.4
+  run:
+    - platformdirs >=2.5
+    - python
+    - pywin32 >=300  # [win and python_impl != 'pypy']
+    - traitlets >=5.3
+
+{% set skip = ["test_not_on_path", "test_path_priority"] %}
+# linux shebang lines have a length limit longer than the placeholder test prefix
+{% set skip = skip + ["test_argv0"] %}  # [linux]
+{% set skip = '-k "not (' + (skip | join(' or ')) + ')"' %}
+
+# coverage is very slow on pypy
+{% set cov = "--cov=jupyter_core --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=64" %}
+{% set cov = "" %}  # [win or python_impl == 'pypy']
+
+test:
+  source_files:
+    - tests
+  imports:
+    - jupyter_core
+  requires:
+    - pytest-cov
+    - pip
+  commands:
+    - pip check
+    - jupyter -h
+    - jupyter-migrate -h
+    - jupyter-troubleshoot --help
+    - pytest -vv --color=yes {{ cov }} {{ skip }}
+  downstreams:
+    # apparently issues with py3.11
+    - ipython  # [py<3.11]
+    - jupyter_server  # [not win]
+    - jupyterlab  # [not win]
+    - nbconvert-core
+
+about:
+  home: https://jupyter.org
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Core common functionality of Jupyter projects.
+  dev_url: https://github.com/jupyter/jupyter_core
+  doc_url: https://jupyter-core.readthedocs.io
+  doc_source_url: https://github.com/jupyter/jupyter_core/tree/v{{ version }}/docs
+
+extra:
+  recipe-maintainers:
+    - blink1073
+    - jakirkham
+    - pelson
+    - minrk
+    - ocefpaf
+    - bollwyvl
+    - Carreau
+    - jasongrout
+    - SylvainCorlay

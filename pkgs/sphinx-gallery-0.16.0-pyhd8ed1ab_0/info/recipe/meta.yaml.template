@@ -1,0 +1,54 @@
+{% set version = "0.16.0" %}
+
+package:
+  name: sphinx-gallery
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/s/sphinx-gallery/sphinx_gallery-{{ version }}.tar.gz
+  sha256: 3912765bc5e7b5451dc471ad50ead808a9752280b23fd2ec4277719a5ef68e42
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - python >=3.8
+    - pip
+    - setuptools
+    - setuptools-scm
+  run:
+    - python >=3.8
+    - pillow
+    - sphinx >=4
+
+test:
+  requires:
+    - pip
+  commands:
+    - pip check
+  imports:
+    - sphinx_gallery
+    - sphinx_gallery.gen_gallery
+
+about:
+  home: https://github.com/sphinx-gallery/sphinx-gallery
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Sphinx extension for automatic generation of an example gallery
+  description: |
+    A Sphinx extension that builds an HTML gallery of examples from any set of
+    Python scripts. It is extracted from the scikit-learn project and aims to
+    be an independent general purpose extension.
+  doc_url: https://sphinx-gallery.github.io
+  dev_url: https://github.com/sphinx-gallery/sphinx-gallery
+
+extra:
+  recipe-maintainers:
+    - dfroger
+    - leouieda
+    - ocefpaf
+    - dopplershift

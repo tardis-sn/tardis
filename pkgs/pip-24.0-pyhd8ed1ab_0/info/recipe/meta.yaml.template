@@ -1,0 +1,50 @@
+{% set version = "24.0" %}
+
+package:
+  name: pip
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/p/pip/pip-{{ version }}.tar.gz
+  sha256: ea9bd1a847e8c5774a5777bb398c19e80bcd4e2aa16a4b301b718fe6f593aba2
+
+build:
+  noarch: python
+  number: 0
+  disable_pip: true
+  entry_points:
+    - pip = pip._internal.cli.main:main
+    - pip3 = pip._internal.cli.main:main
+
+requirements:
+  host:
+    - python >=3.7
+    - setuptools
+  run:
+    - python >=3.7
+    - setuptools
+    - wheel
+
+test:
+  commands:
+    - pip -h
+    - pip list
+  imports:
+    - pip
+
+about:
+  home: https://pip.pypa.io/en/stable/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: PyPA recommended tool for installing Python packages
+  doc_url: https://pip.pypa.io/en/stable/
+  dev_url: https://github.com/pypa/pip
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - msarahan
+    - pelson
+    - ocefpaf
+    - mingwandroid

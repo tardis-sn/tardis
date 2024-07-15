@@ -1,0 +1,186 @@
+{% set version = "5.22.0" %}
+
+package:
+  name: plotly
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/p/plotly/plotly-{{ version }}.tar.gz
+  sha256: 859fdadbd86b5770ae2466e542b761b247d1c6b49daed765b95bb8c7063e7469
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - python >=3.6
+    - pip
+    - setuptools >=40.8.0  # min version from packages/python/plotly/pyproject.toml
+  run:
+    - python >=3.6
+    # Check install_requires=[...] in
+    # <https://github.com/plotly/plotly.py/blob/master/packages/python/plotly/setup.py>
+    - tenacity >=6.2.0
+    - packaging
+  run_constrained:
+    # This ensures that if ipywidgets is installed, then the version is compatible with Plotly.
+    # The lower bound of 7.6 comes from README.md.
+    - ipywidgets >=7.6
+
+test:
+  requires:
+    - pip
+  commands:
+    - pip check
+    - conda install -y numpy
+    - python test-imports-requiring-numpy.py
+    - conda install -y matplotlib-base
+    - python test-imports-requiring-matplotlib.py
+    - conda install -y pandas
+    - python test-imports-requiring-pandas.py
+  files:
+    - test-imports-requiring-numpy.py
+    - test-imports-requiring-matplotlib.py
+    - test-imports-requiring-pandas.py
+  imports:
+    # From setup.py
+    - jupyterlab_plotly
+    - plotly
+    # - plotly.plotly (deprecated)
+    - plotly.offline
+    - plotly.io
+    # - plotly.matplotlylib (requires matplotlib)
+    # - plotly.matplotlylib.mplexporter (requires matplotlib)
+    # - plotly.matplotlylib.mplexporter.renderers (requires matplotlib)
+    # - plotly.figure_factory (requires numpy)
+    - plotly.data
+    - plotly.colors
+    # - plotly.express (requires pandas)
+    # - plotly.express.data (requires pandas)
+    # - plotly.express.colors (requires pandas)
+    # - plotly.express.trendline_functions (requires pandas)
+    - plotly.graph_objects
+    - _plotly_utils
+    - _plotly_utils.colors
+    - _plotly_future_
+    - plotly.graph_objs.bar
+    - plotly.graph_objs.barpolar
+    - plotly.graph_objs.box
+    - plotly.graph_objs.candlestick
+    - plotly.graph_objs.carpet
+    - plotly.graph_objs.choropleth
+    - plotly.graph_objs.choroplethmapbox
+    - plotly.graph_objs.cone
+    - plotly.graph_objs.contour
+    - plotly.graph_objs.contourcarpet
+    - plotly.graph_objs.densitymapbox
+    - plotly.graph_objs.funnel
+    - plotly.graph_objs.funnelarea
+    - plotly.graph_objs.heatmap
+    - plotly.graph_objs.heatmapgl
+    - plotly.graph_objs.histogram
+    - plotly.graph_objs.histogram2d
+    - plotly.graph_objs.histogram2dcontour
+    - plotly.graph_objs.icicle
+    - plotly.graph_objs.image
+    - plotly.graph_objs.indicator
+    - plotly.graph_objs.isosurface
+    - plotly.graph_objs.layout
+    - plotly.graph_objs.mesh3d
+    - plotly.graph_objs.ohlc
+    - plotly.graph_objs.parcats
+    - plotly.graph_objs.parcoords
+    - plotly.graph_objs.pie
+    - plotly.graph_objs.pointcloud
+    - plotly.graph_objs.sankey
+    - plotly.graph_objs.scatter
+    - plotly.graph_objs.scatter3d
+    - plotly.graph_objs.scattercarpet
+    - plotly.graph_objs.scattergeo
+    - plotly.graph_objs.scattergl
+    - plotly.graph_objs.scattermapbox
+    - plotly.graph_objs.scatterpolar
+    - plotly.graph_objs.scatterpolargl
+    - plotly.graph_objs.scatterternary
+    - plotly.graph_objs.splom
+    - plotly.graph_objs.streamtube
+    - plotly.graph_objs.sunburst
+    - plotly.graph_objs.surface
+    - plotly.graph_objs.table
+    - plotly.graph_objs.treemap
+    - plotly.graph_objs.violin
+    - plotly.graph_objs.volume
+    - plotly.graph_objs.waterfall
+    - plotly.validators
+    - plotly.validators.bar
+    - plotly.validators.barpolar
+    - plotly.validators.box
+    - plotly.validators.candlestick
+    - plotly.validators.carpet
+    - plotly.validators.choropleth
+    - plotly.validators.choroplethmapbox
+    - plotly.validators.cone
+    - plotly.validators.contour
+    - plotly.validators.contourcarpet
+    - plotly.validators.densitymapbox
+    - plotly.validators.frame
+    - plotly.validators.funnel
+    - plotly.validators.funnelarea
+    - plotly.validators.heatmap
+    - plotly.validators.heatmapgl
+    - plotly.validators.histogram
+    - plotly.validators.histogram2d
+    - plotly.validators.histogram2dcontour
+    - plotly.validators.icicle
+    - plotly.validators.image
+    - plotly.validators.indicator
+    - plotly.validators.isosurface
+    - plotly.validators.layout
+    - plotly.validators.mesh3d
+    - plotly.validators.ohlc
+    - plotly.validators.parcats
+    - plotly.validators.parcoords
+    - plotly.validators.pie
+    - plotly.validators.pointcloud
+    - plotly.validators.sankey
+    - plotly.validators.scatter
+    - plotly.validators.scatter3d
+    - plotly.validators.scattercarpet
+    - plotly.validators.scattergeo
+    - plotly.validators.scattergl
+    - plotly.validators.scattermapbox
+    - plotly.validators.scatterpolar
+    - plotly.validators.scatterpolargl
+    - plotly.validators.scatterternary
+    - plotly.validators.splom
+    - plotly.validators.streamtube
+    - plotly.validators.sunburst
+    - plotly.validators.surface
+    - plotly.validators.table
+    - plotly.validators.treemap
+    - plotly.validators.violin
+    - plotly.validators.volume
+    - plotly.validators.waterfall
+
+about:
+  home: https://plot.ly/python/
+  license: MIT
+  license_file: {{ environ["RECIPE_DIR"] }}/LICENSE.txt
+  summary: An interactive, browser-based graphing library for Python
+  description: |
+    Plotly's Python graphing library makes interactive,
+    publication-quality graphs online. Examples of how to make line
+    plots, scatter plots, area charts, bar charts, error bars, box plots,
+    histograms, heatmaps, subplots, multiple-axes, polar charts and
+    bubble charts.
+  doc_url: https://plot.ly/python/
+  dev_url: https://github.com/plotly/plotly.py
+
+extra:
+  recipe-maintainers:
+    - maresb
+    - chohner
+    - moorepants
+    - ocefpaf

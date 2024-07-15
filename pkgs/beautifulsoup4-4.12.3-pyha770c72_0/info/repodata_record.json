@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyha770c72_0",
+    "build_number": 0,
+    "build_string": "pyha770c72_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6",
+        "soupsieve >=1.2"
+    ],
+    "fn": "beautifulsoup4-4.12.3-pyha770c72_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "332493000404d8411859539a5a630865",
+    "name": "beautifulsoup4",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "7b05b2d0669029326c623b9df7a29fa49d1982a9e7e31b2fea34b4c9a4a72317",
+    "size": 118200,
+    "subdir": "noarch",
+    "timestamp": 1705564819537,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.12.3-pyha770c72_0.conda",
+    "version": "4.12.3"
+}

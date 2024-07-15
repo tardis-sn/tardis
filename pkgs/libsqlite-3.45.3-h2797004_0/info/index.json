@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "h2797004_0",
+  "build_number": 0,
+  "depends": [
+    "libgcc-ng >=12",
+    "libzlib >=1.2.13,<1.3.0a0"
+  ],
+  "license": "Unlicense",
+  "name": "libsqlite",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1713367435849,
+  "version": "3.45.3"
+}

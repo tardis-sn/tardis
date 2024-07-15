@@ -1,0 +1,94 @@
+# This file created by conda-build 3.25.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Aug 15 11:02:15 2023
+# ------------------------------------------------
+
+package:
+  name: krb5
+  version: 1.21.2
+source:
+  sha256: 5827fa39ead0e7f7b8a158799eb5d50b194129e81b378892caedcafe50c5c195
+  url: https://github.com/krb5/krb5/archive/krb5-1.21.2-final.tar.gz
+build:
+  number: '0'
+  run_exports:
+    - krb5 >=1.21.2,<1.22.0a0
+  string: h659d440_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - autoconf 2.71 pl5321h2b4cb7a_1
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_1
+    - bison 3.8.2 h59595ed_0
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2023.7.22 hbcca054_0
+    - flex 2.6.4 h58526e2_1004
+    - gcc_impl_linux-64 12.3.0 he2b93b0_0
+    - gcc_linux-64 12.3.0 h76fc315_1
+    - gettext 0.21.1 h27087fc_0
+    - gxx_impl_linux-64 12.3.0 he2b93b0_0
+    - gxx_linux-64 12.3.0 h8a814eb_1
+    - kernel-headers_linux-64 2.6.32 he073ed8_16
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_0
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libnsl 2.0.0 h7f98852_0
+    - libsanitizer 12.3.0 h0f45ef3_0
+    - libsqlite 3.42.0 h2797004_0
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+    - libtool 2.4.7 h27087fc_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 hd590300_5
+    - m4 1.4.18 h516909a_1001
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.4 hcb278e6_0
+    - openssl 3.1.2 hd590300_0
+    - perl 5.32.1 4_hd590300_perl5
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - python 3.11.4 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - sysroot_linux-64 2.12 he073ed8_16
+    - tk 8.6.12 h27826a3_0
+    - tzdata 2023c h71feb2d_0
+    - xz 5.2.6 h166bdaf_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - ca-certificates 2023.7.22 hbcca054_0
+    - keyutils 1.6.1 h166bdaf_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+    - ncurses 6.4 hcb278e6_0
+    - openssl 3.1.2 hd590300_0
+  run:
+    - keyutils >=1.6.1,<2.0a0
+    - libedit >=3.1.20191231,<3.2.0a0
+    - libedit >=3.1.20191231,<4.0a0
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+    - openssl >=3.1.2,<4.0a0
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libkrb5${SHLIB_EXT}
+about:
+  home: http://web.mit.edu/kerberos/
+  license: MIT
+  license_file: doc/notice.rst
+  summary: A network authentication protocol.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - mariusvniekerk
+    - mingwandroid
+    - ocefpaf
+    - pelson
+    - wolfv

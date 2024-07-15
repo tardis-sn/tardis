@@ -1,0 +1,51 @@
+{% set name = "python-dateutil" %}
+{% set version = "2.9.0" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/python-dateutil-{{ version }}.tar.gz
+  sha256: 78e73e19c63f5b20ffa567001531680d939dc042bf7850431877645523c66709
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - python >=3.7
+    - pip
+    - setuptools-scm
+  run:
+    - python >=3.7
+    - six >=1.5
+
+test:
+  imports:
+    - dateutil
+    - dateutil.parser
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://dateutil.readthedocs.org/
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: Extensions to the standard Python datetime module.
+  description: |
+    The dateutil module provides powerful extensions to the standard datetime
+    module, available in Python.
+  doc_url: https://dateutil.readthedocs.org/en/latest/
+  dev_url: https://github.com/dateutil/dateutil/
+
+extra:
+  recipe-maintainers:
+    - pganssle
+    - msarahan
+    - ocefpaf

@@ -1,0 +1,14 @@
+--- Pillow-10.3.0.orig/Tests/oss-fuzz/test_fuzzers.py	2024-04-01 11:22:36.000000000 +0200
++++ Pillow-10.3.0/Tests/oss-fuzz/test_fuzzers.py	2024-04-03 14:28:18.474233737 +0200
+@@ -8,7 +8,10 @@
+ import pytest
+ 
+ from PIL import Image, UnidentifiedImageError, features
+-from Tests.helper import skip_unless_feature
++if sys.platform.startswith("win32"):
++    from tests.helper import skip_unless_feature
++else:
++    from Tests.helper import skip_unless_feature
+ 
+ if sys.platform.startswith("win32"):
+     pytest.skip("Fuzzer is linux only", allow_module_level=True)

@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_1",
+  "build_number": 1,
+  "depends": [
+    "python >=3.6"
+  ],
+  "license": "MIT AND PSF-2.0",
+  "name": "pkgutil-resolve-name",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1694617398467,
+  "version": "1.3.10"
+}

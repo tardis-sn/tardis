@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "hc051c1a_1",
+  "build_number": 1,
+  "depends": [
+    "icu >=73.2,<74.0a0",
+    "libgcc-ng >=12",
+    "libiconv >=1.17,<2.0a0",
+    "libzlib >=1.2.13,<2.0a0",
+    "xz >=5.2.6,<6.0a0"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "libxml2",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1717546454837,
+  "version": "2.12.7"
+}

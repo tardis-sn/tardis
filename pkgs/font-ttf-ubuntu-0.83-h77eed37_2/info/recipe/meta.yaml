@@ -1,0 +1,55 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Apr 30 13:15:51 2024
+# ------------------------------------------------
+
+package:
+  name: font-ttf-ubuntu
+  version: '0.83'
+source:
+  sha256: 61a2b342526fd552f19fef438bb9211a8212de19ad96e32a1209c039f1d68ecf
+  url: https://assets.ubuntu.com/v1/0cef8205-ubuntu-font-family-0.83.zip
+build:
+  noarch: generic
+  number: '2'
+  string: h77eed37_2
+requirements:
+  build: []
+  run: []
+test:
+  commands:
+    - test -f ${PREFIX}/fonts/Ubuntu-B.ttf
+    - test -f ${PREFIX}/fonts/Ubuntu-BI.ttf
+    - test -f ${PREFIX}/fonts/Ubuntu-C.ttf
+    - test -f ${PREFIX}/fonts/Ubuntu-L.ttf
+    - test -f ${PREFIX}/fonts/Ubuntu-LI.ttf
+    - test -f ${PREFIX}/fonts/Ubuntu-M.ttf
+    - test -f ${PREFIX}/fonts/Ubuntu-MI.ttf
+    - test -f ${PREFIX}/fonts/Ubuntu-R.ttf
+    - test -f ${PREFIX}/fonts/Ubuntu-RI.ttf
+    - test -f ${PREFIX}/fonts/Ubuntu-Th.ttf
+    - test -f ${PREFIX}/fonts/UbuntuMono-B.ttf
+    - test -f ${PREFIX}/fonts/UbuntuMono-BI.ttf
+    - test -f ${PREFIX}/fonts/UbuntuMono-R.ttf
+    - test -f ${PREFIX}/fonts/UbuntuMono-RI.ttf
+  requires:
+    - bzip2
+about:
+  description: 'A unique, custom designed font that has a very distinctive look and
+    feel.
+
+    '
+  home: https://design.ubuntu.com/font/
+  license: LicenseRef-Ubuntu-Font-Licence-Version-1.0
+  license_family: Other
+  license_file: LICENCE.txt
+  summary: The Ubuntu Font Family
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240430.9.1
+  recipe-maintainers:
+    - dbast
+    - xhochy
+  remote_url: https://github.com/conda-forge/font-ttf-ubuntu-feedstock
+  sha: 3b895cbcb39b4e4d86b9a96ea1b7719e23557351

@@ -1,0 +1,135 @@
+From 7b994c1f6e4cb7fbd45396718067de926dd7309e Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Mon, 15 Feb 2021 17:02:21 -0500
+Subject: [PATCH 1/4] Always link to getopt on Windows
+
+---
+ CMakeLists.txt               | 2 +-
+ cmd/edgepaint/CMakeLists.txt | 2 +-
+ cmd/gvmap/CMakeLists.txt     | 6 +++---
+ cmd/mingle/CMakeLists.txt    | 2 +-
+ cmd/tools/CMakeLists.txt     | 4 ++--
+ contrib/prune/CMakeLists.txt | 2 +-
+ lib/gvpr/CMakeLists.txt      | 2 +-
+ 7 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 12fd424ae..3fc0cede8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -208,7 +208,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/graphviz_version.h DESTINATION ${HEADE
+ message(STATUS "Graphviz version: ${GRAPHVIZ_VERSION_FULL}")
+ 
+ include(config_checks)
+-if(NOT HAVE_GETOPT_H)
++if(WIN32 OR (NOT HAVE_GETOPT_H))
+   find_package(GETOPT REQUIRED)
+ endif()
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+diff --git a/cmd/edgepaint/CMakeLists.txt b/cmd/edgepaint/CMakeLists.txt
+index 58ebb81fd..10ab17b54 100644
+--- a/cmd/edgepaint/CMakeLists.txt
++++ b/cmd/edgepaint/CMakeLists.txt
+@@ -27,7 +27,7 @@ if(with_sfdp)
+     sparse
+   )
+ 
+-  if(NOT HAVE_GETOPT_H)
++  if(WIN32 OR (NOT HAVE_GETOPT_H))
+     target_link_libraries(edgepaint PRIVATE ${GETOPT_LINK_LIBRARIES})
+   endif()
+ 
+diff --git a/cmd/gvmap/CMakeLists.txt b/cmd/gvmap/CMakeLists.txt
+index d5b0d4226..92d1ce1a3 100644
+--- a/cmd/gvmap/CMakeLists.txt
++++ b/cmd/gvmap/CMakeLists.txt
+@@ -14,7 +14,7 @@ if(with_sfdp)
+     ../../lib/common
+   )
+ 
+-  if(GETOPT_FOUND)
++  if(WIN32 OR (NOT HAVE_GETOPT_H))
+     target_include_directories(cluster SYSTEM PRIVATE
+       ${GETOPT_INCLUDE_DIRS}
+     )
+@@ -31,7 +31,7 @@ if(with_sfdp)
+     sparse
+   )
+ 
+-  if(NOT HAVE_GETOPT_H)
++  if(WIN32 OR (NOT HAVE_GETOPT_H))
+     target_link_libraries(cluster PRIVATE ${GETOPT_LINK_LIBRARIES})
+   endif()
+ 
+@@ -97,7 +97,7 @@ if(with_sfdp)
+     sparse
+   )
+ 
+-  if(NOT HAVE_GETOPT_H)
++  if(WIN32 OR (NOT HAVE_GETOPT_H))
+     target_link_libraries(gvmap ${GETOPT_LINK_LIBRARIES})
+   endif()
+ 
+diff --git a/cmd/mingle/CMakeLists.txt b/cmd/mingle/CMakeLists.txt
+index 077c63a6d..919236dea 100644
+--- a/cmd/mingle/CMakeLists.txt
++++ b/cmd/mingle/CMakeLists.txt
+@@ -31,7 +31,7 @@ if(with_sfdp AND ANN_FOUND)
+     sparse
+     ${ANN_LIBRARIES}
+   )
+-  if(NOT HAVE_GETOPT_H)
++  if(WIN32 OR (NOT HAVE_GETOPT_H))
+     target_link_libraries(mingle ${GETOPT_LINK_LIBRARIES})
+   endif()
+ 
+diff --git a/cmd/tools/CMakeLists.txt b/cmd/tools/CMakeLists.txt
+index 6928bf6a7..25f220be8 100644
+--- a/cmd/tools/CMakeLists.txt
++++ b/cmd/tools/CMakeLists.txt
+@@ -3,7 +3,7 @@
+ # - installation of executable
+ # - installation of manpage
+ function(tool_defaults name)
+-  if(NOT HAVE_GETOPT_H)
++  if(WIN32 OR (NOT HAVE_GETOPT_H))
+     target_link_libraries(${name} ${GETOPT_LINK_LIBRARIES})
+   endif()
+ 
+@@ -171,7 +171,7 @@ if(GETOPT_FOUND)
+   )
+ endif()
+ target_link_libraries(gv2gml cgraph gvc ingraphs)
+-if(NOT HAVE_GETOPT_H)
++if(WIN32 OR (NOT HAVE_GETOPT_H))
+   target_link_libraries(gv2gml ${GETOPT_LINK_LIBRARIES})
+ endif()
+ install(TARGETS gv2gml RUNTIME DESTINATION ${BINARY_INSTALL_DIR})
+diff --git a/contrib/prune/CMakeLists.txt b/contrib/prune/CMakeLists.txt
+index 8551ae7d6..1e39b6c15 100644
+--- a/contrib/prune/CMakeLists.txt
++++ b/contrib/prune/CMakeLists.txt
+@@ -10,7 +10,7 @@ if(GETOPT_FOUND)
+   )
+ endif()
+ 
+-if(NOT HAVE_GETOPT_H)
++if(WIN32 OR (NOT HAVE_GETOPT_H))
+   target_link_libraries(prune PRIVATE ${GETOPT_LINK_LIBRARIES})
+ endif()
+ 
+diff --git a/lib/gvpr/CMakeLists.txt b/lib/gvpr/CMakeLists.txt
+index 15637aa02..ddcc1605e 100644
+--- a/lib/gvpr/CMakeLists.txt
++++ b/lib/gvpr/CMakeLists.txt
+@@ -54,6 +54,6 @@ target_link_libraries(gvpr
+   vmalloc
+ )
+ 
+-if(NOT HAVE_GETOPT_H)
++if(WIN32 OR (NOT HAVE_GETOPT_H))
+   target_link_libraries(gvpr ${GETOPT_LINK_LIBRARIES})
+ endif()
+-- 
+2.33.1
+

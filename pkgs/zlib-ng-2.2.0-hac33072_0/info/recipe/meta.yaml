@@ -1,0 +1,85 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu Jun 20 03:15:43 2024
+# ------------------------------------------------
+
+package:
+  name: zlib-ng
+  version: 2.2.0
+source:
+  fn: zstd-ng.tar.gz
+  sha256: 6e688263f704cd2e5e5dbab07b0fd0f494c24d393be7d15da02e7ae76b630b76
+  url: https://codeload.github.com/zlib-ng/zlib-ng/tar.gz/refs/tags/2.2.0
+build:
+  number: '0'
+  run_exports:
+    - zlib-ng >=2.2.0,<2.3.0a0
+  string: hac33072_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_7
+    - binutils_linux-64 2.40 hb3c18ed_7
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.28.1 hd590300_0
+    - ca-certificates 2024.6.2 hbcca054_0
+    - cmake 3.29.6 hcafd917_0
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_10
+    - gcc_linux-64 12.3.0 h6b3dd4b_7
+    - gxx_impl_linux-64 12.3.0 h2a574ab_10
+    - gxx_linux-64 12.3.0 ha28b414_7
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - libcurl 8.8.0 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-devel_linux-64 12.3.0 h6b66f73_110
+    - libgcc-ng 13.2.0 h77fa898_10
+    - libgomp 13.2.0 h77fa898_10
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 hb8811af_10
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-devel_linux-64 12.3.0 h6b66f73_110
+    - libstdcxx-ng 13.2.0 hc0a3c3a_10
+    - libuv 1.48.0 hd590300_0
+    - libzlib 1.3.1 h4ab18f5_1
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.1 h4ab18f5_0
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.6 ha6fb4c9_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.2.0 h77fa898_10
+    - libgomp 13.2.0 h77fa898_10
+    - libstdcxx-ng 13.2.0 hc0a3c3a_10
+  run:
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+test:
+  commands:
+    - test -e $PREFIX/include/zlib-ng.h
+    - test -e $PREFIX/include/zconf-ng.h
+    - test -e $PREFIX/lib/libz-ng${SHLIB_EXT}
+    - test -e $PREFIX/lib/pkgconfig/zlib-ng.pc
+about:
+  home: https://github.com/zlib-ng/zlib-ng
+  license: Zlib
+  license_family: Other
+  license_file: LICENSE.md
+  summary: zlib data compression library for the next generation systems
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240619.8.1
+  recipe-maintainers:
+    - hmaarrfk
+  remote_url: https://github.com/conda-forge/zlib-ng-feedstock
+  sha: 2533016cd5d08dc150d679c2e0f88cc772dabaf6

@@ -1,0 +1,76 @@
+{% set name = "fonttools" %}
+{% set version = "4.53.0" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/fonttools-{{ version }}.tar.gz
+  sha256: c93ed66d32de1559b6fc348838c7572d5c0ac1e4a258e76763a5caddd8944002
+
+build:
+  number: 0
+  skip: true  # [py2k]
+  entry_points:
+    - fonttools = fontTools.__main__:main
+    - ttx = fontTools.ttx:main
+    - pyftsubset = fontTools.subset:main
+    - pyftmerge = fontTools.merge:main
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - cython                                 # [build_platform != target_platform]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+  host:
+    - cython
+    - pip
+    - python
+  run:
+    - python
+    - brotli
+    - munkres
+    - unicodedata2 >=14.0.0  # [py<311]
+
+test:
+  imports:
+    - fontTools
+    - fontTools.ttLib
+    - fontTools.cffLib
+  commands:
+    - pip check
+    - fonttools --help
+    - fonttools subset --help
+    - ttx -h
+    - pyftsubset --help
+    # pyftmerge has no help option
+  requires:
+    - pip
+
+about:
+  home: https://github.com/fonttools/fonttools
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: fontTools is a library for manipulating fonts, written in Python.
+
+  description: |
+    fontTools is a library for manipulating fonts, written in Python. The
+    project includes the TTX tool, that can convert TrueType and OpenType
+    fonts to and from an XML text format, which is also called TTX. It
+    supports TrueType, OpenType, AFM and to an extent Type 1 and some
+    Mac-specific formats. The project has a BSD-style open-source licence.
+
+  doc_url: https://groups.google.com/forum/#!forum/fonttools
+  dev_url: https://github.com/fonttools/fonttools
+
+extra:
+  recipe-maintainers:
+    - CJ-Wright
+    - dopplershift
+    - tacaswell

@@ -1,0 +1,13 @@
+prefix=/home/conda/feedstock_root/build_artifacts/libxslt_1701628586713/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+
+Name: libexslt
+Version: 0.8.21
+Description: EXSLT Extension library
+Requires: libxml-2.0, libxslt
+Cflags: -I${includedir} 
+Libs: -L${libdir} -lexslt
+Libs.private: -lm 

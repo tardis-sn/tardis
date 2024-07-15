@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "hd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "hd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "setuptools-scm >=8.1.0,<8.1.1.0a0"
+    ],
+    "fn": "setuptools_scm-8.1.0-hd8ed1ab_0.conda",
+    "license": "MIT",
+    "md5": "7ed7b077f6c6ebcb5fc66f23985df487",
+    "name": "setuptools_scm",
+    "noarch": "generic",
+    "platform": null,
+    "sha256": "00e736790575001fe50d69bb463c04ecdc470b9e104ee7728a54b6a1e59404f5",
+    "size": 6202,
+    "subdir": "noarch",
+    "timestamp": 1715083343236,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/setuptools_scm-8.1.0-hd8ed1ab_0.conda",
+    "version": "8.1.0"
+}

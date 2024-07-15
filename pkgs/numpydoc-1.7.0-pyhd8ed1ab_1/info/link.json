@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "entry_points": [
+      "numpydoc = numpydoc.cli:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

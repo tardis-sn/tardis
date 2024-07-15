@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_1",
+    "build_number": 1,
+    "build_string": "pyhd8ed1ab_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "soupsieve-2.5-pyhd8ed1ab_1.conda",
+    "license": "MIT",
+    "md5": "3f144b2c34f8cb5a9abd9ed23a39c561",
+    "name": "soupsieve",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "54ae221033db8fbcd4998ccb07f3c3828b4d77e73b0c72b18c1d6a507059059c",
+    "size": 36754,
+    "subdir": "noarch",
+    "timestamp": 1693929424267,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/soupsieve-2.5-pyhd8ed1ab_1.conda",
+    "version": "2.5"
+}

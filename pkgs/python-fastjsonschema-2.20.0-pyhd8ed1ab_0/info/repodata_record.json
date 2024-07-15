@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.3"
+    ],
+    "fn": "python-fastjsonschema-2.20.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "b98d2018c01ce9980c03ee2850690fab",
+    "name": "python-fastjsonschema",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "7d8c931b89c9980434986b4deb22c2917b58d9936c3974139b9c10ae86fdfe60",
+    "size": 226165,
+    "subdir": "noarch",
+    "timestamp": 1718477110630,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/python-fastjsonschema-2.20.0-pyhd8ed1ab_0.conda",
+    "version": "2.20.0"
+}

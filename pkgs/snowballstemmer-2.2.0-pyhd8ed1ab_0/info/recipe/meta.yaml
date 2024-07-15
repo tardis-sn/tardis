@@ -1,0 +1,69 @@
+# This file created by conda-build 3.21.6
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Nov 17 09:56:53 2021
+# ------------------------------------------------
+
+package:
+  name: snowballstemmer
+  version: 2.2.0
+source:
+  fn: snowballstemmer-2.2.0.tar.gz
+  sha256: 09b16deb8547d3412ad7b590689584cd0fe25ec8db3be37788be3810cbf19cb1
+  url: https://pypi.io/packages/source/s/snowballstemmer/snowballstemmer-2.2.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/snowballstemmer_1637143057757/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2021.10.8 ha878542_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 11.2.0 h1d223b6_11
+    - libgomp 11.2.0 h1d223b6_11
+    - libnsl 2.0.0 h7f98852_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.11 h36c2ea0_1013
+    - ncurses 6.2 h58526e2_4
+    - openssl 3.0.0 h7f98852_2
+    - pip 21.3.1 pyhd8ed1ab_0
+    - python 3.10.0 h543edf9_2_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1 h46c0cb4_0
+    - setuptools 59.1.1 py310hff52083_0
+    - sqlite 3.36.0 h9cd32fc_2
+    - tk 8.6.11 h27826a3_1
+    - tzdata 2021e he74cb21_0
+    - wheel 0.37.0 pyhd8ed1ab_1
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h36c2ea0_1013
+  run:
+    - python >=2
+test:
+  imports:
+    - snowballstemmer
+about:
+  description: 'Snowball is a small string processing language designed for creating
+
+    stemming algorithms for use in Information Retrieval. The Snowball
+
+    compiler translates a Snowball script into another language - currently
+
+    ISO C, Java and Python are supported.
+
+    '
+  dev_url: https://github.com/snowballstem/snowball
+  home: https://snowballstem.org/
+  license: BSD-3-Clause
+  license_file: COPYING
+  summary: Snowball stemming library collection for Python
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - chohner

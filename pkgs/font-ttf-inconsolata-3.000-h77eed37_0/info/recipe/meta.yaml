@@ -1,0 +1,35 @@
+# This file created by conda-build 3.21.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat May  8 13:16:24 2021
+# ------------------------------------------------
+
+package:
+  name: font-ttf-inconsolata
+  version: '3.000'
+source:
+  sha256: f2d8d8ba6caa785a966ef17996822ab14ba91ec423431a29e1b6c4b14bc4cda5
+  url: https://github.com/googlefonts/Inconsolata/archive/refs/tags/v3.000.tar.gz
+build:
+  noarch: generic
+  number: '0'
+  string: h77eed37_0
+requirements:
+  build: []
+  run: []
+test:
+  commands:
+    - test -f ${PREFIX}/fonts/Inconsolata-Regular.ttf
+    - test -f ${PREFIX}/fonts/Inconsolata-Bold.ttf
+  requires:
+    - bzip2
+about:
+  home: https://fonts.google.com/specimen/Inconsolata
+  license: OFL-1.1
+  license_family: Other
+  license_file: OFL.txt
+  summary: Monospace font for pretty code listings
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - dbast

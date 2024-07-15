@@ -1,0 +1,80 @@
+# This file created by conda-build 3.28.3
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Jan 10 01:03:24 2024
+# ------------------------------------------------
+
+package:
+  name: alabaster
+  version: 0.7.16
+source:
+  sha256: 75a8b99c28a5dad50dd7f8ccdd447a121ddb3892da9e53d1ca5cca3106d58d65
+  url: https://pypi.io/packages/source/a/alabaster/alabaster-0.7.16.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/alabaster_1704848697227/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+    -m pip install . -vv --no-deps --no-build-isolation
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - flit-core 3.9.0 pyhd8ed1ab_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_3
+    - libgomp 13.2.0 h807b86a_3
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.0 hd590300_1
+    - pip 23.3.2 pyhd8ed1ab_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023d h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.9
+test:
+  commands:
+    - pip check
+    - python -c "import alabaster; print(alabaster.get_path())"
+  imports:
+    - alabaster
+    - alabaster.support
+  requires:
+    - pip
+    - pygments
+about:
+  description: 'Alabaster is a visually clean, responsive, and configurable Sphinx
+
+    theme, and the default theme for Sphinx.
+
+    '
+  dev_url: https://github.com/sphinx-doc/alabaster
+  doc_url: https://alabaster.readthedocs.io/
+  home: https://alabaster.readthedocs.io/
+  license: BSD-3-Clause
+  license_file: LICENSE.rst
+  summary: A light, configurable Sphinx theme
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240109.3.1
+  recipe-maintainers:
+    - AA-Turner
+    - conda-forge/sphinx
+    - msarahan
+    - ocefpaf
+    - r-jain1
+  remote_url: https://github.com/conda-forge/alabaster-feedstock
+  sha: 880500fc9bc89f648ab06b1a871209fe7a01f9d5

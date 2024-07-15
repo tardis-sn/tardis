@@ -1,0 +1,41 @@
+# This file created by conda-build 3.21.4
+# ------------------------------------------------
+
+package:
+  name: cached-property
+  version: 1.5.2
+source:
+  sha256: 9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130
+  url: https://pypi.io/packages/source/c/cached_property/cached-property-1.5.2.tar.gz
+build:
+  noarch: python
+  number: 1
+  string: hd8ed1ab_1
+requirements:
+  build: []
+  run:
+    - cached_property >=1.5.2,<1.5.3.0a0
+test:
+  requires:
+    - pip
+about:
+  description: 'Cached-property is a decorator for caching properties in classes.
+    It
+
+    makes caching of time or computational expensive properties quick and easy.
+
+    '
+  dev_url: https://github.com/pydanny/cached-property
+  doc_source_url: https://github.com/pydanny/cached-property/blob/master/README.rst
+  doc_url: https://pypi.python.org/pypi/cached-property
+  home: https://github.com/pydanny/cached-property
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: A decorator for caching properties in classes.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - anthchirp
+    - mvdbeek

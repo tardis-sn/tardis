@@ -1,0 +1,20 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "jupyter_client >=6.1.12",
+    "jupyter_core >=4.12,!=5.0.*",
+    "nbformat >=5.1",
+    "python >=3.8",
+    "traitlets >=5.4"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "nbclient",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1710317767117,
+  "version": "0.10.0"
+}

@@ -1,0 +1,78 @@
+# This file created by conda-build 3.21.7
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Dec  6 17:22:52 2021
+# ------------------------------------------------
+
+package:
+  name: isoduration
+  version: 20.11.0
+source:
+  - folder: dist
+    sha256: ac2f9015137935279eac671f94f89eb00584f940f5dc49462a0c4ee692ba1bd9
+    url: https://pypi.io/packages/source/i/isoduration/isoduration-20.11.0.tar.gz
+  - folder: src
+    sha256: a72c92cfc3810117d2289792a39f17a0bf71a4065384ff117032fb5917e93e24
+    url: https://github.com/bolsote/isoduration/archive/refs/tags/20.11.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: cd dist && /home/conda/feedstock_root/build_artifacts/isoduration_1638811571363/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2021.10.8 ha878542_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 11.2.0 h1d223b6_11
+    - libgomp 11.2.0 h1d223b6_11
+    - libnsl 2.0.0 h7f98852_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.11 h36c2ea0_1013
+    - ncurses 6.2 h58526e2_4
+    - openssl 3.0.0 h7f98852_2
+    - pip 21.3.1 pyhd8ed1ab_0
+    - python 3.10.0 h543edf9_3_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1 h46c0cb4_0
+    - setuptools 59.4.0 py310hff52083_0
+    - sqlite 3.37.0 h9cd32fc_0
+    - tk 8.6.11 h27826a3_1
+    - tzdata 2021e he74cb21_0
+    - wheel 0.37.0 pyhd8ed1ab_1
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h36c2ea0_1013
+  run:
+    - arrow >=0.15.0
+    - python >=3.7
+test:
+  commands:
+    - pip check
+    - cd src/tests && pytest --cov=isoduration --cov-report=term-missing:skip-covered
+      --no-cov-on-fail --cov-fail-under=98
+  imports:
+    - isoduration
+    - isoduration.formatter
+  requires:
+    - coverage
+    - hypothesis
+    - isodate
+    - pip
+    - pytest
+    - pytest-benchmark
+    - pytest-cov
+  source_files:
+    - src/tests
+about:
+  home: https://github.com/bolsote/isoduration
+  license: MIT
+  license_file: dist/LICENSE
+  summary: Operations with ISO 8601 durations
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - bollwyvl

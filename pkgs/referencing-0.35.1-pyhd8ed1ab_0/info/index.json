@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "attrs >=22.2.0",
+    "python >=3.8",
+    "rpds-py >=0.7.0"
+  ],
+  "license": "MIT",
+  "name": "referencing",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1714619625532,
+  "version": "0.35.1"
+}

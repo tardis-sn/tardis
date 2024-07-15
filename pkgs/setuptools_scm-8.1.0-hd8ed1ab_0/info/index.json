@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "hd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "setuptools-scm >=8.1.0,<8.1.1.0a0"
+  ],
+  "license": "MIT",
+  "name": "setuptools_scm",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1715083343236,
+  "version": "8.1.0"
+}

@@ -1,0 +1,25 @@
+From edbf3225c76685d753715d1f0055e56c89dda2d1 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Mon, 7 Jan 2019 00:23:59 -0600
+Subject: [PATCH] Test BLAS and LAPACKE in addition to LAPACK
+
+---
+ CMakeLists.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d9dbf974..dabab4c0 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -295,6 +295,8 @@ endif()
+ 
+ if(BUILD_TESTING)
+   add_subdirectory(TESTING)
++  add_subdirectory(BLAS/TESTING)
++  add_subdirectory(LAPACKE/example)
+ endif()
+ 
+ # --------------------------------------------------
+-- 
+2.26.2.windows.1
+

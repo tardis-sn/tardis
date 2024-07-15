@@ -1,0 +1,12 @@
+{
+  "noarch": {
+    "entry_points": [
+      "sphinx-build = sphinx.cmd.build:main",
+      "sphinx-quickstart = sphinx.cmd.quickstart:main",
+      "sphinx-apidoc = sphinx.ext.apidoc:main",
+      "sphinx-autogen = sphinx.ext.autosummary.generate:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

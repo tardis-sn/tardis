@@ -1,0 +1,47 @@
+# This file created by conda-build 3.21.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat May  8 13:11:20 2021
+# ------------------------------------------------
+
+package:
+  name: font-ttf-source-code-pro
+  version: '2.038'
+source:
+  sha256: d8f879fefd66ecb7291ea2d73984b9c0a97fb499424e58290ba6b81787d0c725
+  url: https://github.com/adobe-fonts/source-code-pro/archive/refs/tags/2.038R-ro/1.058R-it/1.018R-VAR.tar.gz
+build:
+  noarch: generic
+  number: '0'
+  string: h77eed37_0
+requirements:
+  build: []
+  run: []
+test:
+  commands:
+    - test -f ${PREFIX}/fonts/SourceCodePro-Black.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-BlackIt.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-Bold.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-BoldIt.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-ExtraLight.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-ExtraLightIt.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-It.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-Light.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-LightIt.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-Medium.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-MediumIt.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-Regular.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-Semibold.ttf
+    - test -f ${PREFIX}/fonts/SourceCodePro-SemiboldIt.ttf
+  requires:
+    - bzip2
+about:
+  home: https://adobe-fonts.github.io/source-code-pro/
+  license: OFL-1.1
+  license_family: Other
+  license_file: LICENSE.md
+  summary: A set of fonts that have been designed to work well in UI environments
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - dbast

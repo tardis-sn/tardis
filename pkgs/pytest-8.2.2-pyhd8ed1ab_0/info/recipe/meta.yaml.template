@@ -1,0 +1,64 @@
+{% set version = "8.2.2" %}
+
+package:
+  name: pytest
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/p/pytest/pytest-{{ version }}.tar.gz
+  sha256: de4bb8104e201939ccdc688b27a89a7be2079b22e2bd2b07f806b6ba71117977
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  entry_points:
+    - pytest = pytest:console_main
+    - py.test = pytest:console_main
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+    - setuptools >=61
+    - setuptools_scm >=6.2.3
+  run:
+    - python >=3.8
+    - iniconfig
+    - packaging
+    - pluggy <2.0,>=1.5
+    - tomli >=1
+    # colorama is needed only for windows, but okay to have for unix
+    # For eg: tqdm does the same thing
+    - colorama
+    # exceptiongroup should be only [py<311] but let's see if we can keep this noarch.
+    - exceptiongroup >=1.0.0rc8
+  run_constrained:
+    # pytest-faulthandler 2 is a dummy package.
+    # if an older version of fault-handler is installed, it will conflict with pytest >=5.
+    - pytest-faulthandler >=2
+
+test:
+  commands:
+    - pytest -h
+  imports:
+    - pytest
+
+about:
+  home: https://docs.pytest.org/en/latest/
+  license: MIT
+  license_file: LICENSE
+  summary: Simple and powerful testing with Python.
+  description: |
+    The pytest framework makes it easy to write small tests, yet scales to
+    support complex functional testing for applications and libraries.
+  doc_url: https://docs.pytest.org/en/latest/
+  dev_url: https://github.com/pytest-dev/pytest/
+
+extra:
+  recipe-maintainers:
+    - flub
+    - goanpeca
+    - nicoddemus
+    - ocefpaf
+    - mingwandroid

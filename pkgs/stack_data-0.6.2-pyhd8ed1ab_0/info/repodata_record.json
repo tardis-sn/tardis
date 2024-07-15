@@ -1,0 +1,28 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "asttokens",
+        "executing",
+        "pure_eval",
+        "python >=3.5"
+    ],
+    "fn": "stack_data-0.6.2-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "e7df0fdd404616638df5ece6e69ba7af",
+    "name": "stack_data",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "a58433e75229bec39f3be50c02efbe9b7083e53a1f31d8ee247564f370191eec",
+    "size": 26205,
+    "subdir": "noarch",
+    "timestamp": 1669632203115,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/stack_data-0.6.2-pyhd8ed1ab_0.conda",
+    "version": "0.6.2"
+}

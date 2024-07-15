@@ -1,0 +1,84 @@
+# This file created by conda-build 3.19.2
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Jun 16 20:12:09 2020
+# ------------------------------------------------
+
+package:
+    name: backcall
+    version: 0.2.0
+source:
+    fn: backcall-0.2.0.tar.gz
+    sha256: 5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e
+    url: https://pypi.io/packages/source/b/backcall/backcall-0.2.0.tar.gz
+build:
+    noarch: python
+    number: '0'
+    script: /home/conda/feedstock_root/build_artifacts/backcall_1592338393461/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+        -m pip install . --no-deps -vv
+    string: pyh9f0ad1d_0
+requirements:
+    build:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 0_gnu
+        - brotlipy 0.7.0 py36h8c4c3a4_1000
+        - ca-certificates 2020.4.5.2 hecda079_0
+        - certifi 2020.4.5.2 py36h9f0ad1d_0
+        - cffi 1.14.0 py36hd463f26_0
+        - chardet 3.0.4 py36h9f0ad1d_1006
+        - cryptography 2.9.2 py36h45558ae_0
+        - docutils 0.16 py36h9f0ad1d_1
+        - flit 2.3.0 py_0
+        - flit-core 2.3.0 py_0
+        - idna 2.9 py_1
+        - ld_impl_linux-64 2.34 h53a641e_5
+        - libffi 3.2.1 he1b5a44_1007
+        - libgcc-ng 9.2.0 h24d8f2e_2
+        - libgomp 9.2.0 h24d8f2e_2
+        - libstdcxx-ng 9.2.0 hdf63c60_2
+        - ncurses 6.1 hf484d3e_1002
+        - openssl 1.1.1g h516909a_0
+        - pip 20.1.1 py_1
+        - pycparser 2.20 py_0
+        - pygments 2.6.1 py_0
+        - pyopenssl 19.1.0 py_1
+        - pysocks 1.7.1 py36h9f0ad1d_1
+        - python 3.6.10 h8356626_1011_cpython
+        - python_abi 3.6 1_cp36m
+        - pytoml 0.1.21 py_0
+        - readline 8.0 hf8c457e_0
+        - requests 2.23.0 pyh8c360ce_2
+        - requests_download 0.1.2 py_1
+        - setuptools 47.3.0 py36h9f0ad1d_0
+        - six 1.15.0 pyh9f0ad1d_0
+        - sqlite 3.30.1 hcee41ef_0
+        - tk 8.6.10 hed695b0_0
+        - urllib3 1.25.9 py_0
+        - wheel 0.34.2 py_1
+        - xz 5.2.5 h516909a_0
+        - zlib 1.2.11 h516909a_1006
+    run:
+        - python
+test:
+    imports:
+        - backcall
+about:
+    description: 'Backcall provides a way of specifying the parameters that callback
+        functions
+
+        need to accept, and adapting callbacks that take fewer parameters, so you
+
+        can add parameters to your callback API without breaking code that doesn''t
+
+        know about them.
+
+        '
+    home: https://github.com/takluyver/backcall/
+    license: BSD-3-Clause
+    license_family: BSD
+    license_file: LICENSE
+    summary: Specifications for callback functions passed in to an API
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - takluyver

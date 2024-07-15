@@ -1,0 +1,17 @@
+{
+  "cairo": "1",
+  "rust_compiler": "rust",
+  "freetype": "2",
+  "glib": "2",
+  "c_compiler": "gcc",
+  "c_stdlib_version": "2.12",
+  "channel_targets": "conda-forge main",
+  "pango": "1.50",
+  "c_compiler_version": "12",
+  "libxml2": "2",
+  "libpng": "1.6",
+  "c_stdlib": "sysroot",
+  "target_platform": "linux-64",
+  "gdk_pixbuf": "2",
+  "harfbuzz": "8"
+}

@@ -1,0 +1,11 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: GTS
+Description: GNU Triangulated Surface Library
+Version: 0.7.6
+Requires: glib-2.0,gthread-2.0,gmodule-2.0
+Libs: -L${libdir}  -lgts
+Cflags: -I${includedir}

@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "py312h9a8786e_0",
+  "build_number": 0,
+  "depends": [
+    "brotli",
+    "libgcc-ng >=12",
+    "munkres",
+    "python >=3.12,<3.13.0a0",
+    "python_abi 3.12.* *_cp312"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "fonttools",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1717209380114,
+  "version": "4.53.0"
+}

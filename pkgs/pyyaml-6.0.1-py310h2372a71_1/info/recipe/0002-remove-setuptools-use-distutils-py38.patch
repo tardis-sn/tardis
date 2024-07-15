@@ -1,0 +1,11 @@
+--- setup.py.orig	2021-11-02 21:27:26.000000000 -0700
++++ setup.py	2021-11-02 21:27:45.000000000 -0700
+@@ -66,8 +66,6 @@
+ 
+ import sys, os, os.path, pathlib, platform, shutil, tempfile, warnings
+ 
+-# for newer setuptools, enable the embedded distutils before importing setuptools/distutils to avoid warnings
+-os.environ['SETUPTOOLS_USE_DISTUTILS'] = 'local'
+ 
+ from setuptools import setup, Command, Distribution as _Distribution, Extension as _Extension
+ from setuptools.command.build_ext import build_ext as _build_ext

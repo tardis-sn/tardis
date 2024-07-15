@@ -1,0 +1,22 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {},
+    "http://example.com/foo/": { "foo": "bar" },
+    "http://example.com/foo/bar": { "baz": "quux" }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/",
+      "target": {},
+      "then": {
+        "ref": "foo/",
+        "target": { "foo": "bar" },
+        "then": {
+          "ref": "bar",
+          "target": { "baz": "quux" }
+        }
+      }
+    }
+  ]
+}

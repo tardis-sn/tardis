@@ -1,0 +1,4 @@
+lib/libbrotlicommon.so
+lib/libbrotlicommon.so.1
+lib/libbrotlicommon.so.1.1.0
+lib/pkgconfig/libbrotlicommon.pc

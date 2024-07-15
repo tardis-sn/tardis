@@ -1,0 +1,55 @@
+{% set name = "pytest-doctestplus" %}
+{% set version = "1.2.1" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/pytest-doctestplus-{{ version }}.tar.gz
+  sha256: 2472a8a2c8cea34d2f65f6499543faeb748eecb59c597852fd98839b47307679
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+    - setuptools_scm
+  run:
+    - pip
+    - pytest >=4.6
+    - packaging >=17.0
+    - python >=3.8
+    - setuptools >=30.3
+
+test:
+  imports:
+    - pytest_doctestplus
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/scientific-python/pytest-doctestplus
+  summary: Pytest plugin with advanced doctest features.
+  description: |
+    This package contains a plugin for the pytest framework that provides
+    advanced doctest support and enables the testing of reStructuredText files.
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE.rst
+  doc_url: https://pypi.org/project/pytest-doctestplus/
+  dev_url: https://github.com/scientific-python/pytest-doctestplus
+
+extra:
+  recipe-maintainers:
+    - anthchirp
+    - astrofrog
+    - bsipocz
+    - pllim
+    - mwcraig

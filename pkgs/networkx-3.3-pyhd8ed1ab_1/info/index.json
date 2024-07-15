@@ -1,0 +1,22 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_1",
+  "build_number": 1,
+  "constrains": [
+    "pandas >=1.4",
+    "numpy >=1.22",
+    "matplotlib >=3.5",
+    "scipy >=1.9,!=1.11.0,!=1.11.1"
+  ],
+  "depends": [
+    "python >=3.10"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "networkx",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1712540499262,
+  "version": "3.3"
+}

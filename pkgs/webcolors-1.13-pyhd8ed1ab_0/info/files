@@ -1,0 +1,14 @@
+site-packages/webcolors-1.13.dist-info/INSTALLER
+site-packages/webcolors-1.13.dist-info/LICENSE
+site-packages/webcolors-1.13.dist-info/METADATA
+site-packages/webcolors-1.13.dist-info/RECORD
+site-packages/webcolors-1.13.dist-info/REQUESTED
+site-packages/webcolors-1.13.dist-info/WHEEL
+site-packages/webcolors-1.13.dist-info/direct_url.json
+site-packages/webcolors-1.13.dist-info/top_level.txt
+site-packages/webcolors/__init__.py
+site-packages/webcolors/constants.py
+site-packages/webcolors/conversion.py
+site-packages/webcolors/html5.py
+site-packages/webcolors/normalization.py
+site-packages/webcolors/types.py

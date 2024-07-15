@@ -1,0 +1,24 @@
+{
+  "arch": "x86_64",
+  "build": "py310h93e2701_0",
+  "build_number": 0,
+  "depends": [
+    "libblas >=3.9.0,<4.0a0",
+    "libcblas >=3.9.0,<4.0a0",
+    "libgcc-ng >=12",
+    "libgfortran-ng",
+    "libgfortran5 >=12.3.0",
+    "liblapack >=3.9.0,<4.0a0",
+    "libstdcxx-ng >=12",
+    "numpy <2.3",
+    "numpy >=1.19,<3",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "scipy",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1716471273242,
+  "version": "1.13.1"
+}

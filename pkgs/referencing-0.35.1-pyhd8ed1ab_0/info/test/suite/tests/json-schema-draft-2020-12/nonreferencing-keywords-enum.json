@@ -1,0 +1,14 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "enum": [{ "$id": "http://example.com/oh-hey-not-an-id" }]
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/oh-hey-not-an-id",
+      "error": true
+    }
+  ]
+}

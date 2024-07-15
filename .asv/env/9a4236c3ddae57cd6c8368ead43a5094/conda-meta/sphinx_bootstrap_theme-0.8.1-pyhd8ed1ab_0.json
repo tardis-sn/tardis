@@ -1,0 +1,739 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "extracted_package_dir": "pkgs/sphinx_bootstrap_theme-0.8.1-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/LICENSE.txt",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/METADATA",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/RECORD",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/WHEEL",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/entry_points.txt",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/__init__.py",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/globaltoc.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/layout.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/localtoc.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/navbar-2.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/navbar.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/navbarsearchbox.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/navbartoc.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/relations.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/search.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/searchbox.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/searchresults.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/sourcelink.html",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/css/bootstrap-responsive.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/css/bootstrap-responsive.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/css/bootstrap.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/css/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/img/glyphicons-halflings-white.png",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/img/glyphicons-halflings.png",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/js/bootstrap.js",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/js/bootstrap.min.js",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap-theme.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap-theme.css.map",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap-theme.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap-theme.min.css.map",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap.css.map",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap.min.css.map",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.eot",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.svg",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.ttf",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.woff",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.woff2",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/js/bootstrap.js",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/js/bootstrap.min.js",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/js/npm.js",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-sphinx.css_t",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-sphinx.js_t",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/amelia/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/cerulean/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/cosmo/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/cyborg/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/flatly/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/img/glyphicons-halflings-white.png",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/img/glyphicons-halflings.png",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/journal/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/readable/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/simplex/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/slate/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/spacelab/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/spruce/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/superhero/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/united/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/cerulean/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/cosmo/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/cyborg/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/darkly/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/flatly/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.eot",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.svg",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.ttf",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.woff",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.woff2",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/journal/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/lumen/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/paper/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/readable/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/sandstone/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/simplex/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/slate/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/spacelab/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/superhero/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/united/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/yeti/bootstrap.min.css",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/js/jquery-1.12.4.min.js",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/js/jquery-fix.js",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/theme.conf",
+        "lib/python3.12/site-packages/sphinx_bootstrap_theme/__pycache__/__init__.cpython-312.pyc"
+    ],
+    "fn": "sphinx_bootstrap_theme-0.8.1-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "link": {
+        "source": "pkgs/sphinx_bootstrap_theme-0.8.1-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "6d1e1ad812c9991b6da549caa00d3771",
+    "name": "sphinx_bootstrap_theme",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/sphinx_bootstrap_theme-0.8.1-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/LICENSE.txt",
+                "path_type": "hardlink",
+                "sha256": "5b55590dc201b609d92c87764415cb1f5774f985982f8dd160e36be019b67e17",
+                "sha256_in_prefix": "5b55590dc201b609d92c87764415cb1f5774f985982f8dd160e36be019b67e17",
+                "size_in_bytes": 1060
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "9d7ee72a71aaa00afcde09a5ee38d36400da6da67237025f93597976755f76d8",
+                "sha256_in_prefix": "9d7ee72a71aaa00afcde09a5ee38d36400da6da67237025f93597976755f76d8",
+                "size_in_bytes": 15882
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "9ac0a4427986b9b4af2ec212da12f29ffa351c9a1664dc7f44ff7b1aa1df234e",
+                "sha256_in_prefix": "9ac0a4427986b9b4af2ec212da12f29ffa351c9a1664dc7f44ff7b1aa1df234e",
+                "size_in_bytes": 11440
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "cfd8f4c406bf26650a3299b3ef62b464600b48cfe7fb04159866e5797c765478",
+                "sha256_in_prefix": "cfd8f4c406bf26650a3299b3ef62b464600b48cfe7fb04159866e5797c765478",
+                "size_in_bytes": 110
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "1411444ac3871d9cda0123a40da61b9b20d40177164b1650c04cc42715cbe3d9",
+                "sha256_in_prefix": "1411444ac3871d9cda0123a40da61b9b20d40177164b1650c04cc42715cbe3d9",
+                "size_in_bytes": 118
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/entry_points.txt",
+                "path_type": "hardlink",
+                "sha256": "bdb87659403faedfe305704fffbbbb5a5c850e95a8e8876f4726e7ce6ff84759",
+                "sha256_in_prefix": "bdb87659403faedfe305704fffbbbb5a5c850e95a8e8876f4726e7ce6ff84759",
+                "size_in_bytes": 57
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme-0.8.1.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "bf365c7bc1895fdc337ad027c130b7cd52e50ead3a2b86c77ce3dda35e264689",
+                "sha256_in_prefix": "bf365c7bc1895fdc337ad027c130b7cd52e50ead3a2b86c77ce3dda35e264689",
+                "size_in_bytes": 23
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "754a28aa19354ee3e0b2b3a60f5f4f368148d79c1d89bb33c49682c53580924c",
+                "sha256_in_prefix": "754a28aa19354ee3e0b2b3a60f5f4f368148d79c1d89bb33c49682c53580924c",
+                "size_in_bytes": 461
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/globaltoc.html",
+                "path_type": "hardlink",
+                "sha256": "2cd3fe54edbfc0b915d2d20da9d6dc8cd2e77bc763fe8b9e191b6224534a9d18",
+                "sha256_in_prefix": "2cd3fe54edbfc0b915d2d20da9d6dc8cd2e77bc763fe8b9e191b6224534a9d18",
+                "size_in_bytes": 455
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/layout.html",
+                "path_type": "hardlink",
+                "sha256": "fe0cc00a862c1cb837c877869cc41b6e9bd1b7a0e7807a377051e36866d08446",
+                "sha256_in_prefix": "fe0cc00a862c1cb837c877869cc41b6e9bd1b7a0e7807a377051e36866d08446",
+                "size_in_bytes": 3664
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/localtoc.html",
+                "path_type": "hardlink",
+                "sha256": "6d48a61864271f2606cf6c495a18fb15112d43f304704f276f87a46b2c5c7f9f",
+                "sha256_in_prefix": "6d48a61864271f2606cf6c495a18fb15112d43f304704f276f87a46b2c5c7f9f",
+                "size_in_bytes": 10
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/navbar-2.html",
+                "path_type": "hardlink",
+                "sha256": "c353b4790d2617f29ff99adc1d4c657e2ec8fc7e3b12a4a2998241fd73bdf2b7",
+                "sha256_in_prefix": "c353b4790d2617f29ff99adc1d4c657e2ec8fc7e3b12a4a2998241fd73bdf2b7",
+                "size_in_bytes": 2002
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/navbar.html",
+                "path_type": "hardlink",
+                "sha256": "14a85175a2c53e529dbba113ce67237564d7c920ed49efaed8643517b82d6381",
+                "sha256_in_prefix": "14a85175a2c53e529dbba113ce67237564d7c920ed49efaed8643517b82d6381",
+                "size_in_bytes": 2072
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/navbarsearchbox.html",
+                "path_type": "hardlink",
+                "sha256": "b09072375b359b1b40e397268b4e0a572991097ac64c44740cd1228883fc1ff7",
+                "sha256_in_prefix": "b09072375b359b1b40e397268b4e0a572991097ac64c44740cd1228883fc1ff7",
+                "size_in_bytes": 360
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/navbartoc.html",
+                "path_type": "hardlink",
+                "sha256": "47ff5986cb715249b7d2939679966bff49fc67be6a32da50c47fdb7964d87e42",
+                "sha256_in_prefix": "47ff5986cb715249b7d2939679966bff49fc67be6a32da50c47fdb7964d87e42",
+                "size_in_bytes": 305
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/relations.html",
+                "path_type": "hardlink",
+                "sha256": "4c655d71fca83e3d84b4072b3d7990cbd123c9d5804ba7a2d8d383c639e59663",
+                "sha256_in_prefix": "4c655d71fca83e3d84b4072b3d7990cbd123c9d5804ba7a2d8d383c639e59663",
+                "size_in_bytes": 1111
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/search.html",
+                "path_type": "hardlink",
+                "sha256": "7f5b4d85a8ccd55ca05ea053bdadc8a834507b36a93bc81c924fbd2479cfdb07",
+                "sha256_in_prefix": "7f5b4d85a8ccd55ca05ea053bdadc8a834507b36a93bc81c924fbd2479cfdb07",
+                "size_in_bytes": 2614
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/searchbox.html",
+                "path_type": "hardlink",
+                "sha256": "b89fc41430c51c91c942b883fdaab1eeac92962852a21ab4b544375a6b86051f",
+                "sha256_in_prefix": "b89fc41430c51c91c942b883fdaab1eeac92962852a21ab4b544375a6b86051f",
+                "size_in_bytes": 327
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/searchresults.html",
+                "path_type": "hardlink",
+                "sha256": "ebcef3ee7382ff333976540ece73968fb372e8a9d820cb99f02e1eaf6190bb52",
+                "sha256_in_prefix": "ebcef3ee7382ff333976540ece73968fb372e8a9d820cb99f02e1eaf6190bb52",
+                "size_in_bytes": 1120
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/sourcelink.html",
+                "path_type": "hardlink",
+                "sha256": "15fe3bb5c6502777b115e92f7eeab0634c9571dba2d184255024395d0b72d5d2",
+                "sha256_in_prefix": "15fe3bb5c6502777b115e92f7eeab0634c9571dba2d184255024395d0b72d5d2",
+                "size_in_bytes": 195
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/css/bootstrap-responsive.css",
+                "path_type": "hardlink",
+                "sha256": "5827a94a01fee9bb5b3331b00efbb083275fca57a4403b8ec56658df034be1c3",
+                "sha256_in_prefix": "5827a94a01fee9bb5b3331b00efbb083275fca57a4403b8ec56658df034be1c3",
+                "size_in_bytes": 22111
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/css/bootstrap-responsive.min.css",
+                "path_type": "hardlink",
+                "sha256": "948149bd7d046c4a606e185ad68acdad7695d532a781f556ac86f081c1e5f341",
+                "sha256_in_prefix": "948149bd7d046c4a606e185ad68acdad7695d532a781f556ac86f081c1e5f341",
+                "size_in_bytes": 16849
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/css/bootstrap.css",
+                "path_type": "hardlink",
+                "sha256": "6224babffc4fa5eb43da9adca9c14bb330946b89748bf85aaa28d787f44a6d29",
+                "sha256_in_prefix": "6224babffc4fa5eb43da9adca9c14bb330946b89748bf85aaa28d787f44a6d29",
+                "size_in_bytes": 127352
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/css/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "186c40d06fc13830497a7b9f42bc14538c1b7fa0b98560c7911e6e1a935f769d",
+                "sha256_in_prefix": "186c40d06fc13830497a7b9f42bc14538c1b7fa0b98560c7911e6e1a935f769d",
+                "size_in_bytes": 106015
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/img/glyphicons-halflings-white.png",
+                "path_type": "hardlink",
+                "sha256": "f0e0d95a9c8abcdfabf46348e2d4285829bb0491f5f6af0e05af52bffb6324c4",
+                "sha256_in_prefix": "f0e0d95a9c8abcdfabf46348e2d4285829bb0491f5f6af0e05af52bffb6324c4",
+                "size_in_bytes": 8777
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/img/glyphicons-halflings.png",
+                "path_type": "hardlink",
+                "sha256": "d99e3fa32c641032f08149914b28c2dc6acf2ec62f70987f2259eabbfa7fc0de",
+                "sha256_in_prefix": "d99e3fa32c641032f08149914b28c2dc6acf2ec62f70987f2259eabbfa7fc0de",
+                "size_in_bytes": 12799
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/js/bootstrap.js",
+                "path_type": "hardlink",
+                "sha256": "c7085b950f16c302869fb10741a91a156fbd561ac44ad5ab2dda1a191f93810f",
+                "sha256_in_prefix": "c7085b950f16c302869fb10741a91a156fbd561ac44ad5ab2dda1a191f93810f",
+                "size_in_bytes": 62217
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-2.3.2/js/bootstrap.min.js",
+                "path_type": "hardlink",
+                "sha256": "fd5fa052681b3d2473f0efd4276bd2e73a27b13a80ba516eee7386af890e332d",
+                "sha256_in_prefix": "fd5fa052681b3d2473f0efd4276bd2e73a27b13a80ba516eee7386af890e332d",
+                "size_in_bytes": 28859
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap-theme.css",
+                "path_type": "hardlink",
+                "sha256": "a0858cc08fdc8e11c1cf6b0fdefc8e1927350e61aa034f5e253a49759426b4df",
+                "sha256_in_prefix": "a0858cc08fdc8e11c1cf6b0fdefc8e1927350e61aa034f5e253a49759426b4df",
+                "size_in_bytes": 25682
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap-theme.css.map",
+                "path_type": "hardlink",
+                "sha256": "f2faa64d2fb77e336f19bbf344b5133dd9c62cba2818f779ff1397c0afa09fae",
+                "sha256_in_prefix": "f2faa64d2fb77e336f19bbf344b5133dd9c62cba2818f779ff1397c0afa09fae",
+                "size_in_bytes": 48005
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap-theme.min.css",
+                "path_type": "hardlink",
+                "sha256": "f2e1cc227d6bbb4192e4a3becdfed971c7fc530d76200e43add11c98cb962c53",
+                "sha256_in_prefix": "f2e1cc227d6bbb4192e4a3becdfed971c7fc530d76200e43add11c98cb962c53",
+                "size_in_bytes": 23411
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap-theme.min.css.map",
+                "path_type": "hardlink",
+                "sha256": "5ebabc49db378681cf6412aa00bd3b7a111a09f2815231f4b56e296fac486130",
+                "sha256_in_prefix": "5ebabc49db378681cf6412aa00bd3b7a111a09f2815231f4b56e296fac486130",
+                "size_in_bytes": 75600
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap.css",
+                "path_type": "hardlink",
+                "sha256": "d170052c16caec3810f2dee6456539045d8e326f6d8ed7c7f78e59ed34de348a",
+                "sha256_in_prefix": "d170052c16caec3810f2dee6456539045d8e326f6d8ed7c7f78e59ed34de348a",
+                "size_in_bytes": 145933
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap.css.map",
+                "path_type": "hardlink",
+                "sha256": "4a220750b3f226cd58bb2e6eef7634c06e122da1783f8a43fb251f6377e1d304",
+                "sha256_in_prefix": "4a220750b3f226cd58bb2e6eef7634c06e122da1783f8a43fb251f6377e1d304",
+                "size_in_bytes": 390887
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "6d92dfc1700fd38cd130ad818e23bc8aef697f815b2ea5face2b5dfad22f2e11",
+                "sha256_in_prefix": "6d92dfc1700fd38cd130ad818e23bc8aef697f815b2ea5face2b5dfad22f2e11",
+                "size_in_bytes": 121457
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/css/bootstrap.min.css.map",
+                "path_type": "hardlink",
+                "sha256": "78b58c9ebfd42ec2c61bc4fdf46a5df998e6cd907c773076a0a6e8f5686bafc3",
+                "sha256_in_prefix": "78b58c9ebfd42ec2c61bc4fdf46a5df998e6cd907c773076a0a6e8f5686bafc3",
+                "size_in_bytes": 540434
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.eot",
+                "path_type": "hardlink",
+                "sha256": "13634da87d9e23f8c3ed9108ce1724d183a39ad072e73e1b3d8cbf646d2d0407",
+                "sha256_in_prefix": "13634da87d9e23f8c3ed9108ce1724d183a39ad072e73e1b3d8cbf646d2d0407",
+                "size_in_bytes": 20127
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.svg",
+                "path_type": "hardlink",
+                "sha256": "42f60659d265c1a3c30f9fa42abcbb56bd4a53af4d83d316d6dd7a36903c43e5",
+                "sha256_in_prefix": "42f60659d265c1a3c30f9fa42abcbb56bd4a53af4d83d316d6dd7a36903c43e5",
+                "size_in_bytes": 108738
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.ttf",
+                "path_type": "hardlink",
+                "sha256": "e395044093757d82afcb138957d06a1ea9361bdcf0b442d06a18a8051af57456",
+                "sha256_in_prefix": "e395044093757d82afcb138957d06a1ea9361bdcf0b442d06a18a8051af57456",
+                "size_in_bytes": 45404
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.woff",
+                "path_type": "hardlink",
+                "sha256": "a26394f7ede100ca118eff2eda08596275a9839b959c226e15439557a5a80742",
+                "sha256_in_prefix": "a26394f7ede100ca118eff2eda08596275a9839b959c226e15439557a5a80742",
+                "size_in_bytes": 23424
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/fonts/glyphicons-halflings-regular.woff2",
+                "path_type": "hardlink",
+                "sha256": "fe185d11a49676890d47bb783312a0cda5a44c4039214094e7957b4c040ef11c",
+                "sha256_in_prefix": "fe185d11a49676890d47bb783312a0cda5a44c4039214094e7957b4c040ef11c",
+                "size_in_bytes": 18028
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/js/bootstrap.js",
+                "path_type": "hardlink",
+                "sha256": "86c369e54a9358ce9761ef4c1079e35bda3935877b2e6fb8dd7bc255e5446436",
+                "sha256_in_prefix": "86c369e54a9358ce9761ef4c1079e35bda3935877b2e6fb8dd7bc255e5446436",
+                "size_in_bytes": 75850
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/js/bootstrap.min.js",
+                "path_type": "hardlink",
+                "sha256": "cef0089cff21a1e930025a6ce37435f6a3d92d2f790baa7b8fc953841045167e",
+                "sha256_in_prefix": "cef0089cff21a1e930025a6ce37435f6a3d92d2f790baa7b8fc953841045167e",
+                "size_in_bytes": 40021
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-3.4.1/js/npm.js",
+                "path_type": "hardlink",
+                "sha256": "c7aa82a1aa7d45224a38d926d2adaff7fe4aef5bcdafa2a47bdac057f4422c2d",
+                "sha256_in_prefix": "c7aa82a1aa7d45224a38d926d2adaff7fe4aef5bcdafa2a47bdac057f4422c2d",
+                "size_in_bytes": 484
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-sphinx.css_t",
+                "path_type": "hardlink",
+                "sha256": "fd3490b77c46418d017563ee5b64036eb13c061bb64411db885798f658ecfe3b",
+                "sha256_in_prefix": "fd3490b77c46418d017563ee5b64036eb13c061bb64411db885798f658ecfe3b",
+                "size_in_bytes": 5924
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootstrap-sphinx.js_t",
+                "path_type": "hardlink",
+                "sha256": "fa6bd01af476f450188ffe04fe57ae2c9e19d9ea13786fc50862ae72a52f3a36",
+                "sha256_in_prefix": "fa6bd01af476f450188ffe04fe57ae2c9e19d9ea13786fc50862ae72a52f3a36",
+                "size_in_bytes": 5162
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/amelia/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "f60473c129e140d5338b6877bb19ae37417c74d02f96877f46a74620ab3d731d",
+                "sha256_in_prefix": "f60473c129e140d5338b6877bb19ae37417c74d02f96877f46a74620ab3d731d",
+                "size_in_bytes": 127007
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/cerulean/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "523e49c0113dde4e144fa55842770ad9c1944dad8b3b74af8f94afa60ad9195d",
+                "sha256_in_prefix": "523e49c0113dde4e144fa55842770ad9c1944dad8b3b74af8f94afa60ad9195d",
+                "size_in_bytes": 114708
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/cosmo/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "e5b4cf47af3ae38ef4e7d573d70436f2a0d6744e49ec742a519dfdf12dda8a0b",
+                "sha256_in_prefix": "e5b4cf47af3ae38ef4e7d573d70436f2a0d6744e49ec742a519dfdf12dda8a0b",
+                "size_in_bytes": 114142
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/cyborg/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "5aed34a04a4755833d9f17c47db11ef88bc03c1d5dbfb6d49ddd2ecb01ad0771",
+                "sha256_in_prefix": "5aed34a04a4755833d9f17c47db11ef88bc03c1d5dbfb6d49ddd2ecb01ad0771",
+                "size_in_bytes": 121659
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/flatly/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "a9bfd99a779baf0f8b48f6b74f9b0ac1482a30a36c94cbddb92eb91a9b26e403",
+                "sha256_in_prefix": "a9bfd99a779baf0f8b48f6b74f9b0ac1482a30a36c94cbddb92eb91a9b26e403",
+                "size_in_bytes": 115824
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/img/glyphicons-halflings-white.png",
+                "path_type": "hardlink",
+                "sha256": "f0e0d95a9c8abcdfabf46348e2d4285829bb0491f5f6af0e05af52bffb6324c4",
+                "sha256_in_prefix": "f0e0d95a9c8abcdfabf46348e2d4285829bb0491f5f6af0e05af52bffb6324c4",
+                "size_in_bytes": 8777
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/img/glyphicons-halflings.png",
+                "path_type": "hardlink",
+                "sha256": "d99e3fa32c641032f08149914b28c2dc6acf2ec62f70987f2259eabbfa7fc0de",
+                "sha256_in_prefix": "d99e3fa32c641032f08149914b28c2dc6acf2ec62f70987f2259eabbfa7fc0de",
+                "size_in_bytes": 12799
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/journal/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "88ca62b6c1a85c3f48c6f99c207d04293936bcad72127d77edfdf084f7085b6d",
+                "sha256_in_prefix": "88ca62b6c1a85c3f48c6f99c207d04293936bcad72127d77edfdf084f7085b6d",
+                "size_in_bytes": 112175
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/readable/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "67a3a616e8cb11cf37fbf9ac0fec0459c3d173dd9d0cdeeb8e882c51747e109c",
+                "sha256_in_prefix": "67a3a616e8cb11cf37fbf9ac0fec0459c3d173dd9d0cdeeb8e882c51747e109c",
+                "size_in_bytes": 106650
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/simplex/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "cef78e1bbb8e220dada901b537306b6eeee9d5e9c86133a8d3dbf5c1022bf709",
+                "sha256_in_prefix": "cef78e1bbb8e220dada901b537306b6eeee9d5e9c86133a8d3dbf5c1022bf709",
+                "size_in_bytes": 113408
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/slate/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "daf05b85df73e0361ce7c486d0c8e4e9ee2a87135ff13da6ef3183230e89d28a",
+                "sha256_in_prefix": "daf05b85df73e0361ce7c486d0c8e4e9ee2a87135ff13da6ef3183230e89d28a",
+                "size_in_bytes": 130206
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/spacelab/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "4ee2750bf6faa17abd204b698fb9e58fd04a56c6a5d10585bd57f04f71ea4615",
+                "sha256_in_prefix": "4ee2750bf6faa17abd204b698fb9e58fd04a56c6a5d10585bd57f04f71ea4615",
+                "size_in_bytes": 115475
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/spruce/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "5e9c073c95dfd00ee9b5c553c4643069ad76daf70c7981237254315b98c7fae3",
+                "sha256_in_prefix": "5e9c073c95dfd00ee9b5c553c4643069ad76daf70c7981237254315b98c7fae3",
+                "size_in_bytes": 114481
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/superhero/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "6f757a9adef1736182153776e94cdbb50aa5adac0eeb5acaecc96181904f54b1",
+                "sha256_in_prefix": "6f757a9adef1736182153776e94cdbb50aa5adac0eeb5acaecc96181904f54b1",
+                "size_in_bytes": 120246
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-2.3.2/united/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "46bf73ec0c41bbfba77688c73704a1d59602f0be7cc839f759c9ae54a80a8886",
+                "sha256_in_prefix": "46bf73ec0c41bbfba77688c73704a1d59602f0be7cc839f759c9ae54a80a8886",
+                "size_in_bytes": 109732
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/cerulean/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "50a981f7fbac79a2fd20fa38212e75ee97ae404b74e71fd9d2f486d78fa50817",
+                "sha256_in_prefix": "50a981f7fbac79a2fd20fa38212e75ee97ae404b74e71fd9d2f486d78fa50817",
+                "size_in_bytes": 120090
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/cosmo/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "560b971c6697da3c318ef9565c6df3c1687f8b777cc355c28b68d5a934661bb2",
+                "sha256_in_prefix": "560b971c6697da3c318ef9565c6df3c1687f8b777cc355c28b68d5a934661bb2",
+                "size_in_bytes": 119768
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/cyborg/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "cf11077cb4e5542ee581112a0efae2f236af0489e21ac6d599f4a0030c74c1f1",
+                "sha256_in_prefix": "cf11077cb4e5542ee581112a0efae2f236af0489e21ac6d599f4a0030c74c1f1",
+                "size_in_bytes": 119799
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/darkly/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "dc435d426cc067f649ff9bc2229a9546268e410c060d3d2a0f22cbfdbd03f866",
+                "sha256_in_prefix": "dc435d426cc067f649ff9bc2229a9546268e410c060d3d2a0f22cbfdbd03f866",
+                "size_in_bytes": 121625
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/flatly/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "61654669aad1144a8d4c93d87f854f263e25bad7466b056cadf9beb578bda9bc",
+                "sha256_in_prefix": "61654669aad1144a8d4c93d87f854f263e25bad7466b056cadf9beb578bda9bc",
+                "size_in_bytes": 121354
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.eot",
+                "path_type": "hardlink",
+                "sha256": "13634da87d9e23f8c3ed9108ce1724d183a39ad072e73e1b3d8cbf646d2d0407",
+                "sha256_in_prefix": "13634da87d9e23f8c3ed9108ce1724d183a39ad072e73e1b3d8cbf646d2d0407",
+                "size_in_bytes": 20127
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.svg",
+                "path_type": "hardlink",
+                "sha256": "42f60659d265c1a3c30f9fa42abcbb56bd4a53af4d83d316d6dd7a36903c43e5",
+                "sha256_in_prefix": "42f60659d265c1a3c30f9fa42abcbb56bd4a53af4d83d316d6dd7a36903c43e5",
+                "size_in_bytes": 108738
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.ttf",
+                "path_type": "hardlink",
+                "sha256": "e395044093757d82afcb138957d06a1ea9361bdcf0b442d06a18a8051af57456",
+                "sha256_in_prefix": "e395044093757d82afcb138957d06a1ea9361bdcf0b442d06a18a8051af57456",
+                "size_in_bytes": 45404
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.woff",
+                "path_type": "hardlink",
+                "sha256": "a26394f7ede100ca118eff2eda08596275a9839b959c226e15439557a5a80742",
+                "sha256_in_prefix": "a26394f7ede100ca118eff2eda08596275a9839b959c226e15439557a5a80742",
+                "size_in_bytes": 23424
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/fonts/glyphicons-halflings-regular.woff2",
+                "path_type": "hardlink",
+                "sha256": "fe185d11a49676890d47bb783312a0cda5a44c4039214094e7957b4c040ef11c",
+                "sha256_in_prefix": "fe185d11a49676890d47bb783312a0cda5a44c4039214094e7957b4c040ef11c",
+                "size_in_bytes": 18028
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/journal/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "c0b108b137a6e981a9dff1b488daaa2ca858ce4881ccf37d641a19a54d8fb98e",
+                "sha256_in_prefix": "c0b108b137a6e981a9dff1b488daaa2ca858ce4881ccf37d641a19a54d8fb98e",
+                "size_in_bytes": 118666
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/lumen/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "4e0daddddb3d077084918bab2b235cd84f305792282633e0a34a6aee678e7871",
+                "sha256_in_prefix": "4e0daddddb3d077084918bab2b235cd84f305792282633e0a34a6aee678e7871",
+                "size_in_bytes": 124431
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/paper/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "976e88f1b967a74a91a12b9f539ff0031cd8c248fc120cbf438d21f6c3ccad53",
+                "sha256_in_prefix": "976e88f1b967a74a91a12b9f539ff0031cd8c248fc120cbf438d21f6c3ccad53",
+                "size_in_bytes": 132318
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/readable/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "3c0d1e5041afd4a53416c65421ada725a731c4b6edcaa4606af0f2f051858438",
+                "sha256_in_prefix": "3c0d1e5041afd4a53416c65421ada725a731c4b6edcaa4606af0f2f051858438",
+                "size_in_bytes": 118678
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/sandstone/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "756cb21c3680c7a95138a740f4ace62f305ef4bb05da19f00999366ae19c7dee",
+                "sha256_in_prefix": "756cb21c3680c7a95138a740f4ace62f305ef4bb05da19f00999366ae19c7dee",
+                "size_in_bytes": 118965
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/simplex/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "52ed7a28094caf3159067ff6158c615569f01daae596b361d9cbdff30e183597",
+                "sha256_in_prefix": "52ed7a28094caf3159067ff6158c615569f01daae596b361d9cbdff30e183597",
+                "size_in_bytes": 120186
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/slate/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "3ab7fa9e9644d7fefe225226075ddc4695e6638524a05e0f3a2fc0e121537098",
+                "sha256_in_prefix": "3ab7fa9e9644d7fefe225226075ddc4695e6638524a05e0f3a2fc0e121537098",
+                "size_in_bytes": 129014
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/spacelab/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "fc11896c1c8f07a97f67be5e62586e102b83384e00186878446a47ecc604c092",
+                "sha256_in_prefix": "fc11896c1c8f07a97f67be5e62586e102b83384e00186878446a47ecc604c092",
+                "size_in_bytes": 121499
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/superhero/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "fd8240b0aa4ac9cb51bd3d540e9b55096a4b860fa16356d8464cd7817b67638e",
+                "sha256_in_prefix": "fd8240b0aa4ac9cb51bd3d540e9b55096a4b860fa16356d8464cd7817b67638e",
+                "size_in_bytes": 120731
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/united/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "96d2c2e7773ef6741cd042d8f76a575e8a74883911a382de17dfc543f2675c7d",
+                "sha256_in_prefix": "96d2c2e7773ef6741cd042d8f76a575e8a74883911a382de17dfc543f2675c7d",
+                "size_in_bytes": 117016
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/bootswatch-3.4.1/yeti/bootstrap.min.css",
+                "path_type": "hardlink",
+                "sha256": "1169f3d9e3f4b9842078f4857b7d396ae455266d8aea3eca044357325310cc35",
+                "sha256_in_prefix": "1169f3d9e3f4b9842078f4857b7d396ae455266d8aea3eca044357325310cc35",
+                "size_in_bytes": 121865
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/js/jquery-1.12.4.min.js",
+                "path_type": "hardlink",
+                "sha256": "668b046d12db350ccba6728890476b3efee53b2f42dbb84743e5e9f1ae0cc404",
+                "sha256_in_prefix": "668b046d12db350ccba6728890476b3efee53b2f42dbb84743e5e9f1ae0cc404",
+                "size_in_bytes": 97163
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/static/js/jquery-fix.js",
+                "path_type": "hardlink",
+                "sha256": "1f3b1c42cb41fb78ea776cbfceafee2d6d15f267627d9f9c771412baa138aeda",
+                "sha256_in_prefix": "1f3b1c42cb41fb78ea776cbfceafee2d6d15f267627d9f9c771412baa138aeda",
+                "size_in_bytes": 90
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/bootstrap/theme.conf",
+                "path_type": "hardlink",
+                "sha256": "01ae47a6e5fc75837f41155f1229c31b27fedadcdd63c203934ed07fc61e301b",
+                "sha256_in_prefix": "01ae47a6e5fc75837f41155f1229c31b27fedadcdd63c203934ed07fc61e301b",
+                "size_in_bytes": 1860
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinx_bootstrap_theme/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "sphinx_bootstrap_theme",
+    "sha256": "32bab5bafac03397e768887cfc07310391cf19e05ce9a9238f62997b33993fae",
+    "size": 652376,
+    "subdir": "noarch",
+    "timestamp": 1644048455967,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinx_bootstrap_theme-0.8.1-pyhd8ed1ab_0.tar.bz2",
+    "version": "0.8.1"
+}

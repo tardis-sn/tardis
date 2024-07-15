@@ -1,0 +1,19 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "coverage >=5.2.1",
+    "pytest >=4.6",
+    "python >=3.8",
+    "toml"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "pytest-cov",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1711411153367,
+  "version": "5.0.0"
+}

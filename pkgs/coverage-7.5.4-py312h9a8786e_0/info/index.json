@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "py312h9a8786e_0",
+  "build_number": 0,
+  "depends": [
+    "libgcc-ng >=12",
+    "python >=3.12,<3.13.0a0",
+    "python_abi 3.12.* *_cp312",
+    "tomli"
+  ],
+  "license": "Apache-2.0",
+  "name": "coverage",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1719113789335,
+  "version": "7.5.4"
+}

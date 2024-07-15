@@ -1,0 +1,63 @@
+# This file created by conda-build 3.21.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Mar  8 19:36:42 2021
+# ------------------------------------------------
+
+package:
+  name: defusedxml
+  version: 0.7.1
+source:
+  sha256: 1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69
+  url: https://pypi.io/packages/source/d/defusedxml/defusedxml-0.7.1.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/defusedxml_1615232257335/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - ca-certificates 2020.12.5 ha878542_0
+    - certifi 2020.12.5 py39hf3d152e_1
+    - ld_impl_linux-64 2.35.1 hea4e1c9_2
+    - libffi 3.3 h58526e2_2
+    - libgcc-ng 9.3.0 h2828fa1_18
+    - libgomp 9.3.0 h2828fa1_18
+    - libstdcxx-ng 9.3.0 h6de172a_18
+    - ncurses 6.2 h58526e2_4
+    - openssl 1.1.1j h7f98852_0
+    - pip 21.0.1 pyhd8ed1ab_0
+    - python 3.9.2 hffdb5ce_0_cpython
+    - python_abi 3.9 1_cp39
+    - readline 8.0 he28a2e2_2
+    - setuptools 49.6.0 py39hf3d152e_3
+    - sqlite 3.34.0 h74cdb3f_0
+    - tk 8.6.10 h21135ba_1
+    - tzdata 2021a he74cb21_0
+    - wheel 0.36.2 pyhd3deb0d_0
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h516909a_1010
+  run:
+    - python >=3.6
+test:
+  commands:
+    - pip check
+  imports:
+    - defusedxml
+  requires:
+    - pip
+about:
+  dev_url: https://bitbucket.org/tiran/defusedxml
+  doc_url: https://bitbucket.org/tiran/defusedxml
+  home: https://github.com/tiran/defusedxml
+  license: PSF-2.0
+  license_family: PSF
+  license_file: LICENSE
+  summary: XML bomb protection for Python stdlib modules
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - pmlandwehr

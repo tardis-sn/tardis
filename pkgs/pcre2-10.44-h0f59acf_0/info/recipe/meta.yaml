@@ -1,0 +1,117 @@
+# This file created by conda-build 24.5.1
+# ------------------------------------------------
+
+package:
+  name: pcre2
+  version: '10.44'
+source:
+  sha256: 07a002e8216382a96f722bc4a831f3d77457fe3e9e62a6dff250a2dd0e9c5e6d
+  url: https://github.com/PCRE2Project/pcre2/archive/refs/tags/pcre2-10.44.tar.gz
+build:
+  number: 0
+  run_exports:
+    - pcre2 >=10.44,<10.45.0a0
+  string: h0f59acf_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_4
+    - binutils_linux-64 2.40 hb3c18ed_7
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.28.1 hd590300_0
+    - ca-certificates 2024.6.2 hbcca054_0
+    - cmake 3.29.5 hcafd917_0
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_9
+    - gcc_linux-64 12.3.0 h9528a6a_7
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 hf3520f5_4
+    - libcurl 8.8.0 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-devel_linux-64 12.3.0 h6b66f73_109
+    - libgcc-ng 13.2.0 h77fa898_9
+    - libgomp 13.2.0 h77fa898_9
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 hb8811af_9
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_9
+    - libuv 1.48.0 hd590300_0
+    - libzlib 1.3.1 h4ab18f5_1
+    - ncurses 6.5 h59595ed_0
+    - ninja 1.12.1 h297d8ca_0
+    - openssl 3.3.1 h4ab18f5_0
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.6 ha6fb4c9_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - libgcc-ng 13.2.0 h77fa898_9
+    - libgomp 13.2.0 h77fa898_9
+    - libzlib 1.3.1 h4ab18f5_1
+    - zlib 1.3.1 h4ab18f5_1
+  run:
+    - bzip2 >=1.0.8,<2.0a0
+    - libgcc-ng >=12
+    - libzlib >=1.3.1,<2.0a0
+test:
+  commands:
+    - pcre2test --version
+    - pcre2grep --version
+    - pcre2-config --version
+    - test -f ${PREFIX}/include/pcre2.h
+    - test -f ${PREFIX}/include/pcre2posix.h
+    - test -f ${PREFIX}/lib/libpcre2-posix${SHLIB_EXT}
+    - test -f ${PREFIX}/lib/libpcre2-posix${SHLIB_EXT}.3
+    - test -f ${PREFIX}/lib/libpcre2-posix${SHLIB_EXT}.3.0.5
+    - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}
+    - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.0
+    - test -f ${PREFIX}/lib/libpcre2-8${SHLIB_EXT}.0.13.0
+    - test -f ${PREFIX}/lib/libpcre2-16${SHLIB_EXT}
+    - test -f ${PREFIX}/lib/libpcre2-16${SHLIB_EXT}.0
+    - test -f ${PREFIX}/lib/libpcre2-16${SHLIB_EXT}.0.13.0
+    - test -f ${PREFIX}/lib/libpcre2-32${SHLIB_EXT}
+    - test -f ${PREFIX}/lib/libpcre2-32${SHLIB_EXT}.0
+    - test -f ${PREFIX}/lib/libpcre2-32${SHLIB_EXT}.0.13.0
+    - test -f ${PREFIX}/lib/pkgconfig/libpcre2-8.pc
+    - test -f ${PREFIX}/lib/pkgconfig/libpcre2-16.pc
+    - test -f ${PREFIX}/lib/pkgconfig/libpcre2-32.pc
+    - test -f ${PREFIX}/lib/pkgconfig/libpcre2-posix.pc
+    - test -f ${PREFIX}/cmake/pcre2-config.cmake
+    - test -f ${PREFIX}/cmake/pcre2-config-version.cmake
+about:
+  description: 'The PCRE library is a set of functions that implement regular expression
+    pattern matching
+
+    using the same syntax and semantics as Perl 5. PCRE has its own native API, as
+    well as a set of
+
+    wrapper functions that correspond to the POSIX regular expression API. The PCRE
+    library is
+
+    free, even for building proprietary software.
+
+    '
+  doc_url: http://www.pcre.org/current/doc/html/
+  home: http://www.pcre.org/
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENCE
+  summary: Regular expression pattern matching using Perl 5 syntax and semantics.
+extra:
+  copy_test_source_files: true
+  feedstock-name: pcre2
+  final: true
+  flow_run_id: azure_20240615.3.1
+  recipe-maintainers:
+    - dfornika
+    - mariusvniekerk
+    - xhochy
+  remote_url: https://github.com/conda-forge/pcre2-feedstock
+  sha: ebcc24aeac2c921c4992bbc85e9135cda28bbf1b

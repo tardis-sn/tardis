@@ -1,0 +1,13 @@
+{
+  "libtiff": "4.6",
+  "zlib": "1.2",
+  "channel_targets": "conda-forge main",
+  "libjpeg_turbo": "3",
+  "libpng": "1.6",
+  "glib": "2",
+  "c_stdlib_version": "2.12",
+  "target_platform": "linux-64",
+  "c_compiler_version": "12",
+  "c_compiler": "gcc",
+  "c_stdlib": "sysroot"
+}

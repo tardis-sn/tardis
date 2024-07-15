@@ -1,0 +1,33 @@
+{
+    "arch": "x86_64",
+    "build": "py312hc2bc53b_0",
+    "build_number": 0,
+    "build_string": "py312hc2bc53b_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libblas >=3.9.0,<4.0a0",
+        "libcblas >=3.9.0,<4.0a0",
+        "libgcc-ng >=12",
+        "libgfortran-ng",
+        "libgfortran5 >=12.3.0",
+        "liblapack >=3.9.0,<4.0a0",
+        "libstdcxx-ng >=12",
+        "numpy <2.3",
+        "numpy >=1.19,<3",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "scipy-1.13.1-py312hc2bc53b_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "864b2399a9c998e17d1a9a4e0c601285",
+    "name": "scipy",
+    "platform": "linux",
+    "sha256": "865fe2b3ed1aee0a42f6f275592f2571e68f2a60235c86bd9ababc681e30fbb5",
+    "size": 17344054,
+    "subdir": "linux-64",
+    "timestamp": 1716471229479,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/scipy-1.13.1-py312hc2bc53b_0.conda",
+    "version": "1.13.1"
+}

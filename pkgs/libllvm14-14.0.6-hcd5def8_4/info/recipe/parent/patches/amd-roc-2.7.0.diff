@@ -1,0 +1,3028 @@
+diff --git a/include/llvm/Target/TargetMachine.h b/include/llvm/Target/TargetMachine.h
+index cdf9f8bfd5e..2e4dee313e0 100644
+--- a/include/llvm/Target/TargetMachine.h
++++ b/include/llvm/Target/TargetMachine.h
+@@ -304,6 +304,9 @@ public:
+     return true;
+   }
+ 
++  /// Add target-specific pre-linking passes to the specified pass manager.
++  virtual void addPreLinkPasses(PassManagerBase &) {}
++
+   /// True if subtarget inserts the final scheduling pass on its own.
+   ///
+   /// Branch relaxation, which must happen after block placement, can
+diff --git a/lib/Target/AMDGPU/AMDGPU.h b/lib/Target/AMDGPU/AMDGPU.h
+index 19a8bd90162..94c8dc564dc 100644
+--- a/lib/Target/AMDGPU/AMDGPU.h
++++ b/lib/Target/AMDGPU/AMDGPU.h
+@@ -188,6 +188,18 @@ ModulePass *createAMDGPUAlwaysInlinePass(bool GlobalOpt = true);
+ ModulePass *createR600OpenCLImageTypeLoweringPass();
+ FunctionPass *createAMDGPUAnnotateUniformValues();
+ 
++ModulePass *createAMDGPUOCL12AdapterPass();
++void initializeAMDGPUOCL12AdapterPass(PassRegistry&);
++extern char &AMDGPUOCL12AdapterID;
++
++ModulePass *createAMDGPULowerKernelCallsPass();
++void initializeAMDGPULowerKernelCallsPass(PassRegistry&);
++extern char &AMDGPULowerKernelCallsID;
++
++ModulePass *createAMDGPUPrintfRuntimeBinding();
++void initializeAMDGPUPrintfRuntimeBindingPass(PassRegistry&);
++extern char &AMDGPUPrintfRuntimeBindingID;
++
+ ModulePass* createAMDGPUUnifyMetadataPass();
+ void initializeAMDGPUUnifyMetadataPass(PassRegistry&);
+ extern char &AMDGPUUnifyMetadataID;
+@@ -239,6 +251,9 @@ extern char &GCNRegBankReassignID;
+ void initializeGCNNSAReassignPass(PassRegistry &);
+ extern char &GCNNSAReassignID;
+ 
++FunctionPass *createAMDGPUPromotePointerKernArgsToGlobalPass();
++void initializeAMDGPUPromotePointerKernArgsToGlobalPass(PassRegistry &);
++
+ namespace AMDGPU {
+ enum TargetIndex {
+   TI_CONSTDATA_START,
+diff --git a/lib/Target/AMDGPU/AMDGPULowerKernelCalls.cpp b/lib/Target/AMDGPU/AMDGPULowerKernelCalls.cpp
+new file mode 100644
+index 00000000000..061f6bb24d8
+--- /dev/null
++++ b/lib/Target/AMDGPU/AMDGPULowerKernelCalls.cpp
+@@ -0,0 +1,112 @@
++//===-- AMDGPULowerKernelCalls.cpp - Fix kernel-calling-kernel in HSAIL ------===//
++//
++// \file
++//
++// \brief replace calls to OpenCL kernels with equivalent non-kernel
++//        functions
++//
++// In OpenCL, a kernel may call another kernel as if it was a
++// non-kernel function. But in HSAIL, such a call is not allowed. To
++// fix this, we copy the body of kernel A into a new non-kernel
++// function fA, if we encounter a call to A. All calls to A are then
++// transferred to fA.
++//
++//===----------------------------------------------------------------------===//
++#include "AMDGPU.h"
++#include "llvm/ADT/SmallString.h"
++#include "llvm/IR/Function.h"
++#include "llvm/IR/Instructions.h"
++#include "llvm/IR/Module.h"
++#include "llvm/Pass.h"
++#include "llvm/Transforms/Utils/Cloning.h"
++
++using namespace llvm;
++
++namespace {
++class AMDGPULowerKernelCalls : public ModulePass {
++public:
++  static char ID;
++  explicit AMDGPULowerKernelCalls();
++
++  StringRef getPassName() const override {
++    return "AMDGPU Lower Kernel Calls";
++  }
++
++private:
++  bool runOnModule(Module &M) override;
++};
++} // end anonymous namespace
++
++char AMDGPULowerKernelCalls::ID = 0;
++
++namespace llvm {
++void initializeAMDGPULowerKernelCallsPass(PassRegistry &);
++
++ModulePass *createAMDGPULowerKernelCallsPass() {
++  return new AMDGPULowerKernelCalls();
++}
++}
++
++char &llvm::AMDGPULowerKernelCallsID = AMDGPULowerKernelCalls::ID;
++
++INITIALIZE_PASS(
++    AMDGPULowerKernelCalls, "amdgpu-lower-kernel-calls",
++    "Lower calls to kernel functions into non-kernel function calls.", false,
++    false)
++
++AMDGPULowerKernelCalls::AMDGPULowerKernelCalls() : ModulePass(ID) {
++  initializeAMDGPULowerKernelCallsPass(*PassRegistry::getPassRegistry());
++}
++
++static void setNameForBody(Function *FBody, const Function &FKernel) {
++  StringRef Name = FKernel.getName();
++  if (Name.startswith("__OpenCL_")) {
++    assert(Name.endswith("_kernel"));
++    Name = Name.slice(strlen("__OpenCL_"), Name.size() - strlen("_kernel"));
++  }
++  SmallString<128> NewName("__amdgpu_");
++  NewName += Name;
++  NewName += "_kernel_body";
++
++  FBody->setName(NewName.str());
++}
++
++static Function *cloneKernel(Function &F) {
++  ValueToValueMapTy ignored;
++  Function *NewF = F.empty()
++                       ? Function::Create(
++                             F.getFunctionType(), Function::ExternalLinkage, "",
++                             F.getParent())
++                       : CloneFunction(&F, ignored);
++  NewF->setCallingConv(CallingConv::C);
++  // If we are copying a definition, we know there are no external references
++  // and we can force internal linkage.
++  if (!NewF->isDeclaration()) {
++    NewF->setVisibility(GlobalValue::DefaultVisibility);
++    NewF->setLinkage(GlobalValue::InternalLinkage);
++  }
++  setNameForBody(NewF, F);
++  return NewF;
++}
++
++bool AMDGPULowerKernelCalls::runOnModule(Module &M) {
++  bool Changed = false;
++  for (auto &F : M) {
++    if (CallingConv::AMDGPU_KERNEL != F.getCallingConv())
++      continue;
++    Function *FBody = NULL;
++    for (Function::user_iterator UI = F.user_begin(), UE = F.user_end();
++         UI != UE;) {
++      CallInst *CI = dyn_cast<CallInst>(*UI++);
++      if (!CI)
++        continue;
++      if (!FBody)
++        FBody = cloneKernel(F);
++      CI->setCalledFunction(FBody);
++      CI->setCallingConv(CallingConv::C);
++      Changed = true;
++    }
++  }
++
++  return Changed;
++}
+diff --git a/lib/Target/AMDGPU/AMDGPUOCL12Adapter.cpp b/lib/Target/AMDGPU/AMDGPUOCL12Adapter.cpp
+new file mode 100644
+index 00000000000..57b66f0dfbc
+--- /dev/null
++++ b/lib/Target/AMDGPU/AMDGPUOCL12Adapter.cpp
+@@ -0,0 +1,239 @@
++//==- AMDGPUOCL12Adapter.cpp - Fix OpenCL1.2 builtin calls for user Module -*- C++ -*-===//
++//
++// Copyright(c) 2014 Advanced Micro Devices, Inc. All rights reserved.
++//
++//===----------------------------------------------------------------------===//
++//
++/// \file
++/// \brief Provide pass to convert OpenCL 1.2 builtin function calls in user kernel
++///  to its corresponding 2.0 function call.
++//
++///  1.2 Builtin function calls in user kernel are mangled and need to be changed
++///  to the corresponding 2.0 mangled name. Pointer arguments in 1.2 calls are
++///  address space specific, and are translated to the generic address space for
++///  2.0 calls.
++//
++//===----------------------------------------------------------------------===//
++
++#define DEBUG_TYPE "AMDGPUOCL12Adapter"
++
++#include "llvm/ADT/StringRef.h"
++#include "llvm/IR/Attributes.h"
++#include "llvm/IR/DataLayout.h"
++#include "llvm/IR/Instructions.h"
++#include "llvm/IR/IRBuilder.h"
++#include "llvm/IR/Function.h"
++#include "llvm/IR/Module.h"
++#include "llvm/Pass.h"
++#include "llvm/Support/Debug.h"
++#include "llvm/Support/ErrorHandling.h"
++#include "llvm/Support/raw_ostream.h"
++#include "AMDGPU.h"
++#include <string>
++
++using namespace llvm;
++
++namespace llvm {
++class AMDGPUOCL12Adapter : public ModulePass {
++
++public:
++  static char ID;
++
++  AMDGPUOCL12Adapter() : ModulePass(ID) {
++    initializeAMDGPUOCL12AdapterPass(*PassRegistry::getPassRegistry());
++  }
++
++  virtual bool runOnModule(Module &M);
++  };
++}
++
++INITIALIZE_PASS(AMDGPUOCL12Adapter, "amdgpu-opencl-12-adapter",
++                "Convert OpenCL 1.2 builtins to 2.0 builtins", false, false)
++
++char AMDGPUOCL12Adapter::ID = 0;
++
++namespace llvm {
++ModulePass *createAMDGPUOCL12AdapterPass() { return new AMDGPUOCL12Adapter(); }
++}
++
++char &llvm::AMDGPUOCL12AdapterID = AMDGPUOCL12Adapter::ID;
++
++/// \brief Check whether the type is a pointer and also whether it points to
++/// non-default address space. If it is not an opaque type, return true.
++/// Always skip opaque types because they are not "real" pointers.
++static bool isNonDefaultAddrSpacePtr(Type *Ty) {
++  PointerType *PtrType = dyn_cast<PointerType>(Ty);
++  if(!PtrType)
++    return false;
++  StructType* StrType = dyn_cast<StructType>(PtrType->getElementType());
++  if(StrType && StrType->isOpaque())
++    return false;
++  return (PtrType->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS &&
++          PtrType->getAddressSpace() != AMDGPUAS::CONSTANT_ADDRESS);
++}
++
++/// \brief Check whether the Function signature has any of the
++/// non-default address space pointers as arguments. If yes,
++/// this funtion will return true.
++static bool hasNonDefaultAddrSpaceArg(const Function *F) {
++
++  for (const Argument &AI: F->args())
++    if (!AI.hasStructRetAttr() &&
++        isNonDefaultAddrSpacePtr(AI.getType()))
++      return true;
++  return false;
++}
++
++/// \brief Locate the position of the function name in the mangled OpenCL
++/// builtin function. Returns true on failure.
++static bool locateFuncName(StringRef FuncName, size_t &FuncNameStart,
++                           size_t &FuncNameSize) {
++
++  // Find the first non-digit number in the mangled name of the
++  // builtin.
++  // The search should start from "2" because first two characters
++  // are "_Z" in the mangling scheme.
++  size_t NumStartPos = 2;
++  FuncNameStart = FuncName.find_first_not_of("0123456789", NumStartPos);
++  // Extract the integer, which is equal to the number of chars
++  // in the function name.
++  StringRef SizeInChar = FuncName.slice(NumStartPos, FuncNameStart);
++  return SizeInChar.getAsInteger(/*radix=*/10, FuncNameSize);
++}
++
++/// \brief Returns the declaration of the builtin function
++///  with all the address space of the arguments are "4".
++///  Name mangling is also modified accordingly to match the
++///  defintion in the OpenCL2.0 builtins library.
++static Function *getNewOCL20BuiltinFuncDecl(Function *OldFunc) {
++  size_t FuncNameStart, FuncNameSize;
++  std::string MangledFuncName = OldFunc->getName();
++  locateFuncName(OldFunc->getName(),FuncNameStart,FuncNameSize);
++
++  std::string FuncName = MangledFuncName.substr(FuncNameStart,FuncNameSize);
++  std::string NewFuncName =  MangledFuncName;
++
++  size_t StartIndexPos = FuncNameStart + FuncNameSize;
++  size_t tmp = StartIndexPos;
++  for (; StartIndexPos < NewFuncName.size(); StartIndexPos++) {
++    // Find the Address space pointer arguments in the mangled name.
++    // Replace all address pointers with generic address space
++    StartIndexPos = NewFuncName.find("P", StartIndexPos);
++    if (StartIndexPos == std::string::npos)
++      break;
++    else {
++      // Skip in cases where CV qualifiers are used: r, V, K
++      tmp = NewFuncName.find("U3AS", StartIndexPos);
++      bool HasNonZeroAddr = tmp != std::string::npos && tmp <= StartIndexPos+3;
++      if (HasNonZeroAddr) {
++        NewFuncName.erase(tmp, 5);
++      }
++    }
++  }
++
++  // Create the arguments vector for new Function.
++  SmallVector<Type *, 1> NewFuncArgs;
++  for (Function::arg_iterator AI = OldFunc->arg_begin(), E = OldFunc->arg_end();
++    AI!= E; ++AI) {
++    Type *ArgType = AI->getType();
++
++    if (!isNonDefaultAddrSpacePtr(ArgType)) {
++      NewFuncArgs.push_back(ArgType);
++      continue;
++    }
++
++    PointerType *PtrType = cast<PointerType>(ArgType);
++    Type *EleType = PtrType->getElementType();
++    PointerType *NewPtrType = PointerType::get(EleType, AMDGPUAS::FLAT_ADDRESS);
++    NewFuncArgs.push_back(NewPtrType);
++  }
++
++  FunctionType *NewFuncType = FunctionType::get(
++      OldFunc->getReturnType(), NewFuncArgs, OldFunc->isVarArg());
++  Module *M = OldFunc->getParent();
++
++  GlobalValue *NewFunc = M->getNamedValue(NewFuncName);
++  if (!NewFunc)
++    NewFunc = Function::Create(NewFuncType, Function::ExternalLinkage,
++                               NewFuncName, M);
++
++  if (Function *Fn = dyn_cast<Function>(NewFunc->stripPointerCasts())) {
++    Fn->setCallingConv(OldFunc->getCallingConv());
++    return Fn;
++  }
++  return NULL;
++}
++
++/// \brief Define the 1.2 OpenCL builtin called by the user to call the
++/// OpenCL 2.0 builtin which has only generic address space arguments.
++void createOCL20BuiltinFuncDefn(Function *OldFunc, Function *NewFunc) {
++
++  // Adding alwaysinline attribute for the adapter function.
++  OldFunc->addFnAttr(Attribute::AlwaysInline);
++  BasicBlock *EntryBlock =
++      BasicBlock::Create(OldFunc->getContext(), "entry", OldFunc);
++  IRBuilder<> BBBuilder(EntryBlock);
++  SmallVector<llvm::Value *, 1> NewFuncCallArgs;
++
++  for (auto &Arg : OldFunc->args()) {
++    if (!isNonDefaultAddrSpacePtr(Arg.getType())) {
++      NewFuncCallArgs.push_back(&Arg);
++      continue;
++    }
++
++    PointerType *PtrType = cast<PointerType>(Arg.getType());
++    Type *EleType = PtrType->getElementType();
++    PointerType *NewPtrType = PointerType::get(EleType, AMDGPUAS::FLAT_ADDRESS);
++
++    // Cast all non-default addr space pointer arguments to default addr
++    // space pointers. Note that this cast will result in no-op.
++    Value *CastVal = BBBuilder.
++      CreatePointerBitCastOrAddrSpaceCast(&Arg, NewPtrType);
++    NewFuncCallArgs.push_back(CastVal);
++  }
++  Value *CallInstVal = BBBuilder.CreateCall(NewFunc, NewFuncCallArgs);
++  if (CallInstVal->getType()->isVoidTy()) {
++    BBBuilder.CreateRetVoid();
++    return;
++  }
++  BBBuilder.CreateRet(CallInstVal);
++  OldFunc->setLinkage(GlobalValue::LinkOnceODRLinkage);
++  return;
++}
++
++/// \brief Generate right function calls for all "undefined" 1.2 OpenCL builtins
++/// in the whole Module. Returns true if at least one of the 1.2 OpenCL builtin
++/// has been modified.
++static bool findAndDefineBuiltinCalls(Module &M) {
++  bool isModified = false;
++  for (auto &F : M) {
++
++    // Search only for used, undefined OpenCL builtin functions,
++    // which has non-default addr space pointer arguments.
++    if (!F.empty() || F.use_empty() || !F.getName().startswith("_Z") ||
++        !hasNonDefaultAddrSpaceArg(&F))
++      continue;
++    // These functions should not be modified.
++    if (F.getName().find("async_work_group", 0) == StringRef::npos &&
++        F.getName().find("prefetch", 0) == StringRef::npos &&
++        F.getName().find("ndrange", 0) == StringRef::npos &&
++        F.getName().find("capture_event_profiling_info", 0) ==
++            StringRef::npos) {
++      isModified = true;
++      Function *NewFunc = getNewOCL20BuiltinFuncDecl(&F);
++      // Get the new Function declaration.
++      LLVM_DEBUG(dbgs() << "\n Modifying Func " << F.getName() << " to call "
++       << NewFunc->getName() << " Function");
++      createOCL20BuiltinFuncDefn(&F, NewFunc);
++    }
++  }
++  return isModified;
++}
++
++bool AMDGPUOCL12Adapter::runOnModule(Module &M) {
++  // Do not translate modules from languages other than OpenCL.
++  const char *const OCLVersionMDName = "opencl.ocl.version";
++  if (!M.getNamedMetadata(OCLVersionMDName))
++    return false;
++  return findAndDefineBuiltinCalls(M);
++}
+diff --git a/lib/Target/AMDGPU/AMDGPUPrintfRuntimeBinding.cpp b/lib/Target/AMDGPU/AMDGPUPrintfRuntimeBinding.cpp
+new file mode 100644
+index 00000000000..c2d1b2c8913
+--- /dev/null
++++ b/lib/Target/AMDGPU/AMDGPUPrintfRuntimeBinding.cpp
+@@ -0,0 +1,704 @@
++//=== AMDGPUPrintfRuntimeBinding.cpp -- For openCL -- bind Printfs to a kernel arg
++//    pointer that will be bound to a buffer later by the runtime ===//
++//===----------------------------------------------------------------------===//
++// March 2014.
++//      This pass traverses the functions in the module and converts
++//      each call to printf to a sequence of operations that
++//      store the following into the printf buffer :
++//      - format string (passed as a module's metadata unique ID)
++//      - bitwise copies of printf arguments
++//      The backend passes will need to store metadata in the kernel
++//===----------------------------------------------------------------------===//
++
++#include "AMDGPU.h"
++#include "llvm/ADT/SmallString.h"
++#include "llvm/ADT/StringExtras.h"
++#include "llvm/ADT/Triple.h"
++#include "llvm/Analysis/InstructionSimplify.h"
++#include "llvm/Analysis/TargetLibraryInfo.h"
++#include "llvm/CodeGen/Passes.h"
++#include "llvm/IR/Constants.h"
++#include "llvm/IR/DataLayout.h"
++#include "llvm/IR/Dominators.h"
++#include "llvm/IR/Module.h"
++#include "llvm/IR/GlobalVariable.h"
++#include "llvm/IR/Instructions.h"
++#include "llvm/IR/IRBuilder.h"
++#include "llvm/IR/Type.h"
++#include "llvm/Support/CommandLine.h"
++#include "llvm/Support/Debug.h"
++#include "llvm/Support/raw_ostream.h"
++#include "llvm/Transforms/Utils/BasicBlockUtils.h"
++using namespace llvm;
++
++#define DEBUG_TYPE "printfToRuntime"
++#define DWORD_ALIGN 4
++
++namespace {
++class LLVM_LIBRARY_VISIBILITY AMDGPUPrintfRuntimeBinding : public ModulePass {
++public:
++  static char ID;
++  explicit AMDGPUPrintfRuntimeBinding();
++  SmallVector<Value*, 32> Printfs;
++  StringRef getPassName() const override;
++  bool runOnModule(Module &M) override;
++  bool doInitialization(Module &M) override;
++  bool doFinalization(Module &M) override;
++  void getConversionSpecifiers(
++              SmallVectorImpl<char> &OpConvSpecifiers,
++              StringRef fmt,
++              size_t num_ops) const;
++
++  bool shouldPrintAsStr(char Specifier, Type* OpType) const;
++  bool confirmSpirModule(Module& M) const;
++  bool confirmOpenCLVersion200(Module& M) const;
++  bool lowerPrintfForGpu(Module &M);
++  void collectPrintfsFromModule(Module &M);
++private:
++  void getAnalysisUsage(AnalysisUsage &AU) const override {
++    AU.addRequired<TargetLibraryInfoWrapperPass>();
++    AU.addRequired<DominatorTreeWrapperPass>();
++  }
++
++  void initAnalysis(Module &M) {
++    TD = &M.getDataLayout();
++    auto DTWP = getAnalysisIfAvailable<DominatorTreeWrapperPass>();
++    DT = DTWP ? &DTWP->getDomTree() : nullptr;
++    TLI = &getAnalysis<TargetLibraryInfoWrapperPass>().getTLI();
++  }
++
++  /// Prepare transformation.
++  /// \returns true if printf is found.
++  bool prepare(Module &M) {
++    collectPrintfsFromModule(M);
++    if (Printfs.empty())
++      return false;
++    initAnalysis(M);
++    return true;
++  }
++
++  Value *simplify(Instruction *I) {
++    return SimplifyInstruction(I, {*TD, TLI, DT});
++  }
++
++  const DataLayout *TD;
++  const DominatorTree *DT;
++  const TargetLibraryInfo *TLI;
++  static const int GlobalAddrspace = 1;
++};
++}
++
++char AMDGPUPrintfRuntimeBinding::ID = 0;
++
++INITIALIZE_PASS_BEGIN(AMDGPUPrintfRuntimeBinding, "amdgpu-printf-runtime-binding",
++                      "AMDGPU Printf lowering", false, false)
++INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)
++INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)
++INITIALIZE_PASS_END(AMDGPUPrintfRuntimeBinding, "amdgpu-printf-runtime-binding",
++                    "AMDGPU Printf lowering", false, false)
++
++char &llvm::AMDGPUPrintfRuntimeBindingID = AMDGPUPrintfRuntimeBinding::ID;
++
++namespace llvm {
++ModulePass *createAMDGPUPrintfRuntimeBinding() {
++  return new AMDGPUPrintfRuntimeBinding();
++}
++}
++
++AMDGPUPrintfRuntimeBinding::AMDGPUPrintfRuntimeBinding()
++  : ModulePass(ID), TD(nullptr), DT(nullptr), TLI(nullptr) {
++  initializeAMDGPUPrintfRuntimeBindingPass(*PassRegistry::getPassRegistry());
++}
++
++bool AMDGPUPrintfRuntimeBinding::confirmOpenCLVersion200(Module& M) const {
++  NamedMDNode *OCLVersion = M.getNamedMetadata("opencl.ocl.version");
++  if (!OCLVersion) {
++    return false;
++  }
++  if (OCLVersion->getNumOperands() != 1) {
++    return false;
++  }
++  MDNode *Ver = OCLVersion->getOperand(0);
++  if (Ver->getNumOperands() != 2) {
++    return false;
++  }
++  ConstantInt *Major = mdconst::dyn_extract<ConstantInt>(Ver->getOperand(0));
++  ConstantInt *Minor = mdconst::dyn_extract<ConstantInt>(Ver->getOperand(1));
++  if (0 == Major || 0 == Minor) {
++    return false;
++  }
++  if (Major->getZExtValue() == 2) {
++    return true;
++  } else {
++    return false;
++  }
++}
++
++void AMDGPUPrintfRuntimeBinding::getConversionSpecifiers (
++  SmallVectorImpl<char> &OpConvSpecifiers,
++  StringRef Fmt, size_t NumOps) const {
++  // not all format characters are collected.
++  // At this time the format characters of interest
++  // are %p and %s, which use to know if we
++  // are either storing a literal string or a
++  // pointer to the printf buffer.
++  static const char ConvSpecifiers[] = "cdieEfgGaosuxXp";
++  size_t CurFmtSpecifierIdx = 0;
++  size_t PrevFmtSpecifierIdx = 0;
++
++  while ((CurFmtSpecifierIdx
++            = Fmt.find_first_of(ConvSpecifiers, CurFmtSpecifierIdx))
++         != StringRef::npos) {
++    bool ArgDump = false;
++    StringRef CurFmt = Fmt.substr(PrevFmtSpecifierIdx,
++                                  CurFmtSpecifierIdx - PrevFmtSpecifierIdx);
++    size_t pTag = CurFmt.find_last_of("%");
++    if (pTag != StringRef::npos) {
++      ArgDump = true;
++      while (pTag && CurFmt[--pTag] == '%') {
++        ArgDump = !ArgDump;
++      }
++    }
++
++    if (ArgDump) {
++      OpConvSpecifiers.push_back(Fmt[CurFmtSpecifierIdx]);
++    }
++
++    PrevFmtSpecifierIdx = ++CurFmtSpecifierIdx;
++  }
++}
++
++bool AMDGPUPrintfRuntimeBinding::shouldPrintAsStr(char Specifier,
++                                               Type* OpType) const {
++  if (Specifier != 's') {
++    return false;
++  }
++  const PointerType *PT = dyn_cast<PointerType>(OpType);
++  if (!PT) {
++    return false;
++  }
++  if (PT->getAddressSpace() != 4) {
++    return false;
++  }
++  Type* ElemType = PT->getContainedType(0);
++  if (ElemType->getTypeID() != Type::IntegerTyID) {
++    return false;
++  }
++  IntegerType* ElemIType = cast<IntegerType>(ElemType);
++  if (ElemIType->getBitWidth() == 8) {
++    return true;
++  } else {
++    return false;
++  }
++}
++
++bool AMDGPUPrintfRuntimeBinding::confirmSpirModule(Module& M) const {
++  NamedMDNode *SPIRVersion = M.getNamedMetadata("opencl.spir.version");
++  if (!SPIRVersion) return false;
++  else return true;
++}
++
++void AMDGPUPrintfRuntimeBinding::collectPrintfsFromModule(Module& M) {
++  for (Module::iterator MF = M.begin(), E = M.end(); MF != E; ++MF) {
++    if (MF->isDeclaration()) continue;
++    BasicBlock::iterator CurInstr;
++    for (Function::iterator BB = MF->begin(),
++             MFE = MF->end(); BB != MFE; ++BB) {
++      for (BasicBlock::iterator Instr
++             = BB->begin(), instr_end = BB->end();
++             Instr != instr_end;) {
++        CallInst *CI = dyn_cast<CallInst>(Instr);
++        CurInstr = Instr;
++        Instr++;
++        if (CI && CI->getCalledFunction()
++            && CI->getCalledFunction()->getName() == "printf") {
++          Printfs.push_back(CI);
++        }
++      }
++    }
++  }
++}
++
++bool AMDGPUPrintfRuntimeBinding::lowerPrintfForGpu(Module &M) {
++  LLVMContext &Ctx = M.getContext();
++  IRBuilder<> Builder(Ctx);
++  Type *I32Ty = Type::getInt32Ty(Ctx);
++  unsigned UniqID = 0;
++  // NB: This is important for this string size to be divizable by 4
++  const char NonLiteralStr[4] = "???";
++ 
++  for (auto P : Printfs) {
++    CallInst* CI = dyn_cast<CallInst>(P);
++
++    unsigned NumOps = CI->getNumArgOperands();
++
++    SmallString<16> OpConvSpecifiers;
++    Value *Op = CI->getArgOperand(0);
++
++    if (auto LI = dyn_cast<LoadInst>(Op)) {
++      Op = LI->getPointerOperand();
++      for (auto Use : Op->users()) {
++        if (auto SI = dyn_cast<StoreInst>(Use)) {
++          Op = SI->getValueOperand();
++          break;
++        }
++      }
++    }
++
++    if (auto I = dyn_cast<Instruction>(Op)) {
++      Value *Op_simplified = simplify(I);
++      if (Op_simplified) Op = Op_simplified;
++    }
++
++    ConstantExpr *ConstExpr = dyn_cast<ConstantExpr>(Op);
++
++    if (ConstExpr) {
++      GlobalVariable *GVar = dyn_cast<GlobalVariable>(
++        ConstExpr->getOperand(0));
++
++      StringRef Str("unknown");
++      if (GVar && GVar->hasInitializer()) {
++        auto Init = GVar->getInitializer();
++        if (auto CA = dyn_cast<ConstantDataArray>(Init)) {
++          if (CA->isString())
++            Str = CA->getAsCString();
++        } else if (isa<ConstantAggregateZero>(Init)) {
++          Str = "";
++        }
++        //
++        // we need this call to ascertain
++        // that we are printing a string
++        // or a pointer. It takes out the
++        // specifiers and fills up the first
++        // arg
++        getConversionSpecifiers(OpConvSpecifiers, Str, NumOps - 1);
++      }
++      // Add metadata for the string
++      std::string AStreamHolder;
++      raw_string_ostream Sizes(AStreamHolder);
++      int Sum = DWORD_ALIGN;
++      Sizes << CI->getNumArgOperands() -1;
++      Sizes << ':';
++      for (unsigned ArgCount = 1;
++           ArgCount < CI->getNumArgOperands()
++             && ArgCount <= OpConvSpecifiers.size();
++           ArgCount++) {
++        Value *Arg = CI->getArgOperand(ArgCount);
++        Type *ArgType = Arg->getType();
++        unsigned ArgSize = TD->getTypeAllocSizeInBits(ArgType);
++        ArgSize = ArgSize/8;
++        //
++        // ArgSize by design should be a multiple of DWORD_ALIGN,
++        // expand the arguments that do not follow this rule.
++        //
++        if (ArgSize % DWORD_ALIGN != 0) {
++          llvm::Type* ResType = llvm::Type::getInt32Ty(Ctx);
++          VectorType* LLVMVecType = llvm::dyn_cast<llvm::VectorType>(ArgType);
++          int NumElem = LLVMVecType ? LLVMVecType->getNumElements() : 1;
++          if (LLVMVecType && NumElem > 1)
++            ResType = llvm::VectorType::get(ResType, NumElem);
++          Builder.SetInsertPoint(CI);
++          Builder.SetCurrentDebugLocation(CI->getDebugLoc());
++          if (OpConvSpecifiers[ArgCount - 1] == 'x' ||
++            OpConvSpecifiers[ArgCount - 1] == 'X' ||
++            OpConvSpecifiers[ArgCount - 1] == 'u' ||
++            OpConvSpecifiers[ArgCount - 1] == 'o')
++            Arg = Builder.CreateZExt(Arg, ResType);
++          else
++            Arg = Builder.CreateSExt(Arg, ResType);
++          ArgType = Arg->getType();
++          ArgSize = TD->getTypeAllocSizeInBits(ArgType);
++          ArgSize = ArgSize / 8;
++          CI->setOperand(ArgCount, Arg);
++        }
++        if (OpConvSpecifiers[ArgCount - 1] == 'f') {
++          ConstantFP *FpCons = dyn_cast<ConstantFP>(Arg);
++          if (FpCons)
++            ArgSize = 4;
++          else {
++            FPExtInst *FpExt = dyn_cast<FPExtInst>(Arg);
++            if (FpExt && FpExt->getType()->isDoubleTy() &&
++              FpExt->getOperand(0)->getType()->isFloatTy())
++              ArgSize = 4;
++          }
++        }
++        if (shouldPrintAsStr(OpConvSpecifiers[ArgCount - 1], ArgType)) {
++          if (ConstantExpr *ConstExpr = dyn_cast<ConstantExpr>(Arg)) {
++            GlobalVariable *GV
++              = dyn_cast<GlobalVariable>(ConstExpr->getOperand(0));
++            if (GV && GV->hasInitializer()) {
++              Constant *Init = GV->getInitializer();
++              ConstantDataArray *CA = dyn_cast<ConstantDataArray>(Init);
++              if (Init->isZeroValue() || CA->isString()) {
++                size_t SizeStr = Init->isZeroValue() ? 1 :
++                                    (strlen(CA->getAsCString().data()) + 1);
++                size_t Rem = SizeStr % DWORD_ALIGN;
++                size_t NSizeStr = 0;
++                LLVM_DEBUG(dbgs() << "Printf string original size = " << SizeStr << '\n');
++                if (Rem) {
++                  NSizeStr = SizeStr + (DWORD_ALIGN - Rem);
++                } else {
++                  NSizeStr = SizeStr;
++                }
++                ArgSize = NSizeStr;
++              }
++            } else {
++              ArgSize = sizeof(NonLiteralStr);
++            }
++          } else {
++            ArgSize = sizeof(NonLiteralStr);
++          }
++        }
++        LLVM_DEBUG(dbgs() << "Printf ArgSize (in buffer) = "
++              << ArgSize << " for type: " << *ArgType << '\n');
++        Sizes << ArgSize << ':';
++        Sum += ArgSize;
++      }
++      LLVM_DEBUG(dbgs() << "Printf format string in source = "
++                   << Str.str() << '\n');
++      for (size_t I = 0; I < Str.size(); ++I) {
++        // Rest of the C escape sequences (e.g. \') are handled correctly
++        // by the MDParser
++        switch (Str[I]) {
++        case '\a':
++          Sizes << "\\a";
++          break;
++        case '\b':
++          Sizes << "\\b";
++          break;
++        case '\f':
++          Sizes << "\\f";
++          break;
++        case '\n':
++          Sizes << "\\n";
++          break;
++        case '\r':
++          Sizes << "\\r";
++          break;
++        case '\v':
++          Sizes << "\\v";
++          break;
++        case ':':
++          // ':' cannot be scanned by Flex, as it is defined as a delimiter
++          // Replace it with it's octal representation \72
++          Sizes << "\\72";
++          break;
++        default:
++          Sizes << Str[I];
++          break;
++        }
++      }
++
++      // Insert the printf_alloc call
++      Builder.SetInsertPoint(CI);
++      Builder.SetCurrentDebugLocation(CI->getDebugLoc());
++
++      AttributeList Attr = AttributeList::get(Ctx, AttributeList::FunctionIndex,
++                                              Attribute::NoUnwind);
++
++      Type *SizetTy = Type::getInt32Ty(Ctx);
++
++      Type *Tys_alloc[1] = { SizetTy };
++      Type *I8Ptr = PointerType::get( Type::getInt8Ty(Ctx), 1);
++      FunctionType *FTy_alloc
++        = FunctionType::get( I8Ptr, Tys_alloc, false);
++      FunctionCallee PrintfAllocFn
++        = M.getOrInsertFunction(StringRef("__printf_alloc"), FTy_alloc, Attr);
++
++      // TODO(kzhuravl): Re-enable this debug prints.
++      // LLVM_DEBUG(dbgs() << "inserting printf_alloc decl, an extern @ pre-link:");
++      // LLVM_DEBUG(dbgs() << *Afn);
++
++      LLVM_DEBUG(dbgs() << "Printf metadata = " << Sizes.str() << '\n');
++      std::string fmtstr = itostr(++UniqID) + ":" + Sizes.str().c_str();
++      MDString *fmtStrArray
++        = MDString::get( Ctx, fmtstr );
++
++
++      // Instead of creating global variables, the
++      // printf format strings are extracted
++      // and passed as metadata. This avoids
++      // polluting llvm's symbol tables in this module.
++      // Metadata is going to be extracted
++      // by the backend passes and inserted
++      // into the OpenCL binary as appropriate.
++      StringRef amd("llvm.printf.fmts");
++      NamedMDNode *metaD = M.getOrInsertNamedMetadata(amd);
++      MDNode *myMD = MDNode::get(Ctx,fmtStrArray);
++      metaD->addOperand(myMD);
++      Value *sumC = ConstantInt::get( SizetTy, Sum, false);
++      SmallVector<Value*,1> alloc_args;
++      alloc_args.push_back(sumC);
++      CallInst *pcall = CallInst::Create(PrintfAllocFn, alloc_args,
++                                         "printf_alloc_fn", CI);
++
++      //
++      // Insert code to split basicblock with a
++      // piece of hammock code.
++      // basicblock splits after buffer overflow check
++      //
++      ConstantPointerNull *zeroIntPtr
++        = ConstantPointerNull::get(PointerType::get(Type::getInt8Ty(Ctx),
++            1));
++      ICmpInst *cmp
++        = dyn_cast<ICmpInst>(
++            Builder.CreateICmpNE(pcall, zeroIntPtr, ""));
++      if (!CI->use_empty()) {
++        Value *result = Builder.CreateSExt(Builder.CreateNot(cmp), I32Ty,
++                                           "printf_res");
++        CI->replaceAllUsesWith(result);
++      }
++      SplitBlock(CI->getParent(), cmp);
++      Instruction *Brnch
++        = SplitBlockAndInsertIfThen(cmp, cmp->getNextNode(), false);
++
++      Builder.SetInsertPoint(Brnch);
++
++      // store unique printf id in the buffer
++      //
++      SmallVector<Value*, 1> ZeroIdxList;
++      ConstantInt* zeroInt
++        = ConstantInt::get(Ctx, APInt(32, StringRef("0"), 10));
++      ZeroIdxList.push_back(zeroInt);
++
++      GetElementPtrInst *BufferIdx
++        = dyn_cast<GetElementPtrInst>(
++            GetElementPtrInst::Create(nullptr,
++            pcall, ZeroIdxList, "PrintBuffID", Brnch));
++
++      Type *idPointer
++        = PointerType::get(I32Ty, GlobalAddrspace);
++      Value *id_gep_cast
++        = new BitCastInst( BufferIdx, idPointer,
++                           "PrintBuffIdCast", Brnch);
++
++      StoreInst* stbuff
++        = new StoreInst( ConstantInt::get(I32Ty, UniqID), id_gep_cast);
++      stbuff->insertBefore(Brnch); // to Remove unused variable warning
++
++      SmallVector<Value*,2> FourthIdxList;
++      ConstantInt* fourInt
++        = ConstantInt::get(Ctx, APInt(
++            32, StringRef("4"), 10));
++
++      FourthIdxList.push_back(fourInt); // 1st 4 bytes hold the printf_id
++      // the following GEP is the buffer pointer
++      BufferIdx
++        = cast<GetElementPtrInst>(GetElementPtrInst::Create(nullptr,
++              pcall, FourthIdxList, "PrintBuffGep", Brnch));
++
++      Type* Int32Ty = Type::getInt32Ty(Ctx);
++      Type* Int64Ty = Type::getInt64Ty(Ctx);
++      for (unsigned ArgCount = 1;
++           ArgCount < CI->getNumArgOperands()
++             && ArgCount <= OpConvSpecifiers.size();
++           ArgCount++) {
++        Value *Arg = CI->getArgOperand(ArgCount);
++        Type *ArgType = Arg->getType();
++        SmallVector<Value*,32> WhatToStore;
++        if (ArgType->isFPOrFPVectorTy()
++              && (ArgType->getTypeID() != Type::VectorTyID)) {
++          Type *IType = (ArgType->isFloatTy()) ?  Int32Ty : Int64Ty;
++          if (OpConvSpecifiers[ArgCount - 1] == 'f') {
++            ConstantFP *fpCons = dyn_cast<ConstantFP>(Arg);
++            if (fpCons) {
++              APFloat Val(fpCons->getValueAPF());
++              bool Lost = false;
++              Val.convert(APFloat::IEEEsingle(),
++                          APFloat::rmNearestTiesToEven,
++                          &Lost);
++              Arg = ConstantFP::get(Ctx, Val);
++              IType = Int32Ty;
++            } else {
++              FPExtInst *FpExt = dyn_cast<FPExtInst>(Arg);
++              if (FpExt && FpExt->getType()->isDoubleTy()
++                && FpExt->getOperand(0)->getType()->isFloatTy()) {
++                Arg = FpExt->getOperand(0);
++                IType = Int32Ty;
++              }
++            }
++          }
++          Arg = new BitCastInst(Arg, IType, "PrintArgFP", Brnch);
++          WhatToStore.push_back(Arg);
++        } else if (ArgType->getTypeID() == Type::PointerTyID) {
++          if (shouldPrintAsStr(OpConvSpecifiers[ArgCount - 1], ArgType)) {
++            const char *S = NonLiteralStr;
++            if (ConstantExpr *ConstExpr = dyn_cast<ConstantExpr>(Arg)) {
++              GlobalVariable *GV
++                = dyn_cast<GlobalVariable>(ConstExpr->getOperand(0));
++              if (GV && GV->hasInitializer()) {
++                Constant *Init = GV->getInitializer();
++                ConstantDataArray *CA = dyn_cast<ConstantDataArray>(Init);
++                if (Init->isZeroValue() || CA->isString()) {
++                  S = Init->isZeroValue() ? "" : CA->getAsCString().data();
++                }
++              }
++            }
++            size_t SizeStr = strlen(S) + 1;
++            size_t Rem = SizeStr % DWORD_ALIGN;
++            size_t NSizeStr = 0;
++            if (Rem) {
++              NSizeStr = SizeStr + (DWORD_ALIGN - Rem);
++            } else {
++              NSizeStr = SizeStr;
++            }
++            if (S[0]) {
++              char *MyNewStr = new char[NSizeStr]();
++              strcpy(MyNewStr, S);
++              int NumInts = NSizeStr/4;
++              int CharC = 0;
++              while(NumInts) {
++                int ANum = *(int*)(MyNewStr+CharC);
++                CharC += 4;
++                NumInts--;
++                Value *ANumV = ConstantInt::get( Int32Ty, ANum, false);
++                WhatToStore.push_back(ANumV);
++              }
++              delete[] MyNewStr;
++            } else {
++              // Empty string, give a hint to RT it is no NULL
++              Value *ANumV = ConstantInt::get(Int32Ty, 0xFFFFFF00, false);
++              WhatToStore.push_back(ANumV);
++            }
++          } else {
++            uint64_t Size = TD->getTypeAllocSizeInBits(ArgType);
++            assert((Size == 32 || Size == 64) && "unsupported size");
++            Type* DstType = (Size == 32) ? Int32Ty : Int64Ty;
++            Arg = new PtrToIntInst(Arg, DstType,
++                                    "PrintArgPtr", Brnch);
++            WhatToStore.push_back(Arg);
++          }
++        } else if (ArgType->getTypeID() == Type::VectorTyID) {
++          Type *IType = NULL;
++          uint32_t EleCount = cast<VectorType>(ArgType)->getNumElements();
++          uint32_t EleSize = ArgType->getScalarSizeInBits();
++          uint32_t TotalSize = EleCount * EleSize;
++          if (EleCount == 3) {
++            IntegerType *Int32Ty
++              = Type::getInt32Ty(ArgType->getContext());
++            Constant* Indices[4]
++              = { ConstantInt::get(Int32Ty, 0),
++                  ConstantInt::get(Int32Ty, 1),
++                  ConstantInt::get(Int32Ty, 2),
++                  ConstantInt::get(Int32Ty, 2)
++                };
++            Constant* Mask = ConstantVector::get(Indices);
++            ShuffleVectorInst* Shuffle
++              = new ShuffleVectorInst(Arg, Arg, Mask);
++            Shuffle->insertBefore(Brnch);
++            Arg = Shuffle;
++            ArgType = Arg->getType();
++            TotalSize += EleSize;
++          }
++          switch (EleSize) {
++            default:
++              EleCount = TotalSize / 64;
++              IType = dyn_cast<Type>(
++                        Type::getInt64Ty(
++                          ArgType->getContext()));
++              break;
++            case 8:
++              if (EleCount >= 8) {
++                EleCount = TotalSize / 64;
++                IType = dyn_cast<Type>(
++                          Type::getInt64Ty(
++                            ArgType->getContext()));
++              } else if (EleCount >= 3) {
++                EleCount = 1;
++                IType = dyn_cast<Type>(
++                          Type::getInt32Ty(
++                            ArgType->getContext()));
++              } else {
++                EleCount = 1;
++                IType = dyn_cast<Type>(
++                          Type::getInt16Ty(
++                           ArgType->getContext()));
++              }
++              break;
++            case 16:
++              if (EleCount >= 3) {
++                EleCount = TotalSize / 64;
++                IType = dyn_cast<Type>(
++                          Type::getInt64Ty(
++                            ArgType->getContext()));
++              } else {
++                EleCount = 1;
++                IType = dyn_cast<Type>(
++                          Type::getInt32Ty(
++                            ArgType->getContext()));
++              }
++              break;
++          }
++          if (EleCount > 1) {
++            IType = dyn_cast<Type>(
++                      VectorType::get(
++                        IType, EleCount));
++          }
++          Arg = new BitCastInst(Arg, IType, "PrintArgVect", Brnch);
++          WhatToStore.push_back(Arg);
++        } else {
++          WhatToStore.push_back(Arg);
++        }
++        for( auto W : WhatToStore ) {
++          Value* TheBtCast = W;
++          unsigned ArgSize
++            = TD->getTypeAllocSizeInBits(TheBtCast->getType())/8;
++          SmallVector<Value*,1> BuffOffset;
++          BuffOffset.push_back(
++            ConstantInt::get( I32Ty, ArgSize));
++
++          Type *ArgPointer
++            = PointerType::get( TheBtCast->getType(), 1);
++          Value *CastedGEP
++            = new BitCastInst( BufferIdx, ArgPointer,
++                                 "PrintBuffPtrCast", Brnch);
++          StoreInst* StBuff
++            = new StoreInst(
++                    TheBtCast, CastedGEP, Brnch);
++          LLVM_DEBUG(dbgs() << "inserting store to printf buffer:\n"
++            << *StBuff << '\n');
++          (void)StBuff;
++          ++W;
++          if (W == *WhatToStore.end()
++              && ArgCount+1 == CI->getNumArgOperands())
++            break;
++          BufferIdx
++              = dyn_cast<GetElementPtrInst>(GetElementPtrInst::Create(
++                    nullptr, BufferIdx, BuffOffset, "PrintBuffNextPtr", Brnch));
++          LLVM_DEBUG(dbgs() << "inserting gep to the printf buffer:\n"
++                       << *BufferIdx << '\n');
++        }
++      }
++    }
++  }
++  //erase the printf calls
++  for (auto P: Printfs) {
++    CallInst* CI
++      = dyn_cast<CallInst>(P);
++    CI->eraseFromParent();
++  }
++  return true;
++}
++
++bool AMDGPUPrintfRuntimeBinding::runOnModule(Module &M) {
++  Triple TT(M.getTargetTriple());
++  if (TT.getArch() == Triple::r600)
++    return false;
++
++  if (!prepare(M))
++    return false;
++
++  return lowerPrintfForGpu(M);
++}
++
++StringRef AMDGPUPrintfRuntimeBinding::getPassName() const {
++  return "AMD Printf lowering part 1";
++}
++
++bool AMDGPUPrintfRuntimeBinding::doInitialization(Module &M) {
++  return false;
++}
++
++bool AMDGPUPrintfRuntimeBinding::doFinalization(Module &M) {
++  return false;
++}
+diff --git a/lib/Target/AMDGPU/AMDGPUPromotePointerKernArgsToGlobal.cpp b/lib/Target/AMDGPU/AMDGPUPromotePointerKernArgsToGlobal.cpp
+new file mode 100644
+index 00000000000..9ea6b200733
+--- /dev/null
++++ b/lib/Target/AMDGPU/AMDGPUPromotePointerKernArgsToGlobal.cpp
+@@ -0,0 +1,72 @@
++//===-- AMDGPUPromotePointerKernArgsToGlobal.cpp - Promote pointer args ---===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++//
++/// \file
++/// Generic pointer kernel arguments need promoting to global ones.
++//
++//===----------------------------------------------------------------------===//
++
++#include "AMDGPU.h"
++#include "llvm/IR/Function.h"
++#include "llvm/IR/IRBuilder.h"
++#include "llvm/Pass.h"
++
++using namespace llvm;
++
++#define DEBUG_TYPE "amdgpu-promote-pointer-kernargs"
++
++namespace {
++
++class AMDGPUPromotePointerKernArgsToGlobal : public FunctionPass {
++public:
++  static char ID;
++
++  AMDGPUPromotePointerKernArgsToGlobal() : FunctionPass(ID) {}
++
++  bool runOnFunction(Function &F) override;
++};
++
++} // End anonymous namespace
++
++char AMDGPUPromotePointerKernArgsToGlobal::ID = 0;
++
++INITIALIZE_PASS(AMDGPUPromotePointerKernArgsToGlobal, DEBUG_TYPE,
++                "Lower intrinsics", false, false)
++
++bool AMDGPUPromotePointerKernArgsToGlobal::runOnFunction(Function &F) {
++  // Skip non-entry function.
++  if (F.getCallingConv() != CallingConv::AMDGPU_KERNEL)
++    return false;
++
++  auto &Entry = F.getEntryBlock();
++  IRBuilder<> IRB(&Entry, Entry.begin());
++
++  bool Changed = false;
++  for (auto &Arg : F.args()) {
++    auto PtrTy = dyn_cast<PointerType>(Arg.getType());
++    if (!PtrTy || PtrTy->getPointerAddressSpace() != AMDGPUAS::FLAT_ADDRESS)
++      continue;
++
++    auto GlobalPtr =
++        IRB.CreateAddrSpaceCast(&Arg,
++                                PointerType::get(PtrTy->getPointerElementType(),
++                                                 AMDGPUAS::GLOBAL_ADDRESS),
++                                Arg.getName());
++    auto NewFlatPtr = IRB.CreateAddrSpaceCast(GlobalPtr, PtrTy, Arg.getName());
++    Arg.replaceAllUsesWith(NewFlatPtr);
++    // Fix the global pointer itself.
++    cast<Instruction>(GlobalPtr)->setOperand(0, &Arg);
++    Changed = true;
++  }
++
++  return Changed;
++}
++
++FunctionPass *llvm::createAMDGPUPromotePointerKernArgsToGlobalPass() {
++  return new AMDGPUPromotePointerKernArgsToGlobal();
++}
+diff --git a/lib/Target/AMDGPU/AMDGPUTargetMachine.cpp b/lib/Target/AMDGPU/AMDGPUTargetMachine.cpp
+index 0ea8db04c29..10ccaf6a4bc 100644
+--- a/lib/Target/AMDGPU/AMDGPUTargetMachine.cpp
++++ b/lib/Target/AMDGPU/AMDGPUTargetMachine.cpp
+@@ -217,6 +217,7 @@ extern "C" void LLVMInitializeAMDGPUTarget() {
+   initializeAMDGPULowerIntrinsicsPass(*PR);
+   initializeAMDGPUOpenCLEnqueuedBlockLoweringPass(*PR);
+   initializeAMDGPUPromoteAllocaPass(*PR);
++  initializeAMDGPUPromotePointerKernArgsToGlobalPass(*PR);
+   initializeAMDGPUCodeGenPreparePass(*PR);
+   initializeAMDGPUPropagateAttributesEarlyPass(*PR);
+   initializeAMDGPUPropagateAttributesLatePass(*PR);
+@@ -238,6 +239,9 @@ extern "C" void LLVMInitializeAMDGPUTarget() {
+   initializeAMDGPUUseNativeCallsPass(*PR);
+   initializeAMDGPUSimplifyLibCallsPass(*PR);
+   initializeAMDGPUInlinerPass(*PR);
++  initializeAMDGPUOCL12AdapterPass(*PR);
++  initializeAMDGPUPrintfRuntimeBindingPass(*PR);
++  initializeAMDGPULowerKernelCallsPass(*PR);
+   initializeGCNRegBankReassignPass(*PR);
+   initializeGCNNSAReassignPass(*PR);
+ }
+@@ -381,6 +385,11 @@ StringRef AMDGPUTargetMachine::getFeatureString(const Function &F) const {
+     FSAttr.getValueAsString();
+ }
+ 
++void AMDGPUTargetMachine::addPreLinkPasses(PassManagerBase & PM) {
++  PM.add(llvm::createAMDGPUOCL12AdapterPass());
++  PM.add(llvm::createAMDGPUPrintfRuntimeBinding());
++}
++
+ /// Predicate for Internalize pass.
+ static bool mustPreserveGV(const GlobalValue &GV) {
+   if (const Function *F = dyn_cast<Function>(&GV))
+@@ -439,6 +448,9 @@ void AMDGPUTargetMachine::adjustPassManager(PassManagerBuilder &Builder) {
+   Builder.addExtension(
+     PassManagerBuilder::EP_CGSCCOptimizerLate,
+     [](const PassManagerBuilder &, legacy::PassManagerBase &PM) {
++      // Premote generic pointer kernel arguments to global ones.
++      PM.add(llvm::createAMDGPUPromotePointerKernArgsToGlobalPass());
++
+       // Add infer address spaces pass to the opt pipeline after inlining
+       // but before SROA to increase SROA opportunities.
+       PM.add(createInferAddressSpacesPass());
+@@ -663,6 +675,9 @@ void AMDGPUPassConfig::addIRPasses() {
+   // bitcast calls.
+   addPass(createAMDGPUFixFunctionBitcastsPass());
+ 
++  addPass(createAtomicExpandPass());
++  // this pass should be performed on linked module
++  addPass(createAMDGPULowerKernelCallsPass());
+   // A call to propagate attributes pass in the backend in case opt was not run.
+   addPass(createAMDGPUPropagateAttributesEarlyPass(&TM));
+ 
+diff --git a/lib/Target/AMDGPU/AMDGPUTargetMachine.h b/lib/Target/AMDGPU/AMDGPUTargetMachine.h
+index 70fa3961236..ac46e80ecb6 100644
+--- a/lib/Target/AMDGPU/AMDGPUTargetMachine.h
++++ b/lib/Target/AMDGPU/AMDGPUTargetMachine.h
+@@ -53,6 +53,8 @@ public:
+     return TLOF.get();
+   }
+ 
++  void addPreLinkPasses(PassManagerBase & PM) override;
++
+   void adjustPassManager(PassManagerBuilder &) override;
+ 
+   /// Get the integer value of a null pointer in the given address space.
+diff --git a/lib/Target/AMDGPU/CMakeLists.txt b/lib/Target/AMDGPU/CMakeLists.txt
+index ab82ae4a665..ea5621206b7 100644
+--- a/lib/Target/AMDGPU/CMakeLists.txt
++++ b/lib/Target/AMDGPU/CMakeLists.txt
+@@ -51,6 +51,7 @@ add_llvm_target(AMDGPUCodeGen
+   AMDGPULowerIntrinsics.cpp
+   AMDGPULowerKernelArguments.cpp
+   AMDGPULowerKernelAttributes.cpp
++  AMDGPULowerKernelCalls.cpp
+   AMDGPUMachineCFGStructurizer.cpp
+   AMDGPUMachineFunction.cpp
+   AMDGPUMachineModuleInfo.cpp
+@@ -58,6 +59,7 @@ add_llvm_target(AMDGPUCodeGen
+   AMDGPUMCInstLower.cpp
+   AMDGPUOpenCLEnqueuedBlockLowering.cpp
+   AMDGPUPromoteAlloca.cpp
++  AMDGPUPromotePointerKernArgsToGlobal.cpp
+   AMDGPUPropagateAttributes.cpp
+   AMDGPURegisterBankInfo.cpp
+   AMDGPURegisterInfo.cpp
+@@ -71,6 +73,8 @@ add_llvm_target(AMDGPUCodeGen
+   AMDGPUInline.cpp
+   AMDGPUPerfHintAnalysis.cpp
+   AMDILCFGStructurizer.cpp
++  AMDGPUOCL12Adapter.cpp
++  AMDGPUPrintfRuntimeBinding.cpp
+   GCNHazardRecognizer.cpp
+   GCNIterativeScheduler.cpp
+   GCNMinRegStrategy.cpp
+@@ -128,3 +132,16 @@ add_subdirectory(Disassembler)
+ add_subdirectory(MCTargetDesc)
+ add_subdirectory(TargetInfo)
+ add_subdirectory(Utils)
++
++install(
++    FILES
++        ${CMAKE_CURRENT_SOURCE_DIR}/AMDGPU.h
++    DESTINATION include/llvm/Target/AMDGPU
++    COMPONENT llvm-headers
++)
++
++install(
++    FILES ${CMAKE_CURRENT_SOURCE_DIR}/Disassembler/CodeObjectDisassembler.h
++    DESTINATION include/llvm/Target/AMDGPU/Disassembler
++    COMPONENT llvm-headers
++)
+diff --git a/lib/Target/AMDGPU/Disassembler/CMakeLists.txt b/lib/Target/AMDGPU/Disassembler/CMakeLists.txt
+index fb923157691..73e9c7452de 100644
+--- a/lib/Target/AMDGPU/Disassembler/CMakeLists.txt
++++ b/lib/Target/AMDGPU/Disassembler/CMakeLists.txt
+@@ -2,6 +2,8 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/
+ 
+ add_llvm_library(LLVMAMDGPUDisassembler
+   AMDGPUDisassembler.cpp
++  CodeObjectDisassembler.cpp
++  CodeObject.cpp
+   )
+ 
+ add_dependencies(LLVMAMDGPUDisassembler AMDGPUCommonTableGen LLVMAMDGPUUtils)
+diff --git a/lib/Target/AMDGPU/Disassembler/CodeObject.cpp b/lib/Target/AMDGPU/Disassembler/CodeObject.cpp
+new file mode 100644
+index 00000000000..9e3ff5e435f
+--- /dev/null
++++ b/lib/Target/AMDGPU/Disassembler/CodeObject.cpp
+@@ -0,0 +1,328 @@
++//===- CodeObject.cpp - ELF object file implementation ----------*- C++ -*-===//
++//
++//                     The LLVM Compiler Infrastructure
++//
++// This file is distributed under the University of Illinois Open Source
++// License. See LICENSE.TXT for details.
++//
++//===----------------------------------------------------------------------===//
++//
++// This file defines the HSA Code Object file class.
++//
++//===----------------------------------------------------------------------===//
++
++#include "CodeObject.h"
++#include "AMDGPUPTNote.h"
++
++namespace llvm {
++
++using namespace object;
++
++const ELFNote* getNext(const ELFNote &N) {
++  return reinterpret_cast<const ELFNote *>(
++    N.getDesc().data() + alignTo(N.descsz, ELFNote::ALIGN));
++}
++
++Expected<const amd_kernel_code_t *> KernelSym::getAmdKernelCodeT(
++  const HSACodeObject *CodeObject) const {
++  auto TextOr = CodeObject->getTextSection();
++  if (!TextOr) {
++    return TextOr.takeError();
++  }
++
++  return getAmdKernelCodeT(CodeObject, *TextOr);
++}
++
++Expected<const amd_kernel_code_t *> KernelSym::getAmdKernelCodeT(
++  const HSACodeObject * CodeObject,
++  const object::ELF64LEObjectFile::Elf_Shdr *Text) const {
++  assert(Text);
++
++  auto ArrayOr = CodeObject->getELFFile()->getSectionContentsAsArray<uint8_t>(Text);
++  if (!ArrayOr)
++    return ArrayOr.takeError();
++
++  auto SectionOffsetOr = getSectionOffset(CodeObject, Text);
++  if (!SectionOffsetOr)
++    return SectionOffsetOr.takeError();
++
++  return reinterpret_cast<const amd_kernel_code_t *>((*ArrayOr).data() + *SectionOffsetOr);
++}
++
++Expected<uint64_t>
++FunctionSym::getAddress(const HSACodeObject *CodeObject) const {
++  auto TextOr = CodeObject->getTextSection();
++  if (!TextOr) {
++    return TextOr.takeError();
++  }
++  return getAddress(CodeObject, TextOr.get());
++}
++
++Expected<uint64_t>
++FunctionSym::getAddress(const HSACodeObject *CodeObject,
++                        const object::ELF64LEObjectFile::Elf_Shdr *Text) const {
++  assert(Text);
++  auto ElfHeader = CodeObject->getELFFile()->getHeader();
++  if (ElfHeader->e_type == ELF::ET_REL) {
++    return st_value + Text->sh_addr;
++  }
++
++  return st_value;
++}
++
++Expected<uint64_t>
++FunctionSym::getSectionOffset(const HSACodeObject *CodeObject) const {
++  auto TextOr = CodeObject->getTextSection();
++  if (!TextOr) {
++    return TextOr.takeError();
++  }
++  return getSectionOffset(CodeObject, TextOr.get());
++}
++
++Expected<uint64_t> FunctionSym::getSectionOffset(
++    const HSACodeObject *CodeObject,
++    const object::ELF64LEObjectFile::Elf_Shdr *Text) const {
++  assert(Text);
++
++  auto AddressOr = getAddress(CodeObject, Text);
++  if (!AddressOr)
++    return AddressOr.takeError();
++
++  return *AddressOr - Text->sh_addr;
++}
++
++Expected<uint64_t> FunctionSym::getCodeOffset(
++    const HSACodeObject *CodeObject,
++    const object::ELF64LEObjectFile::Elf_Shdr *Text) const {
++  assert(Text);
++
++  auto SectionOffsetOr = getSectionOffset(CodeObject, Text);
++  if (!SectionOffsetOr)
++    return SectionOffsetOr.takeError();
++
++  return *SectionOffsetOr;
++}
++
++Expected<uint64_t> KernelSym::getCodeOffset(
++  const HSACodeObject *CodeObject,
++  const object::ELF64LEObjectFile::Elf_Shdr *Text) const {
++  assert(Text);
++
++  auto SectionOffsetOr = getSectionOffset(CodeObject, Text);
++  if (!SectionOffsetOr)
++    return SectionOffsetOr.takeError();
++
++  auto KernelCodeTOr = getAmdKernelCodeT(CodeObject, Text);
++  if (!KernelCodeTOr)
++    return KernelCodeTOr.takeError();
++
++  return *SectionOffsetOr + (*KernelCodeTOr)->kernel_code_entry_byte_offset;
++}
++
++Expected<const FunctionSym *>
++FunctionSym::asFunctionSym(const HSACodeObject::Elf_Sym *Sym) {
++  if (Sym->getType() != ELF::STT_FUNC &&
++      Sym->getType() != ELF::STT_AMDGPU_HSA_KERNEL)
++    return createError("invalid symbol type");
++
++  return static_cast<const FunctionSym *>(Sym);
++}
++
++Expected<const KernelSym *> KernelSym::asKernelSym(const FunctionSym *Sym) {
++  if (Sym->getType() != ELF::STT_AMDGPU_HSA_KERNEL)
++    return createError("invalid symbol type");
++
++  return static_cast<const KernelSym *>(Sym);
++}
++
++void HSACodeObject::InitMarkers() const {
++  auto TextSecOr = getTextSection();
++  if (!TextSecOr)
++    return;
++  auto TextSec = TextSecOr.get();
++
++  FunctionMarkers.push_back(TextSec->sh_size);
++
++  for (const auto &Sym : functions()) {
++    auto ExpectedFunction =
++        FunctionSym::asFunctionSym(getSymbol(Sym.getRawDataRefImpl()));
++    if (!ExpectedFunction) {
++      consumeError(ExpectedFunction.takeError());
++      report_fatal_error("invalid function symbol");
++    }
++    auto Function = ExpectedFunction.get();
++
++    auto ExpectedSectionOffset = Function->getSectionOffset(this, TextSec);
++    if (!ExpectedSectionOffset) {
++      consumeError(ExpectedSectionOffset.takeError());
++      report_fatal_error("invalid section offset");
++    }
++    FunctionMarkers.push_back(*ExpectedSectionOffset);
++
++    auto ExpectedKernel = KernelSym::asKernelSym(Function);
++    if (ExpectedKernel) {
++      auto Kernel = ExpectedKernel.get();
++
++      auto ExpectedCodeOffset = Kernel->getCodeOffset(this, TextSec);
++      if (!ExpectedCodeOffset) {
++        consumeError(ExpectedCodeOffset.takeError());
++        report_fatal_error("invalid kernel code offset");
++      }
++
++      FunctionMarkers.push_back(*ExpectedCodeOffset);
++    } else {
++      consumeError(ExpectedKernel.takeError());
++    }
++  }
++
++  array_pod_sort(FunctionMarkers.begin(), FunctionMarkers.end());
++}
++
++HSACodeObject::note_iterator HSACodeObject::notes_begin() const {
++  if (auto NotesOr = getNoteSection()) {
++    if (auto ContentsOr = getELFFile()->getSectionContentsAsArray<uint8_t>(*NotesOr))
++      return const_varsize_item_iterator<ELFNote>(*ContentsOr);
++  }
++
++  return const_varsize_item_iterator<ELFNote>();
++}
++
++HSACodeObject::note_iterator HSACodeObject::notes_end() const {
++  return const_varsize_item_iterator<ELFNote>();
++}
++
++iterator_range<HSACodeObject::note_iterator> HSACodeObject::notes() const {
++  return make_range(notes_begin(), notes_end());
++}
++
++function_sym_iterator HSACodeObject::functions_begin() const {
++  auto TextIdxOr = getTextSectionIdx();
++  if (!TextIdxOr)
++    return functions_end();
++
++  auto TextIdx = TextIdxOr.get();
++  return function_sym_iterator(symbol_begin(), symbol_end(),
++                               [this, TextIdx](const SymbolRef &Sym) -> bool {
++                                 auto ExpectedFunction =
++                                     FunctionSym::asFunctionSym(
++                                         getSymbol(Sym.getRawDataRefImpl()));
++                                 if (!ExpectedFunction) {
++                                   consumeError(ExpectedFunction.takeError());
++                                   return false;
++                                 }
++                                 auto Function = ExpectedFunction.get();
++                                 if (Function->st_shndx != TextIdx)
++                                   return false;
++                                 return true;
++                               });
++}
++
++function_sym_iterator HSACodeObject::functions_end() const {
++  return function_sym_iterator(symbol_end(), symbol_end(),
++                               [](const SymbolRef &) { return true; });
++}
++
++iterator_range<function_sym_iterator> HSACodeObject::functions() const {
++  return make_range(functions_begin(), functions_end());
++}
++
++Expected<ArrayRef<uint8_t>>
++HSACodeObject::getCode(const FunctionSym *Function) const {
++  auto TextOr = getTextSection();
++  if (!TextOr)
++    return TextOr.takeError();
++
++  auto SecBytesOr = getELFFile()->getSectionContentsAsArray<uint8_t>(*TextOr);
++  if (!SecBytesOr)
++    return SecBytesOr.takeError();
++
++  auto CodeStartOr = Function->getCodeOffset(this, *TextOr);
++  if (!CodeStartOr)
++    return CodeStartOr.takeError();
++  uint64_t CodeStart = CodeStartOr.get();
++
++  auto ExpectedKernel = KernelSym::asKernelSym(Function);
++  if (ExpectedKernel) {
++    auto Kernel = ExpectedKernel.get();
++    auto KernelCodeStartOr = Kernel->getCodeOffset(this, *TextOr);
++    if (!KernelCodeStartOr)
++      return KernelCodeStartOr.takeError();
++    CodeStart = KernelCodeStartOr.get();
++  } else {
++    consumeError(ExpectedKernel.takeError());
++  }
++
++  auto CodeEndI = std::upper_bound(FunctionMarkers.begin(),
++                                   FunctionMarkers.end(), CodeStart);
++  uint64_t CodeEnd = CodeStart;
++  if (CodeEndI != FunctionMarkers.end())
++    CodeEnd = *CodeEndI;
++
++  return SecBytesOr->slice(CodeStart, CodeEnd - CodeStart);
++}
++
++Expected<const HSACodeObject::Elf_Shdr *>
++HSACodeObject::getSectionByName(StringRef Name) const {
++  auto ELF = getELFFile();
++  auto SectionsOr = ELF->sections();
++  if (!SectionsOr)
++    return SectionsOr.takeError();
++
++  for (const auto &Sec : *SectionsOr) {
++    auto SecNameOr = ELF->getSectionName(&Sec);
++    if (!SecNameOr) {
++      return SecNameOr.takeError();
++    } else if (*SecNameOr == Name) {
++      return Expected<const Elf_Shdr *>(&Sec);
++    }
++  }
++  return createError("invalid section index");
++}
++
++Expected<uint32_t> HSACodeObject::getSectionIdxByName(StringRef Name) const {
++  auto ELF = getELFFile();
++  uint32_t Idx = 0;
++  auto SectionsOr = ELF->sections();
++  if (!SectionsOr)
++    return SectionsOr.takeError();
++
++  for (const auto &Sec : *SectionsOr) {
++    auto SecNameOr = ELF->getSectionName(&Sec);
++    if (!SecNameOr) {
++      return SecNameOr.takeError();
++    } else if (*SecNameOr == Name) {
++      return Idx;
++    }
++    ++Idx;
++  }
++  return createError("invalid section index");
++}
++
++Expected<uint32_t> HSACodeObject::getTextSectionIdx() const {
++  if (auto IdxOr = getSectionIdxByName(".text")) {
++    auto SecOr = getELFFile()->getSection(*IdxOr);
++    if (SecOr || isSectionText(toDRI(*SecOr)))
++      return IdxOr;
++  }
++  return createError("invalid section index");
++}
++
++Expected<uint32_t> HSACodeObject::getNoteSectionIdx() const {
++  return getSectionIdxByName(AMDGPU::ElfNote::SectionName);
++}
++
++Expected<const HSACodeObject::Elf_Shdr *> HSACodeObject::getTextSection() const {
++  if (auto IdxOr = getTextSectionIdx())
++    return getELFFile()->getSection(*IdxOr);
++
++  return createError("invalid section index");
++}
++
++Expected<const HSACodeObject::Elf_Shdr *> HSACodeObject::getNoteSection() const {
++  if (auto IdxOr = getNoteSectionIdx())
++    return getELFFile()->getSection(*IdxOr);
++
++  return createError("invalid section index");
++}
++
++} // namespace llvm
+diff --git a/lib/Target/AMDGPU/Disassembler/CodeObject.h b/lib/Target/AMDGPU/Disassembler/CodeObject.h
+new file mode 100644
+index 00000000000..6411fd7483d
+--- /dev/null
++++ b/lib/Target/AMDGPU/Disassembler/CodeObject.h
+@@ -0,0 +1,275 @@
++//===- CodeObject.hpp - ELF object file implementation ----------*- C++ -*-===//
++//
++//                     The LLVM Compiler Infrastructure
++//
++// This file is distributed under the University of Illinois Open Source
++// License. See LICENSE.TXT for details.
++//
++//===----------------------------------------------------------------------===//
++//
++// This file declares the HSA Code Object file class.
++//
++//===----------------------------------------------------------------------===//
++
++#ifndef AMDGPU_DISASSEMBLER_HSA_CODE_OBJECT_HPP
++#define AMDGPU_DISASSEMBLER_HSA_CODE_OBJECT_HPP
++
++#include "AMDKernelCodeT.h"
++#include "llvm/ADT/iterator.h"
++#include "llvm/ADT/StringRef.h"
++#include "llvm/Object/ELFObjectFile.h"
++#include "llvm/Support/Endian.h"
++
++namespace llvm {
++
++//===----------------------------------------------------------------------===//
++// ELFNote
++//===----------------------------------------------------------------------===//
++
++struct amdgpu_hsa_code_object_version {
++  support::ulittle32_t major_version;
++  support::ulittle32_t minor_version;
++};
++
++
++struct amdgpu_hsa_isa {
++  support::ulittle16_t vendor_name_size;
++  support::ulittle16_t architecture_name_size;
++  support::ulittle32_t major;
++  support::ulittle32_t minor;
++  support::ulittle32_t stepping;
++  char names[1];
++
++  StringRef getVendorName() const {
++    return StringRef(names, vendor_name_size - 1);
++  }
++
++  StringRef getArchitectureName() const {
++    return StringRef(names + vendor_name_size, architecture_name_size - 1);
++  }
++};
++
++struct ELFNote {
++  support::ulittle32_t namesz;
++  support::ulittle32_t descsz;
++  support::ulittle32_t type;
++
++  enum {ALIGN = 4};
++
++  ELFNote() = delete;
++  ELFNote(const ELFNote&) = delete;
++  ELFNote& operator =(const ELFNote&) = delete;
++
++  StringRef getName() const {
++    return StringRef(reinterpret_cast<const char*>(this) + sizeof(*this), namesz);
++  }
++
++  StringRef getDesc() const {
++    return StringRef(getName().data() + alignTo(namesz, ALIGN), descsz);
++  }
++
++  size_t getSize() const {
++    return sizeof(*this) + alignTo(namesz, ALIGN) + alignTo(descsz, ALIGN);
++  }
++
++  template <typename D> Expected<const D*> as() const {
++    if (descsz < sizeof(D)) {
++      return make_error<StringError>("invalid descsz",
++                                     object::object_error::parse_failed);
++    }
++
++    return reinterpret_cast<const D*>(getDesc().data());
++  }
++};
++
++const ELFNote* getNext(const ELFNote &N);
++
++
++template <typename Item>
++class const_varsize_item_iterator :
++  std::iterator<std::forward_iterator_tag, const Item, void> {
++  ArrayRef<uint8_t> Ref;
++
++  const Item *item() const {
++    return reinterpret_cast<const Item*>(Ref.data());
++  }
++
++  size_t getItemPadSize() const {
++    assert(Ref.size() >= sizeof(Item));
++    return (const uint8_t*)getNext(*item()) - (const uint8_t*)item();
++  }
++
++public:
++  const_varsize_item_iterator() {}
++  const_varsize_item_iterator(ArrayRef<uint8_t> Ref_) : Ref(Ref_) {}
++
++  bool valid() const {
++    return Ref.size() >= sizeof(Item) && Ref.size() >= getItemPadSize();
++  }
++
++  Expected<const Item&> operator*() const {
++    if (!valid()) {
++      return make_error<StringError>("invalid item",
++                                     object::object_error::parse_failed);
++    }
++
++    return *item();
++  }
++
++  bool operator==(const const_varsize_item_iterator &Other) const {
++    return (Ref.size() == Other.Ref.size()) &&
++           (Ref.empty() || Ref.data() == Other.Ref.data());
++  }
++
++  bool operator!=(const const_varsize_item_iterator &Other) const {
++    return !(*this == Other);
++  }
++
++  const_varsize_item_iterator &operator++() { // preincrement
++    Ref = Ref.size() >= sizeof(Item) ?
++      Ref.slice((std::min)(getItemPadSize(), Ref.size())) :
++      decltype(Ref)();
++    return *this;
++  }
++};
++
++//===----------------------------------------------------------------------===//
++// FunctionSym
++//===----------------------------------------------------------------------===//
++
++class HSACodeObject;
++
++class FunctionSym : public object::ELF64LEObjectFile::Elf_Sym {
++public:
++  Expected<uint64_t> getAddress(const HSACodeObject *CodeObject) const;
++
++  Expected<uint64_t> getAddress(
++    const HSACodeObject *CodeObject,
++    const object::ELF64LEObjectFile::Elf_Shdr *Text) const;
++
++  Expected<uint64_t> getSectionOffset(const HSACodeObject *CodeObject) const;
++
++  Expected<uint64_t> getSectionOffset(
++    const HSACodeObject *CodeObject,
++    const object::ELF64LEObjectFile::Elf_Shdr *Text) const;
++
++  Expected<uint64_t> getCodeOffset(
++    const HSACodeObject *CodeObject,
++    const object::ELF64LEObjectFile::Elf_Shdr *Text) const;
++
++  static Expected<const FunctionSym *>
++  asFunctionSym(const object::ELF64LEObjectFile::Elf_Sym *Sym);
++};
++
++class KernelSym : public FunctionSym {
++public:
++  Expected<uint64_t>
++  getCodeOffset(const HSACodeObject *CodeObject,
++                const object::ELF64LEObjectFile::Elf_Shdr *Text) const;
++
++  Expected<const amd_kernel_code_t *>
++  getAmdKernelCodeT(const HSACodeObject *CodeObject) const;
++
++  Expected<const amd_kernel_code_t *>
++  getAmdKernelCodeT(const HSACodeObject *CodeObject,
++                    const object::ELF64LEObjectFile::Elf_Shdr *Text) const;
++
++  static Expected<const KernelSym *> asKernelSym(const FunctionSym *Sym);
++};
++
++template <typename BaseIterator>
++class conditional_iterator : public iterator_adaptor_base<
++                                              conditional_iterator<BaseIterator>,
++                                              BaseIterator,
++                                              std::forward_iterator_tag> {
++  
++public:
++  typedef std::function<
++    bool(const typename conditional_iterator::iterator_adaptor_base::value_type&)
++  > PredicateTy;
++  
++protected:
++  BaseIterator End;
++  PredicateTy Predicate;
++
++public:
++
++  conditional_iterator(BaseIterator BI, BaseIterator E, PredicateTy P)
++    : conditional_iterator::iterator_adaptor_base(BI), End(E), Predicate(P) {
++    while (this->I != End && !Predicate(*this->I)) {
++      ++this->I;
++    } 
++  }
++
++  conditional_iterator &operator++() {
++    do {
++      ++this->I;
++    } while (this->I != End && !Predicate(*this->I));
++    return *this;
++  }
++};
++
++class function_sym_iterator
++    : public conditional_iterator<object::elf_symbol_iterator> {
++public:
++  function_sym_iterator(object::elf_symbol_iterator It,
++                        object::elf_symbol_iterator End, PredicateTy P)
++      : conditional_iterator<object::elf_symbol_iterator>(It, End, P) {}
++
++  const object::ELFSymbolRef &operator*() const {
++    return *I;
++  }
++};
++
++//===----------------------------------------------------------------------===//
++// HSACodeObject
++//===----------------------------------------------------------------------===//
++
++class HSACodeObject : public object::ELF64LEObjectFile {
++private:
++  mutable SmallVector<uint64_t, 8> FunctionMarkers;
++
++  void InitMarkers() const;
++
++  HSACodeObject(object::ELF64LEObjectFile &&Obj)
++    : object::ELF64LEObjectFile(std::move(Obj)) {
++    InitMarkers();
++  }
++
++public:
++  static Expected<std::unique_ptr<HSACodeObject>>
++  create(MemoryBufferRef Wrapper) {
++    auto Obj = object::ELF64LEObjectFile::create(Wrapper);
++    if (auto E = Obj.takeError())
++      return std::move(E);
++    std::unique_ptr<HSACodeObject> Ret(new HSACodeObject(std::move(*Obj)));
++    return std::move(Ret);
++  }
++
++  typedef const_varsize_item_iterator<ELFNote> note_iterator;
++
++  note_iterator notes_begin() const;
++  note_iterator notes_end() const;
++  iterator_range<note_iterator> notes() const;
++
++  function_sym_iterator functions_begin() const;
++  function_sym_iterator functions_end() const;
++  iterator_range<function_sym_iterator> functions() const;
++
++  Expected<ArrayRef<uint8_t>> getCode(const FunctionSym *Function) const;
++
++  Expected<const Elf_Shdr *> getSectionByName(StringRef Name) const;
++
++  Expected<uint32_t> getSectionIdxByName(StringRef) const;
++  Expected<uint32_t> getTextSectionIdx() const;
++  Expected<uint32_t> getNoteSectionIdx() const;
++  Expected<const Elf_Shdr *> getTextSection() const;
++  Expected<const Elf_Shdr *> getNoteSection() const;
++
++  friend class FunctionSym;
++  friend class KernelSym;
++};
++
++} // namespace llvm
++
++#endif
+diff --git a/lib/Target/AMDGPU/Disassembler/CodeObjectDisassembler.cpp b/lib/Target/AMDGPU/Disassembler/CodeObjectDisassembler.cpp
+new file mode 100644
+index 00000000000..224c6e4296d
+--- /dev/null
++++ b/lib/Target/AMDGPU/Disassembler/CodeObjectDisassembler.cpp
+@@ -0,0 +1,308 @@
++//===-- CodeObjectDisassembler.cpp - Disassembler for HSA Code Object------===//
++//
++//                     The LLVM Compiler Infrastructure
++//
++// This file is distributed under the University of Illinois Open Source
++// License. See LICENSE.TXT for details.
++//
++//===----------------------------------------------------------------------===//
++//
++//===----------------------------------------------------------------------===//
++//
++/// \file
++///
++/// This file contains definition for HSA Code Object Dissassembler
++//
++//===----------------------------------------------------------------------===//
++
++#include "CodeObjectDisassembler.h"
++
++#include "AMDGPU.h"
++#include "Disassembler/CodeObject.h"
++#include "Disassembler/AMDGPUDisassembler.h"
++#include "MCTargetDesc/AMDGPUInstPrinter.h"
++#include "MCTargetDesc/AMDGPUTargetStreamer.h"
++#include "TargetInfo/AMDGPUTargetInfo.h"
++
++#include "llvm/MC/MCContext.h"
++#include "llvm/MC/MCFixedLenDisassembler.h"
++#include "llvm/MC/MCInst.h"
++#include "llvm/MC/MCInstrDesc.h"
++#include "llvm/MC/MCSubtargetInfo.h"
++#include "llvm/MC/MCSymbolELF.h"
++#include "llvm/Object/ELFObjectFile.h"
++#include "llvm/Support/TargetRegistry.h"
++
++#define DEBUG_TYPE "amdgpu-disassembler"
++
++namespace llvm {
++#include "AMDGPUPTNote.h"
++}
++
++using namespace llvm;
++
++CodeObjectDisassembler::CodeObjectDisassembler(MCContext *C,
++                                               StringRef TN,
++                                               MCInstPrinter *IP,
++                                               MCTargetStreamer *TS)
++  : Ctx(C), TripleName(TN), InstPrinter(IP),
++    AsmStreamer(static_cast<AMDGPUTargetStreamer *>(TS)) {}
++
++Expected<CodeObjectDisassembler::SymbolsTy>
++CodeObjectDisassembler::CollectSymbols(const HSACodeObject *CodeObject) {
++  SymbolsTy Symbols;
++  for (const auto &Symbol : CodeObject->symbols()) {
++    auto AddressOr = Symbol.getAddress();
++    if (!AddressOr)
++      return AddressOr.takeError();
++
++    auto NameOr = Symbol.getName();
++    if (!NameOr)
++      return NameOr.takeError();
++    if (NameOr->empty())
++      continue;
++
++    uint8_t SymbolType = CodeObject->getSymbol(Symbol.getRawDataRefImpl())->getType();
++    Symbols.emplace_back(*AddressOr, *NameOr, SymbolType);
++  }
++  return Symbols;
++}
++
++std::error_code CodeObjectDisassembler::printNotes(const HSACodeObject *CodeObject) {
++  for (auto Note : CodeObject->notes()) {
++    if (!Note)
++      return errorToErrorCode(Note.takeError());
++
++    switch (Note->type) {
++    case AMDGPU::ElfNote::NT_AMDGPU_HSA_CODE_OBJECT_VERSION: {
++      auto VersionOr = Note->as<amdgpu_hsa_code_object_version>();
++      if (!VersionOr)
++        return errorToErrorCode(VersionOr.takeError());
++
++      auto *Version = *VersionOr;
++      AsmStreamer->EmitDirectiveHSACodeObjectVersion(
++        Version->major_version,
++        Version->minor_version);
++      AsmStreamer->getStreamer().EmitRawText("");
++      break;
++    }
++
++    case AMDGPU::ElfNote::NT_AMDGPU_HSA_ISA: {
++      auto IsaOr = Note->as<amdgpu_hsa_isa>();
++      if (!IsaOr)
++        return errorToErrorCode(IsaOr.takeError());
++
++      auto *Isa = *IsaOr;
++      AsmStreamer->EmitDirectiveHSACodeObjectISA(
++        Isa->major,
++        Isa->minor,
++        Isa->stepping,
++        Isa->getVendorName(),
++        Isa->getArchitectureName());
++      AsmStreamer->getStreamer().EmitRawText("");
++      break;
++    }
++    }
++  }
++  return std::error_code();
++}
++
++static std::string getCPUName(const HSACodeObject *CodeObject) {
++  for (auto Note : CodeObject->notes()) {
++    if (!Note)
++      return "";
++
++    if (Note->type == AMDGPU::ElfNote::NT_AMDGPU_HSA_ISA) {
++      auto IsaOr = Note->as<amdgpu_hsa_isa>();
++      if (!IsaOr)
++        return "";
++      auto *Isa = *IsaOr;
++
++      SmallString<6> OutStr;
++      raw_svector_ostream OS(OutStr);
++      OS << "gfx" << Isa->major << Isa->minor << Isa->stepping;
++      return OS.str();
++    }
++  }
++  return "";
++}
++
++std::error_code
++CodeObjectDisassembler::printFunctions(const HSACodeObject *CodeObject,
++                                       raw_ostream &ES) {
++  AsmStreamer->getStreamer().InitSections(true);
++
++  // setup disassembler
++  auto SymbolsOr = CollectSymbols(CodeObject);
++  if (!SymbolsOr)
++    return errorToErrorCode(SymbolsOr.takeError());
++  
++  const auto &Target = getTheGCNTarget();
++  std::unique_ptr<MCSubtargetInfo> STI(
++    Target.createMCSubtargetInfo(TripleName, getCPUName(CodeObject), ""));
++  if (!STI)
++    return object::object_error::parse_failed;
++
++  std::unique_ptr<MCDisassembler> InstDisasm(
++    Target.createMCDisassembler(*STI, *Ctx));
++  if (!InstDisasm)
++    return object::object_error::parse_failed;
++
++  std::unique_ptr<MCRelocationInfo> RelInfo(
++    Target.createMCRelocationInfo(TripleName, *Ctx));
++  if (RelInfo) {
++    std::unique_ptr<MCSymbolizer> Symbolizer(
++      Target.createMCSymbolizer(
++        TripleName, nullptr, nullptr, &(*SymbolsOr), Ctx, std::move(RelInfo)));
++    InstDisasm->setSymbolizer(std::move(Symbolizer));
++  }
++
++  // print functions
++  for (const auto &Sym : CodeObject->functions()) {
++    auto ExpectedFunction = FunctionSym::asFunctionSym(
++        CodeObject->getSymbol(Sym.getRawDataRefImpl()));
++    if (!ExpectedFunction)
++      return errorToErrorCode(ExpectedFunction.takeError());
++    auto Function = ExpectedFunction.get();
++
++    auto NameEr = Sym.getName();
++    if (!NameEr)
++      return object::object_error::parse_failed;
++
++    auto AddressOr = Function->getAddress(CodeObject);
++    if (!AddressOr)
++      return errorToErrorCode(AddressOr.takeError());
++    uint64_t Address = *AddressOr;
++
++    auto ExpectedKernel = KernelSym::asKernelSym(Function);
++    if (ExpectedKernel) {
++      auto Kernel = ExpectedKernel.get();
++      Function = Kernel;
++
++      auto KernelCodeTOr = Kernel->getAmdKernelCodeT(CodeObject);
++      if (!KernelCodeTOr)
++        return errorToErrorCode(KernelCodeTOr.takeError());
++
++      AsmStreamer->EmitAMDGPUSymbolType(*NameEr, Kernel->getType());
++      AsmStreamer->getStreamer().EmitRawText("");
++
++      AsmStreamer->getStreamer().EmitRawText(*NameEr + ":");
++
++      AsmStreamer->EmitAMDKernelCodeT(*(*KernelCodeTOr));
++      AsmStreamer->getStreamer().EmitRawText("");
++
++      Address += (*KernelCodeTOr)->kernel_code_entry_byte_offset;
++    } else {
++      consumeError(ExpectedKernel.takeError());
++      auto Name = *NameEr;
++      MCSymbolELF *Symbol = cast<MCSymbolELF>(
++          AsmStreamer->getStreamer().getContext().getOrCreateSymbol(Name));
++      Symbol->setType(ELF::STT_FUNC);
++      AsmStreamer->getStreamer().EmitSymbolAttribute(Symbol,
++                                                     MCSA_ELF_TypeFunction);
++      AsmStreamer->getStreamer().EmitLabel(Symbol);
++    }
++
++    auto CodeOr = CodeObject->getCode(Function);
++    if (!CodeOr)
++      return errorToErrorCode(CodeOr.takeError());
++
++    printFunctionCode(*InstDisasm, *CodeOr, Address, *SymbolsOr, ES);
++  }
++  return std::error_code();
++}
++
++template <typename T>
++static ArrayRef<T> trimTrailingZeroes(ArrayRef<T> A, size_t Limit) {
++  const auto SizeLimit = (Limit < A.size()) ? (A.size() - Limit) : 0;
++  while (A.size() > SizeLimit && !A.back())
++    A = A.drop_back();
++  return A;
++}
++
++void CodeObjectDisassembler::printFunctionCode(const MCDisassembler &InstDisasm,
++                                               ArrayRef<uint8_t> Bytes,
++                                               uint64_t Address,
++                                               const SymbolsTy &Symbols,
++                                               raw_ostream &ES) {
++#ifdef NDEBUG
++  const bool DebugFlag = false;
++#endif
++
++  Bytes = trimTrailingZeroes(Bytes, 256);
++
++  AsmStreamer->getStreamer().EmitRawText("// Disassembly:");
++  SmallString<40> InstStr, CommentStr, OutStr;
++  for (uint64_t Index = 0; Index < Bytes.size();) {
++    ArrayRef<uint8_t> Code = Bytes.slice(Index);
++
++    InstStr.clear();
++    raw_svector_ostream IS(InstStr);
++    CommentStr.clear();
++    raw_svector_ostream CS(CommentStr);
++    OutStr.clear();
++    raw_svector_ostream OS(OutStr);
++
++    // check for labels
++    for (const auto &Sym: Symbols) {
++      if (std::get<0>(Sym) == Address && std::get<2>(Sym) == ELF::STT_NOTYPE) {
++        OS << std::get<1>(Sym) << ":\n";
++      }
++    }
++
++    MCInst Inst;
++    uint64_t EatenBytesNum = 0;
++    if (InstDisasm.getInstruction(Inst, EatenBytesNum,
++                                  Code,
++                                  Address,
++                                  DebugFlag ? dbgs() : nulls(),
++                                  CS)) {
++      InstPrinter->printInst(&Inst, IS, "", InstDisasm.getSubtargetInfo());
++    } else {
++      IS << "\t// unrecognized instruction ";
++      if (EatenBytesNum == 0)
++        EatenBytesNum = 4;
++    }
++    assert(0 == EatenBytesNum % 4);
++
++    OS << left_justify(IS.str(), 60) << format("// %012X:", Address);
++    typedef support::ulittle32_t U32;
++    for (auto D : makeArrayRef(reinterpret_cast<const U32 *>(Code.data()),
++                               EatenBytesNum / sizeof(U32)))
++      // D should be explicitly casted to uint32_t here as it is passed
++      // by format to snprintf as vararg.
++      OS << format(" %08" PRIX32, static_cast<uint32_t>(D));
++
++    if (!CS.str().empty())
++      OS << " // " << CS.str();
++
++    AsmStreamer->getStreamer().EmitRawText(OS.str());
++
++    Address += EatenBytesNum;
++    Index += EatenBytesNum;
++  }
++  AsmStreamer->getStreamer().EmitRawText("");
++}
++
++std::error_code CodeObjectDisassembler::Disassemble(MemoryBufferRef Buffer,
++                                                    raw_ostream &ES) {
++  using namespace object;
++  
++  // Create ELF 64-bit low-endian object file
++  Expected<std::unique_ptr<HSACodeObject>> CodeObjectOrError =
++      HSACodeObject::create(Buffer);
++  if (Error E = CodeObjectOrError.takeError())
++    return errorToErrorCode(std::move(E));
++
++  std::unique_ptr<HSACodeObject> CodeObject = std::move(*CodeObjectOrError);
++
++  std::error_code EC = printNotes(CodeObject.get());
++  if (EC)
++    return EC;
++
++  EC = printFunctions(CodeObject.get(), ES);
++  if (EC)
++    return EC;
++
++  return std::error_code();
++}
+diff --git a/lib/Target/AMDGPU/Disassembler/CodeObjectDisassembler.h b/lib/Target/AMDGPU/Disassembler/CodeObjectDisassembler.h
+new file mode 100644
+index 00000000000..01ec34917da
+--- /dev/null
++++ b/lib/Target/AMDGPU/Disassembler/CodeObjectDisassembler.h
+@@ -0,0 +1,64 @@
++//=-- CodeObjectDisassembler.hpp - Disassembler for HSA Code Object--- C++ --=//
++//
++//                     The LLVM Compiler Infrastructure
++//
++// This file is distributed under the University of Illinois Open Source
++// License. See LICENSE.TXT for details.
++//
++//===----------------------------------------------------------------------===//
++//
++/// \file
++///
++/// This file contains declaration for HSA Code Object Dissassembler
++//
++//===----------------------------------------------------------------------===//
++
++#ifndef AMDGPU_CODE_OBJECT_DISASSEMBLER_HPP
++#define AMDGPU_CODE_OBJECT_DISASSEMBLER_HPP
++
++#include "llvm/Support/MemoryBuffer.h"
++#include "llvm/ADT/ArrayRef.h"
++#include "llvm/Object/ELFObjectFile.h"
++#include <vector>
++
++namespace llvm {
++
++class AMDGPUTargetStreamer;
++class MCContext;
++class MCDisassembler;
++class MCInstPrinter;
++class MCTargetStreamer;
++class raw_ostream;
++class HSACodeObject;
++
++class CodeObjectDisassembler {
++private:
++  MCContext *Ctx;
++  StringRef TripleName;
++  MCInstPrinter *InstPrinter;
++  AMDGPUTargetStreamer *AsmStreamer;
++
++  CodeObjectDisassembler(const CodeObjectDisassembler&) = delete;
++  CodeObjectDisassembler& operator=(const CodeObjectDisassembler&) = delete;
++  
++  typedef std::vector<std::tuple<uint64_t, StringRef, uint8_t>> SymbolsTy;
++
++  Expected<SymbolsTy> CollectSymbols(const HSACodeObject *CodeObject);
++
++  std::error_code printNotes(const HSACodeObject *CodeObject);
++  std::error_code printFunctions(const HSACodeObject *CodeObject,
++                                 raw_ostream &ES);
++  void printFunctionCode(const MCDisassembler &InstDisasm,
++                         ArrayRef<uint8_t> Bytes, uint64_t Address,
++                         const SymbolsTy &Symbols, raw_ostream &ES);
++
++public:
++  CodeObjectDisassembler(MCContext *C, StringRef TripleName, MCInstPrinter *IP,
++                         MCTargetStreamer *TS);
++
++  /// @brief Disassemble and print HSA Code Object
++  std::error_code Disassemble(MemoryBufferRef Buffer, raw_ostream &ES);
++};
++} // namespace llvm
++
++#endif
+diff --git a/lib/Target/AMDGPU/Disassembler/LLVMBuild.txt b/lib/Target/AMDGPU/Disassembler/LLVMBuild.txt
+index 4163e380029..d1a00c6c585 100644
+--- a/lib/Target/AMDGPU/Disassembler/LLVMBuild.txt
++++ b/lib/Target/AMDGPU/Disassembler/LLVMBuild.txt
+@@ -18,5 +18,5 @@
+ type = Library
+ name = AMDGPUDisassembler
+ parent = AMDGPU
+-required_libraries = AMDGPUDesc AMDGPUInfo AMDGPUUtils MC MCDisassembler Support
++required_libraries = AMDGPUDesc AMDGPUInfo AMDGPUUtils MC MCDisassembler Support Object
+ add_to_library_groups = AMDGPU
+diff --git a/lib/Target/AMDGPU/LLVMBuild.txt b/lib/Target/AMDGPU/LLVMBuild.txt
+index 9261db73425..b707111325a 100644
+--- a/lib/Target/AMDGPU/LLVMBuild.txt
++++ b/lib/Target/AMDGPU/LLVMBuild.txt
+@@ -29,5 +29,5 @@ has_disassembler = 1
+ type = Library
+ name = AMDGPUCodeGen
+ parent = AMDGPU
+-required_libraries = Analysis AsmPrinter CodeGen Core IPO MC AMDGPUDesc AMDGPUInfo AMDGPUUtils Scalar SelectionDAG Support Target TransformUtils Vectorize GlobalISel BinaryFormat MIRParser
++required_libraries = Analysis AsmPrinter CodeGen Core Demangle IPO MC AMDGPUDesc AMDGPUInfo AMDGPUUtils Linker Scalar SelectionDAG Support Target TransformUtils Vectorize GlobalISel BinaryFormat MIRParser
+ add_to_library_groups = AMDGPU
+diff --git a/lib/Transforms/CMakeLists.txt b/lib/Transforms/CMakeLists.txt
+index 74db9e53304..27a7e746e84 100644
+--- a/lib/Transforms/CMakeLists.txt
++++ b/lib/Transforms/CMakeLists.txt
+@@ -8,3 +8,4 @@ add_subdirectory(Vectorize)
+ add_subdirectory(Hello)
+ add_subdirectory(ObjCARC)
+ add_subdirectory(Coroutines)
++add_subdirectory(HC)
+diff --git a/lib/Transforms/HC/CMakeLists.txt b/lib/Transforms/HC/CMakeLists.txt
+new file mode 100644
+index 00000000000..87ce927ab32
+--- /dev/null
++++ b/lib/Transforms/HC/CMakeLists.txt
+@@ -0,0 +1,5 @@
++if (UNIX)
++  set(LLVM_ENABLE_PLUGINS ON)
++  add_subdirectory(PromotePointerKernArgsToGlobal)
++  add_subdirectory(SelectAcceleratorCode)
++endif()
+diff --git a/lib/Transforms/HC/PromotePointerKernArgsToGlobal/CMakeLists.txt b/lib/Transforms/HC/PromotePointerKernArgsToGlobal/CMakeLists.txt
+new file mode 100644
+index 00000000000..862ad95d273
+--- /dev/null
++++ b/lib/Transforms/HC/PromotePointerKernArgsToGlobal/CMakeLists.txt
+@@ -0,0 +1,4 @@
++add_llvm_library(
++    LLVMPromotePointerKernArgsToGlobal MODULE PromotePointerKernArgsToGlobal.cpp)
++
++add_dependencies(LLVMPromotePointerKernArgsToGlobal intrinsics_gen)
+diff --git a/lib/Transforms/HC/PromotePointerKernArgsToGlobal/PromotePointerKernArgsToGlobal.cpp b/lib/Transforms/HC/PromotePointerKernArgsToGlobal/PromotePointerKernArgsToGlobal.cpp
+new file mode 100644
+index 00000000000..b2b55136651
+--- /dev/null
++++ b/lib/Transforms/HC/PromotePointerKernArgsToGlobal/PromotePointerKernArgsToGlobal.cpp
+@@ -0,0 +1,83 @@
++//===--  PromotePointerKernargsToGlobal.cpp - Promote Pointers To Global --===//
++//
++//                     The LLVM Compiler Infrastructure
++//
++// This file is distributed under the University of Illinois Open Source
++// License. See LICENSE.TXT for details.
++//
++//===----------------------------------------------------------------------===//
++//
++// This file declares and defines a pass which uses the double-cast trick (
++// generic-to-global and global-to-generic) for the formal arguments of pointer
++// type of a kernel (i.e. pfe trampoline or HIP __global__ function). This
++// transformation is valid due to the invariants established by both HC and HIP
++// in accordance with an address passed to a kernel can only reside in the
++// global address space. It is preferable to execute SelectAcceleratorCode
++// before, as this reduces the workload by pruning functions that are not
++// reachable by an accelerator. It is mandatory to run InferAddressSpaces after,
++// otherwise no benefit shall be obtained (the spurious casts do get removed).
++//===----------------------------------------------------------------------===//
++#include "llvm/ADT/SmallVector.h"
++#include "llvm/IR/Function.h"
++#include "llvm/IR/Instructions.h"
++#include "llvm/IR/IRBuilder.h"
++#include "llvm/Pass.h"
++
++#include <algorithm>
++
++using namespace llvm;
++using namespace std;
++
++namespace {
++class PromotePointerKernArgsToGlobal : public FunctionPass {
++    // TODO: query the address space robustly.
++    static constexpr unsigned int GenericAddrSpace{0u};
++    static constexpr unsigned int GlobalAddrSpace{1u};
++public:
++    static char ID;
++    PromotePointerKernArgsToGlobal() : FunctionPass{ID} {}
++
++    bool runOnFunction(Function &F) override
++    {
++        if (F.getCallingConv() != CallingConv::AMDGPU_KERNEL) return false;
++
++        SmallVector<Argument *, 8> PtrArgs;
++        for_each(F.arg_begin(), F.arg_end(), [&](Argument &Arg) {
++            if (!Arg.getType()->isPointerTy()) return;
++            if (Arg.getType()->getPointerAddressSpace() != GenericAddrSpace) {
++                return;
++            }
++
++            PtrArgs.push_back(&Arg);
++        });
++
++        if (PtrArgs.empty()) return false;
++
++        static IRBuilder<> Builder{F.getContext()};
++        Builder.SetInsertPoint(&F.getEntryBlock().front());
++
++        for_each(PtrArgs.begin(), PtrArgs.end(), [](Argument *PArg) {
++            Argument Tmp{PArg->getType(), PArg->getName()};
++            PArg->replaceAllUsesWith(&Tmp);
++
++            Value *FToG = Builder.CreateAddrSpaceCast(
++                PArg,
++                cast<PointerType>(PArg->getType())
++                    ->getElementType()->getPointerTo(GlobalAddrSpace));
++            Value *GToF = Builder.CreateAddrSpaceCast(FToG, PArg->getType());
++
++            Tmp.replaceAllUsesWith(GToF);
++        });
++
++        return true;
++    }
++};
++char PromotePointerKernArgsToGlobal::ID = 0;
++
++static RegisterPass<PromotePointerKernArgsToGlobal> X{
++    "promote-pointer-kernargs-to-global",
++    "Promotes kernel formals of pointer type to point to the global address "
++    "space, since the actuals can only represent a global address.",
++    false,
++    false};
++}
+\ No newline at end of file
+diff --git a/lib/Transforms/HC/SelectAcceleratorCode/CMakeLists.txt b/lib/Transforms/HC/SelectAcceleratorCode/CMakeLists.txt
+new file mode 100644
+index 00000000000..b5cd4fbde1d
+--- /dev/null
++++ b/lib/Transforms/HC/SelectAcceleratorCode/CMakeLists.txt
+@@ -0,0 +1,3 @@
++add_llvm_library(LLVMSelectAcceleratorCode MODULE SelectAcceleratorCode.cpp)
++
++add_dependencies(LLVMSelectAcceleratorCode intrinsics_gen)
+diff --git a/lib/Transforms/HC/SelectAcceleratorCode/SelectAcceleratorCode.cpp b/lib/Transforms/HC/SelectAcceleratorCode/SelectAcceleratorCode.cpp
+new file mode 100644
+index 00000000000..786cbebf383
+--- /dev/null
++++ b/lib/Transforms/HC/SelectAcceleratorCode/SelectAcceleratorCode.cpp
+@@ -0,0 +1,180 @@
++//===------ SelectAcceleratorCode.cpp - Select only accelerator code ------===//
++//
++//                     The LLVM Compiler Infrastructure
++//
++// This file is distributed under the University of Illinois Open Source
++// License. See LICENSE.TXT for details.
++//
++//===----------------------------------------------------------------------===//
++//
++// This file declares and defines a pass which selects only code which is
++// expected to be run by an accelerator i.e. referenced directly or indirectly
++// (through a fully inlineable call-chain) by a [[hc]] function. To support
++// subsequent processing, it also marks all identified functions as AlwaysInline
++// thus making it possible to use only the AlwaysInliner without resorting to a
++// more expensive full Inliner pass.
++//
++//===----------------------------------------------------------------------===//
++#include "llvm/ADT/SmallPtrSet.h"
++#include "llvm/Analysis/InlineCost.h"
++#include "llvm/IR/Attributes.h"
++#include "llvm/IR/Constants.h"
++#include "llvm/IR/DiagnosticInfo.h"
++#include "llvm/IR/Function.h"
++#include "llvm/IR/Instructions.h"
++#include "llvm/IR/Module.h"
++#include "llvm/Pass.h"
++#include "llvm/Support/raw_ostream.h"
++
++#include <algorithm>
++
++using namespace llvm;
++
++static cl::opt<bool> EnableFunctionCalls(
++     "sac-enable-function-calls", cl::init(false), cl::Hidden,
++     cl::desc("Enable function calls"));
++
++namespace {
++class SelectAcceleratorCode : public ModulePass {
++    SmallPtrSet<const Function*, 8u> HCCallees_;
++
++    void findAllHCCallees_(const Function &F, Module &M)
++    {
++        for (auto&& BB : F) {
++            for (auto&& I : BB) {
++                if (auto CI = dyn_cast<CallInst>(&I)) {
++                    auto V = CI->getCalledValue()->stripPointerCasts();
++                    if (auto Callee = dyn_cast<Function>(V)) {
++                        auto Tmp = HCCallees_.insert(Callee);
++                        if (Tmp.second) findAllHCCallees_(*Callee, M);
++                    }
++                }
++            }
++        }
++    }
++
++    template<typename T>
++    static
++    void erase_(T &X)
++    {
++        X.dropAllReferences();
++        X.replaceAllUsesWith(UndefValue::get(X.getType()));
++        X.eraseFromParent();
++    }
++
++    template<typename F, typename G, typename P>
++    bool eraseIf_(F First, G Last, P Predicate) const
++    {
++        bool erasedSome = false;
++
++        auto It = First();
++        while (It != Last()) {
++            It->removeDeadConstantUsers();
++            if (Predicate(*It)) {
++                erase_(*It);
++                erasedSome = true;
++                It = First();
++            }
++            else ++It;
++        }
++
++        return erasedSome;
++    }
++
++    bool eraseNonHCFunctionsBody_(Module &M) const
++    {
++        bool Modified = false;
++        for (auto&& F : M.functions()) {
++          if (HCCallees_.count(M.getFunction(F.getName())) == 0) {
++            F.deleteBody();
++            Modified = true;
++          }
++        };
++        return Modified;
++    }
++
++    bool eraseDeadGlobals_(Module &M) const
++    {
++        return eraseIf_(
++            [&]() { return M.global_begin(); },
++            [&]() { return M.global_end(); },
++            [](const Constant& K) { return !K.isConstantUsed(); });
++    }
++
++    bool eraseDeadAliases_(Module &M)
++    {
++        return eraseIf_(
++            [&]() { return M.alias_begin(); },
++            [&]() { return M.alias_end(); },
++            [](const Constant& K) { return !K.isConstantUsed(); });
++    }
++
++    static
++    bool alwaysInline_(Function &F)
++    {
++        if (!F.hasFnAttribute(Attribute::AlwaysInline)) {
++            if (F.hasFnAttribute(Attribute::NoInline)) {
++                F.removeFnAttr(Attribute::NoInline);
++            }
++            F.addFnAttr(Attribute::AlwaysInline);
++
++            return false;
++        }
++
++        return true;
++    }
++public:
++    static char ID;
++    SelectAcceleratorCode() : ModulePass{ID} {}
++
++    bool doInitialization(Module &M) override { return false; }
++
++    bool runOnModule(Module &M) override {
++        // This may be a candidate for an analysis pass that is
++        // invalidated appropriately by other passes.
++        for (auto&& F : M.functions()) {
++            if (F.getCallingConv() == CallingConv::AMDGPU_KERNEL) {
++                auto Tmp = HCCallees_.insert(M.getFunction(F.getName()));
++                if (Tmp.second) findAllHCCallees_(F, M);
++            }
++        }
++
++        bool Modified = eraseNonHCFunctionsBody_(M);
++
++        Modified = eraseDeadGlobals_(M) || Modified;
++
++        M.dropTriviallyDeadConstantArrays();
++
++        Modified = eraseDeadAliases_(M) || Modified;
++
++        if (!EnableFunctionCalls)
++            for (auto&& F : M.functions()) Modified = !alwaysInline_(F) || Modified;
++
++        return Modified;
++    }
++
++    bool doFinalization(Module& M) override
++    {
++        if(EnableFunctionCalls) return false;
++
++        const auto It = std::find_if(M.begin(), M.end(), [](Function& F) {
++            return !isInlineViable(F) && !F.isIntrinsic();
++        });
++
++        if (It != M.end()) {
++            M.getContext().diagnose(DiagnosticInfoUnsupported{
++                *It, "The function cannot be inlined."});
++        }
++
++        return false;
++    }
++};
++char SelectAcceleratorCode::ID = 0;
++
++static RegisterPass<SelectAcceleratorCode> X{
++    "select-accelerator-code",
++    "Selects only the code that is expected to run on an accelerator, "
++    "ensuring that it can be lowered by AMDGPU.",
++    false,
++    false};
++}
+diff --git a/lib/Transforms/Hello/CMakeLists.txt b/lib/Transforms/Hello/CMakeLists.txt
+index c4f10247c1a..35bda23fe6e 100644
+--- a/lib/Transforms/Hello/CMakeLists.txt
++++ b/lib/Transforms/Hello/CMakeLists.txt
+@@ -10,6 +10,7 @@ if(WIN32 OR CYGWIN)
+   set(LLVM_LINK_COMPONENTS Core Support)
+ endif()
+ 
++set(LLVM_ENABLE_PLUGINS ON)
+ add_llvm_library( LLVMHello MODULE BUILDTREE_ONLY
+   Hello.cpp
+ 
+diff --git a/lib/Transforms/InstCombine/InstCombineAndOrXor.cpp b/lib/Transforms/InstCombine/InstCombineAndOrXor.cpp
+index 2b9859b602f..bd2f7ba85f2 100644
+--- a/lib/Transforms/InstCombine/InstCombineAndOrXor.cpp
++++ b/lib/Transforms/InstCombine/InstCombineAndOrXor.cpp
+@@ -1697,7 +1697,6 @@ Instruction *InstCombiner::visitAnd(BinaryOperator &I) {
+     if (BinaryOperator *Op0I = dyn_cast<BinaryOperator>(Op0)) {
+       // ((C1 OP zext(X)) & C2) -> zext((C1-X) & C2) if C2 fits in the bitwidth
+       // of X and OP behaves well when given trunc(C1) and X.
+-      // TODO: Do this for vectors by using m_APInt isntead of m_ConstantInt.
+       switch (Op0I->getOpcode()) {
+       default:
+         break;
+@@ -1708,10 +1707,7 @@ Instruction *InstCombiner::visitAnd(BinaryOperator &I) {
+       case Instruction::Sub:
+         Value *X;
+         ConstantInt *C1;
+-        // TODO: The one use restrictions could be relaxed a little if the AND
+-        // is going to be removed.
+-        if (match(Op0I, m_OneUse(m_c_BinOp(m_OneUse(m_ZExt(m_Value(X))),
+-                                           m_ConstantInt(C1))))) {
++        if (match(Op0I, m_c_BinOp(m_ZExt(m_Value(X)), m_ConstantInt(C1)))) {
+           if (AndRHSMask.isIntN(X->getType()->getScalarSizeInBits())) {
+             auto *TruncC1 = ConstantExpr::getTrunc(C1, X->getType());
+             Value *BinOp;
+diff --git a/test/CodeGen/AMDGPU/call-to-kernel-undefined.ll b/test/CodeGen/AMDGPU/call-to-kernel-undefined.ll
+index 2d9183e6a99..6195ad45515 100644
+--- a/test/CodeGen/AMDGPU/call-to-kernel-undefined.ll
++++ b/test/CodeGen/AMDGPU/call-to-kernel-undefined.ll
+@@ -1,3 +1,4 @@
++; XFAIL: *
+ ; RUN: not llc -march=amdgcn -mcpu=tahiti -verify-machineinstrs -o /dev/null %s 2>&1 | FileCheck %s
+ 
+ ; FIXME: It should be invalid IR to have a call to a kernel, but this
+diff --git a/test/CodeGen/AMDGPU/call-to-kernel.ll b/test/CodeGen/AMDGPU/call-to-kernel.ll
+index 6b457cfd4bf..5e49c93040a 100644
+--- a/test/CodeGen/AMDGPU/call-to-kernel.ll
++++ b/test/CodeGen/AMDGPU/call-to-kernel.ll
+@@ -1,3 +1,4 @@
++; XFAIL: *
+ ; RUN: not llc -march=amdgcn -mcpu=tahiti -verify-machineinstrs -o /dev/null %s 2>&1 | FileCheck %s
+ 
+ ; FIXME: It should be invalid IR to have a call to a kernel, but this
+diff --git a/test/CodeGen/AMDGPU/lower-kernel-calls.ll b/test/CodeGen/AMDGPU/lower-kernel-calls.ll
+new file mode 100644
+index 00000000000..e7fe93b74e2
+--- /dev/null
++++ b/test/CodeGen/AMDGPU/lower-kernel-calls.ll
+@@ -0,0 +1,29 @@
++; RUN: opt -amdgpu-lower-kernel-calls -mtriple=amdgcn--amdhsa -mcpu=fiji -S < %s | FileCheck %s
++define amdgpu_kernel void @test_kernel_to_call(i32 addrspace(1)* %p) #0 {
++entry:
++  store i32 2, i32 addrspace(1)* %p, align 4
++  ret void
++}
++
++declare amdgpu_kernel void @test_kernel_to_call_decl(i32 addrspace(1)* %p) #0
++
++; Function Attrs: nounwind
++define amdgpu_kernel void @test_call_kernel(i32 addrspace(1)* %p) #0 {
++entry:
++  store i32 1, i32 addrspace(1)* %p, align 4
++  call amdgpu_kernel void @test_kernel_to_call(i32 addrspace(1)* %p)
++; CHECK: call void @__amdgpu_test_kernel_to_call_kernel_body(i32 addrspace(1)* %p)
++; CHECK-NOT: call amdgpu_kernel void @test_kernel_to_call(i32 addrspace(1)* %p)
++  call amdgpu_kernel void @test_kernel_to_call_decl(i32 addrspace(1)* %p)
++; CHECK: call void @__amdgpu_test_kernel_to_call_decl_kernel_body(i32 addrspace(1)* %p)
++; CHECK-NOT: call amdgpu_kernel void @test_kernel_to_call_decl(i32 addrspace(1)* %p)
++  ret void
++}
++
++; CHECK: define internal void @__amdgpu_test_kernel_to_call_kernel_body(i32 addrspace(1)* %p) #0
++; CHECK:   store i32 2, i32 addrspace(1)* %p, align 4
++; CHECK:   ret void
++
++; CHECK: declare void @__amdgpu_test_kernel_to_call_decl_kernel_body(i32 addrspace(1)*)
++
++attributes #0 = { nounwind }
+diff --git a/test/CodeGen/AMDGPU/opencl-1.2-adapter.ll b/test/CodeGen/AMDGPU/opencl-1.2-adapter.ll
+new file mode 100644
+index 00000000000..64ca0bca3dc
+--- /dev/null
++++ b/test/CodeGen/AMDGPU/opencl-1.2-adapter.ll
+@@ -0,0 +1,55 @@
++; RUN: opt -mtriple=amdgcn--amdhsa -amdgpu-opencl-12-adapter -mcpu=fiji -S < %s | FileCheck %s
++
++; CHECK-NOT: define linkonce_odr <2 x i32> @_Z6vload2mPKi
++
++; CHECK-LABEL: define linkonce_odr <2 x i32> @_Z6vload2mPU3AS1Ki(i64, i32 addrspace(1)*)
++; CHECK: %[[r2:.*]] = addrspacecast i32 addrspace(1)* %1 to i32*
++; CHECK: %[[r3:.*]] = call <2 x i32> @_Z6vload2mPKi(i64 %0, i32* %[[r2]])
++; CHECK: ret <2 x i32> %[[r3]]
++
++; CHECK-NOT: define linkonce_odr <2 x i32> @_Z6vload2mPU3AS4Ki
++
++; CHECK-LABEL: define linkonce_odr <2 x i32> @_Z6vload2mPU3AS3Ki(i64, i32 addrspace(3)*)
++; CHECK: %[[r2:.*]] = addrspacecast i32 addrspace(3)* %1 to i32*
++; CHECK: %[[r3:.*]] = call <2 x i32> @_Z6vload2mPKi(i64 %0, i32* %[[r2]])
++; CHECK: ret <2 x i32> %[[r3]]
++
++; CHECK-LABEL: define linkonce_odr <2 x i32> @_Z6vload2mPU3AS5Ki(i64, i32 addrspace(5)*)
++; CHECK: %[[r2:.*]] = addrspacecast i32 addrspace(5)* %1 to i32*
++; CHECK: %[[r3:.*]] = call <2 x i32> @_Z6vload2mPKi(i64 %0, i32* %[[r2]])
++; CHECK: ret <2 x i32> %[[r3]]
++
++; CHECK: declare void @_Z10ndrange_2DPKm(%struct.ndrange_t addrspace(5)*, i64*)
++
++; CHECK: declare void @_Z28capture_event_profiling_info12ocl_clkeventiPU3AS1v
++
++%struct.ndrange_t = type { i32, [3 x i64], [3 x i64], [3 x i64] }
++%opencl.clk_event_t = type opaque
++
++define amdgpu_kernel void @test_fn() {
++entry:
++
++call <2 x i32> @_Z6vload2mPKi(i64 0, i32* null)
++call <2 x i32> @_Z6vload2mPU3AS1Ki(i64 0, i32 addrspace(1)* null)
++call <2 x i32> @_Z6vload2mPU3AS4Ki(i64 0, i32 addrspace(4)* null)
++call <2 x i32> @_Z6vload2mPU3AS3Ki(i64 0, i32 addrspace(3)* null)
++call <2 x i32> @_Z6vload2mPU3AS5Ki(i64 0, i32 addrspace(5)* null)
++
++call void @_Z10ndrange_2DPKm(%struct.ndrange_t addrspace(5)* null, i64* null);
++
++call void @_Z28capture_event_profiling_info12ocl_clkeventiPU3AS1v(%opencl.clk_event_t addrspace(1)* null, i32 0, i8 addrspace(1)* null)
++
++ret void
++}
++
++declare <2 x i32> @_Z6vload2mPKi(i64, i32*)
++declare <2 x i32> @_Z6vload2mPU3AS1Ki(i64, i32 addrspace(1)*)
++declare <2 x i32> @_Z6vload2mPU3AS4Ki(i64, i32 addrspace(4)*)
++declare <2 x i32> @_Z6vload2mPU3AS3Ki(i64, i32 addrspace(3)*)
++declare <2 x i32> @_Z6vload2mPU3AS5Ki(i64, i32 addrspace(5)*)
++
++declare void @_Z10ndrange_2DPKm(%struct.ndrange_t addrspace(5)*, i64*)
++declare void @_Z28capture_event_profiling_info12ocl_clkeventiPU3AS1v(%opencl.clk_event_t addrspace(1)*, i32, i8 addrspace(1)*)
++
++!opencl.ocl.version = !{!0}
++!0 = !{i32 1, i32 2}
+diff --git a/test/CodeGen/AMDGPU/opencl-printf.ll b/test/CodeGen/AMDGPU/opencl-printf.ll
+new file mode 100644
+index 00000000000..399f7c402bb
+--- /dev/null
++++ b/test/CodeGen/AMDGPU/opencl-printf.ll
+@@ -0,0 +1,66 @@
++; RUN: opt -mtriple=r600-- -amdgpu-printf-runtime-binding -mcpu=r600 -S < %s | FileCheck --check-prefix=FUNC --check-prefix=R600 %s
++; RUN: opt -mtriple=amdgcn-- -amdgpu-printf-runtime-binding -mcpu=fiji -S < %s | FileCheck --check-prefix=FUNC --check-prefix=GCN %s
++; RUN: opt -mtriple=amdgcn--amdhsa -amdgpu-printf-runtime-binding -mcpu=fiji -S < %s | FileCheck --check-prefix=FUNC --check-prefix=GCN %s
++
++; FUNC-LABEL: @test_kernel(
++; R600-LABEL: entry
++; R600-NOT: call i8 addrspace(1)* @__printf_alloc
++; R600: call i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([6 x i8], [6 x i8] addrspace(2)* @.str, i32 0, i32 0), i8* %arraydecay, i32 %3)
++; GCN-LABEL: entry
++; GCN: call i8 addrspace(1)* @__printf_alloc
++; GCN-LABEL: entry.split
++; GCN: icmp ne i8 addrspace(1)* %printf_alloc_fn, null
++; GCN: %PrintBuffID = getelementptr i8, i8 addrspace(1)* %printf_alloc_fn, i32 0
++; GCN: %PrintBuffIdCast = bitcast i8 addrspace(1)* %PrintBuffID to i32 addrspace(1)*
++; GCN: store i32 1, i32 addrspace(1)* %PrintBuffIdCast
++; GCN: %PrintBuffGep = getelementptr i8, i8 addrspace(1)* %printf_alloc_fn, i32 4
++; GCN: %PrintArgPtr = ptrtoint i8* %arraydecay to i64
++; GCN: %PrintBuffPtrCast = bitcast i8 addrspace(1)* %PrintBuffGep to i64 addrspace(1)*
++; GCN: store i64 %PrintArgPtr, i64 addrspace(1)* %PrintBuffPtrCast
++; GCN: %PrintBuffNextPtr = getelementptr i8, i8 addrspace(1)* %PrintBuffGep, i32 8
++; GCN: %PrintBuffPtrCast1 = bitcast i8 addrspace(1)* %PrintBuffNextPtr to i32 addrspace(1)*
++; GCN: store i32 %3, i32 addrspace(1)* %PrintBuffPtrCast1
++
++@test_kernel.str = private unnamed_addr constant [9 x i8] c"globalid\00", align 1
++@.str = private unnamed_addr addrspace(2) constant [6 x i8] c"%s:%d\00", align 1
++
++define amdgpu_kernel void @test_kernel(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
++entry:
++  %in.addr = alloca i32 addrspace(1)*, align 4
++  %out.addr = alloca i32 addrspace(1)*, align 4
++  %n = alloca i32, align 4
++  %str = alloca [9 x i8], align 1
++  store i32 addrspace(1)* %in, i32 addrspace(1)** %in.addr, align 4
++  store i32 addrspace(1)* %out, i32 addrspace(1)** %out.addr, align 4
++  %0 = bitcast i32* %n to i8*
++  %call = call i64 @_Z13get_global_idj(i32 0) #5
++  %conv = trunc i64 %call to i32
++  store i32 %conv, i32* %n, align 4
++  %1 = bitcast [9 x i8]* %str to i8*
++  %2 = bitcast [9 x i8]* %str to i8*
++  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %2, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @test_kernel.str, i32 0, i32 0), i64 9, i32 1, i1 false)
++  %arraydecay = getelementptr inbounds [9 x i8], [9 x i8]* %str, i32 0, i32 0
++  %3 = load i32, i32* %n, align 4
++  %call1 = call i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([6 x i8], [6 x i8] addrspace(2)* @.str, i32 0, i32 0), i8* %arraydecay, i32 %3)
++  %4 = load i32, i32* %n, align 4
++  %idxprom = sext i32 %4 to i64
++  %5 = load i32 addrspace(1)*, i32 addrspace(1)** %in.addr, align 4
++  %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %5, i64 %idxprom
++  %6 = load i32, i32 addrspace(1)* %arrayidx, align 4
++  %7 = load i32, i32* %n, align 4
++  %idxprom2 = sext i32 %7 to i64
++  %8 = load i32 addrspace(1)*, i32 addrspace(1)** %out.addr, align 4
++  %arrayidx3 = getelementptr inbounds i32, i32 addrspace(1)* %8, i64 %idxprom2
++  store i32 %6, i32 addrspace(1)* %arrayidx3, align 4
++  %9 = bitcast [9 x i8]* %str to i8*
++  %10 = bitcast i32* %n to i8*
++  ret void
++}
++
++; Function Attrs: nounwind readnone
++declare i64 @_Z13get_global_idj(i32) #2
++
++; Function Attrs: argmemonly nounwind
++declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i32, i1) #1
++
++declare i32 @printf(i8 addrspace(2)*, ...) #3
+diff --git a/test/CodeGen/AMDGPU/promote-pointer-kernargs.ll b/test/CodeGen/AMDGPU/promote-pointer-kernargs.ll
+new file mode 100644
+index 00000000000..df71d7e592b
+--- /dev/null
++++ b/test/CodeGen/AMDGPU/promote-pointer-kernargs.ll
+@@ -0,0 +1,13 @@
++; RUN: opt -O1 -S -o - -mtriple=amdgcn %s | FileCheck %s
++
++; CHECK-LABEL: promote_pointer_kernargs
++; CHECK-NEXT: addrspacecast i32* %{{.*}} to i32 addrspace(1)*
++; CHECK-NEXT: addrspacecast i32* %{{.*}} to i32 addrspace(1)*
++; CHECK-NEXT: load i32, i32 addrspace(1)*
++; CHECK-NEXT: store i32 %{{.*}}, i32 addrspace(1)*
++; CHECK-NEXT: ret void
++define amdgpu_kernel void @promote_pointer_kernargs(i32* %out, i32* %in) {
++  %v = load i32, i32* %in
++  store i32 %v, i32* %out
++  ret void
++}
+diff --git a/test/Transforms/InstCombine/pr41164.ll b/test/Transforms/InstCombine/pr41164.ll
+index 372debab8ec..1df43d6a4e8 100644
+--- a/test/Transforms/InstCombine/pr41164.ll
++++ b/test/Transforms/InstCombine/pr41164.ll
+@@ -11,13 +11,14 @@ define i64 @_Z8wyhash64v() {
+ ; CHECK-NEXT:    [[TMP3:%.*]] = zext i64 [[TMP2]] to i128
+ ; CHECK-NEXT:    [[TMP4:%.*]] = mul nuw i128 [[TMP3]], 11795372955171141389
+ ; CHECK-NEXT:    [[TMP5:%.*]] = lshr i128 [[TMP4]], 64
+-; CHECK-NEXT:    [[DOTMASKED:%.*]] = and i128 [[TMP4]], 18446744073709551615
+-; CHECK-NEXT:    [[TMP6:%.*]] = xor i128 [[TMP5]], [[DOTMASKED]]
+-; CHECK-NEXT:    [[TMP7:%.*]] = mul nuw nsw i128 [[TMP6]], 1946526487930394057
+-; CHECK-NEXT:    [[TMP8:%.*]] = lshr i128 [[TMP7]], 64
+-; CHECK-NEXT:    [[TMP9:%.*]] = xor i128 [[TMP8]], [[TMP7]]
+-; CHECK-NEXT:    [[TMP10:%.*]] = trunc i128 [[TMP9]] to i64
+-; CHECK-NEXT:    ret i64 [[TMP10]]
++; CHECK-NEXT:    [[TMP6:%.*]] = mul i64 [[TMP2]], -6651371118538410227
++; CHECK-NEXT:    [[DOTMASKED:%.*]] = zext i64 [[TMP6]] to i128
++; CHECK-NEXT:    [[TMP7:%.*]] = xor i128 [[TMP5]], [[DOTMASKED]]
++; CHECK-NEXT:    [[TMP8:%.*]] = mul nuw nsw i128 [[TMP7]], 1946526487930394057
++; CHECK-NEXT:    [[TMP9:%.*]] = lshr i128 [[TMP8]], 64
++; CHECK-NEXT:    [[TMP10:%.*]] = xor i128 [[TMP9]], [[TMP8]]
++; CHECK-NEXT:    [[TMP11:%.*]] = trunc i128 [[TMP10]] to i64
++; CHECK-NEXT:    ret i64 [[TMP11]]
+ ;
+   %1 = load i64, i64* @wyhash64_x, align 8
+   %2 = add i64 %1, 6971258582664805397
+diff --git a/test/Transforms/InstCombine/rotate.ll b/test/Transforms/InstCombine/rotate.ll
+index a11fcd97424..7ace55d1924 100644
+--- a/test/Transforms/InstCombine/rotate.ll
++++ b/test/Transforms/InstCombine/rotate.ll
+@@ -710,8 +710,14 @@ define i32 @rotl_constant_expr(i32 %shamt) {
+ 
+ define i32 @rotateleft32_doubleand1(i32 %v, i8 %r) {
+ ; CHECK-LABEL: @rotateleft32_doubleand1(
+-; CHECK-NEXT:    [[Z:%.*]] = zext i8 [[R:%.*]] to i32
+-; CHECK-NEXT:    [[OR:%.*]] = call i32 @llvm.fshl.i32(i32 [[V:%.*]], i32 [[V]], i32 [[Z]])
++; CHECK-NEXT:    [[M:%.*]] = and i8 [[R:%.*]], 31
++; CHECK-NEXT:    [[Z:%.*]] = zext i8 [[M]] to i32
++; CHECK-NEXT:    [[TMP1:%.*]] = sub i8 0, [[R]]
++; CHECK-NEXT:    [[TMP2:%.*]] = and i8 [[TMP1]], 31
++; CHECK-NEXT:    [[AND2:%.*]] = zext i8 [[TMP2]] to i32
++; CHECK-NEXT:    [[SHL:%.*]] = shl i32 [[V:%.*]], [[Z]]
++; CHECK-NEXT:    [[SHR:%.*]] = lshr i32 [[V]], [[AND2]]
++; CHECK-NEXT:    [[OR:%.*]] = or i32 [[SHR]], [[SHL]]
+ ; CHECK-NEXT:    ret i32 [[OR]]
+ ;
+   %m = and i8 %r, 31
+@@ -726,8 +732,14 @@ define i32 @rotateleft32_doubleand1(i32 %v, i8 %r) {
+ 
+ define i32 @rotateright32_doubleand1(i32 %v, i16 %r) {
+ ; CHECK-LABEL: @rotateright32_doubleand1(
+-; CHECK-NEXT:    [[Z:%.*]] = zext i16 [[R:%.*]] to i32
+-; CHECK-NEXT:    [[OR:%.*]] = call i32 @llvm.fshr.i32(i32 [[V:%.*]], i32 [[V]], i32 [[Z]])
++; CHECK-NEXT:    [[M:%.*]] = and i16 [[R:%.*]], 31
++; CHECK-NEXT:    [[Z:%.*]] = zext i16 [[M]] to i32
++; CHECK-NEXT:    [[TMP1:%.*]] = sub i16 0, [[R]]
++; CHECK-NEXT:    [[TMP2:%.*]] = and i16 [[TMP1]], 31
++; CHECK-NEXT:    [[AND2:%.*]] = zext i16 [[TMP2]] to i32
++; CHECK-NEXT:    [[SHL:%.*]] = shl i32 [[V:%.*]], [[AND2]]
++; CHECK-NEXT:    [[SHR:%.*]] = lshr i32 [[V]], [[Z]]
++; CHECK-NEXT:    [[OR:%.*]] = or i32 [[SHR]], [[SHL]]
+ ; CHECK-NEXT:    ret i32 [[OR]]
+ ;
+   %m = and i16 %r, 31
+diff --git a/test/Transforms/LoopVectorize/X86/small-size.ll b/test/Transforms/LoopVectorize/X86/small-size.ll
+index e162a3a6b2b..cbc76b14953 100644
+--- a/test/Transforms/LoopVectorize/X86/small-size.ll
++++ b/test/Transforms/LoopVectorize/X86/small-size.ll
+@@ -79,7 +79,9 @@ define void @example2(i32 %n, i32 %x) optsize {
+ ; CHECK-NEXT:    br i1 false, label [[SCALAR_PH:%.*]], label [[VECTOR_PH:%.*]]
+ ; CHECK:       vector.ph:
+ ; CHECK-NEXT:    [[N_RND_UP:%.*]] = add nuw nsw i64 [[TMP3]], 4
+-; CHECK-NEXT:    [[N_VEC:%.*]] = and i64 [[N_RND_UP]], 8589934588
++; CHECK-NEXT:    [[TMP4:%.*]] = and i32 [[TMP2]], 3
++; CHECK-NEXT:    [[N_MOD_VF:%.*]] = zext i32 [[TMP4]] to i64
++; CHECK-NEXT:    [[N_VEC:%.*]] = sub nuw nsw i64 [[N_RND_UP]], [[N_MOD_VF]]
+ ; CHECK-NEXT:    [[BROADCAST_SPLATINSERT1:%.*]] = insertelement <4 x i64> undef, i64 [[TMP3]], i32 0
+ ; CHECK-NEXT:    [[BROADCAST_SPLAT2:%.*]] = shufflevector <4 x i64> [[BROADCAST_SPLATINSERT1]], <4 x i64> undef, <4 x i32> zeroinitializer
+ ; CHECK-NEXT:    br label [[VECTOR_BODY:%.*]]
+diff --git a/test/Transforms/LoopVectorize/if-conversion-nest.ll b/test/Transforms/LoopVectorize/if-conversion-nest.ll
+index f254bc81a7c..311d92b94af 100644
+--- a/test/Transforms/LoopVectorize/if-conversion-nest.ll
++++ b/test/Transforms/LoopVectorize/if-conversion-nest.ll
+@@ -25,7 +25,9 @@ define i32 @foo(i32* nocapture %A, i32* nocapture %B, i32 %n) {
+ ; CHECK-NEXT:    [[MEMCHECK_CONFLICT:%.*]] = and i1 [[BOUND0]], [[BOUND1]]
+ ; CHECK-NEXT:    br i1 [[MEMCHECK_CONFLICT]], label [[SCALAR_PH]], label [[VECTOR_PH:%.*]]
+ ; CHECK:       vector.ph:
+-; CHECK-NEXT:    [[N_VEC:%.*]] = and i64 [[TMP2]], 8589934588
++; CHECK-NEXT:    [[TMP6:%.*]] = and i32 [[N]], 3
++; CHECK-NEXT:    [[N_MOD_VF:%.*]] = zext i32 [[TMP6]] to i64
++; CHECK-NEXT:    [[N_VEC:%.*]] = sub nsw i64 [[TMP2]], [[N_MOD_VF]]
+ ; CHECK-NEXT:    br label [[VECTOR_BODY:%.*]]
+ ; CHECK:       vector.body:
+ ; CHECK-NEXT:    [[INDEX:%.*]] = phi i64 [ 0, [[VECTOR_PH]] ], [ [[INDEX_NEXT:%.*]], [[VECTOR_BODY]] ]
+@@ -50,7 +52,7 @@ define i32 @foo(i32* nocapture %A, i32* nocapture %B, i32 %n) {
+ ; CHECK-NEXT:    [[TMP19:%.*]] = icmp eq i64 [[INDEX_NEXT]], [[N_VEC]]
+ ; CHECK-NEXT:    br i1 [[TMP19]], label [[MIDDLE_BLOCK:%.*]], label [[VECTOR_BODY]], !llvm.loop !5
+ ; CHECK:       middle.block:
+-; CHECK-NEXT:    [[CMP_N:%.*]] = icmp eq i64 [[TMP2]], [[N_VEC]]
++; CHECK-NEXT:    [[CMP_N:%.*]] = icmp eq i32 [[TMP6]], 0
+ ; CHECK-NEXT:    br i1 [[CMP_N]], label [[FOR_END_LOOPEXIT:%.*]], label [[SCALAR_PH]]
+ ; CHECK:       scalar.ph:
+ ; CHECK-NEXT:    [[BC_RESUME_VAL:%.*]] = phi i64 [ [[N_VEC]], [[MIDDLE_BLOCK]] ], [ 0, [[FOR_BODY_PREHEADER]] ], [ 0, [[VECTOR_MEMCHECK]] ]
+diff --git a/test/Transforms/LoopVectorize/runtime-check.ll b/test/Transforms/LoopVectorize/runtime-check.ll
+index 2a665e56ab0..332e3efb65d 100644
+--- a/test/Transforms/LoopVectorize/runtime-check.ll
++++ b/test/Transforms/LoopVectorize/runtime-check.ll
+@@ -31,7 +31,9 @@ define i32 @foo(float* nocapture %a, float* nocapture %b, i32 %n) nounwind uwtab
+ ; CHECK-NEXT:    [[MEMCHECK_CONFLICT:%.*]] = and i1 [[BOUND0]], [[BOUND1]], !dbg !9
+ ; CHECK-NEXT:    br i1 [[MEMCHECK_CONFLICT]], label [[SCALAR_PH]], label [[VECTOR_PH:%.*]], !dbg !9
+ ; CHECK:       vector.ph:
+-; CHECK-NEXT:    [[N_VEC:%.*]] = and i64 [[TMP2]], 8589934588, !dbg !9
++; CHECK-NEXT:    [[TMP6:%.*]] = and i32 [[N]], 3, !dbg !9
++; CHECK-NEXT:    [[N_MOD_VF:%.*]] = zext i32 [[TMP6]] to i64, !dbg !9
++; CHECK-NEXT:    [[N_VEC:%.*]] = sub nsw i64 [[TMP2]], [[N_MOD_VF]], !dbg !9
+ ; CHECK-NEXT:    br label [[VECTOR_BODY:%.*]], !dbg !9
+ ; CHECK:       vector.body:
+ ; CHECK-NEXT:    [[INDEX:%.*]] = phi i64 [ 0, [[VECTOR_PH]] ], [ [[INDEX_NEXT:%.*]], [[VECTOR_BODY]] ], !dbg !9
+@@ -46,7 +48,7 @@ define i32 @foo(float* nocapture %a, float* nocapture %b, i32 %n) nounwind uwtab
+ ; CHECK-NEXT:    [[TMP12:%.*]] = icmp eq i64 [[INDEX_NEXT]], [[N_VEC]], !dbg !9
+ ; CHECK-NEXT:    br i1 [[TMP12]], label [[MIDDLE_BLOCK:%.*]], label [[VECTOR_BODY]], !dbg !9, !llvm.loop !15
+ ; CHECK:       middle.block:
+-; CHECK-NEXT:    [[CMP_N:%.*]] = icmp eq i64 [[TMP2]], [[N_VEC]]
++; CHECK-NEXT:    [[CMP_N:%.*]] = icmp eq i32 [[TMP6]], 0
+ ; CHECK-NEXT:    br i1 [[CMP_N]], label [[FOR_END_LOOPEXIT:%.*]], label [[SCALAR_PH]], !dbg !9
+ ; CHECK:       scalar.ph:
+ ; CHECK-NEXT:    [[BC_RESUME_VAL:%.*]] = phi i64 [ [[N_VEC]], [[MIDDLE_BLOCK]] ], [ 0, [[FOR_BODY_PREHEADER]] ], [ 0, [[VECTOR_MEMCHECK]] ]

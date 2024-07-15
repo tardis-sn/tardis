@@ -1,0 +1,71 @@
+{
+  "paths": [
+    {
+      "_path": "include/snappy-c.h",
+      "path_type": "hardlink",
+      "sha256": "205e85257ab386f547b024bfec7ab57fcdac95c34874c787c72b50a3d95debf4",
+      "size_in_bytes": 5414
+    },
+    {
+      "_path": "include/snappy-sinksource.h",
+      "path_type": "hardlink",
+      "sha256": "ba6308f8d64d670fbb068284096e2f4685e3919ed213a6de1a185aa3680203bb",
+      "size_in_bytes": 7265
+    },
+    {
+      "_path": "include/snappy-stubs-public.h",
+      "path_type": "hardlink",
+      "sha256": "c5763d26d8fbbd64a013999f577d791c9ce645bf98f356267f843bc184b94280",
+      "size_in_bytes": 2579
+    },
+    {
+      "_path": "include/snappy.h",
+      "path_type": "hardlink",
+      "sha256": "379a95e78f6a5c84d4fea91c54935119fd6849dc4ef703c38758b86ccb5e8efe",
+      "size_in_bytes": 11924
+    },
+    {
+      "_path": "lib/cmake/Snappy/SnappyConfig.cmake",
+      "path_type": "hardlink",
+      "sha256": "f4655ae726d3968ca62b88ded756c554256bd423eb580cd698d18b451bc6a454",
+      "size_in_bytes": 2524
+    },
+    {
+      "_path": "lib/cmake/Snappy/SnappyConfigVersion.cmake",
+      "path_type": "hardlink",
+      "sha256": "59dda01bdd6a1b8a62941c79508f6cd186bbfa23cd82c2b31fa2b8a39d45970d",
+      "size_in_bytes": 2762
+    },
+    {
+      "_path": "lib/cmake/Snappy/SnappyTargets-release.cmake",
+      "path_type": "hardlink",
+      "sha256": "41574b995f58ba4961c7fa6bd26453efc3f87293a67b6ab05fd01bc1c96fa0a9",
+      "size_in_bytes": 850
+    },
+    {
+      "_path": "lib/cmake/Snappy/SnappyTargets.cmake",
+      "path_type": "hardlink",
+      "sha256": "4d4b7c3a6a5dd76e2bd9f110187848edb1228ba2449def6c79f2769a591d9f83",
+      "size_in_bytes": 4116
+    },
+    {
+      "_path": "lib/libsnappy.so",
+      "path_type": "softlink",
+      "sha256": "c59546a42decec53b64b72d1371ee98517f378c62567a644785caa4470a16f02",
+      "size_in_bytes": 64336
+    },
+    {
+      "_path": "lib/libsnappy.so.1",
+      "path_type": "softlink",
+      "sha256": "c59546a42decec53b64b72d1371ee98517f378c62567a644785caa4470a16f02",
+      "size_in_bytes": 64336
+    },
+    {
+      "_path": "lib/libsnappy.so.1.2.0",
+      "path_type": "hardlink",
+      "sha256": "c59546a42decec53b64b72d1371ee98517f378c62567a644785caa4470a16f02",
+      "size_in_bytes": 64336
+    }
+  ],
+  "paths_version": 1
+}

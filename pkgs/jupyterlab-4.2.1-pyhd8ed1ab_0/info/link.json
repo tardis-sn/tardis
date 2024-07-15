@@ -1,0 +1,12 @@
+{
+  "noarch": {
+    "entry_points": [
+      "jupyter-lab = jupyterlab.labapp:main",
+      "jupyter-labextension = jupyterlab.labextensions:main",
+      "jupyter-labhub = jupyterlab.labhubapp:main",
+      "jlpm = jupyterlab.jlpmapp:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

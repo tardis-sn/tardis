@@ -1,0 +1,43 @@
+{
+  "paths": [
+    {
+      "_path": "include/blosc-export.h",
+      "path_type": "hardlink",
+      "sha256": "ca20d39d276209d485b900675fabbb14c78642f0ddef93a0141c8a5802eadc68",
+      "size_in_bytes": 1632
+    },
+    {
+      "_path": "include/blosc.h",
+      "path_type": "hardlink",
+      "sha256": "1b7efa0efe51294ba8eb5ff4bf6d612d1c837a8e1df977fa44f6fe61802c8e24",
+      "size_in_bytes": 19480
+    },
+    {
+      "_path": "lib/libblosc.so",
+      "path_type": "softlink",
+      "sha256": "825b587359fa6ca69746d74ad659595870e819453741c1951cee0fb656217028",
+      "size_in_bytes": 83608
+    },
+    {
+      "_path": "lib/libblosc.so.1",
+      "path_type": "softlink",
+      "sha256": "825b587359fa6ca69746d74ad659595870e819453741c1951cee0fb656217028",
+      "size_in_bytes": 83608
+    },
+    {
+      "_path": "lib/libblosc.so.1.21.6",
+      "path_type": "hardlink",
+      "sha256": "825b587359fa6ca69746d74ad659595870e819453741c1951cee0fb656217028",
+      "size_in_bytes": 83608
+    },
+    {
+      "_path": "lib/pkgconfig/blosc.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/blosc_1719265855538/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place",
+      "sha256": "c436a83b5560e9542841934dd596832677a28b2ab57b63ef9ca0d35ed1b1ac20",
+      "size_in_bytes": 563
+    }
+  ],
+  "paths_version": 1
+}

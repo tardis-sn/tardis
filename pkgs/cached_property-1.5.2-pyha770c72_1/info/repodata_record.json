@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyha770c72_1",
+    "build_number": 1,
+    "build_string": "pyha770c72_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6"
+    ],
+    "fn": "cached_property-1.5.2-pyha770c72_1.tar.bz2",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "576d629e47797577ab0f1b351297ef4a",
+    "name": "cached_property",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "6dbf7a5070cc43d90a1e4c2ec0c541c69d8e30a0e25f50ce9f6e4a432e42c5d7",
+    "size": 11065,
+    "subdir": "noarch",
+    "timestamp": 1615209567874,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/cached_property-1.5.2-pyha770c72_1.tar.bz2",
+    "version": "1.5.2"
+}

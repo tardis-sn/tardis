@@ -1,0 +1,8 @@
+{
+  "cross_target_platform": "linux-64",
+  "cross_target_stdlib_version": "2.12",
+  "cross_target_stdlib": "sysroot",
+  "channel_targets": "conda-forge main",
+  "target_platform": "linux-64",
+  "triplet": "x86_64-conda-linux-gnu"
+}

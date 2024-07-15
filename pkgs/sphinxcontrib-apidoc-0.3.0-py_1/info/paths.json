@@ -1,0 +1,77 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/sphinxcontrib/apidoc/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "d91413f8a9dda4702f7505d58b278d1d3e5a4b94315400026cc8aa6be13e0915",
+      "size_in_bytes": 1247
+    },
+    {
+      "_path": "site-packages/sphinxcontrib/apidoc/ext.py",
+      "path_type": "hardlink",
+      "sha256": "72c77fd1b42378f7134699b732c0cbc3432a27c3081b2765dc8ade73395dd11f",
+      "size_in_bytes": 2658
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0-py2.7-nspkg.pth",
+      "path_type": "hardlink",
+      "sha256": "6ef09bbd30e129409336dac26eee8755ef13b180b81b8fa14645de1dd109eade",
+      "size_in_bytes": 574
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0.dist-info/AUTHORS",
+      "path_type": "hardlink",
+      "sha256": "8706a13633fea91f1aea235c49d455559fd5c1de58ddd3c06447746cabc5c32d",
+      "size_in_bytes": 147
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+      "size_in_bytes": 4
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "2b880125ef4adea0d6fb3af4ca4a17d94fa513b48df80fcf3f02835c40739446",
+      "size_in_bytes": 1320
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "ded7be86b4f20ffd9191f5aa64291ceb605b6d8f0f2f4f6bc8ec3fe1b7874301",
+      "size_in_bytes": 12182
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "75bb6f109c8c14314863f73e2e12ce16a46c54bf479223c169f468f12b249b03",
+      "size_in_bytes": 1219
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "1d7faff7e9e8524c94a31c99d4f312b92edab94c43011e1505da182ea0f4c70b",
+      "size_in_bytes": 110
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0.dist-info/namespace_packages.txt",
+      "path_type": "hardlink",
+      "sha256": "549ad5dffbda88a415815a51d08d6279cc683b476bcc6bbe3348f8d0f54fd904",
+      "size_in_bytes": 14
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0.dist-info/pbr.json",
+      "path_type": "hardlink",
+      "sha256": "dc9419aec1e8a7e9d342b14c6a7157a221dca99a22bc36a17dd2b798c4d78fa1",
+      "size_in_bytes": 46
+    },
+    {
+      "_path": "site-packages/sphinxcontrib_apidoc-0.3.0.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "549ad5dffbda88a415815a51d08d6279cc683b476bcc6bbe3348f8d0f54fd904",
+      "size_in_bytes": 14
+    }
+  ],
+  "paths_version": 1
+}

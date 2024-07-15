@@ -1,0 +1,4 @@
+[Thumbnailer Entry]
+TryExec=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/bin/gdk-pixbuf-thumbnailer
+Exec=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/bin/gdk-pixbuf-thumbnailer -s %s %u %o
+MimeType=image/png;image/jpeg;image/gif;image/tiff;

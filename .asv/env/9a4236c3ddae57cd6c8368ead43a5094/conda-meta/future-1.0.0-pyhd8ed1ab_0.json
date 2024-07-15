@@ -1,0 +1,2787 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "extracted_package_dir": "pkgs/future-1.0.0-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/future-1.0.0.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/future-1.0.0.dist-info/LICENSE.txt",
+        "lib/python3.12/site-packages/future-1.0.0.dist-info/METADATA",
+        "lib/python3.12/site-packages/future-1.0.0.dist-info/RECORD",
+        "lib/python3.12/site-packages/future-1.0.0.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/future-1.0.0.dist-info/WHEEL",
+        "lib/python3.12/site-packages/future-1.0.0.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/future-1.0.0.dist-info/entry_points.txt",
+        "lib/python3.12/site-packages/future-1.0.0.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/future/__init__.py",
+        "lib/python3.12/site-packages/future/backports/__init__.py",
+        "lib/python3.12/site-packages/future/backports/_markupbase.py",
+        "lib/python3.12/site-packages/future/backports/datetime.py",
+        "lib/python3.12/site-packages/future/backports/email/__init__.py",
+        "lib/python3.12/site-packages/future/backports/email/_encoded_words.py",
+        "lib/python3.12/site-packages/future/backports/email/_header_value_parser.py",
+        "lib/python3.12/site-packages/future/backports/email/_parseaddr.py",
+        "lib/python3.12/site-packages/future/backports/email/_policybase.py",
+        "lib/python3.12/site-packages/future/backports/email/base64mime.py",
+        "lib/python3.12/site-packages/future/backports/email/charset.py",
+        "lib/python3.12/site-packages/future/backports/email/encoders.py",
+        "lib/python3.12/site-packages/future/backports/email/errors.py",
+        "lib/python3.12/site-packages/future/backports/email/feedparser.py",
+        "lib/python3.12/site-packages/future/backports/email/generator.py",
+        "lib/python3.12/site-packages/future/backports/email/header.py",
+        "lib/python3.12/site-packages/future/backports/email/headerregistry.py",
+        "lib/python3.12/site-packages/future/backports/email/iterators.py",
+        "lib/python3.12/site-packages/future/backports/email/message.py",
+        "lib/python3.12/site-packages/future/backports/email/mime/__init__.py",
+        "lib/python3.12/site-packages/future/backports/email/mime/application.py",
+        "lib/python3.12/site-packages/future/backports/email/mime/audio.py",
+        "lib/python3.12/site-packages/future/backports/email/mime/base.py",
+        "lib/python3.12/site-packages/future/backports/email/mime/image.py",
+        "lib/python3.12/site-packages/future/backports/email/mime/message.py",
+        "lib/python3.12/site-packages/future/backports/email/mime/multipart.py",
+        "lib/python3.12/site-packages/future/backports/email/mime/nonmultipart.py",
+        "lib/python3.12/site-packages/future/backports/email/mime/text.py",
+        "lib/python3.12/site-packages/future/backports/email/parser.py",
+        "lib/python3.12/site-packages/future/backports/email/policy.py",
+        "lib/python3.12/site-packages/future/backports/email/quoprimime.py",
+        "lib/python3.12/site-packages/future/backports/email/utils.py",
+        "lib/python3.12/site-packages/future/backports/html/__init__.py",
+        "lib/python3.12/site-packages/future/backports/html/entities.py",
+        "lib/python3.12/site-packages/future/backports/html/parser.py",
+        "lib/python3.12/site-packages/future/backports/http/__init__.py",
+        "lib/python3.12/site-packages/future/backports/http/client.py",
+        "lib/python3.12/site-packages/future/backports/http/cookiejar.py",
+        "lib/python3.12/site-packages/future/backports/http/cookies.py",
+        "lib/python3.12/site-packages/future/backports/http/server.py",
+        "lib/python3.12/site-packages/future/backports/misc.py",
+        "lib/python3.12/site-packages/future/backports/socket.py",
+        "lib/python3.12/site-packages/future/backports/socketserver.py",
+        "lib/python3.12/site-packages/future/backports/test/__init__.py",
+        "lib/python3.12/site-packages/future/backports/test/badcert.pem",
+        "lib/python3.12/site-packages/future/backports/test/badkey.pem",
+        "lib/python3.12/site-packages/future/backports/test/dh512.pem",
+        "lib/python3.12/site-packages/future/backports/test/https_svn_python_org_root.pem",
+        "lib/python3.12/site-packages/future/backports/test/keycert.passwd.pem",
+        "lib/python3.12/site-packages/future/backports/test/keycert.pem",
+        "lib/python3.12/site-packages/future/backports/test/keycert2.pem",
+        "lib/python3.12/site-packages/future/backports/test/nokia.pem",
+        "lib/python3.12/site-packages/future/backports/test/nullbytecert.pem",
+        "lib/python3.12/site-packages/future/backports/test/nullcert.pem",
+        "lib/python3.12/site-packages/future/backports/test/pystone.py",
+        "lib/python3.12/site-packages/future/backports/test/sha256.pem",
+        "lib/python3.12/site-packages/future/backports/test/ssl_cert.pem",
+        "lib/python3.12/site-packages/future/backports/test/ssl_key.passwd.pem",
+        "lib/python3.12/site-packages/future/backports/test/ssl_key.pem",
+        "lib/python3.12/site-packages/future/backports/test/ssl_servers.py",
+        "lib/python3.12/site-packages/future/backports/test/support.py",
+        "lib/python3.12/site-packages/future/backports/total_ordering.py",
+        "lib/python3.12/site-packages/future/backports/urllib/__init__.py",
+        "lib/python3.12/site-packages/future/backports/urllib/error.py",
+        "lib/python3.12/site-packages/future/backports/urllib/parse.py",
+        "lib/python3.12/site-packages/future/backports/urllib/request.py",
+        "lib/python3.12/site-packages/future/backports/urllib/response.py",
+        "lib/python3.12/site-packages/future/backports/urllib/robotparser.py",
+        "lib/python3.12/site-packages/future/backports/xmlrpc/__init__.py",
+        "lib/python3.12/site-packages/future/backports/xmlrpc/client.py",
+        "lib/python3.12/site-packages/future/backports/xmlrpc/server.py",
+        "lib/python3.12/site-packages/future/builtins/__init__.py",
+        "lib/python3.12/site-packages/future/builtins/disabled.py",
+        "lib/python3.12/site-packages/future/builtins/iterators.py",
+        "lib/python3.12/site-packages/future/builtins/misc.py",
+        "lib/python3.12/site-packages/future/builtins/new_min_max.py",
+        "lib/python3.12/site-packages/future/builtins/newnext.py",
+        "lib/python3.12/site-packages/future/builtins/newround.py",
+        "lib/python3.12/site-packages/future/builtins/newsuper.py",
+        "lib/python3.12/site-packages/future/moves/__init__.py",
+        "lib/python3.12/site-packages/future/moves/_dummy_thread.py",
+        "lib/python3.12/site-packages/future/moves/_markupbase.py",
+        "lib/python3.12/site-packages/future/moves/_thread.py",
+        "lib/python3.12/site-packages/future/moves/builtins.py",
+        "lib/python3.12/site-packages/future/moves/collections.py",
+        "lib/python3.12/site-packages/future/moves/configparser.py",
+        "lib/python3.12/site-packages/future/moves/copyreg.py",
+        "lib/python3.12/site-packages/future/moves/dbm/__init__.py",
+        "lib/python3.12/site-packages/future/moves/dbm/dumb.py",
+        "lib/python3.12/site-packages/future/moves/dbm/gnu.py",
+        "lib/python3.12/site-packages/future/moves/dbm/ndbm.py",
+        "lib/python3.12/site-packages/future/moves/html/__init__.py",
+        "lib/python3.12/site-packages/future/moves/html/entities.py",
+        "lib/python3.12/site-packages/future/moves/html/parser.py",
+        "lib/python3.12/site-packages/future/moves/http/__init__.py",
+        "lib/python3.12/site-packages/future/moves/http/client.py",
+        "lib/python3.12/site-packages/future/moves/http/cookiejar.py",
+        "lib/python3.12/site-packages/future/moves/http/cookies.py",
+        "lib/python3.12/site-packages/future/moves/http/server.py",
+        "lib/python3.12/site-packages/future/moves/itertools.py",
+        "lib/python3.12/site-packages/future/moves/multiprocessing.py",
+        "lib/python3.12/site-packages/future/moves/pickle.py",
+        "lib/python3.12/site-packages/future/moves/queue.py",
+        "lib/python3.12/site-packages/future/moves/reprlib.py",
+        "lib/python3.12/site-packages/future/moves/socketserver.py",
+        "lib/python3.12/site-packages/future/moves/subprocess.py",
+        "lib/python3.12/site-packages/future/moves/sys.py",
+        "lib/python3.12/site-packages/future/moves/test/__init__.py",
+        "lib/python3.12/site-packages/future/moves/test/support.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/__init__.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/colorchooser.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/commondialog.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/constants.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/dialog.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/dnd.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/filedialog.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/font.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/messagebox.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/scrolledtext.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/simpledialog.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/tix.py",
+        "lib/python3.12/site-packages/future/moves/tkinter/ttk.py",
+        "lib/python3.12/site-packages/future/moves/urllib/__init__.py",
+        "lib/python3.12/site-packages/future/moves/urllib/error.py",
+        "lib/python3.12/site-packages/future/moves/urllib/parse.py",
+        "lib/python3.12/site-packages/future/moves/urllib/request.py",
+        "lib/python3.12/site-packages/future/moves/urllib/response.py",
+        "lib/python3.12/site-packages/future/moves/urllib/robotparser.py",
+        "lib/python3.12/site-packages/future/moves/winreg.py",
+        "lib/python3.12/site-packages/future/moves/xmlrpc/__init__.py",
+        "lib/python3.12/site-packages/future/moves/xmlrpc/client.py",
+        "lib/python3.12/site-packages/future/moves/xmlrpc/server.py",
+        "lib/python3.12/site-packages/future/standard_library/__init__.py",
+        "lib/python3.12/site-packages/future/tests/__init__.py",
+        "lib/python3.12/site-packages/future/tests/base.py",
+        "lib/python3.12/site-packages/future/types/__init__.py",
+        "lib/python3.12/site-packages/future/types/newbytes.py",
+        "lib/python3.12/site-packages/future/types/newdict.py",
+        "lib/python3.12/site-packages/future/types/newint.py",
+        "lib/python3.12/site-packages/future/types/newlist.py",
+        "lib/python3.12/site-packages/future/types/newmemoryview.py",
+        "lib/python3.12/site-packages/future/types/newobject.py",
+        "lib/python3.12/site-packages/future/types/newopen.py",
+        "lib/python3.12/site-packages/future/types/newrange.py",
+        "lib/python3.12/site-packages/future/types/newstr.py",
+        "lib/python3.12/site-packages/future/utils/__init__.py",
+        "lib/python3.12/site-packages/future/utils/surrogateescape.py",
+        "lib/python3.12/site-packages/libfuturize/__init__.py",
+        "lib/python3.12/site-packages/libfuturize/fixer_util.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/__init__.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_UserDict.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_absolute_import.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_add__future__imports_except_unicode_literals.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_basestring.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_bytes.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_cmp.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_division.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_division_safe.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_execfile.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_future_builtins.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_future_standard_library.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_future_standard_library_urllib.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_input.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_metaclass.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_next_call.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_object.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_oldstr_wrap.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_order___future__imports.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_print.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_print_with_import.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_raise.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_remove_old__future__imports.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_unicode_keep_u.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_unicode_literals_import.py",
+        "lib/python3.12/site-packages/libfuturize/fixes/fix_xrange_with_import.py",
+        "lib/python3.12/site-packages/libfuturize/main.py",
+        "lib/python3.12/site-packages/libpasteurize/__init__.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__init__.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/feature_base.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_add_all__future__imports.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_add_all_future_builtins.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_add_future_standard_library_import.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_annotations.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_division.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_features.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_fullargspec.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_future_builtins.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_getcwd.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_imports.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_imports2.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_kwargs.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_memoryview.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_metaclass.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_newstyle.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_next.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_printfunction.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_raise.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_raise_.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_throw.py",
+        "lib/python3.12/site-packages/libpasteurize/fixes/fix_unpacking.py",
+        "lib/python3.12/site-packages/libpasteurize/main.py",
+        "lib/python3.12/site-packages/past/__init__.py",
+        "lib/python3.12/site-packages/past/builtins/__init__.py",
+        "lib/python3.12/site-packages/past/builtins/misc.py",
+        "lib/python3.12/site-packages/past/builtins/noniterators.py",
+        "lib/python3.12/site-packages/past/translation/__init__.py",
+        "lib/python3.12/site-packages/past/types/__init__.py",
+        "lib/python3.12/site-packages/past/types/basestring.py",
+        "lib/python3.12/site-packages/past/types/olddict.py",
+        "lib/python3.12/site-packages/past/types/oldstr.py",
+        "lib/python3.12/site-packages/past/utils/__init__.py",
+        "lib/python3.12/site-packages/future/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/__pycache__/_markupbase.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/__pycache__/datetime.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/_encoded_words.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/_header_value_parser.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/_parseaddr.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/_policybase.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/base64mime.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/charset.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/encoders.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/errors.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/feedparser.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/generator.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/header.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/headerregistry.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/iterators.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/message.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/application.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/audio.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/base.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/image.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/message.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/multipart.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/nonmultipart.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/text.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/parser.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/policy.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/quoprimime.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/email/__pycache__/utils.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/html/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/html/__pycache__/entities.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/html/__pycache__/parser.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/http/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/http/__pycache__/client.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/http/__pycache__/cookiejar.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/http/__pycache__/cookies.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/http/__pycache__/server.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/__pycache__/misc.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/__pycache__/socket.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/__pycache__/socketserver.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/test/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/test/__pycache__/pystone.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/test/__pycache__/ssl_servers.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/test/__pycache__/support.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/__pycache__/total_ordering.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/urllib/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/urllib/__pycache__/error.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/urllib/__pycache__/parse.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/urllib/__pycache__/request.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/urllib/__pycache__/response.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/urllib/__pycache__/robotparser.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/xmlrpc/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/xmlrpc/__pycache__/client.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/backports/xmlrpc/__pycache__/server.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/builtins/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/builtins/__pycache__/disabled.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/builtins/__pycache__/iterators.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/builtins/__pycache__/misc.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/builtins/__pycache__/new_min_max.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/builtins/__pycache__/newnext.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/builtins/__pycache__/newround.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/builtins/__pycache__/newsuper.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/_dummy_thread.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/_markupbase.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/_thread.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/builtins.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/collections.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/configparser.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/copyreg.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/dbm/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/dbm/__pycache__/dumb.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/dbm/__pycache__/gnu.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/dbm/__pycache__/ndbm.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/html/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/html/__pycache__/entities.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/html/__pycache__/parser.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/http/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/http/__pycache__/client.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/http/__pycache__/cookiejar.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/http/__pycache__/cookies.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/http/__pycache__/server.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/itertools.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/multiprocessing.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/pickle.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/queue.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/reprlib.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/socketserver.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/subprocess.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/sys.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/test/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/test/__pycache__/support.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/colorchooser.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/commondialog.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/constants.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/dialog.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/dnd.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/filedialog.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/font.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/messagebox.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/scrolledtext.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/simpledialog.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/tix.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/ttk.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/urllib/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/urllib/__pycache__/error.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/urllib/__pycache__/parse.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/urllib/__pycache__/request.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/urllib/__pycache__/response.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/urllib/__pycache__/robotparser.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/__pycache__/winreg.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/xmlrpc/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/xmlrpc/__pycache__/client.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/moves/xmlrpc/__pycache__/server.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/standard_library/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/tests/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/tests/__pycache__/base.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/newbytes.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/newdict.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/newint.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/newlist.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/newmemoryview.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/newobject.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/newopen.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/newrange.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/types/__pycache__/newstr.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/utils/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/future/utils/__pycache__/surrogateescape.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/__pycache__/fixer_util.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_UserDict.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_absolute_import.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_add__future__imports_except_unicode_literals.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_basestring.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_bytes.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_cmp.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_division.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_division_safe.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_execfile.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_future_builtins.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_future_standard_library.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_future_standard_library_urllib.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_input.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_metaclass.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_next_call.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_object.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_oldstr_wrap.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_order___future__imports.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_print.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_print_with_import.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_raise.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_remove_old__future__imports.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_unicode_keep_u.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_unicode_literals_import.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_xrange_with_import.cpython-312.pyc",
+        "lib/python3.12/site-packages/libfuturize/__pycache__/main.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/feature_base.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_add_all__future__imports.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_add_all_future_builtins.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_add_future_standard_library_import.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_annotations.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_division.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_features.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_fullargspec.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_future_builtins.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_getcwd.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_imports.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_imports2.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_kwargs.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_memoryview.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_metaclass.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_newstyle.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_next.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_printfunction.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_raise.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_raise_.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_throw.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_unpacking.cpython-312.pyc",
+        "lib/python3.12/site-packages/libpasteurize/__pycache__/main.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/builtins/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/builtins/__pycache__/misc.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/builtins/__pycache__/noniterators.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/translation/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/types/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/types/__pycache__/basestring.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/types/__pycache__/olddict.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/types/__pycache__/oldstr.cpython-312.pyc",
+        "lib/python3.12/site-packages/past/utils/__pycache__/__init__.cpython-312.pyc",
+        "bin/futurize",
+        "bin/pasteurize"
+    ],
+    "fn": "future-1.0.0-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "link": {
+        "source": "pkgs/future-1.0.0-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "650a7807e689642dddd3590eb817beed",
+    "name": "future",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/future-1.0.0-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/future-1.0.0.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future-1.0.0.dist-info/LICENSE.txt",
+                "path_type": "hardlink",
+                "sha256": "beba04103c3a9fff928b59c77d5fbeb03a3e4bd0d7ac3d1e1f8994a21e30ee3b",
+                "sha256_in_prefix": "beba04103c3a9fff928b59c77d5fbeb03a3e4bd0d7ac3d1e1f8994a21e30ee3b",
+                "size_in_bytes": 1075
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future-1.0.0.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "30d35a50a3116d9026558ab9026ffed4db58675562102a526bc56c4235db913e",
+                "sha256_in_prefix": "30d35a50a3116d9026558ab9026ffed4db58675562102a526bc56c4235db913e",
+                "size_in_bytes": 3959
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future-1.0.0.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "ea52a2922e8ae97b51ec4aede0b440f5a82eea7d78f08c5e555500ae315cb902",
+                "sha256_in_prefix": "ea52a2922e8ae97b51ec4aede0b440f5a82eea7d78f08c5e555500ae315cb902",
+                "size_in_bytes": 31733
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future-1.0.0.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future-1.0.0.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "a2241587fe4f9d033413780f762cf4f5608d9b08870cc6867abfde96a0777283",
+                "sha256_in_prefix": "a2241587fe4f9d033413780f762cf4f5608d9b08870cc6867abfde96a0777283",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future-1.0.0.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "185a093d4a181941de557387370f68db9b723f894873c7e7fb14176f6946c2bc",
+                "sha256_in_prefix": "185a093d4a181941de557387370f68db9b723f894873c7e7fb14176f6946c2bc",
+                "size_in_bytes": 102
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future-1.0.0.dist-info/entry_points.txt",
+                "path_type": "hardlink",
+                "sha256": "53d2ed3fad0a48d5e88f9f26cd5e536e8b41177ef58135b3acaaf32481fcd0ac",
+                "sha256_in_prefix": "53d2ed3fad0a48d5e88f9f26cd5e536e8b41177ef58135b3acaaf32481fcd0ac",
+                "size_in_bytes": 88
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future-1.0.0.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "0d3d02ddacf681bfae25a8fe7ecd21e16c076252550e9d04bcb76e775cb9672c",
+                "sha256_in_prefix": "0d3d02ddacf681bfae25a8fe7ecd21e16c076252550e9d04bcb76e775cb9672c",
+                "size_in_bytes": 38
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "4fd3cd2eeeb272656da444cbc51bab9ae7ee4406a8b0809699674013165be5af",
+                "sha256_in_prefix": "4fd3cd2eeeb272656da444cbc51bab9ae7ee4406a8b0809699674013165be5af",
+                "size_in_bytes": 2938
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e505ef43f8dce57c7aa787526879d95cf65acc112e9ca0ca85b523c59d170f52",
+                "sha256_in_prefix": "e505ef43f8dce57c7aa787526879d95cf65acc112e9ca0ca85b523c59d170f52",
+                "size_in_bytes": 530
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/_markupbase.py",
+                "path_type": "hardlink",
+                "sha256": "3033d30b290bab827b01e6b73ef628b404c4134086e11fd28e5c5f25a2d74c93",
+                "sha256_in_prefix": "3033d30b290bab827b01e6b73ef628b404c4134086e11fd28e5c5f25a2d74c93",
+                "size_in_bytes": 16215
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/datetime.py",
+                "path_type": "hardlink",
+                "sha256": "8c84c24ada257da76108485e8c577df700a8e7d9810c5d11ba3f25ed0706eccb",
+                "sha256_in_prefix": "8c84c24ada257da76108485e8c577df700a8e7d9810c5d11ba3f25ed0706eccb",
+                "size_in_bytes": 75553
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "787dc026bdc592e072fc3eb24b55762bbe90d8243ddf2db39803169a7f056c72",
+                "sha256_in_prefix": "787dc026bdc592e072fc3eb24b55762bbe90d8243ddf2db39803169a7f056c72",
+                "size_in_bytes": 2269
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/_encoded_words.py",
+                "path_type": "hardlink",
+                "sha256": "9b5bd345fc4041d83857258eecf17ed628759a6abded5f813f21c792e13048c1",
+                "sha256_in_prefix": "9b5bd345fc4041d83857258eecf17ed628759a6abded5f813f21c792e13048c1",
+                "size_in_bytes": 8443
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/_header_value_parser.py",
+                "path_type": "hardlink",
+                "sha256": "1a649daf93e91b7c7379d3221254893ac43a2301374e5e52370a789ba653e1a1",
+                "sha256_in_prefix": "1a649daf93e91b7c7379d3221254893ac43a2301374e5e52370a789ba653e1a1",
+                "size_in_bytes": 104692
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/_parseaddr.py",
+                "path_type": "hardlink",
+                "sha256": "29ec049e8b3460333e4985f9d37cfb13532655b1b955168a8f18dc9742298dbb",
+                "sha256_in_prefix": "29ec049e8b3460333e4985f9d37cfb13532655b1b955168a8f18dc9742298dbb",
+                "size_in_bytes": 17389
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/_policybase.py",
+                "path_type": "hardlink",
+                "sha256": "da5243f71a2e8b3e2e1ef58643a8f59f0970595406c30ce9cb9259a1e42a8547",
+                "sha256_in_prefix": "da5243f71a2e8b3e2e1ef58643a8f59f0970595406c30ce9cb9259a1e42a8547",
+                "size_in_bytes": 14647
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/base64mime.py",
+                "path_type": "hardlink",
+                "sha256": "817645c61eba8e4e83d94a809a345b9a6ca13976c651666615c755388a256981",
+                "sha256_in_prefix": "817645c61eba8e4e83d94a809a345b9a6ca13976c651666615c755388a256981",
+                "size_in_bytes": 3761
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/charset.py",
+                "path_type": "hardlink",
+                "sha256": "09f138895db302ae8c402d021d71cb9f04cd5bbd739a13484dbcce71fc44e2f6",
+                "sha256_in_prefix": "09f138895db302ae8c402d021d71cb9f04cd5bbd739a13484dbcce71fc44e2f6",
+                "size_in_bytes": 17439
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/encoders.py",
+                "path_type": "hardlink",
+                "sha256": "367e0f731d6b39d460a1223307a4f94561e5e73c4295b7f7db0804e83d2d52df",
+                "sha256_in_prefix": "367e0f731d6b39d460a1223307a4f94561e5e73c4295b7f7db0804e83d2d52df",
+                "size_in_bytes": 2800
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/errors.py",
+                "path_type": "hardlink",
+                "sha256": "b515fc3cfe60ee69366c0c4bd634c262b6df843da03d914dae1e3f18944cf0e4",
+                "sha256_in_prefix": "b515fc3cfe60ee69366c0c4bd634c262b6df843da03d914dae1e3f18944cf0e4",
+                "size_in_bytes": 3680
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/feedparser.py",
+                "path_type": "hardlink",
+                "sha256": "6ef9a16f871d63e8a97b1b4f2b62b6b0380cb0dbd3b299ae41f6320b1738cd27",
+                "sha256_in_prefix": "6ef9a16f871d63e8a97b1b4f2b62b6b0380cb0dbd3b299ae41f6320b1738cd27",
+                "size_in_bytes": 22736
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/generator.py",
+                "path_type": "hardlink",
+                "sha256": "96968b8591e77a0baf67642046eec58a09236fbce6636f001a18fd8994dd23bb",
+                "sha256_in_prefix": "96968b8591e77a0baf67642046eec58a09236fbce6636f001a18fd8994dd23bb",
+                "size_in_bytes": 19520
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/header.py",
+                "path_type": "hardlink",
+                "sha256": "b811db34a3becb1e48f4a05f95eae7269cb2ddf5f8808982075404ec8080a4bb",
+                "sha256_in_prefix": "b811db34a3becb1e48f4a05f95eae7269cb2ddf5f8808982075404ec8080a4bb",
+                "size_in_bytes": 24448
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/headerregistry.py",
+                "path_type": "hardlink",
+                "sha256": "64f6ef2ca5c3d0d30b494e235e55477c6c8670b32b166f86415511bbf5c78fcf",
+                "sha256_in_prefix": "64f6ef2ca5c3d0d30b494e235e55477c6c8670b32b166f86415511bbf5c78fcf",
+                "size_in_bytes": 20637
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/iterators.py",
+                "path_type": "hardlink",
+                "sha256": "90c458146cb7495569a3b1c6ec926bd990253a8697e8254fcca6300d2bcb7d5d",
+                "sha256_in_prefix": "90c458146cb7495569a3b1c6ec926bd990253a8697e8254fcca6300d2bcb7d5d",
+                "size_in_bytes": 2348
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/message.py",
+                "path_type": "hardlink",
+                "sha256": "23a596e5c643cdaeeec0b386252bec0e11990bd2bf439ef42e4da0b7fbc35173",
+                "sha256_in_prefix": "23a596e5c643cdaeeec0b386252bec0e11990bd2bf439ef42e4da0b7fbc35173",
+                "size_in_bytes": 35237
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/application.py",
+                "path_type": "hardlink",
+                "sha256": "9bee5ae264b1bb6137d970089a7a7dc7d78c557e5599eda23609f674c30dcacb",
+                "sha256_in_prefix": "9bee5ae264b1bb6137d970089a7a7dc7d78c557e5599eda23609f674c30dcacb",
+                "size_in_bytes": 1401
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/audio.py",
+                "path_type": "hardlink",
+                "sha256": "da88276a515169d72c51841831465b8efe62d7125b16140deb8ddda0cb88ecce",
+                "sha256_in_prefix": "da88276a515169d72c51841831465b8efe62d7125b16140deb8ddda0cb88ecce",
+                "size_in_bytes": 2815
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/base.py",
+                "path_type": "hardlink",
+                "sha256": "c15dc2950c8cb0eaa69174976e4ff077fccfa0f4ef071f24008ceadeb74ce251",
+                "sha256_in_prefix": "c15dc2950c8cb0eaa69174976e4ff077fccfa0f4ef071f24008ceadeb74ce251",
+                "size_in_bytes": 875
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/image.py",
+                "path_type": "hardlink",
+                "sha256": "0e9424d6c07e20c98ee37005e2e69db17c9fff2e53744cc92dfca1a91e3c6c8c",
+                "sha256_in_prefix": "0e9424d6c07e20c98ee37005e2e69db17c9fff2e53744cc92dfca1a91e3c6c8c",
+                "size_in_bytes": 1907
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/message.py",
+                "path_type": "hardlink",
+                "sha256": "a45b0c8575b4eda463b0bab5a5e3bce3b3c0a56140976f3e67667b04fd439fbe",
+                "sha256_in_prefix": "a45b0c8575b4eda463b0bab5a5e3bce3b3c0a56140976f3e67667b04fd439fbe",
+                "size_in_bytes": 1429
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/multipart.py",
+                "path_type": "hardlink",
+                "sha256": "8f82dffec266bb04db7e0750e91df9fedd7f85ad83ca7241243be98f06cd39b1",
+                "sha256_in_prefix": "8f82dffec266bb04db7e0750e91df9fedd7f85ad83ca7241243be98f06cd39b1",
+                "size_in_bytes": 1699
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/nonmultipart.py",
+                "path_type": "hardlink",
+                "sha256": "0a26dad59f1ddb22c30e9c600c9ba4dc16fe4ea72913d1c277c29f6d6e6f825e",
+                "sha256_in_prefix": "0a26dad59f1ddb22c30e9c600c9ba4dc16fe4ea72913d1c277c29f6d6e6f825e",
+                "size_in_bytes": 832
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/text.py",
+                "path_type": "hardlink",
+                "sha256": "cd5f7c063a11e12fe75fc738ef1e372e7b2789f7868487cd1b0480879ef96ecd",
+                "sha256_in_prefix": "cd5f7c063a11e12fe75fc738ef1e372e7b2789f7868487cd1b0480879ef96ecd",
+                "size_in_bytes": 1552
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/parser.py",
+                "path_type": "hardlink",
+                "sha256": "3694e39af8efe980c7e9e2263091188889ff2bba9ef7ea4fcf70e6cd374c6545",
+                "sha256_in_prefix": "3694e39af8efe980c7e9e2263091188889ff2bba9ef7ea4fcf70e6cd374c6545",
+                "size_in_bytes": 5310
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/policy.py",
+                "path_type": "hardlink",
+                "sha256": "82971b855457b82a2190ae8c52aa294ecd65bf8138f995543ba3959dca061091",
+                "sha256_in_prefix": "82971b855457b82a2190ae8c52aa294ecd65bf8138f995543ba3959dca061091",
+                "size_in_bytes": 8823
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/quoprimime.py",
+                "path_type": "hardlink",
+                "sha256": "c3ddd6e5781d169c86683a83049ae75c5feffe7a47e6bdb45ae0319ab033c908",
+                "sha256_in_prefix": "c3ddd6e5781d169c86683a83049ae75c5feffe7a47e6bdb45ae0319ab033c908",
+                "size_in_bytes": 10923
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/utils.py",
+                "path_type": "hardlink",
+                "sha256": "be97cdd04f148cd6cdc3ed8d1414060a8e13360ae084cb2ace91185b90bf7c1b",
+                "sha256_in_prefix": "be97cdd04f148cd6cdc3ed8d1414060a8e13360ae084cb2ace91185b90bf7c1b",
+                "size_in_bytes": 14270
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/html/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "14ac2a16d58c0a818d92153dece3e74757d94a1e9eb4029f375154d4abd7715f",
+                "sha256_in_prefix": "14ac2a16d58c0a818d92153dece3e74757d94a1e9eb4029f375154d4abd7715f",
+                "size_in_bytes": 924
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/html/entities.py",
+                "path_type": "hardlink",
+                "sha256": "933a119d0c8693fdc3828b9c1cb84be502f5a6094af67be6c613c81991434e77",
+                "sha256_in_prefix": "933a119d0c8693fdc3828b9c1cb84be502f5a6094af67be6c613c81991434e77",
+                "size_in_bytes": 75428
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/html/parser.py",
+                "path_type": "hardlink",
+                "sha256": "1b6b5439bbdb1d2a2d36dd3a24b63e04fd6cc1a64d7c360577f10d5838cf9918",
+                "sha256_in_prefix": "1b6b5439bbdb1d2a2d36dd3a24b63e04fd6cc1a64d7c360577f10d5838cf9918",
+                "size_in_bytes": 19770
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/client.py",
+                "path_type": "hardlink",
+                "sha256": "efa11b84464eb6f74715c53e8eb8e2be87dfd77a10f4831b76464475fe644334",
+                "sha256_in_prefix": "efa11b84464eb6f74715c53e8eb8e2be87dfd77a10f4831b76464475fe644334",
+                "size_in_bytes": 47602
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/cookiejar.py",
+                "path_type": "hardlink",
+                "sha256": "8ea6f6eeebeff300769899ba905f5a0b4c3b074de73baaf3434fc2177e7202b8",
+                "sha256_in_prefix": "8ea6f6eeebeff300769899ba905f5a0b4c3b074de73baaf3434fc2177e7202b8",
+                "size_in_bytes": 76608
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/cookies.py",
+                "path_type": "hardlink",
+                "sha256": "0ecc835060c46c25c003d26aeacbacc1273beae499a94bb7f5a7430cd8fc5c6c",
+                "sha256_in_prefix": "0ecc835060c46c25c003d26aeacbacc1273beae499a94bb7f5a7430cd8fc5c6c",
+                "size_in_bytes": 21581
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/server.py",
+                "path_type": "hardlink",
+                "sha256": "d4268cc60cc77fd9588664c9c84eeda298234489489fd7278e0c3c604bf0255e",
+                "sha256_in_prefix": "d4268cc60cc77fd9588664c9c84eeda298234489489fd7278e0c3c604bf0255e",
+                "size_in_bytes": 45523
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/misc.py",
+                "path_type": "hardlink",
+                "sha256": "1069c2551994fbfef1af3b2cd6baaa0aac2a950572c1a3c0c712e880178da70e",
+                "sha256_in_prefix": "1069c2551994fbfef1af3b2cd6baaa0aac2a950572c1a3c0c712e880178da70e",
+                "size_in_bytes": 33063
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/socket.py",
+                "path_type": "hardlink",
+                "sha256": "0c7d55e888ca3e9274b659fc6d8bf1bd0eea9ef646f94a10b4c039c9595e1e25",
+                "sha256_in_prefix": "0c7d55e888ca3e9274b659fc6d8bf1bd0eea9ef646f94a10b4c039c9595e1e25",
+                "size_in_bytes": 15663
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/socketserver.py",
+                "path_type": "hardlink",
+                "sha256": "4f0bf293916a56739e88d71b56cc8c0cf4c5d6636590a7f2a1f1bbb4ac53743f",
+                "sha256_in_prefix": "4f0bf293916a56739e88d71b56cc8c0cf4c5d6636590a7f2a1f1bbb4ac53743f",
+                "size_in_bytes": 24286
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "f5d5f12199e4234f7961f1c2f9721a545e9ddf51a3798d4083c4c4cdc1607a93",
+                "sha256_in_prefix": "f5d5f12199e4234f7961f1c2f9721a545e9ddf51a3798d4083c4c4cdc1607a93",
+                "size_in_bytes": 264
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/badcert.pem",
+                "path_type": "hardlink",
+                "sha256": "262a107916641c7f211ac5898c0177535cd0bdc5aa872cc6e883842694d8f521",
+                "sha256_in_prefix": "262a107916641c7f211ac5898c0177535cd0bdc5aa872cc6e883842694d8f521",
+                "size_in_bytes": 1928
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/badkey.pem",
+                "path_type": "hardlink",
+                "sha256": "81a04af69c7f806ec39ab2cac5f0fa7fa8beb6802601105355fb3e606151405d",
+                "sha256_in_prefix": "81a04af69c7f806ec39ab2cac5f0fa7fa8beb6802601105355fb3e606151405d",
+                "size_in_bytes": 2162
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/dh512.pem",
+                "path_type": "hardlink",
+                "sha256": "7544ec8ed2db2be7de9aba2b52b4c617caaf2e3853893fe7e14a3957abbffc6b",
+                "sha256_in_prefix": "7544ec8ed2db2be7de9aba2b52b4c617caaf2e3853893fe7e14a3957abbffc6b",
+                "size_in_bytes": 402
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/https_svn_python_org_root.pem",
+                "path_type": "hardlink",
+                "sha256": "c0e0773a79dceb622ef6410577c19c1e177fb2eb9c623a49340de3c9f1de2560",
+                "sha256_in_prefix": "c0e0773a79dceb622ef6410577c19c1e177fb2eb9c623a49340de3c9f1de2560",
+                "size_in_bytes": 2569
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/keycert.passwd.pem",
+                "path_type": "hardlink",
+                "sha256": "6417e754ba5b06d00e7ffda009d890fb2ac11e646c37349ff150b75294192238",
+                "sha256_in_prefix": "6417e754ba5b06d00e7ffda009d890fb2ac11e646c37349ff150b75294192238",
+                "size_in_bytes": 1830
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/keycert.pem",
+                "path_type": "hardlink",
+                "sha256": "c4f5e2e6274f71055bae183106a1764cd1a6eac499d9a2d5544b7a0d6ce994bf",
+                "sha256_in_prefix": "c4f5e2e6274f71055bae183106a1764cd1a6eac499d9a2d5544b7a0d6ce994bf",
+                "size_in_bytes": 1783
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/keycert2.pem",
+                "path_type": "hardlink",
+                "sha256": "0c1e3a144018bfc056c1027ee51cc2ebde85c4f37b08e37e42c8be478a682607",
+                "sha256_in_prefix": "0c1e3a144018bfc056c1027ee51cc2ebde85c4f37b08e37e42c8be478a682607",
+                "size_in_bytes": 1795
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/nokia.pem",
+                "path_type": "hardlink",
+                "sha256": "b34d31d2e3c349a6b90c727f0b0ce5561837395749e3b7f8ce0a9075dd1201f4",
+                "sha256_in_prefix": "b34d31d2e3c349a6b90c727f0b0ce5561837395749e3b7f8ce0a9075dd1201f4",
+                "size_in_bytes": 1923
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/nullbytecert.pem",
+                "path_type": "hardlink",
+                "sha256": "3454585a198ffea4f78c67d58d1ebe89a0be1107612058e25ed4cb37964f2a71",
+                "sha256_in_prefix": "3454585a198ffea4f78c67d58d1ebe89a0be1107612058e25ed4cb37964f2a71",
+                "size_in_bytes": 5435
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/nullcert.pem",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/pystone.py",
+                "path_type": "hardlink",
+                "sha256": "7efca827fb55a2f4cd6b16c999d24cc2bf45e929e063e53889b50b9ddff052a0",
+                "sha256_in_prefix": "7efca827fb55a2f4cd6b16c999d24cc2bf45e929e063e53889b50b9ddff052a0",
+                "size_in_bytes": 7427
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/sha256.pem",
+                "path_type": "hardlink",
+                "sha256": "df007e190a8473b8eaf8f63060041a3dbb53befafbb2d93f0d5999c4581e85f0",
+                "sha256_in_prefix": "df007e190a8473b8eaf8f63060041a3dbb53befafbb2d93f0d5999c4581e85f0",
+                "size_in_bytes": 8344
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/ssl_cert.pem",
+                "path_type": "hardlink",
+                "sha256": "33ad3b8c935e21e1c6f419537ff8da4243c92389cec5224f9fece6100696e373",
+                "sha256_in_prefix": "33ad3b8c935e21e1c6f419537ff8da4243c92389cec5224f9fece6100696e373",
+                "size_in_bytes": 867
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/ssl_key.passwd.pem",
+                "path_type": "hardlink",
+                "sha256": "23f587e2c070f55b3d67e06f9ae5d8d1ac3cb71f1abefeab9b950be12fe93f4d",
+                "sha256_in_prefix": "23f587e2c070f55b3d67e06f9ae5d8d1ac3cb71f1abefeab9b950be12fe93f4d",
+                "size_in_bytes": 963
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/ssl_key.pem",
+                "path_type": "hardlink",
+                "sha256": "54a194f91dd461a6695535e5edc856978bc46040dea1bebd49fbd14d0f1aabfe",
+                "sha256_in_prefix": "54a194f91dd461a6695535e5edc856978bc46040dea1bebd49fbd14d0f1aabfe",
+                "size_in_bytes": 916
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/ssl_servers.py",
+                "path_type": "hardlink",
+                "sha256": "fa977b1cc6658ee65f15101b0808803ffd86d38a2b2132458fe4bd75dafaa3ce",
+                "sha256_in_prefix": "fa977b1cc6658ee65f15101b0808803ffd86d38a2b2132458fe4bd75dafaa3ce",
+                "size_in_bytes": 7209
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/support.py",
+                "path_type": "hardlink",
+                "sha256": "a13434f50acb71b98565784c1aa3f3dd5ad865d760c692461093d08707e21b69",
+                "sha256_in_prefix": "a13434f50acb71b98565784c1aa3f3dd5ad865d760c692461093d08707e21b69",
+                "size_in_bytes": 69620
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/total_ordering.py",
+                "path_type": "hardlink",
+                "sha256": "3b7339eff222b10fb35b9856db4bb191f9387d31acaf4105dad00ac77064b10a",
+                "sha256_in_prefix": "3b7339eff222b10fb35b9856db4bb191f9387d31acaf4105dad00ac77064b10a",
+                "size_in_bytes": 1929
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/error.py",
+                "path_type": "hardlink",
+                "sha256": "92d8a4b8af5a838952e1ff19d24e69d45d75a85e343760223ad8db5e217dedec",
+                "sha256_in_prefix": "92d8a4b8af5a838952e1ff19d24e69d45d75a85e343760223ad8db5e217dedec",
+                "size_in_bytes": 2715
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/parse.py",
+                "path_type": "hardlink",
+                "sha256": "ebb6afad8a95d542bb8bfdb6828454aef27c49f7f38d17538daf70ceaff29d76",
+                "sha256_in_prefix": "ebb6afad8a95d542bb8bfdb6828454aef27c49f7f38d17538daf70ceaff29d76",
+                "size_in_bytes": 35792
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/request.py",
+                "path_type": "hardlink",
+                "sha256": "691f593337e15750b6424df016c1af930c6ab5d3d376c255191b790d40b0809f",
+                "sha256_in_prefix": "691f593337e15750b6424df016c1af930c6ab5d3d376c255191b790d40b0809f",
+                "size_in_bytes": 96276
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/response.py",
+                "path_type": "hardlink",
+                "sha256": "a28432b30c1b6fef4de88562d4ac23b2cd5a47e2af9bc64d7b3a32544a27a7c7",
+                "sha256_in_prefix": "a28432b30c1b6fef4de88562d4ac23b2cd5a47e2af9bc64d7b3a32544a27a7c7",
+                "size_in_bytes": 3180
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/robotparser.py",
+                "path_type": "hardlink",
+                "sha256": "a670064db2a175b0aaffdc8c669ee6f218f9abf349a72417ea840866e61c9e4c",
+                "sha256_in_prefix": "a670064db2a175b0aaffdc8c669ee6f218f9abf349a72417ea840866e61c9e4c",
+                "size_in_bytes": 6865
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/xmlrpc/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "87ad5c8954dd56fbbca04517bf87477ff4dce575170c7dd1281d7ef1f4214ac8",
+                "sha256_in_prefix": "87ad5c8954dd56fbbca04517bf87477ff4dce575170c7dd1281d7ef1f4214ac8",
+                "size_in_bytes": 38
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/xmlrpc/client.py",
+                "path_type": "hardlink",
+                "sha256": "4c81cfced29196b4ada6198efcf7d8390c6ccb6c6e83358acfbed24c2d4e6755",
+                "sha256_in_prefix": "4c81cfced29196b4ada6198efcf7d8390c6ccb6c6e83358acfbed24c2d4e6755",
+                "size_in_bytes": 48175
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/xmlrpc/server.py",
+                "path_type": "hardlink",
+                "sha256": "5bf456e618186cd5762c66e7be78339bb6a469c45d2be5c563e0b2d872feaac6",
+                "sha256_in_prefix": "5bf456e618186cd5762c66e7be78339bb6a469c45d2be5c563e0b2d872feaac6",
+                "size_in_bytes": 37285
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "ac3007ce485f5c749ac9eef6160cd0cfe1cf377c9806ef955d2b393d424603aa",
+                "sha256_in_prefix": "ac3007ce485f5c749ac9eef6160cd0cfe1cf377c9806ef955d2b393d424603aa",
+                "size_in_bytes": 1688
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/disabled.py",
+                "path_type": "hardlink",
+                "sha256": "62cabbe1bb26c27b69abb7739304c00fb2072ab917cbaeaf2653ec855c205412",
+                "sha256_in_prefix": "62cabbe1bb26c27b69abb7739304c00fb2072ab917cbaeaf2653ec855c205412",
+                "size_in_bytes": 2109
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/iterators.py",
+                "path_type": "hardlink",
+                "sha256": "97565ac26db1f36a2a3ae186b4265113be848fdf2c3251d0c2ef5f64b2b946b0",
+                "sha256_in_prefix": "97565ac26db1f36a2a3ae186b4265113be848fdf2c3251d0c2ef5f64b2b946b0",
+                "size_in_bytes": 1396
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/misc.py",
+                "path_type": "hardlink",
+                "sha256": "85cb6528a594c8dd04a28771838c9240712a0114ee90e2d1e0be4ae5ce8f5bd9",
+                "sha256_in_prefix": "85cb6528a594c8dd04a28771838c9240712a0114ee90e2d1e0be4ae5ce8f5bd9",
+                "size_in_bytes": 4550
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/new_min_max.py",
+                "path_type": "hardlink",
+                "sha256": "eea4388a21b8183811ce33f3cf39a0f6975bcb7e4cb6deb134e3accaa1e72066",
+                "sha256_in_prefix": "eea4388a21b8183811ce33f3cf39a0f6975bcb7e4cb6deb134e3accaa1e72066",
+                "size_in_bytes": 1757
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/newnext.py",
+                "path_type": "hardlink",
+                "sha256": "a315c1f1b697a89bf6f581b8d1a092f545e4f7339bca83a3c9af0127b35d0493",
+                "sha256_in_prefix": "a315c1f1b697a89bf6f581b8d1a092f545e4f7339bca83a3c9af0127b35d0493",
+                "size_in_bytes": 2009
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/newround.py",
+                "path_type": "hardlink",
+                "sha256": "ed84d68c181f200bd2125ee12c25a07a6863a9d2adce885b3b5f32304acacf81",
+                "sha256_in_prefix": "ed84d68c181f200bd2125ee12c25a07a6863a9d2adce885b3b5f32304acacf81",
+                "size_in_bytes": 3190
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/newsuper.py",
+                "path_type": "hardlink",
+                "sha256": "dd882aabef25df087d80dbc66d6e670224d84f95b1c6048a37a461363eea8bbe",
+                "sha256_in_prefix": "dd882aabef25df087d80dbc66d6e670224d84f95b1c6048a37a461363eea8bbe",
+                "size_in_bytes": 3849
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "32c016ebd5e9fdfa94a38c4e0ee7dc28ce8065ffa8cc76b3e3858f65db031490",
+                "sha256_in_prefix": "32c016ebd5e9fdfa94a38c4e0ee7dc28ce8065ffa8cc76b3e3858f65db031490",
+                "size_in_bytes": 220
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/_dummy_thread.py",
+                "path_type": "hardlink",
+                "sha256": "50b52d2e4d4bbb0f48d61f983e2b6753782a09bbcd3e8282dbc37f064f23911f",
+                "sha256_in_prefix": "50b52d2e4d4bbb0f48d61f983e2b6753782a09bbcd3e8282dbc37f064f23911f",
+                "size_in_bytes": 348
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/_markupbase.py",
+                "path_type": "hardlink",
+                "sha256": "5bdc21fc6bb78c300c2215415756670a427060b1d193fbffb2efc72c02c19194",
+                "sha256_in_prefix": "5bdc21fc6bb78c300c2215415756670a427060b1d193fbffb2efc72c02c19194",
+                "size_in_bytes": 171
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/_thread.py",
+                "path_type": "hardlink",
+                "sha256": "af063b2f80593053e5ae9fe2e93d949f8fe2298c27ad727ec95e8525937c603a",
+                "sha256_in_prefix": "af063b2f80593053e5ae9fe2e93d949f8fe2298c27ad727ec95e8525937c603a",
+                "size_in_bytes": 163
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/builtins.py",
+                "path_type": "hardlink",
+                "sha256": "e2c8e32a2ca579c25e2fd75afd1681663772997da3b4cb3ce2803d942a9be148",
+                "sha256_in_prefix": "e2c8e32a2ca579c25e2fd75afd1681663772997da3b4cb3ce2803d942a9be148",
+                "size_in_bytes": 281
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/collections.py",
+                "path_type": "hardlink",
+                "sha256": "38a43e4df5209acff66e76519f886b7252c3a223768be1d259c8ecdc10b6898f",
+                "sha256_in_prefix": "38a43e4df5209acff66e76519f886b7252c3a223768be1d259c8ecdc10b6898f",
+                "size_in_bytes": 417
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/configparser.py",
+                "path_type": "hardlink",
+                "sha256": "4cdcb6dbab826e58e353e0e3015a3b8fb11f7db8f9cf15ef0e1d127577a16f39",
+                "sha256_in_prefix": "4cdcb6dbab826e58e353e0e3015a3b8fb11f7db8f9cf15ef0e1d127577a16f39",
+                "size_in_bytes": 146
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/copyreg.py",
+                "path_type": "hardlink",
+                "sha256": "6375232d720c48ec598205edbd9b9c13dcafe2d90a66d55a9f8e73f1e8b1e2c5",
+                "sha256_in_prefix": "6375232d720c48ec598205edbd9b9c13dcafe2d90a66d55a9f8e73f1e8b1e2c5",
+                "size_in_bytes": 438
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/dbm/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "fd592f4070b651c2206453d1ae8897fcfd05b3b1cda92ffaf5f951d3ea2ad81f",
+                "sha256_in_prefix": "fd592f4070b651c2206453d1ae8897fcfd05b3b1cda92ffaf5f951d3ea2ad81f",
+                "size_in_bytes": 488
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/dbm/dumb.py",
+                "path_type": "hardlink",
+                "sha256": "1ca7638ed3b71323fd10a8b51e0c61fde514eb2090d1f057f4d3779fecdbf091",
+                "sha256_in_prefix": "1ca7638ed3b71323fd10a8b51e0c61fde514eb2090d1f057f4d3779fecdbf091",
+                "size_in_bytes": 166
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/dbm/gnu.py",
+                "path_type": "hardlink",
+                "sha256": "5e809212967641a3a0a368759bcd065bb354823fdbf7704ab5b72ec20b6768aa",
+                "sha256_in_prefix": "5e809212967641a3a0a368759bcd065bb354823fdbf7704ab5b72ec20b6768aa",
+                "size_in_bytes": 162
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/dbm/ndbm.py",
+                "path_type": "hardlink",
+                "sha256": "3859eb7b2a3fd581c3065e58526f600b32a53753078166df490019565b368da3",
+                "sha256_in_prefix": "3859eb7b2a3fd581c3065e58526f600b32a53753078166df490019565b368da3",
+                "size_in_bytes": 162
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/html/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "052505487c577f6906bc7a33967ac1d679fa6cf13aa783e93770f003f67981ea",
+                "sha256_in_prefix": "052505487c577f6906bc7a33967ac1d679fa6cf13aa783e93770f003f67981ea",
+                "size_in_bytes": 1016
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/html/entities.py",
+                "path_type": "hardlink",
+                "sha256": "955bdc85d8cafd1cd18fbe7d7a0e1132f1961df8016e3d2d2863a867c75b4726",
+                "sha256_in_prefix": "955bdc85d8cafd1cd18fbe7d7a0e1132f1961df8016e3d2d2863a867c75b4726",
+                "size_in_bytes": 177
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/html/parser.py",
+                "path_type": "hardlink",
+                "sha256": "5765e91cb28b0b142e9b737dc653b721471c003ec123291932a744716113def6",
+                "sha256_in_prefix": "5765e91cb28b0b142e9b737dc653b721471c003ec123291932a744716113def6",
+                "size_in_bytes": 167
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "331d6ffd3724b38b9d1c2b4333cab6c67614890d35803ec4a4fc9e430b0fdfe4",
+                "sha256_in_prefix": "331d6ffd3724b38b9d1c2b4333cab6c67614890d35803ec4a4fc9e430b0fdfe4",
+                "size_in_bytes": 71
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/client.py",
+                "path_type": "hardlink",
+                "sha256": "86a101abb1835d989d77502c70a9d2ca34a831cba3f2b111a864e60fb5617834",
+                "sha256_in_prefix": "86a101abb1835d989d77502c70a9d2ca34a831cba3f2b111a864e60fb5617834",
+                "size_in_bytes": 165
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/cookiejar.py",
+                "path_type": "hardlink",
+                "sha256": "16bafd6590a0fb5e39ca6cb4546a623c986f044a49b55a910583da2a1813d59e",
+                "sha256_in_prefix": "16bafd6590a0fb5e39ca6cb4546a623c986f044a49b55a910583da2a1813d59e",
+                "size_in_bytes": 173
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/cookies.py",
+                "path_type": "hardlink",
+                "sha256": "3cfac76b5fe80dbbb70ff06124673a3ef3206352a8c7262ad63a9e27011c32f1",
+                "sha256_in_prefix": "3cfac76b5fe80dbbb70ff06124673a3ef3206352a8c7262ad63a9e27011c32f1",
+                "size_in_bytes": 233
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/server.py",
+                "path_type": "hardlink",
+                "sha256": "f184254824a18c0b01e6baf97e856f660a77233c1816f4e6199087841483b5a2",
+                "sha256_in_prefix": "f184254824a18c0b01e6baf97e856f660a77233c1816f4e6199087841483b5a2",
+                "size_in_bytes": 606
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/itertools.py",
+                "path_type": "hardlink",
+                "sha256": "3d5c451d1941425f44952d1cb8614f714b63e777875fb6750e6820cc67e043a7",
+                "sha256_in_prefix": "3d5c451d1941425f44952d1cb8614f714b63e777875fb6750e6820cc67e043a7",
+                "size_in_bytes": 158
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/multiprocessing.py",
+                "path_type": "hardlink",
+                "sha256": "e0bdfb8a055fd8dc01857aa6087440dec959ee525e8902f365dac648638e674f",
+                "sha256_in_prefix": "e0bdfb8a055fd8dc01857aa6087440dec959ee525e8902f365dac648638e674f",
+                "size_in_bytes": 191
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/pickle.py",
+                "path_type": "hardlink",
+                "sha256": "afc8fdb24cdf13c642787ca1fce07e5ae70e9114c81cdef3a5133b97b577a92e",
+                "sha256_in_prefix": "afc8fdb24cdf13c642787ca1fce07e5ae70e9114c81cdef3a5133b97b577a92e",
+                "size_in_bytes": 229
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/queue.py",
+                "path_type": "hardlink",
+                "sha256": "bb1bcb082845fb3c565a0ad8d5aff0c6df2ba768c82ddc0ee0fae79015ba5531",
+                "sha256_in_prefix": "bb1bcb082845fb3c565a0ad8d5aff0c6df2ba768c82ddc0ee0fae79015ba5531",
+                "size_in_bytes": 160
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/reprlib.py",
+                "path_type": "hardlink",
+                "sha256": "36de6c520310de379522e92a4873af074508b25e98e6dfa6993ff5de6a599a26",
+                "sha256_in_prefix": "36de6c520310de379522e92a4873af074508b25e98e6dfa6993ff5de6a599a26",
+                "size_in_bytes": 161
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/socketserver.py",
+                "path_type": "hardlink",
+                "sha256": "bfc64bbab0f11ce82cb9b626d6279f8e5a679c941cc7656e4541adf4508907d9",
+                "sha256_in_prefix": "bfc64bbab0f11ce82cb9b626d6279f8e5a679c941cc7656e4541adf4508907d9",
+                "size_in_bytes": 174
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/subprocess.py",
+                "path_type": "hardlink",
+                "sha256": "a2a45231f15993133831792dde80f937a781c26989eab43d28f86f490293fe13",
+                "sha256_in_prefix": "a2a45231f15993133831792dde80f937a781c26989eab43d28f86f490293fe13",
+                "size_in_bytes": 251
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/sys.py",
+                "path_type": "hardlink",
+                "sha256": "1ce3115f82e88a6ef914c6d66b0777a04c2e18d251f8294c444105915a41b11b",
+                "sha256_in_prefix": "1ce3115f82e88a6ef914c6d66b0777a04c2e18d251f8294c444105915a41b11b",
+                "size_in_bytes": 132
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/test/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "c81f45f9f0d0a73bb5bfc701a0a808acbd9271436a8e592a133b58ac654243ed",
+                "sha256_in_prefix": "c81f45f9f0d0a73bb5bfc701a0a808acbd9271436a8e592a133b58ac654243ed",
+                "size_in_bytes": 110
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/test/support.py",
+                "path_type": "hardlink",
+                "sha256": "4c6e61d05546c32246b4a4045cc856b43e06f5665a807acc23f09e2fd3656587",
+                "sha256_in_prefix": "4c6e61d05546c32246b4a4045cc856b43e06f5665a807acc23f09e2fd3656587",
+                "size_in_bytes": 484
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "8d5f6f0f1df0465d1bb2872553ca127bee52a8743762909b4ad9aab579ead69e",
+                "sha256_in_prefix": "8d5f6f0f1df0465d1bb2872553ca127bee52a8743762909b4ad9aab579ead69e",
+                "size_in_bytes": 620
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/colorchooser.py",
+                "path_type": "hardlink",
+                "sha256": "929ae59a946dbc36d6e46ab8dc7d668b62a6349da4bb32d039b6b46b91300e45",
+                "sha256_in_prefix": "929ae59a946dbc36d6e46ab8dc7d668b62a6349da4bb32d039b6b46b91300e45",
+                "size_in_bytes": 333
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/commondialog.py",
+                "path_type": "hardlink",
+                "sha256": "99d51bab5219a8e19a480efff11dfaec8ba40c2b0c7f35e2547ad3410a69ed9d",
+                "sha256_in_prefix": "99d51bab5219a8e19a480efff11dfaec8ba40c2b0c7f35e2547ad3410a69ed9d",
+                "size_in_bytes": 333
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/constants.py",
+                "path_type": "hardlink",
+                "sha256": "d2a454ad92d13dd571b9e0012fd293cf311612c93ac4cd6b3a3c4ae8e1f15ed0",
+                "sha256_in_prefix": "d2a454ad92d13dd571b9e0012fd293cf311612c93ac4cd6b3a3c4ae8e1f15ed0",
+                "size_in_bytes": 324
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/dialog.py",
+                "path_type": "hardlink",
+                "sha256": "92ca7ecefb3efc0f743fd44d1d2f12dbb7f593c7f8f331b605e9768f0655e72d",
+                "sha256_in_prefix": "92ca7ecefb3efc0f743fd44d1d2f12dbb7f593c7f8f331b605e9768f0655e72d",
+                "size_in_bytes": 311
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/dnd.py",
+                "path_type": "hardlink",
+                "sha256": "0bf021d14ae7c9fd97284e6efa83fa9968b5e91ccc49780c035ba1052030298f",
+                "sha256_in_prefix": "0bf021d14ae7c9fd97284e6efa83fa9968b5e91ccc49780c035ba1052030298f",
+                "size_in_bytes": 306
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/filedialog.py",
+                "path_type": "hardlink",
+                "sha256": "c8daf7d24fa10d8d5a3091cdb0aa91a87a8e3a5cd8282b9b7d0dc78d8d5996b1",
+                "sha256_in_prefix": "c8daf7d24fa10d8d5a3091cdb0aa91a87a8e3a5cd8282b9b7d0dc78d8d5996b1",
+                "size_in_bytes": 534
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/font.py",
+                "path_type": "hardlink",
+                "sha256": "4d76ab7e5849471a9ea5a44d483c3a2455151b3e4fd53d42e3fb85f5546a8f7c",
+                "sha256_in_prefix": "4d76ab7e5849471a9ea5a44d483c3a2455151b3e4fd53d42e3fb85f5546a8f7c",
+                "size_in_bytes": 309
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/messagebox.py",
+                "path_type": "hardlink",
+                "sha256": "589b78b7cde42e6aff527a42585b8ba326b366bdf001438497a0039f7a2ca040",
+                "sha256_in_prefix": "589b78b7cde42e6aff527a42585b8ba326b366bdf001438497a0039f7a2ca040",
+                "size_in_bytes": 327
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/scrolledtext.py",
+                "path_type": "hardlink",
+                "sha256": "0d1ccdf1a040943054a350762831f3769452cd705f1f8ace3b3d22b875db41c8",
+                "sha256_in_prefix": "0d1ccdf1a040943054a350762831f3769452cd705f1f8ace3b3d22b875db41c8",
+                "size_in_bytes": 329
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/simpledialog.py",
+                "path_type": "hardlink",
+                "sha256": "e8c86e561642255e177cfa4f49458a9432cb1848b4636665190f536ec98914bd",
+                "sha256_in_prefix": "e8c86e561642255e177cfa4f49458a9432cb1848b4636665190f536ec98914bd",
+                "size_in_bytes": 329
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/tix.py",
+                "path_type": "hardlink",
+                "sha256": "68d78e7db5921a670debd5261067f8b49f902312d3e92539ca7ce6d625a07a90",
+                "sha256_in_prefix": "68d78e7db5921a670debd5261067f8b49f902312d3e92539ca7ce6d625a07a90",
+                "size_in_bytes": 302
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/ttk.py",
+                "path_type": "hardlink",
+                "sha256": "ad1ac9a438dc3f682340dba4102bb8174dba3fe0a45bedc26b6b4de8e89af85c",
+                "sha256_in_prefix": "ad1ac9a438dc3f682340dba4102bb8174dba3fe0a45bedc26b6b4de8e89af85c",
+                "size_in_bytes": 302
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "c81f45f9f0d0a73bb5bfc701a0a808acbd9271436a8e592a133b58ac654243ed",
+                "sha256_in_prefix": "c81f45f9f0d0a73bb5bfc701a0a808acbd9271436a8e592a133b58ac654243ed",
+                "size_in_bytes": 110
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/error.py",
+                "path_type": "hardlink",
+                "sha256": "81facaceffba5b93a3ccd21f8ef25a424c400512f29b62b08df2855d274307ad",
+                "sha256_in_prefix": "81facaceffba5b93a3ccd21f8ef25a424c400512f29b62b08df2855d274307ad",
+                "size_in_bytes": 479
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/parse.py",
+                "path_type": "hardlink",
+                "sha256": "c4b2d4308201e4cade09d633459e732115ab853442a0c3bc459107e163c54036",
+                "sha256_in_prefix": "c4b2d4308201e4cade09d633459e732115ab853442a0c3bc459107e163c54036",
+                "size_in_bytes": 1045
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/request.py",
+                "path_type": "hardlink",
+                "sha256": "b6d233abad0fc23472acb41419d02d7d8bece1fce2570bdc2ded8ac3e86f1348",
+                "sha256_in_prefix": "b6d233abad0fc23472acb41419d02d7d8bece1fce2570bdc2ded8ac3e86f1348",
+                "size_in_bytes": 3496
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/response.py",
+                "path_type": "hardlink",
+                "sha256": "64464c2f41696c1fbe18878114fbd2cdbb65549e84b11e2d088e2a07b0fcb054",
+                "sha256_in_prefix": "64464c2f41696c1fbe18878114fbd2cdbb65549e84b11e2d088e2a07b0fcb054",
+                "size_in_bytes": 342
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/robotparser.py",
+                "path_type": "hardlink",
+                "sha256": "8f6e29e9d30dcd4a4666d4f7050c7046813e17cf225a60692a0bb4b5157ad454",
+                "sha256_in_prefix": "8f6e29e9d30dcd4a4666d4f7050c7046813e17cf225a60692a0bb4b5157ad454",
+                "size_in_bytes": 179
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/winreg.py",
+                "path_type": "hardlink",
+                "sha256": "db33401b9f5023bbc59428fb92a0e1d09ac0613a5ec4e9c8e793c40088d886aa",
+                "sha256_in_prefix": "db33401b9f5023bbc59428fb92a0e1d09ac0613a5ec4e9c8e793c40088d886aa",
+                "size_in_bytes": 163
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/xmlrpc/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/xmlrpc/client.py",
+                "path_type": "hardlink",
+                "sha256": "d8f7e72f921b295c1d28fec2f01d4e52f884b6e04e6f0a07e2900f7ef1c8bd07",
+                "sha256_in_prefix": "d8f7e72f921b295c1d28fec2f01d4e52f884b6e04e6f0a07e2900f7ef1c8bd07",
+                "size_in_bytes": 143
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/xmlrpc/server.py",
+                "path_type": "hardlink",
+                "sha256": "1120d77695204cac9e1660834a7266069f3338d8c9925b1124ebf2e0eb5a00b7",
+                "sha256_in_prefix": "1120d77695204cac9e1660834a7266069f3338d8c9925b1124ebf2e0eb5a00b7",
+                "size_in_bytes": 143
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/standard_library/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "3706daaa29327a1efbc128aba3e0473634ac0a64a6b8b1807bdd5de1ce6afd01",
+                "sha256_in_prefix": "3706daaa29327a1efbc128aba3e0473634ac0a64a6b8b1807bdd5de1ce6afd01",
+                "size_in_bytes": 28065
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/tests/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/tests/base.py",
+                "path_type": "hardlink",
+                "sha256": "ecb4c02872605313b099f7c3d6481c12b56dd95a2e29c95d3e7ab88abbaa93f9",
+                "sha256_in_prefix": "ecb4c02872605313b099f7c3d6481c12b56dd95a2e29c95d3e7ab88abbaa93f9",
+                "size_in_bytes": 19956
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e5f0715aa7ff39343c8d9ee4d934b7e2b147d78b6881e478f3c178cc11c843eb",
+                "sha256_in_prefix": "e5f0715aa7ff39343c8d9ee4d934b7e2b147d78b6881e478f3c178cc11c843eb",
+                "size_in_bytes": 6831
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/newbytes.py",
+                "path_type": "hardlink",
+                "sha256": "0ff90d0c3f6c6cd262af6714c7178f880bb0d8e5b98abc559eee79b879ae2bd1",
+                "sha256_in_prefix": "0ff90d0c3f6c6cd262af6714c7178f880bb0d8e5b98abc559eee79b879ae2bd1",
+                "size_in_bytes": 16303
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/newdict.py",
+                "path_type": "hardlink",
+                "sha256": "828f8b6e5d8c4566492519704c052524d251920f7ce9861e5748c2a8450414d7",
+                "sha256_in_prefix": "828f8b6e5d8c4566492519704c052524d251920f7ce9861e5748c2a8450414d7",
+                "size_in_bytes": 2011
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/newint.py",
+                "path_type": "hardlink",
+                "sha256": "1c7f741d2d98d40a52d362c3a4aceab7d5752f0b69ead92d3086236af654221f",
+                "sha256_in_prefix": "1c7f741d2d98d40a52d362c3a4aceab7d5752f0b69ead92d3086236af654221f",
+                "size_in_bytes": 13406
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/newlist.py",
+                "path_type": "hardlink",
+                "sha256": "f87e7e7d7a1d77e51081316764125dc04ebc0ab8082ff8d589876fe30eeadab5",
+                "sha256_in_prefix": "f87e7e7d7a1d77e51081316764125dc04ebc0ab8082ff8d589876fe30eeadab5",
+                "size_in_bytes": 2284
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/newmemoryview.py",
+                "path_type": "hardlink",
+                "sha256": "2e70118222aa436ccbc300d9de8c2ed5ab68a273d090e9de58c7f1242c01e3fa",
+                "sha256_in_prefix": "2e70118222aa436ccbc300d9de8c2ed5ab68a273d090e9de58c7f1242c01e3fa",
+                "size_in_bytes": 712
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/newobject.py",
+                "path_type": "hardlink",
+                "sha256": "017fe7f06c250d1d8863ec48c190afbb43a58ff09ad9a4b9ee79538a19c5afe2",
+                "sha256_in_prefix": "017fe7f06c250d1d8863ec48c190afbb43a58ff09ad9a4b9ee79538a19c5afe2",
+                "size_in_bytes": 3358
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/newopen.py",
+                "path_type": "hardlink",
+                "sha256": "95c44d1d6675523127ff4fd72a2b35640e54ea5fb873e087942d165f5b18e0d2",
+                "sha256_in_prefix": "95c44d1d6675523127ff4fd72a2b35640e54ea5fb873e087942d165f5b18e0d2",
+                "size_in_bytes": 810
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/newrange.py",
+                "path_type": "hardlink",
+                "sha256": "7dc08bd629aaa87fa5a96b18f4b9e697d77e59b24eb57adac8050fa146ccec29",
+                "sha256_in_prefix": "7dc08bd629aaa87fa5a96b18f4b9e697d77e59b24eb57adac8050fa146ccec29",
+                "size_in_bytes": 5296
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/newstr.py",
+                "path_type": "hardlink",
+                "sha256": "7b46eb92eac8d082befb84e84043b80b3d4510265abf80b250630ac65adc98ae",
+                "sha256_in_prefix": "7b46eb92eac8d082befb84e84043b80b3d4510265abf80b250630ac65adc98ae",
+                "size_in_bytes": 15758
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/utils/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "12bfed525e9b4b8c69eff335677859ae033d8401ab454bc201d7070d181239d1",
+                "sha256_in_prefix": "12bfed525e9b4b8c69eff335677859ae033d8401ab454bc201d7070d181239d1",
+                "size_in_bytes": 21960
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/utils/surrogateescape.py",
+                "path_type": "hardlink",
+                "sha256": "eeee15e17956f373f96120094b67fdd98505f2fb16b61b224e7980b213892ff3",
+                "sha256_in_prefix": "eeee15e17956f373f96120094b67fdd98505f2fb16b61b224e7980b213892ff3",
+                "size_in_bytes": 6097
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "09903f2a0bd340e3c0635fccae525e43a78c87611e8b8fca22fe09bb2024a5fc",
+                "sha256_in_prefix": "09903f2a0bd340e3c0635fccae525e43a78c87611e8b8fca22fe09bb2024a5fc",
+                "size_in_bytes": 31
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixer_util.py",
+                "path_type": "hardlink",
+                "sha256": "84e997f172e789c189e911b0954c6c961ba1ce13dcd1c6629a5ca515001e0cea",
+                "sha256_in_prefix": "84e997f172e789c189e911b0954c6c961ba1ce13dcd1c6629a5ca515001e0cea",
+                "size_in_bytes": 17357
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e4a1295278d5b05082b2bffeceb8a4bc96cb7fdcec9442671531ffe6905cdf72",
+                "sha256_in_prefix": "e4a1295278d5b05082b2bffeceb8a4bc96cb7fdcec9442671531ffe6905cdf72",
+                "size_in_bytes": 5236
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_UserDict.py",
+                "path_type": "hardlink",
+                "sha256": "8cbe235e719a5104e41bc44a7c65db53f1d54e407731664c430524a8c02307a2",
+                "sha256_in_prefix": "8cbe235e719a5104e41bc44a7c65db53f1d54e407731664c430524a8c02307a2",
+                "size_in_bytes": 3840
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_absolute_import.py",
+                "path_type": "hardlink",
+                "sha256": "be4ac5d85c90479952cf65a676acb0ce41095530b47aae2087f44458128787bc",
+                "sha256_in_prefix": "be4ac5d85c90479952cf65a676acb0ce41095530b47aae2087f44458128787bc",
+                "size_in_bytes": 3140
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_add__future__imports_except_unicode_literals.py",
+                "path_type": "hardlink",
+                "sha256": "16bdb5f5503347c2965dcdbf6df8aa2e5d74120c405a32fa708dcca30b7ef955",
+                "sha256_in_prefix": "16bdb5f5503347c2965dcdbf6df8aa2e5d74120c405a32fa708dcca30b7ef955",
+                "size_in_bytes": 662
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_basestring.py",
+                "path_type": "hardlink",
+                "sha256": "6c790ab8cce1af914c5f08d794c3a3b287784b7ad091575bce1a16578fad9776",
+                "sha256_in_prefix": "6c790ab8cce1af914c5f08d794c3a3b287784b7ad091575bce1a16578fad9776",
+                "size_in_bytes": 394
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_bytes.py",
+                "path_type": "hardlink",
+                "sha256": "021cce25eb3a1273f08336e80e3bd444035b58aa9c886e9919a616d3b3d840af",
+                "sha256_in_prefix": "021cce25eb3a1273f08336e80e3bd444035b58aa9c886e9919a616d3b3d840af",
+                "size_in_bytes": 685
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_cmp.py",
+                "path_type": "hardlink",
+                "sha256": "065abf67420691888a4bcdd0cd9e70520a49c997d0899a04b1627554fc978056",
+                "sha256_in_prefix": "065abf67420691888a4bcdd0cd9e70520a49c997d0899a04b1627554fc978056",
+                "size_in_bytes": 701
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_division.py",
+                "path_type": "hardlink",
+                "sha256": "827ac08bbb2daae8955328bf0ded47f2afbee37890692517d028e73a643a3b6c",
+                "sha256_in_prefix": "827ac08bbb2daae8955328bf0ded47f2afbee37890692517d028e73a643a3b6c",
+                "size_in_bytes": 228
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_division_safe.py",
+                "path_type": "hardlink",
+                "sha256": "a33e34ee9d16a1cd842b0ee364750be02a43b3cd451697a446e9b9f0d2ac369e",
+                "sha256_in_prefix": "a33e34ee9d16a1cd842b0ee364750be02a43b3cd451697a446e9b9f0d2ac369e",
+                "size_in_bytes": 3631
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_execfile.py",
+                "path_type": "hardlink",
+                "sha256": "23901c27abcf67b8bbd130a16aaf629f1aa76780b4e3ec89c9f008b466bc1377",
+                "sha256_in_prefix": "23901c27abcf67b8bbd130a16aaf629f1aa76780b4e3ec89c9f008b466bc1377",
+                "size_in_bytes": 921
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_future_builtins.py",
+                "path_type": "hardlink",
+                "sha256": "401091a43f5703bb5bb5f3f8c26385d835eab81e25abe7aea64423f90031a74b",
+                "sha256_in_prefix": "401091a43f5703bb5bb5f3f8c26385d835eab81e25abe7aea64423f90031a74b",
+                "size_in_bytes": 2027
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_future_standard_library.py",
+                "path_type": "hardlink",
+                "sha256": "155b5f945b77f1e7c77bf4845fa9379ba21802d2968c0e2b00f66b942bfac80d",
+                "sha256_in_prefix": "155b5f945b77f1e7c77bf4845fa9379ba21802d2968c0e2b00f66b942bfac80d",
+                "size_in_bytes": 733
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_future_standard_library_urllib.py",
+                "path_type": "hardlink",
+                "sha256": "45ff355dc01703ebf036fae1b247f9b0b1316d1fbe5a4af97e251c3181802b3b",
+                "sha256_in_prefix": "45ff355dc01703ebf036fae1b247f9b0b1316d1fbe5a4af97e251c3181802b3b",
+                "size_in_bytes": 1001
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_input.py",
+                "path_type": "hardlink",
+                "sha256": "6e168f36d32b64d6e35880d0091ec8b9ee41c418f8adfd11250f7f8e2c2f6feb",
+                "sha256_in_prefix": "6e168f36d32b64d6e35880d0091ec8b9ee41c418f8adfd11250f7f8e2c2f6feb",
+                "size_in_bytes": 687
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_metaclass.py",
+                "path_type": "hardlink",
+                "sha256": "fc24b53435d833e321eb1a6880b2bf1ad631deb514a6dbb5f99d11c77942f5e4",
+                "sha256_in_prefix": "fc24b53435d833e321eb1a6880b2bf1ad631deb514a6dbb5f99d11c77942f5e4",
+                "size_in_bytes": 9570
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_next_call.py",
+                "path_type": "hardlink",
+                "sha256": "d354931bce80bfda3941ca500c9e946cf86fc6df642ab91ab623de75d5d182f0",
+                "sha256_in_prefix": "d354931bce80bfda3941ca500c9e946cf86fc6df642ab91ab623de75d5d182f0",
+                "size_in_bytes": 3158
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_object.py",
+                "path_type": "hardlink",
+                "sha256": "a9a9452239f45535971b9b0638ea02bceeb9a268d7e7ff5de34494a7052305dc",
+                "sha256_in_prefix": "a9a9452239f45535971b9b0638ea02bceeb9a268d7e7ff5de34494a7052305dc",
+                "size_in_bytes": 407
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_oldstr_wrap.py",
+                "path_type": "hardlink",
+                "sha256": "50247a43697ea55a894ab4539d00163256aa0685fba17d55a46ff0e90d177326",
+                "sha256_in_prefix": "50247a43697ea55a894ab4539d00163256aa0685fba17d55a46ff0e90d177326",
+                "size_in_bytes": 1214
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_order___future__imports.py",
+                "path_type": "hardlink",
+                "sha256": "002502c39344196be3e9703dacd8fc05885ade4b712ef90ce52b21e5cc95eb8e",
+                "sha256_in_prefix": "002502c39344196be3e9703dacd8fc05885ade4b712ef90ce52b21e5cc95eb8e",
+                "size_in_bytes": 829
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_print.py",
+                "path_type": "hardlink",
+                "sha256": "9db25dbf90dbc6d5b3248448434b6bec57c690c90749c2532f3be9c6ffe148dc",
+                "sha256_in_prefix": "9db25dbf90dbc6d5b3248448434b6bec57c690c90749c2532f3be9c6ffe148dc",
+                "size_in_bytes": 3881
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_print_with_import.py",
+                "path_type": "hardlink",
+                "sha256": "8555a7ef44350cf31488733212a814c7eeac33503294b8fbf2ff6931ce0b170f",
+                "sha256_in_prefix": "8555a7ef44350cf31488733212a814c7eeac33503294b8fbf2ff6931ce0b170f",
+                "size_in_bytes": 735
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_raise.py",
+                "path_type": "hardlink",
+                "sha256": "0a48ea892bc71c3f9e9da2f160c907f8db22f763464a114b59dddf1be7b1988e",
+                "sha256_in_prefix": "0a48ea892bc71c3f9e9da2f160c907f8db22f763464a114b59dddf1be7b1988e",
+                "size_in_bytes": 3904
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_remove_old__future__imports.py",
+                "path_type": "hardlink",
+                "sha256": "8f8102d4a11581786e400aa16079c0aee5235bab9cccf8d5fdf4c248e2ccb80c",
+                "sha256_in_prefix": "8f8102d4a11581786e400aa16079c0aee5235bab9cccf8d5fdf4c248e2ccb80c",
+                "size_in_bytes": 851
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_unicode_keep_u.py",
+                "path_type": "hardlink",
+                "sha256": "33c7dc1711de16759538aa1046990cb27a5df6a99416e6c8da81613b864f93b0",
+                "sha256_in_prefix": "33c7dc1711de16759538aa1046990cb27a5df6a99416e6c8da81613b864f93b0",
+                "size_in_bytes": 779
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_unicode_literals_import.py",
+                "path_type": "hardlink",
+                "sha256": "c2afa16fef58c77033e2897eca55d924f10367cd4468f65e232e55be90340846",
+                "sha256_in_prefix": "c2afa16fef58c77033e2897eca55d924f10367cd4468f65e232e55be90340846",
+                "size_in_bytes": 367
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/fix_xrange_with_import.py",
+                "path_type": "hardlink",
+                "sha256": "7f4ef8a92b63333dceb4b8edd5b28a652c509d16db6fb1f311ba87b7dc20a9dc",
+                "sha256_in_prefix": "7f4ef8a92b63333dceb4b8edd5b28a652c509d16db6fb1f311ba87b7dc20a9dc",
+                "size_in_bytes": 479
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/main.py",
+                "path_type": "hardlink",
+                "sha256": "7de20299cbf47735a1badbf0cf4ba79c8571bac6d29506450dac4e6e41de6ecf",
+                "sha256_in_prefix": "7de20299cbf47735a1badbf0cf4ba79c8571bac6d29506450dac4e6e41de6ecf",
+                "size_in_bytes": 13733
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "09903f2a0bd340e3c0635fccae525e43a78c87611e8b8fca22fe09bb2024a5fc",
+                "sha256_in_prefix": "09903f2a0bd340e3c0635fccae525e43a78c87611e8b8fca22fe09bb2024a5fc",
+                "size_in_bytes": 31
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "71c76ffb63068d031babc5ee11906774799bcc646b66769b92c8d764b52fd38e",
+                "sha256_in_prefix": "71c76ffb63068d031babc5ee11906774799bcc646b66769b92c8d764b52fd38e",
+                "size_in_bytes": 3719
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/feature_base.py",
+                "path_type": "hardlink",
+                "sha256": "bfbc8b8c10c150f78d51cf981c61a522c243390cc500ce15a3444de45d491d55",
+                "sha256_in_prefix": "bfbc8b8c10c150f78d51cf981c61a522c243390cc500ce15a3444de45d491d55",
+                "size_in_bytes": 1723
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_add_all__future__imports.py",
+                "path_type": "hardlink",
+                "sha256": "9877add4b81b1e7f467e009818d6572a8fabb1e0d6ade02f51c0236707607931",
+                "sha256_in_prefix": "9877add4b81b1e7f467e009818d6572a8fabb1e0d6ade02f51c0236707607931",
+                "size_in_bytes": 676
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_add_all_future_builtins.py",
+                "path_type": "hardlink",
+                "sha256": "b1c7e463e4b3e63d320ed2d896cd8434e72a10c3d5c5e0e6f6015860f20d3c1f",
+                "sha256_in_prefix": "b1c7e463e4b3e63d320ed2d896cd8434e72a10c3d5c5e0e6f6015860f20d3c1f",
+                "size_in_bytes": 1269
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_add_future_standard_library_import.py",
+                "path_type": "hardlink",
+                "sha256": "b614d16e4073cbf4898d9d1b26d793a74b014f1f16afaf7115a907e2cb727fb6",
+                "sha256_in_prefix": "b614d16e4073cbf4898d9d1b26d793a74b014f1f16afaf7115a907e2cb727fb6",
+                "size_in_bytes": 663
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_annotations.py",
+                "path_type": "hardlink",
+                "sha256": "553fc0a2b298f40616619519d7bfc2794ac994403b54693054b0d09700f5071a",
+                "sha256_in_prefix": "553fc0a2b298f40616619519d7bfc2794ac994403b54693054b0d09700f5071a",
+                "size_in_bytes": 1581
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_division.py",
+                "path_type": "hardlink",
+                "sha256": "fd30ff7392a788062a126d753bb349174bf658485848d91119c286ffde1939ab",
+                "sha256_in_prefix": "fd30ff7392a788062a126d753bb349174bf658485848d91119c286ffde1939ab",
+                "size_in_bytes": 904
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_features.py",
+                "path_type": "hardlink",
+                "sha256": "3599f49f7e3f3186692cdc323f54dfe7584e88de7c460ec0f2d03da4ad52f3e7",
+                "sha256_in_prefix": "3599f49f7e3f3186692cdc323f54dfe7584e88de7c460ec0f2d03da4ad52f3e7",
+                "size_in_bytes": 2675
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_fullargspec.py",
+                "path_type": "hardlink",
+                "sha256": "56566e214e9036b0a5991baf0b89ad2c808bdf23028be45c1829d2f5f0f86fe4",
+                "sha256_in_prefix": "56566e214e9036b0a5991baf0b89ad2c808bdf23028be45c1829d2f5f0f86fe4",
+                "size_in_bytes": 438
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_future_builtins.py",
+                "path_type": "hardlink",
+                "sha256": "4a508af48f6ed399b5f4baf5c31949c45f2da19e72bb4c9705e0cbc5437dfdfc",
+                "sha256_in_prefix": "4a508af48f6ed399b5f4baf5c31949c45f2da19e72bb4c9705e0cbc5437dfdfc",
+                "size_in_bytes": 1450
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_getcwd.py",
+                "path_type": "hardlink",
+                "sha256": "b9e6ef4ef15ba0baac44e142c1d9f3a0fe9387388cd2c933f530d71e825c16c4",
+                "sha256_in_prefix": "b9e6ef4ef15ba0baac44e142c1d9f3a0fe9387388cd2c933f530d71e825c16c4",
+                "size_in_bytes": 873
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_imports.py",
+                "path_type": "hardlink",
+                "sha256": "287e10faa333b2e37955c7c4d59192df7ef21e1c5b82b98ba11b691edaf603de",
+                "sha256_in_prefix": "287e10faa333b2e37955c7c4d59192df7ef21e1c5b82b98ba11b691edaf603de",
+                "size_in_bytes": 5026
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_imports2.py",
+                "path_type": "hardlink",
+                "sha256": "6ecd95e58bf4bfff312f1fa5363f6434400ad9d2d85d45e4676871102834d425",
+                "sha256_in_prefix": "6ecd95e58bf4bfff312f1fa5363f6434400ad9d2d85d45e4676871102834d425",
+                "size_in_bytes": 8580
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_kwargs.py",
+                "path_type": "hardlink",
+                "sha256": "341fc0a7c60993ef677282516ce88f63f54c22280581507c9bc02e636f430e11",
+                "sha256_in_prefix": "341fc0a7c60993ef677282516ce88f63f54c22280581507c9bc02e636f430e11",
+                "size_in_bytes": 5991
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_memoryview.py",
+                "path_type": "hardlink",
+                "sha256": "1706b2c7f7b3a6bdb6b5b274f90aca749f85653a54fa6ef2efc97587f378c717",
+                "sha256_in_prefix": "1706b2c7f7b3a6bdb6b5b274f90aca749f85653a54fa6ef2efc97587f378c717",
+                "size_in_bytes": 551
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_metaclass.py",
+                "path_type": "hardlink",
+                "sha256": "21c1362a36831bc8d44771585c40b3382fdcaf6a6be6bf795b53536ccacaf167",
+                "sha256_in_prefix": "21c1362a36831bc8d44771585c40b3382fdcaf6a6be6bf795b53536ccacaf167",
+                "size_in_bytes": 3260
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_newstyle.py",
+                "path_type": "hardlink",
+                "sha256": "efcb1acca3879bd0d4a0cc96e1576f42931766189c6d7ce8ad53d1841a5252b3",
+                "sha256_in_prefix": "efcb1acca3879bd0d4a0cc96e1576f42931766189c6d7ce8ad53d1841a5252b3",
+                "size_in_bytes": 888
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_next.py",
+                "path_type": "hardlink",
+                "sha256": "547a9cc8e451355a8a279d632753a4870c47b97460a7ca9a95dcaa70cbc0e09d",
+                "sha256_in_prefix": "547a9cc8e451355a8a279d632753a4870c47b97460a7ca9a95dcaa70cbc0e09d",
+                "size_in_bytes": 1233
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_printfunction.py",
+                "path_type": "hardlink",
+                "sha256": "34321fa959942411b71fd13a9eb9cdd1c5992bc721f692f817e9cc7b176c6b7f",
+                "sha256_in_prefix": "34321fa959942411b71fd13a9eb9cdd1c5992bc721f692f817e9cc7b176c6b7f",
+                "size_in_bytes": 401
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_raise.py",
+                "path_type": "hardlink",
+                "sha256": "cd0fc070cb069826ed28c82bc5919c1cb60db1cc3ab6a5c5bc743182ab4d6d4f",
+                "sha256_in_prefix": "cd0fc070cb069826ed28c82bc5919c1cb60db1cc3ab6a5c5bc743182ab4d6d4f",
+                "size_in_bytes": 1099
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_raise_.py",
+                "path_type": "hardlink",
+                "sha256": "f524e9eb7ddfad47d80128d8cea870c71fcc5de3cd98c85f242968c118fc14b6",
+                "sha256_in_prefix": "f524e9eb7ddfad47d80128d8cea870c71fcc5de3cd98c85f242968c118fc14b6",
+                "size_in_bytes": 1225
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_throw.py",
+                "path_type": "hardlink",
+                "sha256": "fd944456b7be5adb54be4e2c5a3aea50daa6f50d6e15a013102374ffe3d729b9",
+                "sha256_in_prefix": "fd944456b7be5adb54be4e2c5a3aea50daa6f50d6e15a013102374ffe3d729b9",
+                "size_in_bytes": 835
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/fix_unpacking.py",
+                "path_type": "hardlink",
+                "sha256": "c59ab13181e075eb8891eae6b58f9ebe2b2f70a94608f8b9be0e6de69b7e5c26",
+                "sha256_in_prefix": "c59ab13181e075eb8891eae6b58f9ebe2b2f70a94608f8b9be0e6de69b7e5c26",
+                "size_in_bytes": 6041
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/main.py",
+                "path_type": "hardlink",
+                "sha256": "7551d84d041e2689ee3850cdade9c9665fab28780e40a44c3cfd4eaa72688164",
+                "sha256_in_prefix": "7551d84d041e2689ee3850cdade9c9665fab28780e40a44c3cfd4eaa72688164",
+                "size_in_bytes": 8186
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "d83c5c42de7380f1fe7be4d20d2da5ee123de00f5e1bba4f803f95e45807d3ce",
+                "sha256_in_prefix": "d83c5c42de7380f1fe7be4d20d2da5ee123de00f5e1bba4f803f95e45807d3ce",
+                "size_in_bytes": 2892
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/builtins/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "ee3ff83ac52537aab678aaf5e1da3b9914351b05d1a1700c511d00d5f269025b",
+                "sha256_in_prefix": "ee3ff83ac52537aab678aaf5e1da3b9914351b05d1a1700c511d00d5f269025b",
+                "size_in_bytes": 1805
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/builtins/misc.py",
+                "path_type": "hardlink",
+                "sha256": "23be8ca71ff7c271e9260ed46fd49938146a105a34d988229992697e8ab5effd",
+                "sha256_in_prefix": "23be8ca71ff7c271e9260ed46fd49938146a105a34d988229992697e8ab5effd",
+                "size_in_bytes": 5598
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/builtins/noniterators.py",
+                "path_type": "hardlink",
+                "sha256": "2ed7442e777b2b261d5e0ec6916db97209043d40b482067901832d0def4df792",
+                "sha256_in_prefix": "2ed7442e777b2b261d5e0ec6916db97209043d40b482067901832d0def4df792",
+                "size_in_bytes": 9370
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/translation/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "a13b6b3870fc4e833d73d4576adfc18632a1377dcdeff560e07192d227fe51b5",
+                "sha256_in_prefix": "a13b6b3870fc4e833d73d4576adfc18632a1377dcdeff560e07192d227fe51b5",
+                "size_in_bytes": 14914
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/types/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "47226582a83db89f2817e9094fd4257e17dd9a188c8777d2866b6f776090c9c6",
+                "sha256_in_prefix": "47226582a83db89f2817e9094fd4257e17dd9a188c8777d2866b6f776090c9c6",
+                "size_in_bytes": 879
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/types/basestring.py",
+                "path_type": "hardlink",
+                "sha256": "94eeba68780e574daf91aea4a2c9d1e8658ad22342d06dbc36e81bd4c3faf7e1",
+                "sha256_in_prefix": "94eeba68780e574daf91aea4a2c9d1e8658ad22342d06dbc36e81bd4c3faf7e1",
+                "size_in_bytes": 774
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/types/olddict.py",
+                "path_type": "hardlink",
+                "sha256": "d18b5f7d9e79558e80c90febc2ee03678bdc46ca7a773f9d4337337b237c84b9",
+                "sha256_in_prefix": "d18b5f7d9e79558e80c90febc2ee03678bdc46ca7a773f9d4337337b237c84b9",
+                "size_in_bytes": 2721
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/types/oldstr.py",
+                "path_type": "hardlink",
+                "sha256": "26e17c541048e0e192819dcfca153a2f14808937c45b3747531d07c20d775926",
+                "sha256_in_prefix": "26e17c541048e0e192819dcfca153a2f14808937c45b3747531d07c20d775926",
+                "size_in_bytes": 4333
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/utils/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "7bc975b0e7dd8832777647240562cd5af0b56a10b9057e616870b64c674d800f",
+                "sha256_in_prefix": "7bc975b0e7dd8832777647240562cd5af0b56a10b9057e616870b64c674d800f",
+                "size_in_bytes": 2633
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/__pycache__/_markupbase.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/__pycache__/datetime.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/_encoded_words.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/_header_value_parser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/_parseaddr.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/_policybase.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/base64mime.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/charset.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/encoders.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/errors.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/feedparser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/generator.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/header.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/headerregistry.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/iterators.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/message.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/application.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/audio.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/base.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/image.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/message.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/multipart.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/nonmultipart.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/mime/__pycache__/text.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/parser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/policy.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/quoprimime.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/email/__pycache__/utils.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/html/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/html/__pycache__/entities.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/html/__pycache__/parser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/__pycache__/client.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/__pycache__/cookiejar.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/__pycache__/cookies.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/http/__pycache__/server.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/__pycache__/misc.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/__pycache__/socket.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/__pycache__/socketserver.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/__pycache__/pystone.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/__pycache__/ssl_servers.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/test/__pycache__/support.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/__pycache__/total_ordering.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/__pycache__/error.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/__pycache__/parse.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/__pycache__/request.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/__pycache__/response.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/urllib/__pycache__/robotparser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/xmlrpc/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/xmlrpc/__pycache__/client.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/backports/xmlrpc/__pycache__/server.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/__pycache__/disabled.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/__pycache__/iterators.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/__pycache__/misc.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/__pycache__/new_min_max.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/__pycache__/newnext.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/__pycache__/newround.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/builtins/__pycache__/newsuper.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/_dummy_thread.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/_markupbase.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/_thread.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/builtins.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/collections.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/configparser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/copyreg.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/dbm/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/dbm/__pycache__/dumb.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/dbm/__pycache__/gnu.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/dbm/__pycache__/ndbm.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/html/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/html/__pycache__/entities.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/html/__pycache__/parser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/__pycache__/client.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/__pycache__/cookiejar.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/__pycache__/cookies.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/http/__pycache__/server.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/itertools.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/multiprocessing.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/pickle.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/queue.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/reprlib.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/socketserver.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/subprocess.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/sys.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/test/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/test/__pycache__/support.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/colorchooser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/commondialog.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/constants.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/dialog.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/dnd.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/filedialog.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/font.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/messagebox.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/scrolledtext.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/simpledialog.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/tix.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/tkinter/__pycache__/ttk.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/__pycache__/error.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/__pycache__/parse.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/__pycache__/request.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/__pycache__/response.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/urllib/__pycache__/robotparser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/__pycache__/winreg.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/xmlrpc/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/xmlrpc/__pycache__/client.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/moves/xmlrpc/__pycache__/server.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/standard_library/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/tests/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/tests/__pycache__/base.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/newbytes.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/newdict.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/newint.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/newlist.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/newmemoryview.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/newobject.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/newopen.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/newrange.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/types/__pycache__/newstr.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/utils/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/future/utils/__pycache__/surrogateescape.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/__pycache__/fixer_util.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_UserDict.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_absolute_import.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_add__future__imports_except_unicode_literals.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_basestring.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_bytes.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_cmp.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_division.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_division_safe.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_execfile.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_future_builtins.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_future_standard_library.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_future_standard_library_urllib.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_input.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_metaclass.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_next_call.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_object.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_oldstr_wrap.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_order___future__imports.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_print.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_print_with_import.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_raise.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_remove_old__future__imports.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_unicode_keep_u.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_unicode_literals_import.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/fixes/__pycache__/fix_xrange_with_import.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libfuturize/__pycache__/main.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/feature_base.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_add_all__future__imports.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_add_all_future_builtins.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_add_future_standard_library_import.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_annotations.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_division.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_features.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_fullargspec.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_future_builtins.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_getcwd.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_imports.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_imports2.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_kwargs.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_memoryview.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_metaclass.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_newstyle.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_next.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_printfunction.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_raise.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_raise_.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_throw.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/fixes/__pycache__/fix_unpacking.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/libpasteurize/__pycache__/main.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/builtins/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/builtins/__pycache__/misc.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/builtins/__pycache__/noniterators.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/translation/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/types/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/types/__pycache__/basestring.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/types/__pycache__/olddict.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/types/__pycache__/oldstr.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/past/utils/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "bin/futurize",
+                "path_type": "unix_python_entry_point"
+            },
+            {
+                "_path": "bin/pasteurize",
+                "path_type": "unix_python_entry_point"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "",
+    "sha256": "8c918a63595ae01575b738ddf0bff10dc23a5002d4af4c8b445d1179a76a8efd",
+    "size": 364081,
+    "subdir": "noarch",
+    "timestamp": 1708610254418,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/future-1.0.0-pyhd8ed1ab_0.conda",
+    "version": "1.0.0"
+}

@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "py312hb06c811_1",
+  "build_number": 1,
+  "depends": [
+    "libgcc-ng >=12",
+    "libllvm14 >=14.0.6,<14.1.0a0",
+    "libstdcxx-ng >=12",
+    "libzlib >=1.2.13,<1.3.0a0",
+    "python >=3.12,<3.13.0a0",
+    "python_abi 3.12.* *_cp312"
+  ],
+  "license": "BSD-2-Clause",
+  "name": "llvmlite",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1706921771933,
+  "version": "0.42.0"
+}

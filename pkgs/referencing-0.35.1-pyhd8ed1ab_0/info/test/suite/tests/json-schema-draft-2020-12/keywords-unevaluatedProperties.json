@@ -1,0 +1,20 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "unevaluatedProperties": {
+        "$id": "http://example.com/oh-hey-an-unevaluatedProperties",
+        "abc": 123
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/oh-hey-an-unevaluatedProperties",
+      "target": {
+        "$id": "http://example.com/oh-hey-an-unevaluatedProperties",
+        "abc": 123
+      }
+    }
+  ]
+}

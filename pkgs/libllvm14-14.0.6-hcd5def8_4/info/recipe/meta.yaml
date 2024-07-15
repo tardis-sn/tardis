@@ -1,0 +1,104 @@
+# This file created by conda-build 3.25.0
+# ------------------------------------------------
+
+package:
+  name: libllvm14
+  version: 14.0.6
+source:
+  patches:
+    - patches/0001-pass-through-QEMU_LD_PREFIX-SDKROOT.patch
+    - patches/0002-Always-copy-on-windows.patch
+    - patches/0003-RuntimeDyld-RuntimeDyldELF-Clear-GOTOffsetMap-when-r.patch
+    - patches/0004-Fixes-vectorizer-and-extends-SVML-support.patch
+  sha256: 8b3cfd7bc695bd6cea0f37f53f0981f34f87496e79e2529874fd03a2f9dd3a8a
+  url: https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/llvm-project-14.0.6.src.tar.xz
+build:
+  activate_in_script: true
+  number: 4
+  run_exports:
+    - libllvm14 >=14.0.6,<14.1.0a0
+  string: hcd5def8_4
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_1
+    - bzip2 1.0.8 h7f98852_4
+    - c-ares 1.19.1 hd590300_0
+    - ca-certificates 2023.7.22 hbcca054_0
+    - cmake 3.26.4 hcfe8598_0
+    - expat 2.5.0 hcb278e6_1
+    - gcc_impl_linux-64 12.3.0 he2b93b0_0
+    - gcc_linux-64 12.3.0 h76fc315_1
+    - gxx_impl_linux-64 12.3.0 he2b93b0_0
+    - gxx_linux-64 12.3.0 h8a814eb_1
+    - kernel-headers_linux-64 2.6.32 he073ed8_16
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.1 h659d440_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libcurl 8.2.1 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 h516909a_1
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_0
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libnghttp2 1.52.0 h61bc06f_0
+    - libnsl 2.0.0 h7f98852_0
+    - libsanitizer 12.3.0 h0f45ef3_0
+    - libsqlite 3.42.0 h2797004_0
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libuv 1.44.2 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 hcb278e6_0
+    - ninja 1.11.1 h924138e_0
+    - openssl 3.1.1 hd590300_1
+    - python 3.11.4 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - rhash 1.4.3 hd590300_1
+    - sysroot_linux-64 2.12 he073ed8_16
+    - tk 8.6.12 h27826a3_0
+    - tzdata 2023c h71feb2d_0
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.2.13 hd590300_5
+    - zstd 1.5.2 hfc55251_7
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+    - libzlib 1.2.13 hd590300_5
+    - zlib 1.2.13 hd590300_5
+  run:
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+    - libzlib >=1.2.13,<1.3.0a0
+test:
+  commands:
+    - test -f $PREFIX/lib/libLLVM-14${SHLIB_EXT}
+about:
+  dev_url: https://github.com/llvm/llvm-project
+  home: http://llvm.org/
+  license: Apache-2.0 WITH LLVM-exception
+  license_family: Apache
+  license_file: llvm/LICENSE.TXT
+  summary: Development headers and libraries for LLVM
+extra:
+  copy_test_source_files: true
+  feedstock-name: llvmdev
+  final: true
+  recipe-maintainers:
+    - SylvainCorlay
+    - h-vetinari
+    - inducer
+    - isuruf
+    - jakirkham
+    - mingwandroid
+    - timsnyder
+    - xhochy

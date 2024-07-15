@@ -1,0 +1,14 @@
+diff --git a/pyproject.toml b/pyproject.toml
+index 57379b4..26481e6 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -174,6 +174,9 @@ filterwarnings= [
+ 
+   # Ignore datetime warning.
+   "ignore:datetime.datetime.utc:DeprecationWarning",
++
++  # Ignore distutils deprecation warning from appnope
++  "ignore:distutils Version classes are deprecated. Use packaging.version instead.",
+ ]
+ 
+ [tool.coverage.report]

@@ -1,0 +1,23 @@
+{
+  "arch": "x86_64",
+  "build": "py310h261611a_0",
+  "build_number": 0,
+  "depends": [
+    "astropy-iers-data >=0.2024.5.27.0.30.8",
+    "importlib-metadata",
+    "libgcc-ng >=12",
+    "numpy >=1.19,<3",
+    "numpy >=1.23",
+    "packaging >=19.0",
+    "pyerfa >=2.0.1.1",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310",
+    "pyyaml >=3.13"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "astropy",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1718658187571,
+  "version": "6.1.1"
+}

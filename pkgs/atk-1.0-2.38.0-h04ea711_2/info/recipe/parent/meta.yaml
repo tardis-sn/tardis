@@ -1,0 +1,81 @@
+{% set pc = "atk" %}
+{% set name = "atk" %}
+{% set version = "2.38.0" %}
+{% set major_minor = ".".join(version.split(".")[:2]) %}
+{% set abi_version = "1.0" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  url: http://ftp.gnome.org/pub/gnome/sources/{{ name }}/{{ major_minor }}/{{ name }}-{{ version }}.tar.xz
+  sha256: ac4de2a4ef4bd5665052952fe169657e65e895c5057dffb3c2a810f6191a0c36
+
+build:
+  number: 2
+  skip: true  # [win and vc<14]
+  run_exports:
+    - atk-{{ abi_version }} >={{ version }}
+
+outputs:
+  - name: atk-{{ abi_version }}
+    script: build_atk.sh  # [unix]
+    script: bld_atk.bat  # [win]
+    build:
+      run_exports:
+        - atk-{{ abi_version }} >={{ version }}
+    requirements:
+      build:
+        - meson
+        - gobject-introspection 1.*
+        - ninja
+        - python >=3.6
+        - pkg-config
+        - {{ compiler('c') }}
+        - {{ stdlib('c') }}
+        - glib  # [build_platform != target_platform]
+        # Required for the conda-forge meson cross-compilation config to work
+        - {{ compiler('cxx') }}
+      host:
+        - glib
+        - libintl-devel  # [not linux]
+      run:
+        - libglib
+      run_constrained:
+        - atk-{{ abi_version }} {{ version }}
+
+    test:
+      requires:
+        - pkg-config
+      commands:
+        # verify that libs get installed and can be located through pkg-config
+        {% set pc = "atk" %}
+        {% set lib = "atk-" + abi_version  %}
+        - test -f $PREFIX/lib/lib{{ lib }}${SHLIB_EXT}  # [unix]
+        - test -f `pkg-config --variable=libdir --dont-define-prefix {{ pc }}`/lib{{ lib }}${SHLIB_EXT}  # [unix]
+        - if not exist %PREFIX%\\Library\\bin\\{{ lib }}-0.dll exit 1  # [win]
+        - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=exec_prefix --dont-define-prefix {{ pc }}`) do if not exist "%%a/bin/{{ lib }}-0.dll" exit 1  # [win]
+        - if not exist %PREFIX%\\Library\\lib\\{{ lib }}.lib exit 1  # [win]
+        - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=libdir --dont-define-prefix {{ pc }}`) do if not exist "%%a/{{ lib }}.lib" exit 1  # [win]
+
+  - name: atk
+    requirements:
+      run:
+        - atk-{{ abi_version }} {{ version }}
+    test:
+      commands:
+        - test -f $PREFIX/lib/libatk-{{ abi_version }}${SHLIB_EXT}  # [unix]
+
+about:
+  home: http://www.gtk.org/
+  license: LGPL-2.0-or-later
+  license_file: COPYING
+  summary: Accessibility Toolkit.
+
+extra:
+  recipe-maintainers:
+    - pkgw
+    - ocefpaf
+    - isuruf
+    - tschoonj

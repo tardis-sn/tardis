@@ -1,0 +1,39 @@
+# This file created by conda-build 24.5.2.dev35
+# ------------------------------------------------
+
+package:
+  name: libgfortran-ng
+  version: 13.2.0
+source:
+  - patches:
+      - patches/0021-Hardcode-HAVE_ALIGNED_ALLOC-1-in-libstdc-v3-configur.patch
+      - patches/libgomp-support-environ-null.patch
+      - patches/new-allow-commands-in-main-specfile.patch
+    sha256: 8cb4be3796651976f94b9356fa08d833524f62420d6292c5033a9a26af315078
+    url: https://ftp.gnu.org/gnu/gcc/gcc-13.2.0/gcc-13.2.0.tar.gz
+build:
+  number: 13
+  string: h69a702a_13
+requirements:
+  build: []
+  run:
+    - libgfortran5 13.2.0 h3d2ce59_13
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libgfortran.so
+about:
+  home: https://gcc.gnu.org/
+  license: GPL-3.0-only WITH GCC-exception-3.1
+  summary: The GNU Fortran Runtime Library
+extra:
+  copy_test_source_files: true
+  feedstock-name: ctng-compilers-feedstock
+  final: true
+  flow_run_id: azure_20240623.2.1
+  recipe-maintainers:
+    - beckermr
+    - isuruf
+    - timsnyder
+    - xhochy
+  remote_url: https://github.com/conda-forge/ctng-compilers-feedstock
+  sha: 65d04ebbfb4ff200a87ef5ed03b83e3bdbf5f31f

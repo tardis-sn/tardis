@@ -1,0 +1,92 @@
+# This file created by conda-build 24.5.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon May 20 16:07:38 2024
+# ------------------------------------------------
+
+package:
+  name: pytest
+  version: 8.2.1
+source:
+  sha256: 5046e5b46d8e4cac199c373041f26be56fdb81eb4e67dc11d4e10811fc3408fd
+  url: https://pypi.io/packages/source/p/pytest/pytest-8.2.1.tar.gz
+build:
+  entry_points:
+    - py.test = pytest:console_main
+    - pytest = pytest:console_main
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/pytest_1716221322529/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.3 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.0 hd590300_0
+    - packaging 24.0 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - setuptools-scm 8.1.0 pyhd8ed1ab_0
+    - setuptools_scm 8.1.0 hd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - typing-extensions 4.11.0 hd8ed1ab_0
+    - typing_extensions 4.11.0 pyha770c72_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - colorama
+    - exceptiongroup >=1.0.0rc8
+    - iniconfig
+    - packaging
+    - pluggy <2.0,>=1.5
+    - python >=3.8
+    - tomli >=1
+  run_constrained:
+    - pytest-faulthandler >=2
+test:
+  commands:
+    - pytest -h
+  imports:
+    - pytest
+about:
+  description: 'The pytest framework makes it easy to write small tests, yet scales
+    to
+
+    support complex functional testing for applications and libraries.
+
+    '
+  dev_url: https://github.com/pytest-dev/pytest/
+  doc_url: https://docs.pytest.org/en/latest/
+  home: https://docs.pytest.org/en/latest/
+  license: MIT
+  license_file: LICENSE
+  summary: Simple and powerful testing with Python.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240520.1.1
+  recipe-maintainers:
+    - flub
+    - goanpeca
+    - mingwandroid
+    - nicoddemus
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/pytest-feedstock
+  sha: 239d3dbdea285ee4527f231343137ea305bfe8c9

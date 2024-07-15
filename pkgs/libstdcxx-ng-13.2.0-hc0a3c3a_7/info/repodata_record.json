@@ -1,0 +1,21 @@
+{
+    "arch": "x86_64",
+    "build": "hc0a3c3a_7",
+    "build_number": 7,
+    "build_string": "hc0a3c3a_7",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [],
+    "fn": "libstdcxx-ng-13.2.0-hc0a3c3a_7.conda",
+    "license": "GPL-3.0-only WITH GCC-exception-3.1",
+    "md5": "53ebd4c833fa01cb2c6353e99f905406",
+    "name": "libstdcxx-ng",
+    "platform": "linux",
+    "sha256": "35f1e08be0a84810c9075f5bd008495ac94e6c5fe306dfe4b34546f11fed850f",
+    "size": 3837704,
+    "subdir": "linux-64",
+    "timestamp": 1715016117360,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-13.2.0-hc0a3c3a_7.conda",
+    "version": "13.2.0"
+}

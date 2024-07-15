@@ -1,0 +1,71 @@
+{% set name = "docutils" %}
+{% set version = "0.20.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/docutils-{{ version }}.tar.gz
+  sha256: f08a4e276c3a1583a86dce3e34aba3fe04d02bba2dd51ed16106244e8a923e3b
+
+build:
+  number: 3
+  # cannot be noarch b/c of scripts
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+  host:
+    - python
+    - pip
+  run:
+    - python
+
+test:
+  imports:
+    - docutils
+    - docutils.languages
+    - docutils.parsers
+    - docutils.parsers.rst
+    - docutils.parsers.rst.directives
+    - docutils.parsers.rst.languages
+    - docutils.readers
+    - docutils.transforms
+    - docutils.utils
+    - docutils.utils.math
+    - docutils.writers
+    - docutils.writers.html4css1
+    - docutils.writers.html5_polyglot
+    - docutils.writers.latex2e
+    - docutils.writers.odf_odt
+    - docutils.writers.pep_html
+    - docutils.writers.s5_html
+    - docutils.writers.xetex
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: http://docutils.sourceforge.net/
+  # docutils itself contains GPL-3.0-or-later licensed code as stated in COPYING.txt
+  # but the relevant file tools/editors/emacs/rst.el is not shipped as part of the package.
+  license: CC-PDDC AND BSD-3-Clause AND BSD-2-Clause AND ZPL-2.1
+  license_file: COPYING.txt
+  summary: Docutils -- Python Documentation Utilities
+  description: |
+    Docutils is an open-source text processing system for processing plaintext
+    documentation into useful formats, such as HTML, LaTeX, man-pages, open-
+    document, or XML.
+  doc_url: http://docutils.sourceforge.net/docs/index.html
+  doc_source_url: https://sourceforge.net/p/docutils/code/HEAD/tree/trunk/docutils/docs/index.txt
+  dev_url: http://svn.code.sf.net/p/docutils/code
+
+extra:
+  recipe-maintainers:
+    - nehaljwani
+    - ocefpaf

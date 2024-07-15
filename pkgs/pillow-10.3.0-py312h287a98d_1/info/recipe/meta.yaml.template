@@ -1,0 +1,105 @@
+{% set version = "10.3.0" %}
+
+package:
+  name: pillow
+  version: {{ version }}
+
+source:
+  url: https://github.com/python-pillow/Pillow/archive/refs/tags/{{ version }}.tar.gz
+  sha256: 5a2f1a812237bf9bd57f283422f46ca97a1c3d43d5f67b9bf8a0d499c4b97c85
+  patches:
+    - patches/0001-Build-without-USE_WIN32_FILEIO.patch
+    # fix provided by upstream maintainer for failing test
+    - patches/0002-Added-patch-to-fix-failing-Windows-test.patch
+    # windows needs help detecting webpmux & xcb
+    - patches/0003-add-WEBP_ROOT-XCB_ROOT.patch
+    - case_sensitve.patch  # [win]
+
+build:
+  number: 1
+  skip: true  # [py<38]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+  host:
+    - python
+    - pip
+    - setuptools
+    # libraries, c.f. https://github.com/python-pillow/Pillow/blob/9.0.0/setup.py#L30-L38
+    - freetype
+    # fribidi and libimagequant disabled due to
+    # GPL discussion, see #109 and #111
+    # - fribidi
+    - libjpeg-turbo
+    - openjpeg
+    - lcms2
+    # not available elsewhere
+    # currently disabled on windows due to libimagequant depending on llvm-openmp, see
+    # https://github.com/pytorch/pytorch/issues/72293
+    # - libimagequant  # [x86_64 and not win]
+    - libtiff
+    - libwebp
+    - libxcb
+    - tk
+    - zlib
+  run:
+    - python
+
+{% set tests_to_skip = "_not_a_real_test" %}
+# compile smoke test failing to link python3x.lib
+{% set tests_to_skip = tests_to_skip + " or test_embeddable" %}                     # [win]
+# the following needs a viewer which we don't have
+{% set tests_to_skip = tests_to_skip + " or (test_imageshow and test_show)" %}      # [linux]
+# this test is a known failure with libjpeg_turbo, but only marked as such for 2.0 upstream, not 2.x, see
+# https://github.com/python-pillow/Pillow/blob/9.3.0/Tests/test_file_libtiff.py#L885-L891
+{% set tests_to_skip = tests_to_skip + " or test_strip_ycbcr_jpeg_2x2_sampling" %}  # [not osx]
+# skip test that requires an image incorrectly flagged by AV
+{% set tests_to_skip = tests_to_skip + " or test_tiff_crashes[Tests/images/crash-81154a65438ba5aaeca73fd502fa4850fbde60f8.tif]" %}
+# skip tests that run into troubles on win+pypy
+{% if win and python_impl == "pypy" %}
+    {% set tests_to_skip = tests_to_skip + " or test_grabclipboard" %}
+    {% set tests_to_skip = tests_to_skip + " or test_main" %}
+{% endif %}
+
+test:
+  imports:
+    - PIL
+    - PIL.Image
+    - PIL.ImageCms
+  source_files:
+    # from upstream repo
+    - Tests/
+  files:
+    # from recipe; some images cannot be in upstream repo, see Tests/README
+    - Tests/images
+  requires:
+    - pytest
+    - pytest-timeout
+    # test dependency, see Tests/test_image_access.py
+    - setuptools
+    - {{ compiler('c') }}
+    # for run_test.py
+    - fsspec
+    - aiohttp
+    - requests
+  commands:
+    - pytest -k "not ({{ tests_to_skip }})" --durations=50
+
+about:
+  home: https://pillow.readthedocs.io
+  license: HPND
+  license_file: LICENSE
+  summary: Pillow is the friendly PIL fork by Alex Clark and Contributors
+  dev_url: https://github.com/python-pillow/Pillow/
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - patricksnape
+    - pelson
+    - ocefpaf
+    - h-vetinari

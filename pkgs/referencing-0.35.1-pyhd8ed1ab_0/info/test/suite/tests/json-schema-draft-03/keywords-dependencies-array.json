@@ -1,0 +1,14 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "dependencies": { "foo": ["bar"] }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/oh-hey-a-subschema",
+      "error": true
+    }
+  ]
+}

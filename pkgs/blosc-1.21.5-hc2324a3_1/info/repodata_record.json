@@ -1,0 +1,28 @@
+{
+    "arch": "x86_64",
+    "build": "hc2324a3_1",
+    "build_number": 1,
+    "build_string": "hc2324a3_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libstdcxx-ng >=12",
+        "libzlib >=1.2.13,<1.3.0a0",
+        "lz4-c >=1.9.3,<1.10.0a0",
+        "snappy >=1.2.0,<1.3.0a0",
+        "zstd >=1.5.5,<1.6.0a0"
+    ],
+    "fn": "blosc-1.21.5-hc2324a3_1.conda",
+    "license": "BSD-3-Clause",
+    "md5": "11d76bee958b1989bd1ac6ee7372ea6d",
+    "name": "blosc",
+    "platform": "linux",
+    "sha256": "fde5e8ad75d2a5f154e29da7763a5dd9ee5b5b5c3fc22a1f5170296c8f6f3f62",
+    "size": 48693,
+    "subdir": "linux-64",
+    "timestamp": 1712681892833,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/blosc-1.21.5-hc2324a3_1.conda",
+    "version": "1.21.5"
+}

@@ -1,0 +1,1 @@
+["pip", "pytest >=6.0", "pytest-cov", "pytest-timeout"]

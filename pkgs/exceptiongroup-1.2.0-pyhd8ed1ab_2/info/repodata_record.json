@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_2",
+    "build_number": 2,
+    "build_string": "pyhd8ed1ab_2",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "fn": "exceptiongroup-1.2.0-pyhd8ed1ab_2.conda",
+    "license": "MIT and PSF-2.0",
+    "md5": "8d652ea2ee8eaee02ed8dc820bc794aa",
+    "name": "exceptiongroup",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "a6ae416383bda0e3ed14eaa187c653e22bec94ff2aa3b56970cdf0032761e80d",
+    "size": 20551,
+    "subdir": "noarch",
+    "timestamp": 1704921321122,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/exceptiongroup-1.2.0-pyhd8ed1ab_2.conda",
+    "version": "1.2.0"
+}

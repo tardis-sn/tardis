@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6"
+    ],
+    "fn": "python-tzdata-2024.1-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "md5": "98206ea9954216ee7540f0c773f2104d",
+    "name": "python-tzdata",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "9da9a849d53705dee450b83507df1ca8ffea5f83bd21a215202221f1c492f8ad",
+    "size": 144024,
+    "subdir": "noarch",
+    "timestamp": 1707747742930,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/python-tzdata-2024.1-pyhd8ed1ab_0.conda",
+    "version": "2024.1"
+}

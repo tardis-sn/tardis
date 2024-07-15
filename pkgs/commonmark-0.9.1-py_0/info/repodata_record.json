@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "py_0",
+    "build_number": 0,
+    "build_string": "py_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "future >=0.14.0",
+        "python"
+    ],
+    "fn": "commonmark-0.9.1-py_0.tar.bz2",
+    "license": "BSD 3-Clause",
+    "license_family": "BSD",
+    "md5": "6aa0173c14befcd577ded130cf6f22f5",
+    "name": "commonmark",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "10577f82bafd5d37f0c3f2122272d0dc1f2d133655c2bdd1a3cd5f910d0bd4c5",
+    "size": 47354,
+    "subdir": "noarch",
+    "timestamp": 1570221752112,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/commonmark-0.9.1-py_0.tar.bz2",
+    "version": "0.9.1"
+}

@@ -1,0 +1,20 @@
+{
+  "arch": "x86_64",
+  "build": "h2c329e2_0",
+  "build_number": 0,
+  "depends": [
+    "giflib >=5.2.2,<5.3.0a0",
+    "libgcc-ng >=12",
+    "libjpeg-turbo >=3.0.0,<4.0a0",
+    "libpng >=1.6.43,<1.7.0a0",
+    "libtiff >=4.6.0,<4.7.0a0",
+    "libwebp-base 1.4.0.*",
+    "libwebp-base >=1.4.0,<2.0a0"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "libwebp",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1714599671055,
+  "version": "1.4.0"
+}

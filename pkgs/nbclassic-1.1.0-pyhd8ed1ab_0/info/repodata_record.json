@@ -1,0 +1,28 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "ipykernel",
+        "ipython_genutils",
+        "nest-asyncio >=1.5",
+        "notebook-shim >=0.2.3",
+        "python >=3.7"
+    ],
+    "fn": "nbclassic-1.1.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "6275b55edf34cfa1f01ba40b699dd915",
+    "name": "nbclassic",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "da3330a8ffff1f5b15b558543fbec69e05a48750ed50b53369b93da788abedc5",
+    "size": 5493243,
+    "subdir": "noarch",
+    "timestamp": 1716838925077,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/nbclassic-1.1.0-pyhd8ed1ab_0.conda",
+    "version": "1.1.0"
+}

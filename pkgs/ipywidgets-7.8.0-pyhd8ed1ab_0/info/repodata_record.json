@@ -1,0 +1,31 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "comm >=0.1.3",
+        "ipython >=4.0.0",
+        "ipython_genutils >=0.2.0,<0.3.0",
+        "jupyterlab_widgets >=1.0.0,<3",
+        "python >=3.3",
+        "traitlets >=4.3.1",
+        "widgetsnbextension >=3.6.4,<3.7.0"
+    ],
+    "fn": "ipywidgets-7.8.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "518b05adab6cfe6ea249319932d9d4a3",
+    "name": "ipywidgets",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "c27d71635869f53c2a802fbbd58a73d6b7946508323dd1805996136b038fb8cf",
+    "size": 104494,
+    "subdir": "noarch",
+    "timestamp": 1690810882149,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.8.0-pyhd8ed1ab_0.conda",
+    "version": "7.8.0"
+}

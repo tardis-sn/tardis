@@ -1,0 +1,119 @@
+{% set version = "1.18.0" %}
+
+package:
+  name: cairo
+  version: {{ version }}
+
+source:
+  url: http://cairographics.org/releases/cairo-{{ version }}.tar.xz
+  sha256: 243a0736b978a33dee29f9cca7521733b78a65b5418206fef7bd1c3d4cf10b64
+  patches:
+    - meson-darwin-versions.patch
+    - windows-soversion-continuity.patch  # [win]
+
+build:
+  number: 0
+  run_exports:
+    - {{ pin_subpackage('cairo') }}
+
+requirements:
+  build:
+    - m2w64-xz              # [win]
+    - xz                    # [not win]
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - meson
+    - ninja
+    - pkg-config
+    - pthread-stubs         # [linux]
+    - xcb-proto             # [linux]
+    - xorg-renderproto      # [linux]
+    - xorg-xproto           # [linux]
+  host:
+    - freetype
+    - fontconfig
+    - glib
+    - icu
+    - libpng
+    - libxcb                # [linux]
+    - pixman
+    - xorg-libice  # [linux]
+    - xorg-libsm  # [linux]
+    - xorg-libx11  # [linux]
+    - xorg-libxext  # [linux]
+    - xorg-libxrender  # [linux]
+    - zlib
+  run:
+    - xorg-libice  # [linux]
+    - xorg-libsm  # [linux]
+    - xorg-libx11  # [linux]
+    - xorg-libxext  # [linux]
+    - xorg-libxrender  # [linux]
+    # hmaarrfk: 2022/08
+    # While the dependencies below should be captured
+    # by run_exports, run_exports doesn't necessary
+    # bring in compile time depenencies
+    - zlib
+
+test:
+  requires:
+    - glib  # needed for the pkg-config invocations below
+    - pkg-config
+
+  commands:
+    # Check commands.
+    - cairo-trace --help  # [not win]
+
+    # Verify libraries. Note that on Windows, we patch Cairo's build system to
+    # produce DLL names like `cairo.dll` rather than `cairo-2.dll` to maintain
+    # continuity with binaries shipped before the switch to Meson.
+    {% set cairo_libs = [
+            "cairo",
+            "cairo-gobject",
+            "cairo-script-interpreter",
+    ] %}
+    {% for each_cairo_lib in cairo_libs %}
+    - test -f $PREFIX/lib/lib{{ each_cairo_lib }}.a                   # [not win]
+    - test -f $PREFIX/lib/lib{{ each_cairo_lib }}.dylib               # [osx]
+    - test -f $PREFIX/lib/lib{{ each_cairo_lib }}.so                  # [linux]
+    - if not exist %LIBRARY_BIN%\{{ each_cairo_lib }}.dll exit /b 1   # [win]
+    - if not exist %LIBRARY_LIB%\{{ each_cairo_lib }}.lib exit /b 1   # [win]
+    - if not exist %LIBRARY_LIB%\lib{{ each_cairo_lib }}.a exit /b 1  # [win]
+    {% endfor %}
+
+    # Check pkg-config files.
+    - test -f $PREFIX/lib/pkgconfig/cairo-quartz.pc                  # [osx]
+    - test -f $PREFIX/lib/pkgconfig/cairo-xlib.pc                    # [linux]
+    - if not exist %LIBRARY_LIB%\pkgconfig\cairo-win32.pc exit /b 1  # [win]
+
+    # check include files
+    - test -f $PREFIX/include/cairo/cairo.h               # [unix]
+    - if not exist %LIBRARY_INC%\cairo\cairo.h exit /b 1  # [win]
+
+    # check that cairo was built with fontconfig support
+    - grep -q "CAIRO_HAS_FC_FONT 1" $PREFIX/include/cairo/cairo-features.h  # [unix]
+
+    - export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig   # [not win]
+    - set "PKG_CONFIG_PATH=%LIBRARY_LIB%\pkgconfig"  # [win]
+    - pkg-config --cflags cairo
+    - pkg-config --cflags cairo-fc
+    - pkg-config --cflags cairo-gobject
+
+about:
+  home: http://cairographics.org/
+  dev_url: https://gitlab.freedesktop.org/cairo/cairo
+  doc_url: https://www.cairographics.org/documentation/
+  license: LGPL-2.1-only or MPL-1.1
+  license_file:
+    - COPYING
+    - COPYING-LGPL-2.1
+    - COPYING-MPL-1.1
+  summary: 'Cairo is a 2D graphics library with support for multiple output devices.'
+
+extra:
+  recipe-maintainers:
+    - ccordoba12
+    - jakirkham
+    - ocefpaf
+    - pkgw
+    - tschoonj

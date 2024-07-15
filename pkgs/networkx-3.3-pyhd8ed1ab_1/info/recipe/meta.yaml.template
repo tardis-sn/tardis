@@ -1,0 +1,81 @@
+{% set version = "3.3" %}
+
+package:
+  name: networkx
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/n/networkx/networkx-{{ version }}.tar.gz
+  sha256: 0c127d8b2f4865f59ae9cb8aafcd60b5c70f3241ebd66f7defad7c4ab90126c9
+
+build:
+  number: 1
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.10
+    - pip
+  run:
+    - python >=3.10
+  run_constrained:
+    - numpy >=1.22
+    - scipy >=1.9,!=1.11.0,!=1.11.1
+    - matplotlib >=3.5
+    - pandas >=1.4
+
+test:
+  imports:
+    - networkx
+    - networkx.algorithms
+    - networkx.algorithms.approximation
+    - networkx.algorithms.assortativity
+    - networkx.algorithms.bipartite
+    - networkx.algorithms.centrality
+    - networkx.algorithms.chordal
+    - networkx.algorithms.coloring
+    - networkx.algorithms.community
+    - networkx.algorithms.components
+    - networkx.algorithms.connectivity
+    - networkx.algorithms.flow
+    - networkx.algorithms.isomorphism
+    - networkx.algorithms.link_analysis
+    - networkx.algorithms.node_classification
+    - networkx.algorithms.operators
+    - networkx.algorithms.shortest_paths
+    - networkx.algorithms.traversal
+    - networkx.algorithms.tree
+    - networkx.classes
+    - networkx.drawing
+    - networkx.generators
+    - networkx.linalg
+    - networkx.readwrite
+    - networkx.readwrite.json_graph
+    - networkx.utils
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://networkx.github.io/
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  license_family: BSD
+  summary: Python package for creating and manipulating complex networks
+  description: |
+    NetworkX is a Python language software package for the creation,
+    manipulation, and study of the structure, dynamics, and functions of complex
+    networks.
+  doc_url: http://networkx.github.io/documentation.html
+  dev_url: https://github.com/networkx/networkx
+
+extra:
+  recipe-maintainers:
+    - stefanv
+    - synapticarbors
+    - ocefpaf
+    - SylvainCorlay
+    - FelixMoelder
+    - MridulS

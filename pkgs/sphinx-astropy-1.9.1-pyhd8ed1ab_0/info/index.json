@@ -1,0 +1,24 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "astropy-sphinx-theme",
+    "numpydoc",
+    "packaging",
+    "pillow",
+    "pytest-doctestplus >=0.11",
+    "python >=3.7",
+    "sphinx >=3",
+    "sphinx-automodapi",
+    "sphinx-gallery",
+    "sphinxcontrib-jquery"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "sphinx-astropy",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1686422225195,
+  "version": "1.9.1"
+}

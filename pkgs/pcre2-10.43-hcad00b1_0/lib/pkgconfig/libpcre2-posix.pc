@@ -1,0 +1,13 @@
+# Package Information for pkg-config
+
+prefix=/home/conda/feedstock_root/build_artifacts/pcre2-split-recipe_1708117774865/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libpcre2-posix
+Description: Posix compatible interface to libpcre2-8
+Version: 10.43
+Libs: -L${libdir} -lpcre2-posix
+Cflags: -I${includedir} -DPCRE2POSIX_SHARED
+Requires.private: libpcre2-8

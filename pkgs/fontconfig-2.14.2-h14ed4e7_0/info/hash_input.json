@@ -1,0 +1,10 @@
+{
+  "target_platform": "linux-64",
+  "c_compiler": "gcc",
+  "libuuid": "2",
+  "c_compiler_version": "11",
+  "freetype": "2",
+  "zlib": "1.2",
+  "expat": "2",
+  "channel_targets": "conda-forge main"
+}

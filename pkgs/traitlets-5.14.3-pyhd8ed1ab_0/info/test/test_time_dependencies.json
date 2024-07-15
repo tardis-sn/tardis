@@ -1,0 +1,1 @@
+["pytest >=7.0,<8.2", "mypy >=1.5.1", "coverage", "pytest-mock", "pip", "argcomplete >=3.0.3", "pytest-mypy-testing"]

@@ -1,0 +1,99 @@
+{% set name = "zeromq" %}
+{% set version = "4.3.5" %}
+{% set sha256 = "6653ef5910f17954861fe72332e68b03ca6e4d9c7160eb3a8de5a5a913bfab43" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://github.com/zeromq/libzmq/releases/download/v{{ version }}/zeromq-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+  patches:
+    - 001-windows-install.patch
+    - pr4663.patch
+    - 002-osx-test.patch  # [osx]
+    - pr4684.patch
+
+build:
+  number: 4
+  run_exports:
+    - {{ pin_subpackage(name, max_pin='x.x') }}  # [not win]
+    # Windows DLLs have x.y.z in filename
+    - {{ pin_subpackage(name, max_pin='x.x.x') }}  # [win]
+
+requirements:
+  build:
+    - automake                     # [unix]
+    - autoconf                     # [unix]
+    - make                         # [unix]
+    - cmake                        # [win]
+    - libtool                      # [unix]
+    - pkg-config                   # [unix]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - {{ compiler('cxx') }}
+  host:
+    - libsodium
+    - krb5
+
+outputs:
+  - name: zeromq
+    script: install.sh  # [unix]
+    test:
+      commands:
+        - test ! -f ${PREFIX}/lib/libzmq.a       # [unix]
+        - test -f ${PREFIX}/lib/libzmq.so        # [linux]
+        - test -f ${PREFIX}/lib/libzmq.so.5      # [linux]
+        - test -f ${PREFIX}/lib/libzmq.dylib     # [osx]
+        - test -f ${PREFIX}/lib/libzmq.5.dylib   # [osx]
+        # verify libsodium is linked
+        - otool -L ${PREFIX}/lib/libzmq.dylib | grep sodium  # [osx]
+        - ldd ${PREFIX}/lib/libzmq.so | grep sodium  # [linux]
+        - test -f ${PREFIX}/lib/cmake/ZeroMQ/ZeroMQConfig.cmake         # [unix]
+        - test -f ${PREFIX}/lib/cmake/ZeroMQ/ZeroMQConfigVersion.cmake  # [unix]
+        - ${PREFIX}/bin/curve_keygen  # [unix]
+        - if not exist %LIBRARY_LIB%\libzmq-mt-s-{{ version | replace('.', '_') }}.lib (exit 1)  # [win]
+        - if not exist %LIBRARY_BIN%\libzmq-mt-{{ version | replace('.', '_') }}.dll (exit 1)    # [win]
+        - if not exist %LIBRARY_LIB%\libzmq-mt-{{ version | replace('.', '_') }}.lib (exit 1)    # [win]
+        - if not exist %LIBRARY_BIN%\libzmq.dll (exit 1)                                         # [win]
+        - if not exist %LIBRARY_LIB%\libzmq.lib (exit 1)                                         # [win]
+        - if not exist %LIBRARY_PREFIX%\cmake\ZeroMQ\ZeroMQConfig.cmake (exit 1)           # [win]
+        - if not exist %LIBRARY_PREFIX%\cmake\ZeroMQ\ZeroMQConfigVersion.cmake (exit 1)    # [win]
+  - name: zeromq-static
+    script: install.sh  # [unix]
+    requirements:
+      build:
+        - automake                     # [unix]
+        - autoconf                     # [unix]
+        - make                         # [unix]
+        - cmake                        # [win]
+        - libtool                      # [unix]
+        - pkg-config                   # [unix]
+        - {{ compiler('c') }}
+        - {{ stdlib("c") }}
+        - {{ compiler('cxx') }}
+      host:
+        - libsodium
+        - krb5
+        - {{ pin_subpackage("zeromq", exact=True) }}
+      run:
+        - {{ pin_subpackage("zeromq", exact=True) }}
+    test:
+      commands:
+        - test -f ${PREFIX}/lib/libzmq.a           # [unix]
+
+about:
+  home: http://zeromq.org
+  license: MPL-2.0
+  license_file: LICENSE
+  summary: A high-performance asynchronous messaging library.
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - minrk
+    - SylvainCorlay
+    - JohanMabille
+    - davidbrochart

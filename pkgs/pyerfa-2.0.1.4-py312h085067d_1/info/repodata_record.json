@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "py312h085067d_1",
+    "build_number": 1,
+    "build_string": "py312h085067d_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "numpy >=1.19,<3",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "pyerfa-2.0.1.4-py312h085067d_1.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "bc2e2dff58a86d464ee4198ec06ac3c9",
+    "name": "pyerfa",
+    "platform": "linux",
+    "sha256": "6ffefabd6c31d206a37bd86ca888c79b33592690f2c152b11e8b94cc435e833a",
+    "size": 374544,
+    "subdir": "linux-64",
+    "timestamp": 1715855318471,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/pyerfa-2.0.1.4-py312h085067d_1.conda",
+    "version": "2.0.1.4"
+}

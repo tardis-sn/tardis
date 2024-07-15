@@ -1,0 +1,10 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: Pixman
+Description: The pixman library (version 1)
+Version: 0.43.2
+Libs: -L${libdir} -lpixman-1
+Libs.private: -lm -pthread
+Cflags: -I${includedir}/pixman-1

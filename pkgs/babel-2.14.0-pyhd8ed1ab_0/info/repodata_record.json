@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7",
+        "pytz",
+        "setuptools"
+    ],
+    "fn": "babel-2.14.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "9669586875baeced8fc30c0826c3270e",
+    "name": "babel",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "8584e3da58e92b72641c89ff9b98c51f0d5dbe76e527867804cbdf03ac91d8e6",
+    "size": 7609750,
+    "subdir": "noarch",
+    "timestamp": 1702422720584,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/babel-2.14.0-pyhd8ed1ab_0.conda",
+    "version": "2.14.0"
+}

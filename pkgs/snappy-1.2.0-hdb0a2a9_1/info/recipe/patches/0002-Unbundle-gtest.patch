@@ -1,0 +1,38 @@
+From bacf3c7d94c141452be60b4e6a65baf5b43ab9e6 Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Thu, 5 May 2022 21:08:49 +0200
+Subject: [PATCH 2/6] Unbundle gtest
+
+---
+ CMakeLists.txt | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a1a10db..c5d2c2e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -328,20 +328,7 @@ if(SNAPPY_BUILD_TESTS)
+   set(build_gmock ON)
+
+   # This project is tested using GoogleTest.
+-  add_subdirectory("third_party/googletest")
+-
+-  # GoogleTest triggers a missing field initializers warning.
+-  if(SNAPPY_HAVE_NO_MISSING_FIELD_INITIALIZERS)
+-    set_property(TARGET gtest
+-        APPEND PROPERTY COMPILE_OPTIONS -Wno-missing-field-initializers)
+-    set_property(TARGET gmock
+-        APPEND PROPERTY COMPILE_OPTIONS -Wno-missing-field-initializers)
+-  endif(SNAPPY_HAVE_NO_MISSING_FIELD_INITIALIZERS)
+-
+-  if(SNAPPY_HAVE_NO_IMPLICIT_INT_FLOAT_CONVERSION)
+-    set_property(TARGET gtest
+-        APPEND PROPERTY COMPILE_OPTIONS -Wno-implicit-int-float-conversion)
+-  endif(SNAPPY_HAVE_NO_IMPLICIT_INT_FLOAT_CONVERSION)
++  find_package(GTest)
+
+   add_executable(snappy_unittest "")
+   target_sources(snappy_unittest
+--
+2.39.3 (Apple Git-146)
+

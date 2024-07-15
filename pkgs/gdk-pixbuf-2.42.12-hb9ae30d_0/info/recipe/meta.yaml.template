@@ -1,0 +1,81 @@
+{% set lib = "gdk_pixbuf-2.0" %}
+{% set pc = "gdk-pixbuf-2.0" %}
+{% set name = "gdk-pixbuf" %}
+{% set version = "2.42.12" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: http://ftp.gnome.org/pub/gnome/sources/{{ name }}/{{ '.'.join(version.split('.')[:2]) }}/{{ name }}-{{ version }}.tar.xz
+  sha256: b9505b3445b9a7e48ced34760c3bcb73e966df3ac94c95a148cb669ab748e3c7
+
+build:
+  number: 0
+  ignore_run_exports_from:
+    # while zlib isn't linked to at build time. it does appear
+    # in the pkgconfig file. Without this build system
+    # tries to include zlib from the build environment
+    # instead of the host environment
+    # https://github.com/conda-forge/gdk-pixbuf-feedstock/pull/40
+    - zlib
+  run_exports:
+    # https://abi-laboratory.pro/?view=timeline&l=gdk-pixbuf
+    - {{ pin_subpackage('gdk-pixbuf', max_pin='x') }}
+
+requirements:
+  build:
+    - pkg-config
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - meson
+    - ninja
+    - gobject-introspection
+    - gettext-tools
+    - glib      # [build_platform != target_platform]
+    - libjpeg-turbo       # [build_platform != target_platform]
+    - libtiff   # [build_platform != target_platform]
+    - libpng    # [build_platform != target_platform]
+    - zlib      # [build_platform != target_platform]
+  host:
+    - glib
+    - libintl-devel  # [not linux]
+    - libjpeg-turbo
+    - libtiff
+    - libpng
+    - zlib
+
+test:
+  requires:
+    - pkg-config
+  commands:
+    - gdk-pixbuf-csource --version
+    - gdk-pixbuf-query-loaders
+    - gdk-pixbuf-pixdata --help
+
+    # verify that libs get installed and can be located through pkg-config
+    {% set pc = "gdk-pixbuf-2.0" %}
+    {% set lib = "gdk_pixbuf-2.0" %}
+    - test -f $PREFIX/lib/lib{{ lib }}${SHLIB_EXT}  # [unix]
+    - test -f `pkg-config --variable=libdir --dont-define-prefix {{ pc }}`/lib{{ lib }}${SHLIB_EXT}  # [unix]
+    - if not exist %PREFIX%\\Library\\bin\\{{ lib }}-0.dll exit 1  # [win]
+    - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=exec_prefix --dont-define-prefix {{ pc }}`) do if not exist "%%a/bin/{{ lib }}-0.dll" exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\lib\\gdk_pixbuf-2.0.lib exit 1  # [win]
+    - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=libdir --dont-define-prefix {{ pc }}`) do if not exist "%%a/{{ lib }}.lib" exit 1  # [win]
+    - test -f $PREFIX/lib/girepository-1.0/GdkPixbuf-2.0.typelib  # [unix]
+    - if not exist %PREFIX%\\Library\\lib\\girepository-1.0\\GdkPixbuf-2.0.typelib exit 1   # [win]
+
+about:
+  home: https://developer.gnome.org/gdk-pixbuf/
+  license: LGPL-2.1-or-later
+  license_family: LGPL
+  license_file: COPYING
+  summary: GdkPixbuf is a library for image loading and manipulation.
+
+extra:
+  recipe-maintainers:
+    - notestaff
+    - pkgw
+    - tschoonj
+    - xhochy

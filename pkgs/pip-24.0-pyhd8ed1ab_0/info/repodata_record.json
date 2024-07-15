@@ -1,0 +1,27 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7",
+        "setuptools",
+        "wheel"
+    ],
+    "fn": "pip-24.0-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "f586ac1e56c8638b64f9c8122a7b8a67",
+    "name": "pip",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "b7c1c5d8f13e8cb491c4bd1d0d1896a4cf80fc47de01059ad77509112b664a4a",
+    "size": 1398245,
+    "subdir": "noarch",
+    "timestamp": 1706960660581,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pip-24.0-pyhd8ed1ab_0.conda",
+    "version": "24.0"
+}

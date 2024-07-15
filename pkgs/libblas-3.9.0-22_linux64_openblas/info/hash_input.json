@@ -1,0 +1,7 @@
+{
+  "target_platform": "linux-64",
+  "blas_default_impl": "openblas",
+  "blas_impl_lib": "libopenblas.so.0",
+  "channel_targets": "conda-forge main",
+  "blas_impl": "openblas"
+}

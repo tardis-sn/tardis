@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "importlib_resources >=1.4.0",
+    "python >=3.8",
+    "referencing >=0.31.0"
+  ],
+  "license": "MIT",
+  "name": "jsonschema-specifications",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1703778502971,
+  "version": "2023.12.1"
+}

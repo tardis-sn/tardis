@@ -1,0 +1,14 @@
+{
+  "zlib": "1.2",
+  "target_platform": "linux-64",
+  "c_compiler_version": "12",
+  "channel_targets": "conda-forge main",
+  "cxx_compiler_version": "12",
+  "numpy": "1.26",
+  "bzip2": "1",
+  "python": "3.12.* *_cpython",
+  "cxx_compiler": "gxx",
+  "hdf5": "1.14.3",
+  "c_compiler": "gcc",
+  "lzo": "2"
+}

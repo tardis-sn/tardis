@@ -1,0 +1,71 @@
+{% set cov_fail_under = "--cov-fail-under=86" %}  # [linux]
+{% set version = "4.3.0" %}
+{% set cov_fail_under = "" %}
+{% set cov_fail_under = "--cov-fail-under=86" %}  # [linux]
+
+package:
+  name: anyio
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/a/anyio/anyio-{{ version }}.tar.gz
+  sha256: f75253795a87df48568485fd18cdd2a3fa5c4f7c5be8e5e36637733fce06fed6
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+    - setuptools >=64
+    - setuptools-scm >=6.4
+  run:
+    - exceptiongroup >=1.0.2
+    - idna >=2.8
+    - python >=3.8
+    - sniffio >=1.1
+    - typing_extensions >=4.1
+  run_constrained:
+    - trio >=0.23
+    - uvloop >=0.17
+
+test:
+  source_files:
+    - tests
+    - pyproject.toml
+  requires:
+    - coverage >=7
+    - exceptiongroup >=1.2.0
+    - hypothesis >=4.0
+    - mock >=4
+    - pip
+    - psutil >=5.9
+    - pytest >=7.0
+    - pytest-cov
+    - pytest-mock >=3.6.1
+    - tomli
+    - trio
+    - trustme
+    # won't be available on pypy, or windows, any time soon
+    - uvloop  # [unix and python_impl == 'cpython']
+  imports:
+    - anyio
+  commands:
+    - pytest -vv --cov=anyio --cov-branch --cov-report=term-missing:skip-covered -k="not (bind_link_local or block_device or connection_refused or happy_eyeballs or ipv6)" {{ cov_fail_under }}
+
+about:
+  home: https://github.com/agronholm/anyio
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: High level compatibility layer for multiple asynchronous event loop implementations on Python
+  doc_url: https://anyio.readthedocs.io
+  doc_source_url: https://github.com/agronholm/anyio/tree/{{ version }}/docs
+
+extra:
+  recipe-maintainers:
+    - CJ-Wright
+    - bollwyvl

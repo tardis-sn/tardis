@@ -1,0 +1,14 @@
+{
+  "arch": "x86_64",
+  "build": "h7f98852_2",
+  "build_number": 2,
+  "depends": [
+    "libgcc-ng >=9.4.0"
+  ],
+  "license": "MIT",
+  "name": "yaml",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1641346969816,
+  "version": "0.2.5"
+}

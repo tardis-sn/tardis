@@ -1,0 +1,31 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "importlib_metadata >=4.8.3",
+        "jupyter_core >=4.12,!=5.0.*",
+        "python >=3.8",
+        "python-dateutil >=2.8.2",
+        "pyzmq >=23.0",
+        "tornado >=6.2",
+        "traitlets >=5.3"
+    ],
+    "fn": "jupyter_client-8.6.2-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "3cdbb2fa84490e5fd44c9f9806c0d292",
+    "name": "jupyter_client",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "634f065cdd1d0aacd4bb6848ebf240dcebc8578135d65f4ad4aa42b2276c4e0c",
+    "size": 106248,
+    "subdir": "noarch",
+    "timestamp": 1716472312833,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.6.2-pyhd8ed1ab_0.conda",
+    "version": "8.6.2"
+}

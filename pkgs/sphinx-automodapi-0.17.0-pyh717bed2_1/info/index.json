@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyh717bed2_1",
+  "build_number": 1,
+  "depends": [
+    "python >=3.8",
+    "sphinx >=4"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "sphinx-automodapi",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1712426102415,
+  "version": "0.17.0"
+}

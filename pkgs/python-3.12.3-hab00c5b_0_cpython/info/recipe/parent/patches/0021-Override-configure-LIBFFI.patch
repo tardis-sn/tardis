@@ -1,0 +1,22 @@
+From 375e7bd98df476410a670b4168c2cd6b37caf31d Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Tue, 5 Sep 2023 21:51:31 +0200
+Subject: [PATCH 21/22] Override configure LIBFFI
+
+---
+ configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure b/configure
+index 074830a032..09a90faf58 100755
+--- a/configure
++++ b/configure
+@@ -14095,7 +14095,7 @@ if test "x$ac_cv_lib_ffi_ffi_call" = xyes
+ then :
+ 
+                 have_libffi=yes
+-        LIBFFI_CFLAGS="-I${SDKROOT}/usr/include/ffi -DUSING_APPLE_OS_LIBFFI=1"
++        LIBFFI_CFLAGS="-I${PREFIX}/include -DUSING_APPLE_OS_LIBFFI=0"
+         LIBFFI_LIBS="-lffi"
+ 
+ fi

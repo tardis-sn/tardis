@@ -1,0 +1,29 @@
+{
+    "arch": "x86_64",
+    "build": "h2c329e2_0",
+    "build_number": 0,
+    "build_string": "h2c329e2_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "giflib >=5.2.2,<5.3.0a0",
+        "libgcc-ng >=12",
+        "libjpeg-turbo >=3.0.0,<4.0a0",
+        "libpng >=1.6.43,<1.7.0a0",
+        "libtiff >=4.6.0,<4.7.0a0",
+        "libwebp-base 1.4.0.*",
+        "libwebp-base >=1.4.0,<2.0a0"
+    ],
+    "fn": "libwebp-1.4.0-h2c329e2_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "80030debaa84cfc31755d53742df3ca6",
+    "name": "libwebp",
+    "platform": "linux",
+    "sha256": "bd45805b169e3e0ff166d360c3c4842d77107d28c8f9feba020a8e8b9c80f948",
+    "size": 91941,
+    "subdir": "linux-64",
+    "timestamp": 1714599671055,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/libwebp-1.4.0-h2c329e2_0.conda",
+    "version": "1.4.0"
+}

@@ -1,0 +1,21 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "anyio >=3.0,<5.0",
+    "certifi",
+    "h11 >=0.13,<0.15",
+    "h2 >=3,<5",
+    "python >=3.8",
+    "sniffio 1.*"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "httpcore",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1711597091407,
+  "version": "1.0.5"
+}

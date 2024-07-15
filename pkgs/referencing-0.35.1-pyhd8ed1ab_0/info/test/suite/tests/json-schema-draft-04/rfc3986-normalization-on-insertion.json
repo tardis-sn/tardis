@@ -1,0 +1,103 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "hTtP://example.com/case-insensitive-scheme": { "foo": "bar" },
+    "http://exAmpLe.com/case-insensitive-host": { "baz": "quux" },
+    "hTtP://exAmpLe.com/case-SENSITIVE-path": {},
+    "http://example.com/escapes/a%c2%b1b": { "spam": "eggs" },
+    "http://example.com/unreserved/%7Efoo": { "snap": "crackle" },
+    "http://example.com:80/default/port": { "pop": 37 },
+    "http://example.com/internal-ids": {
+      "definitions": {
+        "scheme": {
+          "id": "hTtP://example.com/id/case-insensitive-scheme",
+          "foo": "bar"
+        },
+        "host": {
+          "id": "http://exAmpLe.com/id/case-insensitive-host",
+          "baz": "quux"
+        },
+        "path": {
+          "id": "hTtP://exAmpLe.com/id/case-SENSITIVE-path"
+        },
+        "escapes": {
+          "id": "http://example.com/id/escapes/a%c2%b1b",
+          "spam": "eggs"
+        },
+        "unreserved": {
+          "id": "http://example.com/id/unreserved/%7Efoo",
+          "snap": "crackle"
+        },
+        "port": {
+          "id": "http://example.com:80/id/default/port",
+          "pop": 37
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/case-insensitive-scheme",
+      "target": { "foo": "bar" }
+    },
+    {
+      "ref": "http://example.com/case-insensitive-host",
+      "target": { "baz": "quux" }
+    },
+    {
+      "ref": "http://example.com/case-sensitive-path",
+      "error": true
+    },
+    {
+      "ref": "http://example.com/escapes/a%C2%B1b",
+      "target": { "spam": "eggs" }
+    },
+    {
+      "ref": "http://example.com/unreserved/~foo",
+      "target": { "snap": "crackle" }
+    },
+    {
+      "ref": "http://example.com/default/port",
+      "target": { "pop": 37 }
+    },
+    {
+      "ref": "http://example.com/id/case-insensitive-scheme",
+      "target": {
+        "id": "hTtP://example.com/id/case-insensitive-scheme",
+        "foo": "bar"
+      }
+    },
+    {
+      "ref": "http://example.com/id/case-insensitive-host",
+      "target": {
+        "id": "http://exAmpLe.com/id/case-insensitive-host",
+        "baz": "quux"
+      }
+    },
+    {
+      "ref": "http://example.com/id/case-sensitive-path",
+      "error": true
+    },
+    {
+      "ref": "http://example.com/id/escapes/a%C2%B1b",
+      "target": {
+        "id": "http://example.com/id/escapes/a%c2%b1b",
+        "spam": "eggs"
+      }
+    },
+    {
+      "ref": "http://example.com/id/unreserved/~foo",
+      "target": {
+        "id": "http://example.com/id/unreserved/%7Efoo",
+        "snap": "crackle"
+      }
+    },
+    {
+      "ref": "http://example.com/id/default/port",
+      "target": {
+        "id": "http://example.com:80/id/default/port",
+        "pop": 37
+      }
+    }
+  ]
+}

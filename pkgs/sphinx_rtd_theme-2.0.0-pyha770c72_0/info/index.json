@@ -1,0 +1,18 @@
+{
+  "arch": null,
+  "build": "pyha770c72_0",
+  "build_number": 0,
+  "depends": [
+    "docutils <0.21",
+    "python >=3.6",
+    "sphinx >=5,<8",
+    "sphinxcontrib-jquery >=4,<5"
+  ],
+  "license": "MIT",
+  "name": "sphinx_rtd_theme",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1701183633165,
+  "version": "2.0.0"
+}

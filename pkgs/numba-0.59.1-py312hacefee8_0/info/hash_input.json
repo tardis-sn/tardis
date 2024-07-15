@@ -1,0 +1,11 @@
+{
+  "c_compiler_version": "12",
+  "target_platform": "linux-64",
+  "tbb": "2021",
+  "c_compiler": "gcc",
+  "cxx_compiler_version": "12",
+  "numpy": "1.26",
+  "cxx_compiler": "gxx",
+  "channel_targets": "conda-forge main",
+  "python": "3.12.* *_cpython"
+}

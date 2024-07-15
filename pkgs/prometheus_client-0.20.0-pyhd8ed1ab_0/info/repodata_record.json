@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "prometheus_client-0.20.0-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "license_family": "Apache",
+    "md5": "9a19b94034dd3abb2b348c8b93388035",
+    "name": "prometheus_client",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "757cd91d01c2e0b64fadf6bc9a11f558cf7638d897dfbaf7415ddf324d5405c9",
+    "size": 48913,
+    "subdir": "noarch",
+    "timestamp": 1707932844383,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/prometheus_client-0.20.0-pyhd8ed1ab_0.conda",
+    "version": "0.20.0"
+}

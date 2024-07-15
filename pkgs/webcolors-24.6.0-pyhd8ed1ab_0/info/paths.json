@@ -1,0 +1,89 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/webcolors-24.6.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/webcolors-24.6.0.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "224bb9063d1204f687477a680fab945debff8cf717c629510c1d7083d9a7969a",
+      "size_in_bytes": 1531
+    },
+    {
+      "_path": "site-packages/webcolors-24.6.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "b35aecef3c7750928378d0fd93b8afbbfd693cbe6ef42d4241ceeb3dca6da7ae",
+      "size_in_bytes": 2629
+    },
+    {
+      "_path": "site-packages/webcolors-24.6.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "4569f74fd7cac93cdc5c709902c45c10ab05f45162bbe9c855e769141e5b48ea",
+      "size_in_bytes": 1480
+    },
+    {
+      "_path": "site-packages/webcolors-24.6.0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/webcolors-24.6.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "site-packages/webcolors-24.6.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "4bad05669b7cfde0aab578037c69931e36024e2612892fd1131a001e7b0bf575",
+      "size_in_bytes": 105
+    },
+    {
+      "_path": "site-packages/webcolors-24.6.0.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "1d410d18e4eb53211479b2f5612672d9138c45eca47e2c8ccd207e9928bbdbfe",
+      "size_in_bytes": 10
+    },
+    {
+      "_path": "site-packages/webcolors/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "c1bdb9c167764c16c997d5bf8a129a4fbd75fd966c97a3b43018ab5723c3676f",
+      "size_in_bytes": 1608
+    },
+    {
+      "_path": "site-packages/webcolors/_conversion.py",
+      "path_type": "hardlink",
+      "sha256": "0c4bd9402f534a182cb47f040e3fd2a3706d3b960e98367125fe93869bf4c233",
+      "size_in_bytes": 13361
+    },
+    {
+      "_path": "site-packages/webcolors/_definitions.py",
+      "path_type": "hardlink",
+      "sha256": "11db64460b2e628d1ae1ab9707ddf492c81ea01159d6836d233ea318d7ecb8a1",
+      "size_in_bytes": 8746
+    },
+    {
+      "_path": "site-packages/webcolors/_html5.py",
+      "path_type": "hardlink",
+      "sha256": "5add122756184ba7598793bf604d25c2e469daef0e3a4354c335e76d4bc6f1ce",
+      "size_in_bytes": 9734
+    },
+    {
+      "_path": "site-packages/webcolors/_normalization.py",
+      "path_type": "hardlink",
+      "sha256": "5fecd93499670c22de2c155421395e1c82a32fa17de0019193b25e970188d987",
+      "size_in_bytes": 4016
+    },
+    {
+      "_path": "site-packages/webcolors/_types.py",
+      "path_type": "hardlink",
+      "sha256": "6c8bda9bcd297c1bd8016a69cd188f1ba6b74eb09684002061087e5cc8d58f4c",
+      "size_in_bytes": 1858
+    }
+  ],
+  "paths_version": 1
+}

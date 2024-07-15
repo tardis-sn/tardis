@@ -1,0 +1,42 @@
+{% set version = "24.1" %}
+
+package:
+  name: packaging
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/p/packaging/packaging-{{ version }}.tar.gz
+  sha256: 026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - python >=3.8
+    - flit >=3.3
+    - pip
+
+  run:
+    - python >=3.8
+
+test:
+  requires:
+    - pip
+  imports:
+    - packaging
+  commands:
+    - pip check
+
+about:
+  home: https://github.com/pypa/packaging
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: Core utilities for Python packages
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - nicoddemus

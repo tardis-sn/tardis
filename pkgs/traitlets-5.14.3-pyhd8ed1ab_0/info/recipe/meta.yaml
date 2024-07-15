@@ -1,0 +1,102 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Fri Apr 19 13:57:16 2024
+# ------------------------------------------------
+
+package:
+  name: traitlets
+  version: 5.14.3
+source:
+  sha256: 9ed0579d3502c94b4b3732ac120375cda96f923114522847de4b3bb98b96b6b7
+  url: https://pypi.io/packages/source/t/traitlets/traitlets-5.14.3.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/traitlets_1713535121073/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+    -m pip install . -vv --no-deps --no-build-isolation
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - editables 0.5 pyhd8ed1ab_0
+    - hatchling 1.24.1 pyhd8ed1ab_0
+    - importlib-metadata 7.1.0 pyha770c72_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.3 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.2.1 hd590300_1
+    - packaging 24.0 pyhd8ed1ab_0
+    - pathspec 0.12.1 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - pluggy 1.4.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - trove-classifiers 2024.4.10 pyhd8ed1ab_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.17.0 pyhd8ed1ab_0
+  run:
+    - python >=3.8
+test:
+  commands:
+    - pip check
+    - coverage run --source=traitlets --parallel --branch -m pytest -vv
+    - coverage run --source=traitlets --parallel --branch -m pytest -vv --pyargs traitlets
+    - coverage combine
+    - coverage report --show-missing --skip-covered --fail-under=80
+    - mypy -p traitlets
+  imports:
+    - traitlets
+    - traitlets.config
+  requires:
+    - argcomplete >=3.0.3
+    - coverage
+    - mypy >=1.5.1
+    - pip
+    - pytest >=7.0,<8.2
+    - pytest-mock
+    - pytest-mypy-testing
+  source_files:
+    - pyproject.toml
+    - tests
+about:
+  dev_url: https://github.com/ipython/traitlets
+  doc_url: https://traitlets.readthedocs.org
+  home: https://traitlets.readthedocs.org
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: Configuration system for Python applications
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240419.3.1
+  recipe-maintainers:
+    - Carreau
+    - SylvainCorlay
+    - blink1073
+    - bollwyvl
+    - davidbrochart
+    - jakirkham
+    - minrk
+    - ocefpaf
+    - pelson
+    - rmorshea
+    - takluyver
+    - zsailer
+  remote_url: https://github.com/conda-forge/traitlets-feedstock
+  sha: f3007cf23b47f35581dea1cedc75b093ae36ab22

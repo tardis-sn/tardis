@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.9",
+    "sphinx >=5"
+  ],
+  "license": "BSD-2-Clause",
+  "license_family": "BSD",
+  "name": "sphinxcontrib-applehelp",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1705126465971,
+  "version": "1.0.8"
+}

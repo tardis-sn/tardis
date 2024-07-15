@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "entry_points": [
+      "jupyter-trust = nbformat.sign:TrustNotebookApp.launch_instance"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

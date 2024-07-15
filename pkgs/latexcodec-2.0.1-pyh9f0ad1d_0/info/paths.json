@@ -1,0 +1,77 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/latexcodec-2.0.1.dist-info/AUTHORS.rst",
+      "path_type": "hardlink",
+      "sha256": "2c69a972a2e17f65615c27babdd592090404b781b40d95b4b7bd216a95a4195c",
+      "size_in_bytes": 503
+    },
+    {
+      "_path": "site-packages/latexcodec-2.0.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/latexcodec-2.0.1.dist-info/LICENSE.rst",
+      "path_type": "hardlink",
+      "sha256": "0e68ab6ff42c4faf7a7a53f505fef1e7294834cfc63f3c4ad235a13c15bdcfa0",
+      "size_in_bytes": 1145
+    },
+    {
+      "_path": "site-packages/latexcodec-2.0.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "2dc2e906d0c891f431f7da412c674ab3be68bdd85b0d7916abe9a141481c0ac4",
+      "size_in_bytes": 4718
+    },
+    {
+      "_path": "site-packages/latexcodec-2.0.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "305020fc57f8848b3168e0afdc8cf5f33a313fb2af0a3763e7a5aea7cb844579",
+      "size_in_bytes": 1164
+    },
+    {
+      "_path": "site-packages/latexcodec-2.0.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "9064fbe0b5b245466b2f85602e1ebf835d8879597ff6ef5956169dae05d95046",
+      "size_in_bytes": 110
+    },
+    {
+      "_path": "site-packages/latexcodec-2.0.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "69ca6ab248883e1536d596e32dc092e686db87bf9503f8304cbdf3e136983593",
+      "size_in_bytes": 106
+    },
+    {
+      "_path": "site-packages/latexcodec-2.0.1.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "fe8315ae49588b5d3a1fe25e9f6cfe26ba8d632cca5eb4391f7ccac80ec5209d",
+      "size_in_bytes": 11
+    },
+    {
+      "_path": "site-packages/latexcodec-2.0.1.dist-info/zip-safe",
+      "path_type": "hardlink",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "size_in_bytes": 1
+    },
+    {
+      "_path": "site-packages/latexcodec/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "0b350ae81d0e19ae8e75ef6027580ac19c71117d186135c38be95a34fcc933af",
+      "size_in_bytes": 52
+    },
+    {
+      "_path": "site-packages/latexcodec/codec.py",
+      "path_type": "hardlink",
+      "sha256": "f16b52f2861be9d951d1b46b776db77ef563615c7a720a35c2c5ae71b0fb35d4",
+      "size_in_bytes": 45406
+    },
+    {
+      "_path": "site-packages/latexcodec/lexer.py",
+      "path_type": "hardlink",
+      "sha256": "f569b515b1412b074e9735a28d722d2e5839f8194b1f41e6c5be82944f26c5eb",
+      "size_in_bytes": 17060
+    }
+  ],
+  "paths_version": 1
+}

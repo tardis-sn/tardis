@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_2",
+  "build_number": 2,
+  "depends": [
+    "python >=2.6"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "webencodings",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1694681458271,
+  "version": "0.5.1"
+}

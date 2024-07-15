@@ -1,0 +1,90 @@
+# This file created by conda-build 3.25.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu Aug 24 18:03:27 2023
+# ------------------------------------------------
+
+package:
+  name: icu
+  version: '73.2'
+source:
+  - patches: null
+    sha256: 818a80712ed3caacd9b652305e01afc7fa167e6f2e94996da44b90c2ab604ce1
+    url: https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz
+  - folder: source/data
+    sha256: ca1ee076163b438461e484421a7679fc33a64cd0a54f9d4b401893fa1eb42701
+    url: https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-data.zip
+build:
+  number: '0'
+  run_exports:
+    - icu >=73.2,<74.0a0
+  string: h59595ed_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_1
+    - gcc_impl_linux-64 12.3.0 he2b93b0_0
+    - gcc_linux-64 12.3.0 h76fc315_1
+    - gxx_impl_linux-64 12.3.0 he2b93b0_0
+    - gxx_linux-64 12.3.0 h8a814eb_1
+    - kernel-headers_linux-64 2.6.32 he073ed8_16
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_0
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libsanitizer 12.3.0 h0f45ef3_0
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+    - libtool 2.4.7 h27087fc_0
+    - make 4.3 hd18ef5c_1
+    - sysroot_linux-64 2.12 he073ed8_16
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+  run:
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+test:
+  commands:
+    - test ! -f $PREFIX/lib/libicudata.a
+    - test -f $PREFIX/lib/libicudata.so.73.2
+    - test ! -f $PREFIX/lib/libicui18n.a
+    - test -f $PREFIX/lib/libicui18n.so.73.2
+    - test ! -f $PREFIX/lib/libicuio.a
+    - test -f $PREFIX/lib/libicuio.so.73.2
+    - test ! -f $PREFIX/lib/libicutest.a
+    - test -f $PREFIX/lib/libicutest.so.73.2
+    - test ! -f $PREFIX/lib/libicutu.a
+    - test -f $PREFIX/lib/libicutu.so.73.2
+    - test ! -f $PREFIX/lib/libicuuc.a
+    - test -f $PREFIX/lib/libicuuc.so.73.2
+    - genbrk --help
+    - gencfu --help
+    - gencnval --help
+    - gendict --help
+    - icuinfo --help
+    - icu-config --help
+    - makeconv gb-18030-2000.ucm
+  files:
+    - de.txt
+    - gb-18030-2000.ucm
+about:
+  dev_url: https://github.com/unicode-org/icu
+  doc_url: https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/
+  home: https://icu.unicode.org
+  license: MIT
+  license_file: LICENSE
+  summary: International Components for Unicode.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - ccordoba12
+    - jakirkham
+    - msarahan
+    - ocefpaf
+    - xhochy

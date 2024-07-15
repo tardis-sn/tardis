@@ -1,0 +1,22 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "dataclasses",
+    "docutils >=0.8,!=0.18.*,!=0.19.*",
+    "importlib_metadata >=3.6",
+    "pybtex >=0.24",
+    "pybtex-docutils >=1.0.0",
+    "python >=3.7",
+    "sphinx >=3.5"
+  ],
+  "license": "BSD-2-Clause",
+  "license_family": "BSD",
+  "name": "sphinxcontrib-bibtex",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1704921850447,
+  "version": "2.6.2"
+}

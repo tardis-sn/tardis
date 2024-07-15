@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.6",
+    "typing_utils"
+  ],
+  "license": "Apache-2.0",
+  "license_family": "APACHE",
+  "name": "overrides",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1706394723472,
+  "version": "7.7.0"
+}

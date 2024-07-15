@@ -1,0 +1,1 @@
+["pytz", "pytest-timeout", "setuptools <60.0.0", "cython", "meson", "typing_extensions", "gfortran_linux-64 12.*", "hypothesis", "gxx_linux-64 12.*", "pytest", "pytest-xdist", "gcc_linux-64 12.*"]

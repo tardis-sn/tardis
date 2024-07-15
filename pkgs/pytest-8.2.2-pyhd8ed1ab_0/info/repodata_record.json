@@ -1,0 +1,32 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [
+        "pytest-faulthandler >=2"
+    ],
+    "depends": [
+        "colorama",
+        "exceptiongroup >=1.0.0rc8",
+        "iniconfig",
+        "packaging",
+        "pluggy <2.0,>=1.5",
+        "python >=3.8",
+        "tomli >=1"
+    ],
+    "fn": "pytest-8.2.2-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "md5": "0f3f49c22c7ef3a1195fa61dad3c43be",
+    "name": "pytest",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "00b7a49b31cf705b59edbd96219d8a67d2b9f51a913aa059fadd921b016965cb",
+    "size": 257061,
+    "subdir": "noarch",
+    "timestamp": 1717533913269,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pytest-8.2.2-pyhd8ed1ab_0.conda",
+    "version": "8.2.2"
+}

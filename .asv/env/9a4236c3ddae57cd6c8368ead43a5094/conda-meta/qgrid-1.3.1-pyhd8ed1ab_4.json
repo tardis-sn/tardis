@@ -1,0 +1,478 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_4",
+    "build_number": 4,
+    "build_string": "pyhd8ed1ab_4",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "ipywidgets >=7.0.0,<8",
+        "nbclassic >=0.4.4",
+        "notebook >=4.0.0",
+        "pandas >=0.17.0",
+        "python >=2.7"
+    ],
+    "extracted_package_dir": "pkgs/qgrid-1.3.1-pyhd8ed1ab_4",
+    "files": [
+        "bin/.qgrid-post-link.sh",
+        "bin/.qgrid-pre-unlink.sh",
+        "share/jupyter/nbextensions/qgrid/097df1053ff3246e2f1af9d5a858ac6c.gif",
+        "share/jupyter/nbextensions/qgrid/0d6de499db574dd313c1f3500d337d1a.png",
+        "share/jupyter/nbextensions/qgrid/1e360be5458b462df279dadad6eee0cc.png",
+        "share/jupyter/nbextensions/qgrid/7e2ccbc3b7b736251403b238014dcacc.gif",
+        "share/jupyter/nbextensions/qgrid/853909d9945e29dd80d5c7d42f9b711e.png",
+        "share/jupyter/nbextensions/qgrid/86586a919bd10f4cedba392f64336a54.gif",
+        "share/jupyter/nbextensions/qgrid/8fcbe60e4efd8e2d1742bba8486994e1.gif",
+        "share/jupyter/nbextensions/qgrid/9a52a923ceb5983fa0943c1e24d6d35b.gif",
+        "share/jupyter/nbextensions/qgrid/a4a8691ca395136aee475a56913b3456.png",
+        "share/jupyter/nbextensions/qgrid/dc29114100c22b4660e3ec311004c1fd.png",
+        "share/jupyter/nbextensions/qgrid/e084661154ad58415fa1a8f54a04c5e9.png",
+        "share/jupyter/nbextensions/qgrid/e38f33bbf55d6e20d21c4a10b9912668.gif",
+        "share/jupyter/nbextensions/qgrid/extension.js",
+        "share/jupyter/nbextensions/qgrid/index.js",
+        "share/jupyter/nbextensions/qgrid/index.js.map",
+        "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/LICENSE",
+        "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/METADATA",
+        "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/RECORD",
+        "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/WHEEL",
+        "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/qgrid/__init__.py",
+        "lib/python3.12/site-packages/qgrid/_version.py",
+        "lib/python3.12/site-packages/qgrid/grid.py",
+        "lib/python3.12/site-packages/qgrid/pd_json/__init__.py",
+        "lib/python3.12/site-packages/qgrid/pd_json/json.py",
+        "lib/python3.12/site-packages/qgrid/pd_json/normalize.py",
+        "lib/python3.12/site-packages/qgrid/pd_json/table_schema.py",
+        "lib/python3.12/site-packages/qgrid/static/097df1053ff3246e2f1af9d5a858ac6c.gif",
+        "lib/python3.12/site-packages/qgrid/static/0d6de499db574dd313c1f3500d337d1a.png",
+        "lib/python3.12/site-packages/qgrid/static/1e360be5458b462df279dadad6eee0cc.png",
+        "lib/python3.12/site-packages/qgrid/static/7e2ccbc3b7b736251403b238014dcacc.gif",
+        "lib/python3.12/site-packages/qgrid/static/853909d9945e29dd80d5c7d42f9b711e.png",
+        "lib/python3.12/site-packages/qgrid/static/86586a919bd10f4cedba392f64336a54.gif",
+        "lib/python3.12/site-packages/qgrid/static/8fcbe60e4efd8e2d1742bba8486994e1.gif",
+        "lib/python3.12/site-packages/qgrid/static/9a52a923ceb5983fa0943c1e24d6d35b.gif",
+        "lib/python3.12/site-packages/qgrid/static/a4a8691ca395136aee475a56913b3456.png",
+        "lib/python3.12/site-packages/qgrid/static/dc29114100c22b4660e3ec311004c1fd.png",
+        "lib/python3.12/site-packages/qgrid/static/e084661154ad58415fa1a8f54a04c5e9.png",
+        "lib/python3.12/site-packages/qgrid/static/e38f33bbf55d6e20d21c4a10b9912668.gif",
+        "lib/python3.12/site-packages/qgrid/static/extension.js",
+        "lib/python3.12/site-packages/qgrid/static/index.js",
+        "lib/python3.12/site-packages/qgrid/static/index.js.map",
+        "lib/python3.12/site-packages/qgrid/tests/__init__.py",
+        "lib/python3.12/site-packages/qgrid/tests/test_grid.py",
+        "lib/python3.12/site-packages/qgrid/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/qgrid/__pycache__/_version.cpython-312.pyc",
+        "lib/python3.12/site-packages/qgrid/__pycache__/grid.cpython-312.pyc",
+        "lib/python3.12/site-packages/qgrid/pd_json/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/qgrid/pd_json/__pycache__/json.cpython-312.pyc",
+        "lib/python3.12/site-packages/qgrid/pd_json/__pycache__/normalize.cpython-312.pyc",
+        "lib/python3.12/site-packages/qgrid/pd_json/__pycache__/table_schema.cpython-312.pyc",
+        "lib/python3.12/site-packages/qgrid/tests/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/qgrid/tests/__pycache__/test_grid.cpython-312.pyc"
+    ],
+    "fn": "qgrid-1.3.1-pyhd8ed1ab_4.tar.bz2",
+    "license": "Apache-2.0",
+    "license_family": "Apache",
+    "link": {
+        "source": "pkgs/qgrid-1.3.1-pyhd8ed1ab_4",
+        "type": 1
+    },
+    "md5": "fff68c7404813a1eb2678425f00e9917",
+    "name": "qgrid",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/qgrid-1.3.1-pyhd8ed1ab_4.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "bin/.qgrid-post-link.sh",
+                "path_type": "hardlink",
+                "sha256": "b5c6c2c116206242e0e33b77ff41c0fce26970c46fb7f59a6c11b6035d997d1c",
+                "sha256_in_prefix": "b5c6c2c116206242e0e33b77ff41c0fce26970c46fb7f59a6c11b6035d997d1c",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "bin/.qgrid-pre-unlink.sh",
+                "path_type": "hardlink",
+                "sha256": "e1aa247238bd165121a1194e6c6a9814f13ef573655c7e850f7815f36869c42f",
+                "sha256_in_prefix": "e1aa247238bd165121a1194e6c6a9814f13ef573655c7e850f7815f36869c42f",
+                "size_in_bytes": 93
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/097df1053ff3246e2f1af9d5a858ac6c.gif",
+                "path_type": "hardlink",
+                "sha256": "634d05f83eaccc102de88855efe253d4433cf60d3663f7677ed6b994cab83582",
+                "sha256_in_prefix": "634d05f83eaccc102de88855efe253d4433cf60d3663f7677ed6b994cab83582",
+                "size_in_bytes": 851
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/0d6de499db574dd313c1f3500d337d1a.png",
+                "path_type": "hardlink",
+                "sha256": "5d04051dfd9d2d740355404f98a683d1ec0feb2fca7d76e533c1a6e5ce92dd2e",
+                "sha256_in_prefix": "5d04051dfd9d2d740355404f98a683d1ec0feb2fca7d76e533c1a6e5ce92dd2e",
+                "size_in_bytes": 7074
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/1e360be5458b462df279dadad6eee0cc.png",
+                "path_type": "hardlink",
+                "sha256": "b6b06deef2b924cc3835d63f4883d47882734a33e71b212d917a68cede3b8e9d",
+                "sha256_in_prefix": "b6b06deef2b924cc3835d63f4883d47882734a33e71b212d917a68cede3b8e9d",
+                "size_in_bytes": 6313
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/7e2ccbc3b7b736251403b238014dcacc.gif",
+                "path_type": "hardlink",
+                "sha256": "a320ae93e846a3918e40919ba7e78efb9da208a3d3708f355da3979bdd09d3b3",
+                "sha256_in_prefix": "a320ae93e846a3918e40919ba7e78efb9da208a3d3708f355da3979bdd09d3b3",
+                "size_in_bytes": 830
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/853909d9945e29dd80d5c7d42f9b711e.png",
+                "path_type": "hardlink",
+                "sha256": "e75b27211e16fcf94715168001bb7055ca376d46f928110ba3d0825232452e5a",
+                "sha256_in_prefix": "e75b27211e16fcf94715168001bb7055ca376d46f928110ba3d0825232452e5a",
+                "size_in_bytes": 7013
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/86586a919bd10f4cedba392f64336a54.gif",
+                "path_type": "hardlink",
+                "sha256": "5f0f36454a984a990d18429592cd7ed0278bb7acaa3176f8502d1bbe9de0ee3d",
+                "sha256_in_prefix": "5f0f36454a984a990d18429592cd7ed0278bb7acaa3176f8502d1bbe9de0ee3d",
+                "size_in_bytes": 836
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/8fcbe60e4efd8e2d1742bba8486994e1.gif",
+                "path_type": "hardlink",
+                "sha256": "dd4b6c9f688cf8d29e01bf94a5d10c6d5d285f73dc2c0e124ba205127533e165",
+                "sha256_in_prefix": "dd4b6c9f688cf8d29e01bf94a5d10c6d5d285f73dc2c0e124ba205127533e165",
+                "size_in_bytes": 833
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/9a52a923ceb5983fa0943c1e24d6d35b.gif",
+                "path_type": "hardlink",
+                "sha256": "3323f9811f1e48bb9ff607018afbad7de4286c2f1c45b47ed911cac2645c1fea",
+                "sha256_in_prefix": "3323f9811f1e48bb9ff607018afbad7de4286c2f1c45b47ed911cac2645c1fea",
+                "size_in_bytes": 846
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/a4a8691ca395136aee475a56913b3456.png",
+                "path_type": "hardlink",
+                "sha256": "eaf7c7ee2747275dda6c53e731a10db1a7b15f4fbb46e1b69d6bb2056bc9fd81",
+                "sha256_in_prefix": "eaf7c7ee2747275dda6c53e731a10db1a7b15f4fbb46e1b69d6bb2056bc9fd81",
+                "size_in_bytes": 7006
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/dc29114100c22b4660e3ec311004c1fd.png",
+                "path_type": "hardlink",
+                "sha256": "02891575d4358e9edde3e42d94057f8e9f82a9d64376f71ee86cef149d30537e",
+                "sha256_in_prefix": "02891575d4358e9edde3e42d94057f8e9f82a9d64376f71ee86cef149d30537e",
+                "size_in_bytes": 4632
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/e084661154ad58415fa1a8f54a04c5e9.png",
+                "path_type": "hardlink",
+                "sha256": "9dbe4a0d03feed6f65eb2560a0a8b4ba4264545ee8fd31c1763a3b219d0328d6",
+                "sha256_in_prefix": "9dbe4a0d03feed6f65eb2560a0a8b4ba4264545ee8fd31c1763a3b219d0328d6",
+                "size_in_bytes": 4676
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/e38f33bbf55d6e20d21c4a10b9912668.gif",
+                "path_type": "hardlink",
+                "sha256": "f4c09f173fe968212e9f0eaf5657a516a998b878f4b98006512a5571021ddc7a",
+                "sha256_in_prefix": "f4c09f173fe968212e9f0eaf5657a516a998b878f4b98006512a5571021ddc7a",
+                "size_in_bytes": 823
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/extension.js",
+                "path_type": "hardlink",
+                "sha256": "e86d3fdaefd1978dafb7bc0b2a2c18c80f9ffcf71717f20957696beaa3c596a3",
+                "sha256_in_prefix": "e86d3fdaefd1978dafb7bc0b2a2c18c80f9ffcf71717f20957696beaa3c596a3",
+                "size_in_bytes": 1098
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/index.js",
+                "path_type": "hardlink",
+                "sha256": "34e9fa0d52ca392d5888e92faebf7385570e515809d8be421dc9ca3361d972a5",
+                "sha256_in_prefix": "34e9fa0d52ca392d5888e92faebf7385570e515809d8be421dc9ca3361d972a5",
+                "size_in_bytes": 827333
+            },
+            {
+                "_path": "share/jupyter/nbextensions/qgrid/index.js.map",
+                "path_type": "hardlink",
+                "sha256": "3cafd7f54b7a1ac592fb105fcd7e588e5652fca36304aad3b4b839b52f1aa5b3",
+                "sha256_in_prefix": "3cafd7f54b7a1ac592fb105fcd7e588e5652fca36304aad3b4b839b52f1aa5b3",
+                "size_in_bytes": 2448465
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/LICENSE",
+                "path_type": "hardlink",
+                "sha256": "e35c4578f7db4498e62e278978f6c42e0fce6f21f9993a060b08a33549cd3044",
+                "sha256_in_prefix": "e35c4578f7db4498e62e278978f6c42e0fce6f21f9993a060b08a33549cd3044",
+                "size_in_bytes": 11347
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "aa3d997f1768e690975cb495b39ea9e94d0f3b4f301177827d6f16027a7342a2",
+                "sha256_in_prefix": "aa3d997f1768e690975cb495b39ea9e94d0f3b4f301177827d6f16027a7342a2",
+                "size_in_bytes": 1252
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "f12c4bbe9604b9ef2a692243518d166c17a168962eb5db865cba28b8482a7830",
+                "sha256_in_prefix": "f12c4bbe9604b9ef2a692243518d166c17a168962eb5db865cba28b8482a7830",
+                "size_in_bytes": 5309
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "cfd8f4c406bf26650a3299b3ef62b464600b48cfe7fb04159866e5797c765478",
+                "sha256_in_prefix": "cfd8f4c406bf26650a3299b3ef62b464600b48cfe7fb04159866e5797c765478",
+                "size_in_bytes": 110
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "2f07b5a2f72a41f93cdda097c086eacf75bfeaedd7daaeb13b9987e3596de3a5",
+                "sha256_in_prefix": "2f07b5a2f72a41f93cdda097c086eacf75bfeaedd7daaeb13b9987e3596de3a5",
+                "size_in_bytes": 101
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid-1.3.1.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "5aa5e475b5ce70199e827b29e9fcaf1f380802071152e84612713be53b0f2aaa",
+                "sha256_in_prefix": "5aa5e475b5ce70199e827b29e9fcaf1f380802071152e84612713be53b0f2aaa",
+                "size_in_bytes": 6
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "4440006ee07d587b13d13eab8d18debc2868aa95018cbe2d83d1b1bf73c58c00",
+                "sha256_in_prefix": "4440006ee07d587b13d13eab8d18debc2868aa95018cbe2d83d1b1bf73c58c00",
+                "size_in_bytes": 588
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/_version.py",
+                "path_type": "hardlink",
+                "sha256": "b1c0650f43d5d1a5a0c1d2ba18e4a19268068e4abcd2d6ba256f9e095b93b537",
+                "sha256_in_prefix": "b1c0650f43d5d1a5a0c1d2ba18e4a19268068e4abcd2d6ba256f9e095b93b537",
+                "size_in_bytes": 309
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/grid.py",
+                "path_type": "hardlink",
+                "sha256": "4bf66b9ff378753885186da3426dad7b757b6fa089a2368192b3d06077483c7c",
+                "sha256_in_prefix": "4bf66b9ff378753885186da3426dad7b757b6fa089a2368192b3d06077483c7c",
+                "size_in_bytes": 71122
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/pd_json/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "9ee6d4788ef6eddd272a1ae7a67ad5cec9156cb20616ee05b2d024f3a95365b0",
+                "sha256_in_prefix": "9ee6d4788ef6eddd272a1ae7a67ad5cec9156cb20616ee05b2d024f3a95365b0",
+                "size_in_bytes": 201
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/pd_json/json.py",
+                "path_type": "hardlink",
+                "sha256": "382d71c62385981f4860c00eb8ace432999777541e0c7f05d138d96f629efa7a",
+                "sha256_in_prefix": "382d71c62385981f4860c00eb8ace432999777541e0c7f05d138d96f629efa7a",
+                "size_in_bytes": 24451
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/pd_json/normalize.py",
+                "path_type": "hardlink",
+                "sha256": "ea2c10b3e456b3ab0fcb09fac1c453ccbd3f2862773b2edf83cb6c4a77b4e0fc",
+                "sha256_in_prefix": "ea2c10b3e456b3ab0fcb09fac1c453ccbd3f2862773b2edf83cb6c4a77b4e0fc",
+                "size_in_bytes": 8573
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/pd_json/table_schema.py",
+                "path_type": "hardlink",
+                "sha256": "f87428683a812fc0fdcfd293f350928ec320ae55f03d47b1206bf22585713b82",
+                "sha256_in_prefix": "f87428683a812fc0fdcfd293f350928ec320ae55f03d47b1206bf22585713b82",
+                "size_in_bytes": 5061
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/097df1053ff3246e2f1af9d5a858ac6c.gif",
+                "path_type": "hardlink",
+                "sha256": "634d05f83eaccc102de88855efe253d4433cf60d3663f7677ed6b994cab83582",
+                "sha256_in_prefix": "634d05f83eaccc102de88855efe253d4433cf60d3663f7677ed6b994cab83582",
+                "size_in_bytes": 851
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/0d6de499db574dd313c1f3500d337d1a.png",
+                "path_type": "hardlink",
+                "sha256": "5d04051dfd9d2d740355404f98a683d1ec0feb2fca7d76e533c1a6e5ce92dd2e",
+                "sha256_in_prefix": "5d04051dfd9d2d740355404f98a683d1ec0feb2fca7d76e533c1a6e5ce92dd2e",
+                "size_in_bytes": 7074
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/1e360be5458b462df279dadad6eee0cc.png",
+                "path_type": "hardlink",
+                "sha256": "b6b06deef2b924cc3835d63f4883d47882734a33e71b212d917a68cede3b8e9d",
+                "sha256_in_prefix": "b6b06deef2b924cc3835d63f4883d47882734a33e71b212d917a68cede3b8e9d",
+                "size_in_bytes": 6313
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/7e2ccbc3b7b736251403b238014dcacc.gif",
+                "path_type": "hardlink",
+                "sha256": "a320ae93e846a3918e40919ba7e78efb9da208a3d3708f355da3979bdd09d3b3",
+                "sha256_in_prefix": "a320ae93e846a3918e40919ba7e78efb9da208a3d3708f355da3979bdd09d3b3",
+                "size_in_bytes": 830
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/853909d9945e29dd80d5c7d42f9b711e.png",
+                "path_type": "hardlink",
+                "sha256": "e75b27211e16fcf94715168001bb7055ca376d46f928110ba3d0825232452e5a",
+                "sha256_in_prefix": "e75b27211e16fcf94715168001bb7055ca376d46f928110ba3d0825232452e5a",
+                "size_in_bytes": 7013
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/86586a919bd10f4cedba392f64336a54.gif",
+                "path_type": "hardlink",
+                "sha256": "5f0f36454a984a990d18429592cd7ed0278bb7acaa3176f8502d1bbe9de0ee3d",
+                "sha256_in_prefix": "5f0f36454a984a990d18429592cd7ed0278bb7acaa3176f8502d1bbe9de0ee3d",
+                "size_in_bytes": 836
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/8fcbe60e4efd8e2d1742bba8486994e1.gif",
+                "path_type": "hardlink",
+                "sha256": "dd4b6c9f688cf8d29e01bf94a5d10c6d5d285f73dc2c0e124ba205127533e165",
+                "sha256_in_prefix": "dd4b6c9f688cf8d29e01bf94a5d10c6d5d285f73dc2c0e124ba205127533e165",
+                "size_in_bytes": 833
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/9a52a923ceb5983fa0943c1e24d6d35b.gif",
+                "path_type": "hardlink",
+                "sha256": "3323f9811f1e48bb9ff607018afbad7de4286c2f1c45b47ed911cac2645c1fea",
+                "sha256_in_prefix": "3323f9811f1e48bb9ff607018afbad7de4286c2f1c45b47ed911cac2645c1fea",
+                "size_in_bytes": 846
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/a4a8691ca395136aee475a56913b3456.png",
+                "path_type": "hardlink",
+                "sha256": "eaf7c7ee2747275dda6c53e731a10db1a7b15f4fbb46e1b69d6bb2056bc9fd81",
+                "sha256_in_prefix": "eaf7c7ee2747275dda6c53e731a10db1a7b15f4fbb46e1b69d6bb2056bc9fd81",
+                "size_in_bytes": 7006
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/dc29114100c22b4660e3ec311004c1fd.png",
+                "path_type": "hardlink",
+                "sha256": "02891575d4358e9edde3e42d94057f8e9f82a9d64376f71ee86cef149d30537e",
+                "sha256_in_prefix": "02891575d4358e9edde3e42d94057f8e9f82a9d64376f71ee86cef149d30537e",
+                "size_in_bytes": 4632
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/e084661154ad58415fa1a8f54a04c5e9.png",
+                "path_type": "hardlink",
+                "sha256": "9dbe4a0d03feed6f65eb2560a0a8b4ba4264545ee8fd31c1763a3b219d0328d6",
+                "sha256_in_prefix": "9dbe4a0d03feed6f65eb2560a0a8b4ba4264545ee8fd31c1763a3b219d0328d6",
+                "size_in_bytes": 4676
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/e38f33bbf55d6e20d21c4a10b9912668.gif",
+                "path_type": "hardlink",
+                "sha256": "f4c09f173fe968212e9f0eaf5657a516a998b878f4b98006512a5571021ddc7a",
+                "sha256_in_prefix": "f4c09f173fe968212e9f0eaf5657a516a998b878f4b98006512a5571021ddc7a",
+                "size_in_bytes": 823
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/extension.js",
+                "path_type": "hardlink",
+                "sha256": "e86d3fdaefd1978dafb7bc0b2a2c18c80f9ffcf71717f20957696beaa3c596a3",
+                "sha256_in_prefix": "e86d3fdaefd1978dafb7bc0b2a2c18c80f9ffcf71717f20957696beaa3c596a3",
+                "size_in_bytes": 1098
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/index.js",
+                "path_type": "hardlink",
+                "sha256": "34e9fa0d52ca392d5888e92faebf7385570e515809d8be421dc9ca3361d972a5",
+                "sha256_in_prefix": "34e9fa0d52ca392d5888e92faebf7385570e515809d8be421dc9ca3361d972a5",
+                "size_in_bytes": 827333
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/static/index.js.map",
+                "path_type": "hardlink",
+                "sha256": "3cafd7f54b7a1ac592fb105fcd7e588e5652fca36304aad3b4b839b52f1aa5b3",
+                "sha256_in_prefix": "3cafd7f54b7a1ac592fb105fcd7e588e5652fca36304aad3b4b839b52f1aa5b3",
+                "size_in_bytes": 2448465
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/tests/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/tests/test_grid.py",
+                "path_type": "hardlink",
+                "sha256": "9dd8cf8371945fc127dcd33bafbea304ff59bc1267308e9dc2af130c2c305c8e",
+                "sha256_in_prefix": "9dd8cf8371945fc127dcd33bafbea304ff59bc1267308e9dc2af130c2c305c8e",
+                "size_in_bytes": 20369
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/__pycache__/_version.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/__pycache__/grid.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/pd_json/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/pd_json/__pycache__/json.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/pd_json/__pycache__/normalize.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/pd_json/__pycache__/table_schema.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/tests/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/qgrid/tests/__pycache__/test_grid.cpython-312.pyc",
+                "path_type": "pyc_file"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "qgrid",
+    "sha256": "23cac7cd8eb2f573bb8cf301483ec9ca35f4d45c4f2ceed591431302f0ebe652",
+    "size": 1512094,
+    "subdir": "noarch",
+    "timestamp": 1667406404277,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/qgrid-1.3.1-pyhd8ed1ab_4.tar.bz2",
+    "version": "1.3.1"
+}

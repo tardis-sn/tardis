@@ -1,0 +1,68 @@
+{% set version = "5.14.3" %}
+
+package:
+  name: traitlets
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/t/traitlets/traitlets-{{ version }}.tar.gz
+  sha256: 9ed0579d3502c94b4b3732ac120375cda96f923114522847de4b3bb98b96b6b7
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - hatchling >=1.5
+    - pip
+    - python >=3.8
+  run:
+    - python >=3.8
+
+test:
+  source_files:
+    - tests
+    - pyproject.toml
+  imports:
+    - traitlets
+    - traitlets.config
+  commands:
+    - pip check
+    - coverage run --source=traitlets --parallel --branch -m pytest -vv
+    - coverage run --source=traitlets --parallel --branch -m pytest -vv --pyargs traitlets
+    - coverage combine
+    - coverage report --show-missing --skip-covered --fail-under=80
+    - mypy -p traitlets
+  requires:
+    - argcomplete >=3.0.3
+    - coverage
+    - mypy >=1.5.1
+    - pip
+    - pytest >=7.0,<8.2
+    - pytest-mock
+    - pytest-mypy-testing
+
+about:
+  home: https://traitlets.readthedocs.org
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: Configuration system for Python applications
+  dev_url: https://github.com/ipython/traitlets
+  doc_url: https://traitlets.readthedocs.org
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - pelson
+    - minrk
+    - SylvainCorlay
+    - ocefpaf
+    - Carreau
+    - takluyver
+    - rmorshea
+    - blink1073
+    - zsailer
+    - bollwyvl
+    - davidbrochart

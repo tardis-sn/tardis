@@ -1,0 +1,80 @@
+{% set version = "26.0.3" %}
+
+package:
+  name: pyzmq
+  version: {{ version }}
+
+source:
+  # We use the pypi URL as it includes the prepared Cython files.
+  url: https://pypi.io/packages/source/p/pyzmq/pyzmq-{{ version }}.tar.gz
+  sha256: dba7d9f2e047dfa2bca3b01f4f84aa5246725203d6284e3790f2ca15fba6b40a
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - pkg-config  # [not win]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - {{ compiler('cxx') }}
+    - cmake >=3.28
+    - cython >=3  # [python_impl == 'cpython' and build_platform != target_platform]
+    - cffi  # [python_impl == 'pypy' and build_platform != target_platform]
+    - make  # [not win]
+  host:
+    - python  # should have >=3.5 here, but linter gives spurious errors if we do that
+    - pip
+    - cython >=3  # [python_impl == 'cpython']
+    - cffi  # [python_impl == 'pypy']
+    - scikit-build-core
+    - zeromq
+    - libsodium
+  run:
+    - python
+    - zeromq
+    - libsodium
+
+test:
+  imports:
+    - zmq
+    - zmq.backend.cython  # [python_impl == 'cpython']
+    - zmq.backend.cffi           # [python_impl == 'pypy']
+    - zmq.devices.monitoredqueue
+
+  requires:
+    - pip
+    - pytest
+
+  # We run the zmq tests on all platforms except Windows.
+  # The only reason not to run the tests on Windows is that
+  # they terminate with an interactive prompt. See also
+  # https://github.com/conda-forge/staged-recipes/pull/292#issuecomment-208080893.
+  # TestSocket.test_large_send is skipped on upstream CI for pypy
+  commands:
+    - pip check
+    # workaround weird pytest discovery on pypy's top-level __init__.py
+    # see conda-forge/pycalphad-feedstock#55
+    - pypy -c "import os, pathlib as p, sysconfig as sc; (p.Path(sc.get_paths()['platstdlib'])/ '__init__.py').unlink(missing_ok=True)"  # [python_impl == 'pypy']
+    - py.test --pyargs zmq.tests.test_socket  # [not win and python_impl == 'cpython']
+    - py.test  -k 'not test_large_send' --pyargs zmq.tests.test_socket  # [not win and python_impl == 'pypy']
+
+about:
+  home: https://github.com/zeromq/pyzmq
+  summary: Python bindings for zeromq
+  license: BSD-3-Clause
+  license_file:
+    - LICENSE.md
+
+extra:
+  recipe-maintainers:
+    - jan-janssen
+    - jakirkham
+    - minrk
+    - msarahan
+    - pelson
+    - SylvainCorlay
+    - JohanMabille
+    - ocefpaf

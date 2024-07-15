@@ -1,0 +1,72 @@
+# This file created by conda-build 3.28.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Feb 12 14:18:32 2024
+# ------------------------------------------------
+
+package:
+  name: python-tzdata
+  version: '2024.1'
+source:
+  sha256: 2674120f8d891909751c38abcdfd386ac0a5a1127954fbc332af6b5ceae07efd
+  url: https://pypi.io/packages/source/t/tzdata/tzdata-2024.1.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/python-tzdata_1707747584337/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.1 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.6
+test:
+  imports:
+    - tzdata
+about:
+  description: 'This is a Python package containing zic-compiled binaries for the
+    IANA time zone database.
+
+    It is intended to be a fallback for systems that do not have system time zone
+    data installed (or don''t have it installed in a standard location),
+
+    as a part of PEP 615.
+
+    '
+  home: https://github.com/python/tzdata
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: Provider of IANA time zone data
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240212.1.1
+  recipe-maintainers:
+    - mbargull
+    - ocefpaf
+    - pganssle
+  remote_url: https://github.com/conda-forge/python-tzdata-feedstock
+  sha: 0f55d95a2aa0cfcb3863110db0b83f63ea08f6cc

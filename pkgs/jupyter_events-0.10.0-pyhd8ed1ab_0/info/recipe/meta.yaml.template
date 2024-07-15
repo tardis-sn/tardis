@@ -1,0 +1,108 @@
+{% set version = "0.10.0" %}
+
+package:
+  name: jupyter_events
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/j/jupyter-events/jupyter_events-{{ version }}.tar.gz
+  sha256: 670b8229d3cc882ec782144ed22e0d29e1c2d639263f92ca8383e66682845e22
+
+build:
+  noarch: python
+  number: 0
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+  run:
+    - python >=3.8
+
+outputs:
+  - name: jupyter_events
+    build:
+      noarch: python
+      script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+    requirements:
+      host:
+        - pip
+        - python >=3.8
+        - hatchling >=1.0
+      run:
+        - jsonschema-with-format-nongpl >=4.18.0
+        - python >=3.8
+        - python-json-logger >=2.0.4
+        - referencing
+        - traitlets >=5.3
+        - pyyaml >=5.3
+        - rfc3339-validator
+        - rfc3986-validator >=0.1.1
+    test:
+      requires:
+        - pip
+      commands:
+        - pip check
+
+  - name: jupyter_events_with_cli
+    build:
+      noarch: python
+    requirements:
+      host:
+        - python >=3.8
+      run:
+        - {{ pin_subpackage("jupyter_events") }}
+        - click
+        - python >=3.8
+        - rich
+    test:
+      imports:
+        - jupyter_events
+        - jupyter_events.cli
+      requires:
+        - pip
+      commands:
+        - pip check
+
+  - name: _jupyter_events_tests
+    build:
+      noarch: python
+    requirements:
+      host:
+        - python >=3.8
+      run:
+        - {{ pin_subpackage("jupyter_events") }}
+        - {{ pin_subpackage("jupyter_events_with_cli") }}
+        - python >=3.8
+    test:
+      source_files:
+        - tests
+        - pyproject.toml
+      imports:
+        - jupyter_events
+        - jupyter_events.cli
+      commands:
+        - pip check
+        - coverage run --source=jupyter_events --branch -m pytest -vv --tb=long --color=yes
+        - coverage report --show-missing --skip-covered --fail-under=82
+      requires:
+        - coverage
+        - pip
+        - pytest-asyncio >=0.19.0
+        - pytest-console-scripts
+
+about:
+  home: https://pypi.org/project/jupyter-events
+  dev_url: https://github.com/jupyter/jupyter_events
+  summary: Jupyter Event System library
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  doc_url: https://jupyter-events.readthedocs.io
+
+extra:
+  recipe-maintainers:
+    - Zsailer
+    - blink1073
+    - afshin
+    - bollwyvl

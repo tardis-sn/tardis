@@ -1,0 +1,1 @@
+["pip", "hypothesis", "pytest-benchmark", "pytest", "coverage", "isodate", "pytest-cov"]

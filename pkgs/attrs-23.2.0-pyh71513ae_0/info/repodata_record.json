@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyh71513ae_0",
+    "build_number": 0,
+    "build_string": "pyh71513ae_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "fn": "attrs-23.2.0-pyh71513ae_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "5e4c0743c70186509d1412e03c2d8dfa",
+    "name": "attrs",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "77c7d03bdb243a048fff398cedc74327b7dc79169ebe3b4c8448b0331ea55fea",
+    "size": 54582,
+    "subdir": "noarch",
+    "timestamp": 1704011393776,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/attrs-23.2.0-pyh71513ae_0.conda",
+    "version": "23.2.0"
+}

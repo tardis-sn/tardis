@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "pyparsing",
+        "python >=3.8"
+    ],
+    "fn": "dot2tex-2.11.3-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "md5": "fb28e38d17dee34abc13cf6ad916534a",
+    "name": "dot2tex",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "d9ae448abb1f5c3f86565f0496e467791d85aa3959d0d0e3d07b28ec9a2d3059",
+    "size": 35018,
+    "subdir": "noarch",
+    "timestamp": 1607418939729,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/dot2tex-2.11.3-pyhd8ed1ab_0.tar.bz2",
+    "version": "2.11.3"
+}

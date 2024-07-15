@@ -1,0 +1,69 @@
+From c3b21fe8632a8d03525b07ea671ebdb44aeb5cbd Mon Sep 17 00:00:00 2001
+From: Min RK <benjaminrk@gmail.com>
+Date: Thu, 15 Jun 2023 00:06:44 +0200
+Subject: [PATCH 2/2] run host H5detect when cross-compiling
+
+Edit: Mark Harfouche: H5detect was removed in 1.14.3 but we still need
+this to run some Fortran tests.
+
+---
+ configure.ac               | 8 ++++++++
+ fortran/src/Makefile.am    | 4 ++--
+ hl/fortran/src/Makefile.am | 2 +-
+ 3 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 830dd176da..a1fe555a21 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -140,6 +140,14 @@ AC_SUBST([AR_FLAGS])
+ 
+ AC_SUBST([cross_compiling])
+ 
++## src_run for running h5detect
++## rely on $PATH for host-native h5detect
++if test "x${cross_compiling}" = "xyes"; then
++  src_run=""
++else
++  src_run="./"
++fi
++AC_SUBST([src_run])
+ 
+ ## H5_CFLAGS (and company) are for CFLAGS that should be used on HDF5, but
+ ## not exported to h5cc (or h5fc, etc.)
+diff --git a/fortran/src/Makefile.am b/fortran/src/Makefile.am
+index d42a41d2c9..a83df060cd 100644
+--- a/fortran/src/Makefile.am
++++ b/fortran/src/Makefile.am
+@@ -119,13 +119,13 @@ BUILT_SOURCES = H5f90i_gen.h
+ # header, then H5match_types which includes that header, then
+ # it needs to run H5match_types.
+ H5fortran_types.F90 H5f90i_gen.h: H5match_types$(EXEEXT)
+-	$(RUNSERIAL) ./H5match_types$(EXEEXT)
++	$(RUNSERIAL) $(src_run)H5match_types$(EXEEXT)
+ 
+ # H5_buildiface.F90 generates all the APIs that have a KIND type associated
+ # with them.
+ 
+ H5_gen.F90: H5_buildiface$(EXEEXT)
+-	$(RUNSERIAL) ./H5_buildiface$(EXEEXT)
++	$(RUNSERIAL) $(src_run)H5_buildiface$(EXEEXT)
+ 
+ # H5_buildiface.F90 is included in the distribution, and Automake knows
+ # how to compile a fortran program given its sources.
+diff --git a/hl/fortran/src/Makefile.am b/hl/fortran/src/Makefile.am
+index 5834c9932d..98f8888f96 100644
+--- a/hl/fortran/src/Makefile.am
++++ b/hl/fortran/src/Makefile.am
+@@ -95,7 +95,7 @@ noinst_PROGRAMS = H5HL_buildiface
+ # with them.
+ 
+ H5LTff_gen.F90: H5HL_buildiface$(EXEEXT)
+-	$(RUNSERIAL) ./H5HL_buildiface$(EXEEXT)
++	$(RUNSERIAL) $(src_run)H5HL_buildiface$(EXEEXT)
+ 
+ H5TBff_gen.F90: H5HL_buildiface$(EXEEXT)
+ 
+-- 
+2.34.1
+

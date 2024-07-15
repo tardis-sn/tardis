@@ -1,0 +1,238 @@
+# This file created by conda-build 24.5.1
+# ------------------------------------------------
+
+package:
+  name: scipy
+  version: 1.14.0
+source:
+  - sha256: ea1c8e3ebe88713063b70ff1b5902400b16131ad1f5b731b6585fb9f5721ed2d
+    url: https://github.com/scipy/scipy/archive/refs/tags/v1.14.0.tar.gz
+  - folder: scipy/_lib/array_api_compat
+    git_rev: fd22a73e19b2273035e15e8bce57f767dee8dff7
+    git_url: https://github.com/data-apis/array-api-compat.git
+  - folder: scipy/_lib/boost_math
+    git_rev: a53b013c735caa98179532a32ad24d34569b9710
+    git_url: https://github.com/boostorg/math.git
+  - folder: scipy/_lib/cobyqa
+    git_rev: 7f40b6dd54525d7aa722f9558c186d39d163af94
+    git_url: https://github.com/cobyqa/cobyqa.git
+  - folder: scipy/_lib/highs
+    git_rev: 4a122958a82e67e725d08153e099efe4dad099a2
+    git_url: https://github.com/scipy/highs.git
+  - folder: scipy/_lib/pocketfft
+    git_rev: 9367142748fcc9696a1c9e5a99b76ed9897c9daa
+    git_url: https://github.com/scipy/pocketfft.git
+  - folder: scipy/_lib/unuran
+    git_rev: 21810c856880bb2f1b3071c8ac4aaf634983b338
+    git_url: https://github.com/scipy/unuran.git
+  - folder: scipy/sparse/linalg/_propack/PROPACK
+    git_rev: a9ed9736ad52ff76ae1777922b700b13ca2bf0ae
+    git_url: https://github.com/scipy/PROPACK.git
+build:
+  noarch: false
+  noarch_python: false
+  number: '0'
+  script: build-output.sh
+  string: py312hc2bc53b_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_7
+    - binutils_linux-64 2.40 hb3c18ed_9
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_13
+    - gcc_linux-64 12.3.0 h9528a6a_9
+    - gfortran_impl_linux-64 12.3.0 h8f2110c_13
+    - gfortran_linux-64 12.3.0 h5877db1_9
+    - gxx_impl_linux-64 12.3.0 h2a574ab_13
+    - gxx_linux-64 12.3.0 ha28b414_9
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - libgcc-devel_linux-64 12.3.0 h6b66f73_113
+    - libgcc-ng 13.2.0 h77fa898_13
+    - libgfortran5 13.2.0 h3d2ce59_13
+    - libgomp 13.2.0 h77fa898_13
+    - libsanitizer 12.3.0 hb8811af_13
+    - libstdcxx-devel_linux-64 12.3.0 h6b66f73_113
+    - libstdcxx-ng 13.2.0 hc0a3c3a_13
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - beniget 0.4.1 pyhd8ed1ab_0
+    - binutils_impl_linux-64 2.40 ha1999f0_7
+    - binutils_linux-64 2.40 hb3c18ed_9
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.6.2 hbcca054_0
+    - colorama 0.4.6 pyhd8ed1ab_0
+    - colorlog 6.8.2 py312h7900ff3_0
+    - cython 3.0.10 py312h30efb56_0
+    - decorator 5.1.1 pyhd8ed1ab_0
+    - gast 0.5.4 pyhd8ed1ab_0
+    - gcc_impl_linux-64 13.2.0 h9eb54c0_13
+    - gcc_linux-64 13.2.0 h50dba11_9
+    - gxx_impl_linux-64 13.2.0 h2a599c4_13
+    - gxx_linux-64 13.2.0 h4ebd915_9
+    - importlib-metadata 7.2.1 pyha770c72_0
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - libblas 3.9.0 6_ha36c22a_netlib
+    - libcblas 3.9.0 6_ha36c22a_netlib
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-devel_linux-64 13.2.0 hdb50d1a_113
+    - libgcc-ng 13.2.0 h77fa898_13
+    - libgfortran-ng 13.2.0 h69a702a_13
+    - libgfortran5 13.2.0 h3d2ce59_13
+    - libgomp 13.2.0 h77fa898_13
+    - liblapack 3.9.0 6_ha36c22a_netlib
+    - libnsl 2.0.1 hd590300_0
+    - libsanitizer 13.2.0 h6ddb7a1_13
+    - libsqlite 3.46.0 hde9e2c9_0
+    - libstdcxx-devel_linux-64 13.2.0 hdb50d1a_113
+    - libstdcxx-ng 13.2.0 hc0a3c3a_13
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - meson 1.4.1 pyhd8ed1ab_0
+    - meson-python 0.16.0 pyh0c530f3_0
+    - ncurses 6.5 h59595ed_0
+    - ninja 1.12.1 h297d8ca_0
+    - numpy 2.0.0 py312h22e1c76_0
+    - openssl 3.3.1 h4ab18f5_0
+    - packaging 24.1 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - ply 3.11 pyhd8ed1ab_2
+    - pybind11 2.12.0 py312h8572e83_0
+    - pybind11-global 2.12.0 py312h8572e83_0
+    - pyproject-metadata 0.8.0 pyhd8ed1ab_0
+    - pyproject_hooks 1.1.0 pyhd8ed1ab_0
+    - python 3.12.4 h194c7f8_0_cpython
+    - python-build 1.2.1 pyhd8ed1ab_0
+    - python_abi 3.12 4_cp312
+    - pythran 0.16.1 py312h389efb2_0
+    - readline 8.2 h8228510_1
+    - setuptools 70.1.0 pyhd8ed1ab_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.19.2 pyhd8ed1ab_0
+  run:
+    - libblas >=3.9.0,<4.0a0
+    - libcblas >=3.9.0,<4.0a0
+    - libgcc-ng >=12
+    - libgfortran-ng
+    - libgfortran5 >=12.3.0
+    - liblapack >=3.9.0,<4.0a0
+    - libstdcxx-ng >=12
+    - numpy <2.3
+    - numpy >=1.19,<3
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+test:
+  commands:
+    - test ! -d $SP_DIR/scipy/_lib/tests
+    - test ! -d $SP_DIR/scipy/cluster/tests
+    - test ! -d $SP_DIR/scipy/constants/tests
+    - test ! -d $SP_DIR/scipy/datasets/tests
+    - test ! -d $SP_DIR/scipy/fftpack/tests
+    - test ! -d $SP_DIR/scipy/fft/tests
+    - test ! -d $SP_DIR/scipy/integrate/tests
+    - test ! -d $SP_DIR/scipy/interpolate/tests
+    - test ! -d $SP_DIR/scipy/io/tests
+    - test ! -d $SP_DIR/scipy/linalg/tests
+    - test ! -d $SP_DIR/scipy/misc/tests
+    - test ! -d $SP_DIR/scipy/ndimage/tests
+    - test ! -d $SP_DIR/scipy/odr/tests
+    - test ! -d $SP_DIR/scipy/optimize/tests
+    - test ! -d $SP_DIR/scipy/signal/tests
+    - test ! -d $SP_DIR/scipy/sparse/tests
+    - test ! -d $SP_DIR/scipy/spatial/tests
+    - test ! -d $SP_DIR/scipy/special/tests
+    - test ! -d $SP_DIR/scipy/stats/tests
+    - test ! -f $SP_DIR/scipy/_lib/_test_ccallback.cpython-312-x86_64-linux-gnu.so
+    - test ! -f $SP_DIR/scipy/integrate/_test_multivariate.cpython-312-x86_64-linux-gnu.so
+    - test ! -f $SP_DIR/scipy/io/_test_fortran.cpython-312-x86_64-linux-gnu.so
+    - test ! -f $SP_DIR/scipy/ndimage/_ctest.cpython-312-x86_64-linux-gnu.so
+    - test ! -f $SP_DIR/scipy/ndimage/_cytest.cpython-312-x86_64-linux-gnu.so
+    - test ! -f $SP_DIR/scipy/special/_test_internal.cpython-312-x86_64-linux-gnu.so
+    - python -c "import scipy; throw_away_the_return_value = scipy.test()" > testlog
+    - python -c "import sys; lines=open('testlog').readlines(); sys.exit(0 if any('conda-forge
+      builds of' in x for x in lines) else 1)"
+    - (pytest --pyargs scipy || echo "failure was expected") > testlog
+    - python -c "import sys; lines=open('testlog').readlines(); sys.exit(0 if any('conda-forge
+      builds of' in x for x in lines) else 1)"
+    - python -c "import sys; lines=open('testlog').readlines(); sys.exit(0 if any('========
+      1 failed' in x for x in lines) else 1)"
+  imports:
+    - scipy
+    - scipy.cluster
+    - scipy.cluster.hierarchy
+    - scipy.cluster.vq
+    - scipy.constants
+    - scipy.datasets
+    - scipy.fft
+    - scipy.fftpack
+    - scipy.integrate
+    - scipy.interpolate
+    - scipy.io
+    - scipy.io.arff
+    - scipy.io.matlab
+    - scipy.io.wavfile
+    - scipy.linalg
+    - scipy.linalg.blas
+    - scipy.linalg.cython_blas
+    - scipy.linalg.cython_lapack
+    - scipy.linalg.interpolative
+    - scipy.linalg.lapack
+    - scipy.misc
+    - scipy.ndimage
+    - scipy.odr
+    - scipy.optimize
+    - scipy.signal
+    - scipy.signal.windows
+    - scipy.sparse
+    - scipy.sparse.csgraph
+    - scipy.sparse.linalg
+    - scipy.spatial
+    - scipy.spatial.distance
+    - scipy.spatial.transform
+    - scipy.special
+    - scipy.stats
+    - scipy.stats.contingency
+    - scipy.stats.distributions
+    - scipy.stats.mstats
+    - scipy.stats.qmc
+    - scipy.stats.sampling
+  requires:
+    - hypothesis
+    - pytest
+about:
+  description: 'SciPy is a Python-based ecosystem of open-source software for mathematics,
+
+    science, and engineering.
+
+    '
+  dev_url: https://github.com/scipy/scipy
+  doc_url: http://www.scipy.org/docs.html
+  home: http://www.scipy.org/
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: Scientific Library for Python
+extra:
+  copy_test_source_files: true
+  feedstock-name: scipy
+  final: true
+  flow_run_id: azure_20240624.4.1
+  recipe-maintainers:
+    - h-vetinari
+    - jakirkham
+    - msarahan
+    - ocefpaf
+    - rgommers
+  remote_url: https://github.com/conda-forge/scipy-feedstock
+  sha: 40d7f9e592ae164db418088b5a02e7693e4116a2

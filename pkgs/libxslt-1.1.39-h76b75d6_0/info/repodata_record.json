@@ -1,0 +1,24 @@
+{
+    "arch": "x86_64",
+    "build": "h76b75d6_0",
+    "build_number": 0,
+    "build_string": "h76b75d6_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libxml2 >=2.12.1,<2.13.0a0"
+    ],
+    "fn": "libxslt-1.1.39-h76b75d6_0.conda",
+    "license": "MIT",
+    "md5": "e71f31f8cfb0a91439f2086fc8aa0461",
+    "name": "libxslt",
+    "platform": "linux",
+    "sha256": "684e9b67ef7b9ca0ca993762eeb39705ec58e2e7f958555c758da7ef416db9f3",
+    "size": 254297,
+    "subdir": "linux-64",
+    "timestamp": 1701628814990,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/libxslt-1.1.39-h76b75d6_0.conda",
+    "version": "1.1.39"
+}

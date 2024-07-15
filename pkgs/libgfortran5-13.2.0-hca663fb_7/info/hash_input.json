@@ -1,0 +1,10 @@
+{
+  "cross_target_platform": "linux-64",
+  "cross_target_stdlib": "sysroot",
+  "target_platform": "linux-64",
+  "gcc_version": "13.2.0",
+  "cross_target_stdlib_version": "2.12",
+  "channel_targets": "conda-forge main",
+  "triplet": "x86_64-conda-linux-gnu",
+  "libgfortran_soname": "5"
+}

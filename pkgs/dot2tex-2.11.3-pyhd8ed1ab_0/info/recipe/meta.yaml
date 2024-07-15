@@ -1,0 +1,66 @@
+# This file created by conda-build 3.20.5
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Dec  8 09:12:46 2020
+# ------------------------------------------------
+
+package:
+    name: dot2tex
+    version: 2.11.3
+source:
+    sha256: 299a2af05aee5bbe0257a562a506a93e279293d5c38f28d08ab8acb3233fe7ce
+    url: https://pypi.io/packages/source/d/dot2tex/dot2tex-2.11.3.tar.gz
+build:
+    entry_points:
+        - dot2tex = dot2tex.dot2tex:main
+    noarch: python
+    number: '0'
+    script: /home/conda/feedstock_root/build_artifacts/dot2tex_1607418825881/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla/bin/python
+        -m pip install . -vv
+    string: pyhd8ed1ab_0
+requirements:
+    host:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - ca-certificates 2020.12.5 ha878542_0
+        - certifi 2020.12.5 py39hf3d152e_0
+        - ld_impl_linux-64 2.35.1 hed1e6ac_0
+        - libffi 3.3 h58526e2_2
+        - libgcc-ng 9.3.0 h5dbcf3e_17
+        - libgomp 9.3.0 h5dbcf3e_17
+        - libstdcxx-ng 9.3.0 h2ae2ef3_17
+        - ncurses 6.2 h58526e2_4
+        - openssl 1.1.1h h516909a_0
+        - pip 20.3.1 pyhd8ed1ab_0
+        - python 3.9.0 hffdb5ce_5_cpython
+        - python_abi 3.9 1_cp39
+        - readline 8.0 he28a2e2_2
+        - setuptools 49.6.0 py39h079e4ff_2
+        - sqlite 3.34.0 h74cdb3f_0
+        - tk 8.6.10 hed695b0_1
+        - tzdata 2020d h516909a_0
+        - wheel 0.36.1 pyhd3deb0d_0
+        - xz 5.2.5 h516909a_1
+        - zlib 1.2.11 h516909a_1010
+    run:
+        - pyparsing
+        - python >=3.8
+test:
+    commands:
+        - pip check
+        - dot2tex --help
+    imports:
+        - dot2tex.dot2tex
+        - dot2tex.dotparsing
+    requires:
+        - pip
+about:
+    home: https://github.com/kjellmf/dot2tex
+    license: MIT
+    license_file: LICENSE
+    summary: A Graphviz to LaTeX converter
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - ProfLeao
+        - bjodah

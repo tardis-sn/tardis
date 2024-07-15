@@ -1,0 +1,65 @@
+From a8c83e0a6099bc28dfdb1c19a6323051e57957e8 Mon Sep 17 00:00:00 2001
+From: Marcel Bargull <marcel.bargull@udo.edu>
+Date: Thu, 27 Oct 2022 11:57:38 +0200
+Subject: [PATCH] Make and install a pkg-config file on Windows
+
+Adapted from
+https://github.com/conda-forge/libxml2-feedstock/blob/a4e77d2a8486ec016cde621446ef820b5e0718e2/recipe/0002-Make-and-install-a-pkg-config-file-on-Windows.patch
+---
+ win32/Makefile.msvc | 33 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 32 insertions(+), 1 deletion(-)
+
+diff --git a/win32/Makefile.msvc b/win32/Makefile.msvc
+index 1f876684..a2bf0d05 100644
+--- a/win32/Makefile.msvc
++++ b/win32/Makefile.msvc
+@@ -156,7 +156,35 @@ _VC_MANIFEST_EMBED_EXE=
+ _VC_MANIFEST_EMBED_DLL=
+ !endif
+ 
+-all : libxslt libxslta libexslt libexslta utils
++all : libxslt libxslta libexslt libexslta utils libxslt.pc libexslt.pc
++
++libxslt.pc :
++	 >$@ echo.prefix=$(PREFIX:\=/)
++	>>$@ echo.exec_prefix=$(PREFIX:\=/)
++	>>$@ echo.libdir=$(LIBPREFIX:\=/)
++	>>$@ echo.includedir=$(INCPREFIX:\=/)
++	>>$@ echo.
++	>>$@ echo.
++	>>$@ echo.Name: libxslt
++	>>$@ echo.Version: $(LIBXSLT_MAJOR_VERSION).$(LIBXSLT_MINOR_VERSION).$(LIBXSLT_MICRO_VERSION)
++	>>$@ echo.Description: XSLT library version 2.
++	>>$@ echo.Requires: libxml-2.0
++	>>$@ echo.Cflags: -I$${includedir}
++	>>$@ echo.Libs: -L$${libdir} -lxslt
++
++libexslt.pc :
++	 >$@ echo.prefix=$(PREFIX:\=/)
++	>>$@ echo.exec_prefix=$(PREFIX:\=/)
++	>>$@ echo.libdir=$(LIBPREFIX:\=/)
++	>>$@ echo.includedir=$(INCPREFIX:\=/)
++	>>$@ echo.
++	>>$@ echo.
++	>>$@ echo.Name: libexslt
++	>>$@ echo.Version: $(LIBEXSLT_MAJOR_VERSION).$(LIBEXSLT_MINOR_VERSION).$(LIBEXSLT_MICRO_VERSION)
++	>>$@ echo.Description: EXSLT Extension library
++	>>$@ echo.Requires: libxml-2.0, libxslt
++	>>$@ echo.Cflags: -I$${includedir}
++	>>$@ echo.Libs: -L$${libdir} -lexslt
+ 
+ libxslt : $(BINDIR)\$(XSLT_SO) 
+ 
+@@ -195,6 +223,9 @@ install-libs : all
+ 	copy $(BINDIR)\$(EXSLT_SO) $(SOPREFIX)
+ 	copy $(BINDIR)\$(EXSLT_A) $(LIBPREFIX)
+ 	copy $(BINDIR)\$(EXSLT_IMP) $(LIBPREFIX)
++	if not exist $(LIBPREFIX)\pkgconfig mkdir $(LIBPREFIX)\pkgconfig
++	copy libxslt.pc $(LIBPREFIX)\pkgconfig
++	copy libexslt.pc $(LIBPREFIX)\pkgconfig
+ 
+ install : install-libs
+ 	copy $(BINDIR)\*.exe $(BINPREFIX)
+-- 
+2.38.0
+

@@ -1,0 +1,20 @@
+{
+  "arch": "x86_64",
+  "build": "py310hc51659f_0",
+  "build_number": 0,
+  "depends": [
+    "brotli",
+    "libgcc-ng >=12",
+    "munkres",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310",
+    "unicodedata2 >=14.0.0"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "fonttools",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1717209368278,
+  "version": "4.53.0"
+}

@@ -1,0 +1,1 @@
+["pip", "ipykernel >=6.14", "pytest <8.2", "pytest-timeout", "pandoc", "paramiko", "coverage", "pytest-jupyter-client >=0.4.1"]

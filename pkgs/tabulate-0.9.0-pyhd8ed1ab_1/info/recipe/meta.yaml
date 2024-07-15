@@ -1,0 +1,77 @@
+# This file created by conda-build 3.22.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Fri Oct  7 10:26:19 2022
+# ------------------------------------------------
+
+package:
+  name: tabulate
+  version: 0.9.0
+source:
+  fn: tabulate-0.9.0.tar.gz
+  sha256: 0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c
+  url: https://pypi.io/packages/source/t/tabulate/tabulate-0.9.0.tar.gz
+build:
+  entry_points:
+    - tabulate = tabulate:_main
+  noarch: python
+  number: '1'
+  script: /home/conda/feedstock_root/build_artifacts/tabulate_1665138452165/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_1
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2022.9.24 ha878542_0
+    - importlib-metadata 4.11.4 py310hff52083_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 12.1.0 h8d9b700_16
+    - libgomp 12.1.0 h8d9b700_16
+    - libnsl 2.0.0 h7f98852_0
+    - libsqlite 3.39.4 h753d276_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.12 h166bdaf_4
+    - ncurses 6.3 h27087fc_1
+    - openssl 3.0.5 h166bdaf_2
+    - packaging 21.3 pyhd8ed1ab_0
+    - pip 22.2.2 pyhd8ed1ab_0
+    - pyparsing 3.0.9 pyhd8ed1ab_0
+    - python 3.10.6 ha86cf86_0_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1.2 h0f457ee_0
+    - setuptools 65.4.1 pyhd8ed1ab_0
+    - setuptools-scm 7.0.5 pyhd8ed1ab_0
+    - setuptools_scm 7.0.5 hd8ed1ab_0
+    - tk 8.6.12 h27826a3_0
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - typing-extensions 4.3.0 hd8ed1ab_0
+    - typing_extensions 4.3.0 pyha770c72_0
+    - tzdata 2022d h191b570_0
+    - wheel 0.37.1 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.8.1 pyhd8ed1ab_0
+  run:
+    - python >=3.7
+test:
+  commands:
+    - tabulate --help
+    - pip check
+  imports:
+    - tabulate
+  requires:
+    - pip
+about:
+  dev_url: https://github.com/astanin/python-tabulate
+  home: https://github.com/astanin/python-tabulate
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Pretty-print tabular data in Python, a library and a command-line utility.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - jakirkham
+    - synapticarbors

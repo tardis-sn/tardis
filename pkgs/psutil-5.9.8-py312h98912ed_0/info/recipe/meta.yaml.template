@@ -1,0 +1,68 @@
+{% set version = "5.9.8" %}
+{% set sha256 = "6be126e3225486dff286a8fb9a06246a5253f4c7c53b475ea5f5ac934e64194c" %}
+
+package:
+  name: psutil
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/p/psutil/psutil-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+  patches:
+    - 0001-Add-missing-includes-for-macOS.patch
+
+build:
+  number: 0
+  script:
+    # macOS renamed this variable, but it is `NULL` in either case.
+    # Workaround the missing definition by setting it to `0`.
+    #
+    # xref: https://github.com/giampaolo/psutil/issues/2354
+    - export CFLAGS="${CFLAGS} -DkIOMainPortDefault=0"  # [osx]
+    - {{ PYTHON }} -m pip install --ignore-installed --no-deps .
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - {{ compiler('c') }}
+
+  host:
+    - python
+    - pip
+    - setuptools >=43
+    - wheel
+  run:
+    - python
+
+test:
+  imports:
+    - psutil
+    - psutil._psutil_posix    # [unix]
+    - psutil._psutil_linux    # [linux]
+    - psutil._psutil_osx      # [osx]
+    - psutil._psutil_windows  # [win]
+    - psutil.tests
+
+about:
+  home: https://github.com/giampaolo/psutil
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: A cross-platform process and system utilities module for Python
+  description: |
+    psutil (process and system utilities) is a cross-platform library for
+    retrieving information on running processes and system utilization (CPU,
+    memory, disks, network) in Python. It is useful mainly for system
+    monitoring, profiling and limiting process resources and management of
+    running processes.
+  doc_url: http://pythonhosted.org/psutil/
+  doc_source_url: https://github.com/giampaolo/psutil/blob/master/docs/index.rst
+  dev_url: https://github.com/giampaolo/psutil
+
+extra:
+  recipe-maintainers:
+    - gqmelo
+    - jakirkham
+    - pelson
+    - nehaljwani

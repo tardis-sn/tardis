@@ -1,0 +1,33 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "astropy-sphinx-theme",
+        "numpydoc",
+        "packaging",
+        "pillow",
+        "pytest-doctestplus >=0.11",
+        "python >=3.7",
+        "sphinx >=3",
+        "sphinx-automodapi",
+        "sphinx-gallery",
+        "sphinxcontrib-jquery"
+    ],
+    "fn": "sphinx-astropy-1.9.1-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "b6a0939e7b6b3a854b8c8f04606da1a7",
+    "name": "sphinx-astropy",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "64a358c12966f12e5cb90807549bab1ae7852ead87770bda0482263399a439ff",
+    "size": 22315,
+    "subdir": "noarch",
+    "timestamp": 1686422225195,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinx-astropy-1.9.1-pyhd8ed1ab_0.conda",
+    "version": "1.9.1"
+}

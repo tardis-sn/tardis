@@ -1,0 +1,10 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libcgraph
+Description: Graph library (file i/o, dot language parsing, graph, subgraph, node, edge, attribute, data structure manipulation)
+Version: 11.0.0
+Libs: -L${libdir} -lcgraph -lcdt
+Cflags: -I${includedir} -I${includedir}/graphviz

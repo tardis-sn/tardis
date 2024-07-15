@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "cycler-0.12.1-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "5cd86562580f274031ede6aa6aa24441",
+    "name": "cycler",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "f221233f21b1d06971792d491445fd548224641af9443739b4b7b6d5d72954a8",
+    "size": 13458,
+    "subdir": "noarch",
+    "timestamp": 1696677888423,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/cycler-0.12.1-pyhd8ed1ab_0.conda",
+    "version": "0.12.1"
+}

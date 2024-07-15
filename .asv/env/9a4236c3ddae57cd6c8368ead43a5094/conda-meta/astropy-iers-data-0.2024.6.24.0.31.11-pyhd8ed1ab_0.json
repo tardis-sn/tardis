@@ -1,0 +1,188 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "extracted_package_dir": "pkgs/astropy-iers-data-0.2024.6.24.0.31.11-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/LICENSE.rst",
+        "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/METADATA",
+        "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/RECORD",
+        "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/WHEEL",
+        "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/astropy_iers_data/__init__.py",
+        "lib/python3.12/site-packages/astropy_iers_data/_version.py",
+        "lib/python3.12/site-packages/astropy_iers_data/data/Leap_Second.dat",
+        "lib/python3.12/site-packages/astropy_iers_data/data/README.rst",
+        "lib/python3.12/site-packages/astropy_iers_data/data/ReadMe.eopc04",
+        "lib/python3.12/site-packages/astropy_iers_data/data/ReadMe.finals2000A",
+        "lib/python3.12/site-packages/astropy_iers_data/data/eopc04.1962-now",
+        "lib/python3.12/site-packages/astropy_iers_data/data/finals2000A.all",
+        "lib/python3.12/site-packages/astropy_iers_data/tests/__init__.py",
+        "lib/python3.12/site-packages/astropy_iers_data/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/astropy_iers_data/__pycache__/_version.cpython-312.pyc",
+        "lib/python3.12/site-packages/astropy_iers_data/tests/__pycache__/__init__.cpython-312.pyc"
+    ],
+    "fn": "astropy-iers-data-0.2024.6.24.0.31.11-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "link": {
+        "source": "pkgs/astropy-iers-data-0.2024.6.24.0.31.11-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "91b7f8f19582b40323be663d159ba93f",
+    "name": "astropy-iers-data",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/astropy-iers-data-0.2024.6.24.0.31.11-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/LICENSE.rst",
+                "path_type": "hardlink",
+                "sha256": "05d8ec3643773431cb5447b10711f119d79955470cdfbb8ca2e670a4432a153c",
+                "sha256_in_prefix": "05d8ec3643773431cb5447b10711f119d79955470cdfbb8ca2e670a4432a153c",
+                "size_in_bytes": 1491
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "17fd689b85da02f9218a9f3e0d5e293f614bcf5209ff14db3af2f0f1a7f0a67b",
+                "sha256_in_prefix": "17fd689b85da02f9218a9f3e0d5e293f614bcf5209ff14db3af2f0f1a7f0a67b",
+                "size_in_bytes": 5120
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "a8c874b4e8d15165ed25dfbc237beccd025c3213939089fca155ea8d5e4755ff",
+                "sha256_in_prefix": "a8c874b4e8d15165ed25dfbc237beccd025c3213939089fca155ea8d5e4755ff",
+                "size_in_bytes": 1881
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "729413279216bbd09d68f5623210bd63317c819b92e7ebe57e8162853042f3a0",
+                "sha256_in_prefix": "729413279216bbd09d68f5623210bd63317c819b92e7ebe57e8162853042f3a0",
+                "size_in_bytes": 91
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "88f4dd9484c2bf43d3f3376671d95b4e879b01551faca7749dd30f7512c0c8de",
+                "sha256_in_prefix": "88f4dd9484c2bf43d3f3376671d95b4e879b01551faca7749dd30f7512c0c8de",
+                "size_in_bytes": 113
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data-0.2024.6.24.0.31.11.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "c947a82ad47d0f89688b6bdeebb65ea4a9ee0f21fd42318cbed5df992f7b43d1",
+                "sha256_in_prefix": "c947a82ad47d0f89688b6bdeebb65ea4a9ee0f21fd42318cbed5df992f7b43d1",
+                "size_in_bytes": 18
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "ceab355ebd7268e4cc751292c9a6c7f2b5359a077df542d225fcc85eef93bf61",
+                "sha256_in_prefix": "ceab355ebd7268e4cc751292c9a6c7f2b5359a077df542d225fcc85eef93bf61",
+                "size_in_bytes": 1236
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/_version.py",
+                "path_type": "hardlink",
+                "sha256": "17b4bea06f3d065d92b24fa4ad3b558bfac59c2270ebe3e36fb28deff1f4070c",
+                "sha256_in_prefix": "17b4bea06f3d065d92b24fa4ad3b558bfac59c2270ebe3e36fb28deff1f4070c",
+                "size_in_bytes": 443
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/data/Leap_Second.dat",
+                "path_type": "hardlink",
+                "sha256": "705048f2e90e8e923ab9d374d3769e43b1b541c1de740b12bf8f2cb18d909de2",
+                "sha256_in_prefix": "705048f2e90e8e923ab9d374d3769e43b1b541c1de740b12bf8f2cb18d909de2",
+                "size_in_bytes": 1359
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/data/README.rst",
+                "path_type": "hardlink",
+                "sha256": "ed153bf939ef9f77af904b4f3594c3066a214543c4e12412f9317713529e66f0",
+                "sha256_in_prefix": "ed153bf939ef9f77af904b4f3594c3066a214543c4e12412f9317713529e66f0",
+                "size_in_bytes": 245
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/data/ReadMe.eopc04",
+                "path_type": "hardlink",
+                "sha256": "42d7890543fae69df024219d1d36f242b4fcd847f6f8a756c7d37c5dfd100243",
+                "sha256_in_prefix": "42d7890543fae69df024219d1d36f242b4fcd847f6f8a756c7d37c5dfd100243",
+                "size_in_bytes": 3275
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/data/ReadMe.finals2000A",
+                "path_type": "hardlink",
+                "sha256": "7c6182cc0fd0cbece39711f648d15e48b49168925602e360a5709c5ccc8d5a12",
+                "sha256_in_prefix": "7c6182cc0fd0cbece39711f648d15e48b49168925602e360a5709c5ccc8d5a12",
+                "size_in_bytes": 3429
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/data/eopc04.1962-now",
+                "path_type": "hardlink",
+                "sha256": "dab3b230a76cf6e75b027c562e99efd8beca09ce3a43ed208f787950fa85dd26",
+                "sha256_in_prefix": "dab3b230a76cf6e75b027c562e99efd8beca09ce3a43ed208f787950fa85dd26",
+                "size_in_bytes": 4990210
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/data/finals2000A.all",
+                "path_type": "hardlink",
+                "sha256": "2827704ce5e444d10ac2d06efa7b5ebd90fa97192c6141e9d7fb121520d511bc",
+                "sha256_in_prefix": "2827704ce5e444d10ac2d06efa7b5ebd90fa97192c6141e9d7fb121520d511bc",
+                "size_in_bytes": 3612232
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/tests/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "d43fa5dd355bc0864763bf00fac07b91ce25765757f19684abe36da61e75595c",
+                "sha256_in_prefix": "d43fa5dd355bc0864763bf00fac07b91ce25765757f19684abe36da61e75595c",
+                "size_in_bytes": 108
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/__pycache__/_version.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/astropy_iers_data/tests/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "",
+    "sha256": "bf4cc42548a8b2e28d7aee637c6470d6453aa8f4a9c7a554ec2ca98242a74fbb",
+    "size": 1203849,
+    "subdir": "noarch",
+    "timestamp": 1719202322862,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/astropy-iers-data-0.2024.6.24.0.31.11-pyhd8ed1ab_0.conda",
+    "version": "0.2024.6.24.0.31.11"
+}

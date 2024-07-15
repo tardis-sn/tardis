@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.7"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "uri-template",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1688655976471,
+  "version": "1.3.0"
+}

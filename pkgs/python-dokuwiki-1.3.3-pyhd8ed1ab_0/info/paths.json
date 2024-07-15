@@ -1,0 +1,59 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/dokuwiki-1.3.3.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/dokuwiki-1.3.3.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "63deff9cc402e139a155c24f28adc9ff2a88ac8d767a82a4cfe96d64dd180191",
+      "size_in_bytes": 1063
+    },
+    {
+      "_path": "site-packages/dokuwiki-1.3.3.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "d234b7d78c47d7647ac0766f8b44a8c478cacdc871cf45220f80bb9d75186d0f",
+      "size_in_bytes": 4396
+    },
+    {
+      "_path": "site-packages/dokuwiki-1.3.3.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "9ccee02e990bed6d189c1bba0200a9f812dde386abe394e128869cc190fbc2c7",
+      "size_in_bytes": 780
+    },
+    {
+      "_path": "site-packages/dokuwiki-1.3.3.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/dokuwiki-1.3.3.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "1b5e87e00dc87a84269cead8578b9e6462928e18a95f1f3373c9eef451a5bcc0",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "site-packages/dokuwiki-1.3.3.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "a1fe68ff39740e8a892c07c2fa74f3ae6bc04e596befa22967a79cf0f3bd15ab",
+      "size_in_bytes": 111
+    },
+    {
+      "_path": "site-packages/dokuwiki-1.3.3.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "3a0146c7b509d977f9101104d89d40f5f2a12062ac95b2f19e5f4587d8f544bd",
+      "size_in_bytes": 9
+    },
+    {
+      "_path": "site-packages/dokuwiki.py",
+      "path_type": "hardlink",
+      "sha256": "5d23f1f5f0ff610ce86cbe8ec4321952f152998d59a780002d60fb91a7765168",
+      "size_in_bytes": 20360
+    }
+  ],
+  "paths_version": 1
+}

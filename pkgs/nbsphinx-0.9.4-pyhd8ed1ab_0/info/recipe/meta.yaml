@@ -1,0 +1,71 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue May  7 09:39:48 2024
+# ------------------------------------------------
+
+package:
+  name: nbsphinx
+  version: 0.9.4
+source:
+  fn: nbsphinx-0.9.4.tar.gz
+  sha256: 042a60806fc23d519bc5bef59d95570713913fe442fda759d53e3aaf62104794
+  url: https://pypi.io/packages/source/n/nbsphinx/nbsphinx-0.9.4.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/nbsphinx_1715074854216/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.3 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.3.0 hd590300_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - docutils
+    - jinja2
+    - nbconvert
+    - nbformat
+    - python >=3.6
+    - sphinx
+    - traitlets
+test:
+  imports:
+    - nbsphinx
+about:
+  home: http://nbsphinx.rtfd.org/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Jupyter Notebook Tools for Sphinx
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240507.2.1
+  recipe-maintainers:
+    - SylvainCorlay
+    - ericmjl
+    - kmuehlbauer
+  remote_url: https://github.com/conda-forge/nbsphinx-feedstock
+  sha: 96ce106f04483945c70c4035979c7a76ba89db77

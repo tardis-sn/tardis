@@ -1,0 +1,33 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "alabaster >=0.7.14,<0.8.dev0",
+    "babel >=2.9",
+    "colorama >=0.4.5",
+    "docutils >=0.18.1,<0.22",
+    "imagesize >=1.3",
+    "importlib-metadata >=4.8",
+    "jinja2 >=3.0",
+    "packaging >=21.0",
+    "pygments >=2.14",
+    "python >=3.9",
+    "requests >=2.25.0",
+    "snowballstemmer >=2.0",
+    "sphinxcontrib-applehelp",
+    "sphinxcontrib-devhelp",
+    "sphinxcontrib-htmlhelp >=2.0.0",
+    "sphinxcontrib-jsmath",
+    "sphinxcontrib-qthelp",
+    "sphinxcontrib-serializinghtml >=1.1.9",
+    "tomli >=2.0"
+  ],
+  "license": "BSD-2-Clause",
+  "name": "sphinx",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1713555005540,
+  "version": "7.3.7"
+}

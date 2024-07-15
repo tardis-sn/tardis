@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "hd590300_1",
+  "build_number": 1,
+  "constrains": [
+    "jpeg <0.0.0a"
+  ],
+  "depends": [
+    "libgcc-ng >=12"
+  ],
+  "license": "IJG AND BSD-3-Clause AND Zlib",
+  "name": "libjpeg-turbo",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1694474974816,
+  "version": "3.0.0"
+}

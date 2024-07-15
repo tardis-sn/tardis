@@ -1,0 +1,78 @@
+From edb3ba3037493e6f18c6663577bbe2ed6828f8fa Mon Sep 17 00:00:00 2001
+From: Ray Donnelly <mingw.android@gmail.com>
+Date: Fri, 2 Oct 2020 00:03:12 +0200
+Subject: [PATCH 09/22] cross compile darwin
+
+By Isuru Fernando.
+---
+ Lib/platform.py | 7 ++++++-
+ configure       | 6 ++++++
+ configure.ac    | 6 ++++++
+ 3 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/Lib/platform.py b/Lib/platform.py
+index 7bb222088d..0b1cbc98e2 100755
+--- a/Lib/platform.py
++++ b/Lib/platform.py
+@@ -458,7 +458,12 @@ def win32_ver(release='', version='', csd='', ptype=''):
+ def _mac_ver_xml():
+     fn = '/System/Library/CoreServices/SystemVersion.plist'
+     if not os.path.exists(fn):
+-        return None
++        if 'SDKROOT' in os.environ:
++            fn = os.environ['SDKROOT'] + fn
++            if not os.path.exists(fn):
++                return None
++        else:
++            return None
+ 
+     try:
+         import plistlib
+diff --git a/configure b/configure
+index be783faa24..4a3f0b6302 100755
+--- a/configure
++++ b/configure
+@@ -4267,6 +4267,9 @@ then
+ 	*-*-linux*)
+ 		ac_sys_system=Linux
+ 		;;
++	*-*-darwin*)
++		ac_sys_system=Darwin
++		;;
+ 	*-*-cygwin*)
+ 		ac_sys_system=Cygwin
+ 		;;
+@@ -4332,6 +4335,9 @@ if test "$cross_compiling" = yes; then
+ 			_host_cpu=$host_cpu
+ 		esac
+ 		;;
++	*-*-darwin*)
++		_host_cpu=$host_cpu
++		;;
+ 	*-*-cygwin*)
+ 		_host_cpu=
+ 		;;
+diff --git a/configure.ac b/configure.ac
+index 8be26cc0ab..058f1d1096 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -547,6 +547,9 @@ then
+ 	*-*-linux*)
+ 		ac_sys_system=Linux
+ 		;;
++	*-*-darwin*)
++		ac_sys_system=Darwin
++		;;
+ 	*-*-cygwin*)
+ 		ac_sys_system=Cygwin
+ 		;;
+@@ -610,6 +613,9 @@ if test "$cross_compiling" = yes; then
+ 			_host_cpu=$host_cpu
+ 		esac
+ 		;;
++	*-*-darwin*)
++		_host_cpu=$host_cpu
++		;;
+ 	*-*-cygwin*)
+ 		_host_cpu=
+ 		;;

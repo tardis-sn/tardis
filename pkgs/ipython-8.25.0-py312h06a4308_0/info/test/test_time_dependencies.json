@@ -1,0 +1,1 @@
+["pickleshare", "numpy >=1.23", "nbformat", "curio", "pytest-asyncio <0.22", "testpath", "pip", "pytest", "matplotlib-base !=3.2.0", "trio", "pandas"]

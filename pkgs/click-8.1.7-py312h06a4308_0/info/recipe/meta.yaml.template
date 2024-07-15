@@ -1,0 +1,55 @@
+{% set name = "click" %}
+{% set version = "8.1.7" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de
+
+build:
+  number: 0
+  skip: True  # [py<37]
+  script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
+
+requirements:
+  host:
+    - python
+    - pip
+    - setuptools
+    - wheel
+  run:
+    - python
+    - colorama  # [win]
+    - importlib-metadata  # [py<38]
+
+test:
+  imports:
+    - click
+  requires:
+    - pip
+  commands:
+    - pip check
+
+about:
+  home: https://palletsprojects.com/p/click/
+  license: BSD-3-Clause
+  license_file: LICENSE.rst
+  license_family: BSD
+  summary: Python composable command line interface toolkit
+  description: |
+    Click is a Python package for creating beautiful command line interfaces in a composable way 
+    with as little code as necessary. It's the "Command Line Interface Creation Kit".
+    It's highly configurable but comes with sensible defaults out of the box.
+    It aims to make the process of writing command line tools quick and fun 
+    while also preventing any frustration caused by the inability to implement an intended CLI API.
+  dev_url: https://github.com/pallets/click
+  doc_url: https://click.palletsprojects.com
+
+extra:
+  recipe-maintainers:
+    - pmlandwehr
+    - ocefpaf
+    - xylar

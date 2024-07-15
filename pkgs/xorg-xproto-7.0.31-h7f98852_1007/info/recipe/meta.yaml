@@ -1,0 +1,64 @@
+# This file created by conda-build 3.20.5
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun Dec  6 21:49:30 2020
+# ------------------------------------------------
+
+package:
+    name: xorg-xproto
+    version: 7.0.31
+source:
+    fn: xorg-xproto-7.0.31.tar.bz2
+    patches: null
+    sha256: c6f9747da0bd3a95f86b17fb8dd5e717c8f3ab7f0ece3ba1b247899ec1ef7747
+    url: https://www.x.org/releases/individual/proto/xproto-7.0.31.tar.bz2
+build:
+    detect_binary_files_with_prefix: true
+    number: '1007'
+    string: h7f98852_1007
+requirements:
+    build:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - autoconf 2.69 pl5320h36c2ea0_10
+        - automake 1.16.2 pl5320ha770c72_3
+        - binutils_impl_linux-64 2.35.1 h17ad2fc_0
+        - binutils_linux-64 2.35 hc3fd857_29
+        - gcc_impl_linux-64 9.3.0 h28f5a38_17
+        - gcc_linux-64 9.3.0 h7247604_29
+        - gettext 0.19.8.1 h0b5b191_1005
+        - gnuconfig 2020.11.07 hd8ed1ab_0
+        - kernel-headers_linux-64 2.6.32 h77966d4_13
+        - ld_impl_linux-64 2.35.1 hed1e6ac_0
+        - libffi 3.3 h58526e2_1
+        - libgcc-devel_linux-64 9.3.0 hfd08b2a_17
+        - libgcc-ng 9.3.0 h5dbcf3e_17
+        - libgomp 9.3.0 h5dbcf3e_17
+        - libstdcxx-ng 9.3.0 h2ae2ef3_17
+        - libtool 2.4.6 h58526e2_1007
+        - m4 1.4.18 h516909a_1001
+        - make 4.3 hd18ef5c_1
+        - perl 5.32.0 h36c2ea0_0
+        - pkg-config 0.29.2 h36c2ea0_1008
+        - sysroot_linux-64 2.12 h77966d4_13
+    host:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - libgcc-ng 9.3.0 h5dbcf3e_17
+        - libgomp 9.3.0 h5dbcf3e_17
+        - xorg-util-macros 1.19.2 h36c2ea0_1001
+    run:
+        - libgcc-ng >=9.3.0
+test:
+    commands:
+        - conda inspect linkages -p $PREFIX $PKG_NAME
+about:
+    home: https://www.x.org/
+    license: MIT
+    license_family: MIT
+    license_file: COPYING
+    summary: Core X Windows C prototypes.
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - pkgw

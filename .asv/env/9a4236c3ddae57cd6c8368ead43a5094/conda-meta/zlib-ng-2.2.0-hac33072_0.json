@@ -1,0 +1,125 @@
+{
+    "arch": "x86_64",
+    "build": "hac33072_0",
+    "build_number": 0,
+    "build_string": "hac33072_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libstdcxx-ng >=12"
+    ],
+    "extracted_package_dir": "pkgs/zlib-ng-2.2.0-hac33072_0",
+    "files": [
+        "include/zconf-ng.h",
+        "include/zlib-ng.h",
+        "include/zlib_name_mangling-ng.h",
+        "lib/cmake/zlib-ng/zlib-ng-config-version.cmake",
+        "lib/cmake/zlib-ng/zlib-ng-config.cmake",
+        "lib/cmake/zlib-ng/zlib-ng-release.cmake",
+        "lib/cmake/zlib-ng/zlib-ng.cmake",
+        "lib/libz-ng.so",
+        "lib/libz-ng.so.2",
+        "lib/libz-ng.so.2.2.0",
+        "lib/pkgconfig/zlib-ng.pc"
+    ],
+    "fn": "zlib-ng-2.2.0-hac33072_0.conda",
+    "license": "Zlib",
+    "license_family": "Other",
+    "link": {
+        "source": "pkgs/zlib-ng-2.2.0-hac33072_0",
+        "type": 1
+    },
+    "md5": "055e18c8aca4c055222e594fb3133289",
+    "name": "zlib-ng",
+    "package_tarball_full_path": "pkgs/zlib-ng-2.2.0-hac33072_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "include/zconf-ng.h",
+                "path_type": "hardlink",
+                "sha256": "c9abec4c04cc7d29c846f24230e73076e3c215cc3e56fca7ce1ddcbd65ade802",
+                "sha256_in_prefix": "c9abec4c04cc7d29c846f24230e73076e3c215cc3e56fca7ce1ddcbd65ade802",
+                "size_in_bytes": 5026
+            },
+            {
+                "_path": "include/zlib-ng.h",
+                "path_type": "hardlink",
+                "sha256": "ddfc7ebd35e0c86c5e7bdb73dfcb1ff9c2cdcab278cf821ca68dde1f45ea2289",
+                "sha256_in_prefix": "ddfc7ebd35e0c86c5e7bdb73dfcb1ff9c2cdcab278cf821ca68dde1f45ea2289",
+                "size_in_bytes": 92784
+            },
+            {
+                "_path": "include/zlib_name_mangling-ng.h",
+                "path_type": "hardlink",
+                "sha256": "38e51a846d6c2bd6100298c55328dba4437c08fa1dceda4eb2e06ecb1d142058",
+                "sha256_in_prefix": "38e51a846d6c2bd6100298c55328dba4437c08fa1dceda4eb2e06ecb1d142058",
+                "size_in_bytes": 230
+            },
+            {
+                "_path": "lib/cmake/zlib-ng/zlib-ng-config-version.cmake",
+                "path_type": "hardlink",
+                "sha256": "973beb0b1ed4e24b2f42da536654d5fba5722dc7f3e19eb41bd4bf2478b6a97a",
+                "sha256_in_prefix": "973beb0b1ed4e24b2f42da536654d5fba5722dc7f3e19eb41bd4bf2478b6a97a",
+                "size_in_bytes": 1861
+            },
+            {
+                "_path": "lib/cmake/zlib-ng/zlib-ng-config.cmake",
+                "path_type": "hardlink",
+                "sha256": "c63b9c7b80a61481f70ef22bdbcc3636e36ffec04945b7663102e15c2df924cb",
+                "sha256_in_prefix": "c63b9c7b80a61481f70ef22bdbcc3636e36ffec04945b7663102e15c2df924cb",
+                "size_in_bytes": 1124
+            },
+            {
+                "_path": "lib/cmake/zlib-ng/zlib-ng-release.cmake",
+                "path_type": "hardlink",
+                "sha256": "ec8c73926cc38df40980977cd00fd2236687b7c2fad39f7f2942cc38e9000fc1",
+                "sha256_in_prefix": "ec8c73926cc38df40980977cd00fd2236687b7c2fad39f7f2942cc38e9000fc1",
+                "size_in_bytes": 839
+            },
+            {
+                "_path": "lib/cmake/zlib-ng/zlib-ng.cmake",
+                "path_type": "hardlink",
+                "sha256": "810275df64ff94ac1029538a6662f2b7851eeb575bca415dae66c75e978674cb",
+                "sha256_in_prefix": "810275df64ff94ac1029538a6662f2b7851eeb575bca415dae66c75e978674cb",
+                "size_in_bytes": 4158
+            },
+            {
+                "_path": "lib/libz-ng.so",
+                "path_type": "softlink",
+                "sha256_in_prefix": "4c3f28c186aecce56ae7cf5de8e6a0a05feaad1078fc2cd1636aefe04a354f7c",
+                "size_in_bytes": 155504
+            },
+            {
+                "_path": "lib/libz-ng.so.2",
+                "path_type": "softlink",
+                "sha256_in_prefix": "4c3f28c186aecce56ae7cf5de8e6a0a05feaad1078fc2cd1636aefe04a354f7c",
+                "size_in_bytes": 155504
+            },
+            {
+                "_path": "lib/libz-ng.so.2.2.0",
+                "path_type": "hardlink",
+                "sha256": "4c3f28c186aecce56ae7cf5de8e6a0a05feaad1078fc2cd1636aefe04a354f7c",
+                "sha256_in_prefix": "4c3f28c186aecce56ae7cf5de8e6a0a05feaad1078fc2cd1636aefe04a354f7c",
+                "size_in_bytes": 155504
+            },
+            {
+                "_path": "lib/pkgconfig/zlib-ng.pc",
+                "path_type": "hardlink",
+                "sha256": "6af95feb880046071c3c0666a138d53fb9cf3ce927fd7fd069046dfb391f90a9",
+                "sha256_in_prefix": "9a5d92f7fd976d8ab7767ee811b57f9f25e45ce1643b0fb27d21965bbe4db7c4",
+                "size_in_bytes": 543
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": "linux",
+    "requested_spec": "",
+    "sha256": "6796a2b58009dd4b38c6b29a125c2e36ebf50012358b188ef42f3a15908371ea",
+    "size": 105002,
+    "subdir": "linux-64",
+    "timestamp": 1718853554747,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/zlib-ng-2.2.0-hac33072_0.conda",
+    "version": "2.2.0"
+}

@@ -1,0 +1,2 @@
+[sphinx.html_themes]
+bootstrap-astropy = astropy_sphinx_theme

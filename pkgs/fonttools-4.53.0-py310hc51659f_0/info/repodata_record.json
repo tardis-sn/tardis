@@ -1,0 +1,29 @@
+{
+    "arch": "x86_64",
+    "build": "py310hc51659f_0",
+    "build_number": 0,
+    "build_string": "py310hc51659f_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "brotli",
+        "libgcc-ng >=12",
+        "munkres",
+        "python >=3.10,<3.11.0a0",
+        "python_abi 3.10.* *_cp310",
+        "unicodedata2 >=14.0.0"
+    ],
+    "fn": "fonttools-4.53.0-py310hc51659f_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "0b6cd00b80d5af0bbfa261606ed56a18",
+    "name": "fonttools",
+    "platform": "linux",
+    "sha256": "f28d3c03c067808d0cdb1fca90ab1052a55ddc0f7ba86735a07e07ebc9b9f49a",
+    "size": 2343799,
+    "subdir": "linux-64",
+    "timestamp": 1717209368278,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.53.0-py310hc51659f_0.conda",
+    "version": "4.53.0"
+}

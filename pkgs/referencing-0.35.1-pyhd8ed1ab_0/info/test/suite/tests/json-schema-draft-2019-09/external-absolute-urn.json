@@ -1,0 +1,12 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "urn:example:schema": { "foo": "bar" }
+  },
+  "tests": [
+    {
+      "ref": "urn:example:schema",
+      "target": { "foo": "bar" }
+    }
+  ]
+}

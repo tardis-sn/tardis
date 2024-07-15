@@ -1,0 +1,28 @@
+From b201ef5cfba1ffb2774baa5eeee5d25a55904d40 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Fri, 20 Aug 2021 10:23:51 -0700
+Subject: [PATCH 22/25] Unvendor tcltk
+
+---
+ PCbuild/tcltk.props | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/PCbuild/tcltk.props b/PCbuild/tcltk.props
+index 6ff152970c..a46efb89d2 100644
+--- a/PCbuild/tcltk.props
++++ b/PCbuild/tcltk.props
+@@ -17,10 +17,10 @@
+     <TixMinorVersion>$([System.Version]::Parse($(TixVersion)).Minor)</TixMinorVersion>
+     <TixPatchLevel>$([System.Version]::Parse($(TixVersion)).Build)</TixPatchLevel>
+     <TixRevision>$([System.Version]::Parse($(TixVersion)).Revision)</TixRevision>
+-    <tclDir Condition="$(tclDir) == ''">$(ExternalsDir)tcl-core-$(TclVersion)\</tclDir>
+-    <tkDir Condition="$(tkDir) == ''">$(ExternalsDir)tk-$(TkVersion)\</tkDir>
+-    <tixDir Condition="$(tixDir) == ''">$(ExternalsDir)tix-$(TixVersion)\</tixDir>
+-    <tcltkDir Condition="$(tcltkDir) == ''">$(ExternalsDir)tcltk-$(TclVersion)\$(ArchName)\</tcltkDir>
++    <tclDir Condition="$(tclDir) == ''">$(condaDir)\</tclDir>
++    <tkDir Condition="$(tkDir) == ''">$(condaDir)\</tkDir>
++    <tixDir Condition="$(tixDir) == ''">$(condaDir)\</tixDir>
++    <tcltkDir Condition="$(tcltkDir) == ''">$(condaDir)\</tcltkDir>
+ 
+     <!--<TclDebugExt Condition="'$(Configuration)' == 'Debug'">g</TclDebugExt>-->
+     <tclDLLName>tcl$(TclMajorVersion)$(TclMinorVersion)t$(TclDebugExt).dll</tclDLLName>

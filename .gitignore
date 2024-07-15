@@ -82,7 +82,7 @@ pip-wheel-metadata/
 # Data files
 benchmarks/data/*.h5
 
-# ASV
-.asv/
-pkgs/
-release_hashes.txt
+# # ASV
+# .asv/
+# pkgs/
+# release_hashes.txt

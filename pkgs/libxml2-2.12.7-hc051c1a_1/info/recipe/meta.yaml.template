@@ -1,0 +1,67 @@
+{% set version = "2.12.7" %}
+
+package:
+  name: libxml2
+  version: {{ version }}
+
+source:
+  url: https://gitlab.gnome.org/GNOME/libxml2/-/archive/v{{ version }}/libxml2-v{{ version }}.tar.gz
+  sha256: a7c1277f4e859883ff3aaa09a545561b7515e078a97eb240bb92bf5a03ae03fc
+  patches:
+    - 0002-Make-and-install-a-pkg-config-file-on-Windows.patch
+
+build:
+  number: 1
+  run_exports:
+    # remove symbols at minor versions according to
+    #    https://abi-laboratory.pro/tracker/timeline/libxml2/
+    # but the analysis is incorrect. abi-laboratory has a hard
+    # time with shared libraries with versioned objects.
+    - {{ pin_subpackage('libxml2', max_pin='x') }}
+
+requirements:
+  build:
+    - libtool  # [unix]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - autoconf  # [not win]
+    - automake  # [not win]
+    - libtool  # [not win]
+    - pkg-config  # [not win]
+    - make  # [not win]
+    - m2-patch  # [win]
+    - libiconv  # [not win]
+  host:
+    - icu  # [not win]
+    - libiconv
+    - xz  # [not win]
+    - zlib
+
+test:
+  files:
+    - test.xml
+  commands:
+    - xmllint test.xml
+
+about:
+  home: http://xmlsoft.org/
+  license: MIT
+  license_family: MIT
+  license_file: Copyright
+  summary: The XML C parser and toolkit of Gnome
+  description: |
+    Though libxml2 is written in C a variety of language
+    bindings make it available in other environments.
+  doc_url: http://xmlsoft.org/html/index.html
+  doc_source_url: https://github.com/GNOME/libxml2/blob/master/doc/index.html
+  dev_url: https://git.gnome.org/browse/libxml2/
+
+extra:
+  recipe-maintainers:
+    - isuruf
+    - ocefpaf
+    - jakirkham
+    - gillins
+    - jschueller
+    - msarahan
+    - scopatz

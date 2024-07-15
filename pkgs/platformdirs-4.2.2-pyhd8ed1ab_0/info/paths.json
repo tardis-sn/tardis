@@ -1,0 +1,101 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/platformdirs-4.2.2.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/platformdirs-4.2.2.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "ce6b227b4d46d4cb57474c2022fe57a557933bb89daf4596bdf9b12ac296b869",
+      "size_in_bytes": 11429
+    },
+    {
+      "_path": "site-packages/platformdirs-4.2.2.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "affd320416409becf516cfa80d3ad08357fe660ef348473e22b977f8ce073c08",
+      "size_in_bytes": 1743
+    },
+    {
+      "_path": "site-packages/platformdirs-4.2.2.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/platformdirs-4.2.2.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "cc431c46bf4aaf4df1d68cc6c20e6ff4d4012a7de49dda7a2d2a1295583e8e15",
+      "size_in_bytes": 87
+    },
+    {
+      "_path": "site-packages/platformdirs-4.2.2.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "c71a5018be373604892a4b3aa84c63eac59b94314c8a9a2de203f49982d58cb3",
+      "size_in_bytes": 108
+    },
+    {
+      "_path": "site-packages/platformdirs-4.2.2.dist-info/licenses/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "size_in_bytes": 1089
+    },
+    {
+      "_path": "site-packages/platformdirs/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "10c184f2a787451f42cc316bf242f7b40f217596678988d705565dd1419358ad",
+      "size_in_bytes": 22225
+    },
+    {
+      "_path": "site-packages/platformdirs/__main__.py",
+      "path_type": "hardlink",
+      "sha256": "1e7b14407a6205a893c70726c15c3e9c568f755359b5021d8b57960ed23e3332",
+      "size_in_bytes": 1493
+    },
+    {
+      "_path": "site-packages/platformdirs/android.py",
+      "path_type": "hardlink",
+      "sha256": "c595d8f49778e963acc53d94ebee47b0db4367e210ab170452b04b977858938a",
+      "size_in_bytes": 9016
+    },
+    {
+      "_path": "site-packages/platformdirs/api.py",
+      "path_type": "hardlink",
+      "sha256": "40161d51a736782e76d5e93fcb9dee0f50dcabe9495fc22049155de089c2eae7",
+      "size_in_bytes": 8996
+    },
+    {
+      "_path": "site-packages/platformdirs/macos.py",
+      "path_type": "hardlink",
+      "sha256": "c1fb6c6ecbeaea767458e4574a20ab64d9111f3fd62ae92d9746ba982ecc1642",
+      "size_in_bytes": 5580
+    },
+    {
+      "_path": "site-packages/platformdirs/py.typed",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/platformdirs/unix.py",
+      "path_type": "hardlink",
+      "sha256": "09c8bd5aab77e5d00cb20e874fd9d11874815b9a1b6f4a51dc01352499ec0978",
+      "size_in_bytes": 10643
+    },
+    {
+      "_path": "site-packages/platformdirs/version.py",
+      "path_type": "hardlink",
+      "sha256": "afb17bead6518e040aceba71fc8d3f64c40e314f8f4bb7869c70fbcc42b7281d",
+      "size_in_bytes": 411
+    },
+    {
+      "_path": "site-packages/platformdirs/windows.py",
+      "path_type": "hardlink",
+      "sha256": "205a62a21501c313ed0b39722b036dc725b8264f2169ae96f28e7d99fac35d5a",
+      "size_in_bytes": 10125
+    }
+  ],
+  "paths_version": 1
+}

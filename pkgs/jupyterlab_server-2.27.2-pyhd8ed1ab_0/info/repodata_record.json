@@ -1,0 +1,34 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [
+        "openapi-core >=0.18.0,<0.19.0"
+    ],
+    "depends": [
+        "babel >=2.10",
+        "importlib-metadata >=4.8.3",
+        "jinja2 >=3.0.3",
+        "json5 >=0.9.0",
+        "jsonschema >=4.18",
+        "jupyter_server >=1.21,<3",
+        "packaging >=21.3",
+        "python >=3.8",
+        "requests >=2.31"
+    ],
+    "fn": "jupyterlab_server-2.27.2-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "d1cb7b113daaadd89e5aa6a32b28bf0d",
+    "name": "jupyterlab_server",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "d4b9f9f46b3c494d678b4f003d7a2f7ac834dba641bd02332079dde5a9a85c98",
+    "size": 49349,
+    "subdir": "noarch",
+    "timestamp": 1716434054129,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/jupyterlab_server-2.27.2-pyhd8ed1ab_0.conda",
+    "version": "2.27.2"
+}

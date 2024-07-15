@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.7",
+    "pytz",
+    "setuptools"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "babel",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1702422720584,
+  "version": "2.14.0"
+}

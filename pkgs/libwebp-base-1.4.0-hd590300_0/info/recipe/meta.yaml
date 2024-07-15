@@ -1,0 +1,122 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Apr 15 16:47:51 2024
+# ------------------------------------------------
+
+package:
+  name: libwebp-base
+  version: 1.4.0
+source:
+  sha256: 61f873ec69e3be1b99535634340d5bde750b2e4447caa1db9f61be3fd49ab1e5
+  url: http://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.4.0.tar.gz
+build:
+  number: '0'
+  run_exports:
+    - libwebp-base >=1.4.0,<2.0a0
+  string: hd590300_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.28.1 hd590300_0
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cmake 3.29.2 hcfe8598_0
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h6477408_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libcurl 8.7.1 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuv 1.48.0 hd590300_0
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4.20240210 h59595ed_0
+    - ninja 1.11.1 h924138e_0
+    - openssl 3.2.1 hd590300_1
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.5 hfc55251_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+  run:
+    - libgcc-ng >=12
+  run_constrained:
+    - libwebp 1.4.0
+test:
+  commands:
+    - test -f $PREFIX/lib/libwebp.so
+    - test ! -f $PREFIX/lib/libwebp.a
+    - test $PREFIX/pkgconfig/libwebp.pc
+    - test $PREFIX/share/cmake/WebP/WebPConfig.cmake
+    - test -f $PREFIX/lib/libwebpdemux.so
+    - test ! -f $PREFIX/lib/libwebpdemux.a
+    - test $PREFIX/pkgconfig/libwebpdemux.pc
+    - test $PREFIX/share/cmake/WebP/WebPConfig.cmake
+    - test -f $PREFIX/lib/libwebpmux.so
+    - test ! -f $PREFIX/lib/libwebpmux.a
+    - test $PREFIX/pkgconfig/libwebpmux.pc
+    - test $PREFIX/share/cmake/WebP/WebPConfig.cmake
+    - test -f $PREFIX/lib/libwebpdecoder.so
+    - test ! -f $PREFIX/lib/libwebpdecoder.a
+    - test $PREFIX/pkgconfig/libwebpdecoder.pc
+    - test $PREFIX/share/cmake/WebP/WebPConfig.cmake
+    - test -f $PREFIX/lib/libsharpyuv.so
+    - test ! -f $PREFIX/lib/libsharpyuv.a
+    - test $PREFIX/pkgconfig/libsharpyuv.pc
+    - test $PREFIX/share/cmake/WebP/WebPConfig.cmake
+    - test -f $PREFIX/include/webp/decode.h || (echo "decode.h not found" && exit
+      1)
+    - test -f $PREFIX/include/webp/demux.h || (echo "demux.h not found" && exit 1)
+    - test -f $PREFIX/include/webp/encode.h || (echo "encode.h not found" && exit
+      1)
+    - test -f $PREFIX/include/webp/mux_types.h || (echo "mux_types.h not found" &&
+      exit 1)
+    - test -f $PREFIX/include/webp/mux.h || (echo "mux.h not found" && exit 1)
+    - test -f $PREFIX/include/webp/types.h || (echo "types.h not found" && exit 1)
+    - test ! -f $PREFIX/bin/cwebp
+    - test ! -f $PREFIX/bin/dwebp
+    - test ! -f $PREFIX/bin/gif2webp
+    - test ! -f $PREFIX/bin/img2webp
+    - test ! -f $PREFIX/bin/webpinfo
+    - test ! -f $PREFIX/bin/webpmux
+about:
+  description: 'WebP is a method of lossy and lossless compression that can be used
+    on a large variety of photographic, translucent and graphical images found on
+    the web. The degree of lossy compression is adjustable so a user can choose the
+    trade-off between file size and image quality. libwebp-base provides the headers
+    and shared libraries. For cwebp and dwep, binaries install libwebp.
+
+    '
+  dev_url: https://chromium.googlesource.com/webm/libwebp
+  doc_url: https://developers.google.com/speed/webp/docs/using
+  home: https://developers.google.com/speed/webp
+  license: BSD-3-Clause
+  license_file: COPYING
+  summary: WebP image library
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240415.1.1
+  recipe-maintainers:
+    - carterbox
+    - dschreij
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/libwebp-base-feedstock
+  sha: 3ebf7ef4aae49621ee30e62f06a6d4010c48ea8a

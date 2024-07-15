@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "py312h7900ff3_1",
+  "build_number": 1,
+  "depends": [
+    "docutils >=0.14",
+    "pybtex >=0.16",
+    "python >=3.12.0rc3,<3.13.0a0",
+    "python_abi 3.12.* *_cp312",
+    "setuptools"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "pybtex-docutils",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1695539415551,
+  "version": "1.0.3"
+}

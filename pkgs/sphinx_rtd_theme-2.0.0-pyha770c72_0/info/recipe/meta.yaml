@@ -1,0 +1,100 @@
+# This file created by conda-build 3.27.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Nov 28 14:56:39 2023
+# ------------------------------------------------
+
+package:
+  name: sphinx_rtd_theme
+  version: 2.0.0
+source:
+  fn: sphinx_rtd_theme-2.0.0.tar.gz
+  sha256: bd5d7b80622406762073a04ef8fadc5f9151261563d47027de09910ce03afe6b
+  url: https://pypi.io/packages/source/s/sphinx_rtd_theme/sphinx_rtd_theme-2.0.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: python -m pip install . --no-deps -vv
+  string: pyha770c72_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - alabaster 0.7.13 pyhd8ed1ab_0
+    - babel 2.13.1 pyhd8ed1ab_0
+    - brotli-python 1.1.0 py312h30efb56_1
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - certifi 2023.11.17 pyhd8ed1ab_0
+    - charset-normalizer 3.3.2 pyhd8ed1ab_0
+    - colorama 0.4.6 pyhd8ed1ab_0
+    - docutils 0.20.1 py312h7900ff3_2
+    - idna 3.6 pyhd8ed1ab_0
+    - imagesize 1.4.1 pyhd8ed1ab_0
+    - importlib-metadata 6.8.0 pyha770c72_0
+    - jinja2 3.1.2 pyhd8ed1ab_1
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_3
+    - libgomp 13.2.0 h807b86a_3
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libstdcxx-ng 13.2.0 h7e041cc_3
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 hd590300_5
+    - markupsafe 2.1.3 py312h98912ed_1
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.0 hd590300_1
+    - packaging 23.2 pyhd8ed1ab_0
+    - pip 23.3.1 pyhd8ed1ab_0
+    - pygments 2.17.2 pyhd8ed1ab_0
+    - pysocks 1.7.1 pyha2e5f31_6
+    - python 3.12.0 hab00c5b_0_cpython
+    - python_abi 3.12 4_cp312
+    - pytz 2023.3.post1 pyhd8ed1ab_0
+    - readline 8.2 h8228510_1
+    - requests 2.31.0 pyhd8ed1ab_0
+    - setuptools 68.2.2 pyhd8ed1ab_0
+    - snowballstemmer 2.2.0 pyhd8ed1ab_0
+    - sphinx 7.2.6 pyhd8ed1ab_0
+    - sphinxcontrib-applehelp 1.0.7 pyhd8ed1ab_0
+    - sphinxcontrib-devhelp 1.0.5 pyhd8ed1ab_0
+    - sphinxcontrib-htmlhelp 2.0.4 pyhd8ed1ab_0
+    - sphinxcontrib-jsmath 1.0.1 pyhd8ed1ab_0
+    - sphinxcontrib-qthelp 1.0.6 pyhd8ed1ab_0
+    - sphinxcontrib-serializinghtml 1.1.9 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023c h71feb2d_0
+    - urllib3 2.1.0 pyhd8ed1ab_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.17.0 pyhd8ed1ab_0
+  run:
+    - docutils <0.21
+    - python >=3.6
+    - sphinx >=5,<8
+    - sphinxcontrib-jquery >=4,<5
+about:
+  description: 'This is a mobile-friendly sphinx theme made for readthedocs.org. It''s
+    currently in
+
+    development there and includes some rtd variable checks that can be ignored if
+    you''re
+
+    just trying to use it on your project outside of that site.
+
+    '
+  dev_url: https://github.com/readthedocs/sphinx_rtd_theme/
+  home: https://github.com/readthedocs/sphinx_rtd_theme/
+  license: MIT
+  license_file: LICENSE
+  summary: ReadTheDocs.org theme for Sphinx, 2013 version.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20231128.3.1
+  recipe-maintainers:
+    - SylvainCorlay
+    - chohner
+  remote_url: https://github.com/conda-forge/sphinx_rtd_theme-feedstock
+  sha: 5047f0ae32478601e9a14a7ae57f50ffaebf11c7

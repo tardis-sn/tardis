@@ -1,0 +1,18 @@
+{
+  "arch": "x86_64",
+  "build": "h4ab18f5_6",
+  "build_number": 6,
+  "constrains": [
+    "zlib 1.2.13 *_6"
+  ],
+  "depends": [
+    "libgcc-ng >=12"
+  ],
+  "license": "Zlib",
+  "license_family": "Other",
+  "name": "libzlib",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1716874066944,
+  "version": "1.2.13"
+}

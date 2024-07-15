@@ -1,0 +1,94 @@
+{% set version = "2.14.1" %}
+
+package:
+  name: jupyter_server
+  version: {{ version }}
+
+source:
+  url:
+    # prefer the canonical PyPI upload
+    - https://pypi.io/packages/source/j/jupyter-server/jupyter_server-{{ version }}.tar.gz
+    # fall back to the GitHub release assset (_not_ a snapshot)
+    - https://github.com/jupyter-server/jupyter_server/releases/download/v{{ version }}/jupyter_server-{{ version }}.tar.gz
+  sha256: 12558d158ec7a0653bf96cc272bc7ad79e0127d503b982ed144399346694f726
+
+build:
+  noarch: python
+  number: 0
+  script:
+    - {{ PYTHON }} -m pip install . -vv --no-deps --no-cache-dir --no-build-isolation
+  entry_points:
+    - jupyter-server = jupyter_server.serverapp:main
+
+requirements:
+  host:
+    - hatch-jupyter-builder >=0.8.1
+    - hatchling >=1.11
+    - nodejs >=18
+    - pip
+    - python >=3.8
+  run:
+    - anyio >=3.1.0
+    - argon2-cffi
+    - jinja2
+    - jupyter_client >=7.4.4
+    - jupyter_core >=4.12,!=5.0.*
+    - jupyter_events >=0.9.0
+    - jupyter_server_terminals
+    - nbconvert-core >=6.4.4  # avoid hard dependency on pandoc
+    - nbformat >=5.3.0
+    - overrides
+    - packaging
+    - prometheus_client
+    - python >=3.8
+    - pyzmq >=24
+    - send2trash >=1.8.2
+    - terminado >=0.8.3
+    - tornado >=6.2.0
+    - traitlets >=5.6.0
+    - websocket-client
+    # - pywinpty  # [win]  # rely on terminado to get this to keep noarch
+
+
+test:
+  source_files:
+    - tests
+  requires:
+    - pip
+    # test deps
+    - coverage
+    - flaky
+    - ipykernel
+    - pytest >=7.0,<8
+    - pytest-console-scripts
+    - pytest-cov
+    - pytest-timeout
+    - pytest-jupyter-server >=0.7
+    - requests
+  commands:
+    - pip check
+    - jupyter server -h
+    - jupyter-server -h
+  imports:
+    - jupyter_server
+  downstreams:
+    - jupyterlab >=3.2
+    - jupyterlab_server >=2.20.0
+
+about:
+  home: https://jupyter-server.readthedocs.io
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: The backend—i.e. core services, APIs, and REST endpoints to Jupyter web applications.
+  dev_url: https://github.com/jupyter/jupyter_server
+
+extra:
+  recipe-maintainers:
+    - SylvainCorlay
+    - maartenbreddels
+    - blink1073
+    - minrk
+    - jasongrout
+    - bollwyvl
+    - Zsailer

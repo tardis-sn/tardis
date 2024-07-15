@@ -1,0 +1,1 @@
+["pip", "curio", "black", "pytest-cov", "numpy >=1.19", "pytest <7", "trio", "nbformat", "pandas", "testpath", "pygments", "matplotlib-base !=3.2.0"]

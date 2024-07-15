@@ -1,0 +1,94 @@
+# This file created by conda-build 3.24.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat Jun 10 18:32:52 2023
+# ------------------------------------------------
+
+package:
+  name: sphinx-astropy
+  version: 1.9.1
+source:
+  sha256: 7931c795f445caee38f98754afd75fe7393db7df2c4dcc860f94a011fb162454
+  url: https://pypi.io/packages/source/s/sphinx-astropy/sphinx-astropy-1.9.1.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/sphinx-astropy_1686422056269/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeh/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2023.5.7 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libnsl 2.0.0 h7f98852_0
+    - libsqlite 3.42.0 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 h166bdaf_4
+    - ncurses 6.4 hcb278e6_0
+    - openssl 3.1.1 hd590300_1
+    - packaging 23.1 pyhd8ed1ab_0
+    - pip 23.1.2 pyhd8ed1ab_0
+    - python 3.11.3 h2755cc3_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 67.7.2 pyhd8ed1ab_0
+    - setuptools-scm 7.1.0 pyhd8ed1ab_0
+    - setuptools_scm 7.1.0 hd8ed1ab_0
+    - tk 8.6.12 h27826a3_0
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - typing-extensions 4.6.3 hd8ed1ab_0
+    - typing_extensions 4.6.3 pyha770c72_0
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.40.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - astropy-sphinx-theme
+    - numpydoc
+    - packaging
+    - pillow
+    - pytest-doctestplus >=0.11
+    - python >=3.7
+    - sphinx >=3
+    - sphinx-automodapi
+    - sphinx-gallery
+    - sphinxcontrib-jquery
+test:
+  commands:
+    - pip check
+  imports:
+    - astropy_sphinx_theme
+    - numpydoc
+    - sphinx
+    - sphinx_astropy
+    - sphinx_automodapi
+    - sphinx_gallery
+  requires:
+    - pip
+about:
+  description: 'This package serves two purposes: it provides a default Sphinx configuration
+
+    and set of extensions specific to the Astropy project, and it acts as a
+
+    meta-package by installing all required Sphinx extensions for the core
+
+    Astropy package and other packages.
+
+    '
+  dev_url: https://github.com/astropy/sphinx-astropy
+  doc_url: https://github.com/astropy/sphinx-astropy
+  home: https://www.astropy.org
+  license: BSD-3-Clause
+  license_file: LICENSE.rst
+  summary: Sphinx extensions and configuration specific to the Astropy project
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - astrofrog-conda-forge
+    - drdavella
+    - mwcraig

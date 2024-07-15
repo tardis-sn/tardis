@@ -1,0 +1,11 @@
+prefix=/home/conda/feedstock_root/build_artifacts/gts_1686545054621/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: GTS
+Description: GNU Triangulated Surface Library
+Version: 0.7.6
+Requires: glib-2.0,gthread-2.0,gmodule-2.0
+Libs: -L${libdir}  -lgts
+Cflags: -I${includedir}

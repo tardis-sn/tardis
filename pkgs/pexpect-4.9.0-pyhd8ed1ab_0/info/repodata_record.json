@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "ptyprocess >=0.5",
+        "python >=3.7"
+    ],
+    "fn": "pexpect-4.9.0-pyhd8ed1ab_0.conda",
+    "license": "ISC",
+    "md5": "629f3203c99b32e0988910c93e77f3b6",
+    "name": "pexpect",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "90a09d134a4a43911b716d4d6eb9d169238aff2349056f7323d9db613812667e",
+    "size": 53600,
+    "subdir": "noarch",
+    "timestamp": 1706113273252,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pexpect-4.9.0-pyhd8ed1ab_0.conda",
+    "version": "4.9.0"
+}

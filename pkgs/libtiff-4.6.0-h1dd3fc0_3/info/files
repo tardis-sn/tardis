@@ -1,0 +1,17 @@
+bin/tiffcp
+bin/tiffdump
+bin/tiffinfo
+bin/tiffset
+bin/tiffsplit
+include/tiff.h
+include/tiffconf.h
+include/tiffio.h
+include/tiffio.hxx
+include/tiffvers.h
+lib/libtiff.so
+lib/libtiff.so.6
+lib/libtiff.so.6.0.2
+lib/libtiffxx.so
+lib/libtiffxx.so.6
+lib/libtiffxx.so.6.0.2
+lib/pkgconfig/libtiff-4.pc

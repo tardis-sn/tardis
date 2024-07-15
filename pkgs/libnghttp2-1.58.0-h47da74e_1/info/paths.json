@@ -1,0 +1,63 @@
+{
+  "paths": [
+    {
+      "_path": "bin/nghttp",
+      "path_type": "hardlink",
+      "sha256": "c383e4c2826eef06a20d76bc07d044bd24c0abccc77117dac889597e56c04a8f",
+      "size_in_bytes": 266848
+    },
+    {
+      "_path": "bin/nghttpd",
+      "path_type": "hardlink",
+      "sha256": "aef7bd3a9475c7547c0fcef1039b150494156610dd5224dac4271331e3491d12",
+      "size_in_bytes": 192704
+    },
+    {
+      "_path": "bin/nghttpx",
+      "file_mode": "binary",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/nghttp2_1702129769105/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+      "sha256": "a5721ce5137b97c9ec1160dac4a1c3e1c1c8334e5feacdcdc73b973325ef0fb2",
+      "size_in_bytes": 1316656
+    },
+    {
+      "_path": "include/nghttp2/nghttp2.h",
+      "path_type": "hardlink",
+      "sha256": "5ee78a22bd0ad01a46be4841faa4c3c85afc64f741b812753834adb9ae95a64a",
+      "size_in_bytes": 205042
+    },
+    {
+      "_path": "include/nghttp2/nghttp2ver.h",
+      "path_type": "hardlink",
+      "sha256": "f4293b780f60e732ee8d4cdf07ee919be23f921b212ba0abf21173cf7231940b",
+      "size_in_bytes": 1605
+    },
+    {
+      "_path": "lib/libnghttp2.so",
+      "path_type": "softlink",
+      "sha256": "42d5b4a6eea32fbb0329cab69398bceb785770484e6b1fdb029c1fa62a43a402",
+      "size_in_bytes": 200176
+    },
+    {
+      "_path": "lib/libnghttp2.so.14",
+      "path_type": "softlink",
+      "sha256": "42d5b4a6eea32fbb0329cab69398bceb785770484e6b1fdb029c1fa62a43a402",
+      "size_in_bytes": 200176
+    },
+    {
+      "_path": "lib/libnghttp2.so.14.25.1",
+      "path_type": "hardlink",
+      "sha256": "42d5b4a6eea32fbb0329cab69398bceb785770484e6b1fdb029c1fa62a43a402",
+      "size_in_bytes": 200176
+    },
+    {
+      "_path": "lib/pkgconfig/libnghttp2.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/nghttp2_1702129769105/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+      "sha256": "49ced4987a87c11d6c027644e281fdef7b4c868c5cea13d73454ea9bd956951a",
+      "size_in_bytes": 1633
+    }
+  ],
+  "paths_version": 1
+}

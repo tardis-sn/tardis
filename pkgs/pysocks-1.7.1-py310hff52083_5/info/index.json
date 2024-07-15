@@ -1,0 +1,16 @@
+{
+  "arch": "x86_64",
+  "build": "py310hff52083_5",
+  "build_number": 5,
+  "depends": [
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310"
+  ],
+  "license": "BSD 3-Clause",
+  "license_family": "BSD",
+  "name": "pysocks",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1648857341451,
+  "version": "1.7.1"
+}

@@ -1,0 +1,27 @@
+{
+  "arch": "x86_64",
+  "build": "py312hf20fedc_3",
+  "build_number": 3,
+  "depends": [
+    "blosc >=1.21.5,<2.0a0",
+    "bzip2 >=1.0.8,<2.0a0",
+    "c-blosc2 >=2.15.0,<2.16.0a0",
+    "hdf5 >=1.14.3,<1.14.4.0a0",
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12",
+    "libzlib >=1.3.1,<2.0a0",
+    "lzo >=2.10,<3.0a0",
+    "numexpr",
+    "numpy >=1.26.4,<2.0a0",
+    "packaging",
+    "py-cpuinfo",
+    "python >=3.12,<3.13.0a0",
+    "python_abi 3.12.* *_cp312"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "pytables",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1718950330201,
+  "version": "3.9.2"
+}

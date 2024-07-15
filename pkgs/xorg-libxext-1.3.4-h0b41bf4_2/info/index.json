@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "h0b41bf4_2",
+  "build_number": 2,
+  "depends": [
+    "libgcc-ng >=12",
+    "xorg-libx11 >=1.7.2,<2.0a0",
+    "xorg-xextproto"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "xorg-libxext",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1677036907815,
+  "version": "1.3.4"
+}

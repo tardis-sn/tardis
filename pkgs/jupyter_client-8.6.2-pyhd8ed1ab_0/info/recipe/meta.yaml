@@ -1,0 +1,114 @@
+# This file created by conda-build 24.5.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu May 23 13:48:35 2024
+# ------------------------------------------------
+
+package:
+  name: jupyter_client
+  version: 8.6.2
+source:
+  sha256: 2bda14d55ee5ba58552a8c53ae43d215ad9868853489213f37da060ced54d8df
+  url: https://pypi.io/packages/source/j/jupyter_client/jupyter_client-8.6.2.tar.gz
+build:
+  entry_points:
+    - jupyter-kernel = jupyter_client.kernelapp:main
+    - jupyter-kernelspec = jupyter_client.kernelspecapp:KernelSpecApp.launch_instance
+    - jupyter-run = jupyter_client.runapp:main
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/jupyter_client_1716472197302/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeh/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - editables 0.5 pyhd8ed1ab_0
+    - hatchling 1.24.2 pyhd8ed1ab_0
+    - importlib-metadata 7.1.0 pyha770c72_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.3 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.0 h4ab18f5_3
+    - packaging 24.0 pyhd8ed1ab_0
+    - pathspec 0.12.1 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - pluggy 1.5.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 70.0.0 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - trove-classifiers 2024.5.22 pyhd8ed1ab_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.17.0 pyhd8ed1ab_0
+  run:
+    - importlib_metadata >=4.8.3
+    - jupyter_core >=4.12,!=5.0.*
+    - python >=3.8
+    - python-dateutil >=2.8.2
+    - pyzmq >=23.0
+    - tornado >=6.2
+    - traitlets >=5.3
+test:
+  commands:
+    - pip check
+    - jupyter kernelspec list
+    - jupyter run -h
+    - coverage run --source=jupyter_client --branch -m pytest -vv --tb=long --color=yes
+      -k "not (signal_kernel_subprocesses or start_parallel_thread_kernels or start_parallel_process_kernels
+      or open_tunnel or load_ips or input_request or tcp_cinfo)"
+    - coverage report --show-missing --skip-covered --fail-under=73
+  downstreams:
+    - ipywidgets
+    - jupyter_server
+  imports:
+    - jupyter_client
+  requires:
+    - coverage
+    - ipykernel >=6.14
+    - pandoc
+    - paramiko
+    - pip
+    - pytest <8.2
+    - pytest-jupyter-client >=0.4.1
+    - pytest-timeout
+  source_files:
+    - tests
+about:
+  dev_url: https://github.com/jupyter/jupyter_client
+  doc_source_url: https://github.com/jupyter/jupyter_client/tree/master/docs
+  doc_url: https://jupyter-client.readthedocs.io/en/stable/
+  home: https://jupyter.org
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: jupyter_client contains the reference implementation of the Jupyter protocol.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240523.6.1
+  recipe-maintainers:
+    - SylvainCorlay
+    - blink1073
+    - bollwyvl
+    - carreau
+    - davidbrochart
+    - jakirkham
+    - minrk
+    - ocefpaf
+    - pelson
+  remote_url: https://github.com/conda-forge/jupyter_client-feedstock
+  sha: f217840e28bb079ace62f76253bc200567e64cd6

@@ -1,0 +1,64 @@
+# This file created by conda-build 24.1.2
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu Mar  7 23:47:10 2024
+# ------------------------------------------------
+
+package:
+  name: git-lfs
+  version: 3.5.1
+source:
+  sha256: 6f28eb19faa7a968882dca190d92adc82493378b933958d67ceaeb9ebe4d731e
+  url: https://github.com/git-lfs/git-lfs/releases/download/v3.5.1/git-lfs-linux-amd64-v3.5.1.tar.gz
+build:
+  binary_relocation: false
+  detect_binary_files_with_prefix: false
+  number: '0'
+  string: ha770c72_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.27.0 hd590300_0
+    - ca-certificates 2024.2.2 hbcca054_0
+    - curl 8.5.0 hca28451_0
+    - gettext 0.21.1 h27087fc_0
+    - git 2.44.0 pl5321h709897a_0
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - libcurl 8.5.0 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.1 h59595ed_0
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libiconv 1.17 hd590300_2
+    - libnghttp2 1.58.0 h47da74e_1
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - pcre2 10.43 hcad00b1_0
+    - perl 5.32.1 7_hd590300_perl5
+    - zstd 1.5.5 hfc55251_0
+  run: []
+test:
+  commands:
+    - git-lfs --help
+about:
+  home: https://git-lfs.github.com/
+  license: MIT
+  license_file: /home/conda/recipe_root/LICENSE.md
+  summary: An open source Git extension for versioning large files
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240307.2.1
+  recipe-maintainers:
+    - dbast
+    - dfroger
+    - willirath
+  remote_url: https://github.com/conda-forge/git-lfs-feedstock
+  sha: a1fc374c44d584bb5eabe0407fc0b5af53207700

@@ -1,0 +1,29 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_2",
+    "build_number": 2,
+    "build_string": "pyhd8ed1ab_2",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "latexcodec >=1.0.4",
+        "python >=3.6",
+        "pyyaml >=3.01",
+        "setuptools",
+        "six"
+    ],
+    "fn": "pybtex-0.24.0-pyhd8ed1ab_2.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "2099b86a7399c44c0c61cdb6de6915ba",
+    "name": "pybtex",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "258fbf46050bbd51fbaa504116e56e8f3064156f0e08cad4e2fec97f5f29e6dc",
+    "size": 72866,
+    "subdir": "noarch",
+    "timestamp": 1638467164424,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pybtex-0.24.0-pyhd8ed1ab_2.tar.bz2",
+    "version": "0.24.0"
+}

@@ -1,0 +1,14 @@
+{
+  "arch": "x86_64",
+  "build": "hc0a3c3a_11",
+  "build_number": 11,
+  "depends": [
+    "libgcc-ng 13.2.0 h77fa898_11"
+  ],
+  "license": "GPL-3.0-only WITH GCC-exception-3.1",
+  "name": "libstdcxx-ng",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1718867032452,
+  "version": "13.2.0"
+}

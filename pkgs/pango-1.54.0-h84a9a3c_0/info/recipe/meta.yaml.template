@@ -1,0 +1,96 @@
+{% set version = "1.54.0" %}
+{% set version_majmin = ".".join(version.split(".", 2)[:2]) %}
+
+package:
+  name: pango
+  version: {{ version }}
+
+source:
+  url: https://download.gnome.org/sources/pango/{{ version_majmin }}/pango-{{ version }}.tar.xz
+  sha256: 8a9eed75021ee734d7fc0fdf3a65c3bba51dfefe4ae51a9b414a60c70b2d1ed8
+
+build:
+  number: 0
+  detect_binary_files_with_prefix: true
+  ignore_run_exports_from:
+    - {{ compiler('cxx') }}
+  run_exports:
+    - {{ pin_subpackage('pango', max_pin='x') }}
+
+requirements:
+  build:
+    - meson
+    - ninja
+    - pkg-config
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - {{ compiler('cxx') }}
+    - gobject-introspection
+    - cairo     # [build_platform != target_platform]
+    - fribidi   # [build_platform != target_platform]
+    - glib      # [build_platform != target_platform]
+    - harfbuzz  # [build_platform != target_platform]
+    - fontconfig  # [build_platform != target_platform]
+    - freetype    # [build_platform != target_platform]
+    - libpng                 # [build_platform != target_platform]
+  host:
+    - cairo
+    - fribidi
+    - glib
+    - harfbuzz
+    - fontconfig
+    - freetype
+    - libpng
+  run:
+    - cairo
+    - fribidi
+    - harfbuzz
+    - fontconfig
+    - freetype
+    - libpng
+
+test:
+  requires:
+    - pkg-config
+    - pygobject
+  commands:
+    - pango-view --help
+
+    # check that libraries are installed and can be found through pkg-config
+    # (used by downstream builds)
+    {% set libs = [
+        "Pango",
+        "PangoCairo",
+        "PangoFT2",
+    ] %}
+    {% for lib in libs %}
+    - test -f $PREFIX/lib/lib{{ lib | lower }}-1.0${SHLIB_EXT}  # [unix]
+    - test -f `pkg-config --variable=libdir --dont-define-prefix {{ lib | lower }}`/lib{{ lib | lower }}-1.0${SHLIB_EXT}  # [unix]
+    - if not exist %PREFIX%\\Library\\bin\\{{ lib | lower }}-1.0-0.dll exit 1  # [win]
+    - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=exec_prefix --dont-define-prefix {{ lib | lower }}`) do if not exist "%%a/bin/{{ lib | lower }}-1.0-0.dll" exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\lib\\{{ lib | lower }}-1.0.lib exit 1  # [win]
+    - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=libdir --dont-define-prefix {{ lib | lower }}`) do if not exist "%%a/{{ lib | lower }}-1.0.lib" exit 1  # [win]
+    - test -f $PREFIX/lib/girepository-1.0/{{ lib }}-1.0.typelib    # [unix]
+    - if not exist %PREFIX%\Library\lib\girepository-1.0\{{ lib }}-1.0.typelib exit 1         # [win]
+    {% endfor %}
+
+about:
+  home: http://www.pango.org/
+  license: LGPL-2.1-or-later
+  license_file: COPYING
+  summary: Text layout and rendering engine.
+  description: |
+    Pango is a library for laying out and rendering of text, with an emphasis
+    on internationalization. Pango can be used anywhere that text layout is
+    needed, though most of the work on Pango so far has been done in the
+    context of the GTK+ widget toolkit. Pango forms the core of text and font
+    handling for GTK+-2.x.
+  doc_url: http://www.pango.org/
+  dev_url: https://gitlab.gnome.org/GNOME/pango
+
+extra:
+  recipe-maintainers:
+    - ocefpaf
+    - ccordoba12
+    - jakirkham
+    - pkgw

@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.5"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "pure_eval",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1642876055775,
+  "version": "0.2.2"
+}

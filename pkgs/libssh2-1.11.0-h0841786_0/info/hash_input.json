@@ -1,0 +1,8 @@
+{
+  "c_compiler": "gcc",
+  "channel_targets": "conda-forge main",
+  "zlib": "1.2",
+  "target_platform": "linux-64",
+  "c_compiler_version": "12",
+  "openssl": "3"
+}

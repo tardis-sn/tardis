@@ -1,0 +1,27 @@
+diff --git a/meson.build b/meson.build
+index 9100152..612a465 100644
+--- a/meson.build
++++ b/meson.build
+@@ -21,15 +21,19 @@ cairo_version_micro = version_arr[2].to_int()
+ 
+ # The libtool shared library version stuff.
+ # Try and maintain compatibility with the previous library versioning.
+-cairo_version_sonum = cairo_version_major + 1
++# conda-forge: on Windows, to maintain compatibility with our previous binaries,
++# we actually need to blank out the `soversion` setting. But the "real"
++# value should still feed into the `cairo_libversion` computation.
++cairo_version_sonum_real = cairo_version_major + 1
++cairo_version_sonum = ''
+ cairo_version =  cairo_version_major * 10000 + cairo_version_minor * 100 + cairo_version_micro
+ 
+ if cairo_version_minor % 2 == 1
+   # unstable release
+-  cairo_libversion = '@0@.@1@.0'.format(cairo_version_sonum, cairo_version)
++  cairo_libversion = '@0@.@1@.0'.format(cairo_version_sonum_real, cairo_version)
+ else
+   # stable release
+-  cairo_libversion = '@0@.@1@.@2@'.format(cairo_version_sonum, cairo_version, cairo_version_micro)
++  cairo_libversion = '@0@.@1@.@2@'.format(cairo_version_sonum_real, cairo_version, cairo_version_micro)
+ endif
+ 
+ conf = configuration_data()

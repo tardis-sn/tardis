@@ -1,0 +1,12 @@
+prefix=/home/conda/feedstock_root/build_artifacts/pango_1718027182142/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: Pango Cairo
+Description: Cairo rendering support for Pango
+Version: 1.54.0
+Requires: pango, cairo >=  1.12.10
+Requires.private: pangoft2, glib-2.0 >=  2.62, gobject-2.0 >=  2.62, gio-2.0 >=  2.62, fribidi >=  1.0.6, harfbuzz >=  2.6.0, fontconfig >=  2.13.0, freetype2, harfbuzz-gobject >=  2.6.0
+Libs: -L${libdir} -lpangocairo-1.0
+Libs.private: -lm
+Cflags: -I${includedir}/pango-1.0

@@ -1,0 +1,27 @@
+# GdkPixbuf Image Loader Modules file
+# Automatically generated file, do not edit
+# Created by gdk-pixbuf-query-loaders from gdk-pixbuf-2.42.12
+#
+# LoaderDir = /home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/lib/gdk-pixbuf-2.0/2.10.0/loaders
+#
+"lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-gif.so"
+"gif" 4 "gdk-pixbuf" "GIF" "LGPL"
+"image/gif" ""
+"gif" ""
+"GIF8" "" 100
+
+"lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so"
+"svg" 6 "gdk-pixbuf" "Scalable Vector Graphics" "LGPL"
+"image/svg+xml" "image/svg" "image/svg-xml" "image/vnd.adobe.svg+xml" "text/xml-svg" "image/svg+xml-compressed" ""
+"svg" "svgz" "svg.gz" ""
+" <svg" "*    " 100
+" <!DOCTYPE svg" "*             " 100
+
+"lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-tiff.so"
+"tiff" 5 "gdk-pixbuf" "TIFF" "LGPL"
+"image/tiff" ""
+"tiff" "tif" ""
+"MM *" "  z " 100
+"II* " "   z" 100
+"II* \020   CR\002 " "   z zzz   z" 0
+

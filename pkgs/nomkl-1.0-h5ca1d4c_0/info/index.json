@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "h5ca1d4c_0",
+  "build_number": 0,
+  "constrains": [
+    "mkl <0.a0"
+  ],
+  "depends": [],
+  "license": "BSD-3-Clause",
+  "name": "nomkl",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1582593857545,
+  "version": "1.0"
+}

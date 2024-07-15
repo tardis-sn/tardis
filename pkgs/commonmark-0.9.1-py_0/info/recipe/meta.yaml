@@ -1,0 +1,71 @@
+# This file created by conda-build 3.18.9
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Fri Oct  4 20:39:53 2019
+# ------------------------------------------------
+
+package:
+    name: commonmark
+    version: 0.9.1
+source:
+    sha256: 452f9dc859be7f06631ddcb328b6919c67984aca654e5fefb3914d54691aed60
+    url: https://pypi.io/packages/source/C/Commonmark/commonmark-0.9.1.tar.gz
+build:
+    entry_points:
+        - cmark = commonmark.cmark:main
+    noarch: python
+    number: '0'
+    script: /home/conda/feedstock_root/build_artifacts/commonmark_1570221675963/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_/bin/python
+        -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
+    string: py_0
+requirements:
+    host:
+        - _libgcc_mutex 0.1 main
+        - ca-certificates 2019.9.11 hecc5488_0
+        - certifi 2019.9.11 py27_0
+        - libffi 3.2.1 he1b5a44_1006
+        - libgcc-ng 9.1.0 hdf63c60_0
+        - libstdcxx-ng 9.1.0 hdf63c60_0
+        - ncurses 6.1 hf484d3e_1002
+        - openssl 1.1.1c h516909a_0
+        - pip 19.2.3 py27_0
+        - python 2.7.15 h5a48372_1009
+        - readline 8.0 hf8c457e_0
+        - setuptools 41.2.0 py27_0
+        - sqlite 3.29.0 hcee41ef_1
+        - tk 8.6.9 hed695b0_1003
+        - wheel 0.33.6 py27_0
+        - zlib 1.2.11 h516909a_1006
+    run:
+        - future >=0.14.0
+        - python
+test:
+    commands:
+        - cmark --help
+    imports:
+        - commonmark
+        - commonmark.render
+        - commonmark.tests
+    requires:
+        - flake8
+        - hypothesis
+about:
+    description: 'CommonMark-py is a pure Python port of jgm''s commonmark.js, a Markdown
+
+        parser and renderer for the CommonMark specification, using only native
+
+        modules.
+
+        '
+    dev_url: https://github.com/rtfd/CommonMark-py
+    doc_url: https://commonmark-py.readthedocs.io
+    home: http://commonmark.org/
+    license: BSD 3-Clause
+    license_family: BSD
+    license_file: LICENSE
+    summary: Python parser for the CommonMark Markdown spec
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - dpryan79
+        - ericmjl

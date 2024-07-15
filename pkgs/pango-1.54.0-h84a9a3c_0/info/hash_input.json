@@ -1,0 +1,16 @@
+{
+  "cxx_compiler": "gxx",
+  "libpng": "1.6",
+  "freetype": "2",
+  "c_compiler": "gcc",
+  "c_stdlib": "sysroot",
+  "cxx_compiler_version": "12",
+  "c_compiler_version": "12",
+  "channel_targets": "conda-forge main",
+  "glib": "2",
+  "c_stdlib_version": "2.12",
+  "cairo": "1",
+  "harfbuzz": "8",
+  "target_platform": "linux-64",
+  "fontconfig": "2"
+}

@@ -1,0 +1,8 @@
+{
+  "c_compiler": "gcc",
+  "libtiff": "4.6",
+  "channel_targets": "conda-forge main",
+  "c_compiler_version": "12",
+  "target_platform": "linux-64",
+  "libjpeg_turbo": "3"
+}

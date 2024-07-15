@@ -1,0 +1,73 @@
+# This file created by conda-build 24.5.1
+# ------------------------------------------------
+
+package:
+  name: openssl
+  version: 3.3.1
+source:
+  sha256: 777cd596284c883375a2a7a11bf5d2786fc5413255efab20c50d6ffe6d020b7e
+  url: http://www.openssl.org/source/openssl-3.3.1.tar.gz
+build:
+  no_link: lib/libcrypto.so.3.0
+  number: 0
+  run_exports:
+    - openssl >=3.3.1,<4.0a0
+  string: h4ab18f5_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_2
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_2
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libsanitizer 12.3.0 hb8811af_7
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libxcrypt 4.4.36 hd590300_1
+    - make 4.3 hd18ef5c_1
+    - perl 5.32.1 7_hd590300_perl5
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+  run:
+    - ca-certificates
+    - libgcc-ng >=12
+  run_constrained:
+    - pyopenssl >=22.1
+test:
+  commands:
+    - touch checksum.txt
+    - $PREFIX/bin/openssl sha256 checksum.txt
+    - pkg-config --print-errors --exact-version "3.3.1" openssl
+  requires:
+    - pkg-config
+    - ripgrep
+about:
+  dev_url: https://github.com/openssl/openssl
+  doc_url: https://www.openssl.org/docs/man3.0/
+  home: http://www.openssl.org/
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE.txt
+  summary: OpenSSL is an open-source implementation of the SSL and TLS protocols
+extra:
+  copy_test_source_files: true
+  feedstock-name: openssl
+  final: true
+  flow_run_id: azure_20240604.8.1
+  recipe-maintainers:
+    - h-vetinari
+    - jakirkham
+    - msarahan
+    - ocefpaf
+    - pelson
+  remote_url: https://github.com/conda-forge/openssl-feedstock
+  sha: 263632702d6ce613a5df3153dbe370deef3c8d05

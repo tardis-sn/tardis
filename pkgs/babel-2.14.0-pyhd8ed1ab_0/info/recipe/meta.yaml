@@ -1,0 +1,81 @@
+# This file created by conda-build 3.28.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Dec 12 23:08:22 2023
+# ------------------------------------------------
+
+package:
+  name: babel
+  version: 2.14.0
+source:
+  fn: Babel-2.14.0.tar.gz
+  sha256: 6919867db036398ba21eb5c7a0f6b28ab8cbc3ae7a73a44ebe34ae74a4e7d363
+  url: https://pypi.io/packages/source/B/Babel/Babel-2.14.0.tar.gz
+build:
+  entry_points:
+    - pybabel = babel.messages.frontend:main
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/babel_1702422572539/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_3
+    - libgomp 13.2.0 h807b86a_3
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.0 hd590300_1
+    - pip 23.3.1 pyhd8ed1ab_0
+    - python 3.12.0 hab00c5b_0_cpython
+    - pytz 2023.3.post1 pyhd8ed1ab_0
+    - readline 8.2 h8228510_1
+    - setuptools 68.2.2 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.7
+    - pytz
+    - setuptools
+test:
+  commands:
+    - pybabel --help
+  imports:
+    - babel
+    - babel.localtime
+    - babel.messages
+about:
+  description: 'Babel is an integrated collection of utilities that assist in
+
+    internationalizing and localizing Python applications, with an emphasis
+
+    on web-base applications.
+
+    '
+  dev_url: https://github.com/python-babel/babel
+  doc_source_url: https://github.com/python-babel/babel/blob/master/docs/index.rst
+  doc_url: http://babel.pocoo.org/en/latest/#user-documentation
+  home: http://babel.pocoo.org/
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: Utilities to internationalize and localize Python applications
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20231212.2.1
+  recipe-maintainers:
+    - frol
+    - nehaljwani
+  remote_url: https://github.com/conda-forge/babel-feedstock
+  sha: baa7a096215ce29d240ea8a5e6877c735c444df2

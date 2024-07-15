@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6",
+        "traitlets"
+    ],
+    "fn": "matplotlib-inline-0.1.7-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "779345c95648be40d22aaa89de7d4254",
+    "name": "matplotlib-inline",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "7ea68676ea35fbb095420bbcc1c82c4767b8be7bb56abb6989b7f89d957a3bab",
+    "size": 14599,
+    "subdir": "noarch",
+    "timestamp": 1713250613726,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/matplotlib-inline-0.1.7-pyhd8ed1ab_0.conda",
+    "version": "0.1.7"
+}

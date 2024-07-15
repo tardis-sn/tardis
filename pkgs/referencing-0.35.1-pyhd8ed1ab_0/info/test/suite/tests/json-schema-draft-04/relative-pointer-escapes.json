@@ -1,0 +1,29 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/foo": {
+      "foo": {
+        "tilde~field": "bar",
+        "slash/field": "baz",
+        "percent%field": "quux"
+      }
+    }
+  },
+  "tests": [
+    {
+      "base_uri": "http://example.com/foo",
+      "ref": "#/foo/tilde~0field",
+      "target": "bar"
+    },
+    {
+      "base_uri": "http://example.com/foo",
+      "ref": "#/foo/slash~1field",
+      "target": "baz"
+    },
+    {
+      "base_uri": "http://example.com/foo",
+      "ref": "#/foo/percent%25field",
+      "target": "quux"
+    }
+  ]
+}

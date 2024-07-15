@@ -1,0 +1,76 @@
+# This file created by conda-build 24.5.0
+# ------------------------------------------------
+
+package:
+  name: zlib
+  version: 1.3.1
+source:
+  sha256: 9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
+  url:
+    - http://zlib.net/zlib-1.3.1.tar.gz
+    - https://gnupg.org/ftp/gcrypt/zlib/zlib-1.3.1.tar.gz
+build:
+  number: 1
+  run_exports:
+    - libzlib >=1.3.1,<2.0a0
+  string: h4ab18f5_1
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_1
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_1
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libsanitizer 12.3.0 hb8811af_7
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libzlib 1.3.1 h4ab18f5_1
+  run:
+    - libgcc-ng >=12
+    - libzlib 1.3.1 h4ab18f5_1
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libz.a
+    - test -f ${PREFIX}/lib/libz${SHLIB_EXT}
+    - test -f ${PREFIX}/include/zlib.h
+  files:
+    - test_compile_flags.bat
+    - test_compile_flags.c
+  requires:
+    - gcc_linux-64 12.*
+about:
+  description: 'zlib is designed to be a free, general-purpose, lossless data-compression
+
+    library for use on virtually any computer hardware and operating system.
+
+    '
+  dev_url: https://github.com/madler/zlib
+  doc_url: http://zlib.net/manual.html
+  home: http://zlib.net/
+  license: Zlib
+  license_family: Other
+  license_file: license.txt
+  summary: Massively spiffy yet delicately unobtrusive compression library
+extra:
+  copy_test_source_files: true
+  feedstock-name: zlib
+  final: true
+  flow_run_id: azure_20240528.2.1
+  recipe-maintainers:
+    - groutr
+    - isuruf
+    - msarahan
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/zlib-feedstock
+  sha: 93de2148ef571eb6f44a971dd61f6d466af9a8a1

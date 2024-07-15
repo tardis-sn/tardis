@@ -1,0 +1,1 @@
+["pytest-jupyter-server >=0.6.0=*_1", "pytest-console-scripts", "requests", "ipykernel", "pip", "coverage", "flaky", "pytest-timeout", "pytest-cov", "pytest >=7.0"]

@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyh9f0ad1d_0",
+  "build_number": 0,
+  "depends": [
+    "python"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "hpack",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1598856368685,
+  "version": "4.0.0"
+}

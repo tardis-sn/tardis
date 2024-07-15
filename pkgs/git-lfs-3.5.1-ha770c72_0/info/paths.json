@@ -1,0 +1,11 @@
+{
+  "paths": [
+    {
+      "_path": "bin/git-lfs",
+      "path_type": "hardlink",
+      "sha256": "aa7c4495760aac4c03b041ffeb970620bd24204303696afd8d662610ce027e7f",
+      "size_in_bytes": 11444224
+    }
+  ],
+  "paths_version": 1
+}

@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "entry_points": [
+      "send2trash = send2trash.__main__:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

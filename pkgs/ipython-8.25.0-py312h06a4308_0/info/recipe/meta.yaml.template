@@ -1,0 +1,84 @@
+{% set name = "ipython" %}
+{% set version = "8.25.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: c6ed726a140b6e725b911528f80439c534fac915246af3efc39440a6b0f9d716
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  skip: true  # [py<310]
+  entry_points:
+    - ipython = IPython:start_ipython
+    - ipython3 = IPython:start_ipython
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools
+    - wheel
+  run:
+    - python
+    - colorama  # [win]
+    - decorator
+    - exceptiongroup  # [py<311]
+    - jedi >=0.16
+    - matplotlib-inline
+    - pexpect >4.3  # [not win]
+    - prompt_toolkit >=3.0.41,<3.1.0
+    - pygments >=2.4.0
+    - stack_data
+    - traitlets >=5.13.0
+    - typing_extensions >=4.6 # [py<312]
+
+test:
+  requires:
+    - pip
+    - pytest
+    - pytest-asyncio <0.22
+    - testpath
+    - pickleshare
+    - curio
+    - matplotlib-base !=3.2.0
+    - nbformat
+    - numpy >=1.23
+    - pandas
+    - trio
+  commands:
+    - pip check
+    - pygmentize -L | grep ipython
+    - ipython -h
+    - ipython3 -h
+    - export MIGRATING=false  # [unix]
+
+about:
+  home: https://ipython.org
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: 'IPython: Productive Interactive Computing'
+  description: |
+    IPython provides a rich architecture for interactive computing with
+    a powerful interactive shell, a kernel for Jupyter, high performance
+    tools for parallel computing, and more.
+  doc_url: https://ipython.readthedocs.io
+  dev_url: https://github.com/ipython/ipython
+
+extra:
+  recipe-maintainers:
+    - Carreau
+    - jakirkham
+    - fperez
+    - ellisonbg
+    - minrk
+    - ocefpaf
+    - pelson
+    - takluyver
+    - bollwyvl
+    - blink1073

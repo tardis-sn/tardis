@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "fn": "uri-template-1.3.0-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "0944dc65cb4a9b5b68522c3bb585d41c",
+    "name": "uri-template",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "b76904b53721dc88a46352324c79d2b077c2f74a9f7208ad2c4249892669ae94",
+    "size": 23999,
+    "subdir": "noarch",
+    "timestamp": 1688655976471,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/uri-template-1.3.0-pyhd8ed1ab_0.conda",
+    "version": "1.3.0"
+}

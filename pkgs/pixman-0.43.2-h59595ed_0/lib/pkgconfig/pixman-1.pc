@@ -1,0 +1,10 @@
+prefix=/home/conda/feedstock_root/build_artifacts/pixman_1706549262335/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: Pixman
+Description: The pixman library (version 1)
+Version: 0.43.2
+Libs: -L${libdir} -lpixman-1
+Libs.private: -lm -pthread
+Cflags: -I${includedir}/pixman-1

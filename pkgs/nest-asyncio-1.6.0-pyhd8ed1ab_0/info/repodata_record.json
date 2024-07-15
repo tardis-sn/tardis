@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.5"
+    ],
+    "fn": "nest-asyncio-1.6.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-2-Clause",
+    "license_family": "BSD",
+    "md5": "6598c056f64dc8800d40add25e4e2c34",
+    "name": "nest-asyncio",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "30db21d1f7e59b3408b831a7e0417b83b53ee6223afae56482c5f26da3ceb49a",
+    "size": 11638,
+    "subdir": "noarch",
+    "timestamp": 1705850780510,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/nest-asyncio-1.6.0-pyhd8ed1ab_0.conda",
+    "version": "1.6.0"
+}

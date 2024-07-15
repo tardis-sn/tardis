@@ -1,0 +1,12 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: cairo-script-interpreter
+Description: script surface backend for cairo graphics library
+Version: 1.18.0
+Requires: cairo
+Requires.private: zlib, libpng, fontconfig >=  2.2.95, freetype2 >=  9.7.3, x11, xext, xrender >=  0.6, xcb >=  1.6, xcb-render >=  1.6, x11-xcb, xcb-shm, pixman-1 >=  0.36.0
+Libs: -L${libdir} -lcairo-script-interpreter
+Libs.private: -lm -ldl
+Cflags: -I${includedir}/cairo

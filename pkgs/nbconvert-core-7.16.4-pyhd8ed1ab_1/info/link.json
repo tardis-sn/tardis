@@ -1,0 +1,10 @@
+{
+  "noarch": {
+    "entry_points": [
+      "jupyter-dejavu = nbconvert.nbconvertapp:dejavu_main",
+      "jupyter-nbconvert = nbconvert.nbconvertapp:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

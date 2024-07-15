@@ -1,0 +1,55 @@
+{% set name = "Send2Trash" %}
+{% set version = "1.8.2" %}
+{% set sha256 = "c132d59fa44b9ca2b1699af5c86f57ce9f4c5eb56629d5d55fbb7a35f84e2312" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install --no-deps --no-build-isolation --ignore-installed .
+
+requirements:
+  host:
+    - python
+    - pip
+    - setuptools
+    - wheel
+  run:
+    - python
+
+test:
+  imports:
+    - send2trash
+  requires:
+    - pip
+  commands:
+    - pip check
+    - echo test > test.txt
+    - python -c "from send2trash import *; send2trash('test.txt')"
+
+about:
+  home: https://github.com/arsenetar/send2trash
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Python library to natively send files to Trash (or Recycle bin) on all platforms.
+  description: |
+    Send2Trash is a small package that sends files to the Trash (or Recycle Bin) natively and on all platforms. 
+    On OS X, it uses native FSMoveObjectToTrashSync Cocoa calls or can use pyobjc with NSFileManager. 
+    On Windows, it uses native IFileOperation call if on Vista or newer and pywin32 is installed or falls back 
+    to SHFileOperation calls. On other platforms, if PyGObject and GIO are available, it will use this. Otherwise, 
+    it will fallback to its own implementation of the trash specifications from freedesktop.org.
+    ctypes is used to access native libraries, so no compilation is necessary.
+  dev_url: https://github.com/arsenetar/send2trash
+  doc_url: https://github.com/arsenetar/send2trash
+
+extra:
+  recipe-maintainers:
+    - bollwyvl

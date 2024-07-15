@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8",
+        "typing_extensions >=4.0.0"
+    ],
+    "fn": "async-lru-2.0.4-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "md5": "3d081de3a6ea9f894bbb585e8e3a4dcb",
+    "name": "async-lru",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "7ed83731979fe5b046c157730e50af0e24454468bbba1ed8fc1a3107db5d7518",
+    "size": 15342,
+    "subdir": "noarch",
+    "timestamp": 1690563152778,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/async-lru-2.0.4-pyhd8ed1ab_0.conda",
+    "version": "2.0.4"
+}

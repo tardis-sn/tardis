@@ -1,0 +1,17 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "additionalProperties": false,
+      "definitions": {
+        "foo": { "id": "urn:example:foo" }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "urn:example:foo",
+      "target": { "id": "urn:example:foo" }
+    }
+  ]
+}

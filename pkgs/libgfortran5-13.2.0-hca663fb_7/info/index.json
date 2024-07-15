@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "hca663fb_7",
+  "build_number": 7,
+  "constrains": [
+    "libgfortran-ng 13.2.0"
+  ],
+  "depends": [
+    "libgcc-ng >=13.2.0"
+  ],
+  "license": "GPL-3.0-only WITH GCC-exception-3.1",
+  "name": "libgfortran5",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1715016068766,
+  "version": "13.2.0"
+}

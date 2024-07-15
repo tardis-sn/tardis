@@ -1,0 +1,73 @@
+# This file created by conda-build 3.21.8
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat Feb  5 08:04:55 2022
+# ------------------------------------------------
+
+package:
+  name: sphinx_bootstrap_theme
+  version: 0.8.1
+source:
+  fn: sphinx-bootstrap-theme-v0.8.1.tar.gz
+  sha256: 0860bc67bbefa4afbd8bdfa983f6db957b3fb9b03f5a9cba83b09202978a77dc
+  url: https://github.com/ryan-roemer/sphinx-bootstrap-theme/archive/v0.8.1.tar.gz
+build:
+  noarch: python
+  number: '0'
+  preserve_egg_dir: true
+  script: python -m pip install --no-deps .
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2021.10.8 ha878542_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 11.2.0 h1d223b6_12
+    - libgomp 11.2.0 h1d223b6_12
+    - libnsl 2.0.0 h7f98852_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.11 h36c2ea0_1013
+    - ncurses 6.3 h9c3ff4c_0
+    - openssl 3.0.0 h7f98852_2
+    - pip 22.0.3 pyhd8ed1ab_0
+    - python 3.10.2 hc74c709_3_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1 h46c0cb4_0
+    - setuptools 60.7.1 py310hff52083_0
+    - sqlite 3.37.0 h9cd32fc_0
+    - tk 8.6.11 h27826a3_1
+    - tzdata 2021e he74cb21_0
+    - wheel 0.37.1 pyhd8ed1ab_0
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h36c2ea0_1013
+  run:
+    - python >=3.7
+test:
+  imports:
+    - sphinx_bootstrap_theme
+about:
+  description: 'This Sphinx theme integrates the Bootstrap CSS / JavaScript framework
+
+    with various layout options, hierarchical menu navigation, and
+
+    mobile-friendly responsive design. It is configurable, extensible, and
+
+    can use any number of different Bootswatch CSS themes.
+
+    '
+  dev_url: http://ryan-roemer.github.com/sphinx-bootstrap-theme/
+  doc_url: http://ryan-roemer.github.io/sphinx-bootstrap-theme/
+  home: http://ryan-roemer.github.com/sphinx-bootstrap-theme/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: Sphinx Bootstrap Theme.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - ericpre
+    - licode
+    - tacaswell

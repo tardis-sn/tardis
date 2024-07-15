@@ -1,0 +1,77 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/cpuinfo/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "4fa82776a1808207c90aee3f88ece24e7a2608decacda00afce6137b013814c0",
+      "size_in_bytes": 44
+    },
+    {
+      "_path": "site-packages/cpuinfo/__main__.py",
+      "path_type": "hardlink",
+      "sha256": "9d2c42e87aa18bed2537b6785b0b4a77141d7f771425e7dbe6139a842ce1e188",
+      "size_in_bytes": 33
+    },
+    {
+      "_path": "site-packages/cpuinfo/cpuinfo.py",
+      "path_type": "hardlink",
+      "sha256": "1c7c8394350da2f13743327786f8a23359e0c8e0b8883ee2ea81a2cf68939959",
+      "size_in_bytes": 84388
+    },
+    {
+      "_path": "site-packages/py_cpuinfo-9.0.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/py_cpuinfo-9.0.0.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "ddbaf76396bf5c7aa45975a21eafe2e22eecb7da5aa0db7cb0e6152faafef34d",
+      "size_in_bytes": 1127
+    },
+    {
+      "_path": "site-packages/py_cpuinfo-9.0.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "8b2d34ef4b1848e89e3b1f8498f5ca1de811b22208c0a350f1461999ce4d6786",
+      "size_in_bytes": 774
+    },
+    {
+      "_path": "site-packages/py_cpuinfo-9.0.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "de63888ae963f0a12002804121c83d4c57b20fbba5d8c4ecb8888b42318b65f5",
+      "size_in_bytes": 1231
+    },
+    {
+      "_path": "site-packages/py_cpuinfo-9.0.0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/py_cpuinfo-9.0.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "1b5e87e00dc87a84269cead8578b9e6462928e18a95f1f3373c9eef451a5bcc0",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "site-packages/py_cpuinfo-9.0.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "74b98bcb2046b3282c0bd51fd33a0613f588dd323bbe8d0e48c5fcaddf66af67",
+      "size_in_bytes": 106
+    },
+    {
+      "_path": "site-packages/py_cpuinfo-9.0.0.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "c939837ee46b83cece663158f1b9a0bacc02eea33c44c1928bfcf1a8e132ad36",
+      "size_in_bytes": 41
+    },
+    {
+      "_path": "site-packages/py_cpuinfo-9.0.0.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "5ec8e9ba7864c43e21bf39ea423ac5370d2bb608b31c4386cdec0f658dd412d5",
+      "size_in_bytes": 8
+    }
+  ],
+  "paths_version": 1
+}

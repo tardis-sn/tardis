@@ -1,0 +1,33 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "fqdn",
+        "idna",
+        "isoduration",
+        "jsonpointer >1.13",
+        "jsonschema >=4.22.0,<4.22.1.0a0",
+        "python",
+        "rfc3339-validator",
+        "rfc3986-validator >0.1.0",
+        "uri-template",
+        "webcolors >=1.11"
+    ],
+    "fn": "jsonschema-with-format-nongpl-4.22.0-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "md5": "32ab666927ee17b9468c2c72bbd7ba1b",
+    "name": "jsonschema-with-format-nongpl",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "3c98d791bebd477597fe083b3cec35132ac974c61ba1e481dc6c29fac78b419d",
+    "size": 7441,
+    "subdir": "noarch",
+    "timestamp": 1714573279350,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.22.0-pyhd8ed1ab_0.conda",
+    "version": "4.22.0"
+}

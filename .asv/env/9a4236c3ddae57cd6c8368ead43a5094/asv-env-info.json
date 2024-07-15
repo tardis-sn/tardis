@@ -1,0 +1,6 @@
+{
+    "build_env_vars": {},
+    "python": "3.11",
+    "requirements": {},
+    "tool_name": "mamba"
+}

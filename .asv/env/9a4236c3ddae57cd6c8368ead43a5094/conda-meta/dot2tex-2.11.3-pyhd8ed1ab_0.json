@@ -1,0 +1,162 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "pyparsing",
+        "python >=3.8"
+    ],
+    "extracted_package_dir": "pkgs/dot2tex-2.11.3-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/AUTHORS",
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/LICENSE",
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/METADATA",
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/RECORD",
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/WHEEL",
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/entry_points.txt",
+        "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/dot2tex/__init__.py",
+        "lib/python3.12/site-packages/dot2tex/dot2tex.py",
+        "lib/python3.12/site-packages/dot2tex/dotparsing.py",
+        "lib/python3.12/site-packages/dot2tex/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/dot2tex/__pycache__/dot2tex.cpython-312.pyc",
+        "lib/python3.12/site-packages/dot2tex/__pycache__/dotparsing.cpython-312.pyc",
+        "bin/dot2tex"
+    ],
+    "fn": "dot2tex-2.11.3-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "link": {
+        "source": "pkgs/dot2tex-2.11.3-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "fb28e38d17dee34abc13cf6ad916534a",
+    "name": "dot2tex",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/dot2tex-2.11.3-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/AUTHORS",
+                "path_type": "hardlink",
+                "sha256": "dc0c452c1ef7c827f5da86424b0b3a4d931c2fc5ef31c4262466a101fd9fe58c",
+                "sha256_in_prefix": "dc0c452c1ef7c827f5da86424b0b3a4d931c2fc5ef31c4262466a101fd9fe58c",
+                "size_in_bytes": 303
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/LICENSE",
+                "path_type": "hardlink",
+                "sha256": "6b8c33daf68bb6c1b58bad56b8e82917069cf9ad34451e8176cd236412f4eee0",
+                "sha256_in_prefix": "6b8c33daf68bb6c1b58bad56b8e82917069cf9ad34451e8176cd236412f4eee0",
+                "size_in_bytes": 1137
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "31eb4cda37dccc5fac4bc7b44004fe621f99f7f60a8326aee7306d489a6790fe",
+                "sha256_in_prefix": "31eb4cda37dccc5fac4bc7b44004fe621f99f7f60a8326aee7306d489a6790fe",
+                "size_in_bytes": 1496
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "6076ddc7fb3896cd89d4c2f20b6fd6b6b55ac241bddb338ae7785c926fd34131",
+                "sha256_in_prefix": "6076ddc7fb3896cd89d4c2f20b6fd6b6b55ac241bddb338ae7785c926fd34131",
+                "size_in_bytes": 1401
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "4bacde3c36d4023ccc9a960e8367070f1b98156c3b5a2397b7aa2033a8480794",
+                "sha256_in_prefix": "4bacde3c36d4023ccc9a960e8367070f1b98156c3b5a2397b7aa2033a8480794",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "b76da7d8664640137aae17800de9ce11375e2d00470aae82307ea260762cee94",
+                "sha256_in_prefix": "b76da7d8664640137aae17800de9ce11375e2d00470aae82307ea260762cee94",
+                "size_in_bytes": 103
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/entry_points.txt",
+                "path_type": "hardlink",
+                "sha256": "4415d28aaff8501a5914cacde4f62d072bd05f62c3966f22e7ad0084fd4fcc49",
+                "sha256_in_prefix": "4415d28aaff8501a5914cacde4f62d072bd05f62c3966f22e7ad0084fd4fcc49",
+                "size_in_bytes": 50
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex-2.11.3.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "4fc63fc931c8b179dee980e3f354325ea88a8a228b6e7976745d0fceaeaca827",
+                "sha256_in_prefix": "4fc63fc931c8b179dee980e3f354325ea88a8a228b6e7976745d0fceaeaca827",
+                "size_in_bytes": 8
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "9a3ac35739a2df99473fcad6034e5279800edfab933e7790b8845ef9cca6bd15",
+                "sha256_in_prefix": "9a3ac35739a2df99473fcad6034e5279800edfab933e7790b8845ef9cca6bd15",
+                "size_in_bytes": 1972
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex/dot2tex.py",
+                "path_type": "hardlink",
+                "sha256": "98363d50e25e55f8221a3dd09eb7097a7fb0c4b5e30aa9d721256d14e0343ce0",
+                "sha256_in_prefix": "98363d50e25e55f8221a3dd09eb7097a7fb0c4b5e30aa9d721256d14e0343ce0",
+                "size_in_bytes": 108577
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex/dotparsing.py",
+                "path_type": "hardlink",
+                "sha256": "8a5f39c4aa85d512eac6375418eb114053a25cf5c737587639d29746c6052be0",
+                "sha256_in_prefix": "8a5f39c4aa85d512eac6375418eb114053a25cf5c737587639d29746c6052be0",
+                "size_in_bytes": 35520
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex/__pycache__/dot2tex.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dot2tex/__pycache__/dotparsing.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "bin/dot2tex",
+                "path_type": "unix_python_entry_point"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "dot2tex",
+    "sha256": "d9ae448abb1f5c3f86565f0496e467791d85aa3959d0d0e3d07b28ec9a2d3059",
+    "size": 35018,
+    "subdir": "noarch",
+    "timestamp": 1607418939729,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/dot2tex-2.11.3-pyhd8ed1ab_0.tar.bz2",
+    "version": "2.11.3"
+}

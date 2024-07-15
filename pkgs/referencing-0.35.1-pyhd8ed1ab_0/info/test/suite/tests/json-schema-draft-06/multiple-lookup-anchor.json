@@ -1,0 +1,20 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "definitions": {
+        "foo": { "$id": "#foo", "bar": "baz" }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/",
+      "target": { "definitions": { "foo": { "$id": "#foo", "bar": "baz" } } },
+      "then": {
+        "ref": "#foo",
+        "target": { "$id": "#foo", "bar": "baz" }
+      }
+    }
+  ]
+}

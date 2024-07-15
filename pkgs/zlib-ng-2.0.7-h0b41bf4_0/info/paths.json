@@ -1,0 +1,43 @@
+{
+  "paths": [
+    {
+      "_path": "include/zconf-ng.h",
+      "path_type": "hardlink",
+      "sha256": "343319574613994487b9831129c4124fbcaaf7a69e7f52b58196d890b7a7c519",
+      "size_in_bytes": 4985
+    },
+    {
+      "_path": "include/zlib-ng.h",
+      "path_type": "hardlink",
+      "sha256": "d51896e8411868ed195d5cf41fda4f1c5a9c891832dfd16b559a5ed6beedd890",
+      "size_in_bytes": 94727
+    },
+    {
+      "_path": "lib/libz-ng.so",
+      "path_type": "softlink",
+      "sha256": "d8156b61f39e2fd06af1fe2977224141bc8e8a839c1e6af997a1d033183ae30a",
+      "size_in_bytes": 129088
+    },
+    {
+      "_path": "lib/libz-ng.so.2",
+      "path_type": "softlink",
+      "sha256": "d8156b61f39e2fd06af1fe2977224141bc8e8a839c1e6af997a1d033183ae30a",
+      "size_in_bytes": 129088
+    },
+    {
+      "_path": "lib/libz-ng.so.2.0.7",
+      "path_type": "hardlink",
+      "sha256": "d8156b61f39e2fd06af1fe2977224141bc8e8a839c1e6af997a1d033183ae30a",
+      "size_in_bytes": 129088
+    },
+    {
+      "_path": "lib/pkgconfig/zlib-ng.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/zlib-ng_1679094700839/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+      "sha256": "e604c1fb8c605f989b5afecedf9a96be0db46342dbf1a8e6b43fe64fe8ded308",
+      "size_in_bytes": 512
+    }
+  ],
+  "paths_version": 1
+}

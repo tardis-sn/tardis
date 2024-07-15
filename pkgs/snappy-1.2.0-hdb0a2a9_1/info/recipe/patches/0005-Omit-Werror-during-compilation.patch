@@ -1,0 +1,30 @@
+From f00b64bd6d7f1ac23e1f7bf110a2c64e0d22038f Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Sat, 11 Mar 2023 12:13:29 +0100
+Subject: [PATCH 5/6] Omit Werror during compilation
+
+---
+ CMakeLists.txt | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0403fd7..06303a4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -70,13 +70,6 @@ else(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
+   endif(NOT CMAKE_CXX_FLAGS MATCHES "-Wextra")
+
+-  # Use -Werror for clang only.
+-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+-    if(NOT CMAKE_CXX_FLAGS MATCHES "-Werror")
+-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+-    endif(NOT CMAKE_CXX_FLAGS MATCHES "-Werror")
+-  endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+-
+   # Disable sign comparison warnings. Matches upcoming Bazel setup.
+   if(NOT CMAKE_CXX_FLAGS MATCHES "-Wno-sign-compare")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
+--
+2.39.3 (Apple Git-146)
+

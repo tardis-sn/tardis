@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "pyhc8e2a94_3",
+  "build_number": 3,
+  "depends": [
+    "python >=3.7"
+  ],
+  "license": "Apache-2.0",
+  "name": "dataclasses",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1628958582931,
+  "version": "0.8"
+}

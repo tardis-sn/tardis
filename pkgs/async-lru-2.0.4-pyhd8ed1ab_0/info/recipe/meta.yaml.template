@@ -1,0 +1,47 @@
+{% set version = "2.0.4" %}
+
+package:
+  name: async-lru
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/a/async_lru/async-lru-{{ version }}.tar.gz
+  sha256: b8a59a5df60805ff63220b2a0c5b5393da5521b113cd5465a44eb037d81a5627
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+  run:
+    - python >=3.8
+    - typing_extensions >=4.0.0
+
+test:
+  source_files:
+    - tests
+  imports:
+    - async_lru
+  commands:
+    - pip check
+    - mypy -m async_lru
+    - pytest -vv --asyncio-mode=auto --cov=async_lru --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=89
+  requires:
+    - mypy
+    - pip
+    - pytest-asyncio
+    - pytest-cov
+
+about:
+  home: https://github.com/aio-libs/async-lru
+  summary: Simple lru_cache for asyncio
+  license: MIT
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - bollwyvl

@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.5",
+        "webencodings >=0.4"
+    ],
+    "fn": "tinycss2-1.3.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "8662629d9a05f9cff364e31ca106c1ac",
+    "name": "tinycss2",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "bc55e5899e66805589c02061e315bfc23ae6cc2f2811f5cc13fb189a5ed9d90f",
+    "size": 25405,
+    "subdir": "noarch",
+    "timestamp": 1713975078735,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.3.0-pyhd8ed1ab_0.conda",
+    "version": "1.3.0"
+}

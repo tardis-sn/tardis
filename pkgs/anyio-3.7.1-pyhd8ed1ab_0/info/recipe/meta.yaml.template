@@ -1,0 +1,70 @@
+{% set version = "3.7.1" %}
+
+package:
+  name: anyio
+  version: {{ version }}
+
+source:
+  - folder: dist
+    url: https://pypi.io/packages/source/a/anyio/anyio-{{ version }}.tar.gz
+    sha256: 44a3c9aba0f5defa43261a8b3efb97891f2bd7d804e0e1f56419befa1adfc780
+  - folder: src
+    url: https://github.com/agronholm/anyio/archive/{{ version }}.tar.gz
+    sha256: aa8ed0d799e61b61f7888e13668d36b467e3368129e8efa92bbf62a9cf063f84
+
+build:
+  number: 0
+  noarch: python
+  script: cd dist && {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - pip
+    - python >=3.7
+    - setuptools >=64
+    - setuptools-scm >=6.4
+  run:
+    - exceptiongroup
+    - idna >=2.8
+    - python >=3.7
+    - sniffio >=1.1
+    - typing_extensions
+  run_constrained:
+    - trio >=0.16,<0.22
+
+test:
+  source_files:
+    - src/tests
+    - src/pyproject.toml
+  requires:
+    - coverage >=4.5
+    - trio
+    - hypothesis >=4.0
+    - mock >=4
+    - pip
+    - psutil
+    - pytest >=6.0
+    - pytest-cov
+    - pytest-mock >=3.6.1
+    - toml
+    - trustme
+    # won't be available on pypy, or windows, any time soon
+    - uvloop >=0.17  # [unix and python_impl == 'cpython']
+  imports:
+    - anyio
+  commands:
+    - pip check
+
+about:
+  home: https://github.com/agronholm/anyio
+  license: MIT
+  license_family: MIT
+  license_file: dist/LICENSE
+  summary: High level compatibility layer for multiple asynchronous event loop implementations on Python
+  doc_url: https://anyio.readthedocs.io
+  doc_source_url: https://github.com/agronholm/anyio/tree/{{ version }}/docs
+
+extra:
+  recipe-maintainers:
+    - CJ-Wright
+    - bollwyvl

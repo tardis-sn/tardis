@@ -1,0 +1,1 @@
+["pytest-timeout", "fsspec", "pytest", "setuptools", "aiohttp", "requests", "gcc_linux-64 12.*"]

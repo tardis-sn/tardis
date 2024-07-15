@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.8",
+    "typing_extensions >=4.0.0"
+  ],
+  "license": "MIT",
+  "name": "async-lru",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1690563152778,
+  "version": "2.0.4"
+}

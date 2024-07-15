@@ -1,0 +1,23 @@
+{
+    "arch": "x86_64",
+    "build": "h77fa898_7",
+    "build_number": 7,
+    "build_string": "h77fa898_7",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "_libgcc_mutex 0.1 conda_forge"
+    ],
+    "fn": "libgomp-13.2.0-h77fa898_7.conda",
+    "license": "GPL-3.0-only WITH GCC-exception-3.1",
+    "md5": "abf3fec87c2563697defa759dec3d639",
+    "name": "libgomp",
+    "platform": "linux",
+    "sha256": "781444fa069d3b50e8ed667b750571cacda785761c7fc2a89ece1ac49693d4ad",
+    "size": 422336,
+    "subdir": "linux-64",
+    "timestamp": 1715015995979,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/libgomp-13.2.0-h77fa898_7.conda",
+    "version": "13.2.0"
+}

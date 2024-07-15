@@ -1,0 +1,41 @@
+diff --git a/gif_font.c b/gif_font.c
+index 75f9731..085b9d7 100644
+--- a/gif_font.c
++++ b/gif_font.c
+@@ -11,6 +11,10 @@ SPDX-License-Identifier: MIT
+ 
+ #include "gif_lib.h"
+ 
++#ifdef _WIN32
++    #define strtok_r strtok_s
++#endif
++
+ /*****************************************************************************
+  Ascii 8 by 8 regular font - only first 128 characters are supported.
+ *****************************************************************************/
+diff --git a/gif_lib.h b/gif_lib.h
+index b05c9ff..99f9fc3 100644
+--- a/gif_lib.h
++++ b/gif_lib.h
+@@ -23,6 +23,12 @@ extern "C" {
+ #include <stdbool.h>
+ #include <stddef.h>
+ 
++#ifdef GIFLIB_EXPORTS
++  #define XPORT __declspec(dllexport)
++#else
++  #define XPORT __declspec(dllimport)
++#endif
++
+ #define GIF_STAMP "GIFVER" /* First chars in file - GIF stamp.  */
+ #define GIF_STAMP_LEN sizeof(GIF_STAMP) - 1
+ #define GIF_VERSION_POS 3    /* Version first character in stamp. */
+@@ -269,7 +275,7 @@ int EGifGCBToSavedExtension(const GraphicsControlBlock *GCB,
+ 
+ #define GIF_FONT_WIDTH 8
+ #define GIF_FONT_HEIGHT 8
+-extern const unsigned char GifAsciiTable8x8[][GIF_FONT_WIDTH];
++extern const unsigned char XPORT GifAsciiTable8x8[][GIF_FONT_WIDTH];
+ 
+ extern void GifDrawText8x8(SavedImage *Image, const int x, const int y,
+                            const char *legend, const int color);

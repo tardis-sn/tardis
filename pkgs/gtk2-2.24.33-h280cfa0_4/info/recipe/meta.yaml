@@ -1,0 +1,188 @@
+# This file created by conda-build 24.1.2
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Mar 11 07:16:02 2024
+# ------------------------------------------------
+
+package:
+  name: gtk2
+  version: 2.24.33
+source:
+  sha256: ac2ac757f5942d318a311a54b0c80b5ef295f299c2a73c632f6bfb1ff49cc6da
+  url: http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.24/gtk+-2.24.33.tar.xz
+build:
+  number: '4'
+  string: h280cfa0_4
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_2
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cairo 1.18.0 h3faef2a_0
+    - expat 2.6.1 h59595ed_0
+    - font-ttf-dejavu-sans-mono 2.37 hab24e00_0
+    - font-ttf-inconsolata 3.000 h77eed37_0
+    - font-ttf-source-code-pro 2.038 h77eed37_0
+    - font-ttf-ubuntu 0.83 h77eed37_1
+    - fontconfig 2.14.2 h14ed4e7_0
+    - fonts-conda-ecosystem 1 0
+    - fonts-conda-forge 1 0
+    - freetype 2.12.1 h267a509_2
+    - g-ir-build-tools 1.78.1 py312hcb69f48_1
+    - g-ir-host-tools 1.78.1 hfff48b1_1
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h76fc315_2
+    - gettext 0.21.1 h27087fc_0
+    - gnuconfig 2020.11.07 hd8ed1ab_0
+    - gobject-introspection 1.78.1 py312h15a1d3f_1
+    - icu 73.2 h59595ed_0
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.6.1 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgirepository 1.78.1 h003a4f0_1
+    - libglib 2.78.4 hf2295e7_4
+    - libgomp 13.2.0 h807b86a_5
+    - libiconv 1.17 hd590300_2
+    - libnsl 2.0.1 hd590300_0
+    - libpng 1.6.43 h2797004_0
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libsqlite 3.45.1 h2797004_0
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcb 1.15 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - pcre2 10.43 hcad00b1_0
+    - perl 5.32.1 7_hd590300_perl5
+    - pixman 0.43.2 h59595ed_0
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - pthread-stubs 0.4 h36c2ea0_1001
+    - python 3.12.2 hab00c5b_0_cpython
+    - python_abi 3.12 4_cp312
+    - readline 8.2 h8228510_1
+    - setuptools 69.1.1 pyhd8ed1ab_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - xorg-kbproto 1.0.7 h7f98852_1002
+    - xorg-libice 1.1.1 hd590300_0
+    - xorg-libsm 1.2.4 h7391055_0
+    - xorg-libx11 1.8.7 h8ee46fc_0
+    - xorg-libxau 1.0.11 hd590300_0
+    - xorg-libxdmcp 1.1.3 h7f98852_0
+    - xorg-libxext 1.3.4 h0b41bf4_2
+    - xorg-libxrender 0.9.11 hd590300_0
+    - xorg-renderproto 0.11.1 h7f98852_1002
+    - xorg-xextproto 7.3.0 h0b41bf4_1003
+    - xorg-xproto 7.0.31 h7f98852_1007
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.2.13 hd590300_5
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - atk 2.38.0 ha770c72_1
+    - atk-1.0 2.38.0 hd4edc92_1
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cairo 1.18.0 h3faef2a_0
+    - expat 2.6.1 h59595ed_0
+    - font-ttf-dejavu-sans-mono 2.37 hab24e00_0
+    - font-ttf-inconsolata 3.000 h77eed37_0
+    - font-ttf-source-code-pro 2.038 h77eed37_0
+    - font-ttf-ubuntu 0.83 h77eed37_1
+    - fontconfig 2.14.2 h14ed4e7_0
+    - fonts-conda-ecosystem 1 0
+    - fonts-conda-forge 1 0
+    - freetype 2.12.1 h267a509_2
+    - fribidi 1.0.10 h36c2ea0_0
+    - gdk-pixbuf 2.42.10 h829c605_4
+    - gettext 0.21.1 h27087fc_0
+    - glib 2.78.4 hfc55251_4
+    - glib-tools 2.78.4 hfc55251_4
+    - graphite2 1.3.13 h58526e2_1001
+    - harfbuzz 8.3.0 h3d44ed6_0
+    - icu 73.2 h59595ed_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - lerc 4.0.0 h27087fc_0
+    - libdeflate 1.19 hd590300_0
+    - libexpat 2.6.1 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libglib 2.78.4 hf2295e7_4
+    - libgomp 13.2.0 h807b86a_5
+    - libiconv 1.17 hd590300_2
+    - libjpeg-turbo 3.0.0 hd590300_1
+    - libnsl 2.0.1 hd590300_0
+    - libpng 1.6.43 h2797004_0
+    - libsqlite 3.45.1 h2797004_0
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libtiff 4.6.0 ha9c0a0a_2
+    - libuuid 2.38.1 h0b41bf4_0
+    - libwebp-base 1.3.2 hd590300_0
+    - libxcb 1.15 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - pango 1.50.14 ha41ecd1_2
+    - pcre2 10.43 hcad00b1_0
+    - pixman 0.43.2 h59595ed_0
+    - pthread-stubs 0.4 h36c2ea0_1001
+    - python 3.12.2 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - xorg-kbproto 1.0.7 h7f98852_1002
+    - xorg-libice 1.1.1 hd590300_0
+    - xorg-libsm 1.2.4 h7391055_0
+    - xorg-libx11 1.8.7 h8ee46fc_0
+    - xorg-libxau 1.0.11 hd590300_0
+    - xorg-libxdmcp 1.1.3 h7f98852_0
+    - xorg-libxext 1.3.4 h0b41bf4_2
+    - xorg-libxrender 0.9.11 hd590300_0
+    - xorg-renderproto 0.11.1 h7f98852_1002
+    - xorg-xextproto 7.3.0 h0b41bf4_1003
+    - xorg-xproto 7.0.31 h7f98852_1007
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.2.13 hd590300_5
+    - zstd 1.5.5 hfc55251_0
+  run:
+    - atk-1.0 >=2.38.0
+    - cairo >=1.18.0,<2.0a0
+    - fontconfig >=2.14.2,<3.0a0
+    - fonts-conda-ecosystem
+    - freetype >=2.12.1,<3.0a0
+    - gdk-pixbuf >=2.42.10,<3.0a0
+    - harfbuzz >=8.3.0,<9.0a0
+    - libgcc-ng >=12
+    - libglib >=2.78.4,<3.0a0
+    - pango >=1.50.14,<2.0a0
+    - xorg-libx11 >=1.8.7,<2.0a0
+    - xorg-libxext >=1.3.4,<2.0a0
+    - xorg-libxrender >=0.9.11,<0.10.0a0
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libgtk-x11-2.0.so
+about:
+  home: https://developer.gnome.org/gtk/
+  license: LGPL-2.1-or-later
+  license_file: COPYING
+  summary: Primary library used to construct user interfaces in GNOME applications
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240311.1.1
+  recipe-maintainers:
+    - jakirkham
+    - pkgw
+    - xhochy
+  remote_url: https://github.com/conda-forge/gtk2-feedstock
+  sha: d257f4511ebc225d0a00a8996d238b0529cfa9ec

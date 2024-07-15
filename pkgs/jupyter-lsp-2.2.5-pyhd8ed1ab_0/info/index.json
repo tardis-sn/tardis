@@ -1,0 +1,18 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "importlib-metadata >=4.8.3",
+    "jupyter_server >=1.1.2",
+    "python >=3.8"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "jupyter-lsp",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1712707521811,
+  "version": "2.2.5"
+}

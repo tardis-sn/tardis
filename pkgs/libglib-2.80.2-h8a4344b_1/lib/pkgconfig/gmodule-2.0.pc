@@ -1,0 +1,12 @@
+prefix=/home/conda/feedstock_root/build_artifacts/glib-split_1718517981718/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+gmodule_supported=true
+
+Name: GModule
+Description: Dynamic module loader for GLib
+Version: 2.80.2
+Requires: gmodule-no-export-2.0, glib-2.0
+Libs: -Wl,--export-dynamic
+Cflags: -I${includedir}

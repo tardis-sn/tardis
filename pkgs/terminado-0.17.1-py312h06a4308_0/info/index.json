@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "py312h06a4308_0",
+  "build_number": 0,
+  "depends": [
+    "ptyprocess",
+    "python >=3.12,<3.13.0a0",
+    "tornado >=6.1.0"
+  ],
+  "license": "BSD-2-Clause",
+  "license_family": "BSD",
+  "name": "terminado",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1698874969755,
+  "version": "0.17.1"
+}

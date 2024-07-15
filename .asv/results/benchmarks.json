@@ -1,0 +1,651 @@
+{
+    "run_tardis.BenchmarkRunTardis.time_run_tardis": {
+        "code": "class BenchmarkRunTardis:\n    def time_run_tardis(self):\n        run_tardis(\n            self.config_verysimple,\n            atom_data=self.atomic_dataset,\n            show_convergence_plots=False,\n        )",
+        "min_run_count": 2,
+        "name": "run_tardis.BenchmarkRunTardis.time_run_tardis",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "a492faf71e3d4f9554531e89e87178c24e3c31579718d6671f0bc29cd3aff82e",
+        "warmup_time": -1
+    },
+    "transport_geometry_calculate_distances.BenchmarkTransportGeometryCalculateDistances.time_calculate_distance_boundary": {
+        "code": "class BenchmarkTransportGeometryCalculateDistances:\n    def time_calculate_distance_boundary(self):\n        mu = 0.3\n        r = 7.5e14\n    \n        calculate_distances.calculate_distance_boundary(\n            r, mu, self.geometry.r_inner[0], self.geometry.r_outer[0]\n        )",
+        "min_run_count": 2,
+        "name": "transport_geometry_calculate_distances.BenchmarkTransportGeometryCalculateDistances.time_calculate_distance_boundary",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "29de8272356b4ca7dc58d6401586a63224d822660b2a06a352b3e5d4a5570504",
+        "warmup_time": -1
+    },
+    "transport_geometry_calculate_distances.BenchmarkTransportGeometryCalculateDistances.time_calculate_distance_line": {
+        "code": "class BenchmarkTransportGeometryCalculateDistances:\n    @parameterize(\n        {\n            \"Parameters\": [\n                {\n                    \"packet\": {\n                        \"nu_line\": 0.1,\n                        \"is_last_line\": True\n                    },\n                    \"enable_full_relativity\": True,\n                },\n                {\n                    \"packet\": {\n                        \"nu_line\": 0.2,\n                        \"is_last_line\": False\n                    },\n                    \"enable_full_relativity\": True,\n                }\n            ]\n        }\n    )\n    def time_calculate_distance_line(self, parameters):\n        packet_params = parameters[\"packet\"]\n        nu_line = packet_params[\"nu_line\"]\n        is_last_line = packet_params[\"is_last_line\"]\n        enable_full_relativity = parameters[\"enable_full_relativity\"]\n    \n        time_explosion = self.model\n    \n        doppler_factor = frame_transformations.get_doppler_factor(\n            self.static_packet.r,\n            self.static_packet.mu,\n            time_explosion,\n            enable_full_relativity\n        )\n        comov_nu = self.static_packet.nu * doppler_factor\n    \n        calculate_distances.calculate_distance_line(\n            self.static_packet,\n            comov_nu,\n            is_last_line,\n            nu_line,\n            time_explosion,\n            enable_full_relativity\n        )",
+        "min_run_count": 2,
+        "name": "transport_geometry_calculate_distances.BenchmarkTransportGeometryCalculateDistances.time_calculate_distance_line",
+        "number": 0,
+        "param_names": [
+            "Parameters"
+        ],
+        "params": [
+            [
+                "{'packet': {'nu_line': 0.1, 'is_last_line': True}, 'enable_full_relativity': True}",
+                "{'packet': {'nu_line': 0.2, 'is_last_line': False}, 'enable_full_relativity': True}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "8a397d0f2b5bc68a428531a9e932dc1bb5986e1de61eb1ec7c30957f8a562216",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_interaction.BenchmarkMontecarloMontecarloNumbaInteraction.time_line_emission": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaInteraction:\n    @parameterize(\n        {\n            \"Test packet\": [\n                {\n                    \"mu\": 0.8599443103322428,\n                    \"emission_line_id\": 1000,\n                    \"energy\": 0.9114437898710559,\n                },\n                {\n                    \"mu\": -0.6975116557422458,\n                    \"emission_line_id\": 2000,\n                    \"energy\": 0.8803098648913266,\n                },\n                {\n                    \"mu\": -0.7115661419975774,\n                    \"emission_line_id\": 0,\n                    \"energy\": 0.8800385929341252,\n                },\n            ]\n        }\n    )\n    def time_line_emission(self, test_packet):\n        emission_line_id = test_packet[\"emission_line_id\"]\n        packet = self.packet\n        packet.mu = test_packet[\"mu\"]\n        packet.energy = test_packet[\"energy\"]\n        packet.initialize_line_id(\n            self.verysimple_opacity_state,\n            self.verysimple_time_explosion,\n            self.verysimple_enable_full_relativity,\n        )\n    \n        time_explosion = self.verysimple_time_explosion\n    \n        interaction.line_emission(\n            packet,\n            emission_line_id,\n            time_explosion,\n            self.verysimple_opacity_state,\n            self.verysimple_enable_full_relativity,\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_interaction.BenchmarkMontecarloMontecarloNumbaInteraction.time_line_emission",
+        "number": 0,
+        "param_names": [
+            "Test packet"
+        ],
+        "params": [
+            [
+                "{'mu': 0.8599443103322428, 'emission_line_id': 1000, 'energy': 0.9114437898710559}",
+                "{'mu': -0.6975116557422458, 'emission_line_id': 2000, 'energy': 0.8803098648913266}",
+                "{'mu': -0.7115661419975774, 'emission_line_id': 0, 'energy': 0.8800385929341252}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "75e38518ccb026aaa6b61988052357b7abcbe3ce8679481b3c29b1878e09f1e9",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_interaction.BenchmarkMontecarloMontecarloNumbaInteraction.time_line_scatter": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaInteraction:\n    @parameterize(\n        {\n            \"Line interaction type\": [\n                LineInteractionType.SCATTER,\n                LineInteractionType.DOWNBRANCH,\n                LineInteractionType.MACROATOM,\n            ],\n        }\n    )\n    def time_line_scatter(self, line_interaction_type):\n        packet = self.packet\n        packet.initialize_line_id(\n            self.verysimple_opacity_state,\n            self.verysimple_time_explosion,\n            self.verysimple_enable_full_relativity,\n        )\n        time_explosion = self.verysimple_time_explosion\n    \n        interaction.line_scatter(\n            packet,\n            time_explosion,\n            line_interaction_type,\n            self.verysimple_opacity_state,\n            self.verysimple_enable_full_relativity,\n            self.verysimple_continuum_processes_enabled,\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_interaction.BenchmarkMontecarloMontecarloNumbaInteraction.time_line_scatter",
+        "number": 0,
+        "param_names": [
+            "Line interaction type"
+        ],
+        "params": [
+            [
+                "<LineInteractionType.SCATTER: 0>",
+                "<LineInteractionType.DOWNBRANCH: 1>",
+                "<LineInteractionType.MACROATOM: 2>"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "c989b05b9e674147c83e23dc8119e7770aed8fd5b17ac09c0d4c12da5ec59ec4",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_interaction.BenchmarkMontecarloMontecarloNumbaInteraction.time_thomson_scatter": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaInteraction:\n    def time_thomson_scatter(self):\n        packet = self.packet\n        init_mu = packet.mu\n        init_nu = packet.nu\n        init_energy = packet.energy\n        time_explosion = self.verysimple_time_explosion\n        enable_full_relativity = self.verysimple_enable_full_relativity\n    \n        interaction.thomson_scatter(\n            packet, time_explosion, enable_full_relativity\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_interaction.BenchmarkMontecarloMontecarloNumbaInteraction.time_thomson_scatter",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "04b396f749431a35520ff94302929a6fca55bf7b34d262afb159b9963859f29b",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_main_loop.BenchmarkTransportMontecarloMainLoop.time_montecarlo_main_loop": {
+        "code": "class BenchmarkTransportMontecarloMainLoop:\n    def time_montecarlo_main_loop(self):\n        montecarlo_main_loop(\n            self.transport_state.packet_collection,\n            self.transport_state.geometry_state,\n            self.verysimple_time_explosion,\n            self.transport_state.opacity_state,\n            self.montecarlo_configuration,\n            self.transport_state.radfield_mc_estimators,\n            self.transport_state.spectrum_frequency.value,\n            self.montecarlo_configuration.NUMBER_OF_VPACKETS,\n            iteration=0,\n            show_progress_bars=False,\n            total_iterations=0\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_main_loop.BenchmarkTransportMontecarloMainLoop.time_montecarlo_main_loop",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "7876359c0dcf0f0344c71aac5cbc7fbd96621eac2f5adedd4cb9223efbd3362f",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_FormalIntegrator_functions": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral:\n    def time_FormalIntegrator_functions(self):\n        FormalIntegrator = formal_integral.FormalIntegrator(\n            self.simulation_verysimple.simulation_state, self.simulation_verysimple.plasma, self.simulation_verysimple.transport\n        )\n        FormalIntegrator.calculate_spectrum(self.simulation_verysimple.transport.transport_state.spectrum.frequency)\n        FormalIntegrator.make_source_function()\n        FormalIntegrator.generate_numba_objects()\n        FormalIntegrator.formal_integral(\n            self.simulation_verysimple.transport.transport_state.spectrum.frequency,\n            1000\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_FormalIntegrator_functions",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "a332fab7af91af4176c98f13145635f8dc64ef742d9232cbec679d1a2305bece",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_calculate_p_values": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral:\n    @parameterize({\"N\": [100, 1000, 10000]})\n    def time_calculate_p_values(self, N):\n        r = 1.0\n        formal_integral.calculate_p_values(r, N)",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_calculate_p_values",
+        "number": 0,
+        "param_names": [
+            "N"
+        ],
+        "params": [
+            [
+                "100",
+                "1000",
+                "10000"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "75ae529d7e39cea37640da6d42617661aab75eac58c757d684cb0c9a54dabae8",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_calculate_z": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral:\n    @parameterize({\"p\": [0.0, 0.5, 1.0], \"Test data\": TESTDATA})\n    def time_calculate_z(self, p, test_data):\n        inv_t = 1.0 / self.verysimple_time_explosion\n        r_outer = self.formal_integral_geometry(test_data).r_outer\n    \n        for r in r_outer:\n            formal_integral.calculate_z(r, p, inv_t)",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_calculate_z",
+        "number": 0,
+        "param_names": [
+            "p",
+            "Test data"
+        ],
+        "params": [
+            [
+                "0.0",
+                "0.5",
+                "1.0"
+            ],
+            [
+                "array([1. , 1.5, 2. ])",
+                "array([0. , 0.5, 1. ])"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "e84aa7f067e57ec60576f0dc52df4ba98179e03e565edfe2d4fdd7c46a952f25",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_intensity_black_body": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral:\n    @parameterize(\n        {\n            \"Parameters\": [\n                {\n                    \"nu\": 1e14,\n                    \"temperature\": 1e4,\n                },\n                {\n                    \"nu\": 0,\n                    \"temperature\": 1,\n                },\n                {\n                    \"nu\": 1,\n                    \"temperature\": 1,\n                }\n            ]\n        }\n    )\n    def time_intensity_black_body(self, parameters):\n        nu = parameters[\"nu\"]\n        temperature = parameters[\"temperature\"]\n        formal_integral.intensity_black_body(nu, temperature)",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_intensity_black_body",
+        "number": 0,
+        "param_names": [
+            "Parameters"
+        ],
+        "params": [
+            [
+                "{'nu': 100000000000000.0, 'temperature': 10000.0}",
+                "{'nu': 0, 'temperature': 1}",
+                "{'nu': 1, 'temperature': 1}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "1911146b20e992b45e645410084755bc4bdb1fa91c23d2bb45302d09b6ee4c6e",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_trapezoid_integration": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral:\n    @parameterize({\"N\": (1e2, 1e3, 1e4, 1e5)})\n    def time_trapezoid_integration(self, n):\n        h = 1.0\n        data = np.random.random(int(n))\n    \n        formal_integral.trapezoid_integration(data, h)",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_numba_formal_integral_p.BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral.time_trapezoid_integration",
+        "number": 0,
+        "param_names": [
+            "N"
+        ],
+        "params": [
+            [
+                "100.0",
+                "1000.0",
+                "10000.0",
+                "100000.0"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "85b5d201fa816b1a1be725aa8ea4968b73d9dcb40ec2500238d44b7f9265d6cb",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_numba_interface.BenchmarkMontecarloMontecarloNumbaNumbaInterface.time_opacity_state_initialize": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaNumbaInterface:\n    @parameterize({\"Input params\": [\"scatter\", \"macroatom\", \"downbranch\"]})\n    def time_opacity_state_initialize(self, input_params):\n        line_interaction_type = input_params\n        plasma = self.nb_simulation_verysimple.plasma\n        opacity_state_initialize(\n            plasma,\n            line_interaction_type,\n            self.verysimple_disable_line_scattering,\n            self.verysimple_continuum_processes_enabled,\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_numba_interface.BenchmarkMontecarloMontecarloNumbaNumbaInterface.time_opacity_state_initialize",
+        "number": 0,
+        "param_names": [
+            "Input params"
+        ],
+        "params": [
+            [
+                "'scatter'",
+                "'macroatom'",
+                "'downbranch'"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "9522f77323bebc7f1566fc264776aa65b02599006f53e2fa1473860f28baf028",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_opacities.BenchmarkMontecarloMontecarloNumbaOpacities.time_compton_opacity_calculation": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaOpacities:\n    @parameterize(\n        {\n            \"Electron number density\": [\n                1.0e11,\n                1e15,\n                1e5,\n            ],\n            \"Energy\": [\n                511.0,\n                255.5,\n                511.0e7,\n            ],\n        }\n    )\n    def time_compton_opacity_calculation(self, electron_number_density, energy):\n        calculate_opacity.compton_opacity_calculation(\n            energy, electron_number_density\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_opacities.BenchmarkMontecarloMontecarloNumbaOpacities.time_compton_opacity_calculation",
+        "number": 0,
+        "param_names": [
+            "Electron number density",
+            "Energy"
+        ],
+        "params": [
+            [
+                "100000000000.0",
+                "1000000000000000.0",
+                "100000.0"
+            ],
+            [
+                "511.0",
+                "255.5",
+                "5110000000.0"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "7ac76c87cc2615123903d2b0c7fc70867ff88ea81b19fb69df84a4cf12ebe8c3",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_opacities.BenchmarkMontecarloMontecarloNumbaOpacities.time_pair_creation_opacity_calculation": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaOpacities:\n    @parameterize(\n        {\n            \"Ejecta density\": [\n                1.0,\n                1e-2,\n                1e-2,\n                1e5,\n            ],\n            \"Energy\": [\n                511.0,\n                1500,\n                1200,\n                511.0e7,\n            ],\n            \"Iron group fraction\": [\n                0.0,\n                0.5,\n                0.25,\n                1.0,\n            ],\n        }\n    )\n    def time_pair_creation_opacity_calculation(\n        self, ejecta_density, energy, iron_group_fraction\n    ):\n        calculate_opacity.pair_creation_opacity_calculation(\n            energy, ejecta_density, iron_group_fraction\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_opacities.BenchmarkMontecarloMontecarloNumbaOpacities.time_pair_creation_opacity_calculation",
+        "number": 0,
+        "param_names": [
+            "Ejecta density",
+            "Energy",
+            "Iron group fraction"
+        ],
+        "params": [
+            [
+                "1.0",
+                "0.01 (0)",
+                "0.01 (1)",
+                "100000.0"
+            ],
+            [
+                "511.0",
+                "1500",
+                "1200",
+                "5110000000.0"
+            ],
+            [
+                "0.0",
+                "0.5",
+                "0.25",
+                "1.0"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "11f1d463ce515f385fda6ed9e91c530ebf2c08b87433de9df3390afd21d6bc0f",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_opacities.BenchmarkMontecarloMontecarloNumbaOpacities.time_photoabsorption_opacity_calculation": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaOpacities:\n    @parameterize(\n        {\n            \"Ejecta density\": [\n                1.0,\n                1e-2,\n                1e-2,\n                1e5,\n            ],\n            \"Energy\": [\n                511.0,\n                255.5,\n                255.5,\n                511.0e7,\n            ],\n            \"Iron group fraction\": [\n                0.0,\n                0.5,\n                0.25,\n                1.0,\n            ],\n        }\n    )\n    def time_photoabsorption_opacity_calculation(\n        self, ejecta_density, energy, iron_group_fraction\n    ):\n        calculate_opacity.photoabsorption_opacity_calculation(\n            energy, ejecta_density, iron_group_fraction\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_opacities.BenchmarkMontecarloMontecarloNumbaOpacities.time_photoabsorption_opacity_calculation",
+        "number": 0,
+        "param_names": [
+            "Ejecta density",
+            "Energy",
+            "Iron group fraction"
+        ],
+        "params": [
+            [
+                "1.0",
+                "0.01 (0)",
+                "0.01 (1)",
+                "100000.0"
+            ],
+            [
+                "511.0",
+                "255.5 (0)",
+                "255.5 (1)",
+                "5110000000.0"
+            ],
+            [
+                "0.0",
+                "0.5",
+                "0.25",
+                "1.0"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "c1d5c98b6b2cd9fa5c4a7a0cc38d93be68199c8ae5f377f943fd6e690850c70e",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_calculate_distance_electron": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaPacket:\n    @parameterize(\n        {\n            \"Parameters\": [\n                {\n                    \"electron_density\": 1e-5,\n                    \"tua_event\": 1e10,\n                },\n                {\n                    \"electron_density\": 1.0,\n                    \"tua_event\": 1e10\n                },\n            ]\n        }\n    )\n    def time_calculate_distance_electron(self, parameters):\n        electron_density = parameters[\"electron_density\"]\n        tau_event = parameters[\"tua_event\"]\n        calculate_distances.calculate_distance_electron(\n            electron_density, tau_event\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_calculate_distance_electron",
+        "number": 0,
+        "param_names": [
+            "Parameters"
+        ],
+        "params": [
+            [
+                "{'electron_density': 1e-05, 'tua_event': 10000000000.0}",
+                "{'electron_density': 1.0, 'tua_event': 10000000000.0}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "ab926d4ff747d58feaaed2057494d488a3e53c27bd421a967d1c0e54655710c5",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_calculate_tau_electron": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaPacket:\n    @parameterize(\n        {\n            \"Parameters\": [\n                {\n                    \"electron_density\": 1e-5,\n                    \"distance\": 1.0,\n                },\n                {\n                    \"electron_density\": 1e10,\n                    \"distance\": 1e10,\n                },\n                {\n                    \"electron_density\": -1,\n                    \"distance\": 0,\n                },\n                {\n                    \"electron_density\": -1e10,\n                    \"distance\": -1e10,\n                },\n            ]\n        }\n    )\n    def time_calculate_tau_electron(self, parameters):\n        electron_density = parameters[\"electron_density\"]\n        distance = parameters[\"distance\"]\n        opacities.calculate_tau_electron(electron_density, distance)",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_calculate_tau_electron",
+        "number": 0,
+        "param_names": [
+            "Parameters"
+        ],
+        "params": [
+            [
+                "{'electron_density': 1e-05, 'distance': 1.0}",
+                "{'electron_density': 10000000000.0, 'distance': 10000000000.0}",
+                "{'electron_density': -1, 'distance': 0}",
+                "{'electron_density': -10000000000.0, 'distance': -10000000000.0}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "b1481c8ad66b791737bd17af88fc5476b234044ccadec5bcd14fe51549ef0b70",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_get_random_mu": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaPacket:\n    def time_get_random_mu(self):\n        utils.get_random_mu()",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_get_random_mu",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "71f70aa8b533681f2a59288e1ee5cea5ac9dd381fdd77302068bdc2782c581ad",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_move_packet_across_shell_boundary_emitted": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaPacket:\n    @parameterize(\n        {\n            \"Parameters\": [\n                {\n                    \"current_shell_id\": 132,\n                    \"delta_shell\": 11,\n                    \"no_of_shells\": 132,\n                },\n                {\n                    \"current_shell_id\": 132,\n                    \"delta_shell\": 1,\n                    \"no_of_shells\": 133,\n                },\n                {\n                    \"current_shell_id\": 132,\n                    \"delta_shell\": 2,\n                    \"no_of_shells\": 133,\n                },\n            ]\n        }\n    )\n    def time_move_packet_across_shell_boundary_emitted(self, parameters):\n        current_shell_id = parameters[\"current_shell_id\"]\n        delta_shell = parameters[\"delta_shell\"]\n        no_of_shells = parameters[\"no_of_shells\"]\n        packet = self.packet\n        packet.current_shell_id = current_shell_id\n        r_packet_transport.move_packet_across_shell_boundary(\n            packet, delta_shell, no_of_shells\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_move_packet_across_shell_boundary_emitted",
+        "number": 0,
+        "param_names": [
+            "Parameters"
+        ],
+        "params": [
+            [
+                "{'current_shell_id': 132, 'delta_shell': 11, 'no_of_shells': 132}",
+                "{'current_shell_id': 132, 'delta_shell': 1, 'no_of_shells': 133}",
+                "{'current_shell_id': 132, 'delta_shell': 2, 'no_of_shells': 133}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "8a5efe66d1c6759cd42f59561524082efee3a44a33542c0bd1c8c64af47aa114",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_move_packet_across_shell_boundary_increment": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaPacket:\n    @parameterize(\n        {\n            \"Parameters\": [\n                {\n                    \"current_shell_id\": 132,\n                    \"delta_shell\": -1,\n                    \"no_of_shells\": 199,\n                },\n                {\n                    \"current_shell_id\": 132,\n                    \"delta_shell\": 0,\n                    \"no_of_shells\": 132,\n                },\n                {\n                    \"current_shell_id\": 132,\n                    \"delta_shell\": 20,\n                    \"no_of_shells\": 154,\n                },\n            ]\n        }\n    )\n    def time_move_packet_across_shell_boundary_increment(self, parameters):\n        current_shell_id = parameters[\"current_shell_id\"]\n        delta_shell = parameters[\"delta_shell\"]\n        no_of_shells = parameters[\"no_of_shells\"]\n        packet = self.packet\n        packet.current_shell_id = current_shell_id\n        r_packet_transport.move_packet_across_shell_boundary(\n            packet, delta_shell, no_of_shells\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_move_packet_across_shell_boundary_increment",
+        "number": 0,
+        "param_names": [
+            "Parameters"
+        ],
+        "params": [
+            [
+                "{'current_shell_id': 132, 'delta_shell': -1, 'no_of_shells': 199}",
+                "{'current_shell_id': 132, 'delta_shell': 0, 'no_of_shells': 132}",
+                "{'current_shell_id': 132, 'delta_shell': 20, 'no_of_shells': 154}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "88ac365ff77c16d2040320d39e228da6496ef6bcb9ac359d508715e229fe0659",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_move_packet_across_shell_boundary_reabsorbed": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaPacket:\n    @parameterize(\n        {\n            \"Parameters\": [\n                {\n                    \"current_shell_id\": 132,\n                    \"delta_shell\": 132,\n                    \"no_of_shells\": 132,\n                },\n                {\n                    \"current_shell_id\": -133,\n                    \"delta_shell\": -133,\n                    \"no_of_shells\": -1e9,\n                },\n                {\n                    \"current_shell_id\": 132,\n                    \"delta_shell\": 133,\n                    \"no_of_shells\": 133,\n                },\n            ]\n        }\n    )\n    def time_move_packet_across_shell_boundary_reabsorbed(self, parameters):\n        current_shell_id = parameters[\"current_shell_id\"]\n        delta_shell = parameters[\"delta_shell\"]\n        no_of_shells = parameters[\"no_of_shells\"]\n        packet = self.packet\n        packet.current_shell_id = current_shell_id\n        r_packet_transport.move_packet_across_shell_boundary(\n            packet, delta_shell, no_of_shells\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_move_packet_across_shell_boundary_reabsorbed",
+        "number": 0,
+        "param_names": [
+            "Parameters"
+        ],
+        "params": [
+            [
+                "{'current_shell_id': 132, 'delta_shell': 132, 'no_of_shells': 132}",
+                "{'current_shell_id': -133, 'delta_shell': -133, 'no_of_shells': -1000000000.0}",
+                "{'current_shell_id': 132, 'delta_shell': 133, 'no_of_shells': 133}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "df7dfb434b5255158c42d7b06c5003d533c6c5dfe2489072cb74b1ed4a62251f",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_update_line_estimators": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaPacket:\n    @parameterize(\n        {\n            \"Parameters\": [\n                {\n                    \"cur_line_id\": 0,\n                    \"distance_trace\": 1e12,\n                    \"time_explosion\": 5.2e7,\n                    \"enable_full_relativity\": True,\n                },\n                {\n                    \"cur_line_id\": 0,\n                    \"distance_trace\": 0,\n                    \"time_explosion\": 5.2e7,\n                    \"enable_full_relativity\": True,\n                },\n                {\n                    \"cur_line_id\": 1,\n                    \"distance_trace\": 1e5,\n                    \"time_explosion\": 1e10,\n                    \"enable_full_relativity\": False,\n                },\n            ]\n        }\n    )\n    def time_update_line_estimators(self, parameters):\n        cur_line_id = parameters[\"cur_line_id\"]\n        distance_trace = parameters[\"distance_trace\"]\n        time_explosion = parameters[\"time_explosion\"]\n        enable_full_relativity = parameters[\"enable_full_relativity\"]\n        update_line_estimators(\n            self.estimators,\n            self.static_packet,\n            cur_line_id,\n            distance_trace,\n            time_explosion,\n            enable_full_relativity,\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_packet.BenchmarkMontecarloMontecarloNumbaPacket.time_update_line_estimators",
+        "number": 0,
+        "param_names": [
+            "Parameters"
+        ],
+        "params": [
+            [
+                "{'cur_line_id': 0, 'distance_trace': 1000000000000.0, 'time_explosion': 52000000.0, 'enable_full_relativity': True}",
+                "{'cur_line_id': 0, 'distance_trace': 0, 'time_explosion': 52000000.0, 'enable_full_relativity': True}",
+                "{'cur_line_id': 1, 'distance_trace': 100000.0, 'time_explosion': 10000000000.0, 'enable_full_relativity': False}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "c9ddc9c485b9a838ef8440c5de655cc74af76e8aa7898694548eda4d8db450fc",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_r_packet.BenchmarkMontecarloMontecarloNumbaRPacket.time_rpacket_trackers_to_dataframe": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaRPacket:\n    def time_rpacket_trackers_to_dataframe(self):\n        sim = self.simulation_rpacket_tracking_enabled\n        transport_state = sim.transport.transport_state\n        rpacket_trackers_to_dataframe(\n            transport_state.rpacket_tracker\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_r_packet.BenchmarkMontecarloMontecarloNumbaRPacket.time_rpacket_trackers_to_dataframe",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "e12dafe6a24f664d4a25c6a4667585ef18e231915899cce2567e605d5d6e8e75",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_single_packet_loop.BenchmarkMontecarloMontecarloNumbaVpacket.time_single_packet_loop": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaVpacket:\n    def time_single_packet_loop(self):\n        single_packet_loop.single_packet_loop(\n            self.packet,\n            self.verysimple_numba_radial_1d_geometry,\n            self.verysimple_time_explosion,\n            self.verysimple_opacity_state,\n            self.transport_state.radfield_mc_estimators.create_estimator_list(get_num_threads())[get_thread_id()],\n            self.verysimple_3vpacket_collection,\n            self.rpacket_tracker,\n            self.montecarlo_configuration\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_single_packet_loop.BenchmarkMontecarloMontecarloNumbaVpacket.time_single_packet_loop",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "fafd33c92ffd6e7b5b43eb9b04737c34082eab4298d453300d92c06b0da51344",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_vpacket.BenchmarkMontecarloMontecarloNumbaVpacket.time_trace_bad_vpacket": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaVpacket:\n    def time_trace_bad_vpacket(self):\n        broken_packet = self.broken_packet\n        verysimple_numba_radial_1d_geometry = (\n            self.verysimple_numba_radial_1d_geometry\n        )\n        enable_full_relativity = self.verysimple_enable_full_relativity\n        verysimple_time_explosion = self.verysimple_time_explosion\n        verysimple_opacity_state = self.verysimple_opacity_state\n        continuum_processes_enabled = (\n            self.verysimple_continuum_processes_enabled\n        )\n        tau_russian = self.verysimple_tau_russian\n        survival_probability = self.verysimple_survival_probability\n    \n        vpacket.trace_vpacket(\n            broken_packet,\n            verysimple_numba_radial_1d_geometry,\n            verysimple_time_explosion,\n            verysimple_opacity_state,\n            tau_russian,\n            survival_probability,\n            enable_full_relativity,\n            continuum_processes_enabled,\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_vpacket.BenchmarkMontecarloMontecarloNumbaVpacket.time_trace_bad_vpacket",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "df971b980b857420d930dd8d3c52ea8b4c3c0929088e3cea9992155dbd7ae156",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_vpacket.BenchmarkMontecarloMontecarloNumbaVpacket.time_trace_vpacket": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaVpacket:\n    def time_trace_vpacket(self):\n        v_packet = self.v_packet\n        verysimple_numba_radial_1d_geometry = (\n            self.verysimple_numba_radial_1d_geometry\n        )\n        verysimple_time_explosion = self.verysimple_time_explosion\n        verysimple_opacity_state = self.verysimple_opacity_state\n        enable_full_relativity = self.verysimple_enable_full_relativity\n        continuum_processes_enabled = (\n            self.verysimple_continuum_processes_enabled\n        )\n        tau_russian = self.verysimple_tau_russian\n        survival_probability = self.verysimple_survival_probability\n    \n        # Set seed because of RNG in trace_vpacket\n        np.random.seed(1)\n    \n        # Give the vpacket a reasonable line ID\n        self.v_packet_initialize_line_id(\n            v_packet,\n            verysimple_opacity_state,\n            verysimple_time_explosion,\n            enable_full_relativity,\n        )\n    \n        vpacket.trace_vpacket(\n            v_packet,\n            verysimple_numba_radial_1d_geometry,\n            verysimple_time_explosion,\n            verysimple_opacity_state,\n            tau_russian,\n            survival_probability,\n            enable_full_relativity,\n            continuum_processes_enabled,\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_vpacket.BenchmarkMontecarloMontecarloNumbaVpacket.time_trace_vpacket",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "88524b96f64cfb859c446b7179c53953f5edbb663f3202e99d7c6fb8959d54e8",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_vpacket.BenchmarkMontecarloMontecarloNumbaVpacket.time_trace_vpacket_volley": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaVpacket:\n    @parameterize(\n        {\n            \"Paramters\": [\n                {\n                    \"tau_russian\": 10.0,\n                    \"survival_possibility\": 0.0\n                },\n                {\n                    \"tau_russian\": 15.0,\n                    \"survival_possibility\": 0.1\n                },\n            ]\n        }\n    )\n    def time_trace_vpacket_volley(self, parameters):\n        vpacket.trace_vpacket_volley(\n            self.r_packet,\n            self.verysimple_3vpacket_collection,\n            self.verysimple_numba_radial_1d_geometry,\n            self.verysimple_time_explosion,\n            self.verysimple_opacity_state,\n            False,\n            parameters[\"tau_russian\"],\n            parameters[\"survival_possibility\"],\n            False\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_vpacket.BenchmarkMontecarloMontecarloNumbaVpacket.time_trace_vpacket_volley",
+        "number": 0,
+        "param_names": [
+            "Paramters"
+        ],
+        "params": [
+            [
+                "{'tau_russian': 10.0, 'survival_possibility': 0.0}",
+                "{'tau_russian': 15.0, 'survival_possibility': 0.1}"
+            ]
+        ],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "44171ab0c02a76418aad9cc211c4dfa681e258aeec5dcc5fb731431c644e54ff",
+        "warmup_time": -1
+    },
+    "transport_montecarlo_vpacket.BenchmarkMontecarloMontecarloNumbaVpacket.time_trace_vpacket_within_shell": {
+        "code": "class BenchmarkMontecarloMontecarloNumbaVpacket:\n    def time_trace_vpacket_within_shell(self):\n        v_packet = self.v_packet\n        verysimple_numba_radial_1d_geometry = (\n            self.verysimple_numba_radial_1d_geometry\n        )\n        verysimple_time_explosion = self.verysimple_time_explosion\n        verysimple_opacity_state = self.verysimple_opacity_state\n        enable_full_relativity = self.verysimple_enable_full_relativity\n        continuum_processes_enabled = (\n            self.verysimple_continuum_processes_enabled\n        )\n    \n        # Give the vpacket a reasonable line ID\n        self.v_packet_initialize_line_id(\n            v_packet,\n            verysimple_opacity_state,\n            verysimple_time_explosion,\n            enable_full_relativity,\n        )\n    \n        vpacket.trace_vpacket_within_shell(\n            v_packet,\n            verysimple_numba_radial_1d_geometry,\n            verysimple_time_explosion,\n            verysimple_opacity_state,\n            enable_full_relativity,\n            continuum_processes_enabled,\n        )",
+        "min_run_count": 2,
+        "name": "transport_montecarlo_vpacket.BenchmarkMontecarloMontecarloNumbaVpacket.time_trace_vpacket_within_shell",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 600,
+        "type": "time",
+        "unit": "seconds",
+        "version": "8244c9a76d336079cb20b7f5cfd0e33db5b514f27985338f4fd92f69bd192c5e",
+        "warmup_time": -1
+    },
+    "version": 2
+}

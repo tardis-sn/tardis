@@ -1,0 +1,210 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Jun 17 13:50:17 2024
+# ------------------------------------------------
+
+package:
+  name: librsvg
+  version: 2.58.1
+source:
+  patches:
+    - add_rust_lto.patch
+  sha256: 3728596290a8576d305d06ec8afdf473516feee9dff22e03235eac433d56824e
+  url: https://download.gnome.org/sources/librsvg/2.58/librsvg-2.58.1.tar.xz
+build:
+  number: '0'
+  run_exports:
+    - librsvg >=2.58.1,<3.0a0
+  string: hadf69e7_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_7
+    - binutils_linux-64 2.40 hb3c18ed_7
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.6.2 hbcca054_0
+    - cairo 1.18.0 h3faef2a_0
+    - docutils 0.21.2 pyhd8ed1ab_0
+    - expat 2.6.2 h59595ed_0
+    - font-ttf-dejavu-sans-mono 2.37 hab24e00_0
+    - font-ttf-inconsolata 3.000 h77eed37_0
+    - font-ttf-source-code-pro 2.038 h77eed37_0
+    - font-ttf-ubuntu 0.83 h77eed37_2
+    - fontconfig 2.14.2 h14ed4e7_0
+    - fonts-conda-ecosystem 1 0
+    - fonts-conda-forge 1 0
+    - freetype 2.12.1 h267a509_2
+    - g-ir-build-tools 1.80.1 py312hcb69f48_0
+    - g-ir-host-tools 1.80.1 hfff48b1_0
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_10
+    - gcc_linux-64 12.3.0 h9528a6a_7
+    - gi-docgen 2024.1 pyhd8ed1ab_0
+    - gnuconfig 2020.11.07 hd8ed1ab_0
+    - gobject-introspection 1.80.1 py312h15a1d3f_0
+    - icu 73.2 h59595ed_0
+    - importlib-metadata 7.1.0 pyha770c72_0
+    - jinja2 3.1.4 pyhd8ed1ab_0
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-devel_linux-64 12.3.0 h6b66f73_110
+    - libgcc-ng 13.2.0 h77fa898_10
+    - libgirepository 1.80.1 h003a4f0_0
+    - libglib 2.80.2 h8a4344b_1
+    - libgomp 13.2.0 h77fa898_10
+    - libiconv 1.17 hd590300_2
+    - libnsl 2.0.1 hd590300_0
+    - libpng 1.6.43 h2797004_0
+    - libsanitizer 12.3.0 hb8811af_10
+    - libsqlite 3.46.0 hde9e2c9_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_10
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcb 1.15 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - make 4.3 hd18ef5c_1
+    - markdown 3.6 pyhd8ed1ab_0
+    - markupsafe 2.1.5 py312h98912ed_0
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.1 h4ab18f5_0
+    - packaging 24.1 pyhd8ed1ab_0
+    - pcre2 10.44 h0f59acf_0
+    - pixman 0.43.2 h59595ed_0
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - pthread-stubs 0.4 h36c2ea0_1001
+    - pygments 2.18.0 pyhd8ed1ab_0
+    - python 3.12.4 h194c7f8_0_cpython
+    - python_abi 3.12 4_cp312
+    - readline 8.2 h8228510_1
+    - rust 1.77.2 h70c747d_1
+    - rust-std-x86_64-unknown-linux-gnu 1.77.2 h2c6d0dc_1
+    - rust_linux-64 1.77.2 h4186e68_3
+    - setuptools 70.0.0 pyhd8ed1ab_0
+    - smartypants 2.0.1 pyhd8ed1ab_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - tk 8.6.13 noxft_h4845f30_101
+    - toml 0.10.2 pyhd8ed1ab_0
+    - typogrify 2.0.7 pyhd3deb0d_2
+    - tzdata 2024a h0c530f3_0
+    - xorg-kbproto 1.0.7 h7f98852_1002
+    - xorg-libice 1.1.1 hd590300_0
+    - xorg-libsm 1.2.4 h7391055_0
+    - xorg-libx11 1.8.9 h8ee46fc_0
+    - xorg-libxau 1.0.11 hd590300_0
+    - xorg-libxdmcp 1.1.3 h7f98852_0
+    - xorg-libxext 1.3.4 h0b41bf4_2
+    - xorg-libxrender 0.9.11 hd590300_0
+    - xorg-renderproto 0.11.1 h7f98852_1002
+    - xorg-xextproto 7.3.0 h0b41bf4_1003
+    - xorg-xproto 7.0.31 h7f98852_1007
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.19.2 pyhd8ed1ab_0
+    - zlib 1.3.1 h4ab18f5_1
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.6.2 hbcca054_0
+    - cairo 1.18.0 h3faef2a_0
+    - expat 2.6.2 h59595ed_0
+    - font-ttf-dejavu-sans-mono 2.37 hab24e00_0
+    - font-ttf-inconsolata 3.000 h77eed37_0
+    - font-ttf-source-code-pro 2.038 h77eed37_0
+    - font-ttf-ubuntu 0.83 h77eed37_2
+    - fontconfig 2.14.2 h14ed4e7_0
+    - fonts-conda-ecosystem 1 0
+    - fonts-conda-forge 1 0
+    - freetype 2.12.1 h267a509_2
+    - fribidi 1.0.10 h36c2ea0_0
+    - gdk-pixbuf 2.42.12 hb9ae30d_0
+    - glib 2.80.2 h8a4344b_1
+    - glib-tools 2.80.2 h73ef956_1
+    - graphite2 1.3.13 h59595ed_1003
+    - harfbuzz 8.5.0 hfac3d4d_0
+    - icu 73.2 h59595ed_0
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - lerc 4.0.0 h27087fc_0
+    - libdeflate 1.20 hd590300_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_10
+    - libglib 2.80.2 h8a4344b_1
+    - libgomp 13.2.0 h77fa898_10
+    - libiconv 1.17 hd590300_2
+    - libjpeg-turbo 3.0.0 hd590300_1
+    - libnsl 2.0.1 hd590300_0
+    - libpng 1.6.43 h2797004_0
+    - libsqlite 3.46.0 hde9e2c9_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_10
+    - libtiff 4.6.0 h1dd3fc0_3
+    - libuuid 2.38.1 h0b41bf4_0
+    - libwebp-base 1.4.0 hd590300_0
+    - libxcb 1.15 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libxml2 2.12.7 hc051c1a_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.1 h4ab18f5_0
+    - pango 1.50.14 ha41ecd1_2
+    - pcre2 10.44 h0f59acf_0
+    - pixman 0.43.2 h59595ed_0
+    - pthread-stubs 0.4 h36c2ea0_1001
+    - python 3.12.4 h194c7f8_0_cpython
+    - readline 8.2 h8228510_1
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - xorg-kbproto 1.0.7 h7f98852_1002
+    - xorg-libice 1.1.1 hd590300_0
+    - xorg-libsm 1.2.4 h7391055_0
+    - xorg-libx11 1.8.9 h8ee46fc_0
+    - xorg-libxau 1.0.11 hd590300_0
+    - xorg-libxdmcp 1.1.3 h7f98852_0
+    - xorg-libxext 1.3.4 h0b41bf4_2
+    - xorg-libxrender 0.9.11 hd590300_0
+    - xorg-renderproto 0.11.1 h7f98852_1002
+    - xorg-xextproto 7.3.0 h0b41bf4_1003
+    - xorg-xproto 7.0.31 h7f98852_1007
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.3.1 h4ab18f5_1
+    - zstd 1.5.6 ha6fb4c9_0
+  run:
+    - cairo >=1.18.0,<2.0a0
+    - freetype >=2.12.1,<3.0a0
+    - gdk-pixbuf >=2.42.12,<3.0a0
+    - harfbuzz >=8.5.0,<9.0a0
+    - libgcc-ng >=12
+    - libglib >=2.80.2,<3.0a0
+    - libpng >=1.6.43,<1.7.0a0
+    - libxml2 >=2.12.7,<3.0a0
+    - pango >=1.50.14,<2.0a0
+test:
+  commands:
+    - rsvg-convert --version
+    - test -f $PREFIX/lib/librsvg-2${SHLIB_EXT}
+    - test ! -f $PREFIX/lib/librsvg-2.a
+    - test -f `pkg-config --variable=libdir --dont-define-prefix librsvg-2.0`/librsvg-2${SHLIB_EXT}
+    - test -f $PREFIX/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so
+    - test ! -f $PREFIX/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.a
+    - test -f $PREFIX/include/librsvg-2.0/librsvg/rsvg-features.h
+    - test -f $PREFIX/include/librsvg-2.0/librsvg/rsvg-cairo.h
+    - test -f $PREFIX/include/librsvg-2.0/librsvg/rsvg.h
+    - test -f $PREFIX/lib/girepository-1.0/Rsvg-2.0.typelib
+  requires:
+    - pkg-config
+about:
+  home: https://wiki.gnome.org/Projects/LibRsvg
+  license: LGPL-2.1-or-later
+  license_file: COPYING.LIB
+  summary: librsvg is a library to render SVG files using cairo.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240617.1.1
+  recipe-maintainers:
+    - pkgw
+    - tschoonj
+    - xhochy
+  remote_url: https://github.com/conda-forge/librsvg-feedstock
+  sha: ff624a63a35d1ad63bc50455992c7c00ffa5e67f

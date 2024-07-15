@@ -1,0 +1,44 @@
+{% set name = "iniconfig" %}
+{% set version = "2.0.0" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.7
+    - hatch-vcs
+    - hatchling
+  run:
+    - python >=3.7
+
+test:
+  imports:
+    - iniconfig
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: http://github.com/RonnyPfannschmidt/iniconfig
+  summary: 'iniconfig: brain-dead simple config-ini parsing'
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - nicoddemus

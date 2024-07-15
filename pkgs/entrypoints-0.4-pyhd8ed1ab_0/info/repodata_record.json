@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6"
+    ],
+    "fn": "entrypoints-0.4-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "md5": "3cf04868fee0a029769bd41f4b2fbf2d",
+    "name": "entrypoints",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "2ec4a0900a4a9f42615fc04d0fb3286b796abe56590e8e042f6ec25e102dd5af",
+    "size": 9199,
+    "subdir": "noarch",
+    "timestamp": 1643888357950,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/entrypoints-0.4-pyhd8ed1ab_0.tar.bz2",
+    "version": "0.4"
+}

@@ -1,0 +1,22 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "docutils",
+    "jinja2",
+    "nbconvert",
+    "nbformat",
+    "python >=3.6",
+    "sphinx",
+    "traitlets"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "nbsphinx",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1715074950890,
+  "version": "0.9.4"
+}

@@ -1,0 +1,25 @@
+From 15cc346f595718406a9a9d0f50fd0f064107caaa Mon Sep 17 00:00:00 2001
+From: Min RK <benjaminrk@gmail.com>
+Date: Wed, 14 Jun 2023 23:33:31 +0200
+Subject: [PATCH 3/3] skip testphdf5
+
+---
+ testpar/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/testpar/Makefile.am b/testpar/Makefile.am
+index 59d47e15eb..2efd7e7213 100644
+--- a/testpar/Makefile.am
++++ b/testpar/Makefile.am
+@@ -33,7 +33,7 @@ check_SCRIPTS = $(TEST_SCRIPT_PARA)
+ 
+ # Test programs.  These are our main targets.
+ #
+-TEST_PROG_PARA=t_mpi t_bigio testphdf5 t_cache t_cache_image t_pread t_pshutdown t_prestart t_init_term t_pmulti_dset t_select_io_dset t_shapesame t_filters_parallel t_2Gio t_vfd
++TEST_PROG_PARA=t_mpi t_bigio t_cache t_cache_image t_pread t_pshutdown t_prestart t_init_term t_pmulti_dset t_select_io_dset t_shapesame t_filters_parallel t_2Gio t_vfd
+ 
+ if SUBFILING_VFD_CONDITIONAL
+     TEST_PROG_PARA += t_subfiling_vfd
+-- 
+2.41.0
+

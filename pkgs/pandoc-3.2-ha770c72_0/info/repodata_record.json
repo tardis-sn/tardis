@@ -1,0 +1,22 @@
+{
+    "arch": "x86_64",
+    "build": "ha770c72_0",
+    "build_number": 0,
+    "build_string": "ha770c72_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [],
+    "fn": "pandoc-3.2-ha770c72_0.conda",
+    "license": "GPL-2.0-or-later",
+    "license_family": "GPL",
+    "md5": "8c924f0b7f3e064b1c954a08e7c32fba",
+    "name": "pandoc",
+    "platform": "linux",
+    "sha256": "418348076c1a39170efb0bdc8a584ddd11e9ed0ff58ccd905488d3f165ca98ba",
+    "size": 21088628,
+    "subdir": "linux-64",
+    "timestamp": 1715499623651,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/pandoc-3.2-ha770c72_0.conda",
+    "version": "3.2"
+}

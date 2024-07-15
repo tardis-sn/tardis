@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_1",
+    "build_number": 1,
+    "build_string": "pyhd8ed1ab_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=2.7"
+    ],
+    "fn": "ipython_genutils-0.2.0-pyhd8ed1ab_1.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "f8ed9f18dce81e4ee55c858cc2f8548a",
+    "name": "ipython_genutils",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "72fbbe8bc511f20268d347c1a06e279128237e096c4c174b2f9164a661c6b13e",
+    "size": 28064,
+    "subdir": "noarch",
+    "timestamp": 1716278507729,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/ipython_genutils-0.2.0-pyhd8ed1ab_1.conda",
+    "version": "0.2.0"
+}

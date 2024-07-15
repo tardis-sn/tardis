@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A schema for files contained within this suite",
+
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "pattern": "\\.\\./\\.\\./test-schema.json$"
+    },
+    "registry": {
+      "description": "A collection of schemas, identified by (retrieval) URI which may be referenced in tests in this file.",
+      "default": {},
+      "type": "object",
+      "propertyNames": { "format": "uri-reference" }
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#test" }
+    }
+  },
+  "required": ["$schema", "tests"],
+  "additionalProperties": false,
+
+  "$defs": {
+    "test": {
+      "$anchor": "test",
+      "type": "object",
+      "properties": {
+        "base_uri": { "type": "string", "format": "uri" },
+        "why": {
+          "description": "A human-readable explanation of the results of this test.",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "summary": {
+              "description": "A summary of the behavior specified in the linked specifications",
+              "type": "string"
+            },
+            "specifications": {
+              "description": "One or more releavnt specifications for this test.",
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "oneOf": [{ "required": ["rfc"] }, { "required": ["name"] }],
+                "properties": {
+                  "rfc": {
+                    "description": "An IETF RFC",
+                    "type": "number"
+                  },
+                  "name": {
+                    "description": "Any other specification",
+                    "type": "string"
+                  },
+                  "section": { "type": "string" },
+                  "link": { "type": "string", "format": "uri" }
+                }
+              }
+            }
+          }
+        },
+        "ref": { "type": "string" },
+        "target": {},
+        "then": {
+          "title": "A further test to run which should maintain state from the initial lookup.",
+          "$ref": "#test",
+          "properties": { "base_uri": false }
+        },
+        "error": { "const": true }
+      },
+      "oneOf": [
+        {
+          "description": "A test with an expected result to the reference lookup.",
+          "required": ["target"]
+        },
+        {
+          "description": "A test with some form of invalid reference. How this is reported will be language-specific.",
+          "required": ["error"]
+        }
+      ],
+      "required": ["ref"],
+      "unevaluatedProperties": false
+    }
+  }
+}

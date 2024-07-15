@@ -1,0 +1,12 @@
+prefix=/home/conda/feedstock_root/build_artifacts/brotli-split_1695989787169/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehol
+exec_prefix=/home/conda/feedstock_root/build_artifacts/brotli-split_1695989787169/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehol
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libbrotlienc
+URL: https://github.com/google/brotli
+Description: Brotli encoder library
+Version: 1.1.0
+Libs: -L${libdir} -lbrotlienc
+Requires.private: libbrotlicommon >= 1.1.0
+Cflags: -I${includedir}

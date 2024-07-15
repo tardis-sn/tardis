@@ -1,0 +1,94 @@
+        SUMMARY OF THE HDF5 CONFIGURATION
+        =================================
+
+General Information:
+-------------------
+                   HDF5 Version: 1.14.3
+                  Configured on: Wed Jun  5 11:28:18 UTC 2024
+                  Configured by: conda@31e10e087a57
+                    Host system: x86_64-conda-linux-gnu
+              Uname information: Linux 31e10e087a57 6.5.0-1021-azure #22~22.04.1-Ubuntu SMP Tue Apr 30 16:08:18 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+                       Byte sex: little-endian
+             Installation point: /home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+
+Compiling Options:
+------------------
+                     Build Mode: production
+              Debugging Symbols: no
+                        Asserts: no
+                      Profiling: no
+             Optimization Level: high
+
+Linking Options:
+----------------
+                      Libraries: shared
+  Statically Linked Executables: 
+                        LDFLAGS: -Wl,-O2 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,--disable-new-dtags -Wl,--gc-sections -Wl,--allow-shlib-undefined -Wl,-rpath,/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/lib -Wl,-rpath-link,/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/lib -L/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/lib
+                     H5_LDFLAGS: 
+                     AM_LDFLAGS:  -L/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/lib -L/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/lib
+                Extra libraries: -lcrypto -lcurl -lpthread -lsz -lz -ldl -lm 
+                       Archiver: /home/conda/feedstock_root/build_artifacts/hdf5_1717586745711/_build_env/bin/x86_64-conda-linux-gnu-ar
+                       AR_FLAGS: cr
+                         Ranlib: /home/conda/feedstock_root/build_artifacts/hdf5_1717586745711/_build_env/bin/x86_64-conda-linux-gnu-ranlib
+
+Languages:
+----------
+                              C: yes
+                     C Compiler: /home/conda/feedstock_root/build_artifacts/hdf5_1717586745711/_build_env/bin/x86_64-conda-linux-gnu-cc
+                       CPPFLAGS: -DNDEBUG -D_FORTIFY_SOURCE=2 -O2 -isystem /home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/include
+                    H5_CPPFLAGS: -D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L   -DNDEBUG -UH5_DEBUG_API -I/home/conda/feedstock_root/build_artifacts/hdf5_1717586745711/work/src/H5FDsubfiling
+                    AM_CPPFLAGS:  -I/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/include -I/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/include
+                        C Flags: -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/include -fdebug-prefix-map=/home/conda/feedstock_root/build_artifacts/hdf5_1717586745711/work=/usr/local/src/conda/hdf5-1.14.3 -fdebug-prefix-map=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094=/usr/local/src/conda-prefix
+                     H5 C Flags:  -std=c99  -Wall -Wcast-qual -Wconversion -Wextra -Wfloat-equal -Wformat=2 -Winit-self -Winvalid-pch -Wmissing-include-dirs -Wshadow -Wundef -Wwrite-strings -pedantic -Wno-c++-compat -Wlarger-than=2560 -Wlogical-op -Wframe-larger-than=16384 -Wpacked-bitfield-compat -Wsync-nand -Wno-unsuffixed-float-constants -Wdouble-promotion -Wtrampolines -Wstack-usage=8192 -Wmaybe-uninitialized -Wdate-time -Warray-bounds=2 -Wc99-c11-compat -Wduplicated-cond -Whsa -Wnormalized -Wnull-dereference -Wunused-const-variable -Walloca -Walloc-zero -Wduplicated-branches -Wformat-overflow=2 -Wformat-truncation=1 -Wattribute-alias -Wcast-align=strict -Wshift-overflow=2 -Wattribute-alias=2 -Wmissing-profile -Wc11-c2x-compat -fstdarg-opt -fdiagnostics-urls=never -fno-diagnostics-color -s  -Wbad-function-cast -Wcast-align -Wformat -Wimplicit-function-declaration -Wint-to-pointer-cast -Wmissing-declarations -Wmissing-prototypes -Wnested-externs -Wold-style-definition -Wpacked -Wpointer-sign -Wpointer-to-int-cast -Wredundant-decls -Wstrict-prototypes -Wswitch -Wunused-but-set-variable -Wunused-variable -Wunused-function -Wunused-parameter -Wincompatible-pointer-types -Wint-conversion -Wshadow -Wrestrict -Wcast-function-type -Wmaybe-uninitialized -Wno-aggregate-return -Wno-inline -Wno-missing-format-attribute -Wno-missing-noreturn -Wno-overlength-strings -Wno-jump-misses-init -Wstrict-overflow=2 -Wno-suggest-attribute=const -Wno-suggest-attribute=noreturn -Wno-suggest-attribute=pure -Wno-suggest-attribute=format -Wno-suggest-attribute=cold -Wno-suggest-attribute=malloc -O3
+                     AM C Flags: 
+               Shared C Library: yes
+               Static C Library: no
+
+
+                        Fortran: yes
+               Fortran Compiler: /home/conda/feedstock_root/build_artifacts/hdf5_1717586745711/_build_env/bin/x86_64-conda-linux-gnu-gfortran
+                  Fortran Flags: 
+               H5 Fortran Flags:  -std=f2008  -Waliasing -Wall -Wcharacter-truncation -Wextra -Wimplicit-interface -Wsurprising -Wunderflow -pedantic -Wintrinsics-std -Wimplicit-procedure -Wreal-q-constant -Wfunction-elimination -Wrealloc-lhs -Wrealloc-lhs-all -Wno-c-binding-type -Winteger-division -Wfrontend-loop-interchange  -fdiagnostics-urls=never -fno-diagnostics-color -s  -Wno-unused-dummy-argument -Wno-array-temporaries -O3
+               AM Fortran Flags: 
+         Shared Fortran Library: yes
+         Static Fortran Library: no
+               Module Directory: ${includedir}
+
+                            C++: yes
+                   C++ Compiler: /home/conda/feedstock_root/build_artifacts/hdf5_1717586745711/_build_env/bin/x86_64-conda-linux-gnu-c++
+                      C++ Flags: -fvisibility-inlines-hidden -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/include -fdebug-prefix-map=/home/conda/feedstock_root/build_artifacts/hdf5_1717586745711/work=/usr/local/src/conda/hdf5-1.14.3 -fdebug-prefix-map=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094=/usr/local/src/conda-prefix
+                   H5 C++ Flags:   -std=c++11 -Wall -Wcast-qual -Wconversion -Wctor-dtor-privacy -Weffc++ -Wextra -Wfloat-equal -Wformat=2 -Winit-self -Winvalid-pch -Wmissing-include-dirs -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual -Wreorder -Wshadow -Wsign-promo -Wundef -Wwrite-strings -pedantic -Wlarger-than=2560 -Wlogical-op -Wframe-larger-than=16384 -Wpacked-bitfield-compat -Wsync-nand -Wdouble-promotion -Wtrampolines -Wstack-usage=8192 -Wmaybe-uninitialized -Wdate-time -Wopenmp-simd -Warray-bounds=2 -Wduplicated-cond -Whsa -Wnormalized -Wnull-dereference -Wunused-const-variable -Walloca -Walloc-zero -Wduplicated-branches -Wformat-overflow=2 -Wformat-truncation=1 -Wattribute-alias -Wcast-align=strict -Wshift-overflow=2 -Wattribute-alias=2 -Wmissing-profile -Wno-deprecated-copy -fstdarg-opt -fdiagnostics-urls=never -fno-diagnostics-color -s  -Wcast-align -Wmissing-declarations -Wpacked -Wredundant-decls -Wswitch -Wunused-but-set-variable -Wunused-function -Wunused-variable -Wunused-parameter -Wshadow -O3
+                   AM C++ Flags: 
+             Shared C++ Library: yes
+             Static C++ Library: no
+
+                           Java: no
+
+
+Features:
+---------
+                     Parallel HDF5: no
+  Parallel Filtered Dataset Writes: no
+                Large Parallel I/O: no
+                High-level library: yes
+Dimension scales w/ new references: no
+                  Build HDF5 Tests: yes
+                  Build HDF5 Tools: yes
+                   Build GIF Tools: yes
+                      Threadsafety: yes
+               Default API mapping: v114
+    With deprecated public symbols: yes
+            I/O filters (external): deflate(zlib),szip(encoder)
+                     Map (H5M) API: no
+                        Direct VFD: yes
+                        Mirror VFD: no
+                     Subfiling VFD: no
+                (Read-Only) S3 VFD: yes
+              (Read-Only) HDFS VFD: no
+    Packages w/ extra debug output: none
+                       API tracing: no
+              Using memory checker: yes
+            Function stack tracing: no
+                  Use file locking: best-effort
+         Strict file format checks: no
+      Optimization instrumentation: no

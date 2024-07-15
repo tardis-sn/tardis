@@ -1,0 +1,47 @@
+{% set name = "sphinxcontrib-apidoc" %}
+{% set version = "0.3.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 729bf592cf7b7dd57c4c05794f732dc026127275d785c2a5494521fdde773fb9
+
+build:
+  noarch: python
+  number: 1
+  script: python -m pip install --no-deps --ignore-installed .
+
+requirements:
+  host:
+    - python
+    - pip
+    - pbr
+  run:
+    - pbr
+    - python
+
+test:
+  imports:
+    - sphinxcontrib
+
+about:
+  home: https://pypi.org/project/sphinxcontrib-apidoc/
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: 'A Sphinx extension for running sphinx-apidoc on each build.'
+  description:
+    sphinx-apidoc is a tool for automatic generation of Sphinx sources that,
+    using the autodoc extension, documents a whole package in the style of
+    other automatic API documentation tools. sphinx-apidoc does not actually
+    build documentation - rather it simply generates it. As a result, it must
+    be run before sphinx-build. 
+  doc_url: https://pypi.org/project/sphinxcontrib-apidoc/
+  dev_url: https://github.com/sphinx-contrib/apidoc 
+
+extra:
+  recipe-maintainers:
+    - CurtLH

@@ -1,0 +1,17 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+sysconfdir=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/etc
+localstatedir=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/var
+confdir=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/etc/fonts
+cachedir=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094/var/cache/fontconfig
+
+Name: Fontconfig
+Description: Font configuration and customization library
+Version: 2.14.2
+Requires: freetype2 >=  21.0.15
+Requires.private: expat
+Libs: -L${libdir} -lfontconfig
+Libs.private: -pthread
+Cflags: -I${includedir}

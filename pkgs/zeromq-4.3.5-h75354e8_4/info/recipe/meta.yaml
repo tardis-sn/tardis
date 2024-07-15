@@ -1,0 +1,83 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon May 13 13:24:34 2024
+# ------------------------------------------------
+
+package:
+  name: zeromq
+  version: 4.3.5
+source:
+  fn: zeromq-4.3.5.tar.gz
+  patches:
+    - 001-windows-install.patch
+    - pr4663.patch
+    - pr4684.patch
+  sha256: 6653ef5910f17954861fe72332e68b03ca6e4d9c7160eb3a8de5a5a913bfab43
+  url: https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz
+build:
+  number: '4'
+  run_exports:
+    - zeromq >=4.3.5,<4.4.0a0
+  string: h75354e8_4
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - autoconf 2.71 pl5321h2b4cb7a_1
+    - automake 1.16.5 pl5321ha770c72_0
+    - binutils_impl_linux-64 2.40 ha885e6a_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gxx_impl_linux-64 12.3.0 h2a574ab_7
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libsanitizer 12.3.0 hb8811af_7
+    - libstdcxx-devel_linux-64 12.3.0 h0223996_107
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libtool 2.4.7 h27087fc_0
+    - libxcrypt 4.4.36 hd590300_1
+    - m4 1.4.18 h516909a_1001
+    - make 4.3 hd18ef5c_1
+    - perl 5.32.1 7_hd590300_perl5
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - ca-certificates 2024.2.2 hbcca054_0
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libsodium 1.0.18 h36c2ea0_1
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.0 hd590300_0
+  run:
+    - krb5 >=1.21.2,<1.22.0a0
+    - libgcc-ng >=12
+    - libsodium >=1.0.18,<1.0.19.0a0
+    - libstdcxx-ng >=12
+about:
+  home: http://zeromq.org
+  license: MPL-2.0
+  license_file: LICENSE
+  summary: A high-performance asynchronous messaging library.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240513.2.1
+  recipe-maintainers:
+    - JohanMabille
+    - SylvainCorlay
+    - davidbrochart
+    - jakirkham
+    - minrk
+  remote_url: https://github.com/conda-forge/zeromq-feedstock
+  sha: 665f03b3163e4082d41bb6944bad4e724bd4103c

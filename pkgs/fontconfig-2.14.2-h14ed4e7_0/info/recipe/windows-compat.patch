@@ -1,0 +1,80 @@
+- Our `gperf` requires Unix newlines even on Windows
+- Windows Conda packages don't seem to handle symlinks correctly, so we have to copy
+- conda-forge needs different logic for location fonts.conf in the non-DLL case
+
+diff --git a/src/cutout.py b/src/cutout.py
+index 6b46529..832e961 100644
+--- a/src/cutout.py
++++ b/src/cutout.py
+@@ -29,7 +29,7 @@ if __name__== '__main__':
+ 
+     stdout = ret.stdout.decode('utf8')
+ 
+-    with open(args[0].output, 'w') as out:
++    with open(args[0].output, 'w', newline='\n') as out:
+         write = True
+         for l in stdout.split('\n'):
+             l = l.strip('\r')
+diff --git a/conf.d/link_confs.py b/conf.d/link_confs.py
+index 11e759a..e6e8ae5 100644
+--- a/conf.d/link_confs.py
++++ b/conf.d/link_confs.py
+@@ -5,6 +5,7 @@ import sys
+ import argparse
+ import platform
+ from pathlib import PurePath
++import shutil
+ 
+ if __name__=='__main__':
+     parser = argparse.ArgumentParser()
+@@ -33,13 +34,5 @@ if __name__=='__main__':
+             os.remove(dst)
+         except FileNotFoundError:
+             pass
+-        try:
+-            os.symlink(src, dst)
+-        except NotImplementedError:
+-            # Not supported on this version of Windows
+-            break
+-        except OSError as e:
+-            # Symlink privileges are not available
+-            if platform.system().lower() == 'windows' and e.winerror == 1314:
+-                break
+-            raise
++
++        shutil.copyfile(src, dst)
+diff --git a/src/fccfg.c b/src/fccfg.c
+index f62e228..a0ca4a0 100644
+--- a/src/fccfg.c
++++ b/src/fccfg.c
+@@ -2460,9 +2460,27 @@ FcConfigGetPath (void)
+ 		char *p;
+ 		if(!GetModuleFileName(NULL, (LPCH) fontconfig_path, sizeof(fontconfig_path)))
+ 			goto bail1;
+-		p = strrchr ((const char *) fontconfig_path, '\\');
+-		if (p) *p = '\0';
+-		strcat ((char *) fontconfig_path, "\\fonts");
++
++		/* fontconfig_path should be initialized by the DllMain above for programs
++		 * that link to fontconfig dynamically, but this code will kick in for
++		 * statically linked users. Here we customize the logic to mirror DllMain -
++		 * we assume we're in $PREFIX/bin and that config is in $PREFIX/etc/fonts.
++		 * This is certainly fallible depending on where the binary lives, but Conda
++		 * doesn't actually rewrite the build prefix in Windows binaries, so we
++		 * can't use that to get a good absolute path. */
++		p = (FcChar8 *) strrchr ((const char *) fontconfig_path, '\\');
++		if (p)
++		{
++			*p = '\0';
++			p = (FcChar8 *) strrchr ((const char *) fontconfig_path, '\\');
++			if (p && (FcStrCmpIgnoreCase (p + 1, (const FcChar8 *) "bin") == 0 ||
++			          FcStrCmpIgnoreCase (p + 1, (const FcChar8 *) "lib") == 0))
++				*p = '\0';
++			strcat ((char *) fontconfig_instprefix, (char *) fontconfig_path);
++			strcat ((char *) fontconfig_path, "\\etc\\fonts");
++		} else {
++			strcat ((char *) fontconfig_path, "\\fonts");
++		}
+ 	}
+ #endif
+     dir = (FcChar8 *) FONTCONFIG_PATH;

@@ -1,0 +1,1 @@
+["uvloop", "hypothesis >=4.0", "trio", "coverage >=7", "pytest-mock >=3.6.1", "pytest >=7.0", "trustme", "exceptiongroup >=1.2.0", "tomli", "mock >=4", "psutil >=5.9", "pytest-cov", "pip"]

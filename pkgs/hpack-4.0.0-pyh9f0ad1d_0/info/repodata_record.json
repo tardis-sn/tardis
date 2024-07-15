@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyh9f0ad1d_0",
+    "build_number": 0,
+    "build_string": "pyh9f0ad1d_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python"
+    ],
+    "fn": "hpack-4.0.0-pyh9f0ad1d_0.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "914d6646c4dbb1fd3ff539830a12fd71",
+    "name": "hpack",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "5dec948932c4f740674b1afb551223ada0c55103f4c7bf86a110454da3d27cb8",
+    "size": 25341,
+    "subdir": "noarch",
+    "timestamp": 1598856368685,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/hpack-4.0.0-pyh9f0ad1d_0.tar.bz2",
+    "version": "4.0.0"
+}

@@ -1,0 +1,120 @@
+From 62bf4e9193d2a17a51f5d99197f7bd5b6b0abbf4 Mon Sep 17 00:00:00 2001
+From: Mark Harfouche <mark.harfouche@gmail.com>
+Date: Sat, 30 Sep 2023 08:15:37 -0400
+Subject: [PATCH 2/2] Avoid usage of gcc keyword restrict in visual studio
+
+---
+ src/encode.c           |  8 ++++----
+ src/encode_accessors.c | 28 ++++++++++++++--------------
+ 2 files changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/src/encode.c b/src/encode.c
+index 34dafa4..0ca9f2a 100644
+--- a/src/encode.c
++++ b/src/encode.c
+@@ -226,8 +226,8 @@ static void preprocess_unsigned(struct aec_stream *strm)
+ 
+     uint32_t D;
+     struct internal_state *state = strm->state;
+-    const uint32_t *restrict x = state->data_raw;
+-    uint32_t *restrict d = state->data_pp;
++    const uint32_t *__restrict x = state->data_raw;
++    uint32_t *__restrict d = state->data_pp;
+     uint32_t xmax = state->xmax;
+     uint32_t rsi = strm->rsi * strm->block_size - 1;
+ 
+@@ -260,8 +260,8 @@ static void preprocess_signed(struct aec_stream *strm)
+ 
+     uint32_t D;
+     struct internal_state *state = strm->state;
+-    uint32_t *restrict x = state->data_raw;
+-    uint32_t *restrict d = state->data_pp;
++    uint32_t *__restrict x = state->data_raw;
++    uint32_t *__restrict d = state->data_pp;
+     uint32_t xmax = state->xmax;
+     uint32_t xmin = state->xmin;
+     uint32_t rsi = strm->rsi * strm->block_size - 1;
+diff --git a/src/encode_accessors.c b/src/encode_accessors.c
+index 7e5f901..57b81de 100644
+--- a/src/encode_accessors.c
++++ b/src/encode_accessors.c
+@@ -116,8 +116,8 @@ uint32_t aec_get_msb_32(struct aec_stream *strm)
+ 
+ void aec_get_rsi_8(struct aec_stream *strm)
+ {
+-    uint32_t *restrict out = strm->state->data_raw;
+-    unsigned const char *restrict in = strm->next_in;
++    uint32_t *__restrict out = strm->state->data_raw;
++    unsigned const char *__restrict in = strm->next_in;
+     int rsi = strm->rsi * strm->block_size;
+ 
+     for (int i = 0; i < rsi; i++)
+@@ -129,8 +129,8 @@ void aec_get_rsi_8(struct aec_stream *strm)
+ 
+ void aec_get_rsi_lsb_16(struct aec_stream *strm)
+ {
+-    uint32_t *restrict out = strm->state->data_raw;
+-    const unsigned char *restrict in = strm->next_in;
++    uint32_t *__restrict out = strm->state->data_raw;
++    const unsigned char *__restrict in = strm->next_in;
+     int rsi = strm->rsi * strm->block_size;
+ 
+     for (int i = 0; i < rsi; i++)
+@@ -142,8 +142,8 @@ void aec_get_rsi_lsb_16(struct aec_stream *strm)
+ 
+ void aec_get_rsi_msb_16(struct aec_stream *strm)
+ {
+-    uint32_t *restrict out = strm->state->data_raw;
+-    const unsigned char *restrict in = strm->next_in;
++    uint32_t *__restrict out = strm->state->data_raw;
++    const unsigned char *__restrict in = strm->next_in;
+     int rsi = strm->rsi * strm->block_size;
+ 
+     for (int i = 0; i < rsi; i++)
+@@ -155,8 +155,8 @@ void aec_get_rsi_msb_16(struct aec_stream *strm)
+ 
+ void aec_get_rsi_lsb_24(struct aec_stream *strm)
+ {
+-    uint32_t *restrict out = strm->state->data_raw;
+-    const unsigned char *restrict in = strm->next_in;
++    uint32_t *__restrict out = strm->state->data_raw;
++    const unsigned char *__restrict in = strm->next_in;
+     int rsi = strm->rsi * strm->block_size;
+ 
+     for (int i = 0; i < rsi; i++)
+@@ -170,8 +170,8 @@ void aec_get_rsi_lsb_24(struct aec_stream *strm)
+ 
+ void aec_get_rsi_msb_24(struct aec_stream *strm)
+ {
+-    uint32_t *restrict out = strm->state->data_raw;
+-    const unsigned char *restrict in = strm->next_in;
++    uint32_t *__restrict out = strm->state->data_raw;
++    const unsigned char *__restrict in = strm->next_in;
+     int rsi = strm->rsi * strm->block_size;
+ 
+     for (int i = 0; i < rsi; i++)
+@@ -196,8 +196,8 @@ void aec_get_rsi_msb_24(struct aec_stream *strm)
+ #ifdef WORDS_BIGENDIAN
+ void aec_get_rsi_lsb_32(struct aec_stream *strm)
+ {
+-    uint32_t *restrict out = strm->state->data_raw;
+-    const unsigned char *restrict in = strm->next_in;
++    uint32_t *__restrict out = strm->state->data_raw;
++    const unsigned char *__restrict in = strm->next_in;
+     int rsi = strm->rsi * strm->block_size;
+ 
+     for (int i = 0; i < rsi; i++)
+@@ -215,8 +215,8 @@ AEC_GET_RSI_NATIVE_32(msb);
+ #else /* !WORDS_BIGENDIAN */
+ void aec_get_rsi_msb_32(struct aec_stream *strm)
+ {
+-    uint32_t *restrict out = strm->state->data_raw;
+-    const unsigned char *restrict in = strm->next_in;
++    uint32_t *__restrict out = strm->state->data_raw;
++    const unsigned char *__restrict in = strm->next_in;
+     int rsi = strm->rsi * strm->block_size;
+ 
+     strm->next_in += 4 * rsi;
+-- 
+2.34.1
+

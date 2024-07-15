@@ -1,0 +1,73 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Apr 24 01:39:08 2024
+# ------------------------------------------------
+
+package:
+  name: websocket-client
+  version: 1.8.0
+source:
+  sha256: 3239df9f44da632f96012472805d40a23281a991027ce11d2f45a6f24ac4c3da
+  url: https://pypi.io/packages/source/w/websocket-client/websocket_client-1.8.0.tar.gz
+build:
+  entry_points:
+    - wsdump=websocket._wsdump:main
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/websocket-client_1713923384721/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 hc881cc4_6
+    - libgomp 13.2.0 hc881cc4_6
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.3 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.2.1 hd590300_1
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.8
+test:
+  commands:
+    - pip check
+    - wsdump --help
+  imports:
+    - websocket
+    - websocket.tests
+  requires:
+    - pip
+about:
+  dev_url: https://github.com/websocket-client/websocket-client/
+  doc_url: https://websocket-client.readthedocs.io/en/latest/
+  home: https://github.com/websocket-client/websocket-client.git
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: WebSocket client for Python with low level API options
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240423.2.1
+  recipe-maintainers:
+    - BastianZim
+    - scopatz
+    - wshanks
+  remote_url: https://github.com/conda-forge/websocket-client-feedstock
+  sha: cc99b283b50f6f785ff804e225800d4651e58bb1

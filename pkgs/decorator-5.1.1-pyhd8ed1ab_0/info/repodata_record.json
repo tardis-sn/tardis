@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.5"
+    ],
+    "fn": "decorator-5.1.1-pyhd8ed1ab_0.tar.bz2",
+    "license": "BSD-2-Clause",
+    "md5": "43afe5ab04e35e17ba28649471dd7364",
+    "name": "decorator",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "328a6a379f9bdfd0230e51de291ce858e6479411ea4b0545fb377c71662ef3e2",
+    "size": 12072,
+    "subdir": "noarch",
+    "timestamp": 1641555714315,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/decorator-5.1.1-pyhd8ed1ab_0.tar.bz2",
+    "version": "5.1.1"
+}

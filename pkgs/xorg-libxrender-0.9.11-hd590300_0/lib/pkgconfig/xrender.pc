@@ -1,0 +1,12 @@
+prefix=/home/conda/feedstock_root/build_artifacts/xorg-libxrender_1688300509939/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: Xrender
+Description: X Render Library
+Version: 0.9.11
+Requires: xproto renderproto >= 0.9 x11
+Requires.private: x11
+Cflags: -I${includedir}
+Libs: -L${libdir} -lXrender

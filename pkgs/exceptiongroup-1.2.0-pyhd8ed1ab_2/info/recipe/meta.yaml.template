@@ -1,0 +1,43 @@
+{% set name = "exceptiongroup" %}
+{% set version = "1.2.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/exceptiongroup-{{ version }}.tar.gz
+  sha256: 91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  number: 2
+
+requirements:
+  host:
+    - python >=3.7
+    - pip
+    - flit-scm
+  run:
+    - python >=3.7
+
+test:
+  imports:
+    - exceptiongroup
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://pypi.org/project/exceptiongroup/
+  summary: Backport of PEP 654 (exception groups)
+  license: MIT and PSF-2.0
+  license_file: LICENSE
+  dev_url: https://github.com/agronholm/exceptiongroup
+  doc_url: https://docs.python.org/3/library/exceptions.html
+
+extra:
+  recipe-maintainers:
+    - xylar

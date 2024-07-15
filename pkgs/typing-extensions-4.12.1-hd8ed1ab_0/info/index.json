@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "hd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "typing_extensions 4.12.1 pyha770c72_0"
+  ],
+  "license": "PSF-2.0",
+  "license_family": "PSF",
+  "name": "typing-extensions",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1717287867504,
+  "version": "4.12.1"
+}

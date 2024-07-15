@@ -1,0 +1,11 @@
+prefix=/home/conda/feedstock_root/build_artifacts/xorg-libxdmcp_1610071640801/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: Xdmcp
+Description: X Display Manager Control Protocol library
+Version: 1.1.3
+Requires: xproto
+Cflags: -I${includedir}
+Libs: -L${libdir} -lXdmcp

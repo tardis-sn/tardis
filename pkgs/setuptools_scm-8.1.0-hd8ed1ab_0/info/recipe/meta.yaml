@@ -1,0 +1,34 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue May  7 11:59:22 2024
+# ------------------------------------------------
+
+package:
+  name: setuptools_scm
+  version: 8.1.0
+source:
+  sha256: 42dea1b65771cba93b7a515d65a65d8246e560768a66b9106a592c8e7f26c8a7
+  url: https://pypi.io/packages/source/s/setuptools-scm/setuptools_scm-8.1.0.tar.gz
+build:
+  noarch: generic
+  number: '0'
+  string: hd8ed1ab_0
+requirements:
+  build: []
+  run:
+    - setuptools-scm >=8.1.0,<8.1.1.0a0
+about:
+  home: https://github.com/pypa/setuptools_scm/
+  license: MIT
+  license_file: LICENSE
+  summary: The blessed package to manage your versions by scm tags
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240507.5.1
+  recipe-maintainers:
+    - astaric
+    - kwilcox
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/setuptools_scm-feedstock
+  sha: 0ee72c777c876ca9eb7e4edb0940418cda0e7e56

@@ -1,0 +1,69 @@
+# This file created by conda-build 3.21.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Mar  8 13:16:10 2021
+# ------------------------------------------------
+
+package:
+  name: cached_property
+  version: 1.5.2
+source:
+  sha256: 9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130
+  url: https://pypi.io/packages/source/c/cached_property/cached-property-1.5.2.tar.gz
+build:
+  noarch: python
+  number: '1'
+  string: pyha770c72_1
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - ca-certificates 2020.12.5 ha878542_0
+    - certifi 2020.12.5 py39hf3d152e_1
+    - ld_impl_linux-64 2.35.1 hea4e1c9_2
+    - libffi 3.3 h58526e2_2
+    - libgcc-ng 9.3.0 h2828fa1_18
+    - libgomp 9.3.0 h2828fa1_18
+    - libstdcxx-ng 9.3.0 h6de172a_18
+    - ncurses 6.2 h58526e2_4
+    - openssl 1.1.1j h7f98852_0
+    - pip 21.0.1 pyhd8ed1ab_0
+    - python 3.9.2 hffdb5ce_0_cpython
+    - python_abi 3.9 1_cp39
+    - readline 8.0 he28a2e2_2
+    - setuptools 49.6.0 py39hf3d152e_3
+    - sqlite 3.34.0 h74cdb3f_0
+    - tk 8.6.10 h21135ba_1
+    - tzdata 2021a he74cb21_0
+    - wheel 0.36.2 pyhd3deb0d_0
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h516909a_1010
+  run:
+    - python >=3.6
+test:
+  commands:
+    - pip check
+  imports:
+    - cached_property
+  requires:
+    - pip
+about:
+  description: 'Cached-property is a decorator for caching properties in classes.
+    It
+
+    makes caching of time or computational expensive properties quick and easy.
+
+    '
+  dev_url: https://github.com/pydanny/cached-property
+  doc_source_url: https://github.com/pydanny/cached-property/blob/master/README.rst
+  doc_url: https://pypi.python.org/pypi/cached-property
+  home: https://github.com/pydanny/cached-property
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: A decorator for caching properties in classes.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - anthchirp
+    - mvdbeek

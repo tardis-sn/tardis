@@ -1,0 +1,16 @@
+{
+  "arch": "x86_64",
+  "build": "py310hff52083_1",
+  "build_number": 1,
+  "depends": [
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "click",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1666770238122,
+  "version": "8.1.3"
+}

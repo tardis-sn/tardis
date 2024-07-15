@@ -1,0 +1,31 @@
+{
+    "arch": "x86_64",
+    "build": "hadf69e7_1",
+    "build_number": 1,
+    "build_string": "hadf69e7_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "cairo >=1.18.0,<2.0a0",
+        "freetype >=2.12.1,<3.0a0",
+        "gdk-pixbuf >=2.42.10,<3.0a0",
+        "harfbuzz >=8.3.0,<9.0a0",
+        "libgcc-ng >=12",
+        "libglib >=2.80.0,<3.0a0",
+        "libpng >=1.6.43,<1.7.0a0",
+        "libxml2 >=2.12.6,<3.0a0",
+        "pango >=1.50.14,<2.0a0"
+    ],
+    "fn": "librsvg-2.58.0-hadf69e7_1.conda",
+    "license": "LGPL-2.1-or-later",
+    "md5": "0e2b5bd9533043b41f9482ae9e2c16b5",
+    "name": "librsvg",
+    "platform": "linux",
+    "sha256": "eaba82901f01f3ede8b1307c64e0448df8c5e9af9c6b78600c5f63c91c122e45",
+    "size": 5997596,
+    "subdir": "linux-64",
+    "timestamp": 1713369512903,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/librsvg-2.58.0-hadf69e7_1.conda",
+    "version": "2.58.0"
+}

@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "py310hd41b1e2_1",
+    "build_number": 1,
+    "build_string": "py310hd41b1e2_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libstdcxx-ng >=12",
+        "python >=3.10,<3.11.0a0",
+        "python_abi 3.10.* *_cp310"
+    ],
+    "fn": "kiwisolver-1.4.5-py310hd41b1e2_1.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "b8d67603d43b23ce7e988a5d81a7ab79",
+    "name": "kiwisolver",
+    "platform": "linux",
+    "sha256": "bb51906639bced3de1d4d7740ac284cdaa89e2f22e0b1ec796378b090b0648ba",
+    "size": 73123,
+    "subdir": "linux-64",
+    "timestamp": 1695380074542,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/kiwisolver-1.4.5-py310hd41b1e2_1.conda",
+    "version": "1.4.5"
+}

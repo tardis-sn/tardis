@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "pycparser-2.22-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "844d9eb3b43095b031874477f7d70088",
+    "name": "pycparser",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "406001ebf017688b1a1554b49127ca3a4ac4626ec0fd51dc75ffa4415b720b64",
+    "size": 105098,
+    "subdir": "noarch",
+    "timestamp": 1711811634025,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pycparser-2.22-pyhd8ed1ab_0.conda",
+    "version": "2.22"
+}

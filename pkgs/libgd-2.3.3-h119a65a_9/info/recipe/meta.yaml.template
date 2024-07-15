@@ -1,0 +1,76 @@
+{% set version = "2.3.3" %}
+
+package:
+  name: libgd
+  version: {{ version }}
+
+source:
+# direct source -- needs to have autoconf, etc run.
+# but this seems to work better than using straight ./configure with the released code
+  url: https://github.com/libgd/libgd/archive/gd-{{ version }}.tar.gz
+  sha256: 24429f9d0dbe0f865aaa4b1a63558242396ba9134e6cfd32ca5e486a84483350
+# the release tarball: but does not include getlib.sh
+#  url: https://github.com/libgd/libgd/releases/download/gd-{{ version }}/libgd-{{ version }}.tar.gz
+#  sha256: 32590e361a1ea6c93915d2448ab0041792c11bae7b18ee812514fe08b2c6a342
+  patches:
+    # see: https://github.com/libgd/libgd/issues/367
+    - patches/linux-fontconfig-basic.patch
+
+build:
+  #skip: True  # [win]
+  number: 9
+  run_exports:
+    # https://abi-laboratory.pro/?view=timeline&l=libgd
+    - {{ pin_subpackage('libgd', max_pin='x.x') }}
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - automake  # [not-win]
+    - libtool  # [not-win]
+    - gettext
+    - pkg-config
+    - make  # [unix]
+    - cmake  # [win]
+  host:
+    - expat
+    - fontconfig
+    - freetype
+    - icu
+    - libjpeg-turbo
+    - libiconv  # [osx]
+    - libpng
+    - libtiff
+    - libwebp
+    - xorg-libxpm  # [win]
+    - zlib
+  run:
+    - expat
+    - fontconfig
+    - freetype
+    - icu
+    - libjpeg-turbo
+    - libiconv  # [osx]
+    - libpng
+    - libtiff
+    - libwebp
+    - xorg-libxpm  # [win]
+    - zlib
+
+test:
+  commands:
+    - test -f $PREFIX/lib/libgd.a  # [linux]
+    - test -f $PREFIX/lib/libgd${SHLIB_EXT}  # [not win]
+
+about:
+  home: http://libgd.github.io/
+  summary: Library for the dynamic creation of images
+  license: GD
+  license_family: BSD
+  license_file: COPYING
+
+extra:
+  recipe-maintainers:
+    - croth1
+    - ChrisBarker-NOAA
+    - ocefpaf

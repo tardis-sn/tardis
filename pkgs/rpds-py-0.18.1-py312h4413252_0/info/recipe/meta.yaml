@@ -1,0 +1,102 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue May  7 13:52:05 2024
+# ------------------------------------------------
+
+package:
+  name: rpds-py
+  version: 0.18.1
+source:
+  sha256: dc48b479d540770c811fbd1eb9ba2bb66951863e448efec2e2c102625328e92f
+  url: https://pypi.io/packages/source/r/rpds-py/rpds_py-0.18.1.tar.gz
+build:
+  number: '0'
+  string: py312h4413252_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha885e6a_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cargo-bundle-licenses 2.0.0 h91f3281_0
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgit2 1.7.2 h65212e3_2
+    - libgomp 13.2.0 h77fa898_7
+    - libsanitizer 12.3.0 hb8811af_7
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libzlib 1.2.13 hd590300_5
+    - openssl 3.3.0 hd590300_0
+    - pcre2 10.43 hcad00b1_0
+    - rust 1.77.2 h70c747d_0
+    - rust-std-x86_64-unknown-linux-gnu 1.77.2 h2c6d0dc_0
+    - rust_linux-64 1.77.2 h4186e68_3
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.3 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - maturin 1.5.1 py312h241aef2_0
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.3.0 hd590300_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - python_abi 3.12 4_cp312
+    - readline 8.2 h8228510_1
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - libgcc-ng >=12
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+test:
+  commands:
+    - pip check
+    - coverage run --source=rpds -m pytest -vv --tb=long --color=yes
+    - coverage report --show-missing --skip-covered --fail-under=100
+  imports:
+    - rpds
+  requires:
+    - coverage
+    - pip
+    - pytest
+  source_files:
+    - tests
+about:
+  doc_url: https://rpds.readthedocs.io
+  home: https://github.com/crate-py/rpds
+  license: MIT
+  license_file:
+    - LICENSE
+    - THIRDPARTY.yml
+  summary: Python bindings to Rust's persistent data structures (rpds)
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240507.1.1
+  recipe-maintainers:
+    - bollwyvl
+  remote_url: https://github.com/conda-forge/rpds-py-feedstock
+  sha: f910414874c6a2b2fa79a750baa6263e0d1ac4bd

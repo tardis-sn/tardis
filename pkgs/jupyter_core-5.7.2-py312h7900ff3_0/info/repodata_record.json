@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "py312h7900ff3_0",
+    "build_number": 0,
+    "build_string": "py312h7900ff3_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "platformdirs >=2.5",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312",
+        "traitlets >=5.3"
+    ],
+    "fn": "jupyter_core-5.7.2-py312h7900ff3_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "eee5a2e3465220ed87196bbb5665f420",
+    "name": "jupyter_core",
+    "platform": "linux",
+    "sha256": "22a6259c2b139191c76ed7633d1865757b3c15007989f6c74304a80f28e5a262",
+    "size": 92843,
+    "subdir": "linux-64",
+    "timestamp": 1710257533875,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/jupyter_core-5.7.2-py312h7900ff3_0.conda",
+    "version": "5.7.2"
+}

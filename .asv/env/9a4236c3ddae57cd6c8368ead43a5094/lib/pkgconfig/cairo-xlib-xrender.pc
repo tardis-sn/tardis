@@ -1,0 +1,8 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+includedir=${prefix}/include
+
+Name: cairo-xlib-xrender
+Description: Xlib Xrender surface backend for cairo graphics library
+Version: 1.18.0
+Requires: cairo, xrender >=  0.6
+Cflags: -I${includedir}

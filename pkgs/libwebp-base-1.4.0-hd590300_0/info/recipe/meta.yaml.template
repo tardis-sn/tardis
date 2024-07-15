@@ -1,0 +1,80 @@
+{% set version = "1.4.0" %}
+{% set major,minor,patch = version.split('.') %}
+
+package:
+  name: libwebp-base
+  version: {{ version }}
+
+source:
+  url: http://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-{{ version }}.tar.gz
+  sha256: 61f873ec69e3be1b99535634340d5bde750b2e4447caa1db9f61be3fd49ab1e5
+
+build:
+  number: 0
+  run_exports:
+    # https://abi-laboratory.pro/?view=timeline&l=libwebp
+    - {{ pin_subpackage('libwebp-base') }}
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - cmake
+    - ninja
+  run_constrained:
+    # 1.1 is when libwebp-base was split from libwebp
+    - libwebp {{ version }}
+
+{% set libraries = ["libwebp", "libwebpdemux", "libwebpmux", "libwebpdecoder", "libsharpyuv"] %}
+{% set headers = ["decode.h", "demux.h", "encode.h", "mux_types.h", "mux.h", "types.h"] %}
+{% set binaries = ["cwebp", "dwebp", "gif2webp", "img2webp", "webpinfo", "webpmux"] %}
+
+test:
+  commands:
+    {% for each_lib in libraries %}
+      # shared libraries
+    - test -f $PREFIX/lib/{{ each_lib }}.so                   # [linux]
+    - test -f $PREFIX/lib/{{ each_lib }}.dylib                # [osx]
+    - if not exist %LIBRARY_LIB%\{{ each_lib }}.lib exit 1    # [win]
+    - if not exist %LIBRARY_BIN%\{{ each_lib }}.dll exit 1    # [win]
+
+      # absence of static libraries; removed in v1.2.3
+      # should not be packaged in conda-forge, see also CFEP-18
+    - test ! -f $PREFIX/lib/{{ each_lib }}.a                  # [unix]
+
+      # config files; check for both CMake and pkgconfig
+    - test $PREFIX/pkgconfig/{{ each_lib }}.pc                # [unix]
+    - test $PREFIX/share/cmake/WebP/WebPConfig.cmake          # [unix]
+    - if not exist %LIBRARY_LIB%\pkgconfig\{{ each_lib }}.pc exit 1             # [win]
+    - if not exist %LIBRARY_PREFIX%\WebP\cmake\WebPConfig.cmake exit 1    # [win]
+    {% endfor %}
+
+    # headers
+    {% for each_header in headers %}
+    - test -f $PREFIX/include/webp/{{ each_header }} || (echo "{{ each_header }} not found" && exit 1)    # [unix]
+    - if not exist %LIBRARY_INC%\webp\{{ each_header }} exit 1                                            # [win]
+    {% endfor %}
+
+    # All binaries should be excluded from libwebp-base. Various binaries
+    # link against libtiff, libpng, libgif, so they must be separated to prevent
+    # circular imports https://github.com/conda-forge/staged-recipes/pull/11101
+    {% for each_bin in binaries %}
+    - test ! -f $PREFIX/bin/{{ each_bin }}                 # [unix]
+    - if exist %LIBRARY_BIN%\{{ each_bin }}.exe exit 1     # [win]
+    {% endfor %}
+
+about:
+  home: https://developers.google.com/speed/webp
+  license: BSD-3-Clause
+  license_file: COPYING
+  summary: WebP image library
+  description: >
+    WebP is a method of lossy and lossless compression that can be used on a large variety of photographic, translucent and graphical images found on the web. The degree of lossy compression is adjustable so a user can choose the trade-off between file size and image quality. libwebp-base provides the headers and shared
+    libraries. For cwebp and dwep, binaries install libwebp.
+  doc_url: https://developers.google.com/speed/webp/docs/using
+  dev_url: https://chromium.googlesource.com/webm/libwebp
+
+extra:
+  recipe-maintainers:
+    - carterbox
+    - dschreij
+    - ocefpaf

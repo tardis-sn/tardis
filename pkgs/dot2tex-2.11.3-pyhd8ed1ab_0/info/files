@@ -1,0 +1,13 @@
+site-packages/dot2tex-2.11.3.dist-info/AUTHORS
+site-packages/dot2tex-2.11.3.dist-info/INSTALLER
+site-packages/dot2tex-2.11.3.dist-info/LICENSE
+site-packages/dot2tex-2.11.3.dist-info/METADATA
+site-packages/dot2tex-2.11.3.dist-info/RECORD
+site-packages/dot2tex-2.11.3.dist-info/REQUESTED
+site-packages/dot2tex-2.11.3.dist-info/WHEEL
+site-packages/dot2tex-2.11.3.dist-info/direct_url.json
+site-packages/dot2tex-2.11.3.dist-info/entry_points.txt
+site-packages/dot2tex-2.11.3.dist-info/top_level.txt
+site-packages/dot2tex/__init__.py
+site-packages/dot2tex/dot2tex.py
+site-packages/dot2tex/dotparsing.py

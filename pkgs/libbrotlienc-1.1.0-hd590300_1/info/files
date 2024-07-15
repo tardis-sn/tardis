@@ -1,0 +1,4 @@
+lib/libbrotlienc.so
+lib/libbrotlienc.so.1
+lib/libbrotlienc.so.1.1.0
+lib/pkgconfig/libbrotlienc.pc

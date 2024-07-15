@@ -1,0 +1,103 @@
+# This file created by conda-build 3.21.8
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue May 17 12:29:00 2022
+# ------------------------------------------------
+
+package:
+  name: terminado
+  version: 0.15.0
+source:
+  sha256: ab4eeedccfcc1e6134bfee86106af90852c69d602884ea3a1e8ca6d4486e9bfe
+  url: https://pypi.io/packages/source/t/terminado/terminado-0.15.0.tar.gz
+build:
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/terminado_1652790610172/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+    -m pip install . -vv
+  string: py310hff52083_0
+requirements:
+  build: []
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - brotlipy 0.7.0 py310h5764c6d_1004
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2021.10.8 ha878542_0
+    - certifi 2021.10.8 py310hff52083_2
+    - cffi 1.15.0 py310h0fdd8cc_0
+    - charset-normalizer 2.0.12 pyhd8ed1ab_0
+    - cryptography 36.0.2 py310h597c629_1
+    - docutils 0.18.1 py310hff52083_1
+    - editables 0.3 pyhd8ed1ab_0
+    - flit 3.7.1 pyhd8ed1ab_0
+    - flit-core 3.7.1 pyhd8ed1ab_0
+    - hatchling 0.25.0 pyhd8ed1ab_0
+    - idna 3.3 pyhd8ed1ab_0
+    - importlib-metadata 4.11.3 py310hff52083_1
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 12.1.0 h8d9b700_16
+    - libgomp 12.1.0 h8d9b700_16
+    - libnsl 2.0.0 h7f98852_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.11 h166bdaf_1014
+    - ncurses 6.3 h27087fc_1
+    - openssl 1.1.1o h166bdaf_0
+    - packaging 21.3 pyhd8ed1ab_0
+    - pathspec 0.9.0 pyhd8ed1ab_0
+    - pip 22.1 pyhd8ed1ab_0
+    - pluggy 1.0.0 py310hff52083_3
+    - pycparser 2.21 pyhd8ed1ab_0
+    - pyopenssl 22.0.0 pyhd8ed1ab_0
+    - pyparsing 3.0.9 pyhd8ed1ab_0
+    - pysocks 1.7.1 py310hff52083_5
+    - python 3.10.4 h9a8a25e_0_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1 h46c0cb4_0
+    - requests 2.27.1 pyhd8ed1ab_0
+    - setuptools 62.2.0 py310hff52083_0
+    - sqlite 3.38.5 h4ff8645_0
+    - tk 8.6.12 h27826a3_0
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - tomli-w 1.0.0 pyhd8ed1ab_0
+    - tornado 6.1 py310h5764c6d_3
+    - tzdata 2022a h191b570_0
+    - urllib3 1.26.9 pyhd8ed1ab_0
+    - wheel 0.37.1 pyhd8ed1ab_0
+    - xz 5.2.5 h516909a_1
+    - zipp 3.8.0 pyhd8ed1ab_0
+    - zlib 1.2.11 h166bdaf_1014
+  run:
+    - ptyprocess
+    - python >=3.10,<3.11.0a0
+    - python_abi 3.10.* *_cp310
+    - tornado >=6.1.0
+test:
+  commands:
+    - pip check
+  imports:
+    - terminado
+  requires:
+    - pip
+    - pytest
+    - pytest-cov
+about:
+  description: 'This is a Tornado websocket backend for the Xterm.js Javascript terminal
+    emulator library.
+
+    '
+  dev_url: https://github.com/jupyter/terminado
+  doc_source_url: https://github.com/jupyter/terminado/blob/master/doc/index.rst
+  doc_url: http://terminado.readthedocs.org/en/latest/
+  home: https://github.com/jupyter/terminado
+  license: BSD-2-Clause
+  license_file: LICENSE
+  summary: Terminals served by tornado websockets
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - blink1073
+    - bollwyvl
+    - ocefpaf
+    - pelson
+    - takluyver

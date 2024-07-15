@@ -1,0 +1,200 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "commonmark >=0.8.1",
+        "docutils >=0.11",
+        "python >=3",
+        "sphinx >=1.3.1"
+    ],
+    "extracted_package_dir": "pkgs/recommonmark-0.7.1-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/METADATA",
+        "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/RECORD",
+        "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/WHEEL",
+        "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/entry_points.txt",
+        "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/recommonmark/__init__.py",
+        "lib/python3.12/site-packages/recommonmark/parser.py",
+        "lib/python3.12/site-packages/recommonmark/scripts.py",
+        "lib/python3.12/site-packages/recommonmark/states.py",
+        "lib/python3.12/site-packages/recommonmark/transform.py",
+        "lib/python3.12/site-packages/recommonmark/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/recommonmark/__pycache__/parser.cpython-312.pyc",
+        "lib/python3.12/site-packages/recommonmark/__pycache__/scripts.cpython-312.pyc",
+        "lib/python3.12/site-packages/recommonmark/__pycache__/states.cpython-312.pyc",
+        "lib/python3.12/site-packages/recommonmark/__pycache__/transform.cpython-312.pyc",
+        "bin/cm2html",
+        "bin/cm2latex",
+        "bin/cm2man",
+        "bin/cm2pseudoxml",
+        "bin/cm2xetex",
+        "bin/cm2xml"
+    ],
+    "fn": "recommonmark-0.7.1-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "link": {
+        "source": "pkgs/recommonmark-0.7.1-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "b3becf9905b8c7ba839072f65e693253",
+    "name": "recommonmark",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/recommonmark-0.7.1-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "1b8335dc6b50c220e6ad68bb907af7f6e5b260da743eb166de581f5b26783419",
+                "sha256_in_prefix": "1b8335dc6b50c220e6ad68bb907af7f6e5b260da743eb166de581f5b26783419",
+                "size_in_bytes": 463
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "307885d83fa7a77af7b76bf4fcdfc7932005cb4bbfa6a7653cdc43b181da5f7d",
+                "sha256_in_prefix": "307885d83fa7a77af7b76bf4fcdfc7932005cb4bbfa6a7653cdc43b181da5f7d",
+                "size_in_bytes": 1841
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "67e9f2629c2b712ab17ddbb1e4c6e7fc3439db988fec9d831b72601af398c934",
+                "sha256_in_prefix": "67e9f2629c2b712ab17ddbb1e4c6e7fc3439db988fec9d831b72601af398c934",
+                "size_in_bytes": 110
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "977169e1c6b674e29ca07244fb480630d3e3b39ecd841223626f5ca16fd6ed70",
+                "sha256_in_prefix": "977169e1c6b674e29ca07244fb480630d3e3b39ecd841223626f5ca16fd6ed70",
+                "size_in_bytes": 108
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/entry_points.txt",
+                "path_type": "hardlink",
+                "sha256": "ac22c8cb3f8ca33e52cbeb42d0958d6c9ebd77708dd2e95beef0e4023928603a",
+                "sha256_in_prefix": "ac22c8cb3f8ca33e52cbeb42d0958d6c9ebd77708dd2e95beef0e4023928603a",
+                "size_in_bytes": 263
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark-0.7.1.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "ae6712b8455aa86fcadeea0362f574310bb6c76f4b4af515fd2c1897ede1fe50",
+                "sha256_in_prefix": "ae6712b8455aa86fcadeea0362f574310bb6c76f4b4af515fd2c1897ede1fe50",
+                "size_in_bytes": 13
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "49c53fa23864fd717259167a0b68b47a8aa0ff3bbb3de3d39678c28e56a1d07c",
+                "sha256_in_prefix": "49c53fa23864fd717259167a0b68b47a8aa0ff3bbb3de3d39678c28e56a1d07c",
+                "size_in_bytes": 468
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/parser.py",
+                "path_type": "hardlink",
+                "sha256": "e559f165c029ea69b48dacd51e090079fd5f195418e8f93ec079fb549fcd13cf",
+                "sha256_in_prefix": "e559f165c029ea69b48dacd51e090079fd5f195418e8f93ec079fb549fcd13cf",
+                "size_in_bytes": 10145
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/scripts.py",
+                "path_type": "hardlink",
+                "sha256": "a2b0a6c1ab1160b37c856f6e839b7315a28104efcc15f5e0be0f8b1badf95eac",
+                "sha256_in_prefix": "a2b0a6c1ab1160b37c856f6e839b7315a28104efcc15f5e0be0f8b1badf95eac",
+                "size_in_bytes": 1856
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/states.py",
+                "path_type": "hardlink",
+                "sha256": "640f274852cf2971d58555494c378d33e9e612244cf4aca69e08fa4dc545fdb4",
+                "sha256_in_prefix": "640f274852cf2971d58555494c378d33e9e612244cf4aca69e08fa4dc545fdb4",
+                "size_in_bytes": 4624
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/transform.py",
+                "path_type": "hardlink",
+                "sha256": "577d5a1bd874fd848c1e59ade3a6cbf68e122c67bdf4fbff3740e4b4d60e8d6d",
+                "sha256_in_prefix": "577d5a1bd874fd848c1e59ade3a6cbf68e122c67bdf4fbff3740e4b4d60e8d6d",
+                "size_in_bytes": 11945
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/__pycache__/parser.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/__pycache__/scripts.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/__pycache__/states.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/recommonmark/__pycache__/transform.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "bin/cm2html",
+                "path_type": "unix_python_entry_point"
+            },
+            {
+                "_path": "bin/cm2latex",
+                "path_type": "unix_python_entry_point"
+            },
+            {
+                "_path": "bin/cm2man",
+                "path_type": "unix_python_entry_point"
+            },
+            {
+                "_path": "bin/cm2pseudoxml",
+                "path_type": "unix_python_entry_point"
+            },
+            {
+                "_path": "bin/cm2xetex",
+                "path_type": "unix_python_entry_point"
+            },
+            {
+                "_path": "bin/cm2xml",
+                "path_type": "unix_python_entry_point"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "recommonmark",
+    "sha256": "2bd6134e7540a1d458be34aef4a94a839540cba29ac75cc558be6a394549b8a6",
+    "size": 13729,
+    "subdir": "noarch",
+    "timestamp": 1608240893932,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/recommonmark-0.7.1-pyhd8ed1ab_0.tar.bz2",
+    "version": "0.7.1"
+}

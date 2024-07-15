@@ -1,0 +1,61 @@
+{% set version = "0.15.0" %}
+
+package:
+  name: terminado
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/t/terminado/terminado-{{ version }}.tar.gz
+  sha256: ab4eeedccfcc1e6134bfee86106af90852c69d602884ea3a1e8ca6d4486e9bfe
+
+build:
+  number: 0
+  skip: true  # [py<37]
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+  host:
+    - flit
+    - pip
+    - python
+    - tornado >=4
+    - hatchling >=0.2
+  run:
+    - ptyprocess  # [not win]
+    - python
+    - pywinpty >=1.1.0  # [win]
+    - tornado >=6.1.0
+
+test:
+  requires:
+    - pip
+    - posix  # [win]
+    - pytest
+    - pytest-cov
+  imports:
+    - terminado
+  commands:
+    # see run_test.py for more
+    - pip check
+
+about:
+  home: https://github.com/jupyter/terminado
+  license: BSD-2-Clause
+  license_file: LICENSE
+  summary: Terminals served by tornado websockets
+  description: |
+    This is a Tornado websocket backend for the Xterm.js Javascript terminal emulator library.
+  doc_url: http://terminado.readthedocs.org/en/latest/
+  doc_source_url: https://github.com/jupyter/terminado/blob/master/doc/index.rst
+  dev_url: https://github.com/jupyter/terminado
+
+extra:
+  recipe-maintainers:
+    - blink1073
+    - pelson
+    - takluyver
+    - ocefpaf
+    - bollwyvl

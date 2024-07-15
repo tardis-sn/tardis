@@ -1,0 +1,73 @@
+# This file created by conda-build 3.28.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat Jan 27 22:27:02 2024
+# ------------------------------------------------
+
+package:
+  name: overrides
+  version: 7.7.0
+source:
+  sha256: 0d2b70ba4b51d6f9007fa830f425083b708438515bc284853ccd0ff47aacb0cc
+  url: https://github.com/mkorpela/overrides/archive/refs/tags/7.7.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/overrides_1706394519472/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_4
+    - libgomp 13.2.0 h807b86a_4
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.0 hd590300_1
+    - pip 23.3.2 pyhd8ed1ab_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023d h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.6
+    - typing_utils
+test:
+  commands:
+    - pytest -v tests/ -k "not test_nested_typevar_in_signature"
+  imports:
+    - overrides
+  requires:
+    - pytest
+  source_files:
+    - tests/
+about:
+  description: A decorator to automatically detect mismatch when overriding a method.
+  dev_url: https://github.com/mkorpela/overrides
+  doc_url: https://github.com/mkorpela/overrides
+  home: https://github.com/mkorpela/overrides
+  license: Apache-2.0
+  license_family: APACHE
+  license_file: /home/conda/recipe_root/LICENSE
+  summary: A decorator to automatically detect mismatch when overriding a method.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240127.2.1
+  recipe-maintainers:
+    - h-vetinari
+    - nelson-liu
+  remote_url: https://github.com/conda-forge/overrides-feedstock
+  sha: a0b52244eaa29b54ef31019e952f1d1b488458a7

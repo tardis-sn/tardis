@@ -1,0 +1,71 @@
+# This file created by conda-build 3.24.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Apr 24 11:39:57 2023
+# ------------------------------------------------
+
+package:
+  name: snakeviz
+  version: 2.2.0
+source:
+  sha256: 7bfd00be7ae147eb4a170a471578e1cd3f41f803238958b6b8efcf2c698a6aa9
+  url: https://pypi.io/packages/source/s/snakeviz/snakeviz-2.2.0.tar.gz
+build:
+  entry_points:
+    - snakeviz = snakeviz.cli:main
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/snakeviz_1682336480175/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2022.12.7 ha878542_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 12.2.0 h65d4601_19
+    - libgomp 12.2.0 h65d4601_19
+    - libnsl 2.0.0 h7f98852_0
+    - libsqlite 3.40.0 h753d276_1
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 h166bdaf_4
+    - ncurses 6.3 h27087fc_1
+    - openssl 3.1.0 hd590300_1
+    - pip 23.1.1 pyhd8ed1ab_0
+    - python 3.11.3 h2755cc3_0_cpython
+    - python_abi 3.11 3_cp311
+    - readline 8.2 h8228510_1
+    - setuptools 67.7.1 pyhd8ed1ab_0
+    - tk 8.6.12 h27826a3_0
+    - tornado 6.3 py311h2582759_0
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.40.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.6
+    - tornado >=2.0
+test:
+  commands:
+    - snakeviz -h
+  imports:
+    - snakeviz
+about:
+  description: 'SnakeViz is a viewer for Python profiling data that runs as a web
+    application in your browser.
+
+    '
+  dev_url: https://github.com/jiffyclub/snakeviz
+  doc_url: https://jiffyclub.github.io/snakeviz
+  home: https://jiffyclub.github.io/snakeviz/
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: An in-browser Python profile viewer
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - gforsyth
+    - stanmart

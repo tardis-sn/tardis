@@ -1,0 +1,26 @@
+diff --git a/pixman/meson.build b/pixman/meson.build
+index 652cda3..0d93014 100644
+--- a/pixman/meson.build
++++ b/pixman/meson.build
+@@ -117,6 +117,13 @@ if cpu_features_path != ''
+   cpu_features_inc = include_directories(cpu_features_path)
+ endif
+ 
++# conda-forge: maintain versioning compatibility with the previous
++# Autotools-based binaries
++version_arr = meson.project_version().split('.')
++minor_version = version_arr[1].to_int()
++micro_version = version_arr[2].to_int()
++darwin_versions = ['41.0.0', '@0@.@1@.0'.format(minor_version + 1, micro_version)]
++
+ libpixman = library(
+   'pixman-1',
+   [pixman_files, config_h, version_h, cpu_features_sources],
+@@ -125,6 +132,7 @@ libpixman = library(
+   dependencies : [dep_m, dep_threads],
+   include_directories : cpu_features_inc,
+   version : meson.project_version(),
++  darwin_versions : darwin_versions,
+   install : true,
+ )
+ 

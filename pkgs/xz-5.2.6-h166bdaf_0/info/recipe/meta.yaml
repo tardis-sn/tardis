@@ -1,0 +1,74 @@
+# This file created by conda-build 3.22.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Fri Aug 12 23:22:42 2022
+# ------------------------------------------------
+
+package:
+  name: xz
+  version: 5.2.6
+source:
+  patches:
+    - 0001-Add-vs2008-support-via-cmake.patch
+    - 0002-Add-gettimeofday-for-VS2008.patch
+  sha256: 13e3402e301b6018f6a71ef0e497f714c6d11e214ae82dab156b81c2a64acb25
+  url: http://downloads.sourceforge.net/project/lzmautils/xz-5.2.6.tar.bz2
+build:
+  number: '0'
+  run_exports:
+    - xz >=5.2.6,<6.0a0
+  string: h166bdaf_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - autoconf 2.69 pl5321hd708f79_11
+    - automake 1.16.5 pl5321ha770c72_0
+    - binutils_impl_linux-64 2.36.1 h193b22a_2
+    - binutils_linux-64 2.36 hf3e587d_10
+    - gcc_impl_linux-64 10.4.0 h7ee1905_16
+    - gcc_linux-64 10.4.0 h9215b83_10
+    - kernel-headers_linux-64 2.6.32 he073ed8_15
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libgcc-devel_linux-64 10.4.0 h74af60c_16
+    - libgcc-ng 12.1.0 h8d9b700_16
+    - libgomp 12.1.0 h8d9b700_16
+    - libnsl 2.0.0 h7f98852_0
+    - libsanitizer 10.4.0 hde28e3b_16
+    - libstdcxx-ng 12.1.0 ha89aaad_16
+    - libtool 2.4.6 h9c3ff4c_1008
+    - m4 1.4.18 h516909a_1001
+    - make 4.3 hd18ef5c_1
+    - perl 5.32.1 2_h7f98852_perl5
+    - sysroot_linux-64 2.12 he073ed8_15
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 12.1.0 h8d9b700_16
+    - libgomp 12.1.0 h8d9b700_16
+  run:
+    - libgcc-ng >=12
+about:
+  description: 'XZ Utils is free general-purpose data compression software with a
+    high
+
+    compression ratio. XZ Utils were written for POSIX-like systems, but also
+
+    work on some not-so-POSIX systems.
+
+    '
+  dev_url: http://git.tukaani.org/
+  doc_source_url: https://github.com/xz-mirror/xz/blob/master/README
+  doc_url: http://tukaani.org/xz/
+  home: http://tukaani.org/xz/
+  license: LGPL-2.1 and GPL-2.0
+  license_file: COPYING
+  summary: Data compression software with high compression ratio
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - mingwandroid
+    - msarahan
+    - nehaljwani
+    - ocefpaf
+    - scopatz

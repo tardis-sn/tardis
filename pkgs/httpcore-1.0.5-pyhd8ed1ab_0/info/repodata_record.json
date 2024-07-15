@@ -1,0 +1,30 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "anyio >=3.0,<5.0",
+        "certifi",
+        "h11 >=0.13,<0.15",
+        "h2 >=3,<5",
+        "python >=3.8",
+        "sniffio 1.*"
+    ],
+    "fn": "httpcore-1.0.5-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "a6b9a0158301e697e4d0a36a3d60e133",
+    "name": "httpcore",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "4025644200eefa0598e4600a66fd4804a57d9fd7054a5c8c45e508fd875e0b84",
+    "size": 45816,
+    "subdir": "noarch",
+    "timestamp": 1711597091407,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/httpcore-1.0.5-pyhd8ed1ab_0.conda",
+    "version": "1.0.5"
+}

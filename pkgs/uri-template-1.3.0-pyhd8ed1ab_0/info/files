@@ -1,0 +1,14 @@
+site-packages/uri_template-1.3.0.dist-info/INSTALLER
+site-packages/uri_template-1.3.0.dist-info/LICENSE
+site-packages/uri_template-1.3.0.dist-info/METADATA
+site-packages/uri_template-1.3.0.dist-info/RECORD
+site-packages/uri_template-1.3.0.dist-info/REQUESTED
+site-packages/uri_template-1.3.0.dist-info/WHEEL
+site-packages/uri_template-1.3.0.dist-info/direct_url.json
+site-packages/uri_template-1.3.0.dist-info/top_level.txt
+site-packages/uri_template/__init__.py
+site-packages/uri_template/charset.py
+site-packages/uri_template/expansions.py
+site-packages/uri_template/py.typed
+site-packages/uri_template/uritemplate.py
+site-packages/uri_template/variable.py

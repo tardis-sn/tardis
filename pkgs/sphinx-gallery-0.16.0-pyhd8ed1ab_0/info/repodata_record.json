@@ -1,0 +1,27 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "pillow",
+        "python >=3.8",
+        "sphinx >=4"
+    ],
+    "fn": "sphinx-gallery-0.16.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "add28691ee89e875b190eda07929d5d4",
+    "name": "sphinx-gallery",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "46d9b644b2118d265fbc8095d1980344d2df40240dc30cce7c31bda0f64bb166",
+    "size": 376506,
+    "subdir": "noarch",
+    "timestamp": 1714467900533,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinx-gallery-0.16.0-pyhd8ed1ab_0.conda",
+    "version": "0.16.0"
+}

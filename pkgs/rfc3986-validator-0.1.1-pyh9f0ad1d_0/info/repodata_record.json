@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyh9f0ad1d_0",
+    "build_number": 0,
+    "build_string": "pyh9f0ad1d_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python"
+    ],
+    "fn": "rfc3986-validator-0.1.1-pyh9f0ad1d_0.tar.bz2",
+    "license": "MIT",
+    "md5": "912a71cc01012ee38e6b90ddd561e36f",
+    "name": "rfc3986-validator",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "2a5b495a1de0f60f24d8a74578ebc23b24aa53279b1ad583755f223097c41c37",
+    "size": 7818,
+    "subdir": "noarch",
+    "timestamp": 1598024297745,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/rfc3986-validator-0.1.1-pyh9f0ad1d_0.tar.bz2",
+    "version": "0.1.1"
+}

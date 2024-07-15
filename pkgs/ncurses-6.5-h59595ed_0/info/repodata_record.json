@@ -1,0 +1,23 @@
+{
+    "arch": "x86_64",
+    "build": "h59595ed_0",
+    "build_number": 0,
+    "build_string": "h59595ed_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12"
+    ],
+    "fn": "ncurses-6.5-h59595ed_0.conda",
+    "license": "X11 AND BSD-3-Clause",
+    "md5": "fcea371545eda051b6deafb24889fc69",
+    "name": "ncurses",
+    "platform": "linux",
+    "sha256": "4fc3b384f4072b68853a0013ea83bdfd3d66b0126e2238e1d6e1560747aa7586",
+    "size": 887465,
+    "subdir": "linux-64",
+    "timestamp": 1715194722503,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h59595ed_0.conda",
+    "version": "6.5"
+}

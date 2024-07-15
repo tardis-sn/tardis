@@ -1,0 +1,28 @@
+{
+    "arch": "x86_64",
+    "build": "py312hf412c99_100",
+    "build_number": 100,
+    "build_string": "py312hf412c99_100",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libstdcxx-ng >=12",
+        "nomkl",
+        "numpy >=1.19,<3",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "numexpr-2.10.0-py312hf412c99_100.conda",
+    "license": "MIT",
+    "md5": "302f3d106749fc6e101a189fbdadd2d5",
+    "name": "numexpr",
+    "platform": "linux",
+    "sha256": "a138e5e0fc63cd557d3d0f0a8cdcc2d065878f28c49d09fddfcabdef4395cc31",
+    "size": 157730,
+    "subdir": "linux-64",
+    "timestamp": 1716812268272,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/numexpr-2.10.0-py312hf412c99_100.conda",
+    "version": "2.10.0"
+}

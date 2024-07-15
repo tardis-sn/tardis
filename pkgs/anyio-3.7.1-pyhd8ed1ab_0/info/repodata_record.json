@@ -1,0 +1,31 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [
+        "trio >=0.16,<0.22"
+    ],
+    "depends": [
+        "exceptiongroup",
+        "idna >=2.8",
+        "python >=3.7",
+        "sniffio >=1.1",
+        "typing_extensions"
+    ],
+    "fn": "anyio-3.7.1-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "7b517e7a6f0790337906c055aa97ca49",
+    "name": "anyio",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "62637ac498bcf47783cbf4f48e9b09e4e2f5a6ad42f43ca8f632c353827b94f4",
+    "size": 96707,
+    "subdir": "noarch",
+    "timestamp": 1688651250785,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/anyio-3.7.1-pyhd8ed1ab_0.conda",
+    "version": "3.7.1"
+}

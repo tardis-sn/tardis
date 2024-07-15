@@ -1,0 +1,15 @@
+site-packages/soupsieve-2.5.dist-info/INSTALLER
+site-packages/soupsieve-2.5.dist-info/METADATA
+site-packages/soupsieve-2.5.dist-info/RECORD
+site-packages/soupsieve-2.5.dist-info/REQUESTED
+site-packages/soupsieve-2.5.dist-info/WHEEL
+site-packages/soupsieve-2.5.dist-info/direct_url.json
+site-packages/soupsieve-2.5.dist-info/licenses/LICENSE.md
+site-packages/soupsieve/__init__.py
+site-packages/soupsieve/__meta__.py
+site-packages/soupsieve/css_match.py
+site-packages/soupsieve/css_parser.py
+site-packages/soupsieve/css_types.py
+site-packages/soupsieve/pretty.py
+site-packages/soupsieve/py.typed
+site-packages/soupsieve/util.py

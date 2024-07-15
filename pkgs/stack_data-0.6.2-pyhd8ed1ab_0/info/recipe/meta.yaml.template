@@ -1,0 +1,48 @@
+{% set name = "stack_data" %}
+{% set version = "0.6.2" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 32d2dd0376772d01b6cb9fc996f3c8b57a357089dec328ed4b6553d037eaf815
+
+build:
+  number: 0
+  script: '{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vvv '
+  noarch: python
+
+requirements:
+  host:
+    - pip
+    - python >=3.5
+    - setuptools >=44
+    - setuptools_scm >=3.4.3
+  run:
+    - asttokens
+    - executing
+    - pure_eval
+    - python >=3.5
+
+test:
+  imports:
+    - stack_data
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: http://github.com/alexmojaki/stack_data
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: Extract data from python stack frames and tracebacks for informative displays
+  doc_url: http://github.com/alexmojaki/stack_data
+  dev_url: http://github.com/alexmojaki/stack_data
+
+extra:
+  recipe-maintainers:
+    - alexmojaki

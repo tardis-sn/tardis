@@ -1,0 +1,44 @@
+{% set name = "latexcodec" %}
+{% set version = "2.0.1" %}
+{% set sha256 = "eda36ddfc969f86c9a8fdd50c12b484fa42dbfa33b84422144643b60081ca022" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://github.com/mcmtroffaes/{{ name }}/archive/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools
+    - six
+  run:
+    - python
+    - six
+
+test:
+  imports:
+    - latexcodec
+
+about:
+  home: https://github.com/mcmtroffaes/{{ name }}
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.rst
+  summary: Lexer and codec to work with LaTeX code in Python.
+  doc_url: http://latexcodec.readthedocs.io/
+  dev_url: https://github.com/mcmtroffaes/{{ name }}
+
+extra:
+  recipe-maintainers:
+    - scopatz

@@ -1,0 +1,123 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=2.7",
+        "sphinx >=1.8"
+    ],
+    "extracted_package_dir": "pkgs/sphinxcontrib-jquery-4.1-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/sphinxcontrib/jquery/__init__.py",
+        "lib/python3.12/site-packages/sphinxcontrib/jquery/_sphinx_javascript_frameworks_compat.js",
+        "lib/python3.12/site-packages/sphinxcontrib/jquery/jquery-3.6.0.js",
+        "lib/python3.12/site-packages/sphinxcontrib/jquery/jquery.js",
+        "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/METADATA",
+        "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/RECORD",
+        "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/WHEEL",
+        "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/sphinxcontrib/jquery/__pycache__/__init__.cpython-312.pyc"
+    ],
+    "fn": "sphinxcontrib-jquery-4.1-pyhd8ed1ab_0.conda",
+    "license": "0BSD AND MIT",
+    "link": {
+        "source": "pkgs/sphinxcontrib-jquery-4.1-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "914897066d5873acfb13e75705276ad1",
+    "name": "sphinxcontrib-jquery",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/sphinxcontrib-jquery-4.1-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib/jquery/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "527fc09408251dbede72ffadce97d1e49ace996496532d3435a726577b7af423",
+                "sha256_in_prefix": "527fc09408251dbede72ffadce97d1e49ace996496532d3435a726577b7af423",
+                "size_in_bytes": 1787
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib/jquery/_sphinx_javascript_frameworks_compat.js",
+                "path_type": "hardlink",
+                "sha256": "480a2c7377252c14a11bca4d3a49dfa16ea540a998fa637fae0189aee1b89113",
+                "sha256_in_prefix": "480a2c7377252c14a11bca4d3a49dfa16ea540a998fa637fae0189aee1b89113",
+                "size_in_bytes": 4289
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib/jquery/jquery-3.6.0.js",
+                "path_type": "hardlink",
+                "sha256": "1fe2bb5390a75e5d61e72c107cab528fc3c29a837d69aab7d200e1dbb5dcd239",
+                "sha256_in_prefix": "1fe2bb5390a75e5d61e72c107cab528fc3c29a837d69aab7d200e1dbb5dcd239",
+                "size_in_bytes": 288580
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib/jquery/jquery.js",
+                "path_type": "hardlink",
+                "sha256": "ff1523fb7389539c84c65aba19260648793bb4f5e29329d2ee8804bc37a3fe6e",
+                "sha256_in_prefix": "ff1523fb7389539c84c65aba19260648793bb4f5e29329d2ee8804bc37a3fe6e",
+                "size_in_bytes": 89501
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "f25d980bd0c9ba94e1a987fa3e0a6854da3dc0d0a360fffe04b4ede472bcee6d",
+                "sha256_in_prefix": "f25d980bd0c9ba94e1a987fa3e0a6854da3dc0d0a360fffe04b4ede472bcee6d",
+                "size_in_bytes": 2619
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "1e678b89a7bec2168d16ebf6f0eee1b9219f27edc0013eef254b175154cfb46e",
+                "sha256_in_prefix": "1e678b89a7bec2168d16ebf6f0eee1b9219f27edc0013eef254b175154cfb46e",
+                "size_in_bytes": 1001
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "91d78304d3ef048d30de678b28fa068009c4af9e27d63ceb65652868b986cd56",
+                "sha256_in_prefix": "91d78304d3ef048d30de678b28fa068009c4af9e27d63ceb65652868b986cd56",
+                "size_in_bytes": 99
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib_jquery-4.1.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "95d62676165c598666676600d479e235558c3bf9ec6bd44fbabfec69c975cec6",
+                "sha256_in_prefix": "95d62676165c598666676600d479e235558c3bf9ec6bd44fbabfec69c975cec6",
+                "size_in_bytes": 116
+            },
+            {
+                "_path": "lib/python3.12/site-packages/sphinxcontrib/jquery/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "",
+    "sha256": "2e5f16a2d58f9a31443ffbb8ce3852cfccf533a6349045828cd2e994ef0679ca",
+    "size": 112985,
+    "subdir": "noarch",
+    "timestamp": 1678809100921,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-jquery-4.1-pyhd8ed1ab_0.conda",
+    "version": "4.1"
+}

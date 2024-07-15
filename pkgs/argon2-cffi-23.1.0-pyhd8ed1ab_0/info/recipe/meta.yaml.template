@@ -1,0 +1,56 @@
+{% set name = "argon2-cffi" %}
+{% set version = "23.1.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_') }}-{{ version }}.tar.gz
+  sha256: "879c3e79a2729ce768ebb7d36d4609e3a78a4ca2ec3a9f12286ca057e3d0db08"
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.7
+    - hatchling
+    - hatch-vcs
+    - hatch-fancy-pypi-readme
+    - pip
+
+  run:
+    - python >=3.7
+    - argon2-cffi-bindings
+    - typing-extensions
+
+  run_constrained:
+    # avoiding argon2-cffi and argon2_cffi to be installed in parallel
+    - argon2_cffi ==999
+
+test:
+  imports:
+    - argon2
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://argon2-cffi.readthedocs.org/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: The secure Argon2 password hashing algorithm.
+  description: |
+    Argon2 won the Password Hashing Competition and argon2_cffi is the simplest
+    way to use it in Python and PyPy
+  doc_url: https://argon2-cffi.readthedocs.io/en/stable/
+  dev_url: https://github.com/hynek/argon2_cffi/
+
+extra:
+  recipe-maintainers:
+    - stuertz

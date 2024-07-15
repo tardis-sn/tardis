@@ -1,0 +1,29 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "jupyter_client >=6.1.12",
+        "jupyter_core >=4.12,!=5.0.*",
+        "nbformat >=5.1",
+        "python >=3.8",
+        "traitlets >=5.4"
+    ],
+    "fn": "nbclient-0.10.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "15b51397e0fe8ea7d7da60d83eb76ebc",
+    "name": "nbclient",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "589d72d36d61a23b39d6fff2c488f93e29e20de4fc6f5d315b5f2c16e81028bf",
+    "size": 27851,
+    "subdir": "noarch",
+    "timestamp": 1710317767117,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/nbclient-0.10.0-pyhd8ed1ab_0.conda",
+    "version": "0.10.0"
+}

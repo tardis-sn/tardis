@@ -1,0 +1,110 @@
+{% set version = "0.3.27" %}
+{% set build_number = 0 %}
+
+package:
+  name: openblas
+  version: {{ version }}
+
+source:
+  url: https://github.com/OpenMathLib/OpenBLAS/archive/v{{ version }}.tar.gz
+  sha256: aa2d68b1564fe2b13bc292672608e9cdeeeb6dc34995512e65c3b10f4599e897
+
+build:
+  number: {{ build_number }}
+  string: openmp_h{{ PKG_HASH }}_{{ build_number }}  # [USE_OPENMP == 1]
+  string: pthreads_h{{ PKG_HASH }}_{{ build_number }}  # [USE_OPENMP == 0]
+
+requirements:
+  build:
+    - {{ compiler("c") }}
+    - {{ compiler("fortran") }}
+    - perl
+    - make                    # [not win]
+    - cmake                   # [win]
+    - curl                    # [win]
+    - jom                     # [win]
+    - objconv                 # [osx]
+    - llvm-openmp             # [(osx or linux) and USE_OPENMP == 1]
+    # Following is needed because the Fortran compiler add an rpath to the BUILD_PREFIX
+    - _openmp_mutex * *_llvm  # [linux and USE_OPENMP == 1]
+  host:
+  run:
+
+outputs:
+  - name: libopenblas{{ name_suffix }}
+    build:
+      string: openmp_h{{ PKG_HASH }}_{{ build_number }}  # [USE_OPENMP == 1]
+      string: pthreads_h{{ PKG_HASH }}_{{ build_number }}  # [USE_OPENMP == 0]
+      track_features:
+        - openblas_threading_openmp                        # [linux and USE_OPENMP == 1]
+      run_exports:
+        - {{ pin_subpackage("libopenblas" ~ name_suffix) }}
+    requirements:
+      build:
+        - {{ compiler("c") }}
+        - {{ compiler("fortran") }}
+        - llvm-openmp                                      # [(osx or linux) and USE_OPENMP == 1]
+      run_constrained:
+        - {{ pin_subpackage("openblas" ~ name_suffix, max_pin="x.x.x") }}
+    files:
+      # Include files like
+      #   - libopenblasp-r0.3.5.so
+      #   - libopenblas_vortexp-r0.3.5.so
+      #   - libopenblas.so.0
+      # Avoid files
+      #   - libopenblas.so
+      - lib/libopenblas{{ SYMBOLSUFFIX }}*p*{{ SHLIB_EXT }}  # [not win]
+      - lib/libopenblas{{ SYMBOLSUFFIX }}.so.*               # [linux]
+      - lib/libopenblas{{ SYMBOLSUFFIX }}.*.dylib            # [osx]
+      - Library/bin/openblas{{ SYMBOLSUFFIX }}.dll           # [win]
+    test:
+      requires:
+        - python *
+      commands:
+        - test -f ${PREFIX}/lib/libopenblas{{ SYMBOLSUFFIX }}p-r{{ version }}{{ SHLIB_EXT }}                                    # [not win]
+        - nm -g ${PREFIX}/lib/libopenblas{{ SYMBOLSUFFIX }}p-r{{ version }}{{ SHLIB_EXT }} | grep dsecnd                        # [osx and build_platform=="osx-64"]
+        - python -c "import ctypes; ctypes.cdll['${PREFIX}/lib/libopenblas{{ SYMBOLSUFFIX }}p-r{{ version }}{{ SHLIB_EXT }}']"  # [not win]
+        - if not exist %PREFIX%\\Library\\bin\\openblas{{ SYMBOLSUFFIX }}.dll exit 1                                            # [win]
+
+  - name: openblas{{ name_suffix }}
+    build:
+      string: openmp_h{{ PKG_HASH }}_{{ build_number }}  # [USE_OPENMP == 1]
+      string: pthreads_h{{ PKG_HASH }}_{{ build_number }}  # [USE_OPENMP == 0]
+      track_features:
+        - openblas_threading_openmp                        # [linux and USE_OPENMP == 1]
+    files:
+      - include/*.h                                       # [not win]
+      - lib/libopenblas{{ SYMBOLSUFFIX }}*.a              # [not win]
+      - lib/libopenblas{{ SYMBOLSUFFIX }}{{ SHLIB_EXT }}  # [not win]
+      - lib/pkgconfig/openblas.pc                         # [not win]
+      - lib/cmake/openblas/*                              # [not win]
+      - Library/include/openblas                          # [win]
+      - Library/lib/openblas{{ SYMBOLSUFFIX }}.lib        # [win]
+      - Library/lib/pkgconfig/openblas.pc                 # [win]
+      - Library/share/cmake/OpenBLAS                      # [win]
+    requirements:
+      run:
+        - {{ pin_subpackage("libopenblas" ~ name_suffix, exact=True) }}
+    test:
+      commands:
+        - test -f ${PREFIX}/lib/libopenblas{{ SYMBOLSUFFIX }}.a                       # [not win]
+        - test -f ${PREFIX}/lib/libopenblas{{ SYMBOLSUFFIX }}{{ SHLIB_EXT }}          # [not win]
+        - if not exist %PREFIX%\\Library\\lib\\openblas{{ SYMBOLSUFFIX }}.lib exit 1  # [win]
+
+about:
+  home: http://www.openblas.net/
+  license: BSD-3-Clause
+  license_file:
+    - LICENSE
+    - lapack-netlib/LICENSE
+  summary: An optimized BLAS library based on GotoBLAS2 1.13 BSD version  # [SYMBOLSUFFIX != "64_"]
+  summary: An optimized BLAS library (ILP64 interface) based on GotoBLAS2 1.13 BSD version  # [SYMBOLSUFFIX == "64_"]
+  dev_url: https://github.com/OpenMathLib/OpenBLAS
+
+extra:
+  recipe-maintainers:
+    - gillins
+    - groutr
+    - jakirkham
+    - isuruf
+    - h-vetinari

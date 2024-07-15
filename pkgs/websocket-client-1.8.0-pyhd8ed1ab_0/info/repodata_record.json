@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "websocket-client-1.8.0-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "md5": "f372c576b8774922da83cda2b12f9d29",
+    "name": "websocket-client",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "44a5e3b97feef24cd719f7851cca9af9799dc9c17d3e0298d5856baab2d682f5",
+    "size": 47066,
+    "subdir": "noarch",
+    "timestamp": 1713923494501,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/websocket-client-1.8.0-pyhd8ed1ab_0.conda",
+    "version": "1.8.0"
+}

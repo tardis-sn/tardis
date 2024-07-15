@@ -1,0 +1,13 @@
+# Package Information for pkg-config
+
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libpcre2-32
+Description: PCRE2 - Perl compatible regular expressions C library (2nd API) with 32 bit character support
+Version: 10.44
+Libs: -L${libdir} -lpcre2-32
+Libs.private:  
+Cflags: -I${includedir} 

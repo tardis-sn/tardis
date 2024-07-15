@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "tenacity-8.4.1-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "md5": "2fcb668e39c694ece9a7748e3fad1a7e",
+    "name": "tenacity",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "aa0c9862d3c0e31fc2e37c7987fd82af538ce64064f2056d3105dcee070f531f",
+    "size": 24717,
+    "subdir": "noarch",
+    "timestamp": 1718647291241,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/tenacity-8.4.1-pyhd8ed1ab_0.conda",
+    "version": "8.4.1"
+}

@@ -1,0 +1,19 @@
+{
+    "commit_hash": "2cc765acf63ec93d10a6f98a5aec599be922f353",
+    "install_checksum": [
+        "",
+        600.0,
+        "tardis",
+        [
+            "python setup.py build",
+            "PIP_NO_BUILD_ISOLATION=false python -mpip wheel --no-deps --no-index -w {build_cache_dir} {build_dir}"
+        ],
+        [
+            "in-dir={env_dir} python -mpip install {wheel_file}"
+        ],
+        [
+            "return-code=any python -mpip uninstall -y {project}"
+        ]
+    ],
+    "version": 1
+}

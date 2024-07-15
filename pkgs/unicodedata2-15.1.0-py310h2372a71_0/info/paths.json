@@ -1,0 +1,59 @@
+{
+  "paths": [
+    {
+      "_path": "lib/python3.10/site-packages/unicodedata2-15.1.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "lib/python3.10/site-packages/unicodedata2-15.1.0.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "size_in_bytes": 11325
+    },
+    {
+      "_path": "lib/python3.10/site-packages/unicodedata2-15.1.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "2e60510939628972c0a4fc5f79e5080e47b4c411d5a1eb9f3fe51627a5157ed3",
+      "size_in_bytes": 3032
+    },
+    {
+      "_path": "lib/python3.10/site-packages/unicodedata2-15.1.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "b691145e871f2c058d1f9240ab2d194949fba83b768bc722a55f6cd683e1fe22",
+      "size_in_bytes": 818
+    },
+    {
+      "_path": "lib/python3.10/site-packages/unicodedata2-15.1.0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.10/site-packages/unicodedata2-15.1.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "f65d6777338dc7865a58f9308a37fb09f8f87bce8e2ad6a33f1f9bbbd274f1fe",
+      "size_in_bytes": 105
+    },
+    {
+      "_path": "lib/python3.10/site-packages/unicodedata2-15.1.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "ca3127af435038c1c49073ab0a6066d90a2873dd6520b812e5773f38fc9432a1",
+      "size_in_bytes": 108
+    },
+    {
+      "_path": "lib/python3.10/site-packages/unicodedata2-15.1.0.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "2efe3a3c550aa72f5a669a41449f07023f185c6a2da7d9c8bff8b9c93cb523d7",
+      "size_in_bytes": 13
+    },
+    {
+      "_path": "lib/python3.10/site-packages/unicodedata2.cpython-310-x86_64-linux-gnu.so",
+      "path_type": "hardlink",
+      "sha256": "0051d62ca95c4eb72a0fcf6c1a66eefe5d4c1d9625bb2c54ce776cc910eb7912",
+      "size_in_bytes": 1306336
+    }
+  ],
+  "paths_version": 1
+}

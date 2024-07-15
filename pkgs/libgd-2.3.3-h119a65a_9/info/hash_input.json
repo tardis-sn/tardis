@@ -1,0 +1,15 @@
+{
+  "libpng": "1.6",
+  "fontconfig": "2",
+  "channel_targets": "conda-forge main",
+  "freetype": "2",
+  "c_compiler_version": "12",
+  "icu": "73",
+  "libjpeg_turbo": "3",
+  "zlib": "1.2",
+  "expat": "2",
+  "libwebp": "1",
+  "c_compiler": "gcc",
+  "target_platform": "linux-64",
+  "libtiff": "4.6"
+}

@@ -1,0 +1,29 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "packaging >=17.0",
+        "pip",
+        "pytest >=4.6",
+        "python >=3.8",
+        "setuptools >=30.3"
+    ],
+    "fn": "pytest-doctestplus-1.2.1-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "7aa60393604ac35f03ee479158d7269a",
+    "name": "pytest-doctestplus",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "bce3f541d0d228a834b915b912ac56f76a98e730e2d4f09873746f557fb6a6ac",
+    "size": 28012,
+    "subdir": "noarch",
+    "timestamp": 1710135263353,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pytest-doctestplus-1.2.1-pyhd8ed1ab_0.conda",
+    "version": "1.2.1"
+}

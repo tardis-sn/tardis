@@ -1,0 +1,17 @@
+etc/jupyter/jupyter_server_config.d/jupyter_server_terminals.json
+site-packages/jupyter_server_terminals-0.5.3.dist-info/INSTALLER
+site-packages/jupyter_server_terminals-0.5.3.dist-info/METADATA
+site-packages/jupyter_server_terminals-0.5.3.dist-info/RECORD
+site-packages/jupyter_server_terminals-0.5.3.dist-info/REQUESTED
+site-packages/jupyter_server_terminals-0.5.3.dist-info/WHEEL
+site-packages/jupyter_server_terminals-0.5.3.dist-info/direct_url.json
+site-packages/jupyter_server_terminals-0.5.3.dist-info/licenses/LICENSE
+site-packages/jupyter_server_terminals/__init__.py
+site-packages/jupyter_server_terminals/_version.py
+site-packages/jupyter_server_terminals/api_handlers.py
+site-packages/jupyter_server_terminals/app.py
+site-packages/jupyter_server_terminals/base.py
+site-packages/jupyter_server_terminals/handlers.py
+site-packages/jupyter_server_terminals/py.typed
+site-packages/jupyter_server_terminals/rest-api.yml
+site-packages/jupyter_server_terminals/terminalmanager.py

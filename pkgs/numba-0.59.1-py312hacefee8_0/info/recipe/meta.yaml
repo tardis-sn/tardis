@@ -1,0 +1,161 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Mar 26 17:45:13 2024
+# ------------------------------------------------
+
+package:
+  name: numba
+  version: 0.59.1
+source:
+  sha256: 76f69132b96028d2774ed20415e8c528a34e3299a40581bae178f0994a2f370b
+  url: https://pypi.io/packages/source/n/numba/numba-0.59.1.tar.gz
+build:
+  entry_points:
+    - numba = numba.misc.numba_entry:main
+  ignore_run_exports:
+    - tbb
+  number: '0'
+  script:
+    - export CC="${CC} -pthread"
+    - export CXX="${CXX} -pthread"
+    - /home/conda/feedstock_root/build_artifacts/numba_1711475181955/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place/bin/python
+      -m pip install . --no-deps --ignore-installed -vvv
+  string: py312hacefee8_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gxx_impl_linux-64 12.3.0 he2b93b0_5
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_105
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libblas 3.9.0 21_linux64_openblas
+    - libcblas 3.9.0 21_linux64_openblas
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgfortran-ng 13.2.0 h69a702a_5
+    - libgfortran5 13.2.0 ha4646dd_5
+    - libgomp 13.2.0 h807b86a_5
+    - liblapack 3.9.0 21_linux64_openblas
+    - libllvm14 14.0.6 hcd5def8_4
+    - libnsl 2.0.1 hd590300_0
+    - libopenblas 0.3.26 pthreads_h413a1c8_0
+    - libsqlite 3.45.2 h2797004_0
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - llvmlite 0.42.0 py312hb06c811_1
+    - ncurses 6.4.20240210 h59595ed_0
+    - numpy 1.26.4 py312heda63a1_0
+    - openssl 3.2.1 hd590300_1
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.2 hab00c5b_0_cpython
+    - python_abi 3.12 4_cp312
+    - readline 8.2 h8228510_1
+    - setuptools 69.2.0 pyhd8ed1ab_0
+    - tbb 2021.6.0 h924138e_1
+    - tbb-devel 2021.6.0 h924138e_1
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - _openmp_mutex >=4.5
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+    - llvmlite >=0.42.0,<0.43.0a0
+    - numpy >=1.26.4,<2.0a0
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+  run_constrained:
+    - cuda-python >=11.6
+    - cuda-version >=11.2
+    - cudatoolkit >=11.2
+    - libopenblas !=0.3.6
+    - numpy >=1.22.3,<1.27
+    - scipy >=1.0
+    - tbb >=2021.6.0
+test:
+  imports:
+    - numba
+    - numba.core.annotations
+    - numba.core.datamodel
+    - numba.core.rewrites
+    - numba.core.runtime
+    - numba.core.typeconv
+    - numba.core.typing
+    - numba.core.unsafe
+    - numba.cuda
+    - numba.cuda.cudadrv
+    - numba.cuda.kernels
+    - numba.cuda.simulator
+    - numba.cuda.simulator.cudadrv
+    - numba.cuda.tests
+    - numba.cuda.tests.cudadrv
+    - numba.cuda.tests.cudapy
+    - numba.cuda.tests.cudasim
+    - numba.cuda.tests.nocuda
+    - numba.experimental.jitclass
+    - numba.np.ufunc
+    - numba.scripts
+    - numba.testing
+    - numba.tests
+    - numba.tests.npyufunc
+  requires:
+    - cffi
+    - gcc_linux-64 12.*
+    - gxx_linux-64 12.*
+    - ipython
+    - jinja2
+    - numpy !=1.26.0
+    - pip
+    - scipy
+    - setuptools
+    - tbb
+about:
+  description: 'Numba is an Open Source NumPy-aware optimizing compiler for Python
+
+    sponsored by Anaconda, Inc. It uses the remarkable LLVM compiler
+
+    infrastructure to compile Python syntax to machine code."
+
+    '
+  dev_url: https://github.com/numba/numba
+  doc_url: http://numba.pydata.org/
+  home: http://numba.pydata.org
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: NumPy aware dynamic Python compiler using LLVM
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240326.1.1
+  recipe-maintainers:
+    - henryiii
+    - jakirkham
+    - marcelotrevisani
+    - mbargull
+    - souravsingh
+    - step21
+  remote_url: https://github.com/conda-forge/numba-feedstock
+  sha: 646b1fd0ee362978f4ec20e22762cb5c7c6de038

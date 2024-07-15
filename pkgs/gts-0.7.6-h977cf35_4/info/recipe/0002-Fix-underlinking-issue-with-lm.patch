@@ -1,0 +1,50 @@
+From 4c30117f21abc78b582c35931ae370a91adb0b92 Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Sun, 11 Jun 2023 17:32:12 +0100
+Subject: [PATCH 2/2] Fix underlinking issue with -lm
+
+This is a partial backport of:
+
+   Author: Stephane Popinet <s.popinet@niwa.co.nz>
+   Date:   Wed Apr 29 12:09:24 2009 +0100
+
+       Fix for debian package symbols generation
+
+       darcs-hash:e0800bacaede3e2cbfe0b604930f6f5c2a9a396b
+
+The latest build of this package on Debian also has this fix included
+xref: https://salsa.debian.org/science-team/gts/-/blob/debian/0.7.6+darcs121130-5/src/Makefile.in?ref_type=tags#L252
+---
+ src/Makefile.am | 2 +-
+ src/Makefile.in | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 82935ab..3e3c5b3 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -13,7 +13,7 @@ gts-config: gts-config.in
+ lib_LTLIBRARIES = libgts.la
+ 
+ libgts_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)\
+-	-release $(LT_RELEASE) -export-dynamic
++	-release $(LT_RELEASE) -export-dynamic -lm
+ 
+ libgts_la_DEPENDENCIES = \
+ 	predicates_init.h
+diff --git a/src/Makefile.in b/src/Makefile.in
+index 5881bea..ed3cb5f 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -230,7 +230,7 @@ BUILT_SOURCES = \
+ 
+ lib_LTLIBRARIES = libgts.la
+ libgts_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)\
+-	-release $(LT_RELEASE) -export-dynamic
++	-release $(LT_RELEASE) -export-dynamic -lm
+ 
+ libgts_la_DEPENDENCIES = \
+ 	predicates_init.h
+-- 
+2.40.1
+

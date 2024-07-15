@@ -1,0 +1,37 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/case-insensitive-scheme": { "foo": "bar" },
+    "http://example.com/case-insensitive-host": { "baz": "quux" },
+    "http://example.com/case-sensitive-path": {},
+    "http://example.com/escapes/a%C2%B1b": { "spam": "eggs" },
+    "http://example.com/unreserved/~foo": { "snap": "crackle" },
+    "http://example.com/default/port": { "pop": 37 }
+  },
+  "tests": [
+    {
+      "ref": "hTtP://example.com/case-insensitive-scheme",
+      "target": { "foo": "bar" }
+    },
+    {
+      "ref": "http://exAmpLe.com/case-insensitive-host",
+      "target": { "baz": "quux" }
+    },
+    {
+      "ref": "hTtP://exAmpLe.com/case-SENSITIVE-path",
+      "error": true
+    },
+    {
+      "ref": "http://example.com/escapes/a%c2%b1b",
+      "target": { "spam": "eggs" }
+    },
+    {
+      "ref": "http://example.com/unreserved/%7Efoo",
+      "target": { "snap": "crackle" }
+    },
+    {
+      "ref": "http://example.com:80/default/port",
+      "target": { "pop": 37 }
+    }
+  ]
+}

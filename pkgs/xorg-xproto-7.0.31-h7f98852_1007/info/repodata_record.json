@@ -1,0 +1,24 @@
+{
+    "arch": "x86_64",
+    "build": "h7f98852_1007",
+    "build_number": 1007,
+    "build_string": "h7f98852_1007",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=9.3.0"
+    ],
+    "fn": "xorg-xproto-7.0.31-h7f98852_1007.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "b4a4381d54784606820704f7b5f05a15",
+    "name": "xorg-xproto",
+    "platform": "linux",
+    "sha256": "f197bb742a17c78234c24605ad1fe2d88b1d25f332b75d73e5ba8cf8fbc2a10d",
+    "size": 74922,
+    "subdir": "linux-64",
+    "timestamp": 1607291557628,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/xorg-xproto-7.0.31-h7f98852_1007.tar.bz2",
+    "version": "7.0.31"
+}

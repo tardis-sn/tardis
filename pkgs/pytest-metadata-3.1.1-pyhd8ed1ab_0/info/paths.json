@@ -1,0 +1,137 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/pytest_metadata-3.1.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/pytest_metadata-3.1.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "24399360810b9a62033a17847d8f250ecb0054c4fff4237fd37ec660d39f93bf",
+      "size_in_bytes": 8601
+    },
+    {
+      "_path": "site-packages/pytest_metadata-3.1.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "416f45bb602391d138c99ca25f926d53ad5a6c6b0e750329455da264eeff00e1",
+      "size_in_bytes": 2720
+    },
+    {
+      "_path": "site-packages/pytest_metadata-3.1.1.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/pytest_metadata-3.1.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "4c93e729db6b4ae7bbc59fc0546929f585dcbc3ae86ec8c176cd5dbb7371e9d7",
+      "size_in_bytes": 87
+    },
+    {
+      "_path": "site-packages/pytest_metadata-3.1.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "ee4d538210886b902ab55e19c717b3e0a3e05a49e7355b4600cec6d90c42e5c1",
+      "size_in_bytes": 111
+    },
+    {
+      "_path": "site-packages/pytest_metadata-3.1.1.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "b9072cd103a4715c69720e79fb271e8c15e6d9922ce513b3b474f8ea3f567ffd",
+      "size_in_bytes": 45
+    },
+    {
+      "_path": "site-packages/pytest_metadata-3.1.1.dist-info/licenses/AUTHORS",
+      "path_type": "hardlink",
+      "sha256": "2d94b2b65ca44182c034efad7cea7b07bd7579a885235f47b81a54b795719ccd",
+      "size_in_bytes": 120
+    },
+    {
+      "_path": "site-packages/pytest_metadata-3.1.1.dist-info/licenses/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "2bfdca60adf803108d4c7f009000bea76ad00e621e163197881b0eaae91b530e",
+      "size_in_bytes": 193
+    },
+    {
+      "_path": "site-packages/pytest_metadata/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/pytest_metadata/__version.py",
+      "path_type": "hardlink",
+      "sha256": "8b6404941454c8182ced5794605e40fb66056939ca6943184769aeb5cf5a30f6",
+      "size_in_bytes": 411
+    },
+    {
+      "_path": "site-packages/pytest_metadata/ci/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/pytest_metadata/ci/appveyor.py",
+      "path_type": "hardlink",
+      "sha256": "64b246557118f6c0f23b463d4bff56d21a55c20e547c898854234b4dc88d5e4c",
+      "size_in_bytes": 1108
+    },
+    {
+      "_path": "site-packages/pytest_metadata/ci/bitbucket.py",
+      "path_type": "hardlink",
+      "sha256": "0893bd963e0d2c281ae122a953117608251a8853e535b529992ee0900ac77333",
+      "size_in_bytes": 573
+    },
+    {
+      "_path": "site-packages/pytest_metadata/ci/circleci.py",
+      "path_type": "hardlink",
+      "sha256": "20d61bfc056c5d99a81a625f8fff2ff8ad2228557307c80d08ad1c8bafbb533a",
+      "size_in_bytes": 757
+    },
+    {
+      "_path": "site-packages/pytest_metadata/ci/codebuild.py",
+      "path_type": "hardlink",
+      "sha256": "d01a1c90c19c61684b9d69093e5d0da5b9b598e8c4e537f675625fd7892bb21f",
+      "size_in_bytes": 503
+    },
+    {
+      "_path": "site-packages/pytest_metadata/ci/gitlab_ci.py",
+      "path_type": "hardlink",
+      "sha256": "b4cd2231d98ae6b8de5ea906f2f092b61b97c557b0f4310cd18fb1485f5c9bb3",
+      "size_in_bytes": 1060
+    },
+    {
+      "_path": "site-packages/pytest_metadata/ci/jenkins.py",
+      "path_type": "hardlink",
+      "sha256": "bc3f5802bae2008a95ae2a8d0767c4a17333b6e12ef8271c99d3583dfd4185c3",
+      "size_in_bytes": 496
+    },
+    {
+      "_path": "site-packages/pytest_metadata/ci/taskcluster.py",
+      "path_type": "hardlink",
+      "sha256": "f97676c268b6331ee3ca306ee4f52d17cb6d9182e816bbc0835df59052c53be2",
+      "size_in_bytes": 246
+    },
+    {
+      "_path": "site-packages/pytest_metadata/ci/travis_ci.py",
+      "path_type": "hardlink",
+      "sha256": "d5f7cc542c22c29543630a41abfaef5b86de03020afb78060c34d14c0657d423",
+      "size_in_bytes": 654
+    },
+    {
+      "_path": "site-packages/pytest_metadata/hooks.py",
+      "path_type": "hardlink",
+      "sha256": "6cc4593d5410c78ce23ddc56f1ef8d1bc7f0289c3ad522a345421f3a685ec1e4",
+      "size_in_bytes": 283
+    },
+    {
+      "_path": "site-packages/pytest_metadata/plugin.py",
+      "path_type": "hardlink",
+      "sha256": "3a807764e2f2df1ed40e77633d00e70fb65b63d1fcf28a6f559e81b118c5f652",
+      "size_in_bytes": 3901
+    }
+  ],
+  "paths_version": 1
+}

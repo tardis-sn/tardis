@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6"
+    ],
+    "fn": "python-dokuwiki-1.3.3-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "a13dedbf73a833f0fbb2cb34467db1a3",
+    "name": "python-dokuwiki",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "7da2575b19881ed2d0ccbc51e7b8e1fd7d5f538e1da759fb9712a76236eb7551",
+    "size": 13208,
+    "subdir": "noarch",
+    "timestamp": 1656435892776,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/python-dokuwiki-1.3.3-pyhd8ed1ab_0.tar.bz2",
+    "version": "1.3.3"
+}

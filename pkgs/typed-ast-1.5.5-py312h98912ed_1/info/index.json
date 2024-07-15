@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "py312h98912ed_1",
+  "build_number": 1,
+  "depends": [
+    "libgcc-ng >=12",
+    "python >=3.12.0rc3,<3.13.0a0",
+    "python_abi 3.12.* *_cp312"
+  ],
+  "license": "Apache-2.0",
+  "license_family": "Apache",
+  "name": "typed-ast",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1695410050990,
+  "version": "1.5.5"
+}

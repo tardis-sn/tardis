@@ -1,0 +1,104 @@
+{% set name = "black" %}
+{% set version = "22.3.0" %}
+
+package:
+  name: {{ name|lower }}-recipe
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 35020b8886c022ced9282b51b5a875b6d1ab0c387b31a065b84db7c33085ca79
+
+build:
+  number: 0
+
+outputs:
+  - name: {{ name }}
+    script: build_base.sh
+    build:
+      noarch: python
+      entry_points:
+        - black = black:patched_main
+    requirements:
+      host:
+        - python >=3.6
+        - pip
+        - setuptools_scm
+      run:
+        - python >=3.6
+        - platformdirs >=2
+        - click >=8.0.0
+        - dataclasses >=0.6
+        - mypy_extensions >=0.4.3
+        - pathspec >=0.9,<1
+        - tomli >=1.1.0
+        - typed-ast >=1.4.2
+        - typing_extensions >=3.10,!=3.10.0.1
+    test:
+      requires:
+        - pip
+      commands:
+        - black --help
+        - pip check
+
+  - name: {{ name }}d
+    build:
+      noarch: python
+      entry_points:
+        - blackd = blackd:patched_main
+    requirements:
+      run:
+        - {{ pin_subpackage('black', exact=True) }}
+        - aiohttp >=3.7.4
+        - aiohttp-cors >=0.4.0
+    test:
+      commands:
+        - black --help
+        - blackd --help
+
+  - name: {{ name }}-colorama
+    build:
+      noarch: python
+    requirements:
+      run:
+        - {{ pin_subpackage('black', exact=True) }}
+        - colorama  >=0.4.3
+    test:
+      commands:
+        - black --help
+
+  - name: {{ name }}-jupyter
+    build:
+      noarch: python
+    requirements:
+      run:
+        - {{ pin_subpackage('black', exact=True) }}
+        - ipython >=7.8.0
+        - tokenize-rt >=3.2.0
+    test:
+      commands:
+        - black --help
+        - python -c 'import black.handle_ipynb_magics; assert black.handle_ipynb_magics.jupyter_dependencies_are_installed(verbose=True, quiet=False) == True'
+
+about:
+  home: https://github.com/psf/black
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: The uncompromising code formatter.
+
+  description: |
+    Black is the uncompromising Python code formatter. By using it, you agree
+    to cease control over minutiae of hand-formatting. In return, Black gives
+    you speed, determinism, and freedom from pycodestyle nagging about
+    formatting. You will save time and mental energy for more important matters.
+  doc_url: https://black.readthedocs.io/
+  dev_url: https://github.com/psf/black
+
+extra:
+  recipe-maintainers:
+    - seanlaw
+    - carlodri
+    - ambv
+    - mariusvniekerk
+    - xhochy

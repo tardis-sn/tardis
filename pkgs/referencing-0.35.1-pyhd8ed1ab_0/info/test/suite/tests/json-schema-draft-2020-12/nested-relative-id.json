@@ -1,0 +1,20 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "$id": "http://example.com/",
+      "$defs": {
+        "foo": {
+          "$id": "nested.json",
+          "title": "Hi!"
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/nested.json",
+      "target": { "$id": "nested.json", "title": "Hi!" }
+    }
+  ]
+}

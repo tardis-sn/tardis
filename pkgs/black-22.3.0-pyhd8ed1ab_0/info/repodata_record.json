@@ -1,0 +1,33 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "click >=8.0.0",
+        "dataclasses >=0.6",
+        "mypy_extensions >=0.4.3",
+        "pathspec >=0.9,<1",
+        "platformdirs >=2",
+        "python >=3.6",
+        "tomli >=1.1.0",
+        "typed-ast >=1.4.2",
+        "typing_extensions >=3.10,!=3.10.0.1"
+    ],
+    "fn": "black-22.3.0-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "7ecbfaae9a30b73c1a6e36e4a0debc03",
+    "name": "black",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "bbf97913b074a5fc71b5c4a50472e0e863b1abc564d1c73d79262d4557256960",
+    "size": 122870,
+    "subdir": "noarch",
+    "timestamp": 1648499411777,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/black-22.3.0-pyhd8ed1ab_0.tar.bz2",
+    "version": "22.3.0"
+}

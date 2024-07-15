@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "entry_points": [
+      "pyjson5=json5.tool:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

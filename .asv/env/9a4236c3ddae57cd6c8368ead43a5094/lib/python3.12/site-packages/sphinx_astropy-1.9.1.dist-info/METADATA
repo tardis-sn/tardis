@@ -1,0 +1,100 @@
+Metadata-Version: 2.1
+Name: sphinx-astropy
+Version: 1.9.1
+Summary: Sphinx extensions and configuration specific to the Astropy project
+Home-page: https://github.com/astropy/sphinx-astropy
+Author: The Astropy Developers
+Author-email: astropy.team@gmail.com
+License: BSD
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Classifier: License :: OSI Approved :: BSD License
+Requires-Python: >=3.7
+Description-Content-Type: text/x-rst
+License-File: LICENSE.rst
+Requires-Dist: packaging
+Requires-Dist: sphinx (>=3.0.0)
+Requires-Dist: astropy-sphinx-theme
+Requires-Dist: numpydoc
+Requires-Dist: sphinx-automodapi
+Requires-Dist: sphinx-gallery
+Requires-Dist: sphinxcontrib-jquery
+Requires-Dist: pillow
+Requires-Dist: pytest-doctestplus (>=0.11)
+Provides-Extra: all
+Requires-Dist: astropy ; extra == 'all'
+Provides-Extra: confv2
+Requires-Dist: pydata-sphinx-theme ; extra == 'confv2'
+Requires-Dist: sphinx-copybutton ; extra == 'confv2'
+Provides-Extra: tests
+Requires-Dist: pytest ; extra == 'tests'
+
+About
+=====
+
+.. image:: https://zenodo.org/badge/119399685.svg
+   :target: https://zenodo.org/badge/latestdoi/119399685
+   :alt: Zenodo DOI
+
+.. image:: https://github.com/astropy/sphinx-astropy/actions/workflows/python-tests.yml/badge.svg
+   :target: https://github.com/astropy/sphinx-astropy/actions/workflows/python-tests.yml
+   :alt: CI Status
+
+This package serves two purposes: it provides a default Sphinx configuration and set of extensions specific to the Astropy project, and it acts as a meta-package by installing all required Sphinx extensions for the core Astropy package and other packages.
+
+Sphinx configuration
+--------------------
+
+The default Sphinx configuration can be imported by putting:
+
+.. code-block:: python
+
+    from sphinx_astropy.conf import *
+
+at the top of your ``conf.py`` file. You can then override specific settings from this default configuration, such as adding extensions or intersphinx packages. To give a clearer error messages for users, you can instead write:
+
+.. code-block:: python
+
+    try:
+        from sphinx_astropy.conf import *
+    except ImportError:
+        print('ERROR: the documentation requires the sphinx-astropy package to be installed')
+        sys.exit(1)
+
+Dependencies/extensions
+-----------------------
+
+Installing **sphinx-astropy** will automatically install (if not already present):
+
+* `Sphinx <http://www.sphinx-doc.org>`_
+
+* `astropy-sphinx-theme <https://github.com/astropy/astropy-sphinx-theme>`_ - the default 'bootstrap' theme use by Astropy and a number of affiliated packages. This goes with `sphinx_astropy.conf.v1`.
+
+* `sphinx-automodapi <http://sphinx-automodapi.readthedocs.io>`_ - an extension that makes it easy to automatically generate API documentation.
+
+* `sphinx-gallery <https://sphinx-gallery.readthedocs.io/en/latest/>`_ - an extension to generate example galleries
+
+* `numpydoc <https://numpydoc.readthedocs.io>`_ - an extension to parse docstrings in NumpyDoc format
+
+* `pillow <https://pillow.readthedocs.io/en/latest/>`_ - a package to deal with
+  images, used by some examples in the astropy core documentation.
+
+* `pytest-doctestplus <https://github.com/astropy/pytest-doctestplus/>`_ - providing the 'doctestplus' extension to skip code snippets in narrative documentation.
+
+pydata-sphinx-theme (confv2)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To use the new `pydata-sphinx-theme` with `sphinx_astropy.conf.v2`, you have to install
+the optional `[confv2]` dependencies::
+
+    pip install sphinx-astropy[confv2]
+
+That would pull in the following as well:
+
+* `pydata-sphinx-theme <https://github.com/pydata/pydata-sphinx-theme/>`_ - a clean, three-column,
+  Bootstrap-based Sphinx theme by and for the `PyData community <https://pydata.org/>`_.
+
+* `sphinx-copybutton <https://github.com/executablebooks/sphinx-copybutton>`_ - a small Sphinx
+  extension to add a "copy" button to code blocks.

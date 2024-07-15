@@ -1,0 +1,4 @@
+{
+  "graphviz": "9",
+  "channel_targets": "conda-forge main"
+}

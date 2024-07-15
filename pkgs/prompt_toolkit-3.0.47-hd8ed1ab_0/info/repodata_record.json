@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "hd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "hd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "prompt-toolkit >=3.0.47,<3.0.48.0a0"
+    ],
+    "fn": "prompt_toolkit-3.0.47-hd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "3e0c82ddcfe27eb4ae77f887cfd9f45b",
+    "name": "prompt_toolkit",
+    "noarch": "generic",
+    "platform": null,
+    "sha256": "081ef6c9fbc280940c8d65683371795a8876cd4994b3fbdd0ccda7cc3ee87f74",
+    "size": 6784,
+    "subdir": "noarch",
+    "timestamp": 1718048101184,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/prompt_toolkit-3.0.47-hd8ed1ab_0.conda",
+    "version": "3.0.47"
+}

@@ -1,0 +1,25 @@
+{
+    "arch": "x86_64",
+    "build": "h977cf35_4",
+    "build_number": 4,
+    "build_string": "h977cf35_4",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libglib >=2.76.3,<3.0a0",
+        "libstdcxx-ng >=12"
+    ],
+    "fn": "gts-0.7.6-h977cf35_4.conda",
+    "license": "LGPL-2.0-or-later",
+    "md5": "4d8df0b0db060d33c9a702ada998a8fe",
+    "name": "gts",
+    "platform": "linux",
+    "sha256": "b5cd16262fefb836f69dc26d879b6508d29f8a5c5948a966c47fe99e2e19c99b",
+    "size": 318312,
+    "subdir": "linux-64",
+    "timestamp": 1686545244763,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/gts-0.7.6-h977cf35_4.conda",
+    "version": "0.7.6"
+}

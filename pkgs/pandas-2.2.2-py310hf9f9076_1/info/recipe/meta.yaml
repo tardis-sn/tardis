@@ -1,0 +1,134 @@
+# This file created by conda-build 24.5.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu May 16 22:12:26 2024
+# ------------------------------------------------
+
+package:
+  name: pandas
+  version: 2.2.2
+source:
+  sha256: 9e79019aba43cb4fda9e4d983f8e88ca0373adbb697ae9c6c43093218de28b54
+  url: https://github.com/pandas-dev/pandas/releases/download/v2.2.2/pandas-2.2.2.tar.gz
+build:
+  number: '1'
+  script:
+    - MESON_ARGS_REDUCED="$(echo $MESON_ARGS | sed 's/--buildtype release //g')"
+    - /home/conda/feedstock_root/build_artifacts/pandas_1715897614105/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac/bin/python
+      -m pip install -vv --no-deps --ignore-installed . -Csetup-args=${MESON_ARGS_REDUCED//
+      / -Csetup-args=}
+  string: py310hf9f9076_1
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha885e6a_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gxx_impl_linux-64 12.3.0 h2a574ab_7
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libsanitizer 12.3.0 hb8811af_7
+    - libstdcxx-devel_linux-64 12.3.0 h0223996_107
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _numpy_rc 1 h23db71c_0
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - colorama 0.4.6 pyhd8ed1ab_0
+    - cython 3.0.10 py310hc6cd4ac_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libblas 3.9.0 22_linux64_openblas
+    - libcblas 3.9.0 22_linux64_openblas
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgfortran-ng 13.2.0 h69a702a_7
+    - libgfortran5 13.2.0 hca663fb_7
+    - libgomp 13.2.0 h77fa898_7
+    - liblapack 3.9.0 22_linux64_openblas
+    - libnsl 2.0.1 hd590300_0
+    - libopenblas 0.3.27 pthreads_h413a1c8_0
+    - libsqlite 3.45.3 h2797004_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - meson 1.2.1 pyhd8ed1ab_0
+    - meson-python 0.13.1 pyh0c530f3_0
+    - ncurses 6.5 h59595ed_0
+    - ninja 1.12.1 h297d8ca_0
+    - numpy 2.0.0rc2 py310h515e003_0
+    - openssl 3.3.0 hd590300_0
+    - packaging 24.0 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - pyproject-metadata 0.8.0 pyhd8ed1ab_0
+    - python 3.10.14 hd12c33a_0_cpython
+    - python_abi 3.10 4_cp310
+    - readline 8.2 h8228510_1
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - tzdata 2024a h0c530f3_0
+    - versioneer 0.29 pyhd8ed1ab_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+    - numpy >=1.19,<3
+    - python >=3.10,<3.11.0a0
+    - python-dateutil >=2.8.1
+    - python-tzdata >=2022a
+    - python_abi 3.10.* *_cp310
+    - pytz >=2020.1
+test:
+  commands:
+    - pip check
+    - python -c "import pandas; pandas.test(extra_args=['-m not clipboard and not
+      single_cpu and not slow and not network and not db', '-k', 'not (_not_a_real_test)',
+      '--no-strict-data-files'])"
+  imports:
+    - pandas
+  requires:
+    - boto3
+    - hypothesis
+    - numpy
+    - pip
+    - psutil
+    - pytest >=6.0
+    - pytest-cov
+    - pytest-xdist >=1.31
+    - tomli
+about:
+  dev_url: https://github.com/pandas-dev/pandas
+  doc_url: https://pandas.pydata.org/docs/
+  home: http://pandas.pydata.org
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: Powerful data structures for data analysis, time series, and statistics
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240516.3.1
+  recipe-maintainers:
+    - TomAugspurger
+    - WillAyd
+    - datapythonista
+    - jorisvandenbossche
+    - jreback
+    - lithomas1
+    - marcogorelli
+    - mroeschke
+    - msarahan
+    - ocefpaf
+    - phofl
+    - simonjayhawkins
+  remote_url: https://github.com/conda-forge/pandas-feedstock
+  sha: 015e1a395b381c8de8d832b3eb198cdc4f3db33c

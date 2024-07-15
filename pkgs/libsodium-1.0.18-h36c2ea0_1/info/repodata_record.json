@@ -1,0 +1,23 @@
+{
+    "arch": "x86_64",
+    "build": "h36c2ea0_1",
+    "build_number": 1,
+    "build_string": "h36c2ea0_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=7.5.0"
+    ],
+    "fn": "libsodium-1.0.18-h36c2ea0_1.tar.bz2",
+    "license": "ISC",
+    "md5": "c3788462a6fbddafdb413a9f9053e58d",
+    "name": "libsodium",
+    "platform": "linux",
+    "sha256": "53da0c8b79659df7b53eebdb80783503ce72fb4b10ed6e9e05cc0e9e4207a130",
+    "size": 374999,
+    "subdir": "linux-64",
+    "timestamp": 1605135674116,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/libsodium-1.0.18-h36c2ea0_1.tar.bz2",
+    "version": "1.0.18"
+}

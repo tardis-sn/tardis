@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "py_0",
+  "build_number": 0,
+  "depends": [
+    "future >=0.14.0",
+    "python"
+  ],
+  "license": "BSD 3-Clause",
+  "license_family": "BSD",
+  "name": "commonmark",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1570221752112,
+  "version": "0.9.1"
+}

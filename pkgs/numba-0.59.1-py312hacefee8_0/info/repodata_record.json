@@ -1,0 +1,38 @@
+{
+    "arch": "x86_64",
+    "build": "py312hacefee8_0",
+    "build_number": 0,
+    "build_string": "py312hacefee8_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [
+        "cuda-version >=11.2",
+        "numpy >=1.22.3,<1.27",
+        "libopenblas !=0.3.6",
+        "tbb >=2021.6.0",
+        "scipy >=1.0",
+        "cuda-python >=11.6",
+        "cudatoolkit >=11.2"
+    ],
+    "depends": [
+        "_openmp_mutex >=4.5",
+        "libgcc-ng >=12",
+        "libstdcxx-ng >=12",
+        "llvmlite >=0.42.0,<0.43.0a0",
+        "numpy >=1.26.4,<2.0a0",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "numba-0.59.1-py312hacefee8_0.conda",
+    "license": "BSD-2-Clause",
+    "license_family": "BSD",
+    "md5": "84c93029c60916c59a914a3ba579c4a8",
+    "name": "numba",
+    "platform": "linux",
+    "sha256": "13445a4ea0677336aa882c519f31ce397cbb5ac848adc68b0c951ca038784562",
+    "size": 5613943,
+    "subdir": "linux-64",
+    "timestamp": 1711475331686,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/numba-0.59.1-py312hacefee8_0.conda",
+    "version": "0.59.1"
+}

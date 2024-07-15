@@ -1,0 +1,77 @@
+{
+  "paths": [
+    {
+      "_path": "lib/python3.10/site-packages/rpds/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "c373205d6ee5a530880b0d0a5dbc36d105f9ef7fe46ec12758878cb0202e82f3",
+      "size_in_bytes": 99
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds/__init__.pyi",
+      "path_type": "hardlink",
+      "sha256": "fa177503577506a1b12f75d9188f52a56d7ec597b6889703314e82a627a3815e",
+      "size_in_bytes": 2570
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds/__pycache__/__init__.cpython-310.pyc",
+      "path_type": "hardlink",
+      "sha256": "fcdeef8d5fa18d6c0c46a87329558a611e77564c0140298692f778b5f7b1900f",
+      "size_in_bytes": 225
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds/py.typed",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds/rpds.cpython-310-x86_64-linux-gnu.so",
+      "path_type": "hardlink",
+      "sha256": "2c708fb4db8f1e0f4699c1bce342445e93ff9f1fb8225b8d913b70472fc57c16",
+      "size_in_bytes": 4356712
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds_py-0.18.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds_py-0.18.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "7169ba74d2792c0d46f509b7a1455c86bf41149847bbd352a65d8496dad0f981",
+      "size_in_bytes": 4129
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds_py-0.18.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "22aca18c8779eb71e73ea687c7cc6df5657408da20a3a2adf450548d7b0ee53e",
+      "size_in_bytes": 953
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds_py-0.18.1.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds_py-0.18.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "c1ebdd9676b75bdac5146527b9149c960ad3d90236a872134cefb8d66f88f91c",
+      "size_in_bytes": 99
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds_py-0.18.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "356fe665c4a8f0bd1d488772fdbefbbc1c626ebce8f8356e4a420e18d414c14c",
+      "size_in_bytes": 103
+    },
+    {
+      "_path": "lib/python3.10/site-packages/rpds_py-0.18.1.dist-info/license_files/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "314e4e91be3baa93c0fb4bccc9e4e97cd643eb839b065af921782c2175fe9909",
+      "size_in_bytes": 1057
+    }
+  ],
+  "paths_version": 1
+}

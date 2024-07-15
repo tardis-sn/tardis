@@ -1,0 +1,51 @@
+From 148454b08077cd631750a5de95f3d912f2e56417 Mon Sep 17 00:00:00 2001
+From: Andrew Seidl <dev@aas.io>
+Date: Fri, 14 Oct 2022 10:44:51 -0500
+Subject: [PATCH 4/6] cmake: add option to enable/disable RTTI
+
+---
+ CMakeLists.txt | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c5d2c2e..0403fd7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -37,6 +37,8 @@ if(NOT CMAKE_CXX_STANDARD)
+   set(CMAKE_CXX_EXTENSIONS OFF)
+ endif(NOT CMAKE_CXX_STANDARD)
+
++option(SNAPPY_ENABLE_RTTI "Enable RTTI" OFF)
++
+ # https://github.com/izenecloud/cmake/blob/master/SetCompilerWarningAll.cmake
+ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+   # Use the highest warning level for Visual Studio.
+@@ -53,8 +55,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+   add_definitions(-D_HAS_EXCEPTIONS=0)
+
+   # Disable RTTI.
+-  string(REGEX REPLACE "/GR" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
++  if(NOT SNAPPY_ENABLE_RTTI)
++    string(REGEX REPLACE "/GR" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
++    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
++  endif(SNAPPY_ENABLE_RTTI)
+ else(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+   # Use -Wall for clang and gcc.
+   if(NOT CMAKE_CXX_FLAGS MATCHES "-Wall")
+@@ -83,8 +87,10 @@ else(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+
+   # Disable RTTI.
+-  string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
++  if(NOT SNAPPY_ENABLE_RTTI)
++    string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
++    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
++  endif(SNAPPY_ENABLE_RTTI)
+ endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+
+ # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to make
+--
+2.39.3 (Apple Git-146)
+

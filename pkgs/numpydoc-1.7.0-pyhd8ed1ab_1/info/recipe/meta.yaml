@@ -1,0 +1,73 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Jun  4 12:06:25 2024
+# ------------------------------------------------
+
+package:
+  name: numpydoc
+  version: 1.7.0
+source:
+  sha256: 866e5ae5b6509dcf873fc6381120f5c31acf13b135636c1a81d68c166a95f921
+  url: https://pypi.io/packages/source/n/numpydoc/numpydoc-1.7.0.tar.gz
+build:
+  entry_points:
+    - numpydoc = numpydoc.cli:main
+  noarch: python
+  number: '1'
+  script: /home/conda/feedstock_root/build_artifacts/numpydoc_1717502870243/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+    -m pip install . --no-deps -vv --no-build-isolation
+  string: pyhd8ed1ab_1
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.6.2 hbcca054_0
+    - ld_impl_linux-64 2.40 hf3520f5_1
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.3 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.0 h4ab18f5_3
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 70.0.0 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.8
+    - sphinx >=6
+    - tabulate >=0.8.10
+    - tomli >=1.1.0
+test:
+  commands:
+    - pip check
+  imports:
+    - numpydoc
+  requires:
+    - pip
+about:
+  doc_url: https://numpydoc.readthedocs.io
+  home: https://github.com/numpy/numpydoc
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: Numpy's Sphinx extensions
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240604.1.1
+  recipe-maintainers:
+    - bollwyvl
+    - jschueller
+    - scopatz
+  remote_url: https://github.com/conda-forge/numpydoc-feedstock
+  sha: 20175527cbea492aefc0176f09f2c9ebcf8785c2

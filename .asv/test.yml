@@ -1,0 +1,231 @@
+name: benchmarks
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request_target:
+    branches:
+      - master
+
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled # benchmarks label required
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request_target'
+        with:
+          fetch-depth: 0
+
+      - name: Checkout pull/${{ github.event.number }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+        if: github.event_name == 'pull_request_target'
+
+      - name: Restore Atom Data
+        uses: actions/cache/restore@v4
+        id: atom-data-restore
+        with:
+          path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
+          key: atom-data
+
+      - name: Download Atom Data
+        if: steps.atom-data-restore.outputs.cache-hit != 'true'
+        run: |
+          REPO_URL="https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata"
+          wget -q "$REPO_URL/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&versionType=branch&version=master&resolveLfs=true" -O benchmarks/data/kurucz_cd23_chianti_H_He.h5
+
+      - name: Save Atom Data
+        uses: actions/cache/save@v4
+        if: ${{ steps.atom-data-restore.outputs.cache-hit != 'true'  && always() || false }}
+        id: atom-data-cache-save
+        with:
+          path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
+          key: atom-data
+
+      - name: Copy atom data to refdata
+        run: |
+          mkdir -p tardis-refdata/atom_data
+          cp benchmarks/data/kurucz_cd23_chianti_H_He.h5 tardis-refdata/atom_data/
+
+      - name: Setup Mamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: benchmark
+          init-shell: >-
+            bash
+          create-args: >-
+            python
+            asv
+            mamba
+
+      - name: Install asv
+        run: pip install asv
+
+      - name: Accept all asv questions
+        run: asv machine --yes
+
+      - name: Run benchmarks for last 5 commits if not PR
+        if: github.event_name != 'pull_request_target'
+        run: |
+          git log -n 5  --pretty=format:"%H" >> tag_commits.txt
+          asv run HASHFILE:tag_commits.txt | tee asv-output.log  
+          if grep -q failed asv-output.log; then 
+            echo "Some benchmarks have failed!"
+            exit 1
+          fi
+
+      - name: Generate Graphs and HTML
+        if: github.event_name != 'pull_request_target'
+        run: asv publish
+
+      - name: Delete env files
+        if: github.event_name != 'pull_request_target'
+        run: rm -r .asv/env
+
+      - name: Push results to results repository
+        if: github.event_name != 'pull_request_target'
+        continue-on-error: true
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
+        with:
+          source-directory: .asv
+          destination-github-username: tardis-sn
+          destination-repository-name: tardis-benchmarks
+          user-email: tardis.sn.bot@gmail.com
+          target-branch: main
+          target-directory: .asv
+
+      - name: Run benchmarks
+        if: github.event_name == 'pull_request_target'
+        run: asv run --config asv.conf.json
+      
+      - run: git remote add upstream https://github.com/AkashKumar7902/tardis.git
+      - run: git fetch upstream master
+
+      - name: Compare Master and PR head
+        run: asv compare upstream/master HEAD --config asv.conf.json | tee asv-compare-output.log
+
+      - name: Compare Master and PR head but only show changed results
+        run: asv compare upstream/master HEAD --only-changed --config asv.conf.json | tee asv-compare-changed-output.log
+
+      - name: Benchmarks compare output
+        id: asv_pr_vs_master
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: asv-compare-output.log
+
+      - name: Benchmarks compare only changed output
+        id: asv_pr_vs_master_changed
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: asv-compare-changed-output.log
+
+      - name: Run benchmarks for base to head commits of PR
+        if: github.event_name == 'pull_request_target'
+        run: |
+          mkdir -p PR-${{ github.event.number }}
+          cd PR-${{ github.event.number }}
+          asv machine --yes
+          asv run ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | tee asv-output-PR.log  
+          if grep -q failed asv-output-PR.log; then 
+            echo "Some benchmarks have failed!"
+            exit 1
+          fi
+      
+      - name: Generate Graphs and HTML of PR
+        if: github.event_name == 'pull_request_target'
+        run: |
+          cd PR-${{ github.event.number }}
+          asv publish
+
+      - name: Delete env files of PR
+        if: github.event_name == 'pull_request_target'
+        run: rm -r PR-${{ github.event.number }}/.asv/env
+
+      - name: Push results of PR to results repository
+        if: github.event_name == 'pull_request_target'
+        continue-on-error: true
+        uses: cpina/github-action-push-to-another-repository@main 
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
+        with:
+          source-directory: PR-${{ github.event.number }}
+          destination-github-username: tardis-sn
+          destination-repository-name: tardis-benchmarks
+          user-email: tardis.sn.bot@gmail.com
+          target-branch: main
+          target-directory: PR
+
+      
+      - name: Find Comment
+        if: always() && github.event_name == 'pull_request_target'
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.number }}
+          body-includes: I ran benchmarks as you asked
+
+      - name: Post comment
+        if: github.event_name == 'pull_request_target'
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+            Hi human, 
+            I ran benchmarks as you asked comparing master (${{ github.event.pull_request.base.sha }}) and the latest commit (${{ github.event.pull_request.head.sha }}). 
+            Here are the logs produced by ASV.
+            Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
+
+            Significantly changed benchmarks:
+            <details>
+
+              ```diff
+              ${{ steps.asv_pr_vs_master_changed.outputs.content }}
+              ```
+
+            </details>
+
+            All benchmarks:
+            <details>
+
+              ```diff
+              ${{ steps.asv_pr_vs_master.outputs.content }}
+              ```
+              
+            </details>
+        env:
+          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+
+      - name: Save results artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asv-benchmark-results-${{ runner.os }}
+          path: |
+            .asv/results
+            asv-compare-output.log
+            asv-compare-changed-output.log

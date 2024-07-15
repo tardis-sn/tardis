@@ -1,0 +1,11 @@
+{
+  "noarch": {
+    "entry_points": [
+      "pybtex = pybtex.__main__:main",
+      "pybtex-convert = pybtex.database.convert.__main__:main",
+      "pybtex-format = pybtex.database.format.__main__:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

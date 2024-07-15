@@ -1,0 +1,19 @@
+
+sphinx_automodapi.tests.example_module.slots Module
+---------------------------------------------------
+
+.. automodule:: sphinx_automodapi.tests.example_module.slots
+
+Classes
+^^^^^^^
+
+.. automodsumm:: sphinx_automodapi.tests.example_module.slots
+    :classes-only:
+    :toctree: api
+
+Class Inheritance Diagram
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automod-diagram:: sphinx_automodapi.tests.example_module.slots
+    :private-bases:
+    :parts: 1

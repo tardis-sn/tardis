@@ -1,0 +1,18 @@
+{
+  "arch": "x86_64",
+  "build": "py310hc6cd4ac_0",
+  "build_number": 0,
+  "depends": [
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "debugpy",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1707444642761,
+  "version": "1.8.1"
+}

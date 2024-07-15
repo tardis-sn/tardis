@@ -1,0 +1,30 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_1",
+    "build_number": 1,
+    "build_string": "pyhd8ed1ab_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [
+        "pandas >=1.4",
+        "numpy >=1.22",
+        "matplotlib >=3.5",
+        "scipy >=1.9,!=1.11.0,!=1.11.1"
+    ],
+    "depends": [
+        "python >=3.10"
+    ],
+    "fn": "networkx-3.3-pyhd8ed1ab_1.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "d335fd5704b46f4efb89a6774e81aef0",
+    "name": "networkx",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "cbd8a6de87ad842e7665df38dcec719873fe74698bc761de5431047b8fada41a",
+    "size": 1185670,
+    "subdir": "noarch",
+    "timestamp": 1712540499262,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/networkx-3.3-pyhd8ed1ab_1.conda",
+    "version": "3.3"
+}

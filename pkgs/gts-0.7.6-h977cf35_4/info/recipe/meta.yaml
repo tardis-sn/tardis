@@ -1,0 +1,90 @@
+# This file created by conda-build 3.24.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Jun 12 04:42:53 2023
+# ------------------------------------------------
+
+package:
+  name: gts
+  version: 0.7.6
+source:
+  - patches:
+      - 0002-Fix-underlinking-issue-with-lm.patch
+      - config.in.win32.patch
+    sha256: 059c3e13e3e3b796d775ec9f96abdce8f2b3b5144df8514eda0cc12e13e8b81e
+    url: http://downloads.sourceforge.net/gts/gts-0.7.6.tar.gz
+  - path: CMakeLists.txt
+build:
+  number: '4'
+  run_exports:
+    - gts >=0.7.6,<0.8.0a0
+  string: h977cf35_4
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_0
+    - gcc_impl_linux-64 12.3.0 he2b93b0_0
+    - gcc_linux-64 12.3.0 h76fc315_0
+    - gnuconfig 2020.11.07 hd8ed1ab_0
+    - gxx_impl_linux-64 12.3.0 he2b93b0_0
+    - gxx_linux-64 12.3.0 h8a814eb_0
+    - kernel-headers_linux-64 2.6.32 he073ed8_15
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_0
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libsanitizer 12.3.0 h0f45ef3_0
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+    - make 4.3 hd18ef5c_1
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - sysroot_linux-64 2.12 he073ed8_15
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2023.5.7 hbcca054_0
+    - gettext 0.21.1 h27087fc_0
+    - glib 2.76.3 hfc55251_0
+    - glib-tools 2.76.3 hfc55251_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libglib 2.76.3 hebfc3b9_0
+    - libgomp 13.1.0 he5830b7_0
+    - libiconv 1.17 h166bdaf_0
+    - libnsl 2.0.0 h7f98852_0
+    - libsqlite 3.42.0 h2797004_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 h166bdaf_4
+    - ncurses 6.4 hcb278e6_0
+    - openssl 3.1.1 hd590300_1
+    - pcre2 10.40 hc3806b6_0
+    - python 3.11.4 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - tk 8.6.12 h27826a3_0
+    - tzdata 2023c h71feb2d_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - libgcc-ng >=12
+    - libglib >=2.76.3,<3.0a0
+    - libstdcxx-ng >=12
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libgts.so
+about:
+  home: http://gts.sourceforge.net/
+  license: LGPL-2.0-or-later
+  license_file: COPYING
+  summary: 'GNU Triangulated Surface Library
+
+    '
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - seanyen
+    - traversaro

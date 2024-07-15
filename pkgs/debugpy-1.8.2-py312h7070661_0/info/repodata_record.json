@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "py312h7070661_0",
+    "build_number": 0,
+    "build_string": "py312h7070661_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libstdcxx-ng >=12",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "debugpy-1.8.2-py312h7070661_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "b19f2a4267351e36728133431f623e98",
+    "name": "debugpy",
+    "platform": "linux",
+    "sha256": "8b30358bbb92d302f41298fa42ae2388faccfa290988bde3285af0bfa607522e",
+    "size": 2070791,
+    "subdir": "linux-64",
+    "timestamp": 1719378841042,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.2-py312h7070661_0.conda",
+    "version": "1.8.2"
+}

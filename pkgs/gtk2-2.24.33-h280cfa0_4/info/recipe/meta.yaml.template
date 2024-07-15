@@ -1,0 +1,61 @@
+{% set major_minor = "2.24" %}
+{% set version = major_minor + ".33" %}
+
+package:
+  name: gtk2
+  version: {{ version }}
+
+source:
+  url: http://ftp.gnome.org/pub/GNOME/sources/gtk+/{{ major_minor }}/gtk+-{{ version }}.tar.xz
+  sha256: ac2ac757f5942d318a311a54b0c80b5ef295f299c2a73c632f6bfb1ff49cc6da
+  # TODO: consider a few patches from ubuntu
+  # https://salsa.debian.org/gnome-team/gtk2/-/tree/ubuntu/master/debian/patches
+
+build:
+  number: 4
+  skip: true  # [win]
+
+requirements:
+  build:
+    - make
+    - pkg-config
+    - perl *
+    - gnuconfig  # [unix]
+    - gobject-introspection
+    - {{ compiler('c') }}
+    - gettext
+    - atk         # [build_platform != target_platform]
+    - cairo       # [build_platform != target_platform]
+    - gdk-pixbuf  # [build_platform != target_platform]
+    - glib        # [build_platform != target_platform]
+    - pango       # [build_platform != target_platform]
+  host:
+    - atk
+    - cairo
+    - gdk-pixbuf
+    - glib
+    - pango
+    - gettext          # [osx]
+    - fontconfig       # [linux]
+    - freetype         # [linux]
+    - harfbuzz         # [linux]
+    - xorg-libx11      # [linux]
+    - xorg-libxext     # [linux]
+    - xorg-libxrender  # [linux]
+
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libgtk-x11-2.0{{ SHLIB_EXT }}  # [linux]
+    - test -f ${PREFIX}/lib/libgtk-quartz-2.0{{ SHLIB_EXT }}  # [osx]
+
+about:
+  home: https://developer.gnome.org/gtk/
+  license: LGPL-2.1-or-later
+  license_file: COPYING
+  summary: Primary library used to construct user interfaces in GNOME applications
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - pkgw
+    - xhochy

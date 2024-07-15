@@ -1,0 +1,46 @@
+{% set version = "1.7.0" %}
+
+package:
+  name: numpydoc
+  version: {{ version }}
+
+source:
+  fn: numpydoc-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/n/numpydoc/numpydoc-{{ version }}.tar.gz
+  sha256: 866e5ae5b6509dcf873fc6381120f5c31acf13b135636c1a81d68c166a95f921
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.7
+    - setuptools
+
+  run:
+    - python >=3.7
+    - sphinx >=5
+    - jinja2 >=2.10
+    - tabulate >=0.8.10
+
+test:
+  requires:
+    - pip
+  commands:
+    - python -m pip check
+  imports:
+    - numpydoc
+
+about:
+  home: https://github.com/numpy/numpydoc
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: Numpy's Sphinx extensions
+
+extra:
+  recipe-maintainers:
+    - jschueller
+    - scopatz

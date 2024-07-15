@@ -1,0 +1,27 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "hpack >=4.0,<5",
+        "hyperframe >=6.0,<7",
+        "python >=3.6.1"
+    ],
+    "fn": "h2-4.1.0-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "b748fbf7060927a6e82df7cb5ee8f097",
+    "name": "h2",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "bfc6a23849953647f4e255c782e74a0e18fe16f7e25c7bb0bc57b83bb6762c7a",
+    "size": 46754,
+    "subdir": "noarch",
+    "timestamp": 1634280590080,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/h2-4.1.0-pyhd8ed1ab_0.tar.bz2",
+    "version": "4.1.0"
+}

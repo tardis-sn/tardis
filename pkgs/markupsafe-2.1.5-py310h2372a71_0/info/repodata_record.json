@@ -1,0 +1,28 @@
+{
+    "arch": "x86_64",
+    "build": "py310h2372a71_0",
+    "build_number": 0,
+    "build_string": "py310h2372a71_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [
+        "jinja2 >=3.0.0"
+    ],
+    "depends": [
+        "libgcc-ng >=12",
+        "python >=3.10,<3.11.0a0",
+        "python_abi 3.10.* *_cp310"
+    ],
+    "fn": "markupsafe-2.1.5-py310h2372a71_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "f6703fa0214a00bf49d1bef6dc7672d0",
+    "name": "markupsafe",
+    "platform": "linux",
+    "sha256": "3c18347adf1d091ee9248612308a6bef79038f80b626ef67f58cd0e8d25c65b8",
+    "size": 24493,
+    "subdir": "linux-64",
+    "timestamp": 1706900070478,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/markupsafe-2.1.5-py310h2372a71_0.conda",
+    "version": "2.1.5"
+}

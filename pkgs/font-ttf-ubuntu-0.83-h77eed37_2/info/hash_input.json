@@ -1,0 +1,4 @@
+{
+  "bzip2": "1",
+  "channel_targets": "conda-forge main"
+}

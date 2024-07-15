@@ -1,0 +1,49 @@
+{
+  "paths": [
+    {
+      "_path": "include/pixman-1/pixman-version.h",
+      "path_type": "hardlink",
+      "sha256": "af5aa9b0edd0f6175faeba41a2fa25d8cf396ad45970531ae6d7492e86d0c251",
+      "size_in_bytes": 1786
+    },
+    {
+      "_path": "include/pixman-1/pixman.h",
+      "path_type": "hardlink",
+      "sha256": "ef77f6ef29bfde4b4465c4567d32c9b60acb5e3924ec6350fa87bfe847be9527",
+      "size_in_bytes": 48525
+    },
+    {
+      "_path": "lib/libpixman-1.a",
+      "path_type": "hardlink",
+      "sha256": "9a0573b00591df50a0c911c60476718e59d104143d08778922965542a0b9a5f6",
+      "size_in_bytes": 1169234
+    },
+    {
+      "_path": "lib/libpixman-1.so",
+      "path_type": "softlink",
+      "sha256": "603fef9c6f188f5bc7284f2d4b3b219b744b557c25e16003fd501f0ca5d6486a",
+      "size_in_bytes": 819400
+    },
+    {
+      "_path": "lib/libpixman-1.so.0",
+      "path_type": "softlink",
+      "sha256": "603fef9c6f188f5bc7284f2d4b3b219b744b557c25e16003fd501f0ca5d6486a",
+      "size_in_bytes": 819400
+    },
+    {
+      "_path": "lib/libpixman-1.so.0.43.2",
+      "path_type": "hardlink",
+      "sha256": "603fef9c6f188f5bc7284f2d4b3b219b744b557c25e16003fd501f0ca5d6486a",
+      "size_in_bytes": 819400
+    },
+    {
+      "_path": "lib/pkgconfig/pixman-1.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/pixman_1706549262335/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac",
+      "sha256": "58bdf984ebbff914421f2711bfa1c995bcdeacbd9f8523be1a2b2a7bef88b8b0",
+      "size_in_bytes": 476
+    }
+  ],
+  "paths_version": 1
+}

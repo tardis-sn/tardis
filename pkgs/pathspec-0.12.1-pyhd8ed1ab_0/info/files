@@ -1,0 +1,16 @@
+site-packages/pathspec-0.12.1.dist-info/INSTALLER
+site-packages/pathspec-0.12.1.dist-info/LICENSE
+site-packages/pathspec-0.12.1.dist-info/METADATA
+site-packages/pathspec-0.12.1.dist-info/RECORD
+site-packages/pathspec-0.12.1.dist-info/REQUESTED
+site-packages/pathspec-0.12.1.dist-info/WHEEL
+site-packages/pathspec-0.12.1.dist-info/direct_url.json
+site-packages/pathspec/__init__.py
+site-packages/pathspec/_meta.py
+site-packages/pathspec/gitignore.py
+site-packages/pathspec/pathspec.py
+site-packages/pathspec/pattern.py
+site-packages/pathspec/patterns/__init__.py
+site-packages/pathspec/patterns/gitwildmatch.py
+site-packages/pathspec/py.typed
+site-packages/pathspec/util.py

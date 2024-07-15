@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "pyhd3deb0d_0",
+  "build_number": 0,
+  "depends": [
+    "python"
+  ],
+  "license": "ISC",
+  "name": "ptyprocess",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1609419417991,
+  "version": "0.7.0"
+}

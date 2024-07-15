@@ -1,0 +1,19 @@
+{
+  "c_compiler_version": "12",
+  "libffi": "3.4",
+  "cxx_compiler": "gxx",
+  "openssl": "3",
+  "bzip2": "1",
+  "cxx_compiler_version": "12",
+  "channel_targets": "conda-forge main",
+  "readline": "8",
+  "libuuid": "2",
+  "sqlite": "3",
+  "xz": "5",
+  "target_platform": "linux-64",
+  "tk": "8.6",
+  "ncurses": "6",
+  "CI": "azure",
+  "c_compiler": "gcc",
+  "zlib": "1.2"
+}

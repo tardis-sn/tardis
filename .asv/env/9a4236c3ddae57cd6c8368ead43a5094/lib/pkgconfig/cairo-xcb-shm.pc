@@ -1,0 +1,8 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+includedir=${prefix}/include
+
+Name: cairo-xcb-shm
+Description: XCB/SHM functions for cairo graphics library
+Version: 1.18.0
+Requires: cairo, xcb-shm
+Cflags: -I${includedir}

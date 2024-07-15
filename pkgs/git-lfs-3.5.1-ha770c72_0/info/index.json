@@ -1,0 +1,12 @@
+{
+  "arch": "x86_64",
+  "build": "ha770c72_0",
+  "build_number": 0,
+  "depends": [],
+  "license": "MIT",
+  "name": "git-lfs",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1709855456854,
+  "version": "3.5.1"
+}

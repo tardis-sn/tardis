@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.5",
+        "six"
+    ],
+    "fn": "rfc3339-validator-0.1.4-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "md5": "fed45fc5ea0813240707998abe49f520",
+    "name": "rfc3339-validator",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "7c7052b51de0b5c558f890bb11f8b5edbb9934a653d76be086b1182b9f54185d",
+    "size": 8064,
+    "subdir": "noarch",
+    "timestamp": 1638811838081,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/rfc3339-validator-0.1.4-pyhd8ed1ab_0.tar.bz2",
+    "version": "0.1.4"
+}

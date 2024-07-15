@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "h04ea711_2",
+    "build_number": 2,
+    "build_string": "h04ea711_2",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [
+        "atk-1.0 2.38.0"
+    ],
+    "depends": [
+        "libgcc-ng >=12",
+        "libglib >=2.80.0,<3.0a0",
+        "libstdcxx-ng >=12"
+    ],
+    "fn": "atk-1.0-2.38.0-h04ea711_2.conda",
+    "license": "LGPL-2.0-or-later",
+    "md5": "f730d54ba9cd543666d7220c9f7ed563",
+    "name": "atk-1.0",
+    "platform": "linux",
+    "sha256": "df682395d05050cd1222740a42a551281210726a67447e5258968dd55854302e",
+    "size": 355900,
+    "subdir": "linux-64",
+    "timestamp": 1713896169874,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/atk-1.0-2.38.0-h04ea711_2.conda",
+    "version": "2.38.0"
+}

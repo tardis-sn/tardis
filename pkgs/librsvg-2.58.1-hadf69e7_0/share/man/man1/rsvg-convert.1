@@ -1,0 +1,690 @@
+'\" t
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "RSVG-CONVERT" "" "" ""
+.SH NAME
+rsvg-convert \- Render SVG documents to PNG images, or convert them to PDF or PS.
+.\" rsvg-convert(1):
+.
+.SH SYNOPSIS
+.sp
+Convert an SVG to PNG at its \(dqnatural size\(dq and write it to standard
+output:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fIinput.svg\fP \fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.sp
+Specify an output filename; the input filename must be the last
+argument:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-output=\fP\fIoutput.png\fP \fIinput.svg\fP
+.UNINDENT
+.UNINDENT
+.sp
+Configure dots\-per\-inch (DPI) for SVGs that have physical units, as in
+\fB<svg width=\(dq5cm\(dq height=\(dq3cm\(dq>\fP \- the default is 96 DPI:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-dpi\-x=\fP\fI300\fP \fB\-\-dpi\-y=\fP\fI300\fP \fIinput.svg\fP
+\fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.sp
+Render an SVG at a specific pixel size, scaled proportionally:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-width=\fP\fI1024\fP \fB\-\-height=\fP\fI768\fP
+\fB\-\-keep\-aspect\-ratio\fP \fIinput.svg\fP \fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.SH DESCRIPTION
+.sp
+\fBrsvg\-convert\fP renders SVG documents into PNG raster images, or
+converts them to PDF or PS as vector objects. By default
+\fBrsvg\-convert\fP will render an SVG document to a raster PNG image and
+write it to standard output:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fIinput.svg\fP \fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.sp
+To select another format, use the \fB\-\-format\fP option:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert \-\-format=pdf\fP \fIinput.svg\fP \fB>\fP \fIoutput.pdf\fP
+.UNINDENT
+.UNINDENT
+.sp
+You can use \fBrsvg\-convert\fP as part of a pipeline; without an argument
+for the input filename it will read the document from standard input:
+.INDENT 0.0
+.INDENT 3.5
+\fBcat\fP \fIinput.svg\fP \fB|\fP \fBrsvg\-convert\fP \fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.SS SPECIFYING THE RENDERED SIZE
+.sp
+You can use the \fB\-\-width\fP and \fB\-\-height\fP options to specify the size
+of the output image. Most of the time you should specify
+\fB\-\-keep\-aspect\-ratio\fP to scale the image proportionally; for
+compatibility with old versions this is not the default.
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-width=\fP\fI100\fP \fB\-\-height=\fP\fI200\fP
+\fB\-\-keep\-aspect\-ratio\fP \fIinput.svg\fP \fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.sp
+You can also specify dimensions as CSS lengths, for example \fB10px\fP or
+\fB8.5in\fP\&. The unit specifiers supported are as follows:
+.INDENT 0.0
+.INDENT 3.5
+.TS
+box center;
+l|l.
+T{
+px
+T}	T{
+pixels (the unit specifier can be omitted)
+T}
+_
+T{
+in
+T}	T{
+inches
+T}
+_
+T{
+cm
+T}	T{
+centimeters
+T}
+_
+T{
+mm
+T}	T{
+millimeters
+T}
+_
+T{
+pt
+T}	T{
+points, 1/72 inch
+T}
+_
+T{
+pc
+T}	T{
+picas, 1/6 inch
+T}
+.TE
+.UNINDENT
+.UNINDENT
+.sp
+The following will create a 600*900 pixel PNG, or 2*3 inches at 300
+dots\-per\-inch:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-width=\fP\fI2in\fP \fB\-\-height=\fP\fI3in\fP
+\fB\-\-keep\-aspect\-ratio\fP \fB\-\-dpi\-x=\fP\fI300\fP \fB\-\-dpi\-y=\fP\fI300\fP
+\fIinput.svg\fP \fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.sp
+This will scale an SVG document to fit in an A4 page and convert it to
+PDF:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-format=\fP\fIpdf\fP \fB\-\-width=\fP\fI210mm\fP
+\fB\-\-height=\fP\fI297mm\fP \fB\-\-keep\-aspect\-ratio\fP \fIinput.svg\fP \fB>\fP
+\fIoutput.pdf\fP
+.UNINDENT
+.UNINDENT
+.SS SPECIFYING A PAGE SIZE
+.sp
+By default the size of the output comes from the rendered size, which
+can be specified with the \fB\-\-width\fP and \fB\-\-height\fP options, but you
+can specify a page size independently of the rendered size with
+\fB\-\-page\-width\fP and \fB\-\-page\-height\fP, together with \fB\-\-top\fP and
+\fB\-\-left\fP to control the position of the rendered image within the
+page.  In short:
+.INDENT 0.0
+.IP \(bu 2
+\fB\-\-page\-width\fP and \fB\-\-page\-height\fP together \- set the page size.
+.IP \(bu 2
+\fB\-\-top\fP and \fB\-\-left\fP \- set the margins.
+.IP \(bu 2
+\fB\-\-width\fP and \fB\-\-height\fP \- set the rendered size.
+.UNINDENT
+.sp
+This will create a PDF with a landscape A4 page, by scaling an SVG
+document to 10*10 cm, and placing it with its top\-left corner 5 cm away
+from the top and 8 cm from the left of the page:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-format=\fP\fIpdf\fP \fB\-\-page\-width=\fP\fI297mm\fP
+\fB\-\-page\-height=\fP\fI210mm\fP \fB\-\-width=\fP\fI10cm\fP
+\fB\-\-height=\fP\fI10cm\fP \fB\-\-keep\-aspect\-ratio\fP \fB\-\-top=\fP\fI5cm\fP
+\fB\-\-left=\fP\fI8cm\fP \fIinput.svg\fP \fB>\fP \fIoutput.pdf\fP
+.UNINDENT
+.UNINDENT
+.SS SPECIFYING A SCALE FACTOR INSTEAD OF A RENDERED SIZE
+.sp
+The \fB\-\-zoom\fP option lets you scale the natural size of an SVG
+document. For example, if \fIinput.svg\fP is a document with a declared size
+of 100*200 pixels, then the following command will render it at 250*500
+pixels (zoom 2.5):
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-zoom=2.5\fP \fIinput.svg\fP \fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.sp
+You can limit the maximum scaled size by specifying the \fB\-\-width\fP and
+\fB\-\-height\fP options together with \fB\-\-zoom\fP\&.  Here, the image will be
+scaled 10x, but limited to 1000*1000 pixels at the most:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-zoom=10\fP \fB\-\-width=1000\fP \fB\-\-height=1000\fP
+\fIinput.svg\fP \fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.sp
+If you need different scale factors for the horizontal and vertical
+dimensions, use the \fB\-\-x\-zoom\fP and \fB\-\-y\-zoom\fP options instead of
+\fB\-\-zoom\fP\&.
+.SS CREATING A MULTI\-PAGE DOCUMENT
+.sp
+The \(dqpdf\(dq, \(dqps\(dq, and \(dqeps\(dq output formats support multiple pages. These
+can be created by combining multiple input SVG files. For example, this
+PDF file will have three pages:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-format=\fP\fIpdf\fP \fIpage1.svg\fP \fIpage2.svg\fP \fIpage3.svg\fP
+\fB>\fP \fIout.pdf\fP
+.UNINDENT
+.UNINDENT
+.sp
+The size of each page will be computed, separately, as described in the
+\fBDEFAULT OUTPUT SIZE\fP section. This may result in a PDF being produced
+with differently\-sized pages. If you need to produce a PDF with all
+pages set to exactly the same size, use the \fB\-\-page\-width\fP and
+\fB\-\-page\-height\fP options.
+.sp
+For example, the following command creates a three\-page PDF out of
+three SVG documents. All the pages are portrait US Letter, and each
+SVG is scaled to fit so that there is a 1in margin around each page
+(hence the width of 6.5in and height of 9in for the rendered size).
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-format=\fP\fIpdf\fP \fB\-\-page\-width=\fP\fI8.5in\fP
+\fB\-\-page\-height=\fP\fI11in\fP \fB\-\-width=\fP\fI6.5in\fP \fB\-\-height=\fP\fI9in\fP
+\fB\-\-keep\-aspect\-ratio\fP \fB\-\-top=\fP\fI1in\fP \fB\-\-left=\fP\fI1in\fP
+\fIpg1.svg\fP \fIpg2.svg\fP \fIpg3.svg\fP \fB>\fP \fIout.pdf\fP
+.UNINDENT
+.UNINDENT
+.SS CONVERSION OF PIXELS BASED ON THE DOTS\-PER\-INCH
+.sp
+\fBrsvg\-convert\fP uses the \fB\-\-dpi\-x\fP and \fB\-\-dpi\-y\fP options to
+configure the dots\-per\-inch (DPI) by which pixels will be converted
+to/from physical units like inches or centimeters. The default for both
+options is 96 DPI.
+.sp
+Consider this example SVG, which is nominally declared to be 2*3 inches
+in size:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+<svg xmlns=\(dqhttp://www.w3.org/2000/svg\(dq width=\(dq2in\(dq height=\(dq3in\(dq>
+  <!\-\- graphical objects here \-\->
+</svg>
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+The following commands create PNGs of different sizes for the example
+SVG above:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fItwo\-by\-three.svg\fP \fB>\fP \fIoutput.png\fP #### creates a
+192*288 pixel PNG
+.sp
+\fBrsvg\-convert\fP \fB\-\-dpi\-x=\fP\fI300\fP \fB\-\-dpi\-y=\fP\fI300\fP
+\fItwo\-by\-three.svg\fP \fB>\fP \fIoutput.png\fP #### creates a 600*900 pixel
+PNG
+.UNINDENT
+.UNINDENT
+.sp
+Note that the final pixel dimensions are rounded up to the nearest
+pixel, to avoid clipping off the right/bottom edges. In the following
+example, \fBrsvg\-convert\fP will generate a PNG 300x300 pixels in size:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-width=\fP\fI299.5\fP \fB\-\-height=\fP\fI299.4\fP
+\fIinput.svg\fP \fB>\fP \fIoutput.png\fP #### outputs 300x300 pixel PNG with a
+fractionally\-scaled image
+.UNINDENT
+.UNINDENT
+.sp
+If you specify dimensions in physical units, they will be multiplied by
+the dots\-per\-inch (DPI) value to obtain dimensions in pixels. For
+example, this will generate a 96x96 pixel PNG, since it is 1x1 inch at
+the default 96 DPI:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-width=\fP\fI1in\fP \fB\-\-height=\fP\fI1in\fP \fIinput.svg\fP
+\fB>\fP \fIoutput.png\fP #### outputs 96x96 pixel PNG
+.UNINDENT
+.UNINDENT
+.sp
+Correspondingly, this will generate a 300x300 pixel PNG, since it is 1x1
+inch at 300 DPI:
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-width=\fP\fI1in\fP \fB\-\-height=\fP\fI1in\fP
+\fB\-\-dpi\-x=\fP\fI300\fP \fB\-\-dpi\-y=\fP\fI300\fP \fIinput.svg\fP \fB>\fP
+\fIoutput.png\fP #### outputs 300x300 pixel PNG
+.UNINDENT
+.UNINDENT
+.SS DEFAULT OUTPUT SIZE
+.sp
+If you do not specify \fB\-\-width\fP or \fB\-\-height\fP options for the output
+size, \fBrsvg\-convert\fP will figure out a \(dqnatural size\(dq for the SVG as
+follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBSVG with width and height in pixel units (px):\fP \fB<svg
+width=\(dq96px\(dq height=\(dq192px\(dq>\fP For PNG output, those same dimensions
+in pixels are used. For PDF/PS/EPS, that pixel size is converted to
+physical units based on the DPI value (see the \fB\-\-dpi\-x\fP and
+\fB\-\-dpi\-y\fP options),
+.IP \(bu 2
+\fBSVG with width and height in physical units:\fP \fB<svg width=\(dq1in\(dq
+height=\(dq2in\(dq>\fP For PNG output, the \fBwidth\fP and \fBheight\fP
+attributes get converted to pixels, based on the DPI value (see the
+\fB\-\-dpi\-x\fP and \fB\-\-dpi\-y\fP options). For PDF/PS/EPS output, the
+width/height in physical units define the size of the PDF unless you
+specify options for the page size; see \fBSPECIFYING A PAGE SIZE\fP
+above.
+.IP \(bu 2
+\fBSVG with viewBox only:\fP \fB<svg viewBox=\(dq0 0 20 30\(dq>\fP The size of
+the \fBviewBox\fP attribute gets used for the pixel size of the image
+as in the first case above.
+.IP \(bu 2
+\fBSVG with width and height in percentages:\fP \fB<svg width=\(dq100%\(dq
+height=\(dq100%\(dq viewBox=\(dq0 0 20 30\(dq>\fP Percentages are meaningless
+unless you specify a viewport size with the \fB\-\-width\fP and
+\fB\-\-height\fP options. In their absence, \fBrsvg\-convert\fP will just
+use the size of the \fBviewBox\fP for the pixel size, as described
+above.
+.IP \(bu 2
+\fBSVG with no width, height, or viewBox:\fP \fBrsvg\-convert\fP will
+measure the extents of all graphical objects in the SVG document and
+render them at 1:1 scale (1 pixel for each CSS px unit). It is
+strongly recommended that you give SVG documents an explicit size
+with the \fBwidth\fP, \fBheight\fP, or \fBviewBox\fP attributes.
+.UNINDENT
+.SS BACKGROUND COLOR
+.sp
+You can use the \fB\-\-background\-color\fP option (\fB\-b\fP for short) to
+specify the background color that will appear in parts of the image that
+would otherwise be transparent. This option accepts the same syntax as
+the CSS \fBcolor\fP property, so you can use \fB#rrggbb\fP syntax, or CSS
+named colors like \fBwhite\fP, or \fBrgba()\fP\&.
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-background\-color=\fP\fIwhite\fP \fIinput.svg\fP \fB>\fP
+\fIoutput.png\fP #### opaque white
+.UNINDENT
+.UNINDENT
+.\" 
+.
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-b\fP \fI\(aq#ff000080\(aq\fP \fIinput.svg\fP \fB>\fP \fIoutput.png\fP
+#### translucent red \- use shell quotes so the # is not interpreted
+as a comment
+.UNINDENT
+.UNINDENT
+.SS SELECTING A LANGUAGE FOR MULTI\-LANGUAGE SVG
+.sp
+An SVG document can use the \fB<switch>\fP element and children with the
+\fBsystemLanguage\fP attribute to provide different content depending on
+the user\(aqs language. For example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+<svg xmlns=\(dqhttp://www.w3.org/2000/svg\(dq width=\(dq200\(dq height=\(dq100\(dq>
+  <rect width=\(dq200\(dq height=\(dq100\(dq fill=\(dqwhite\(dq/>
+  <g transform=\(dqtranslate(30, 30)\(dq font\-size=\(dq20\(dq>
+    <switch allowReorder=\(dqyes\(dq>
+      <text systemLanguage=\(dqes\(dq>Español</text>
+      <text systemLanguage=\(dqde\(dq>Deutsch</text>
+      <text systemLanguage=\(dqfr\(dq>Français</text>
+      <text>English fallback</text>
+    </switch>
+  </g>
+</svg>
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+You can use the \fB\-\-accept\-language\fP option to select which language to
+use when rendering. This option accepts strings formatted like an HTTP
+Accept\-Language header, which is a comma\-separated list of BCP47
+language tags:  <https://www.rfc\-editor.org/info/bcp47> 
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-accept\-language=\fP\fIes\-MX\fP \fIinput.svg\fP \fB>\fP
+\fIoutput.png\fP #### selects Mexican Spanish; renders \(dqEspañol\(dq.
+.UNINDENT
+.UNINDENT
+.SS USER STYLESHEET
+.sp
+You can include an extra CSS stylesheet to be used when rendering an
+SVG document with the \fB\-\-stylesheet\fP option. The stylesheet will
+have the CSS \fBuser origin\fP, while styles declared in the SVG document
+will have the CSS \fBauthor origin\fP\&.
+.INDENT 0.0
+.INDENT 3.5
+\fBrsvg\-convert\fP \fB\-\-stylesheet=\fP\fIextra\-styles.css\fP \fIinput.svg\fP
+\fB>\fP \fIoutput.png\fP
+.UNINDENT
+.UNINDENT
+.sp
+Please note that per the cascading rules of CSS, a user stylesheet
+does not necessarily override the styles defined in an SVG document.
+To override them reliably, you need to set your extra styles to
+\fB!important\fP\&.
+.sp
+According to the CSS Cascading specification
+(\fIhttps://www.w3.org/TR/css\-cascade\-4/#cascade\-sort\fP), style
+declarations have the following precedence.  Declarations from origins
+later in the list win over declarations from earlier origins:
+.INDENT 0.0
+.IP \(bu 2
+Normal user agent declarations (librsvg\(aqs own stylesheets).
+.IP \(bu 2
+Normal user declarations (from your user stylesheet).
+.IP \(bu 2
+Normal author declarations (from the SVG document).
+.IP \(bu 2
+\fB!important\fP author declarations (from the SVG document).
+.IP \(bu 2
+\fB!important\fP user declarations (from your user stylesheet).
+.IP \(bu 2
+\fB!important\fP user agent declarations (librsvg\(aqs own stylesheets).
+.UNINDENT
+.sp
+After that, the CSS specificity and order of appearance of
+declarations get taken into account.
+.sp
+Consider the following \fIinput.svg\fP; notice how the rectangle has
+\fBfill=\(dqred\(dq\fP as a presentation attribute, and a \fBrecolorable\fP
+class:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+<svg xmlns=\(dqhttp://www.w3.org/2000/svg\(dq width=\(dq100\(dq height=\(dq100\(dq>
+  <rect width=\(dq200\(dq height=\(dq100\(dq fill=\(dqwhite\(dq/>
+
+  <rect class=\(dqrecolorable\(dq x=\(dq10\(dq y=\(dq10\(dq width=\(dq50\(dq height=\(dq50\(dq fill=\(dqred\(dq/>
+
+  <text x=\(dq10\(dq y=\(dq80\(dq font\-size=\(dq20\(dq fill=\(dqred\(dq>Hello</text>
+</svg>
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+And this is \fIextra\-styles.css\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+\&.recolorable { fill: blue !important; }
+
+text { fill: green !important; }
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Then the PNG created by the command above will have these elements:
+.INDENT 0.0
+.IP \(bu 2
+A blue square instead of a red one, because of the selector for the
+the \fBrecolorable\fP class.  The \fBfill: blue !important;\fP
+declaration takes precendence over the \fBfill=\(dqred\(dq\fP presentation
+attribute.
+.IP \(bu 2
+Text in green, since its \fBfill=\(dqred\(dq\fP gets overriden with \fIfill:
+green !important\fP\&.
+.UNINDENT
+.SH OPTIONS
+.SS GENERAL OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-f\fP \fIformat\fP, \fB\-\-format=[png, pdf, pdf1.4, pdf1.5, pdf1.6. pdf1.7, ps, eps, svg]\fP
+Output format for the rendered document. Default is \fBpng\fP\&.
+See the section \(dqPDF VERSIONS\(dq for more detail on what each one allows.
+.TP
+.B \fB\-o\fP \fIfilename\fP, \fB\-\-output\fP \fIfilename\fP
+Specify the output filename. If unspecified, outputs to standard
+output.
+.TP
+.B \fB\-v\fP, \fB\-\-version\fP
+Display what version of rsvg\-convert you are running.
+.TP
+.B \fB\-\-help\fP
+Display a summary of usage and options.
+.UNINDENT
+.SS SIZE AND POSITION
+.sp
+In the following, \fI<length>\fP values must be specified with CSS <length>
+syntax:  <https://developer.mozilla.org/en\-US/docs/Web/CSS/length> \&.
+For example, \fB640px\fP or \fB25cm\fP\&.
+.INDENT 0.0
+.TP
+.B \fB\-\-page\-width\fP \fI<length>\fP \fB\-\-page\-height\fP \fI<length>\fP
+Page size of the output document; both options must be used
+together.  The default is to use the image\(aqs width and height as
+modified by the options below.
+.TP
+.B \fB\-\-top\fP \fI<length>\fP
+Distance between top edge of the page and the rendered image. Default
+is 0.
+.TP
+.B \fB\-\-left\fP \fI<length>\fP
+Distance between left edge of the page and the rendered image.
+Default is 0.
+.TP
+.B \fB\-w\fP \fI<length>\fP, \fB\-\-width\fP \fI<length>\fP
+Width of the rendered image. If unspecified, the natural width of the
+image is used as the default. See the section \(dqSPECIFYING DIMENSIONS\(dq
+above for details.
+.TP
+.B \fB\-h\fP \fI<length>\fP, \fB\-\-height\fP \fI<length>\fP
+Height of the rendered image. If unspecified, the natural height of
+the image is used as the default. See the section \(dqSPECIFYING
+DIMENSIONS\(dq above for details.
+.TP
+.B \fB\-a\fP, \fB\-\-keep\-aspect\-ratio\fP
+Specify that the aspect ratio is to be preserved, i.e. the image is
+scaled proportionally to fit in the \fB\-\-width\fP and \fB\-\-height\fP\&. If
+not specified, aspect ratio will not be preserved.
+.TP
+.B \fB\-d\fP \fInumber\fP, \fB\-\-dpi\-x\fP \fInumber\fP
+Set the X resolution of the image in pixels per inch. Default is 96
+DPI.
+.TP
+.B \fB\-p\fP \fInumber\fP, \fB\-\-dpi\-y\fP \fInumber\fP
+Set the Y resolution of the image in pixels per inch. Default is 96
+DPI.
+.TP
+.B \fB\-x\fP \fInumber\fP, \fB\-\-x\-zoom\fP \fInumber\fP
+Horizontal scaling factor. Default is 1.0.
+.TP
+.B \fB\-y\fP \fInumber\fP, \fB\-\-y\-zoom\fP \fInumber\fP
+Vertical factor factor. Default is 1.0.
+.TP
+.B \fB\-z\fP \fInumber\fP, \fB\-\-zoom\fP \fInumber\fP
+Horizontal and vertical scaling factor. Default is 1.0.
+.UNINDENT
+.SS CONTROLLING THE RENDERED APPEARANCE
+.INDENT 0.0
+.TP
+.B \fB\-b\fP \fI<color>\fP, \fB\-\-background\-color\fP \fI[black, white, #abccee, #aaa...]\fP
+Specify the background color. If unspecified, \fBnone\fP is used as
+the default; this will create transparent PNGs, or PDF/PS/EPS
+without a special background.  The \fI<color>\fP must be specified in
+CSS <color> syntax:  <https://developer.mozilla.org/en\-US/docs/Web/CSS/color_value> \&.
+For example, \fBblack\fP, \fB#ff0000\fP, \fBrgba(0.0, 1.0, 0.0, 1.0)\fP\&.
+.TP
+.B \fB\-s\fP \fIfilename.css\fP, \fB\-\-stylesheet\fP \fIfilename.css\fP
+Filename of a custom CSS stylesheet.
+.TP
+.B \fB\-l\fP \fIlanguage\-tag\fP, \fB\-\-accept\-language\fP \fI[es\-MX,fr,en]\fP
+Specify which languages will be used for SVG documents with multiple
+languages. The string is formatted like an HTTP Accept\-Language
+header, which is a comma\-separated list of BCP47 language tags:
+ <https://www.rfc\-editor.org/info/bcp47> \&. The default is to use the
+language specified by environment variables; see the section
+\(dqENVIRONMENT VARIABLES\(dq below.
+.UNINDENT
+.SS OPTIONS SPECIFIC TO PDF/PS/EPS OUTPUT
+.INDENT 0.0
+.TP
+.B \fB\-\-keep\-image\-data\fP
+For SVG documents that reference PNG or JPEG images, include the
+original, compressed images in the final output, rather than
+uncompressed RGB data. This is the default behavior for PDF and
+(E)PS output.
+.TP
+.B \fB\-\-no\-keep\-image\-data\fP
+Do not include the original, compressed images but instead embed
+uncompressed RGB date in PDF or (E)PS output. This will most likely
+result in larger documents that are slower to read.
+.UNINDENT
+.SS MISCELLANEOUS
+.INDENT 0.0
+.TP
+.B \fB\-i\fP \fIobject\-id\fP, \fB\-\-export\-id\fP \fIobject\-id\fP
+Allows to specify an SVG object that should be exported based on its
+XML \fBid\fP attribute. If not specified, all objects will be exported.
+.TP
+.B \fB\-u\fP, \fB\-\-unlimited\fP
+The XML parser has some guards designed to mitigate large CPU or
+memory consumption in the face of malicious documents. It may also
+refuse to resolve \fBdata:\fP URIs used to embed image data in SVG
+documents. If you are running into such issues when converting a
+SVG, this option allows to turn off these guards.
+.TP
+.B \fB\-\-testing\fP
+For developers only: render images for librsvg\(aqs test suite.
+.TP
+.B \fB\-\-completion\fP \fIshell\-name\fP
+Generate a script for a shell\(aqs Tab completion.  You can use \fBbash\fP,
+\fBelvish\fP, \fBfish\fP, \fBpowershell\fP, and \fBzsh\fP for the shell\(aqs
+name.  Rsvg\-convert will then write a suitable script to standard
+output.
+.UNINDENT
+.SH ENVIRONMENT VARIABLES
+.INDENT 0.0
+.TP
+.B \fBSOURCE_DATE_EPOCH\fP
+If the selected output format is PDF, this variable can be used to
+control the CreationDate in the PDF file. This is useful for
+reproducible output. The environment variable must be set to a
+decimal number corresponding to a UNIX timestamp, defined as the
+number of seconds, excluding leap seconds, since 01 Jan 1970 00:00:00
+UTC. The specification for this can be found at
+ <https://reproducible\-builds.org/specs/source\-date\-epoch/> 
+.TP
+.B \fBSystem language\fP
+Unless the \fB\-\-accept\-language\fP option is specified, the default is
+to use the system\(aqs environment to detect the user\(aqs preferred
+language. This consults the environment variables \fBLANGUAGE\fP,
+\fBLC_ALL\fP, \fBLC_MESSAGES\fP, and \fBLANG\fP\&.
+.UNINDENT
+.SH PDF VERSIONS
+.sp
+The \fB\-\-format=pdf\fP option makes rsvg\-convert output the latest
+version of PDF that it supports.  Normally this is the right thing to
+do, except when you have tools that consume the resulting PDFs but
+only support certain versions.
+.sp
+For example, LaTeX tools like pdflatex may issue a warning if you try
+to include a PDF image that uses a newer version than the surrounding
+document, similar to
+.INDENT 0.0
+.INDENT 3.5
+\fIPDF inclusion: found PDF version <1.7> but at most version <1.5> allowed\fP
+.UNINDENT
+.UNINDENT
+.sp
+In this case, you may need to restrict the PDF version that
+rsvg\-convert produces.  Instead of \fB\-\-format=pdf\fP, you can use the
+following:
+.INDENT 0.0
+.TP
+.B \fB\-\-format=pdf1.4\fP
+Does not use PDF object streams; files may be bigger as they allow for less compression.
+.TP
+.B \fB\-\-format=pdf1.5\fP
+Allows creating PDFs where text can be selected and searched.
+.TP
+.B \fB\-\-format=pdf1.6\fP
+No special behavior.
+.TP
+.B \fB\-\-format=pdf1.7\fP
+Allows including UTF\-8 filenames in link objects reliably.
+.UNINDENT
+.sp
+If you are using LaTeX tooling, you may want to research options like
+\fB\epdfminorversion=6\fP\&.
+.SH MORE INFORMATION
+.sp
+Librsvg source repository and bug tracker:  <https://gitlab.gnome.org/GNOME/librsvg> 
+.sp
+Wiki project page:  <https://wiki.gnome.org/Projects/LibRsvg> 
+.sp
+SVG1.1 specification:  <http://www.w3.org/TR/SVG11/> 
+.sp
+SVG2 specification:  <http://www.w3.org/TR/SVG2> 
+.sp
+GNOME project page:  <http://www.gnome.org/> 
+.\" Generated by docutils manpage writer.
+.

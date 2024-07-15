@@ -1,0 +1,84 @@
+# This file created by conda-build 3.28.0
+# meta.yaml template originally from:
+# /work/perseverance-python-buildout/aggregate/send2trash-feedstock/recipe, last modified Fri Dec  1 21:39:36 2023
+# ------------------------------------------------
+
+package:
+  name: send2trash
+  version: 1.8.2
+source:
+  fn: Send2Trash-1.8.2.tar.gz
+  sha256: c132d59fa44b9ca2b1699af5c86f57ce9f4c5eb56629d5d55fbb7a35f84e2312
+  url: https://pypi.io/packages/source/S/Send2Trash/Send2Trash-1.8.2.tar.gz
+build:
+  number: '0'
+  script: /work/perseverance-python-buildout/croot/send2trash_1701732325573/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+    -m pip install --no-deps --no-build-isolation --ignore-installed .
+  string: py312h06a4308_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 main
+    - _openmp_mutex 5.1 1_gnu
+    - bzip2 1.0.8 h7b6447c_0
+    - ca-certificates 2023.08.22 h06a4308_0
+    - expat 2.5.0 h6a678d5_0
+    - ld_impl_linux-64 2.38 h1181459_1
+    - libffi 3.4.4 h6a678d5_0
+    - libgcc-ng 11.2.0 h1234567_1
+    - libgomp 11.2.0 h1234567_1
+    - libstdcxx-ng 11.2.0 h1234567_1
+    - libuuid 1.41.5 h5eee18b_0
+    - ncurses 6.4 h6a678d5_0
+    - openssl 3.0.12 h7f8727e_0
+    - pip 23.3.1 py312h06a4308_0
+    - python 3.12.0 h996f2a0_0
+    - readline 8.2 h5eee18b_0
+    - setuptools 68.0.0 py312h06a4308_0
+    - sqlite 3.41.2 h5eee18b_0
+    - tk 8.6.12 h1ccaba5_0
+    - tzdata 2023c h04d1e81_0
+    - wheel 0.41.2 py312h06a4308_0
+    - xz 5.4.5 h5eee18b_0
+    - zlib 1.2.13 h5eee18b_0
+  run:
+    - python >=3.12,<3.13.0a0
+test:
+  commands:
+    - pip check
+    - echo test > test.txt
+    - python -c "from send2trash import *; send2trash('test.txt')"
+  imports:
+    - send2trash
+  requires:
+    - pip
+about:
+  description: 'Send2Trash is a small package that sends files to the Trash (or Recycle
+    Bin) natively and on all platforms.
+
+    On OS X, it uses native FSMoveObjectToTrashSync Cocoa calls or can use pyobjc
+    with NSFileManager.
+
+    On Windows, it uses native IFileOperation call if on Vista or newer and pywin32
+    is installed or falls back
+
+    to SHFileOperation calls. On other platforms, if PyGObject and GIO are available,
+    it will use this. Otherwise,
+
+    it will fallback to its own implementation of the trash specifications from freedesktop.org.
+
+    ctypes is used to access native libraries, so no compilation is necessary.
+
+    '
+  dev_url: https://github.com/arsenetar/send2trash
+  doc_url: https://github.com/arsenetar/send2trash
+  home: https://github.com/arsenetar/send2trash
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Python library to natively send files to Trash (or Recycle bin) on all
+    platforms.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - bollwyvl

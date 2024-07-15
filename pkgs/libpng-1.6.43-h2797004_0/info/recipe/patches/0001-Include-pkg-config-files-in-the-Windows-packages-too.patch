@@ -1,0 +1,29 @@
+--- libpng-1.6.42.orig/CMakeLists.txt	2024-01-29 17:51:33.000000000 -0300
++++ libpng-1.6.42/CMakeLists.txt	2024-01-31 11:42:49.593925216 -0300
+@@ -985,7 +985,7 @@
+ # We use the same files like ./configure, so we have to set its vars.
+ # Only do this on Windows for Cygwin - the files don't make much sense
+ # outside of a UNIX look-alike.
+-if(NOT WIN32 OR CYGWIN OR MINGW)
++if(1)
+   set(prefix      ${CMAKE_INSTALL_PREFIX})
+   set(exec_prefix ${CMAKE_INSTALL_PREFIX})
+   set(libdir      ${CMAKE_INSTALL_FULL_LIBDIR})
+@@ -1055,13 +1055,13 @@
+   install(FILES png.5
+           DESTINATION ${CMAKE_INSTALL_MANDIR}/man5)
+   # Install the pkg-config files.
++  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libpng.pc
++          DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
++  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libpng${PNGLIB_ABI_VERSION}.pc
++          DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+   if(NOT CMAKE_HOST_WIN32 OR CYGWIN OR MINGW)
+-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libpng.pc
+-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+     install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/libpng-config
+             DESTINATION ${CMAKE_INSTALL_BINDIR})
+-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libpng${PNGLIB_ABI_VERSION}.pc
+-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+     install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/libpng${PNGLIB_ABI_VERSION}-config
+             DESTINATION ${CMAKE_INSTALL_BINDIR})
+   endif()

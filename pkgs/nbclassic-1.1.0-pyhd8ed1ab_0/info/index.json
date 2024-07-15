@@ -1,0 +1,19 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "ipykernel",
+    "ipython_genutils",
+    "nest-asyncio >=1.5",
+    "notebook-shim >=0.2.3",
+    "python >=3.7"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "nbclassic",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1716838925077,
+  "version": "1.1.0"
+}

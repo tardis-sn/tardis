@@ -1,0 +1,9 @@
+{
+    "arch": "x86_64",
+    "cpu": "11th Gen Intel(R) Core(TM) i3-1125G4 @ 2.00GHz",
+    "machine": "charon",
+    "num_cpu": "8",
+    "os": "Linux 5.15.0-112-generic",
+    "ram": "7861744",
+    "version": 1
+}

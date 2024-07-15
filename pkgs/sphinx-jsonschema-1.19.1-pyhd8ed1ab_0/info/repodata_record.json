@@ -1,0 +1,29 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "docutils",
+        "jsonpointer",
+        "python >=3.6",
+        "pyyaml",
+        "requests",
+        "sphinx"
+    ],
+    "fn": "sphinx-jsonschema-1.19.1-pyhd8ed1ab_0.tar.bz2",
+    "license": "GPL-3.0-only",
+    "md5": "d340bddca07283d3362b0e46b1791568",
+    "name": "sphinx-jsonschema",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "25eb01ba39b88283a5046a288d9deb88af96ed6c4c120072b3007ef20096ee55",
+    "size": 31700,
+    "subdir": "noarch",
+    "timestamp": 1651425623497,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinx-jsonschema-1.19.1-pyhd8ed1ab_0.tar.bz2",
+    "version": "1.19.1"
+}

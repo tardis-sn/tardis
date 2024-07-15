@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "0",
+  "build_number": 0,
+  "depends": [
+    "fonts-conda-forge"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "fonts-conda-ecosystem",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1566974674465,
+  "version": "1"
+}

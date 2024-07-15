@@ -1,0 +1,52 @@
+{% set version = "1.3.1" %}
+
+package:
+  name: qgrid
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/q/qgrid/qgrid-{{ version }}.tar.gz
+  sha256: fe8af5b50833084dc0b6a265cd1ac7b837c03c0f8521150163560dce778d711c
+
+build:
+  noarch: python
+  number: 4
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - python >=2.7
+    - pip
+    - nbclassic >=0.4.4
+    - notebook >=4.0.0
+  run:
+    - python >=2.7
+    - nbclassic >=0.4.4
+    - notebook >=4.0.0
+    - pandas >=0.17.0
+    - ipywidgets >=7.0.0,<8
+
+test:
+  imports:
+    - qgrid
+    - qgrid.tests
+
+about:
+  home: https://github.com/quantopian/qgrid
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE
+  summary: Pandas DataFrame viewer for Jupyter Notebook
+  description: |
+    Qgrid is a Jupyter notebook widget which uses SlickGrid to render pandas DataFrames.
+    This allows you to explore your DataFrames with intuitive scrolling, sorting, and
+    filtering controls, as well as edit your DataFrames by double clicking cells.
+  doc_url: http://qgrid.readthedocs.org/en/latest/
+  doc_source_url: https://github.com/quantopian/qgrid/blob/master/docs/index.rst
+  dev_url: https://github.com/quantopian/qgrid
+
+extra:
+  recipe-maintainers:
+    - TimShawver
+    - alen12345
+    - xhochy

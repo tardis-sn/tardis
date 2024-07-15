@@ -1,0 +1,13 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/foo": { "foo": "bar" }
+  },
+  "tests": [
+    {
+      "base_uri": "http://example.com/foo",
+      "ref": "#",
+      "target": { "foo": "bar" }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+include/blosc-export.h
+include/blosc.h
+lib/libblosc.so
+lib/libblosc.so.1
+lib/libblosc.so.1.21.6
+lib/pkgconfig/blosc.pc

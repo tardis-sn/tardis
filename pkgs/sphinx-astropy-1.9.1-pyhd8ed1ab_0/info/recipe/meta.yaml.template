@@ -1,0 +1,65 @@
+{% set name = "sphinx-astropy" %}
+{% set version = "1.9.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/sphinx-astropy-{{ version }}.tar.gz
+  sha256: 7931c795f445caee38f98754afd75fe7393db7df2c4dcc860f94a011fb162454
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.7
+    - setuptools_scm
+    - pip
+  run:
+    - python >=3.7
+    - packaging
+    - astropy-sphinx-theme
+    - numpydoc
+    - sphinx >=3
+    - sphinx-automodapi
+    - sphinx-gallery
+    - sphinxcontrib-jquery
+    - pillow
+    - pytest-doctestplus >=0.11
+
+test:
+  imports:
+    - sphinx
+    - astropy_sphinx_theme
+    - numpydoc
+    - sphinx_astropy
+    - sphinx_automodapi
+    - sphinx_gallery
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://www.astropy.org
+  license: BSD-3-Clause
+  license_file: LICENSE.rst
+  summary: Sphinx extensions and configuration specific to the Astropy project
+  description: |
+    This package serves two purposes: it provides a default Sphinx configuration
+    and set of extensions specific to the Astropy project, and it acts as a
+    meta-package by installing all required Sphinx extensions for the core
+    Astropy package and other packages.
+  doc_url: https://github.com/astropy/sphinx-astropy
+  dev_url: https://github.com/astropy/sphinx-astropy
+
+extra:
+  recipe-maintainers:
+    - astrofrog-conda-forge
+    - drdavella
+    - mwcraig

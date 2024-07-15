@@ -1,0 +1,40 @@
+{
+    "arch": "x86_64",
+    "build": "hab00c5b_0_cpython",
+    "build_number": 0,
+    "build_string": "hab00c5b_0_cpython",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [
+        "python_abi 3.12.* *_cp312"
+    ],
+    "depends": [
+        "bzip2 >=1.0.8,<2.0a0",
+        "ld_impl_linux-64 >=2.36.1",
+        "libexpat >=2.6.2,<3.0a0",
+        "libffi >=3.4,<4.0a0",
+        "libgcc-ng >=12",
+        "libnsl >=2.0.1,<2.1.0a0",
+        "libsqlite >=3.45.2,<4.0a0",
+        "libuuid >=2.38.1,<3.0a0",
+        "libxcrypt >=4.4.36",
+        "libzlib >=1.2.13,<1.3.0a0",
+        "ncurses >=6.4.20240210,<7.0a0",
+        "openssl >=3.2.1,<4.0a0",
+        "readline >=8.2,<9.0a0",
+        "tk >=8.6.13,<8.7.0a0",
+        "tzdata",
+        "xz >=5.2.6,<6.0a0"
+    ],
+    "fn": "python-3.12.3-hab00c5b_0_cpython.conda",
+    "license": "Python-2.0",
+    "md5": "2540b74d304f71d3e89c81209db4db84",
+    "name": "python",
+    "platform": "linux",
+    "sha256": "f9865bcbff69f15fd89a33a2da12ad616e98d65ce7c83c644b92e66e5016b227",
+    "size": 31991381,
+    "subdir": "linux-64",
+    "timestamp": 1713208036041,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/python-3.12.3-hab00c5b_0_cpython.conda",
+    "version": "3.12.3"
+}

@@ -1,0 +1,14 @@
+site-packages/pure_eval-0.2.2.dist-info/INSTALLER
+site-packages/pure_eval-0.2.2.dist-info/LICENSE.txt
+site-packages/pure_eval-0.2.2.dist-info/METADATA
+site-packages/pure_eval-0.2.2.dist-info/RECORD
+site-packages/pure_eval-0.2.2.dist-info/REQUESTED
+site-packages/pure_eval-0.2.2.dist-info/WHEEL
+site-packages/pure_eval-0.2.2.dist-info/direct_url.json
+site-packages/pure_eval-0.2.2.dist-info/top_level.txt
+site-packages/pure_eval/__init__.py
+site-packages/pure_eval/core.py
+site-packages/pure_eval/my_getattr_static.py
+site-packages/pure_eval/py.typed
+site-packages/pure_eval/utils.py
+site-packages/pure_eval/version.py

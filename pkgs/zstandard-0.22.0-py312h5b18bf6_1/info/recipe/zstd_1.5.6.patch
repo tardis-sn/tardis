@@ -1,0 +1,86 @@
+From 518ade454f41ffbad8b9b542f6938cd308653ba2 Mon Sep 17 00:00:00 2001
+From: Gregory Szorc <gregory.szorc@gmail.com>
+Date: Sun, 26 May 2024 17:59:09 -0700
+Subject: [PATCH] global: reflect upgrade to zstd 1.5.6
+
+---
+ Cargo.lock                      | 10 ++++------
+ Cargo.toml                      |  4 ++--
+ c-ext/backend_c.c               |  2 +-
+ tests/test_module_attributes.py |  2 +-
+ 5 files changed, 9 insertions(+), 10 deletions(-)
+
+diff --git a/Cargo.lock b/Cargo.lock
+index 19c27b22..8c1a08a1 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -394,21 +394,19 @@ checksum = "bec47e5bfd1bff0eeaf6d8b485cc1074891a197ab4225d504cb7a1ab88b02bf0"
+ 
+ [[package]]
+ name = "zstd-safe"
+-version = "6.0.5+zstd.1.5.4"
++version = "7.1.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "d56d9e60b4b1758206c238a10165fbcae3ca37b01744e394c463463f6529d23b"
++checksum = "1cd99b45c6bc03a018c8b8a86025678c87e55526064e38f9df301989dce7ec0a"
+ dependencies = [
+- "libc",
+  "zstd-sys",
+ ]
+ 
+ [[package]]
+ name = "zstd-sys"
+-version = "2.0.8+zstd.1.5.5"
++version = "2.0.10+zstd.1.5.6"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "5556e6ee25d32df2586c098bbfa278803692a20d0ab9565e049480d52707ec8c"
++checksum = "c253a4914af5bafc8fa8c86ee400827e83cf6ec01195ec1f1ed8441bf00d65aa"
+ dependencies = [
+  "cc",
+- "libc",
+  "pkg-config",
+ ]
+diff --git a/Cargo.toml b/Cargo.toml
+index d7703a40..85f7348e 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -18,11 +18,11 @@ num_cpus = "1.16.0"
+ rayon = "1.10.0"
+ 
+ [dependencies.zstd-safe]
+-version = "6.0.5+zstd.1.5.4"
++version = "7.1.0"
+ features = ["experimental", "legacy", "zstdmt"]
+ 
+ [dependencies.zstd-sys]
+-version = "2.0.8+zstd.1.5.5"
++version = "2.0.10+zstd.1.5.6"
+ features = ["experimental", "legacy", "zstdmt"]
+ 
+ [dependencies.pyo3]
+diff --git a/c-ext/backend_c.c b/c-ext/backend_c.c
+index bf61f9c8..aabe30bc 100644
+--- a/c-ext/backend_c.c
++++ b/c-ext/backend_c.c
+@@ -152,7 +152,7 @@ void zstd_module_init(PyObject *m) {
+     PyObject *features = NULL;
+     PyObject *feature = NULL;
+     unsigned zstd_ver_no = ZSTD_versionNumber();
+-    unsigned our_hardcoded_version = 10505;
++    unsigned our_hardcoded_version = 10506;
+     if (ZSTD_VERSION_NUMBER != our_hardcoded_version ||
+         zstd_ver_no != our_hardcoded_version) {
+         PyErr_Format(
+diff --git a/tests/test_module_attributes.py b/tests/test_module_attributes.py
+index 79d915fb..11df0cb3 100644
+--- a/tests/test_module_attributes.py
++++ b/tests/test_module_attributes.py
+@@ -5,7 +5,7 @@
+ 
+ class TestModuleAttributes(unittest.TestCase):
+     def test_version(self):
+-        self.assertEqual(zstd.ZSTD_VERSION, (1, 5, 5))
++        self.assertEqual(zstd.ZSTD_VERSION, (1, 5, 6))
+ 
+         self.assertEqual(zstd.__version__, "0.23.0.dev0")
+ 

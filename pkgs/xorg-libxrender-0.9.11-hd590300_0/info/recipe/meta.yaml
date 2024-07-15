@@ -1,0 +1,77 @@
+# This file created by conda-build 3.25.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun Jul  2 12:20:22 2023
+# ------------------------------------------------
+
+package:
+  name: xorg-libxrender
+  version: 0.9.11
+source:
+  fn: xorg-libXrender-0.9.11.tar.bz2
+  sha256: bc53759a3a83d1ff702fb59641b3d2f7c56e05051fa0cfa93501166fa782dc24
+  url: https://www.x.org/releases/individual/lib/libXrender-0.9.11.tar.xz
+build:
+  detect_binary_files_with_prefix: true
+  number: '0'
+  run_exports:
+    - xorg-libxrender >=0.9.11,<0.10.0a0
+  string: hd590300_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - autoconf 2.71 pl5321h2b4cb7a_1
+    - automake 1.16.5 pl5321ha770c72_0
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_0
+    - gcc_impl_linux-64 12.3.0 he2b93b0_0
+    - gcc_linux-64 12.3.0 h76fc315_0
+    - gettext 0.21.1 h27087fc_0
+    - gnuconfig 2020.11.07 hd8ed1ab_0
+    - kernel-headers_linux-64 2.6.32 he073ed8_15
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_0
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libnsl 2.0.0 h7f98852_0
+    - libsanitizer 12.3.0 h0f45ef3_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+    - libtool 2.4.7 h27087fc_0
+    - m4 1.4.18 h516909a_1001
+    - make 4.3 hd18ef5c_1
+    - perl 5.32.1 2_h7f98852_perl5
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - sysroot_linux-64 2.12 he073ed8_15
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libxcb 1.15 h0b41bf4_0
+    - pthread-stubs 0.4 h36c2ea0_1001
+    - xorg-kbproto 1.0.7 h7f98852_1002
+    - xorg-libx11 1.8.6 h8ee46fc_0
+    - xorg-libxau 1.0.11 hd590300_0
+    - xorg-libxdmcp 1.1.3 h7f98852_0
+    - xorg-renderproto 0.11.1 h7f98852_1002
+    - xorg-util-macros 1.19.3 h7f98852_0
+    - xorg-xextproto 7.3.0 h0b41bf4_1003
+    - xorg-xproto 7.0.31 h7f98852_1007
+  run:
+    - libgcc-ng >=12
+    - xorg-libx11 >=1.8.6,<2.0a0
+    - xorg-renderproto
+test:
+  commands:
+    - test -f $PREFIX/lib/libXrender.so
+about:
+  home: https://www.x.org/
+  license: MIT
+  license_family: MIT
+  license_file: COPYING
+  summary: The X.org X11 direct rendering library.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - pkgw

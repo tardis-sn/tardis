@@ -1,0 +1,179 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.5"
+    ],
+    "extracted_package_dir": "pkgs/webcolors-24.6.0-pyhd8ed1ab_0",
+    "files": [
+        "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/LICENSE",
+        "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/METADATA",
+        "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/RECORD",
+        "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/WHEEL",
+        "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/webcolors/__init__.py",
+        "lib/python3.12/site-packages/webcolors/_conversion.py",
+        "lib/python3.12/site-packages/webcolors/_definitions.py",
+        "lib/python3.12/site-packages/webcolors/_html5.py",
+        "lib/python3.12/site-packages/webcolors/_normalization.py",
+        "lib/python3.12/site-packages/webcolors/_types.py",
+        "lib/python3.12/site-packages/webcolors/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/webcolors/__pycache__/_conversion.cpython-312.pyc",
+        "lib/python3.12/site-packages/webcolors/__pycache__/_definitions.cpython-312.pyc",
+        "lib/python3.12/site-packages/webcolors/__pycache__/_html5.cpython-312.pyc",
+        "lib/python3.12/site-packages/webcolors/__pycache__/_normalization.cpython-312.pyc",
+        "lib/python3.12/site-packages/webcolors/__pycache__/_types.cpython-312.pyc"
+    ],
+    "fn": "webcolors-24.6.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "link": {
+        "source": "pkgs/webcolors-24.6.0-pyhd8ed1ab_0",
+        "type": 1
+    },
+    "md5": "419f2f6cf90fc7a6feee657752cd0f7b",
+    "name": "webcolors",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/webcolors-24.6.0-pyhd8ed1ab_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/LICENSE",
+                "path_type": "hardlink",
+                "sha256": "224bb9063d1204f687477a680fab945debff8cf717c629510c1d7083d9a7969a",
+                "sha256_in_prefix": "224bb9063d1204f687477a680fab945debff8cf717c629510c1d7083d9a7969a",
+                "size_in_bytes": 1531
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "b35aecef3c7750928378d0fd93b8afbbfd693cbe6ef42d4241ceeb3dca6da7ae",
+                "sha256_in_prefix": "b35aecef3c7750928378d0fd93b8afbbfd693cbe6ef42d4241ceeb3dca6da7ae",
+                "size_in_bytes": 2629
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "4569f74fd7cac93cdc5c709902c45c10ab05f45162bbe9c855e769141e5b48ea",
+                "sha256_in_prefix": "4569f74fd7cac93cdc5c709902c45c10ab05f45162bbe9c855e769141e5b48ea",
+                "size_in_bytes": 1480
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+                "sha256_in_prefix": "189eedfe4581172c1b6a02b97a8f48a14c0b5baa3239e4ca990fbd8871553714",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "4bad05669b7cfde0aab578037c69931e36024e2612892fd1131a001e7b0bf575",
+                "sha256_in_prefix": "4bad05669b7cfde0aab578037c69931e36024e2612892fd1131a001e7b0bf575",
+                "size_in_bytes": 105
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors-24.6.0.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "1d410d18e4eb53211479b2f5612672d9138c45eca47e2c8ccd207e9928bbdbfe",
+                "sha256_in_prefix": "1d410d18e4eb53211479b2f5612672d9138c45eca47e2c8ccd207e9928bbdbfe",
+                "size_in_bytes": 10
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "c1bdb9c167764c16c997d5bf8a129a4fbd75fd966c97a3b43018ab5723c3676f",
+                "sha256_in_prefix": "c1bdb9c167764c16c997d5bf8a129a4fbd75fd966c97a3b43018ab5723c3676f",
+                "size_in_bytes": 1608
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/_conversion.py",
+                "path_type": "hardlink",
+                "sha256": "0c4bd9402f534a182cb47f040e3fd2a3706d3b960e98367125fe93869bf4c233",
+                "sha256_in_prefix": "0c4bd9402f534a182cb47f040e3fd2a3706d3b960e98367125fe93869bf4c233",
+                "size_in_bytes": 13361
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/_definitions.py",
+                "path_type": "hardlink",
+                "sha256": "11db64460b2e628d1ae1ab9707ddf492c81ea01159d6836d233ea318d7ecb8a1",
+                "sha256_in_prefix": "11db64460b2e628d1ae1ab9707ddf492c81ea01159d6836d233ea318d7ecb8a1",
+                "size_in_bytes": 8746
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/_html5.py",
+                "path_type": "hardlink",
+                "sha256": "5add122756184ba7598793bf604d25c2e469daef0e3a4354c335e76d4bc6f1ce",
+                "sha256_in_prefix": "5add122756184ba7598793bf604d25c2e469daef0e3a4354c335e76d4bc6f1ce",
+                "size_in_bytes": 9734
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/_normalization.py",
+                "path_type": "hardlink",
+                "sha256": "5fecd93499670c22de2c155421395e1c82a32fa17de0019193b25e970188d987",
+                "sha256_in_prefix": "5fecd93499670c22de2c155421395e1c82a32fa17de0019193b25e970188d987",
+                "size_in_bytes": 4016
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/_types.py",
+                "path_type": "hardlink",
+                "sha256": "6c8bda9bcd297c1bd8016a69cd188f1ba6b74eb09684002061087e5cc8d58f4c",
+                "sha256_in_prefix": "6c8bda9bcd297c1bd8016a69cd188f1ba6b74eb09684002061087e5cc8d58f4c",
+                "size_in_bytes": 1858
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/__pycache__/_conversion.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/__pycache__/_definitions.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/__pycache__/_html5.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/__pycache__/_normalization.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/webcolors/__pycache__/_types.cpython-312.pyc",
+                "path_type": "pyc_file"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "",
+    "sha256": "6377de3bc05b80f25c5fe75f180a81fc8a6aa601d4b228161f75f78862d00a0f",
+    "size": 18291,
+    "subdir": "noarch",
+    "timestamp": 1717667379821,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/webcolors-24.6.0-pyhd8ed1ab_0.conda",
+    "version": "24.6.0"
+}

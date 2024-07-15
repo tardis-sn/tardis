@@ -1,0 +1,179 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/syrupy-4.6.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/syrupy-4.6.1.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "8d698dde79b81e71358fc77ea5bd6f2ef2ff67f6a5d2c1d81a87ffc1218080d4",
+      "size_in_bytes": 10769
+    },
+    {
+      "_path": "site-packages/syrupy-4.6.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "ac172a5dc9b583b4dab1195a02f62d94384f44b42ede373c287ae76c608cbe8d",
+      "size_in_bytes": 34119
+    },
+    {
+      "_path": "site-packages/syrupy-4.6.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "4d96f75fc186c7ba859558a89de5583ca2d590e7d2135915467fc6f074cc93c9",
+      "size_in_bytes": 3352
+    },
+    {
+      "_path": "site-packages/syrupy-4.6.1.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/syrupy-4.6.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "b0ff78e83ee31421de373e48ab87cbe0bbbe3eb5ab16c81f2d76db91c8886708",
+      "size_in_bytes": 88
+    },
+    {
+      "_path": "site-packages/syrupy-4.6.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "1082c2259d7b8a689ac8d1229479d0358b3b82db4e6ece6ebac3901b72aee286",
+      "size_in_bytes": 102
+    },
+    {
+      "_path": "site-packages/syrupy-4.6.1.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "8cddeee733ffe4bd8279e249f7b5d87bb5c6ba5df66a95df4013f33601123d39",
+      "size_in_bytes": 26
+    },
+    {
+      "_path": "site-packages/syrupy/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "974e99ca5b4627495a8474cff21e7a5ced50588e78770d8628c612fcdbe6e3bf",
+      "size_in_bytes": 6075
+    },
+    {
+      "_path": "site-packages/syrupy/assertion.py",
+      "path_type": "hardlink",
+      "sha256": "57fa64a413ecd86cbfb73da53406848ebbc44d09821ba36b5ff16df953920763",
+      "size_in_bytes": 12869
+    },
+    {
+      "_path": "site-packages/syrupy/constants.py",
+      "path_type": "hardlink",
+      "sha256": "849ec99e0e55fa1042acaa25979b182961343321b5af08b5f5fdf19b96e7b760",
+      "size_in_bytes": 498
+    },
+    {
+      "_path": "site-packages/syrupy/data.py",
+      "path_type": "hardlink",
+      "sha256": "a64c5066abd4f86b8aa28c74ce20bde473f21a420ee2eb5ea2c50e1b17b30707",
+      "size_in_bytes": 4213
+    },
+    {
+      "_path": "site-packages/syrupy/exceptions.py",
+      "path_type": "hardlink",
+      "sha256": "8337c95fb976480f79a87b27202423813890d1446861d8ec411ab9e65d516b03",
+      "size_in_bytes": 531
+    },
+    {
+      "_path": "site-packages/syrupy/extensions/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "1edea46e67ac1fd55dace79d51effa960fb9d2d3eb6c53ac54653f3522c9d530",
+      "size_in_bytes": 86
+    },
+    {
+      "_path": "site-packages/syrupy/extensions/amber/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "f59fcf74d904506ac48a71fc2ddeb18be67473917d513adaf1ecb560b273b2aa",
+      "size_in_bytes": 2688
+    },
+    {
+      "_path": "site-packages/syrupy/extensions/amber/serializer.py",
+      "path_type": "hardlink",
+      "sha256": "2e805b3e5658b0983de0fa76650a7e2b1a42015fe92aeb6bf6bb429c48659924",
+      "size_in_bytes": 16814
+    },
+    {
+      "_path": "site-packages/syrupy/extensions/base.py",
+      "path_type": "hardlink",
+      "sha256": "41367176a30ebcc7674d799b652738664c77269e8dc004204b0cf33fe0286416",
+      "size_in_bytes": 14671
+    },
+    {
+      "_path": "site-packages/syrupy/extensions/image.py",
+      "path_type": "hardlink",
+      "sha256": "4ffe0d9a796a9d791f68beb934e0b473400415466509a198598f0725e97bf586",
+      "size_in_bytes": 521
+    },
+    {
+      "_path": "site-packages/syrupy/extensions/json/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "1d09fb01766d22fe6e23fd69f5a2196333fee71e839f0c85e9aff8ad608f8459",
+      "size_in_bytes": 5145
+    },
+    {
+      "_path": "site-packages/syrupy/extensions/single_file.py",
+      "path_type": "hardlink",
+      "sha256": "236813d08311c7a4d5ae902d1aa23fd6ecdee640e242e90eb87f6b02d7c35db9",
+      "size_in_bytes": 4542
+    },
+    {
+      "_path": "site-packages/syrupy/filters.py",
+      "path_type": "hardlink",
+      "sha256": "cce1f8feda7197da24bfc3e51fbe49e5a8afe1cd77b4eff6ce09956e65e98921",
+      "size_in_bytes": 2271
+    },
+    {
+      "_path": "site-packages/syrupy/location.py",
+      "path_type": "hardlink",
+      "sha256": "ad3f8256da8acc1a5477358a81a135ee25a001dcdb38ef9860427d347735fd71",
+      "size_in_bytes": 4087
+    },
+    {
+      "_path": "site-packages/syrupy/matchers.py",
+      "path_type": "hardlink",
+      "sha256": "3a1b6a0cf850282b8cb74f9de80573d4bf09c301f072bdb1e2dd0529b3f55d20",
+      "size_in_bytes": 3293
+    },
+    {
+      "_path": "site-packages/syrupy/py.typed",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/syrupy/report.py",
+      "path_type": "hardlink",
+      "sha256": "38964cf32a4ab9bdcdfd2ed006f561df683e725bde438ff1f557078fefa7303b",
+      "size_in_bytes": 19775
+    },
+    {
+      "_path": "site-packages/syrupy/session.py",
+      "path_type": "hardlink",
+      "sha256": "1f08c6326ea9e846ebf915e09c1c8416206d6f97d8bc0617bfd3ae01cc77e327",
+      "size_in_bytes": 6729
+    },
+    {
+      "_path": "site-packages/syrupy/terminal.py",
+      "path_type": "hardlink",
+      "sha256": "3be25cba6cb8e923816caabba22e7f88808be8e992dbf5affc6d679c0a12acbb",
+      "size_in_bytes": 2513
+    },
+    {
+      "_path": "site-packages/syrupy/types.py",
+      "path_type": "hardlink",
+      "sha256": "b51e24ce80276ca0297deed14276a53474c8991c1a04d87943ef99fa329b1705",
+      "size_in_bytes": 970
+    },
+    {
+      "_path": "site-packages/syrupy/utils.py",
+      "path_type": "hardlink",
+      "sha256": "b8bb0ec9e878aaa8451cede0199f7f5b2636b486e2daebade381db2158c03c6d",
+      "size_in_bytes": 5320
+    }
+  ],
+  "paths_version": 1
+}

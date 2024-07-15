@@ -1,0 +1,9 @@
+prefix=/home/conda/feedstock_root/build_artifacts/xorg-xextproto_1677036688440/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeh
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+ 
+Name: XExtProto
+Description: XExt extension headers
+Version: 7.3.0
+Cflags: -I${includedir}

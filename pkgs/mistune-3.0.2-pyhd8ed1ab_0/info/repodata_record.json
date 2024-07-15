@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "fn": "mistune-3.0.2-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "5cbee699846772cc939bef23a0d524ed",
+    "name": "mistune",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "f95cb70007e3cc2ba44e17c29a056b499e6dadf08746706d0c817c8e2f47e05c",
+    "size": 66022,
+    "subdir": "noarch",
+    "timestamp": 1698947249750,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/mistune-3.0.2-pyhd8ed1ab_0.conda",
+    "version": "3.0.2"
+}

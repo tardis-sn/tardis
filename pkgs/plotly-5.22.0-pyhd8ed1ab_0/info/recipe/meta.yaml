@@ -1,0 +1,202 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat May  4 13:37:29 2024
+# ------------------------------------------------
+
+package:
+  name: plotly
+  version: 5.22.0
+source:
+  sha256: 859fdadbd86b5770ae2466e542b761b247d1c6b49daed765b95bb8c7063e7469
+  url: https://pypi.io/packages/source/p/plotly/plotly-5.22.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/plotly_1714829923649/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_6
+    - libgomp 13.2.0 h77fa898_6
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.45.3 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.3.0 hd590300_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - packaging
+    - python >=3.6
+    - tenacity >=6.2.0
+  run_constrained:
+    - ipywidgets >=7.6
+test:
+  commands:
+    - pip check
+    - conda install -y numpy
+    - python test-imports-requiring-numpy.py
+    - conda install -y matplotlib-base
+    - python test-imports-requiring-matplotlib.py
+    - conda install -y pandas
+    - python test-imports-requiring-pandas.py
+  files:
+    - test-imports-requiring-matplotlib.py
+    - test-imports-requiring-numpy.py
+    - test-imports-requiring-pandas.py
+  imports:
+    - _plotly_future_
+    - _plotly_utils
+    - _plotly_utils.colors
+    - jupyterlab_plotly
+    - plotly
+    - plotly.colors
+    - plotly.data
+    - plotly.graph_objects
+    - plotly.graph_objs.bar
+    - plotly.graph_objs.barpolar
+    - plotly.graph_objs.box
+    - plotly.graph_objs.candlestick
+    - plotly.graph_objs.carpet
+    - plotly.graph_objs.choropleth
+    - plotly.graph_objs.choroplethmapbox
+    - plotly.graph_objs.cone
+    - plotly.graph_objs.contour
+    - plotly.graph_objs.contourcarpet
+    - plotly.graph_objs.densitymapbox
+    - plotly.graph_objs.funnel
+    - plotly.graph_objs.funnelarea
+    - plotly.graph_objs.heatmap
+    - plotly.graph_objs.heatmapgl
+    - plotly.graph_objs.histogram
+    - plotly.graph_objs.histogram2d
+    - plotly.graph_objs.histogram2dcontour
+    - plotly.graph_objs.icicle
+    - plotly.graph_objs.image
+    - plotly.graph_objs.indicator
+    - plotly.graph_objs.isosurface
+    - plotly.graph_objs.layout
+    - plotly.graph_objs.mesh3d
+    - plotly.graph_objs.ohlc
+    - plotly.graph_objs.parcats
+    - plotly.graph_objs.parcoords
+    - plotly.graph_objs.pie
+    - plotly.graph_objs.pointcloud
+    - plotly.graph_objs.sankey
+    - plotly.graph_objs.scatter
+    - plotly.graph_objs.scatter3d
+    - plotly.graph_objs.scattercarpet
+    - plotly.graph_objs.scattergeo
+    - plotly.graph_objs.scattergl
+    - plotly.graph_objs.scattermapbox
+    - plotly.graph_objs.scatterpolar
+    - plotly.graph_objs.scatterpolargl
+    - plotly.graph_objs.scatterternary
+    - plotly.graph_objs.splom
+    - plotly.graph_objs.streamtube
+    - plotly.graph_objs.sunburst
+    - plotly.graph_objs.surface
+    - plotly.graph_objs.table
+    - plotly.graph_objs.treemap
+    - plotly.graph_objs.violin
+    - plotly.graph_objs.volume
+    - plotly.graph_objs.waterfall
+    - plotly.io
+    - plotly.offline
+    - plotly.validators
+    - plotly.validators.bar
+    - plotly.validators.barpolar
+    - plotly.validators.box
+    - plotly.validators.candlestick
+    - plotly.validators.carpet
+    - plotly.validators.choropleth
+    - plotly.validators.choroplethmapbox
+    - plotly.validators.cone
+    - plotly.validators.contour
+    - plotly.validators.contourcarpet
+    - plotly.validators.densitymapbox
+    - plotly.validators.frame
+    - plotly.validators.funnel
+    - plotly.validators.funnelarea
+    - plotly.validators.heatmap
+    - plotly.validators.heatmapgl
+    - plotly.validators.histogram
+    - plotly.validators.histogram2d
+    - plotly.validators.histogram2dcontour
+    - plotly.validators.icicle
+    - plotly.validators.image
+    - plotly.validators.indicator
+    - plotly.validators.isosurface
+    - plotly.validators.layout
+    - plotly.validators.mesh3d
+    - plotly.validators.ohlc
+    - plotly.validators.parcats
+    - plotly.validators.parcoords
+    - plotly.validators.pie
+    - plotly.validators.pointcloud
+    - plotly.validators.sankey
+    - plotly.validators.scatter
+    - plotly.validators.scatter3d
+    - plotly.validators.scattercarpet
+    - plotly.validators.scattergeo
+    - plotly.validators.scattergl
+    - plotly.validators.scattermapbox
+    - plotly.validators.scatterpolar
+    - plotly.validators.scatterpolargl
+    - plotly.validators.scatterternary
+    - plotly.validators.splom
+    - plotly.validators.streamtube
+    - plotly.validators.sunburst
+    - plotly.validators.surface
+    - plotly.validators.table
+    - plotly.validators.treemap
+    - plotly.validators.violin
+    - plotly.validators.volume
+    - plotly.validators.waterfall
+  requires:
+    - pip
+about:
+  description: 'Plotly''s Python graphing library makes interactive,
+
+    publication-quality graphs online. Examples of how to make line
+
+    plots, scatter plots, area charts, bar charts, error bars, box plots,
+
+    histograms, heatmaps, subplots, multiple-axes, polar charts and
+
+    bubble charts.
+
+    '
+  dev_url: https://github.com/plotly/plotly.py
+  doc_url: https://plot.ly/python/
+  home: https://plot.ly/python/
+  license: MIT
+  license_file: /home/conda/recipe_root/LICENSE.txt
+  summary: An interactive, browser-based graphing library for Python
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240504.2.1
+  recipe-maintainers:
+    - chohner
+    - maresb
+    - moorepants
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/plotly-feedstock
+  sha: 54ac73e0d62a52f239ecb6ebb03766048f8266cd

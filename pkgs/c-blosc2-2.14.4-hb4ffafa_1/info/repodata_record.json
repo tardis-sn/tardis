@@ -1,0 +1,28 @@
+{
+    "arch": "x86_64",
+    "build": "hb4ffafa_1",
+    "build_number": 1,
+    "build_string": "hb4ffafa_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libstdcxx-ng >=12",
+        "lz4-c >=1.9.3,<1.10.0a0",
+        "zlib-ng >=2.0.7,<2.1.0a0",
+        "zstd >=1.5.5,<1.6.0a0"
+    ],
+    "fn": "c-blosc2-2.14.4-hb4ffafa_1.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "84eb54e92644c328e087e1c725773317",
+    "name": "c-blosc2",
+    "platform": "linux",
+    "sha256": "e6846af674feea386c4814d2a61e3ee5ae0b1981f2fb41973eb390b4c7497783",
+    "size": 337101,
+    "subdir": "linux-64",
+    "timestamp": 1712841161473,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/c-blosc2-2.14.4-hb4ffafa_1.conda",
+    "version": "2.14.4"
+}

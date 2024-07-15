@@ -1,0 +1,16 @@
+{
+  "arch": "x86_64",
+  "build": "h59595ed_0",
+  "build_number": 0,
+  "depends": [
+    "libexpat 2.6.2 h59595ed_0",
+    "libgcc-ng >=12"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "expat",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1710362144873,
+  "version": "2.6.2"
+}

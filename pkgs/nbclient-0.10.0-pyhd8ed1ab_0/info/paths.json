@@ -1,0 +1,115 @@
+{
+  "paths": [
+    {
+      "_path": "python-scripts/jupyter-execute",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/nbclient_1710317608672/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl",
+      "sha256": "ef73b82c0089848f4d055ca7836602e37212ec9babcafe7963fa7e34e8738246",
+      "size_in_bytes": 494
+    },
+    {
+      "_path": "site-packages/nbclient-0.10.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/nbclient-0.10.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "ad736161d849c7ecadcbc30af1c03822c8d7daa09274e3aa8e9576ced0755715",
+      "size_in_bytes": 7813
+    },
+    {
+      "_path": "site-packages/nbclient-0.10.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "797cd6c148f4dedd5e36b64d92d2b144235c371af201904df2903731c357012f",
+      "size_in_bytes": 1854
+    },
+    {
+      "_path": "site-packages/nbclient-0.10.0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/nbclient-0.10.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "4c93e729db6b4ae7bbc59fc0546929f585dcbc3ae86ec8c176cd5dbb7371e9d7",
+      "size_in_bytes": 87
+    },
+    {
+      "_path": "site-packages/nbclient-0.10.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "d7572dceabb73eaa7a08120fdcdf53bb36feff86be49ab42671efea0c426d983",
+      "size_in_bytes": 104
+    },
+    {
+      "_path": "site-packages/nbclient-0.10.0.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "b072509d4055a242b8e8ed8f2be835586f500214e6697cb77f0b2143fb7b4c50",
+      "size_in_bytes": 54
+    },
+    {
+      "_path": "site-packages/nbclient-0.10.0.dist-info/licenses/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "83c56c2de2a2a71227d0a98fd246049e6320c094d03e2d560c7c0c0b3ec576e9",
+      "size_in_bytes": 1534
+    },
+    {
+      "_path": "site-packages/nbclient/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "90e928c78ae2103d36dd5eb68810c930a6c8d55707dcb33a54445a5fd97abfa7",
+      "size_in_bytes": 164
+    },
+    {
+      "_path": "site-packages/nbclient/_version.py",
+      "path_type": "hardlink",
+      "sha256": "51a077b6f19c3f914b8b62d981e7484da090da6e4ded2360c36132a66471feb2",
+      "size_in_bytes": 464
+    },
+    {
+      "_path": "site-packages/nbclient/cli.py",
+      "path_type": "hardlink",
+      "sha256": "e1979d228acc6ed545caa9b0961817c7efc5db0dbe6addf479fedcef359cc333",
+      "size_in_bytes": 6781
+    },
+    {
+      "_path": "site-packages/nbclient/client.py",
+      "path_type": "hardlink",
+      "sha256": "1c5372ef21f1d6582a8855608933ef82713b2d33806b280ed878efd1b1ae9d01",
+      "size_in_bytes": 49597
+    },
+    {
+      "_path": "site-packages/nbclient/exceptions.py",
+      "path_type": "hardlink",
+      "sha256": "de3ead9b49495404991d3a38727a6fa81c4df45284a641d4698c831bb0ab2236",
+      "size_in_bytes": 4065
+    },
+    {
+      "_path": "site-packages/nbclient/jsonutil.py",
+      "path_type": "hardlink",
+      "sha256": "3f4511e02bcca9964b41b2e8802b981eca94b8c57ad1b6d589f970109978f347",
+      "size_in_bytes": 4597
+    },
+    {
+      "_path": "site-packages/nbclient/output_widget.py",
+      "path_type": "hardlink",
+      "sha256": "83b10ac8abbf8ccefa3999d0de79eaa4339d4ebd308d085dee25491b1f81a3c2",
+      "size_in_bytes": 4527
+    },
+    {
+      "_path": "site-packages/nbclient/py.typed",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/nbclient/util.py",
+      "path_type": "hardlink",
+      "sha256": "6d6cd39ca1d506837d88fd6b5d8c821a6eeac824294500f00cee0506d8e313b7",
+      "size_in_bytes": 544
+    }
+  ],
+  "paths_version": 1
+}

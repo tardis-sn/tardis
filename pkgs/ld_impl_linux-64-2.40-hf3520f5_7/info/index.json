@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "hf3520f5_7",
+  "build_number": 7,
+  "constrains": [
+    "binutils_impl_linux-64 2.40"
+  ],
+  "depends": [],
+  "license": "GPL-3.0-only",
+  "name": "ld_impl_linux-64",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1718625640445,
+  "version": "2.40"
+}

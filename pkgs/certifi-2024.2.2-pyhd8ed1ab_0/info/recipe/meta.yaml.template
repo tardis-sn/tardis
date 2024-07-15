@@ -1,0 +1,67 @@
+{% set version = "2024.2.2" %}
+
+{% set pip_version = "23.3.2" %}
+{% set setuptools_version = "69.0.3" %}
+{% set wheel_version = "0.42.0" %}
+
+package:
+  name: certifi
+  version: {{ version }}
+
+source:
+  - url: https://pypi.io/packages/source/c/certifi/certifi-{{ version }}.tar.gz
+    sha256: 0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f
+    folder: certifi
+  # Download bootstrapped wheels into their respective source directories
+  - url: https://pypi.io/packages/py3/p/pip/pip-{{ pip_version }}-py3-none-any.whl
+    sha256: 5052d7889c1f9d05224cd41741acb7c5d6fa735ab34e339624a614eaaa7e7d76
+    folder: boostrap_wheels
+  - url: https://pypi.io/packages/py3/s/setuptools/setuptools-{{ setuptools_version }}-py3-none-any.whl
+    sha256: 385eb4edd9c9d5c17540511303e39a147ce2fc04bc55289c322b9e5904fe2c05
+    folder: boostrap_wheels
+  - url: https://pypi.io/packages/py3/w/wheel/wheel-{{ wheel_version }}-py3-none-any.whl
+    sha256: 177f9c9b0d45c47873b619f5b650346d632cdc35fb5e4d25058e09c9e581433d
+    folder: boostrap_wheels
+
+build:
+  number: 0
+  noarch: python
+  script_env:
+    # Add bootstrapped wheels to `PYTHONPATH` so Python can find them for the build
+    - >-
+      PYTHONPATH=
+      {{- os.sep.join([SRC_DIR|default("."), "boostrap_wheels"]) ~ os.pathsep }}
+      {{- os.environ.get("PYTHONPATH", "") }}
+  script:
+    - cd certifi
+    - {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.7
+  run:
+    - python >=3.7
+
+test:
+  imports:
+    - certifi
+
+about:
+  home: http://certifi.io/
+  license: ISC
+  license_file: certifi/LICENSE
+  summary: Python package for providing Mozilla's CA Bundle.
+  description: |
+    Certifi is a curated collection of Root Certificates for validating the
+    trustworthiness of SSL certificates while verifying the identity of TLS
+    hosts.
+  doc_url: https://pypi.python.org/pypi/certifi
+  dev_url: https://github.com/certifi/python-certifi
+  doc_source_url: https://github.com/certifi/certifi.io/blob/master/README.rst
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - pelson
+    - sigmavirus24
+    - ocefpaf

@@ -1,0 +1,28 @@
+# This file created by conda-build 3.18.11
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Feb 25 01:22:38 2020
+# ------------------------------------------------
+
+package:
+    name: nomkl
+    version: '1.0'
+build:
+    noarch: generic
+    number: '0'
+    string: h5ca1d4c_0
+requirements:
+    run_constrained:
+        - mkl <0.a0
+test:
+    requires:
+        - numpy
+about:
+    home: https://github.com/conda-forge/nomkl-feedstock
+    license: BSD-3-Clause
+    license_file: LICENSE
+    summary: prevents mkl installation
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - ocefpaf

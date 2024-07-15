@@ -1,0 +1,1 @@
+["pytest", "simplejson >=3,<4", "pytest-mock", "pip", "pytest-cov", "dateparser >=1,<2", "pytz"]

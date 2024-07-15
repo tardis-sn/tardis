@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd3deb0d_0",
+    "build_number": 0,
+    "build_string": "pyhd3deb0d_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python"
+    ],
+    "fn": "ptyprocess-0.7.0-pyhd3deb0d_0.tar.bz2",
+    "license": "ISC",
+    "md5": "359eeb6536da0e687af562ed265ec263",
+    "name": "ptyprocess",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "fb31e006a25eb2e18f3440eb8d17be44c8ccfae559499199f73584566d0a444a",
+    "size": 16546,
+    "subdir": "noarch",
+    "timestamp": 1609419417991,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/ptyprocess-0.7.0-pyhd3deb0d_0.tar.bz2",
+    "version": "0.7.0"
+}

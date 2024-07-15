@@ -1,0 +1,14 @@
+{
+  "noarch": {
+    "entry_points": [
+      "cm2html = recommonmark.scripts:cm2html",
+      "cm2latex = recommonmark.scripts:cm2latex",
+      "cm2man = recommonmark.scripts:cm2man",
+      "cm2pseudoxml = recommonmark.scripts:cm2pseudoxml",
+      "cm2xetex = recommonmark.scripts:cm2xetex",
+      "cm2xml = recommonmark.scripts:cm2xml"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

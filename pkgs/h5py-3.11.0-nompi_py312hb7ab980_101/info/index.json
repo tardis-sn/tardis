@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "nompi_py312hb7ab980_101",
+  "build_number": 101,
+  "depends": [
+    "cached-property",
+    "hdf5 >=1.14.3,<1.14.4.0a0",
+    "libgcc-ng >=12",
+    "numpy >=1.19,<3",
+    "python >=3.12,<3.13.0a0",
+    "python_abi 3.12.* *_cp312"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "h5py",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1715968255375,
+  "version": "3.11.0"
+}

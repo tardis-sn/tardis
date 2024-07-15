@@ -1,0 +1,93 @@
+{% set version = "3.11.0" %}
+{% set build = 2 %}
+
+# mpi must be defined for conda-smithy lint
+{% set mpi = mpi or 'nompi' %}
+
+{% if mpi == 'nompi' %}
+# prefer nompi builds via a build number offset
+{% set build = build + 100 %}
+{% endif %}
+
+package:
+  name: h5py
+  version: {{ version }}
+
+source:
+  url: https://github.com/h5py/h5py/archive/{{ version }}.tar.gz
+  sha256: 034ec21f28f2f2edc4542515a9ae45356a25bb459048acf9622e6b1143b3fae7
+
+build:
+  skip: true  # [py<=37]
+  number: {{ build }}
+  {% if mpi != 'nompi' %}
+  {% set mpi_prefix = "mpi_" + mpi %}
+  {% else %}
+  {% set mpi_prefix = "nompi" %}
+  {% endif %}
+  # add build string so packages can depend on
+  # mpi or nompi variants
+  # dependencies:
+  # `pkg * mpi_mpich_*` for mpich
+  # `hdf5 * mpi_*` for any mpi
+  # `hdf5 * nompi_*` for no mpi
+  string: {{ mpi_prefix }}_py{{ py }}h{{ PKG_HASH }}_{{ build }}
+  script_env:
+    - HDF5_HAS_ROS3=1  # [build_platform != target_platform]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - cython >=0.29.31,<1                    # [build_platform != target_platform]
+    - hdf5                                   # [build_platform != target_platform]
+    - hdf5 * {{ mpi_prefix }}_*              # [build_platform != target_platform]
+    - numpy                                  # [build_platform != target_platform]
+    - {{ compiler("c") }}
+    - {{ stdlib("c") }}
+    - {{ mpi }}  # [mpi == 'openmpi' and build_platform != target_platform]
+  host:
+    - python
+    - pip
+    - numpy
+    - {{ mpi }}  # [mpi != 'nompi']
+    - mpi4py >=3.0  # [mpi != 'nompi']
+    # need to list hdf5 twice to get version pinning from conda_build_config
+    # and build pinning from {{ mpi_prefix }}
+    - hdf5
+    - hdf5 * {{ mpi_prefix }}_*
+    - cython >=0.29.31,<1
+    - pkgconfig
+  run:
+    - python
+    - cached-property
+    - {{ mpi }}  # [mpi != 'nompi']
+    - mpi4py >=3.0  # [mpi != 'nompi']
+    # hdf5 >=1.10.4 has run_exports
+    - hdf5
+
+test:
+  imports:
+    - h5py
+  commands:
+    - pip check
+  requires:
+    - pip
+    - pytest
+    - pytest-mpi
+
+about:
+  home: http://www.h5py.org/
+  license: BSD-3-Clause
+  license_file: licenses/license.txt
+  summary: Read and write HDF5 files from Python
+  dev_url: https://github.com/h5py/h5py
+
+extra:
+  recipe-maintainers:
+    - jan-janssen
+    - jakirkham
+    - tacaswell
+    - ocefpaf
+    - minrk
+    - scopatz

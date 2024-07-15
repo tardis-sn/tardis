@@ -1,0 +1,152 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu Apr 11 00:11:31 2024
+# ------------------------------------------------
+
+package:
+  name: pytables
+  version: 3.9.2
+source:
+  patches:
+    - do_not_rely_on_python-blosc2.patch
+  sha256: d470263c2e50c4b7c8635a0d99ac1ff2f9e704c24d71e5fa33c4529e7d0ad9c3
+  url: https://pypi.io/packages/source/t/tables/tables-3.9.2.tar.gz
+build:
+  entry_points:
+    - pt2to3 = tables.scripts.pt2to3:main
+    - ptdump = tables.scripts.ptdump:main
+    - ptrepack = tables.scripts.ptrepack:main
+    - pttree = tables.scripts.pttree:main
+  number: '2'
+  string: py312h96d95ec_2
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gxx_impl_linux-64 12.3.0 he2b93b0_5
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_105
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - blosc 1.21.5 hc2324a3_1
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.28.1 hd590300_0
+    - c-blosc2 2.14.4 hb4ffafa_0
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cython 0.29.37 py312h30efb56_0
+    - hdf5 1.14.3 nompi_h4f84152_100
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libaec 1.1.3 h59595ed_0
+    - libblas 3.9.0 22_linux64_openblas
+    - libcblas 3.9.0 22_linux64_openblas
+    - libcurl 8.7.1 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgfortran-ng 13.2.0 h69a702a_5
+    - libgfortran5 13.2.0 ha4646dd_5
+    - libgomp 13.2.0 h807b86a_5
+    - liblapack 3.9.0 22_linux64_openblas
+    - libnghttp2 1.58.0 h47da74e_1
+    - libnsl 2.0.1 hd590300_0
+    - libopenblas 0.3.27 pthreads_h413a1c8_0
+    - libsqlite 3.45.2 h2797004_0
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - lz4-c 1.9.4 hcb278e6_0
+    - lzo 2.10 h516909a_1000
+    - ncurses 6.4.20240210 h59595ed_0
+    - nomkl 1.0 h5ca1d4c_0
+    - numexpr 2.9.0 py312hed3a10b_100
+    - numpy 1.26.4 py312heda63a1_0
+    - openssl 3.2.1 hd590300_1
+    - packaging 24.0 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - py-cpuinfo 9.0.0 pyhd8ed1ab_0
+    - python 3.12.2 hab00c5b_0_cpython
+    - python_abi 3.12 4_cp312
+    - readline 8.2 h8228510_1
+    - setuptools 69.2.0 pyhd8ed1ab_0
+    - snappy 1.2.0 hdb0a2a9_1
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.2.13 hd590300_5
+    - zlib-ng 2.0.7 h0b41bf4_0
+    - zstd 1.5.5 hfc55251_0
+  run:
+    - blosc >=1.21.5,<2.0a0
+    - bzip2 >=1.0.8,<2.0a0
+    - c-blosc2 >=2.14.4,<3.0a0
+    - hdf5 >=1.14.3,<1.14.4.0a0
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+    - libzlib >=1.2.13,<1.3.0a0
+    - lzo >=2.10,<3.0a0
+    - numexpr
+    - numpy >=1.26.4,<2.0a0
+    - packaging
+    - py-cpuinfo
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+test:
+  commands:
+    - pt2to3 -h
+    - ptdump -h
+    - ptrepack -h
+    - pttree -h
+    - pip check
+  requires:
+    - pip
+    - setuptools
+about:
+  description: 'PyTables is a package for managing hierarchical datasets and designed
+    to
+
+    efficiently and easily cope with extremely large amounts of data. PyTables
+
+    is built on top of the HDF5 library, using the Python language and the
+
+    NumPy package.
+
+    '
+  dev_url: https://github.com/PyTables
+  doc_url: http://www.pytables.org/
+  home: http://www.pytables.org
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: Brings together Python, HDF5 and NumPy to easily handle large amounts of
+    data.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240410.5.1
+  recipe-maintainers:
+    - avalentino
+    - msarahan
+    - ocefpaf
+    - scopatz
+    - tomkooij
+  remote_url: https://github.com/conda-forge/pytables-feedstock
+  sha: ab26834af7a9d241e12e86d92c1e4a83dff56829

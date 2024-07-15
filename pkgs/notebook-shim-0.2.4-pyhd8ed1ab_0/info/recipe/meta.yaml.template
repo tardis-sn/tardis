@@ -1,0 +1,43 @@
+{% set version = "0.2.4" %}
+
+package:
+  name: notebook-shim
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/n/notebook-shim/notebook_shim-{{ version }}.tar.gz
+  sha256: b4b2cfa1b65d98307ca24361f5b30fe785b53c3fd07b7a47e89acb5e6ac638cb
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  number: 0
+
+requirements:
+  host:
+    - hatchling >=1.0
+    - pip
+    - python >=3.7
+  run:
+    - jupyter_server >=1.8,<3
+    - python >=3.7
+
+test:
+  imports:
+    - notebook_shim
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/jupyterlab/notebook_shim
+  summary: A shim layer for notebook traits and config
+  license: BSD-3-Clause
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - bollwyvl
+    - jtpio
+    - Zsailer

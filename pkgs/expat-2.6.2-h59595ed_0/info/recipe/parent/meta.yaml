@@ -1,0 +1,93 @@
+{% set version = "2.6.2" %}
+{% set ver = version|replace(".", "_") %}
+
+package:
+  name: expat-split
+  version: {{ version }}
+
+source:
+  url: https://github.com/libexpat/libexpat/releases/download/R_{{ ver }}/expat-{{ version }}.tar.bz2
+  sha256: 9c7c1b5dcbc3c237c500a8fb1493e14d9582146dd9b42aa8d3ffb856a3b927e0
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - cmake-no-system   # [win]
+    - make              # [unix]
+    - gnuconfig         # [unix]
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+  host:
+
+test:
+  commands:
+    - xmlwf -h
+
+outputs:
+  - name: libexpat
+    script: install.sh  # [unix]
+    script: install.bat  # [win]
+    files:
+      - lib/libexpat.so.*          # [linux]
+      - lib/libexpat.*.dylib       # [osx]
+      - Library/bin/libexpat.dll   # [win]
+    build:
+      ignore_run_exports_from:
+        # This package needs the compiler for the tests, but the library
+        # does not link to libstdc++.so
+        - {{ compiler('cxx') }}
+    requirements:
+      build:
+        - cmake-no-system   # [win]
+        - make              # [unix]
+        - gnuconfig         # [unix]
+        - {{ compiler('c') }}
+        - {{ compiler('cxx') }}
+      host:
+      run:
+      run_constrained:
+        - expat {{ version }}.*
+
+  - name: expat
+    script: install.sh  # [unix]
+    script: install.bat  # [win]
+    build:
+      run_exports:
+        # changes soname at major versions, default settings OK
+        # https://abi-laboratory.pro/tracker/timeline/expat/
+        - {{ pin_subpackage('libexpat') }}
+      ignore_run_exports_from:
+        # This package needs the compiler for the tests, but the executable
+        # does not link to libstdc++.so
+        - {{ compiler('cxx') }}
+    requirements:
+      build:
+        - cmake-no-system   # [win]
+        - make              # [unix]
+        - gnuconfig         # [unix]
+        - {{ compiler('c') }}
+        - {{ compiler('cxx') }}
+      host:
+        - {{ pin_subpackage('libexpat', exact=True) }}
+      run:
+        - {{ pin_subpackage('libexpat', exact=True) }}
+
+about:
+  home: http://expat.sourceforge.net/
+  license: MIT
+  license_family: MIT
+  license_file: COPYING
+  summary: Expat XML parser library in C
+
+extra:
+  feedstock-name: expat
+  recipe-maintainers:
+    - kwilcox
+    - ocefpaf
+    - isuruf
+    - pelson
+    - mingwandroid
+    - msarahan
+    - scopatz

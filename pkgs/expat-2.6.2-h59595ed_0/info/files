@@ -1,0 +1,14 @@
+bin/xmlwf
+include/expat.h
+include/expat_config.h
+include/expat_external.h
+lib/cmake/expat-2.6.2/expat-config-version.cmake
+lib/cmake/expat-2.6.2/expat-config.cmake
+lib/cmake/expat-2.6.2/expat-noconfig.cmake
+lib/cmake/expat-2.6.2/expat.cmake
+lib/libexpat.a
+lib/libexpat.so
+lib/pkgconfig/expat.pc
+share/doc/expat/AUTHORS
+share/doc/expat/changelog
+share/man/man1/xmlwf.1

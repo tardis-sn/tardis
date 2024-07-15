@@ -1,0 +1,32 @@
+{
+    "arch": "x86_64",
+    "build": "py310h261611a_0",
+    "build_number": 0,
+    "build_string": "py310h261611a_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "astropy-iers-data >=0.2024.5.27.0.30.8",
+        "importlib-metadata",
+        "libgcc-ng >=12",
+        "numpy >=1.19,<3",
+        "numpy >=1.23",
+        "packaging >=19.0",
+        "pyerfa >=2.0.1.1",
+        "python >=3.10,<3.11.0a0",
+        "python_abi 3.10.* *_cp310",
+        "pyyaml >=3.13"
+    ],
+    "fn": "astropy-6.1.1-py310h261611a_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "eae2653656db6f1b044ff1071ed05c10",
+    "name": "astropy",
+    "platform": "linux",
+    "sha256": "d0de62ca5430aaea8f6a51c2b2099fadfcc6dc1c53be226aa6a28679133bd054",
+    "size": 7900204,
+    "subdir": "linux-64",
+    "timestamp": 1718658187571,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/astropy-6.1.1-py310h261611a_0.conda",
+    "version": "6.1.1"
+}

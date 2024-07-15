@@ -1,0 +1,112 @@
+# This file created by conda-build 24.3.0
+# ------------------------------------------------
+
+package:
+  name: libglib
+  version: 2.80.2
+source:
+  patches:
+    - crossplatform-test-tweaks.patch
+    - hardcoded-paths.patch
+  sha256: b9cfb6f7a5bd5b31238fd5d56df226b2dda5ea37611475bf89f6a0f9400fe8bd
+  url: https://download.gnome.org/sources/glib/2.80/glib-2.80.2.tar.xz
+build:
+  ignore_run_exports_from:
+    - gxx_linux-64 12.*
+    - python *
+  number: 0
+  run_exports:
+    - libglib >=2.80.2,<3.0a0
+  string: hf974151_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha885e6a_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gettext-tools 0.22.5 h59595ed_2
+    - gxx_impl_linux-64 12.3.0 h2a574ab_7
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libnsl 2.0.1 hd590300_0
+    - libsanitizer 12.3.0 hb8811af_7
+    - libsqlite 3.45.3 h2797004_0
+    - libstdcxx-devel_linux-64 12.3.0 h0223996_107
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - meson 1.4.0 pyhd8ed1ab_0
+    - ncurses 6.5 h59595ed_0
+    - ninja 1.12.0 h00ab1b0_0
+    - openssl 3.3.0 hd590300_0
+    - packaging 24.0 pyhd8ed1ab_0
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - python 3.12.3 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - xz 5.2.6 h166bdaf_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libiconv 1.17 hd590300_2
+    - libzlib 1.2.13 hd590300_5
+    - pcre2 10.43 hcad00b1_0
+    - zlib 1.2.13 hd590300_5
+  run:
+    - libffi >=3.4,<4.0a0
+    - libgcc-ng >=12
+    - libiconv >=1.17,<2.0a0
+    - libzlib >=1.2.13,<1.3.0a0
+    - pcre2 >=10.43,<10.44.0a0
+  run_constrained:
+    - glib 2.80.2 *_0
+test:
+  commands:
+    - test -f ${PREFIX}/lib/libglib-2.0.so.0
+    - test ! -f ${PREFIX}/lib/libgobject-2.0.la
+    - test ! -f ${PREFIX}/lib/libglib-2.0${SHLIB_EXT}
+    - test -f ${PREFIX}/lib/pkgconfig/glib-2.0.pc
+    - test -f ${PREFIX}/etc/conda/activate.d/libglib_activate.sh
+    - test -f ${PREFIX}/etc/conda/deactivate.d/libglib_deactivate.sh
+    - test -f ${PREFIX}/share/gir-1.0/GLib-2.0.gir
+    - test -f ${PREFIX}/lib/girepository-1.0/GLib-2.0.typelib
+about:
+  home: https://developer.gnome.org/glib/
+  license: LGPL-2.1-or-later
+  license_file: COPYING
+  summary: Provides core application building blocks for libraries and applications
+    written in C.
+extra:
+  copy_test_source_files: true
+  feedstock-name: glib
+  final: true
+  flow_run_id: azure_20240509.1.1
+  recipe-maintainers:
+    - ccordoba12
+    - isuruf
+    - jakirkham
+    - ocefpaf
+    - pkgw
+    - scopatz
+    - tschoonj
+    - xhochy
+  remote_url: https://github.com/conda-forge/glib-feedstock
+  sha: 098cf7c8f1b1ba8ae643efc90676d5c6005b6b44

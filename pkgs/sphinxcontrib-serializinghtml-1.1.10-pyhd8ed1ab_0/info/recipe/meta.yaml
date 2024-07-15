@@ -1,0 +1,74 @@
+# This file created by conda-build 3.28.3
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat Jan 13 03:55:54 2024
+# ------------------------------------------------
+
+package:
+  name: sphinxcontrib-serializinghtml
+  version: 1.1.10
+source:
+  sha256: 93f3f5dc458b91b192fe10c397e324f262cf163d79f3282c158e8436a2c4511f
+  url: https://pypi.io/packages/source/s/sphinxcontrib-serializinghtml/sphinxcontrib_serializinghtml-1.1.10.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/sphinxcontrib-serializinghtml_1705118225549/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - flit-core 3.9.0 pyhd8ed1ab_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_3
+    - libgomp 13.2.0 h807b86a_3
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.0 hd590300_1
+    - pip 23.3.2 pyhd8ed1ab_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023d h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.9
+    - sphinx >=5
+test:
+  commands:
+    - pip check
+  imports:
+    - sphinxcontrib
+    - sphinxcontrib.serializinghtml
+  requires:
+    - pip
+about:
+  dev_url: https://github.com/sphinx-doc/sphinxcontrib-serializinghtml
+  doc_url: https://www.sphinx-doc.org/en/master/
+  home: https://www.sphinx-doc.org/
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: sphinxcontrib-serializinghtml is a sphinx extension which outputs "serialized"
+    HTML files (json and pickle).
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240112.2.1
+  recipe-maintainers:
+    - AA-Turner
+    - conda-forge/sphinx
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/sphinxcontrib-serializinghtml-feedstock
+  sha: 8aef6ef380512c25e7afdb1fcba42d047b7e5e96

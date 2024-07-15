@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "pthreads_h413a1c8_0",
+  "build_number": 0,
+  "constrains": [
+    "openblas >=0.3.27,<0.3.28.0a0"
+  ],
+  "depends": [
+    "libgcc-ng >=12",
+    "libgfortran-ng",
+    "libgfortran5 >=12.3.0"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "libopenblas",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1712364444346,
+  "version": "0.3.27"
+}

@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "hd590300_0",
+    "build_number": 0,
+    "build_string": "hd590300_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "pthread-stubs",
+        "xorg-libxau >=1.0.11,<2.0a0",
+        "xorg-libxdmcp"
+    ],
+    "fn": "libxcb-1.16-hd590300_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "151cba22b85a989c2d6ef9633ffee1e4",
+    "name": "libxcb",
+    "platform": "linux",
+    "sha256": "7180375f37fd264bb50672a63da94536d4abd81ccec059e932728ae056324b3a",
+    "size": 394932,
+    "subdir": "linux-64",
+    "timestamp": 1693088990429,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/libxcb-1.16-hd590300_0.conda",
+    "version": "1.16"
+}

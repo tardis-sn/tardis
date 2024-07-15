@@ -1,0 +1,9 @@
+{
+  "noarch": {
+    "entry_points": [
+      "wsdump=websocket._wsdump:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

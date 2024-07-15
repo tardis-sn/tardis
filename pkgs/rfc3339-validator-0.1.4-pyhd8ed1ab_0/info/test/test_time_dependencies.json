@@ -1,0 +1,1 @@
+["pytest-runner", "pip", "hypothesis", "strict-rfc3339", "pytest-cov"]

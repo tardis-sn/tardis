@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyha770c72_0",
+    "build_number": 0,
+    "build_string": "pyha770c72_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8",
+        "zipp >=0.5"
+    ],
+    "fn": "importlib-metadata-7.1.0-pyha770c72_0.conda",
+    "license": "Apache-2.0",
+    "license_family": "APACHE",
+    "md5": "0896606848b2dc5cebdf111b6543aa04",
+    "name": "importlib-metadata",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "cc2e7d1f7f01cede30feafc1118b7aefa244d0a12224513734e24165ae12ba49",
+    "size": 27043,
+    "subdir": "noarch",
+    "timestamp": 1710971498183,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-7.1.0-pyha770c72_0.conda",
+    "version": "7.1.0"
+}

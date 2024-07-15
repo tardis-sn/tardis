@@ -1,0 +1,76 @@
+{% set version = "1.4.0" %}
+
+package:
+  name: libwebp
+  version: {{ version }}
+
+source:
+  url: http://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-{{ version }}.tar.gz
+  sha256: 61f873ec69e3be1b99535634340d5bde750b2e4447caa1db9f61be3fd49ab1e5
+
+build:
+  number: 0
+  run_exports:
+    # https://abi-laboratory.pro/?view=timeline&l=libwebp
+    - {{ pin_compatible('libwebp-base') }}
+
+requirements:
+  build:
+    - {{ stdlib('c') }}
+    - {{ compiler('c') }}
+    - gnuconfig            # [unix]
+    - make                 # [unix]
+  host:
+  # FIXME: gif2webp does not build on Windows
+    - giflib   # [not win]
+    - libjpeg-turbo      # [not win]
+    - libpng   # [not win]
+    - libtiff  # [not win]
+    - libwebp-base {{ version }}.*
+  run:
+    - libwebp-base {{ version }}.*
+
+test:
+  source_files:
+    - examples/test.webp
+  commands:
+  # This package is binaries only; libraries in libwebp-base. Various binaries
+  # link against libtiff, libpng, libgif, so they must be separated to prevent
+  # circular imports https://github.com/conda-forge/staged-recipes/pull/11101
+    - test -f $PREFIX/bin/cwebp     # [not win]
+    - test -f $PREFIX/bin/dwebp     # [not win]
+    - test -f $PREFIX/bin/gif2webp  # [not win]
+    - test -f $PREFIX/bin/img2webp  # [not win]
+    - test -f $PREFIX/bin/webpinfo  # [not win]
+    - test -f $PREFIX/bin/webpmux   # [not win]
+  # static libs removed in 1.2.3. They are not allowed on conda-forge.
+  # See also CFEP-18
+    - test ! -f $PREFIX/lib/libwebdecoder.a  # [not win]
+    - test ! -f $PREFIX/lib/libwebp.a        # [not win]
+    - test ! -f $PREFIX/lib/libwebpdemux.a   # [not win]
+    - test ! -f $PREFIX/lib/libwebpmux.a     # [not win]
+    - dwebp examples/test.webp  # [not win]
+    - if not exist %LIBRARY_BIN%\\cwebp.exe exit 1     # [win]
+    - if not exist %LIBRARY_BIN%\\dwebp.exe exit 1     # [win]
+    # - if not exist %LIBRARY_BIN%\\gif2webp.exe exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\\img2webp.exe exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\\webpinfo.exe exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\\webpmux.exe exit 1   # [win]
+    - dwebp examples\\test.webp  # [win]
+
+about:
+  home: https://developers.google.com/speed/webp
+  license: BSD-3-Clause
+  license_file: COPYING
+  summary: WebP image library
+  description: >
+    WebP is a method of lossy and lossless compression that can be used on a large variety of photographic, translucent and graphical images found on the web. The degree of lossy compression is adjustable so a user can choose the trade-off between file size and image quality. libwebp-base provides the headers and shared
+    libraries. For cwebp and dwep, binaries install libwebp.
+  doc_url: https://developers.google.com/speed/webp/docs/using
+  dev_url: https://chromium.googlesource.com/webm/libwebp
+
+extra:
+  recipe-maintainers:
+    - carterbox
+    - dschreij
+    - ocefpaf

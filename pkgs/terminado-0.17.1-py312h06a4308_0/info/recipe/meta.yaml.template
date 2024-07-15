@@ -1,0 +1,67 @@
+{% set name = "terminado" %}
+{% set version = "0.17.1" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/terminado-{{ version }}.tar.gz
+  sha256: 6ccbbcd3a4f8a25a5ec04991f39a0b8db52dfcd487ea0e578d977e6752380333
+
+build:
+  number: 0
+  skip: True  # [py<37]
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python
+    - pip
+    - hatchling
+    - tornado
+    - setuptools
+    - wheel
+  run:
+    - python
+    - ptyprocess        # [not win]
+    - pywinpty >=1.1.0  # [win]
+    - tornado >=6.1.0
+
+test:
+  requires:
+    - pip
+    - posix  # [win]
+    - pytest >=6.0
+    - pytest-cov
+    - pytest-timeout
+  imports:
+    - terminado
+  commands:
+    # see run_test.py for more
+    - pip check
+    - pip list
+    - pip list | grep -iE "terminado\s*{{ version.replace(".", "\.") }}"
+  # Downstream packages are jupyter_server and notebook
+  # Testing them to verify that they will succeed
+  # downstreams:
+  #   - jupyter_server
+    
+about:
+  home: https://github.com/jupyter/terminado
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Terminals served by tornado websockets
+  description: |
+    Terminado is a Tornado websocket backend for the term.js Javascript
+    terminal emulator library.
+  doc_url: https://terminado.readthedocs.io/en/latest/
+  dev_url: https://github.com/takluyver/terminado
+
+extra:
+  recipe-maintainers:
+    - blink1073
+    - pelson
+    - takluyver
+    - ocefpaf

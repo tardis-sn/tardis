@@ -1,0 +1,23 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "$defs": {
+        "foo": {
+          "$anchor": "foo",
+          "foo": "bar"
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "base_uri": "http://example.com/",
+      "ref": "#foo",
+      "target": {
+        "$anchor": "foo",
+        "foo": "bar"
+      }
+    }
+  ]
+}

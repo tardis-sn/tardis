@@ -1,0 +1,160 @@
+# This file created by conda-build 3.28.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Feb  6 13:14:36 2024
+# ------------------------------------------------
+
+package:
+  name: numpy
+  version: 1.26.4
+source:
+  - sha256: 2a02aba9ed12e4ac4eb3ea9421c420301a0c6460d9830d74a9df87efa4912010
+    url: https://github.com/numpy/numpy/releases/download/v1.26.4/numpy-1.26.4.tar.gz
+build:
+  entry_points: null
+  number: '0'
+  run_exports:
+    - numpy >=1.26.4,<2.0a0
+  string: py310hb13e2d6_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_2
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h76fc315_2
+    - gxx_impl_linux-64 12.3.0 he2b93b0_5
+    - gxx_linux-64 12.3.0 h8a814eb_2
+    - kernel-headers_linux-64 2.6.32 he073ed8_16
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_105
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - sysroot_linux-64 2.12 he073ed8_16
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - colorama 0.4.6 pyhd8ed1ab_0
+    - cython 3.0.8 py310hc6cd4ac_0
+    - importlib-metadata 7.0.1 pyha770c72_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libblas 3.9.0 5_h92ddd45_netlib
+    - libcblas 3.9.0 5_h92ddd45_netlib
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgfortran-ng 13.2.0 h69a702a_5
+    - libgfortran5 13.2.0 ha4646dd_5
+    - libgomp 13.2.0 h807b86a_5
+    - liblapack 3.9.0 5_h92ddd45_netlib
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - meson 1.3.1 pyhd8ed1ab_0
+    - meson-python 0.15.0 pyh0c530f3_0
+    - ncurses 6.4 h59595ed_2
+    - ninja 1.11.1 h924138e_0
+    - openssl 3.2.1 hd590300_0
+    - packaging 23.2 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - pyproject-metadata 0.7.1 pyhd8ed1ab_0
+    - pyproject_hooks 1.0.0 pyhd8ed1ab_0
+    - python 3.10.13 hd12c33a_1_cpython
+    - python-build 1.0.3 pyhd8ed1ab_0
+    - python_abi 3.10 4_cp310
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.17.0 pyhd8ed1ab_0
+  run:
+    - libblas >=3.9.0,<4.0a0
+    - libcblas >=3.9.0,<4.0a0
+    - libgcc-ng >=12
+    - liblapack >=3.9.0,<4.0a0
+    - libstdcxx-ng >=12
+    - python >=3.10,<3.11.0a0
+    - python_abi 3.10.* *_cp310
+  run_constrained:
+    - numpy-base <0a0
+test:
+  commands:
+    - f2py -h
+    - python -c "import numpy, sys; sys.exit(not numpy.test(verbose=1, label='full',
+      tests=None, extra_argv=['-k', 'not (_not_a_real_test)', '-nauto', '--timeout=3000',
+      '--durations=50', '--maxfail=100']))"
+  imports:
+    - numpy
+    - numpy.array_api
+    - numpy.array_api.linalg
+    - numpy.core.multiarray
+    - numpy.core.numeric
+    - numpy.core.umath
+    - numpy.ctypeslib
+    - numpy.distutils
+    - numpy.dtypes
+    - numpy.exceptions
+    - numpy.f2py
+    - numpy.fft
+    - numpy.lib
+    - numpy.lib.mixins
+    - numpy.lib.recfunctions
+    - numpy.lib.scimath
+    - numpy.linalg
+    - numpy.linalg.lapack_lite
+    - numpy.ma
+    - numpy.ma.extras
+    - numpy.ma.mrecords
+    - numpy.matlib
+    - numpy.polynomial
+    - numpy.random
+    - numpy.random.mtrand
+    - numpy.testing
+    - numpy.typing
+    - numpy.version
+  requires:
+    - cython
+    - gcc_linux-64 12.*
+    - gfortran_linux-64 12.*
+    - gxx_linux-64 12.*
+    - hypothesis
+    - meson
+    - pytest
+    - pytest-timeout
+    - pytest-xdist
+    - pytz
+    - setuptools <60.0.0
+    - typing_extensions
+about:
+  dev_url: https://github.com/numpy/numpy
+  doc_url: https://numpy.org/doc/stable/
+  home: http://numpy.org/
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: The fundamental package for scientific computing with Python.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240206.4.1
+  recipe-maintainers:
+    - h-vetinari
+    - isuruf
+    - jakirkham
+    - msarahan
+    - ocefpaf
+    - pelson
+    - rgommers
+    - xhochy
+  remote_url: https://github.com/conda-forge/numpy-feedstock
+  sha: 2a4478e346ac3184bd14bbd55e1dcead62074b26

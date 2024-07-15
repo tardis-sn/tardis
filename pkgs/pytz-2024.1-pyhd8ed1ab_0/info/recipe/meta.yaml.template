@@ -1,0 +1,47 @@
+{% set version = "2024.1" %}
+
+package:
+  name: pytz
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/p/pytz/pytz-{{ version }}.tar.gz
+  sha256: 2a29735ea9c18baf14b448846bde5a48030ed267578472d8955cd0e7443a9812
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.7
+    - pip
+  run:
+    - python >=3.7
+
+test:
+  imports:
+    - pytz
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: http://pythonhosted.org/pytz/
+  license: MIT
+  license_file: LICENSE.txt
+  summary: World timezone definitions, modern and historical.
+  description: |
+    pytz brings the Olson tz database into Python. This library allows
+    accurate and cross platform timezone calculations using Python 2.4 or
+    higher. It also solves the issue of ambiguous times at the end of daylight
+    saving time.
+  doc_url: http://pythonhosted.org/pytz/
+  dev_url: https://github.com/newvem/pytz
+
+extra:
+  recipe-maintainers:
+    - msarahan
+    - ocefpaf

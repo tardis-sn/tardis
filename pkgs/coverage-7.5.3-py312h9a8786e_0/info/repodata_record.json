@@ -1,0 +1,26 @@
+{
+    "arch": "x86_64",
+    "build": "py312h9a8786e_0",
+    "build_number": 0,
+    "build_string": "py312h9a8786e_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312",
+        "tomli"
+    ],
+    "fn": "coverage-7.5.3-py312h9a8786e_0.conda",
+    "license": "Apache-2.0",
+    "md5": "f01930d0afe8ac5f8062c98e6b8d1fd0",
+    "name": "coverage",
+    "platform": "linux",
+    "sha256": "1d42ae67b21d7bb836ac66a85f90da88be3939ca7980a1ad882c271deb9acd6e",
+    "size": 359527,
+    "subdir": "linux-64",
+    "timestamp": 1716931082787,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/coverage-7.5.3-py312h9a8786e_0.conda",
+    "version": "7.5.3"
+}

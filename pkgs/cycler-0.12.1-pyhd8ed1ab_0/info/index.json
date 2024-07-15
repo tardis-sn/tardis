@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.8"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "cycler",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1696677888423,
+  "version": "0.12.1"
+}

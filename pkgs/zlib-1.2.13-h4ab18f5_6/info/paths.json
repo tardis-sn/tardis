@@ -1,0 +1,37 @@
+{
+  "paths": [
+    {
+      "_path": "include/zconf.h",
+      "path_type": "hardlink",
+      "sha256": "f333e19c8c4d93a85ee5be1b517c6b875af3e417d50c9e1d10b47f6406028d6c",
+      "size_in_bytes": 16589
+    },
+    {
+      "_path": "include/zlib.h",
+      "path_type": "hardlink",
+      "sha256": "a980a0d104198a53cc220c51ab5856e5be901bec8a2d02e0ee79a8754219dfed",
+      "size_in_bytes": 97323
+    },
+    {
+      "_path": "lib/libz.a",
+      "path_type": "hardlink",
+      "sha256": "59fa1afbe44ba1287ec6acc178b949b4157d7af322e3b0142cf6bb02a9d48ea0",
+      "size_in_bytes": 155654
+    },
+    {
+      "_path": "lib/libz.so",
+      "path_type": "softlink",
+      "sha256": "04925371fa7b9ff5780736fb5e9859d59d0388cf8bad3ee02aa941cc2d6a7b38",
+      "size_in_bytes": 112800
+    },
+    {
+      "_path": "lib/pkgconfig/zlib.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/zlib-split_1716873959150/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_",
+      "sha256": "1693262900d989114b5d5fa637ae8c131812f999ba77fad6d7adefd8cc49f3a6",
+      "size_in_bytes": 504
+    }
+  ],
+  "paths_version": 1
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "$defs": {
+        "foo": {
+          "$anchor": "foo",
+          "$defs": {
+            "bar": { "baz": "quux" }
+          }
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "base_uri": "http://example.com/",
+      "ref": "#foo/$defs/bar",
+      "error": true
+    },
+    {
+      "base_uri": "http://example.com/",
+      "ref": "#foo#/$defs/bar",
+      "error": true
+    },
+    {
+      "ref": "http://example.com/#foo/$defs/bar",
+      "error": true
+    },
+    {
+      "ref": "http://example.com#foo/$defs/bar",
+      "error": true
+    }
+  ]
+}

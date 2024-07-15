@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "astropy-iers-data-0.2024.5.27.0.30.8-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "e98a8a7e4106b85b9965c5d5fab92056",
+    "name": "astropy-iers-data",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "75cd217dddb9cddaa71166695c1be3316aa4f4360580e11a31f368a419e141b7",
+    "size": 1237448,
+    "subdir": "noarch",
+    "timestamp": 1716791563089,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/astropy-iers-data-0.2024.5.27.0.30.8-pyhd8ed1ab_0.conda",
+    "version": "0.2024.5.27.0.30.8"
+}

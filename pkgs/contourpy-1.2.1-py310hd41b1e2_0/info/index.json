@@ -1,0 +1,18 @@
+{
+  "arch": "x86_64",
+  "build": "py310hd41b1e2_0",
+  "build_number": 0,
+  "depends": [
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12",
+    "numpy >=1.20",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "contourpy",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1712430089559,
+  "version": "1.2.1"
+}

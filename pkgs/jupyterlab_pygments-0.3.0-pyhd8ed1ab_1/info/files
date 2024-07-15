@@ -1,0 +1,17 @@
+share/jupyter/labextensions/jupyterlab_pygments/install.json
+share/jupyter/labextensions/jupyterlab_pygments/package.json
+share/jupyter/labextensions/jupyterlab_pygments/static/568.1e2faa2ba0bbe59c4780.js
+share/jupyter/labextensions/jupyterlab_pygments/static/747.67662283a5707eeb4d4c.js
+share/jupyter/labextensions/jupyterlab_pygments/static/remoteEntry.5cbb9d2323598fbda535.js
+share/jupyter/labextensions/jupyterlab_pygments/static/style.js
+share/jupyter/labextensions/jupyterlab_pygments/static/third-party-licenses.json
+site-packages/jupyterlab_pygments-0.3.0.dist-info/INSTALLER
+site-packages/jupyterlab_pygments-0.3.0.dist-info/METADATA
+site-packages/jupyterlab_pygments-0.3.0.dist-info/RECORD
+site-packages/jupyterlab_pygments-0.3.0.dist-info/REQUESTED
+site-packages/jupyterlab_pygments-0.3.0.dist-info/WHEEL
+site-packages/jupyterlab_pygments-0.3.0.dist-info/direct_url.json
+site-packages/jupyterlab_pygments-0.3.0.dist-info/licenses/LICENSE
+site-packages/jupyterlab_pygments/__init__.py
+site-packages/jupyterlab_pygments/_version.py
+site-packages/jupyterlab_pygments/style.py

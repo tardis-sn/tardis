@@ -1,0 +1,55 @@
+From 6af5a2379d70a7ca3afa887984b87747b0ec6307 Mon Sep 17 00:00:00 2001
+From: Min RK <benjaminrk@gmail.com>
+Date: Wed, 28 Feb 2024 14:17:01 +0100
+Subject: [PATCH] halt build if CURVE requested but not found
+
+ENABLE_CURVE is currently redundant with WITH_LIBSODIUM, as the only existing provider
+
+now builds where requested configuration is not found fail rather than proceeding without requested features
+---
+ CMakeLists.txt | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 814d5d46..c124a6a4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -258,12 +258,13 @@ endif()
+ # Select curve encryption library, defaults to disabled To use libsodium instead, use --with-libsodium(must be
+ # installed) To disable curve, use --disable-curve
+ 
+-option(WITH_LIBSODIUM "Use libsodium" OFF)
++option(WITH_LIBSODIUM "Use libsodium (required with ENABLE_CURVE)" OFF)
+ option(WITH_LIBSODIUM_STATIC "Use static libsodium library" OFF)
+ option(ENABLE_LIBSODIUM_RANDOMBYTES_CLOSE "Automatically close libsodium randombytes. Not threadsafe without getrandom()" ON)
+ option(ENABLE_CURVE "Enable CURVE security" OFF)
+ 
+ if(ENABLE_CURVE)
++  # libsodium is currently the only CURVE provider
+   if(WITH_LIBSODIUM)
+     find_package("sodium")
+     if(SODIUM_FOUND)
+@@ -280,12 +281,17 @@ if(ENABLE_CURVE)
+       endif()
+     else()
+       message(
+-        ERROR
+-          "libsodium not installed, you may want to install libsodium and run cmake again"
++        FATAL_ERROR
++          "libsodium requested but not found, you may want to install libsodium and run cmake again"
+       )
+     endif()
++  else() # WITH_LIBSODIUM
++    message(
++      FATAL_ERROR
++      "ENABLE_CURVE set, but not WITH_LIBSODIUM. No CURVE provider found."
++      )
+   endif()
+-else()
++else() # ENABLE_CURVE
+   message(STATUS "CURVE security is disabled")
+ endif()
+ 
+-- 
+2.42.0
+

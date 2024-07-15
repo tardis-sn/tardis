@@ -1,0 +1,26 @@
+{
+    "arch": "x86_64",
+    "build": "py310h2372a71_0",
+    "build_number": 0,
+    "build_string": "py310h2372a71_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "python >=3.10,<3.11.0a0",
+        "python_abi 3.10.* *_cp310"
+    ],
+    "fn": "psutil-5.9.8-py310h2372a71_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "bd19b3096442ea342c4a5208379660b1",
+    "name": "psutil",
+    "platform": "linux",
+    "sha256": "f1866425aa67f3fe1e3f6e07562a4bc986fd487e01146a91eb1bdbe5ec16a836",
+    "size": 368328,
+    "subdir": "linux-64",
+    "timestamp": 1705722544490,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/psutil-5.9.8-py310h2372a71_0.conda",
+    "version": "5.9.8"
+}

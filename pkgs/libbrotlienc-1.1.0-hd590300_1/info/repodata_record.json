@@ -1,0 +1,24 @@
+{
+    "arch": "x86_64",
+    "build": "hd590300_1",
+    "build_number": 1,
+    "build_string": "hd590300_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libbrotlicommon 1.1.0 hd590300_1",
+        "libgcc-ng >=12"
+    ],
+    "fn": "libbrotlienc-1.1.0-hd590300_1.conda",
+    "license": "MIT",
+    "md5": "5fc11c6020d421960607d821310fcd4d",
+    "name": "libbrotlienc",
+    "platform": "linux",
+    "sha256": "f751b8b1c4754a2a8dfdc3b4040fa7818f35bbf6b10e905a47d3a194b746b071",
+    "size": 282523,
+    "subdir": "linux-64",
+    "timestamp": 1695990038302,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/libbrotlienc-1.1.0-hd590300_1.conda",
+    "version": "1.1.0"
+}

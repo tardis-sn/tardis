@@ -1,0 +1,65 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/sphinx-jsonschema/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "f4ccc2fe2696425ce2a0de9f403c8d8001ea28f2cc69d520ecde4e83200fb5fc",
+      "size_in_bytes": 13530
+    },
+    {
+      "_path": "site-packages/sphinx-jsonschema/example.py",
+      "path_type": "hardlink",
+      "sha256": "f5234f727010c68dea898febf959a57441a970d04c0502024e5720cc861bede6",
+      "size_in_bytes": 451
+    },
+    {
+      "_path": "site-packages/sphinx-jsonschema/wide_format.py",
+      "path_type": "hardlink",
+      "sha256": "d65da32004a0081d64e5f573e880f7dc922ff73ddffc3c3815068167db696c5e",
+      "size_in_bytes": 23798
+    },
+    {
+      "_path": "site-packages/sphinx_jsonschema-1.19.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/sphinx_jsonschema-1.19.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "24343eaf97dc3f71bccf13820e5bee2310de66c81a9a1cb475daa914556a82a7",
+      "size_in_bytes": 10249
+    },
+    {
+      "_path": "site-packages/sphinx_jsonschema-1.19.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "8e6720e1b70938da858683a6473a9c31b1b7f7b0534b5351eabaa3df742aaa61",
+      "size_in_bytes": 1092
+    },
+    {
+      "_path": "site-packages/sphinx_jsonschema-1.19.1.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/sphinx_jsonschema-1.19.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "1b5e87e00dc87a84269cead8578b9e6462928e18a95f1f3373c9eef451a5bcc0",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "site-packages/sphinx_jsonschema-1.19.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "f463fda58b27070228568ed3829e85055830c6840533cce93ccc8ab5d4e7e193",
+      "size_in_bytes": 113
+    },
+    {
+      "_path": "site-packages/sphinx_jsonschema-1.19.1.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "68ca15bcb12df09e6142d9af65e2b7680b5f9a501c0fd0f81d432f8c26a56f24",
+      "size_in_bytes": 18
+    }
+  ],
+  "paths_version": 1
+}

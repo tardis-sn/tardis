@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "fn": "pathspec-0.12.1-pyhd8ed1ab_0.conda",
+    "license": "MPL-2.0",
+    "md5": "17064acba08d3686f1135b5ec1b32b12",
+    "name": "pathspec",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "4e534e66bfe8b1e035d2169d0e5b185450546b17e36764272863e22e0370be4d",
+    "size": 41173,
+    "subdir": "noarch",
+    "timestamp": 1702250135032,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pathspec-0.12.1-pyhd8ed1ab_0.conda",
+    "version": "0.12.1"
+}

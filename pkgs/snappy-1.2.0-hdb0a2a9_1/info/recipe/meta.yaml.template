@@ -1,0 +1,72 @@
+{% set version = "1.2.0" %}
+
+package:
+  name: snappy
+  version: {{ version }}
+
+source:
+  url: https://github.com/google/snappy/archive/{{ version }}.tar.gz
+  sha256: 9b8f10fbb5e3bc112f2e5e64f813cb73faea42ec9c533a5023b5ae08aedef42e
+  patches:
+    # Name the static library snappy_static.lib on windows, to distinguish from
+    # the dynamic library, since they have the same suffix there.
+    # https://github.com/google/snappy/pull/57
+    - patches/0001-change-static-lib-output-name-on-windows.patch
+    - patches/0002-Unbundle-gtest.patch
+    - patches/0003-Disable-BMI2.patch
+    - patches/0004-cmake-add-option-to-enable-disable-RTTI.patch
+    - patches/0005-Omit-Werror-during-compilation.patch
+    # Backport of https://github.com/google/snappy/pull/178
+    - patches/0006-Update-version-number-to-1.2.0.patch
+
+build:
+  number: 1
+  ignore_run_exports_from:
+    - lz4-c
+  run_exports:
+    # SO name seems to be changing with patch versions
+    # https://abi-laboratory.pro/?view=timeline&l=snappy
+    # No: 1.1.5 was a bug and reverted in 1.1.6
+    # The ABI has been observed to change between minor versions
+    # we expect the ABI to be stable across patch versions.
+    # See: https://github.com/conda-forge/snappy-feedstock/issues/35
+    - {{ pin_subpackage('snappy', max_pin='x.x') }}
+
+requirements:
+  build:
+    - cmake
+    - make
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+  host:
+    - msinttypes  # [win]
+    - gtest 1.13
+    - gmock
+    - lz4-c
+
+test:
+  commands:
+    - test -e $PREFIX/include/snappy.h               # [unix]
+    - test -e $PREFIX/include/snappy-stubs-public.h  # [unix]
+    - test -e $PREFIX/lib/libsnappy$SHLIB_EXT        # [unix]
+    - test -f $PREFIX/lib/libsnappy.so.${PKG_VERSION}  # [linux]
+    - test -f $PREFIX/lib/libsnappy.${PKG_VERSION}.dylib  # [osx]
+    - if not exist %LIBRARY_INC%\snappy.h exit 1               # [win]
+    - if not exist %LIBRARY_INC%\snappy-stubs-public.h exit 1  # [win]
+    - if not exist %LIBRARY_LIB%\snappy.lib exit 1             # [win]
+    - if not exist %LIBRARY_BIN%\snappy.dll exit 1             # [win]
+
+about:
+  home: https://github.com/google/snappy
+  summary: A fast compressor/decompressor
+  license: BSD-3-Clause
+  license_file: COPYING
+  license_family: BSD
+
+extra:
+  recipe-maintainers:
+    - groutr
+    - jakirkham
+    - wesm
+    - xhochy
+    - djsutherland

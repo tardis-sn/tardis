@@ -1,0 +1,19 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "packaging >=20.0",
+    "python >=3.8",
+    "setuptools >=45",
+    "tomli >=1.0.0",
+    "typing-extensions"
+  ],
+  "license": "MIT",
+  "name": "setuptools-scm",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1715083339319,
+  "version": "8.1.0"
+}

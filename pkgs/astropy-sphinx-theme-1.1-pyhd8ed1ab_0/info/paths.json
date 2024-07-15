@@ -1,0 +1,155 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/astropy_sphinx_theme-1.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme-1.1.dist-info/LICENSE.rst",
+      "path_type": "hardlink",
+      "sha256": "a745978f913bf5d5c3f38d43f5590e1e87f382d1535ef203750ecdbfb0fb3bc2",
+      "size_in_bytes": 1496
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme-1.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "ffe6fea8753f7a488d36bd7fac36ac3c0c464c3899f97ce3b39812e381b5ebe7",
+      "size_in_bytes": 1769
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme-1.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "0ae8369ceaacd0e6c3f953173c58acf7081f4ef2e7610619596698343b4ec681",
+      "size_in_bytes": 2850
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme-1.1.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme-1.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "e6c5174a0f5ee1b8bb9532ce1dc9ba4046303b94c81754cd6d34951558dc25c7",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme-1.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "7e1c6390d65aaeff9299b2298c0c27607c40b5ad4ecda44ff2ad5e52a52d48af",
+      "size_in_bytes": 116
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme-1.1.dist-info/entry_points.txt",
+      "path_type": "hardlink",
+      "sha256": "1bcea4467f3bb5e38b93decd6b6ab4a635b77244d89a3931f42da9ec963391db",
+      "size_in_bytes": 62
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme-1.1.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "8f6280b1256f7dfda7a5edf2a1e8be8c5e4874c5ece65e00746062628c2a1d60",
+      "size_in_bytes": 21
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "588e7f77c3d2e76d1c694da86a9ceec067fefbf45352dde3ddc6e6fcb671829d",
+      "size_in_bytes": 351
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/globaltoc.html",
+      "path_type": "hardlink",
+      "sha256": "96fe9220874454401f430a512a5fa5fe1526bcba1c428c4faa2a43b0e607ec1e",
+      "size_in_bytes": 73
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/layout.html",
+      "path_type": "hardlink",
+      "sha256": "78beab469caa3d2abac1fcc45292dca2eefead81d9e9201489af1ad9aa7a3b2c",
+      "size_in_bytes": 4345
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/localtoc.html",
+      "path_type": "hardlink",
+      "sha256": "6b95512c1244eb9585caf069647e5be34a7a5431e1d781c37bb247cdbc9f70aa",
+      "size_in_bytes": 34
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/searchbox.html",
+      "path_type": "hardlink",
+      "sha256": "1e493cfa1f640d05b9f1e15aaef9a5d72166b6952611608c306022bfab3f810c",
+      "size_in_bytes": 272
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/static/astropy_linkout.svg",
+      "path_type": "hardlink",
+      "sha256": "e58bfa656f384391a73f4f39b59b78e57f2bae2579ec6c32ba8af09f40c98139",
+      "size_in_bytes": 5201
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/static/astropy_linkout_20.png",
+      "path_type": "hardlink",
+      "sha256": "00ddd22c3567e549bba2f6b8a72fc3f1119852bdf5952275ff1346b0e5231560",
+      "size_in_bytes": 1725
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/static/astropy_logo.ico",
+      "path_type": "hardlink",
+      "sha256": "a195aacb4a2e9dd3c017dc9ad053f8a5a3f7eb3f85ad7db22a454a698ed5d167",
+      "size_in_bytes": 32988
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/static/astropy_logo.svg",
+      "path_type": "hardlink",
+      "sha256": "3e2480d3865fc5fab860f93160923e3bf6fa786486b37f81f1647da5535b2eb0",
+      "size_in_bytes": 4634
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/static/astropy_logo_32.png",
+      "path_type": "hardlink",
+      "sha256": "60ae1baef7e13e032e35a3cd17b5f6beb006d3f6877b0032e17b8c7d0054dfbf",
+      "size_in_bytes": 1884
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/static/bootstrap-astropy.css",
+      "path_type": "hardlink",
+      "sha256": "fb13cb373602a93062af918b5686bd593659e40898bbc563c25761e21c7320aa",
+      "size_in_bytes": 13150
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/static/copybutton.js",
+      "path_type": "hardlink",
+      "sha256": "9a69a7abc81f0df3e22841ba375a9d058066256a830c556582c6e75d852677c2",
+      "size_in_bytes": 2769
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/static/sidebar.js",
+      "path_type": "hardlink",
+      "sha256": "5dab8685febd7c50e3b0eb154c27ff90e7d768930957b9442be7b673cfabd126",
+      "size_in_bytes": 4971
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/bootstrap-astropy/theme.conf",
+      "path_type": "hardlink",
+      "sha256": "3d11c497b70d0c1f957ab8ff630ffd30313366195abbaf354f93f71bd5ed7573",
+      "size_in_bytes": 224
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/tests/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "site-packages/astropy_sphinx_theme/tests/test_basic.py",
+      "path_type": "hardlink",
+      "sha256": "241cb759181c7ec074ac98ab8727cc9eed2af96b0ac5f075b7b9c939d5fc8d55",
+      "size_in_bytes": 1198
+    }
+  ],
+  "paths_version": 1
+}

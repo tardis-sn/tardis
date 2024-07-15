@@ -1,0 +1,13 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: gd
+Description: GD graphics library
+Version: 2.3.3
+Requires:
+Requires.private:   zlib  libpng  freetype2 >= 9.8.3  fontconfig  libjpeg  libtiff-4  libwebp >= 0.2.0
+Cflags: -I${includedir}
+Libs.private:  
+Libs: -L${libdir} -lgd

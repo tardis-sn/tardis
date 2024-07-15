@@ -1,0 +1,43 @@
+{
+  "paths": [
+    {
+      "_path": "include/X11/extensions/Xrender.h",
+      "path_type": "hardlink",
+      "sha256": "fa8cd26e0cf279b0677cc4ec3f8c5b0eb012e5a576fc6a776b45f3253a93ebe3",
+      "size_in_bytes": 33826
+    },
+    {
+      "_path": "lib/libXrender.so",
+      "path_type": "softlink",
+      "sha256": "3bcb1d8865fdc1d4bab13ddfb856cd916a929edaf35fa8970f895bed1853af2f",
+      "size_in_bytes": 52768
+    },
+    {
+      "_path": "lib/libXrender.so.1",
+      "path_type": "softlink",
+      "sha256": "3bcb1d8865fdc1d4bab13ddfb856cd916a929edaf35fa8970f895bed1853af2f",
+      "size_in_bytes": 52768
+    },
+    {
+      "_path": "lib/libXrender.so.1.3.0",
+      "path_type": "hardlink",
+      "sha256": "3bcb1d8865fdc1d4bab13ddfb856cd916a929edaf35fa8970f895bed1853af2f",
+      "size_in_bytes": 52768
+    },
+    {
+      "_path": "lib/pkgconfig/xrender.pc",
+      "file_mode": "text",
+      "path_type": "hardlink",
+      "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/xorg-libxrender_1688300509939/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place",
+      "sha256": "5ab8a69a72eae9b64389174d7d81358d40841f0be08350c267a97a9723471263",
+      "size_in_bytes": 515
+    },
+    {
+      "_path": "share/doc/libXrender/libXrender.txt",
+      "path_type": "hardlink",
+      "sha256": "1e2bc69f134ae83d773ddd6857344ea235b6b7ed4cb92d60ce66fbb85959777d",
+      "size_in_bytes": 17217
+    }
+  ],
+  "paths_version": 1
+}

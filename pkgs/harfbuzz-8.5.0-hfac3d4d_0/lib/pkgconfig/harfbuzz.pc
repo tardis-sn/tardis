@@ -1,0 +1,11 @@
+prefix=/home/conda/feedstock_root/build_artifacts/harfbuzz_1715700719255/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: harfbuzz
+Description: HarfBuzz text shaping library
+Version: 8.5.0
+Requires.private: freetype2 >=  12.0.6, glib-2.0 >=  2.30.0, graphite2 >=  1.2.0
+Libs: -L${libdir} -lharfbuzz
+Libs.private: -pthread -lm
+Cflags: -I${includedir}/harfbuzz

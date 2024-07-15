@@ -1,0 +1,100 @@
+{% set name = "ipykernel" %}
+{% set version = "6.28.0" %}
+
+{% set migrating = false %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 69c11403d26de69df02225916f916b37ea4b9af417da0a8c827f84328d88e5f3
+  patches:
+    - patches/0001-test-conf.patch
+
+build:
+  number: 0
+  skip: true  # [py<38]
+  script:
+    - {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
+    - {{ PYTHON }} -m ipykernel install --sys-prefix
+    # TODO: this may be needed/desirable at some point
+    # - cd {{ RECIPE_DIR }} && {{ PYTHON }} fix_kernelspec.py
+
+requirements:
+  build:
+    - patch # [unix]
+    - m2-patch # [win]
+  host:
+    - python
+    - pip
+    - hatchling
+    - jupyter_client >=6.1.12
+    - comm >=0.1.1
+    - ipython >=7.23.1
+    - psutil
+  run:
+    - python
+    - debugpy >=1.6.5
+    - ipython >=7.23.1
+    - comm >=0.1.1
+    - traitlets >=5.4.0
+    - jupyter_client >=6.1.12
+    - jupyter_core >=4.12,!=5.0.*
+    - nest-asyncio
+    - tornado >=6.1
+    - matplotlib-inline >=0.1
+    - appnope  # [osx]
+    - pyzmq >=24
+    - psutil
+    - packaging
+
+test:
+  source_files:
+    - pyproject.toml
+    - tests
+  requires:
+    - pip
+# There is a cyclic dependency between ipykernel and ipyparallel. 
+# Re-instate on the next update.
+{% if python != "3.12" %}
+    # test
+    - flaky
+    - pytest >=7.0
+    - pytest-asyncio
+    - pytest-timeout
+    - ipyparallel 
+{% endif %}
+  commands:
+    - pip check
+{% if python != "3.12" %}
+    - jupyter kernelspec list
+    - pytest -vv --color=no # [unix]
+    # Skipping tests on Windows due to file and socket IO issues.
+    # test_sys_path, test_simple_print, test_init_ipc_socket, test_event_pipe_gc are intermittent
+    - pytest -vv --color=no -k "not (test_sys_path or test_simple_print or test_init_ipc_socket or test_event_pipe_gc or test_magics or test_zmq_interactive_shell)" # [win]
+{% endif %}
+
+about:
+  home: https://ipython.org
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: IPython Kernel for Jupyter
+  description: |
+    A powerful interactive Python shell and a Jupyter kernel to work with
+    Python code in Jupyter notebooks and other interactive frontends.
+  dev_url: https://github.com/ipython/ipykernel
+  doc_url: https://ipython.readthedocs.io
+
+extra:
+  recipe-maintainers:
+    - blink1073
+    - bollwyvl
+    - Carreau
+    - jakirkham
+    - minrk
+    - ocefpaf
+    - pelson
+    - davidbrochart

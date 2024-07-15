@@ -1,0 +1,15 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.8"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "astropy-iers-data",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1716791563089,
+  "version": "0.2024.5.27.0.30.8"
+}

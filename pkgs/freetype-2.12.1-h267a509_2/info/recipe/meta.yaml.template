@@ -1,0 +1,55 @@
+{% set version = "2.12.1" %}
+
+package:
+  name: freetype
+  version: {{ version }}
+
+source:
+  url: https://download.savannah.gnu.org/releases/freetype/freetype-{{ version }}.tar.gz
+  sha256: efe71fd4b8246f1b0b1b9bfca13cfff1c9ad85930340c27df469733bbb620938
+  patches:
+    - CVE-2022-37434.patch
+
+build:
+  number: 2
+  run_exports:
+    # has removed symbols at minor versions, but only very rarely.  Go with major.
+    #  https://abi-laboratory.pro/tracker/timeline/freetype/
+    - {{ pin_subpackage('freetype') }}
+
+requirements:
+  build:
+    - libtool  # [unix]
+    - {{ compiler('c') }}
+    - cmake  # [win]
+    - make  # [not win]
+    - ninja  # [win]
+  host:
+    - libpng
+    - zlib
+
+test:
+  commands:
+    - ${PREFIX}/bin/freetype-config --version  # [not win]
+    - if exist %LIBRARY_BIN%\freetype.dll (exit 0) else (exit 1)  # [win]
+
+about:
+  home: https://www.freetype.org/
+  license: GPL-2.0-only OR FTL
+  license_file:
+    - docs/GPLv2.TXT
+    - docs/FTL.TXT
+  summary: A Free, High-Quality, and Portable Font Engine
+  description: |
+    FreeType is designed to be small, efficient, highly customizable
+    and portable while capable of producing high-quality output (glyph images)
+    of most vector and bitmap font formats.
+  doc_url: http://freetype.sourceforge.net/freetype2/documentation.html
+  doc_source_url: https://sourceforge.net/projects/freetype/?source=navbar
+  dev_url: http://git.savannah.gnu.org/cgit/freetype/
+
+extra:
+  recipe-maintainers:
+    - ccordoba12
+    - msarahan
+    - ocefpaf

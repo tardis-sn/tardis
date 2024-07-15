@@ -1,0 +1,10 @@
+{
+  "noarch": {
+    "entry_points": [
+      "pytest = pytest:console_main",
+      "py.test = pytest:console_main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

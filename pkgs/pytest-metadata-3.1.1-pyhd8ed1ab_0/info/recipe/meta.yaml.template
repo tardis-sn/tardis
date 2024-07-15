@@ -1,0 +1,46 @@
+{% set name = "pytest-metadata" %}
+{% set version = "3.1.1" %}
+{% set hash = "d2a29b0355fbc03f168aa96d41ff88b1a3b44a3b02acbe491801c98a048017c8" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/pytest_metadata-{{ version }}.tar.gz
+  sha256: {{ hash }}
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+    - hatch-vcs >=0.3
+    - hatchling >=1.13
+
+  run:
+    - python >=3.8
+    - pytest >=7.0.0
+
+test:
+  imports:
+    - pytest_metadata
+    - pytest_metadata.ci
+
+about:
+  home: https://github.com/pytest-dev/pytest-metadata
+  license: MPL-2.0
+  license_family: OTHER
+  license_file: LICENSE
+  summary: pytest plugin for test session metadata
+
+extra:
+  recipe-maintainers:
+    - birdsarah
+    - davehunt
+    - nicoddemus

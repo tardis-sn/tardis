@@ -1,0 +1,28 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "coverage >=5.2.1",
+        "pytest >=4.6",
+        "python >=3.8",
+        "toml"
+    ],
+    "fn": "pytest-cov-5.0.0-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "c54c0107057d67ddf077751339ec2c63",
+    "name": "pytest-cov",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "218306243faf3c36347131c2b36bb189daa948ac2e92c7ab52bb26cc8c157b3c",
+    "size": 25507,
+    "subdir": "noarch",
+    "timestamp": 1711411153367,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pytest-cov-5.0.0-pyhd8ed1ab_0.conda",
+    "version": "5.0.0"
+}

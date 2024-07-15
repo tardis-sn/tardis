@@ -1,0 +1,44 @@
+{% set name = "astropy-iers-data" %}
+{% set version = "0.2024.5.27.0.30.8" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_') }}-{{ version }}.tar.gz
+  sha256: 65cd7239571d8f73fe78fc1b21bf5b2e184ff0892abaa15364c54d016ec5e0bf
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  number: 0
+
+requirements:
+  host:
+    - python >=3.8
+    - setuptools
+    - setuptools-scm
+    - wheel
+    - pip
+  run:
+    - python >=3.8
+
+test:
+  imports:
+    - astropy_iers_data
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/astropy/astropy-iers-data/
+  summary: IERS Earth Rotation and Leap Second tables for the astropy core package
+  license: BSD-3-Clause
+  license_file: LICENSE.rst
+
+extra:
+  recipe-maintainers:
+    - astrofrog
+    - mwcraig

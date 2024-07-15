@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.9",
+        "sphinx >=5"
+    ],
+    "fn": "sphinxcontrib-serializinghtml-1.1.10-pyhd8ed1ab_0.conda",
+    "license": "BSD-2-Clause",
+    "license_family": "BSD",
+    "md5": "e507335cb4ca9cff4c3d0fa9cdab255e",
+    "name": "sphinxcontrib-serializinghtml",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "bf80e4c0ff97d5e8e5f6db0831ba60007e820a3a438e8f1afd868aa516d67d6f",
+    "size": 28776,
+    "subdir": "noarch",
+    "timestamp": 1705118378942,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-serializinghtml-1.1.10-pyhd8ed1ab_0.conda",
+    "version": "1.1.10"
+}

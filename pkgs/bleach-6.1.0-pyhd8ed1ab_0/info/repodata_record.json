@@ -1,0 +1,29 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "packaging",
+        "python >=3.6",
+        "setuptools",
+        "six >=1.9.0",
+        "webencodings"
+    ],
+    "fn": "bleach-6.1.0-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "license_family": "Apache",
+    "md5": "0ed9d7c0e9afa7c025807a9a8136ea3e",
+    "name": "bleach",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "845e77ef495376c5c3c328ccfd746ca0ef1978150cae8eae61a300fe7755fb08",
+    "size": 131220,
+    "subdir": "noarch",
+    "timestamp": 1696630354218,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/bleach-6.1.0-pyhd8ed1ab_0.conda",
+    "version": "6.1.0"
+}

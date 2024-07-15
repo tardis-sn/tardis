@@ -1,0 +1,86 @@
+# This file created by conda-build 3.28.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun Feb  4 04:47:34 2024
+# ------------------------------------------------
+
+package:
+  name: certifi
+  version: 2024.2.2
+source:
+  - folder: certifi
+    sha256: 0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f
+    url: https://pypi.io/packages/source/c/certifi/certifi-2024.2.2.tar.gz
+  - folder: boostrap_wheels
+    sha256: 5052d7889c1f9d05224cd41741acb7c5d6fa735ab34e339624a614eaaa7e7d76
+    url: https://pypi.io/packages/py3/p/pip/pip-23.3.2-py3-none-any.whl
+  - folder: boostrap_wheels
+    sha256: 385eb4edd9c9d5c17540511303e39a147ce2fc04bc55289c322b9e5904fe2c05
+    url: https://pypi.io/packages/py3/s/setuptools/setuptools-69.0.3-py3-none-any.whl
+  - folder: boostrap_wheels
+    sha256: 177f9c9b0d45c47873b619f5b650346d632cdc35fb5e4d25058e09c9e581433d
+    url: https://pypi.io/packages/py3/w/wheel/wheel-0.42.0-py3-none-any.whl
+build:
+  noarch: python
+  number: '0'
+  script:
+    - cd certifi
+    - /home/conda/feedstock_root/build_artifacts/certifi_1707022139797/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla/bin/python
+      -m pip install . -vv
+  script_env:
+    - 'PYTHONPATH=/home/conda/feedstock_root/build_artifacts/certifi_1707022139797/work/boostrap_wheels:'
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.7
+test:
+  imports:
+    - certifi
+about:
+  description: 'Certifi is a curated collection of Root Certificates for validating
+    the
+
+    trustworthiness of SSL certificates while verifying the identity of TLS
+
+    hosts.
+
+    '
+  dev_url: https://github.com/certifi/python-certifi
+  doc_source_url: https://github.com/certifi/certifi.io/blob/master/README.rst
+  doc_url: https://pypi.python.org/pypi/certifi
+  home: http://certifi.io/
+  license: ISC
+  license_file: certifi/LICENSE
+  summary: Python package for providing Mozilla's CA Bundle.
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240203.33.1
+  recipe-maintainers:
+    - jakirkham
+    - ocefpaf
+    - pelson
+    - sigmavirus24
+  remote_url: https://github.com/conda-forge/certifi-feedstock
+  sha: 4931da92f1bf37125ad448d9d35041cebaa9937e

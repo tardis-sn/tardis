@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "attrs >=22.2.0",
+        "python >=3.8",
+        "rpds-py >=0.7.0"
+    ],
+    "fn": "referencing-0.35.1-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "md5": "0fc8b52192a8898627c3efae1003e9f6",
+    "name": "referencing",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "be8d6d9e86b1a3fef5424127ff81782f8ca63d3058980859609f6f1ecdd34cb3",
+    "size": 42210,
+    "subdir": "noarch",
+    "timestamp": 1714619625532,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/referencing-0.35.1-pyhd8ed1ab_0.conda",
+    "version": "0.35.1"
+}

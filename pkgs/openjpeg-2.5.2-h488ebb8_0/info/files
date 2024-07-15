@@ -1,0 +1,14 @@
+bin/opj_compress
+bin/opj_decompress
+bin/opj_dump
+include/openjpeg-2.5/openjpeg.h
+include/openjpeg-2.5/opj_config.h
+lib/cmake/openjpeg-2.5/OpenJPEGConfig.cmake
+lib/cmake/openjpeg-2.5/OpenJPEGConfigVersion.cmake
+lib/cmake/openjpeg-2.5/OpenJPEGTargets-noconfig.cmake
+lib/cmake/openjpeg-2.5/OpenJPEGTargets.cmake
+lib/libopenjp2.a
+lib/libopenjp2.so
+lib/libopenjp2.so.2.5.2
+lib/libopenjp2.so.7
+lib/pkgconfig/libopenjp2.pc

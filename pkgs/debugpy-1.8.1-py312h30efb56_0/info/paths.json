@@ -1,0 +1,3161 @@
+{
+  "paths": [
+    {
+      "_path": "lib/python3.12/site-packages/debugpy-1.8.1.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy-1.8.1.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "649844f60da138e54b9bcc13338c62c5f97be8612cb6249ac10f84bbb97ffc88",
+      "size_in_bytes": 1200
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy-1.8.1.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "805fec10dec55bed830ac63d96cd97f18d5195102811a6976aa476df5c08fbf6",
+      "size_in_bytes": 1093
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy-1.8.1.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "80ee6e18962e633d443bb05a7c19b3b10f24e43b1ec753e459e82c819c3bde21",
+      "size_in_bytes": 55462
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy-1.8.1.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy-1.8.1.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "534d96963bacec16b1cb7e473924a3d644e7b56f70920f73c1885776cfff3789",
+      "size_in_bytes": 105
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy-1.8.1.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "d4811c37bfa97c7a387587720203d5c3a2d7bc8fe50a7831a6fd7e7929c75c4f",
+      "size_in_bytes": 103
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy-1.8.1.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "e8e9ba25311aaa45a78fef7eee424e26bf7cf2c4ceea24ae88ae0df57e912e98",
+      "size_in_bytes": 8
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/ThirdPartyNotices.txt",
+      "path_type": "hardlink",
+      "sha256": "e3baaa532b9e2303b187b18e05dfed48961d6d16c82d0ae47978b2fd2ce47084",
+      "size_in_bytes": 34844
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "17857ddf2d931fb404b1ad11aa4c83377dad532ce50a72802f6c72bdd6713601",
+      "size_in_bytes": 1056
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/__main__.py",
+      "path_type": "hardlink",
+      "sha256": "4bfd019e91d85c916bb0a9d58ec9673dc78d7918d1c2667384e42eb4a297fa8b",
+      "size_in_bytes": 1868
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "128e70ef7be59814f1c04b4317d8a806a7e9af27e5809824fff00e245fdc0ab2",
+      "size_in_bytes": 735
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/__pycache__/__main__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "b6a6fdb31ddda0aa708b874fea2221bafdf2b262609464760479af56c1fd8bd7",
+      "size_in_bytes": 519
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/__pycache__/_version.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "075f771be8ad967622d787da421c2ea93a205623c77d8f593fb9a7c4f7289757",
+      "size_in_bytes": 533
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/__pycache__/public_api.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "36417fa59dcc87708ca10270774ab66afcd9cfaf9bf653baa41731df3e6bd876",
+      "size_in_bytes": 7568
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "5f62cc11bf547d8cda606938f4c7f5aac98aca416b8613b4d5b31cfa02f27e1d",
+      "size_in_bytes": 4004
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "fae32e98d5ef8bf2c67de693e0c05bac98e3296297b7cd890b8ae43d847a14ab",
+      "size_in_bytes": 5054
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/__pycache__/_pydevd_packaging.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "2059d0cab5896120334744e6115fdac2c4fa18efbe0143578d631f530731756c",
+      "size_in_bytes": 1261
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/__pycache__/_util.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "389571c37c56222ef137a72ffeb8daeca5c46557595c27e9b618319952a4acf3",
+      "size_in_bytes": 2469
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/__pycache__/force_pydevd.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "6691ce32304066afeb6cfbb03eb6b660b7329f66b116c26ecc4ba18e79c1ab63",
+      "size_in_bytes": 2984
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/_pydevd_packaging.py",
+      "path_type": "hardlink",
+      "sha256": "65e40179e0ed1b78bbe5709052cc985f709f2387c034193d9c23b0a4b275c871",
+      "size_in_bytes": 1293
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/_util.py",
+      "path_type": "hardlink",
+      "sha256": "9e47c5bb238ac0f518d4c9e4bbedfe4982100de51e89d10f9256890b2210813c",
+      "size_in_bytes": 1899
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/force_pydevd.py",
+      "path_type": "hardlink",
+      "sha256": "ab41dbdcd058bb4e77fefd4baaac1f3273a527b56d3d6b049c14d2a5700bb348",
+      "size_in_bytes": 3253
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/__pycache__/pydev_app_engine_debug_startup.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "4ccfb5ca342936959244e59d592997cdf471d92cd973b04ecf1b07030b546afa",
+      "size_in_bytes": 964
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/__pycache__/pydev_coverage.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "570ca8882f4f27068a336a77ffc3a6faedb695edbf9d5e3cc510ed89f1ceac14",
+      "size_in_bytes": 4007
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/__pycache__/pydev_pysrc.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "40b3415e1c694a6629a808a01bf60a6b31683ee446999029c1c39ffe6ceea428",
+      "size_in_bytes": 274
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/__pycache__/pydev_run_in_console.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9a01f72d83d47b662b5962e42177951763620f0006e321ea6a1ed70dac2e4ecd",
+      "size_in_bytes": 5297
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/__pycache__/pydevconsole.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9b490f75034acc3584c2c72a9ec0e47b7da5731cc80163148a49220bcb5ecf9f",
+      "size_in_bytes": 21477
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/__pycache__/pydevd.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "b6eadd2bd1f4180f3858339830f2492cb847742ad37d5d94f626ae847adb08d9",
+      "size_in_bytes": 145376
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/__pycache__/pydevd_file_utils.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f9c4e001adeb8057a8bbc9340040cf262ad001cda1aa5d4dc4da5783821e3a29",
+      "size_in_bytes": 32314
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/__pycache__/pydevd_tracing.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "41950946e5e12e7ecb6b850b274f5847877288d44a04fb8c8f554e14099889ac",
+      "size_in_bytes": 14377
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/__pycache__/setup_pydevd_cython.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "8e109dd7a6828eb0d185df2c54e32dd07fa0d99877800e8086b9d7b44c772e26",
+      "size_in_bytes": 10397
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "10cca4bdc2ae6bf050f73bc762003cfd779a67c0ba21dd7fb01d6461301e067c",
+      "size_in_bytes": 176
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_calltip_util.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "927ca13d80918c84880bbe27612a67f26079425a537e9e462402aec480c0f74b",
+      "size_in_bytes": 5869
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_completer.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "95b96f36f574ad266a48db66ef55d40f4239afec70866740f6c174dbb2fbadfe",
+      "size_in_bytes": 9395
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_execfile.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "07282c376ba63a1f25b2338b981252a2da6f1f1d90494468372ed5e84d47febe",
+      "size_in_bytes": 808
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_filesystem_encoding.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "3f648ffbc30eecd2c84815839660da17a3f182c7781c670bd39b29698bcb0e73",
+      "size_in_bytes": 1393
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_getopt.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "a5fdee27cbb14b1a4212a313d932df9526a77bab7f50dd55c6dae5cc55f239c0",
+      "size_in_bytes": 4816
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_imports_tipper.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "06e0a39fe29cc3784a9f8b6626e094bc43c568ae4e34aa5b3dda3fa1beb674a8",
+      "size_in_bytes": 11923
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_jy_imports_tipper.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f9eec47fb52d3094bd15f7988f96274e1f9ae3046e37b1da19b2a5833e2ae9c8",
+      "size_in_bytes": 16972
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_log.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f42885791083ccbde22eba70bb3ffd616f243670682b5c380329304090d1cbe5",
+      "size_in_bytes": 1684
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_saved_modules.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "08e88a97c9d9e0bf9e72fc24b7d8cb35e6fc3514f6978c0fb2fba70110773240",
+      "size_in_bytes": 5504
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_sys_patch.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "31ab0d76c7d0f65d76e04797ad32f61e4599b66c820422254047170b6dc91f8a",
+      "size_in_bytes": 2942
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/_pydev_tipper_common.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "389d7cd6486d1c76f79a909c5ed3d329afbb2f30ec045833ac8e3815a61956a8",
+      "size_in_bytes": 2186
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_console_utils.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9df365abedb3633fe6ccaee265b41a153a1d396fb80071086ac4b1d1c82b9282",
+      "size_in_bytes": 28486
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_import_hook.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "e9ef2337d64fdc10bb254d777e36f518604fd7a218cb85c06125c9dc5d0bc4ee",
+      "size_in_bytes": 1979
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_imports.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "99f97bcd91276a69cb14d7fff9fab82feca880df552bbc4f684c76a008e17e20",
+      "size_in_bytes": 584
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_ipython_console.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "3ca6576371c067b04dd80982bbd40a51786dd7fc8c9200506116998a107fe8f5",
+      "size_in_bytes": 5259
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_ipython_console_011.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "338964019ec02d8793a50f73e44df5c14f03f1e24ad7db816bff9ff2aef505c0",
+      "size_in_bytes": 17608
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_is_thread_alive.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "4c88eb2ad47ff8132aa94a6590b91205f10df93232eec0f9fb84451f827c184a",
+      "size_in_bytes": 874
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_localhost.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "824609cf29645f32b5e751bc7da0d8401738210118cb4835c2819c44d127b5d8",
+      "size_in_bytes": 2606
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_log.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "35b36a074cdc662efc6e7725bb22cb2c73cb342a9d47b428c61ae95a5c8f1b45",
+      "size_in_bytes": 10892
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_monkey.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9f66b81289afadded6bc4ac7d5dd7a3a5f6211edd4be1ae80eb67aa127464b56",
+      "size_in_bytes": 38715
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_monkey_qt.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "7c74ae76d64f65102dfe5343db528a300d3d371988d619744ca2beb9c1f304f5",
+      "size_in_bytes": 9049
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_override.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "aeaa981a63002bf1c07ae42892564881a7db956b0f3ff5b5a4a76ac2a571a5c8",
+      "size_in_bytes": 1475
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_umd.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "c43437f818d5661a4d141bb2953143c5bd75f18537ac102c5e44c65934c3c4ee",
+      "size_in_bytes": 7280
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/__pycache__/pydev_versioncheck.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ce273ff27ea6cd02fe0b6a371a5032ea97a63d97357d71adec919cc7dcb5c061",
+      "size_in_bytes": 806
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_calltip_util.py",
+      "path_type": "hardlink",
+      "sha256": "a8991e2b35185add3ad0624babaac6cd8f4f0d8a81c4305ea30f0f6e35794a5e",
+      "size_in_bytes": 4842
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_completer.py",
+      "path_type": "hardlink",
+      "sha256": "ad0d6505ee79b6771f70ec2b31164bd4050cab1f5fcb049de6845c0ff2e37d11",
+      "size_in_bytes": 8811
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_execfile.py",
+      "path_type": "hardlink",
+      "sha256": "ece6d8af8e73d8afa7d39e8ec89d245d3b21278c5eb1fc34a78bb6d6ab4ff591",
+      "size_in_bytes": 497
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_filesystem_encoding.py",
+      "path_type": "hardlink",
+      "sha256": "18020300e1c32997985cce7340cee79b2657ebb20a9b06090b5e3478b38ae0df",
+      "size_in_bytes": 1136
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_getopt.py",
+      "path_type": "hardlink",
+      "sha256": "6697a1e1c3e9f11706de0491ae5eac0d4643decedf19b23e3d23daa84fc290c6",
+      "size_in_bytes": 4588
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_imports_tipper.py",
+      "path_type": "hardlink",
+      "sha256": "0f9f88e1cd2bef85dfdd2d320466ee80d2d03c4e5d8b195f19dc59bbe64fb594",
+      "size_in_bytes": 12723
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_jy_imports_tipper.py",
+      "path_type": "hardlink",
+      "sha256": "dc61cd08302e1a3a748e4c7b70a9ab034dcb1ed2c85cfc9a140008e4ee44672e",
+      "size_in_bytes": 17555
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_log.py",
+      "path_type": "hardlink",
+      "sha256": "3d9836eac109df4d10df69556638ecdc1b89fcf0a5fbb8eeb0c28e98d8d98466",
+      "size_in_bytes": 579
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_saved_modules.py",
+      "path_type": "hardlink",
+      "sha256": "a0072efd82f68c2adb1c1d1f7d031ce3f65f17588183cd99cdfeb7b021d5a0bd",
+      "size_in_bytes": 4683
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_sys_patch.py",
+      "path_type": "hardlink",
+      "sha256": "5d371338742b81a9be784e31607281c3eff65e9cbf69578d138b500b6421bb26",
+      "size_in_bytes": 2149
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/_pydev_tipper_common.py",
+      "path_type": "hardlink",
+      "sha256": "b92aada214d65c977b01a5dde74c45d5582470de1a09d0110aed6336af6673d1",
+      "size_in_bytes": 1279
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/fsnotify/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "9d7a5f1bfc8d53e781627eb0bd3487b908e3ae6f237d08f34de7f97e14ff39e3",
+      "size_in_bytes": 13057
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/fsnotify/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "abab8a20fded73f1f6258e8d2f3dc39cde51c485e6583f9dbffdec264dcdd4ff",
+      "size_in_bytes": 13918
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_console_utils.py",
+      "path_type": "hardlink",
+      "sha256": "ca9c14133c841d148dd97aef1af6b39622c40f3036f906b5c7cfbbf77be02621",
+      "size_in_bytes": 24408
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_import_hook.py",
+      "path_type": "hardlink",
+      "sha256": "64105e1dfb22126e51d3a88e4b7c734cccda776e4cccbfc49f8dd5af7c64369b",
+      "size_in_bytes": 1362
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_imports.py",
+      "path_type": "hardlink",
+      "sha256": "0f6c36dda142193bca3fd33cb7d1503e02dd8c92fe54f5fd0e95bcdc5b03d540",
+      "size_in_bytes": 417
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_ipython_console.py",
+      "path_type": "hardlink",
+      "sha256": "2814e2385afcf8c5ef3d1f3b93009f02785e717c6ed0a78e1b404b0517a9306b",
+      "size_in_bytes": 3918
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_ipython_console_011.py",
+      "path_type": "hardlink",
+      "sha256": "7b80a6685f53a04831831a12b9a175d5aea52dadfe26bc8db76ecbaae8b37236",
+      "size_in_bytes": 21870
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_is_thread_alive.py",
+      "path_type": "hardlink",
+      "sha256": "6c52a7a892a9449d46135f29d68069df9d085c94c5d9ee160c2d791bbef94f11",
+      "size_in_bytes": 719
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_localhost.py",
+      "path_type": "hardlink",
+      "sha256": "78cc72aa178180c3d4d25fd50f29ca2ef44ef6ff0f85fe4ed38a0f13a2716b76",
+      "size_in_bytes": 2137
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_log.py",
+      "path_type": "hardlink",
+      "sha256": "5a5daed8758231275dae4d5aeaed48d77f3017fb21b10108131ca1b9fe81dd83",
+      "size_in_bytes": 9450
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_monkey.py",
+      "path_type": "hardlink",
+      "sha256": "05e790dac5df6f2b8a911f4e0fcb1154f8acd5255c849c07c82894fbc01ad05b",
+      "size_in_bytes": 43498
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_monkey_qt.py",
+      "path_type": "hardlink",
+      "sha256": "7f8db8a97327b8999f56a8ce9756ba66b7e2ffeabd38822687ae6f87d128d549",
+      "size_in_bytes": 7522
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_override.py",
+      "path_type": "hardlink",
+      "sha256": "2e635c17d37c8b38601138dbde79c6c86209430c700a660fecff16bd873e6383",
+      "size_in_bytes": 906
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_umd.py",
+      "path_type": "hardlink",
+      "sha256": "be12306359a59ea829e9d161c01c6f6aa22a6f6a7e46a756fc2a04629c30d8e0",
+      "size_in_bytes": 6459
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_bundle/pydev_versioncheck.py",
+      "path_type": "hardlink",
+      "sha256": "42827451c3b944bbe15f180a35c33ae82001f68bfda80441192690ebeae76004",
+      "size_in_bytes": 526
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "62859a4c61e79ec9c2905332aa9c8f377ddd4f3750d886436e72c2f0925890ba",
+      "size_in_bytes": 178
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__pycache__/pydev_runfiles.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "3d021520489ca9f4aea8e24e16e841c0c6368d0bbbf8ca52ab53bcba9ad41a30",
+      "size_in_bytes": 34870
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__pycache__/pydev_runfiles_coverage.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9a7c55111046c16290198179f2d1cd8d5836813c9d2bc8ebb64faa5e461c3178",
+      "size_in_bytes": 3259
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__pycache__/pydev_runfiles_nose.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "1210c9fe368b4ea151f2bfb23bc2528730f751ccf6c6b636051e9500dc5f6624",
+      "size_in_bytes": 8588
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__pycache__/pydev_runfiles_parallel.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "39bd7b2a827e16f81f931e057a79c44dec176027cd7037f85eca511a3a46bd84",
+      "size_in_bytes": 10225
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__pycache__/pydev_runfiles_parallel_client.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "cf2ffa45aa13816c41b6d559e267f5e17a11387b59792cfe30d1c0f64fd51b8b",
+      "size_in_bytes": 7794
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__pycache__/pydev_runfiles_pytest2.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ef3a5a5e3895377690a12be7b509c1f99e7f350735f3ca0eaf0463a31baa91d0",
+      "size_in_bytes": 10064
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__pycache__/pydev_runfiles_unittest.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "b0d5c7979cfa941d31ff04939c62804687be3af877ee13b461aa7c5204ee21a2",
+      "size_in_bytes": 8089
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/__pycache__/pydev_runfiles_xml_rpc.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "86fb91384ba118cc740b41f7107f9aecfef4e0cd74daed1af790adb63d3604ed",
+      "size_in_bytes": 9191
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/pydev_runfiles.py",
+      "path_type": "hardlink",
+      "sha256": "d6b0cc14707149736a84da93d0b75cf927282e97c51c3955d18d31e26991731c",
+      "size_in_bytes": 32407
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/pydev_runfiles_coverage.py",
+      "path_type": "hardlink",
+      "sha256": "c9448648a062f2cd331cb548b8d2a83a12e1c7378bb6f3a5905115df3648d4b4",
+      "size_in_bytes": 3575
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/pydev_runfiles_nose.py",
+      "path_type": "hardlink",
+      "sha256": "e170687f9e62de9dd5091efd797e0879586fe751fbf2a2821b52fbf27bb306b0",
+      "size_in_bytes": 7756
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/pydev_runfiles_parallel.py",
+      "path_type": "hardlink",
+      "sha256": "b96645e00132f614a7dad79fb05ebfc6183c5b8858adc26b1debadf598f7dd89",
+      "size_in_bytes": 9739
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/pydev_runfiles_parallel_client.py",
+      "path_type": "hardlink",
+      "sha256": "6d0d870c734713541246c2476db5e33d7acaba5104f87cbe9c2216f5ac6eab7c",
+      "size_in_bytes": 7936
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/pydev_runfiles_pytest2.py",
+      "path_type": "hardlink",
+      "sha256": "833f8b24e4763b39f6a1134063e23b8721e6194bc3aed0d4c6e97b22159fe71f",
+      "size_in_bytes": 10151
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/pydev_runfiles_unittest.py",
+      "path_type": "hardlink",
+      "sha256": "5b8f9dfe4cdf5769edcb613ef1486508b516d089ec382afbb510c49053ab9d83",
+      "size_in_bytes": 6835
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydev_runfiles/pydev_runfiles_xml_rpc.py",
+      "path_type": "hardlink",
+      "sha256": "e4790cd21df829a3142d52d245c143a7d48fd59726a325b6b24e6b657c5425c1",
+      "size_in_bytes": 10851
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "1cb8e2646ccd9d9efa83cf084cc9f002a8c79e72361988329be27b39b2397bcd",
+      "size_in_bytes": 177
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevconsole_code.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "2e9d23bf083e399e098c75bf521f041833021ba95f0aa23e6b2a0eaf273e4cbb",
+      "size_in_bytes": 20264
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_additional_thread_info.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "426dea4dd3e30b0ba6d72337e6552930ab38a46a4c760d3a5328a2a6b0330c15",
+      "size_in_bytes": 784
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_additional_thread_info_regular.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "be6bd2a46105c26a597a0b72208df9e813ab141ca41844e9a77280707bb509fc",
+      "size_in_bytes": 3959
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_api.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "3d765c24b9ca89f65047ca3c25bbbb765b0e1482f1098cebbc2814a2af4c8b77",
+      "size_in_bytes": 54733
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_breakpoints.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "16d1287d3756984c0313a1d409d1418eed84fc3ea5a07d9349886b7332f1ed49",
+      "size_in_bytes": 7811
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_bytecode_utils.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "7ae1347fa5b310a060f184cfe31df24e859052e01629e8afa4b2f7330a20d31a",
+      "size_in_bytes": 34156
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_code_to_source.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "01910eaa58289de715927309f0d4bcd7c2326c1839f87581da1b0fd65dd2e330",
+      "size_in_bytes": 27329
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_collect_bytecode_info.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "dc89878f191c5c8999b7a550b958eaae093001ff818931fa1c06eb0d503fc137",
+      "size_in_bytes": 37045
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_comm.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9df60ff75d7f5581b4af2dbeb1787272ad380eb6e6d77e834cee46d62abcf9a4",
+      "size_in_bytes": 86989
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_comm_constants.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "d6bb1c8cde897717a84e42c45e3f7e3131a2abb09dc3261dd5d26750f9297584",
+      "size_in_bytes": 5896
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_command_line_handling.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ad5eb258eb81be36035a70e8690f87b9f70a340bc301dab6b1f5f5e6bb634c08",
+      "size_in_bytes": 6868
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_console.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "1cf8b6113a9c25ef571a42031235fc0d4055cedb82778633e3676138de9e0905",
+      "size_in_bytes": 11523
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_constants.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "3540c335406c51bfd725b4b09ab24523079f75cb9c271fa13fa1fcce9a4cf30d",
+      "size_in_bytes": 28163
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_custom_frames.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "7b16aff7e6178289c635d6d0e062256c3df2ae2086ff5ec4004dbb0cdfd00081",
+      "size_in_bytes": 4862
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_cython_wrapper.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "6f63428ea796e947b5b2a2729f4421d5d67a7b38005cc7026116947a2916a798",
+      "size_in_bytes": 1557
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_daemon_thread.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ec3f00c2ddab0e0112bd47ad40c016a0c79dfe4850d8ccc07ca20c0cae06cd78",
+      "size_in_bytes": 9287
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_defaults.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "a21adf81c6840ec8ad6e5ff819703fbba8710abd388f21f553073d4849dc9e41",
+      "size_in_bytes": 2623
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_dont_trace.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "034810b452ce1f566d60184bb81ecf2fbb8d2e29741c7b1db12e35597cdd01bf",
+      "size_in_bytes": 2685
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_dont_trace_files.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9cc97d3eb31a5ec42ef9abbf31c2b89579aff072b55df90bd38c1235050aea07",
+      "size_in_bytes": 5913
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_exec2.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "b2836aea928b5ea98e4607cab54a4b431b7b7ba673728dcc364b9a6350dcce11",
+      "size_in_bytes": 398
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_extension_api.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "75a8eb9292ec4133e64c9a730b1ec0a4052ce390aa3c35c329b1a15a6efa1b69",
+      "size_in_bytes": 5467
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_extension_utils.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "1c93d0e016353430b91fa8ba8dae0939e014a48d73f285261ba6b6207453e4a5",
+      "size_in_bytes": 3740
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_filtering.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "a63c842ee9dc5508ccabfabfd3e5f756b01165718c7b75b0d29b3d542b99513a",
+      "size_in_bytes": 14656
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_frame.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "2542f5d21e8568fe84668277a0d9da5d09ece81d3d8d6906fdce02c6b092d85a",
+      "size_in_bytes": 35292
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_frame_utils.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "aba5484f79017b759c94da4f0559f227170e0684670aec2bbc106e366dee0133",
+      "size_in_bytes": 16442
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_gevent_integration.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "454976c03086fafa6a849649f0e8b1fb44246305204af1817fb2aae94cd1b38a",
+      "size_in_bytes": 4284
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_import_class.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0f739331a93c681dee5aab4ca4acf629d51241f7cf605c4b31fe86d8dd64acac",
+      "size_in_bytes": 2086
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_io.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0a6c14a50716908e5d40703f49a470fe5a3de446ec28da38981aecccbbd5bfe4",
+      "size_in_bytes": 11368
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_json_debug_options.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "dbd6130ab8f7a5890005005f83358d59f9c0cd9b294aee84b3226c5125e42b04",
+      "size_in_bytes": 7004
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_net_command.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "42b29e5308ceec0c4aa59fd8845595d184d98eaec0994100764e33a6637b4519",
+      "size_in_bytes": 5705
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_net_command_factory_json.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9840b6e231ab587e8748ebc082e5ac814dcd862f958bf0cbf1251a319230e1a0",
+      "size_in_bytes": 26206
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_net_command_factory_xml.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "5989658067e12a13ac57e8c6308f0c6d19cd8cde0685bae6c63ad262603a4706",
+      "size_in_bytes": 29092
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_plugin_utils.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "47fc11625a99280c32e330539cbf38dfd42cd28c355c05be41a5f1287bee9547",
+      "size_in_bytes": 3983
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_process_net_command.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "1462f6da7c49ee20f2121365b798b48bb8d0e4abef82f8f891f117ee7d348f53",
+      "size_in_bytes": 35622
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_process_net_command_json.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "aedc6f3ba3358384df5967be829ea1222d24909e6ce341d4dbb5ca3481c7d0d3",
+      "size_in_bytes": 60461
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_referrers.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "96cd26858deea12d75d8aa5c9bb6a12d90fd7d8f6e34f9148d9ea4ed3eb2b2a7",
+      "size_in_bytes": 9191
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_reload.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "e394cd0727606fa5a2ed6b40d294edf219f843734bed9caeb462c7103a48035f",
+      "size_in_bytes": 14240
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_resolver.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "4023278476b361c71f3b20370d0a4053d07c1d5293c1bf990f7278f46be0754d",
+      "size_in_bytes": 32596
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_runpy.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "4496a176044af8a131176644a6aa437410ca2e78c0093ad75c0c963af2dd6b3e",
+      "size_in_bytes": 14956
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_safe_repr.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "a237b8079b2058cf5c2d2f90d43f608dc28389164127844c99f2f1c6549ed7d2",
+      "size_in_bytes": 13308
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_save_locals.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "be7e94ed12eaf08fd12b82881dd88cfb065a71d7570a3a768b4dadd6bda83905",
+      "size_in_bytes": 3415
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_signature.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0b6361be1a8be5429cda762bc6d1c437878fd72651c5e32c13551ee6f3e98a19",
+      "size_in_bytes": 10086
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_source_mapping.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "20b6981f5ec5415a3f06401d8e284480e8535e9443d5dfccbda1267c039c270d",
+      "size_in_bytes": 7715
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_stackless.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "73e6166e72fc3b52e170d962c1b6c2e15c893be7a12f9c869afc161136b867cc",
+      "size_in_bytes": 13485
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_suspended_frames.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "c13a92a86cdab54d43d81dbda498e121cdddc6eddbb1ad428da2fbeeb46f4ba4",
+      "size_in_bytes": 23813
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_thread_lifecycle.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "d245348f59a9339da2fe8e175b026a8d9b71c56ff322ef08c6decc9a9584699f",
+      "size_in_bytes": 3880
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_timeout.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "893c35bd0303521303ecb56f34d0458d5486bc188b513205a3c2440949c30339",
+      "size_in_bytes": 10682
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_trace_api.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ee93934deeaccb3da8084a1c58b3263481f0b308612122986fa4351fac787fa1",
+      "size_in_bytes": 2484
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_trace_dispatch.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "68244aef4fc802c8f294aca830889c3e63e47f35df297d84bffda94885d9c6cb",
+      "size_in_bytes": 3379
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_trace_dispatch_regular.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "083b3192975f52f736db8e723c36c0b5dc2cec44557355228d790e16948ae672",
+      "size_in_bytes": 14223
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_traceproperty.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "05b198c5716885fe12ac04cf81cfd3f5ba9ef851b9d9688f193d65822e593370",
+      "size_in_bytes": 3889
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_utils.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "72050b426e9f676107638b1dce176a8bdb97e8f9643ea495d711f525547c7f04",
+      "size_in_bytes": 20742
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_vars.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "dab0b278418fc4d52f8107fe7da6c813ca558c013b40d8912339ce98afc1d1b6",
+      "size_in_bytes": 32438
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_vm_type.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f2dff69774117274d41caf15b7f3cd0aa380584c47ef4ba249556c6d5ca2c635",
+      "size_in_bytes": 1230
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/__pycache__/pydevd_xml.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f47704188ff91661533ef99ca7e207f330a4609210dc8a690ad68e4db2a1db7b",
+      "size_in_bytes": 16555
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/__main__pydevd_gen_debug_adapter_protocol.py",
+      "path_type": "hardlink",
+      "sha256": "d9aadeb9e1d125c0109da758309c1663b6b256d006f9bdc182d3c7838f6f2c8c",
+      "size_in_bytes": 23677
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "788dda9b03e343d3c284b26b3816d1e9238c6922eb18286115026b4eeae9b520",
+      "size_in_bytes": 192
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/__pycache__/__main__pydevd_gen_debug_adapter_protocol.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0f62e8676ec5ef20026d71738baf47d7a28526d98e7914ef5d300485c32f58aa",
+      "size_in_bytes": 27333
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/__pycache__/pydevd_base_schema.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "8a16975421148a2fa3cdca9d8b45388eaefd4cd294ef8e1eea2331f6dd0df6e6",
+      "size_in_bytes": 6177
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/__pycache__/pydevd_schema.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "4d1077b9fbe100802fa8f6d49b81261046f25a19459cde332e1ca5c819fe153e",
+      "size_in_bytes": 570459
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/__pycache__/pydevd_schema_log.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "3ebe3919b40b661edbc1fc53f62ec75311b582a4f7f9c5d1a58531c907164a58",
+      "size_in_bytes": 2282
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/debugProtocol.json",
+      "path_type": "hardlink",
+      "sha256": "1a71ebb071bb4b649410e2ea1cf25f758323dbc121b70f437b19e2f0e63bc570",
+      "size_in_bytes": 162014
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/debugProtocolCustom.json",
+      "path_type": "hardlink",
+      "sha256": "abec6679af3cd9c9c75948b25fe9ebe4aacf7b6248b663c9b2e6e2ab4f954c2f",
+      "size_in_bytes": 10940
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/pydevd_base_schema.py",
+      "path_type": "hardlink",
+      "sha256": "cf8a46f1dffe6bea73d41abed2554ccf6481a0b8bde89b90e6785901c537fd1e",
+      "size_in_bytes": 4145
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/pydevd_schema.py",
+      "path_type": "hardlink",
+      "sha256": "96458170081d0797b039bcedac6e3c3a9a7eaa76c3084cb3bc303e287e234f98",
+      "size_in_bytes": 783010
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/pydevd_schema_log.py",
+      "path_type": "hardlink",
+      "sha256": "63147bc3add47c4497cec0065e4277e555aa431d62da3da3801ef667259b0a7d",
+      "size_in_bytes": 1301
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevconsole_code.py",
+      "path_type": "hardlink",
+      "sha256": "40a4d5061779f5fcd2c9233b03908da791f9920bfea5bbe3e82e673e10ae639a",
+      "size_in_bytes": 19568
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_additional_thread_info.py",
+      "path_type": "hardlink",
+      "sha256": "a6d863809682a7cefa3d03d2d0e25d0cf99bcc4b801793b93362f3ef05fdafb9",
+      "size_in_bytes": 1185
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_additional_thread_info_regular.py",
+      "path_type": "hardlink",
+      "sha256": "224b78af905feb17e4694f82a0b455f5d964c2ad2198d8ae28691cb141ece189",
+      "size_in_bytes": 6392
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_api.py",
+      "path_type": "hardlink",
+      "sha256": "c5dd507b2ff9019327a8c572e772f0048926e23513809134dd41a81d2b9c8e08",
+      "size_in_bytes": 51889
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_breakpoints.py",
+      "path_type": "hardlink",
+      "sha256": "75aaf60a086d51f295824413e9963aff733e9186d8af193a9d1da074135d95f5",
+      "size_in_bytes": 6194
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_bytecode_utils.py",
+      "path_type": "hardlink",
+      "sha256": "436a117992ac9190139860082fb01348e9e4355963e3a42d42b8f1534258bf43",
+      "size_in_bytes": 27120
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_code_to_source.py",
+      "path_type": "hardlink",
+      "sha256": "d1c1094f890c2a9025674e09e9c16a67c088071d3923b157912c30ae728c56ef",
+      "size_in_bytes": 18233
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_collect_bytecode_info.py",
+      "path_type": "hardlink",
+      "sha256": "5fb21d29aaed463cf3bc2ab180dc8c31a7c8e970d42b477df4abccef33515ad9",
+      "size_in_bytes": 38162
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_comm.py",
+      "path_type": "hardlink",
+      "sha256": "604a36099c5bb3999f74f436057236ca9e876eeff299e73758987445f81ed51d",
+      "size_in_bytes": 77977
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_comm_constants.py",
+      "path_type": "hardlink",
+      "sha256": "a9851c6509a318a295469e0bbd18942b95d5177ec1348c008af5f4afcef35879",
+      "size_in_bytes": 6292
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_command_line_handling.py",
+      "path_type": "hardlink",
+      "sha256": "42f2aad1b52dc044f838a661948c4c280cdf15478fc1db96734d14d74a0bce46",
+      "size_in_bytes": 6311
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_concurrency_analyser/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_concurrency_analyser/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "87f3b9c1fe769c0d8bb8da3e8121332a73be8cd49a01ea2c4a73a07247d8f4fc",
+      "size_in_bytes": 205
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_concurrency_analyser/__pycache__/pydevd_concurrency_logger.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "c94b647d70cb77fb572b11121f9c11fa3be82d1609762e8939610a42d89881fe",
+      "size_in_bytes": 16962
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_concurrency_analyser/__pycache__/pydevd_thread_wrappers.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "86674a07f1d1e661a44599be19e742e374d8afb75f29ed591b883f7d31c6d1e0",
+      "size_in_bytes": 3805
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_concurrency_analyser/pydevd_concurrency_logger.py",
+      "path_type": "hardlink",
+      "sha256": "c20512b526ee14c3dbad53b24a934ce0f1ae4e0ecc43ec6873691fdce7ca6e3c",
+      "size_in_bytes": 17110
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_concurrency_analyser/pydevd_thread_wrappers.py",
+      "path_type": "hardlink",
+      "sha256": "246af0ab0f1caaf97df4ebac46f3bf66ef89fca1267597db7af67b70ed1e0263",
+      "size_in_bytes": 2122
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_console.py",
+      "path_type": "hardlink",
+      "sha256": "e63aaf8600cace9bae5dbb8226f276ec1e1610318a010073e7babdb2c34b2bd5",
+      "size_in_bytes": 10449
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_constants.py",
+      "path_type": "hardlink",
+      "sha256": "87097547b8032f53c08c264f03e0823119ced4da049f357ac66be260ab1d1329",
+      "size_in_bytes": 28025
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_custom_frames.py",
+      "path_type": "hardlink",
+      "sha256": "cf352f2d6562bbecadb5f695d7a8a43fbb71987f5bac5610beb469c4e56e4b9a",
+      "size_in_bytes": 4515
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_cython.c",
+      "path_type": "hardlink",
+      "sha256": "1a585132ccf66c186e59a72d4fd86fef3687371b2487d0f302a26e4e2b50580d",
+      "size_in_bytes": 2138822
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_cython.pxd",
+      "path_type": "hardlink",
+      "sha256": "719914b30d44f904b4c7ceec6bab4f5d1781b5b406e3077d4302f18c9031b0fc",
+      "size_in_bytes": 1269
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_cython.pyx",
+      "path_type": "hardlink",
+      "sha256": "64c2e0c50ffd2c83977615750c42b2cd8627d37a9524fe13f47714ba0932a2fb",
+      "size_in_bytes": 94371
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_cython_wrapper.py",
+      "path_type": "hardlink",
+      "sha256": "4a8471999750752f42b65080e38be30ed55a13e0a96b10cf8c892a66af64759c",
+      "size_in_bytes": 1652
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_daemon_thread.py",
+      "path_type": "hardlink",
+      "sha256": "2c9e366633ca9e9f0c2eecb385494cfaf091e9d50771e5c9cdb80c07125b0bba",
+      "size_in_bytes": 8157
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_defaults.py",
+      "path_type": "hardlink",
+      "sha256": "7aeac2ab56791e191668d4291350530b33de09f229dfb5def75b3367719d372d",
+      "size_in_bytes": 2382
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_dont_trace.py",
+      "path_type": "hardlink",
+      "sha256": "23774e7dc789ab766000439a6d895d9a57f8a7727f64e629adeedb8b82d09006",
+      "size_in_bytes": 3690
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_dont_trace_files.py",
+      "path_type": "hardlink",
+      "sha256": "1610e23be4cedbaf4bf06d8f3cb5507d60da603445bc003d6be9884961795d7f",
+      "size_in_bytes": 5967
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_exec2.py",
+      "path_type": "hardlink",
+      "sha256": "c3c8aa8e5a9c408fe2eefcfd4a730c2906806ebea524c1ab7fdc5c12f33ecdff",
+      "size_in_bytes": 163
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_extension_api.py",
+      "path_type": "hardlink",
+      "sha256": "78360ace17f87e3e7f902581677dcd22cd52c039f483b6dcbfef39d3024601c0",
+      "size_in_bytes": 4015
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_extension_utils.py",
+      "path_type": "hardlink",
+      "sha256": "a310dda415082b84e34105afd4e3ebd521c53db3310d828d886093e47c78f3aa",
+      "size_in_bytes": 2436
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_filtering.py",
+      "path_type": "hardlink",
+      "sha256": "80c15f0f84120f070981c0f5b3fc3b3feb0248ad7f16ad9f184dd3a283606bb7",
+      "size_in_bytes": 13164
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_frame.py",
+      "path_type": "hardlink",
+      "sha256": "355c9201f4a6bb53f07744a0bfc3eab5e9dab3a8d0201de88e3f4467a812ae5a",
+      "size_in_bytes": 65639
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_frame_utils.py",
+      "path_type": "hardlink",
+      "sha256": "83eb3bcd7c6ab072a37364069ff11152772c9ecaf176c62ddc3a3699fee5214b",
+      "size_in_bytes": 13567
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_gevent_integration.py",
+      "path_type": "hardlink",
+      "sha256": "80828e5eec79c1c14b71c97607c69e34d82bfc2ccc1926fab5d428f4e743058e",
+      "size_in_bytes": 3970
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_import_class.py",
+      "path_type": "hardlink",
+      "sha256": "12a2972076353a077d4cf8df2d73846fe06add35917f3f88f245894a26880c58",
+      "size_in_bytes": 1906
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_io.py",
+      "path_type": "hardlink",
+      "sha256": "08c36fecafdb2b74a5ef3c810114fd1a3342798dcdbbe98ec6457cc868285641",
+      "size_in_bytes": 8375
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_json_debug_options.py",
+      "path_type": "hardlink",
+      "sha256": "b973a78ec054a166a0683bb82d53539b615e92dd1443b2e85fd350452521536e",
+      "size_in_bytes": 6403
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_net_command.py",
+      "path_type": "hardlink",
+      "sha256": "ddc7b89dd05fcdbba951444d2af3fd4b03baf017aed3d6cdf636dd4bd89f38bb",
+      "size_in_bytes": 4734
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_net_command_factory_json.py",
+      "path_type": "hardlink",
+      "sha256": "cb4f7149de8a4fdc18051ad65464c7719fb5a4a5e225759be9b89848160695e4",
+      "size_in_bytes": 22903
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_net_command_factory_xml.py",
+      "path_type": "hardlink",
+      "sha256": "38fc4f45b810fef6817307d318acaadb100372e33039e891b52d64905fca1ea4",
+      "size_in_bytes": 23779
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_plugin_utils.py",
+      "path_type": "hardlink",
+      "sha256": "ef22ce8e8a82735b3a5ecdfff4e991aa1ec52a01feead7d1379a87ce393912bd",
+      "size_in_bytes": 2575
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_process_net_command.py",
+      "path_type": "hardlink",
+      "sha256": "718740100fda8024d06b03ae68bc38e95415c4ddb3df9e379af295216762c58f",
+      "size_in_bytes": 35944
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_process_net_command_json.py",
+      "path_type": "hardlink",
+      "sha256": "92270c2265518aa991a3374c39c7e1c4b9f40e8c3800f7ab00ad755003f7f966",
+      "size_in_bytes": 58398
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_referrers.py",
+      "path_type": "hardlink",
+      "sha256": "c0c9c41e97d13c57525b78850a4373aa4496bf743fb261f1babeeee3ad4c7120",
+      "size_in_bytes": 10013
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_reload.py",
+      "path_type": "hardlink",
+      "sha256": "eeefbde8a3a3af8562c0290050242e05af04b304d8c641ff25f38efebf202700",
+      "size_in_bytes": 16206
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_resolver.py",
+      "path_type": "hardlink",
+      "sha256": "4308a5c567d030897ac5d00dff02c3c2136c66246b9412a2d7d125966ea362fa",
+      "size_in_bytes": 30454
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_runpy.py",
+      "path_type": "hardlink",
+      "sha256": "f430cd903c9ab18e3ec9a9085786e42989a06d69e9a28565025d1272e4a38cf9",
+      "size_in_bytes": 13874
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_safe_repr.py",
+      "path_type": "hardlink",
+      "sha256": "8839a2f32369614e64375d307af23a5d441e688bfd586b63f5b221b8b57cd61c",
+      "size_in_bytes": 14955
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_save_locals.py",
+      "path_type": "hardlink",
+      "sha256": "aa7d2c23b4371173e819e75e624db6696b4a37769829d1de568cc8f24d365838",
+      "size_in_bytes": 3578
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_signature.py",
+      "path_type": "hardlink",
+      "sha256": "1ef2ac5b5dcb4b0c7055ededbbc9feb3330b331901b6c4cc434240e4d022fac2",
+      "size_in_bytes": 7084
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_source_mapping.py",
+      "path_type": "hardlink",
+      "sha256": "56bcc256c0f87db74e2460cdc634f201d3d8af1e264a8d2957308a5a041feb88",
+      "size_in_bytes": 6581
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_stackless.py",
+      "path_type": "hardlink",
+      "sha256": "57a9ad6f7a19ade860ba6408650e0587175eeff957c778653fadfd8e8611d075",
+      "size_in_bytes": 17325
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_suspended_frames.py",
+      "path_type": "hardlink",
+      "sha256": "4ac8f9606fb04282ce3b83ffbf03ec3df1995c06dd000d0fd1bc495216d5963e",
+      "size_in_bytes": 21405
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_thread_lifecycle.py",
+      "path_type": "hardlink",
+      "sha256": "3e43e86b6f52aef32b377f7e871fd6980680a3a290ed22a51cbc93a643173893",
+      "size_in_bytes": 3504
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_timeout.py",
+      "path_type": "hardlink",
+      "sha256": "68e5003749ba1b38871c59b5d827e4f767704b4855fbf1a0cbe7a9a821d000b9",
+      "size_in_bytes": 8605
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_trace_api.py",
+      "path_type": "hardlink",
+      "sha256": "bb0d5857f69e3a26cb660861987b4155fe687c352da16976024409ef261910ea",
+      "size_in_bytes": 1459
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_trace_dispatch.py",
+      "path_type": "hardlink",
+      "sha256": "fdd1d7c4d84920361b8b011d9b250a69fcab10cb29c4cffb6c7a676ca77e14c4",
+      "size_in_bytes": 3327
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_trace_dispatch_regular.py",
+      "path_type": "hardlink",
+      "sha256": "69e4c43b7627e22f1de83ad0d0f13aed9f964e20f7837137cd060a81a36a2471",
+      "size_in_bytes": 22692
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_traceproperty.py",
+      "path_type": "hardlink",
+      "sha256": "3525d20fa60b72aaa79adaba71548c4f32e90f44efe9d2e660cf288cd2d522db",
+      "size_in_bytes": 3371
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_utils.py",
+      "path_type": "hardlink",
+      "sha256": "c5bffa512f1fdafbe25ab1eb2ae959423ccdec6feb431c30f9fadd66765c84aa",
+      "size_in_bytes": 18360
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_vars.py",
+      "path_type": "hardlink",
+      "sha256": "5673040947e3094daf50d1959f7ae1f1dd769f6a9b15b7a4d7c06b7da0102e42",
+      "size_in_bytes": 31949
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_vm_type.py",
+      "path_type": "hardlink",
+      "sha256": "bb1f0beeb11e1f7b32217be1ab7a5a064cc2d362ca1ec60dddde4d8460f3a372",
+      "size_in_bytes": 1619
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_xml.py",
+      "path_type": "hardlink",
+      "sha256": "46a6c368b0d8ffe2a3777e65f4ce0069acf2af54744353f6f3796f42d7c3272a",
+      "size_in_bytes": 15909
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/.gitignore",
+      "path_type": "hardlink",
+      "sha256": "2854dde1200025b37a74460e9bdaeb0557f28e8e47b74d171f469659949bc812",
+      "size_in_bytes": 90
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "476ab804a5eba3ee992d6671f4647b94ae91220f6bc9b90487dd47e0856306fa",
+      "size_in_bytes": 181
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/__pycache__/pydevd_frame_eval_cython_wrapper.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "b08fd011d4cb3f2da0433f1677df622b2abcfbabe3095dd2ff9c3579cffd5bed",
+      "size_in_bytes": 1355
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/__pycache__/pydevd_frame_eval_main.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "17a8080f66ef6d9e3771127df8517b7d0a3de05d07122135307c10a5009def62",
+      "size_in_bytes": 1285
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/__pycache__/pydevd_frame_tracing.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "623c9ec6aab467df5b707ee1fa5ee34a232e9f5e0d2d07fe8252599ba002e3cc",
+      "size_in_bytes": 4847
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/__pycache__/pydevd_modify_bytecode.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "7b61dd45c2fe490ddfb72d52a8958e9a98512610746e8fd356e6709f7a7cfeff",
+      "size_in_bytes": 11227
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/pydevd_frame_eval_cython_wrapper.py",
+      "path_type": "hardlink",
+      "sha256": "7bb4935ab45514c49e524e5c273d2642860dfbf9cb102037818b6105f5416274",
+      "size_in_bytes": 1386
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/pydevd_frame_eval_main.py",
+      "path_type": "hardlink",
+      "sha256": "458ff930d265f59d2c444203cebe28a493641c488e4a74096a2dc3393ff7ec43",
+      "size_in_bytes": 2153
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/pydevd_frame_evaluator.c",
+      "path_type": "hardlink",
+      "sha256": "4da2112b234a9987f431579f02a169492f2f8f760aec5e013fa62634feca120f",
+      "size_in_bytes": 956390
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/pydevd_frame_evaluator.pxd",
+      "path_type": "hardlink",
+      "sha256": "3751bca6e71723e06edb73ed62014f68fe21074118c3a131b8c4192715f4600c",
+      "size_in_bytes": 5455
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/pydevd_frame_evaluator.pyx",
+      "path_type": "hardlink",
+      "sha256": "76b2e53d223f856cdfaab71ebcf1cd1de0e507addd35ff0ec5801c3a4430cc08",
+      "size_in_bytes": 32109
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/pydevd_frame_evaluator.template.pyx",
+      "path_type": "hardlink",
+      "sha256": "9f8ed007cb499819b800458c37889d54b19cde9e12bb15da7f59cc72b6b5023f",
+      "size_in_bytes": 25163
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/pydevd_frame_tracing.py",
+      "path_type": "hardlink",
+      "sha256": "448e552519fbe0b97ac3e3b505b7bd27bb1ca94e29980ac273e0f9fabdfdf717",
+      "size_in_bytes": 4341
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/pydevd_modify_bytecode.py",
+      "path_type": "hardlink",
+      "sha256": "2bc0c93382e4ba33da68f4f5c5d2fd4fdfe8a31b3b3169f668903a7ccc5e6e45",
+      "size_in_bytes": 13910
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/release_mem.h",
+      "path_type": "hardlink",
+      "sha256": "7b8139527301488e03f8470b143394fbc91a290cb8bbd5a0cd467691967103de",
+      "size_in_bytes": 84
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/README.txt",
+      "path_type": "hardlink",
+      "sha256": "d5d8f3f7570673c7d6cbebc5b3ea4981fb549ecac7fc38bf05fcbbd9ed75166b",
+      "size_in_bytes": 717
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "4e2a7a4472e2640ac067ffc90f9d54c2052525bfe000bf71bdeffc354dcaacbc",
+      "size_in_bytes": 190
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/__pycache__/pydevd_fix_code.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "55f9dc38a72ccadf40b72b05db5c1e07f065301f4de923aa7d352f227a813a2e",
+      "size_in_bytes": 2583
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode-0.13.0.dev0.dist-info/COPYING",
+      "path_type": "hardlink",
+      "sha256": "9cf513576dc0703e5465c73d12d55306df88828ca3ec8211c3def1b8e19582af",
+      "size_in_bytes": 1095
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode-0.13.0.dev0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode-0.13.0.dev0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "41d8f2cebf1d74c6c6221c4989a0ed0c2b8f6f012cf6780556b7633b88b1dc6d",
+      "size_in_bytes": 3006
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode-0.13.0.dev0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "01787b06c29ba63f58ad5b080b1adb0dc979a5a00a509b604ea0ade7e61f3ddc",
+      "size_in_bytes": 3037
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode-0.13.0.dev0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode-0.13.0.dev0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "ca6bf46006fc6b3fbe1af0e2467435b2e58e3f39bccb83d823fa0680b9177c75",
+      "size_in_bytes": 97
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode-0.13.0.dev0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "b39f116f829746530ac64fa6ce9bebfed25143e1f1f3e0c7b14e8d7688429c08",
+      "size_in_bytes": 93
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode-0.13.0.dev0.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "13cfb895680136ce30cabd613fdc6e0e50b148e4b6be34535c1f029cc16900ff",
+      "size_in_bytes": 10
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "5c563480073b916ea2e56d3ad72ce12c93012e92d8681e3862435361638cbc28",
+      "size_in_bytes": 4282
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0f31f4412962aab7bb2e9b643c68767277db285b0ec60f435c8c2d1de62e38de",
+      "size_in_bytes": 4589
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/__pycache__/bytecode.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "7c56a429f3b55c0fd5897b65f50d9ab36052487870868500aaddcc5d397e8cda",
+      "size_in_bytes": 10494
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/__pycache__/cfg.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "73fefd92122c949bbbca0229ce6ca8948716032828265469de9e9a7596ca200f",
+      "size_in_bytes": 17413
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/__pycache__/concrete.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "46511ee03fce108ad0d71ba1766b29e0be7f97001849581097d9346f34c974b6",
+      "size_in_bytes": 27051
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/__pycache__/flags.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "4741e3684e986e760815faa05a6c1f4a04d5a5633771c4873847ad6123e495f7",
+      "size_in_bytes": 5155
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/__pycache__/instr.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "7442360716deb2cc091c17aa61daf81f302e088af81d16479173f69ce014c8ef",
+      "size_in_bytes": 16412
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/__pycache__/peephole_opt.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "7d4dc1862089077051dc0a8251738d4c6b00ad327c2355488ece96c60187b5cb",
+      "size_in_bytes": 21562
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/bytecode.py",
+      "path_type": "hardlink",
+      "sha256": "fffd221d6a42cea1638b74ef88fce2f6f8b21f394d462b81d5eabc8bc0ad8898",
+      "size_in_bytes": 7193
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/cfg.py",
+      "path_type": "hardlink",
+      "sha256": "163b08dce00e3995e1aca77b14dbfdbc25574d72365fd12e0ca7a3e7351ef67d",
+      "size_in_bytes": 15854
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/concrete.py",
+      "path_type": "hardlink",
+      "sha256": "fca642cdefae5a96440bcdd6f6816297e7715fbcebbfe662613f8972353e1297",
+      "size_in_bytes": 22972
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/flags.py",
+      "path_type": "hardlink",
+      "sha256": "a1a886bfad3c03fa2f5c93c13252082b7bad0b71b4c3dc4d265a3915a32bd809",
+      "size_in_bytes": 6201
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/instr.py",
+      "path_type": "hardlink",
+      "sha256": "1780c767e0472b36906f866f2ca7e2be5fc22f2bcb01839566334e0b7f5bdce7",
+      "size_in_bytes": 12117
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/peephole_opt.py",
+      "path_type": "hardlink",
+      "sha256": "45c0240c0ba1307e3b5989c548b897d4e85a28c036c56ba900dd621af90bae3b",
+      "size_in_bytes": 16231
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "7947cd3d59685fb0de1038ca6a30afaafaae31151145b0ba533114fbde409a0f",
+      "size_in_bytes": 5150
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "e82e4e59d86de6f7424a79e73baa2938bf82622827372b10995c9b353e567c79",
+      "size_in_bytes": 6450
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/test_bytecode.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "95f6be362ed3351f247360289f572e2827dd7463739f9149b2373990919a3b25",
+      "size_in_bytes": 21217
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/test_cfg.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "93419bb3e7d41fb7306e945191a3f2bb82c99d17278a1939a70cf5c746b2c228",
+      "size_in_bytes": 39058
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/test_code.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "8768966cdfbcf02af160b012411c5663eca86d1eeffb7b736172864846a7b1b7",
+      "size_in_bytes": 3669
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/test_concrete.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ef1b4dc4738abceea23ba1709bf55e6acb1a3e3a149e970cbed87482e76cc822",
+      "size_in_bytes": 55272
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/test_flags.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "255acdb967422b785598ad528f6a13d047d1bd6775ce6dd70a731aaa3a170674",
+      "size_in_bytes": 8703
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/test_instr.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "5ac2e1a6e973d3329249123f67197998f1958d590af786a7ec674526257f47ec",
+      "size_in_bytes": 17287
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/test_misc.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "45e030e5b88e3f5902a3f84bca2a58c9e4e7845c795cfccbf9ea71da3804c635",
+      "size_in_bytes": 9336
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/test_peephole_opt.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ba562b2d9f9fa5962a931c734cce33de73148c713a82c0b8618758f791b1e858",
+      "size_in_bytes": 30614
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/__pycache__/util_annotation.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "14f5f157541cb4c19d068948eb4dc85781da468a7c36943b7315380ce6c0da8e",
+      "size_in_bytes": 1035
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/test_bytecode.py",
+      "path_type": "hardlink",
+      "sha256": "794e262880d6937ce7f156466b47defb52fdde9f90fed49500810349211a8f47",
+      "size_in_bytes": 16397
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/test_cfg.py",
+      "path_type": "hardlink",
+      "sha256": "486f0fa25ed68a52ea4d0f80032340b57f79076b96ef0cb9f22e22e2868b6b91",
+      "size_in_bytes": 29383
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/test_code.py",
+      "path_type": "hardlink",
+      "sha256": "27836bfeadfde54747a26be453fc10498574de13974cfbf2182858a4288609cd",
+      "size_in_bytes": 2518
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/test_concrete.py",
+      "path_type": "hardlink",
+      "sha256": "62ee9bb46af3f57d5af0c56de3ba15daad89ad9c5d9532a75abd5c3597ecc7f9",
+      "size_in_bytes": 51147
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/test_flags.py",
+      "path_type": "hardlink",
+      "sha256": "28aeec28fc7aa1d1620ec51bef07d7f077c70aaf598873aa9ff6b8a5c55b15e9",
+      "size_in_bytes": 6168
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/test_instr.py",
+      "path_type": "hardlink",
+      "sha256": "f102eca43dc25a1ae46c2a889db5fcb919f5a8660df59a2a12f3075a81333e5a",
+      "size_in_bytes": 12038
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/test_misc.py",
+      "path_type": "hardlink",
+      "sha256": "5b25fda96ad5c08ef44559b56a2e56ed43e69a1ab4802ae18476f7414289cf89",
+      "size_in_bytes": 7419
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/test_peephole_opt.py",
+      "path_type": "hardlink",
+      "sha256": "1a1974c6632151a7219f4a032bd18c00c361fa449bce6fabbb708f8e87d3c457",
+      "size_in_bytes": 33978
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/bytecode/tests/util_annotation.py",
+      "path_type": "hardlink",
+      "sha256": "ec5a4de262b6a7fa9fdd4037ce5379857bb47f1b80c318a012f08da39f745643",
+      "size_in_bytes": 502
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/_pydevd_frame_eval/vendored/pydevd_fix_code.py",
+      "path_type": "hardlink",
+      "sha256": "d1cf7ebc057dc3cef13d8c5c6456ce3074541a0f84aa42eaf6a930d24815b9cc",
+      "size_in_bytes": 1850
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_app_engine_debug_startup.py",
+      "path_type": "hardlink",
+      "sha256": "33b8ae4e19808e67b91cd4fb7beefd0a1198b3d4dbfacb7c331f918f461a2a97",
+      "size_in_bytes": 712
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_coverage.py",
+      "path_type": "hardlink",
+      "sha256": "6c310f9583344d825cec6394dd9ae78985198d49b41a455d3ac0fcaa0d48c9fb",
+      "size_in_bytes": 3294
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/README",
+      "path_type": "hardlink",
+      "sha256": "765fc9b0f9233354f5e194476534ef4de685a32a3dd42d088dfb5f6b618e0e77",
+      "size_in_bytes": 546
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "06d5670187014d15283564c93abe7cb1e08b7a90a078fb985af2d55a244e01e9",
+      "size_in_bytes": 176
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/inputhook.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "b10bd5acd5316dc246cd312c9a7505093afa2962d56d0b19f686fa3bf9268038",
+      "size_in_bytes": 21615
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/inputhookglut.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "74d1e460814121f80eee74bb7b7d382f2453eb79a2733ab8ecfc1120f93fd582",
+      "size_in_bytes": 3519
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/inputhookgtk.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "56fbf70c6c4e640c111a8421d6eadfac60c27dcbcc5af63491062f2940cf805e",
+      "size_in_bytes": 996
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/inputhookgtk3.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ee92a802cd763f131bbc3d7ebee550b890e9482fa113d3ed511bda4c5d92f6bf",
+      "size_in_bytes": 1010
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/inputhookpyglet.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "c13b6564aeff25cdcbf342d40e21b6b547c038b2012f0082653d0f2d9a4199f0",
+      "size_in_bytes": 2395
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/inputhookqt4.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "fb6fc7805d3da2a87e04eba2fcf5a13555b7e1e2b32b2441d558323a5fdb6e20",
+      "size_in_bytes": 5578
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/inputhookqt5.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "81009b76724a18eb50cb6547eea06ed9fffc07197c581f102a277b6c7043068c",
+      "size_in_bytes": 5614
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/inputhooktk.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0b0d2b2ec2b7ff60215f3231525676632673e00e79b9b284cd5f2dc8a9f31b18",
+      "size_in_bytes": 757
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/inputhookwx.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "2c88b4dc323fad9fe14973b74ed1bd5f1eef751ecb33c426492c7631d3a8adef",
+      "size_in_bytes": 6091
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/matplotlibtools.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "38c34ff6909b430a6aa56c73024ff57ff659856452dce3ed5d5b62b98e8e9d81",
+      "size_in_bytes": 6206
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/qt.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "1e84c869318b5fc346a0052905f5a906c20f975d3e0d730aade5e750ceeea81b",
+      "size_in_bytes": 955
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/qt_for_kernel.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ce3b7ea8d74a3a644760fc61ba2d27c2f7ec5f091f9b7f5969d2f014dee0b266",
+      "size_in_bytes": 3766
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/qt_loaders.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "97420e4bbb2d7f4421a908f03b7b903fff9c2748dd87af1f14d0b999e6ad702c",
+      "size_in_bytes": 9769
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/__pycache__/version.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "92e30afef822707aadc077686649fd6a6f5944a8cba48f8b66f508e6c55194ba",
+      "size_in_bytes": 843
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/inputhook.py",
+      "path_type": "hardlink",
+      "sha256": "5b19942f96412ab48db73eb180318ea5813669825487c945c6b3431aeea7191d",
+      "size_in_bytes": 20146
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/inputhookglut.py",
+      "path_type": "hardlink",
+      "sha256": "b7ce84f24c010f4444cd4c363076230eac4884da4151a940fea64ae0a9d604d7",
+      "size_in_bytes": 5829
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/inputhookgtk.py",
+      "path_type": "hardlink",
+      "sha256": "0065bed22d64db8a4b524367bb7369ef37035868591d31951d33d226a5e23e6d",
+      "size_in_bytes": 1143
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/inputhookgtk3.py",
+      "path_type": "hardlink",
+      "sha256": "6cce4294bd463cc212e14304bc8cc241e980d3a7c65d822b00f170db44f27003",
+      "size_in_bytes": 1139
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/inputhookpyglet.py",
+      "path_type": "hardlink",
+      "sha256": "3507762c7b00d097dd6cc930f904054084d2f26d97fb4f91775534bd56ec9a20",
+      "size_in_bytes": 3347
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/inputhookqt4.py",
+      "path_type": "hardlink",
+      "sha256": "8f28d85732b7cea132fac1908e618373be6e8356268c81125828dd79232c29ba",
+      "size_in_bytes": 7438
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/inputhookqt5.py",
+      "path_type": "hardlink",
+      "sha256": "0b43462709835c0b64b9303d319582efb1f768f205b45bb03b65c7b599cfb735",
+      "size_in_bytes": 7488
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/inputhooktk.py",
+      "path_type": "hardlink",
+      "sha256": "09452319e22fd04a9acca8716484628fe4b4f8c19241ddfd3ae7de297362901a",
+      "size_in_bytes": 771
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/inputhookwx.py",
+      "path_type": "hardlink",
+      "sha256": "767248ad840a6b67e7bef447a93aade5a4b7080f0d3e9b06509a3251d6bd622c",
+      "size_in_bytes": 6686
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/matplotlibtools.py",
+      "path_type": "hardlink",
+      "sha256": "e518c4dcdfadb4f3187cfcbc5b0b26a316ffb7685a3afd7c62299864b4a3c658",
+      "size_in_bytes": 5527
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/qt.py",
+      "path_type": "hardlink",
+      "sha256": "b09752e17c584348970304ef09366f015bdf379f8d3712fad96711c78e0282ad",
+      "size_in_bytes": 808
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/qt_for_kernel.py",
+      "path_type": "hardlink",
+      "sha256": "1e7a0652cd0ea18df6bfdced61958ebf4b11ce6690935ec541eb0c8cc9a085bc",
+      "size_in_bytes": 3738
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/qt_loaders.py",
+      "path_type": "hardlink",
+      "sha256": "b1b31de48fdfb3625a2ea55cb875c29f9a5f3165d3e97b5f56dcb9fa906b4bf3",
+      "size_in_bytes": 8714
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_ipython/version.py",
+      "path_type": "hardlink",
+      "sha256": "f9785da106d855da3cce339bc49f2f6b25609576ad9094cf8a4f8c8d2b0f4f8d",
+      "size_in_bytes": 1263
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_pysrc.py",
+      "path_type": "hardlink",
+      "sha256": "2cab704320d862bcb79612fb61a96099e860583f36f8d0e9a906188b56d3623f",
+      "size_in_bytes": 100
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_run_in_console.py",
+      "path_type": "hardlink",
+      "sha256": "c772633d25833c5f1ba0e48eaa3c6fa837a8dcef2f669e8d3541c8b58e394edb",
+      "size_in_bytes": 4862
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_sitecustomize/__not_in_default_pythonpath.txt",
+      "path_type": "hardlink",
+      "sha256": "86791302ec52156fd38a5830d01b754552eb7c6444de16230264cf9b593eb1cf",
+      "size_in_bytes": 21
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_sitecustomize/__pycache__/sitecustomize.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "b2e13b716dcbbc32cd434e4a88129df51828585635016dd0b864c2976756e554",
+      "size_in_bytes": 6815
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydev_sitecustomize/sitecustomize.py",
+      "path_type": "hardlink",
+      "sha256": "a25b765af1542e63222f0e916abda2031b6037b92d61a14915e380b5c38bd9f7",
+      "size_in_bytes": 9710
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevconsole.py",
+      "path_type": "hardlink",
+      "sha256": "fe747bad55069e80d8e76d57a3721f18287c044dce14dae561c09e55abd25cda",
+      "size_in_bytes": 21697
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd.py",
+      "path_type": "hardlink",
+      "sha256": "6dfd07df20ee91f2fe8aabe3beff1503a7a8f35ea712fafff6c68ddc843e0e59",
+      "size_in_bytes": 151096
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/README.txt",
+      "path_type": "hardlink",
+      "sha256": "3424f34186d417d6e1c284f3f895b39f02dcc5c503bbb3e670fba4ee9f7f9c98",
+      "size_in_bytes": 987
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/__pycache__/_always_live_program.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0050ceb9c0c402c460ca09a2b820ac3a8e3f3994b7ba94f868be9c7eecafaab0",
+      "size_in_bytes": 1717
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/__pycache__/_check.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "23ba7704efd16196a1fb627fd584940584d18c41df19c27bd8e27d6568c186db",
+      "size_in_bytes": 377
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/__pycache__/_test_attach_to_process.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "bffe6cc8f4f92cbc5125dfb860be7c5fda69a366491e99c56f78765fbd399749",
+      "size_in_bytes": 779
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/__pycache__/_test_attach_to_process_linux.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ed24d2c06bfdda5a1fce81e2e022113f27cae91a7ebd548ece1eede66be45c09",
+      "size_in_bytes": 3292
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/__pycache__/add_code_to_python_process.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "c2f41f1bf3035b356df83d7e92b81a13f1852fc51aeb261e4d26be61521a7458",
+      "size_in_bytes": 20797
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/__pycache__/attach_pydevd.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f9598672faf142d2bb7b658528db0e7a04c1ff39d74438e1175335dc47b1a7b1",
+      "size_in_bytes": 3437
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/__pycache__/attach_script.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0103c43874fead9ed21ce8e2e208dead33c8b04ac4b467629ff81707376a029a",
+      "size_in_bytes": 6391
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/_always_live_program.py",
+      "path_type": "hardlink",
+      "sha256": "65edbb4799253334ce4c1859503b5b888211a03049cfa9e45e43075f870f0ec8",
+      "size_in_bytes": 711
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/_check.py",
+      "path_type": "hardlink",
+      "sha256": "c6c114c3ed3c99b690406627dab9d27627e877c4b997937c987dd621f089fc9c",
+      "size_in_bytes": 137
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/_test_attach_to_process.py",
+      "path_type": "hardlink",
+      "sha256": "4433a40257af93fe8a016e027cb9c53ed3a371d1572f6df69a45e446ed95b99c",
+      "size_in_bytes": 306
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/_test_attach_to_process_linux.py",
+      "path_type": "hardlink",
+      "sha256": "0449bf63cfb6496eb0b1842b9f0ea30065d80e2003eee164b40b38486068e2b8",
+      "size_in_bytes": 2597
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/add_code_to_python_process.py",
+      "path_type": "hardlink",
+      "sha256": "baa92553738d1c8511ee59c8345304e23cc72be8b536e34f81cdf71c0f2c1f0a",
+      "size_in_bytes": 22932
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/attach_linux_amd64.so",
+      "path_type": "hardlink",
+      "sha256": "8bdde0302b7a6aefe5a783f6dfa934f6623ef1cb7385309810698112a3ff80d0",
+      "size_in_bytes": 20440
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/attach_pydevd.py",
+      "path_type": "hardlink",
+      "sha256": "e2f2385079a1c04dac3e92f3595ec3b129dfb1b74bdba9cffc4ac6c31f6eb1bc",
+      "size_in_bytes": 2558
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/attach_script.py",
+      "path_type": "hardlink",
+      "sha256": "8bdcee717838afc27390a63531c6eb540dadb5706b055ad029375a837c92bf31",
+      "size_in_bytes": 8061
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/common/py_custom_pyeval_settrace.hpp",
+      "path_type": "hardlink",
+      "sha256": "79e98be9acefda26458c94d6a19c071b49b83ab9c1c70bad21a5628527904b79",
+      "size_in_bytes": 8591
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/common/py_custom_pyeval_settrace_310.hpp",
+      "path_type": "hardlink",
+      "sha256": "808f08a5f0b3948b5ef98660d72851208418c2873777dff33ddbbb47a55c4cbd",
+      "size_in_bytes": 4174
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/common/py_custom_pyeval_settrace_311.hpp",
+      "path_type": "hardlink",
+      "sha256": "491cccd653b5b76684c5b4de6ad89e7b6af75864d7d6f14c18c335ebdf70aecf",
+      "size_in_bytes": 4388
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/common/py_custom_pyeval_settrace_common.hpp",
+      "path_type": "hardlink",
+      "sha256": "56bfbc154078e3b257a3353b0e08666ea70bc54801d5c791bba447c755c59c3c",
+      "size_in_bytes": 1931
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/common/py_settrace.hpp",
+      "path_type": "hardlink",
+      "sha256": "a1ae9f6488071be7d2d4a88de7e067ad63f3b2116d272512aae6450bfa2c5df9",
+      "size_in_bytes": 8016
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/common/py_utils.hpp",
+      "path_type": "hardlink",
+      "sha256": "5e6f9e0b3683a750fb57851c11a36ac1251641170726881dcc13e69ab4175166",
+      "size_in_bytes": 3894
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/common/py_version.hpp",
+      "path_type": "hardlink",
+      "sha256": "2726886c4d09946f209800b7b507059259a922fa6f996121dea7a76b4ecea069",
+      "size_in_bytes": 2706
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/common/python.h",
+      "path_type": "hardlink",
+      "sha256": "d6f71bd096cddd23d9e43e174bcc9281f166b8505ee228fc71d76921906135b7",
+      "size_in_bytes": 22335
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/common/ref_utils.hpp",
+      "path_type": "hardlink",
+      "sha256": "40dd174ef884cd4d5e562c2f893b04ca0ea3f31ea052a6c96f3b86b2b1f5a9af",
+      "size_in_bytes": 1537
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/linux_and_mac/.gitignore",
+      "path_type": "hardlink",
+      "sha256": "a97347a8680dbfd83fdd2ea3fb853ed42ac485cd3e6e7bf75dacfafb4ecc37c4",
+      "size_in_bytes": 86
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/linux_and_mac/__pycache__/lldb_prepare.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f4c3a03df8a1ba5b2bbc76a571e3ddb0479ba7496182cc51c6cc468cb5909a2f",
+      "size_in_bytes": 2248
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/linux_and_mac/attach.cpp",
+      "path_type": "hardlink",
+      "sha256": "032865d44079845c6fea1a1c93b03221b6d4f0251ec703006290b71ce8c0ec3e",
+      "size_in_bytes": 3814
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/linux_and_mac/compile_linux.sh",
+      "path_type": "hardlink",
+      "sha256": "b26023151bb3c010c9f0f62df80c696cc88e1bae5114af7b6d603a9529ebb4d2",
+      "size_in_bytes": 286
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/linux_and_mac/compile_mac.sh",
+      "path_type": "hardlink",
+      "sha256": "14e583682959a0fd032f7825d5ffb1075822f485691647da583f04d6c6a95988",
+      "size_in_bytes": 236
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/linux_and_mac/compile_manylinux.cmd",
+      "path_type": "hardlink",
+      "sha256": "37edef4757bd548b49677bf82108883cf4f78901def8811c668af12b4702f3ed",
+      "size_in_bytes": 643
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/linux_and_mac/lldb_prepare.py",
+      "path_type": "hardlink",
+      "sha256": "d6abd23150f7ff338a0666e6038fb790d1a9d15708ea615f061d20053ea39d59",
+      "size_in_bytes": 1745
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "0c887e492af2f309ee4155aec96c78b1f58742b0138eb4cbbf482adea1b2e907",
+      "size_in_bytes": 8180
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "48e97c4d9c995116686a7297260e76c35cd03a2472d0b8aba6b5086745f0f943",
+      "size_in_bytes": 4204
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/breakpoint.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "2fa06614d77995c3d4bb1856fbbb71b1fd852725291a39c6e210033bc33cf31d",
+      "size_in_bytes": 177030
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/compat.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "7c89e7a7f552972f2b199c301ec5f4cd323cdaaca5095774596a8eb4eee32b00",
+      "size_in_bytes": 6489
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/crash.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "5d0ece2cc55d572b58a40543a31f80eb961025844391ba6c8bc65650ae95b85d",
+      "size_in_bytes": 68910
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/debug.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "af57b6ffc403452a4359eaf0f270e12a7f41afe053d47621be406ca9aad64975",
+      "size_in_bytes": 54429
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/disasm.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "aac61ddb20812e639724ae5bdd4a005a9c05bdd81faacaf67b12895474574db8",
+      "size_in_bytes": 20141
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/event.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "739bf939765f3d76a7c00f85e092e6ea6bb830b3b52c98c7ce209f4c43e8ceb6",
+      "size_in_bytes": 70310
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/interactive.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0a6d9ef7fc8c28ad07869917962560d3cba7d7cae79b19d92f564f4dd1155278",
+      "size_in_bytes": 94239
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/module.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "fe2bb47d859b2f96aeff4d23ec3ac2e0276bc751f38a8c73ff5ef33fbcd8fbb5",
+      "size_in_bytes": 65529
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/process.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "6fc3246c752e1fe4e5690e9cb40b9517c905a2939992d45e7b3495d740328691",
+      "size_in_bytes": 182280
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/registry.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "c00fd376ae5a08512843bc572bcd0c2cafd751422f15bb53913a2827d0ae9ffe",
+      "size_in_bytes": 24911
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/search.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "88f8cca3f073831923afc7925c0cb0df04bab12694bbf9dc82fe8fa07f597920",
+      "size_in_bytes": 21333
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/sql.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ae4febafd9b13624af75cdeaf049478a3aecb53b618f4bd6c0cd84206adf0d1d",
+      "size_in_bytes": 34587
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/system.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "fdd6c627b221eec65a984743f3d385654f9c127a9bd344105d9051a6765a7c69",
+      "size_in_bytes": 48197
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/textio.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "3e30891a0c06c8733f2924b17bc2cbd41d8f7dc2be0badeae9ae73a0d928afb3",
+      "size_in_bytes": 68285
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/thread.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "8129ba578812883102f5460f8a0f86cf0a682a69a85486a09c629a0d42e7de2a",
+      "size_in_bytes": 82882
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/util.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "55a5b1bc2b8b433a5fbb12c37c5e4bf25019fb2454a2050a4d551ac3483a323d",
+      "size_in_bytes": 31496
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/__pycache__/window.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "dd2d2000e95d8102e8e93738a2cea662712ec340197111cabc8f02537c1cc742",
+      "size_in_bytes": 27812
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/breakpoint.py",
+      "path_type": "hardlink",
+      "sha256": "8cc60704ac89fe766dda9b43700b1a392bbc91534d9cf8d644e293934b969150",
+      "size_in_bytes": 172990
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/compat.py",
+      "path_type": "hardlink",
+      "sha256": "07dfb62dfafb34c61aaedd94f5807625c7f1130e68073dbe079d90e244a0359b",
+      "size_in_bytes": 5412
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/crash.py",
+      "path_type": "hardlink",
+      "sha256": "7ec7ace60178c7f9cc764cd0b3271be36e7931b41b4d9c609a9cfe937d871dd5",
+      "size_in_bytes": 67247
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/debug.py",
+      "path_type": "hardlink",
+      "sha256": "c19a30e21786ab363f5083085b2c5d3159a73ef5dd5abe55b98012606530eac6",
+      "size_in_bytes": 60252
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/disasm.py",
+      "path_type": "hardlink",
+      "sha256": "53d2830133d5c69a7223b41d8b76ecf3d6096dd71a3ca92f1a9f218f536e0b64",
+      "size_in_bytes": 25131
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/event.py",
+      "path_type": "hardlink",
+      "sha256": "2dd0220a5ec2c2f025832a2173e075b63f2afd1f5e82b9867327e2ad6b25ef0f",
+      "size_in_bytes": 69110
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/interactive.py",
+      "path_type": "hardlink",
+      "sha256": "fd4c240ca7cafb8d8fdfce5b4dd9e6dbffecdb8ed9cd2dbd7512021cb7b9d930",
+      "size_in_bytes": 85797
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/module.py",
+      "path_type": "hardlink",
+      "sha256": "ba75fd6c4ada5e820373c9c9889628a561a8e42a46fb9555f6b6c1f1a2dac3a9",
+      "size_in_bytes": 72631
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/process.py",
+      "path_type": "hardlink",
+      "sha256": "f87eb0c56d6b4e4312372e7d1ea6e349596f3a3152b3515828704c6ea9ed39ea",
+      "size_in_bytes": 188656
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/registry.py",
+      "path_type": "hardlink",
+      "sha256": "392630a0be4b85b55757c0f37d72e526123a15b401541b83cf7d476a95e93472",
+      "size_in_bytes": 22264
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/search.py",
+      "path_type": "hardlink",
+      "sha256": "2e96cec15a79bda807756395731e3d1339be692aea4249c1324062d6ce1d301c",
+      "size_in_bytes": 24463
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/sql.py",
+      "path_type": "hardlink",
+      "sha256": "175773f12d144dbd58674be5759908d23926c56a5cf01ffa5a4fd9828fd4cf54",
+      "size_in_bytes": 35990
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/system.py",
+      "path_type": "hardlink",
+      "sha256": "c315e4033cc18f50d418c0a23dd0b0b11683d7e0756431c3823df270a866adb4",
+      "size_in_bytes": 47181
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/textio.py",
+      "path_type": "hardlink",
+      "sha256": "36e801ab9eceef1570d7b38bdc0ab4c315a8e0bc440ffef0bb54de2eadcb3795",
+      "size_in_bytes": 64570
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/thread.py",
+      "path_type": "hardlink",
+      "sha256": "fa943d3af997f49581abc3cf4576cb3484e3136ac5026723ecdbbc5df836fe1b",
+      "size_in_bytes": 77605
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/util.py",
+      "path_type": "hardlink",
+      "sha256": "27911fef1e94300eb97da9342f9f966522d13932e461f905894972f350a936a0",
+      "size_in_bytes": 37261
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "051dc9da745e84718bf7a4021bdd782855faeb52a680d91010576c22438f6013",
+      "size_in_bytes": 2917
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "671cc661cc397434c00e9552412158ef37185eaa032d21ad91fd658330e47dc3",
+      "size_in_bytes": 1939
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/advapi32.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "c94c6860747ebbfa7484f78fe7c9bd456c23563dee102836f608a74f794860a9",
+      "size_in_bytes": 109440
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/context_amd64.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f007f80283264bba9ca34b2f6500b730be456ab68634dc6caf93f2d5bcf6b194",
+      "size_in_bytes": 19707
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/context_i386.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "c5cfb60e5cd5eb2bd967a2e4a12346643600692ca70cdc3b861e5c5048bcb1e8",
+      "size_in_bytes": 11652
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/dbghelp.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "fea52c66279b481d0569027816232d2492903cf118b3510db25331110d11d7ba",
+      "size_in_bytes": 35118
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/defines.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9ffebf2df9cc5a01ed10fd6a18e3a85659cb1b2d4ce2b5b852b2d12936d8fe54",
+      "size_in_bytes": 22252
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/gdi32.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "fb999b204c4210cbd79596fb5359e67a71296eed890ee9f1f72d8ccce5eddd5b",
+      "size_in_bytes": 13581
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/kernel32.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "a80abd4600f5eb260a2e8aac009edc67eb2befc1fd04773a6d7b675bf64b2241",
+      "size_in_bytes": 152429
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/ntdll.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "5c6ac53b5b26e007ee57351cd299e09667ebf99727465661f0ea2cabcff6615f",
+      "size_in_bytes": 15623
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/peb_teb.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "b8e730706edee764cebd23f0cc9385420acf052feb5fe14c0d46ebdb28ad3cba",
+      "size_in_bytes": 59582
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/psapi.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "2f8d4ad6a8f5b7bd9dedc4350324146ed6f5995631406acd873b1417079c2475",
+      "size_in_bytes": 13090
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/shell32.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "305f3bc6009223eba2a2c083386f833808763988dc7517da85b80e49355a15e6",
+      "size_in_bytes": 12777
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/shlwapi.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "4cbe05437f74290ff66072e2f3407e62362fb4b5a500627cadca9df344b54ade",
+      "size_in_bytes": 28390
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/user32.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f6ee6d99c4ac4eba0a1d1aee1f07705d25b9d484b2dbeec66efc008f0108e0e4",
+      "size_in_bytes": 60980
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/version.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "82766659eb7ed2ce2d8c97f3cc8c480f154b5472cdc723e862eb7e966da19bb1",
+      "size_in_bytes": 31847
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/__pycache__/wtsapi32.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ac8aede0f51fc87e49069ae2b98d499dcbe576397724570325e8b34c0531f75c",
+      "size_in_bytes": 6180
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/advapi32.py",
+      "path_type": "hardlink",
+      "sha256": "93fddad0e72371c4c7dd2c464e733eb12689c4f074aedc60c690f629fee9ca9d",
+      "size_in_bytes": 124018
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/context_amd64.py",
+      "path_type": "hardlink",
+      "sha256": "3c5c958728c3fd2e8ede20ac31e3dcba693e6c6576aa6ebc2f1cda4ef3ead0c7",
+      "size_in_bytes": 25899
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/context_i386.py",
+      "path_type": "hardlink",
+      "sha256": "4931348e0d006bd73953f1ec6676970f9dc44d2e880d1c3fe48b8e8cc3c6f0b1",
+      "size_in_bytes": 16557
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/dbghelp.py",
+      "path_type": "hardlink",
+      "sha256": "44aa0328a67f8e94fcdbea4554aa8bb3895f35c73d5d9f6f616bb17d675fdbcf",
+      "size_in_bytes": 47982
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/defines.py",
+      "path_type": "hardlink",
+      "sha256": "f3ee25a2751390657659a3acde241d5dd967ed7dded0d0de966a5d9410c2e300",
+      "size_in_bytes": 23517
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/gdi32.py",
+      "path_type": "hardlink",
+      "sha256": "239b28fef637bfd31731b1193a758853fdfecdc32263793554323c4103da9597",
+      "size_in_bytes": 17336
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/kernel32.py",
+      "path_type": "hardlink",
+      "sha256": "b57b2031a8ed89e1b1c54ede1b3e7a8224919404c90b9ddffa56761676184e87",
+      "size_in_bytes": 169534
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/ntdll.py",
+      "path_type": "hardlink",
+      "sha256": "8f3856b0ca463cfc629618d9e9dbb557e062ca84732b03fcb8ab573c324eb3b9",
+      "size_in_bytes": 23386
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/peb_teb.py",
+      "path_type": "hardlink",
+      "sha256": "ab23c5f041583bed5332ebeee20d2dc26b2979277e25eca71be42a3a352a404f",
+      "size_in_bytes": 162665
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/psapi.py",
+      "path_type": "hardlink",
+      "sha256": "3f880a5d0405c4f11d933370692cbf619ffbc704c48afdc3cf45773268693b36",
+      "size_in_bytes": 14149
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/shell32.py",
+      "path_type": "hardlink",
+      "sha256": "fae3eba7e0f39eb8ff3a54f2b38df029a5ea8e8be21b06bdd8e5ad6a169e6051",
+      "size_in_bytes": 14389
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/shlwapi.py",
+      "path_type": "hardlink",
+      "sha256": "16d36bece5b09c3bf67e7e47ca67efc5bac5607560a3603918f65bdbca93564f",
+      "size_in_bytes": 26563
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/user32.py",
+      "path_type": "hardlink",
+      "sha256": "4575313c1d0fd12156afd250d5237dd4545e929a4886286734200f99a32a6efc",
+      "size_in_bytes": 58904
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/version.py",
+      "path_type": "hardlink",
+      "sha256": "667748289a7756857e49d4af83d485412b9d438faa0530f404d3cb2713472c43",
+      "size_in_bytes": 37851
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/win32/wtsapi32.py",
+      "path_type": "hardlink",
+      "sha256": "ed47793873c39dc5e24a155a219773ae0234ca2597ceee87ace13d4aee34d1d1",
+      "size_in_bytes": 11501
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/winappdbg/window.py",
+      "path_type": "hardlink",
+      "sha256": "f277e10eec8cd8f25ada430e5059f56e3c8f2355258520bf456b68c42bee0931",
+      "size_in_bytes": 25068
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/attach.cpp",
+      "path_type": "hardlink",
+      "sha256": "83c119cddc533b833661e102d067f7431bc1fac29e89eb55c4452f39cdbad0f9",
+      "size_in_bytes": 28081
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/attach.h",
+      "path_type": "hardlink",
+      "sha256": "0d36d8197c3f70d585e0b550faf5c251d36c5239ee440e5966a8a59644a25263",
+      "size_in_bytes": 1902
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/compile_windows.bat",
+      "path_type": "hardlink",
+      "sha256": "95a6101f74e415b105d5cbba6bf3bc715d0648a7ba1dc410abdc99ef6af77840",
+      "size_in_bytes": 2072
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/inject_dll.cpp",
+      "path_type": "hardlink",
+      "sha256": "327b346c8641324ed40966b91baefda6333662c7f47085edcd9438a7f2d7252d",
+      "size_in_bytes": 4925
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/py_win_helpers.hpp",
+      "path_type": "hardlink",
+      "sha256": "d3c3e4871d8964761ec3c409d0a53a3edc540a07bd8687a69a70f4f41cf21b47",
+      "size_in_bytes": 2555
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/run_code_in_memory.hpp",
+      "path_type": "hardlink",
+      "sha256": "c00ae74c2ec8f5d84c5dff99be4f3da4bde94ba4c73f14deabd63a24bfa2f00c",
+      "size_in_bytes": 3470
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/run_code_on_dllmain.cpp",
+      "path_type": "hardlink",
+      "sha256": "27c94fe8bc8035512ed63f676cf5a835912512dadeacf0f08407f9b3454d9833",
+      "size_in_bytes": 2594
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/stdafx.cpp",
+      "path_type": "hardlink",
+      "sha256": "57ba748116dfdaf6c5139e9aac66431041842c0c582efa1509509ba6ec9cd6e2",
+      "size_in_bytes": 1021
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/stdafx.h",
+      "path_type": "hardlink",
+      "sha256": "2a94293ded391850bf57fa18bed08ebe9ffe1487b60307605e353529c3abedda",
+      "size_in_bytes": 1198
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/windows/targetver.h",
+      "path_type": "hardlink",
+      "sha256": "8c5919d5736ffa584c15b1a798f39cf5cd09818811c6555969ea069efa1f82fb",
+      "size_in_bytes": 1035
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_file_utils.py",
+      "path_type": "hardlink",
+      "sha256": "fe69e8f4bb852c55d38c802459b280a0f010db0f45aa8e2b8e7008812e5523ca",
+      "size_in_bytes": 37282
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "35ba39ca13ac4e0009e0b63985c9c512372edafbe80d1462382f43e3a992a80a",
+      "size_in_bytes": 68
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "af90b371c0fcbee807ff3e2ccbecd8502f31d82424219fa6cec31ec165d2ed2c",
+      "size_in_bytes": 290
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/__pycache__/django_debug.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "10cbfb0b98a538e9b59ce59f686975c6b26186c322617180dcbbe788dec292f4",
+      "size_in_bytes": 23939
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/__pycache__/jinja2_debug.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "8b5c547ff91effd48eab1ceac09bb09d713aab0606cdcbfcbe66a27133ffcca4",
+      "size_in_bytes": 19812
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/__pycache__/pydevd_line_validation.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "21c368aed88a31625433214aec9c62f1475b457280b41b1d133282eff5612ac9",
+      "size_in_bytes": 5676
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/django_debug.py",
+      "path_type": "hardlink",
+      "sha256": "c6271d15fca244d8b95ea36cf5595d08b9da2438b43bb9f1c57ec8b5d7deec59",
+      "size_in_bytes": 23043
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/README.md",
+      "path_type": "hardlink",
+      "sha256": "088e645de96ceb8a87ae1b808ffbabe6733f55649ce6a55da8a2bfcb17e110fc",
+      "size_in_bytes": 1212
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "35ba39ca13ac4e0009e0b63985c9c512372edafbe80d1462382f43e3a992a80a",
+      "size_in_bytes": 68
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "5c52f50ad4911db044363c78b6342c3113cc2d1c4b4ab0684ee4f3e02ff73c16",
+      "size_in_bytes": 301
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "35ba39ca13ac4e0009e0b63985c9c512372edafbe80d1462382f43e3a992a80a",
+      "size_in_bytes": 68
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "3db6f08a4953e5e39b71eacfbe9481ac5ddddb750d3d2a30421b6bd8cffd09bc",
+      "size_in_bytes": 307
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/__pycache__/pydevd_helpers.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "0079e3dc19628b545b782d5ccddac14c58805e745f09d48eae719ce95e0fc686",
+      "size_in_bytes": 1230
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/__pycache__/pydevd_plugin_numpy_types.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f484d37519a2cc882de6e95659dad0e670fa09b71eb4c50c827f50be5d1e2cf5",
+      "size_in_bytes": 4550
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/__pycache__/pydevd_plugin_pandas_types.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "368bd329e6238e8ccb7c81787198c41bfa9e1da116ea386ba3555690dc34ea28",
+      "size_in_bytes": 7414
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/__pycache__/pydevd_plugins_django_form_str.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9ac82877e02ccf01c2f845c93d6d8a45ccaa2644506ed382398c15278ceb4894",
+      "size_in_bytes": 1235
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/pydevd_helpers.py",
+      "path_type": "hardlink",
+      "sha256": "366f60d73d382f718d31578dcb0a374773594cb3fe82658fbe5c9643c1e867e5",
+      "size_in_bytes": 665
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/pydevd_plugin_numpy_types.py",
+      "path_type": "hardlink",
+      "sha256": "0a73268ac999880b9777f559a17e7937dd5cf85de77f4b4758d30b3598fa791c",
+      "size_in_bytes": 3338
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/pydevd_plugin_pandas_types.py",
+      "path_type": "hardlink",
+      "sha256": "18e24d0d5af3a8654f7a51052732be999e9938ec30d510810e1ca4d04904de69",
+      "size_in_bytes": 6767
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/extensions/types/pydevd_plugins_django_form_str.py",
+      "path_type": "hardlink",
+      "sha256": "8d03d5a2b66e2c4d8daf7104f9261c727a03dc61f3445bee23d89df7e774aee6",
+      "size_in_bytes": 554
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/jinja2_debug.py",
+      "path_type": "hardlink",
+      "sha256": "d8e4e5c9036c39c6747999f0ad8b42c835c58cfdd04910463188622e6fa6f483",
+      "size_in_bytes": 19647
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_plugins/pydevd_line_validation.py",
+      "path_type": "hardlink",
+      "sha256": "597148cea0b8512206b4d301addbc5b45d1c99291ee7ec81a94b9f9f50d6af6f",
+      "size_in_bytes": 6393
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/pydevd_tracing.py",
+      "path_type": "hardlink",
+      "sha256": "0f3e46ee973a7f78f4e01b6552e69c017bd575efbf20e7ed497432f5db9f0cc9",
+      "size_in_bytes": 15527
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_vendored/pydevd/setup_pydevd_cython.py",
+      "path_type": "hardlink",
+      "sha256": "9695a90005fe22b556cbc045401af9abbf7cf8eb64bccfb1cf453fc915bd8810",
+      "size_in_bytes": 10660
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/_version.py",
+      "path_type": "hardlink",
+      "sha256": "3a0e9f3b302026050c88fe5e308381bd859bc61ecb49aa4966202ad8eeba7ccb",
+      "size_in_bytes": 497
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "f552d8ba52c660727ca0525e8e9b4db399af594daaa806e9848a9719f57cee0c",
+      "size_in_bytes": 360
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/__main__.py",
+      "path_type": "hardlink",
+      "sha256": "869273bd5890cfb0cbc591c508668a3742d9e88a8d325abc1ca34737461ade97",
+      "size_in_bytes": 8484
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "7f9302dbfea13e7dd07b707bec5bddeb3d6a4e67e9b45971624b42be7010c7a5",
+      "size_in_bytes": 366
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/__pycache__/__main__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "00bc5e818d599e3072e81e9352e72c769ff5756cd11323fe383978a3e91ed2da",
+      "size_in_bytes": 8494
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/__pycache__/clients.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "5d66d0c05cd449b3d1e821101c5ae2d41507447af919bc2a6d10ad24023bbc8c",
+      "size_in_bytes": 30879
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/__pycache__/components.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "95ae176023a55c17709b74477b4be9c3228a608de7f4ba11349e835d4e8aed05",
+      "size_in_bytes": 9748
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/__pycache__/launchers.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "cbe958aa19e00ca5ce49408a1e60bbb89f25e0ba00b3ba5317912f323d63f95d",
+      "size_in_bytes": 8947
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/__pycache__/servers.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "62a78c85799c35989b570e84073ba267f929c80e0d1cf23293a57f908c73e56a",
+      "size_in_bytes": 25389
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/__pycache__/sessions.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "435e5eafd17bd1ce538ed3519a98c26ab4fbdc26140334115bff0a763f9fe78f",
+      "size_in_bytes": 13764
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/clients.py",
+      "path_type": "hardlink",
+      "sha256": "7f6f2eb0a6dfc36840b1b84b134d0dea84ced0858c3ce74ad7f470295a2d364c",
+      "size_in_bytes": 32127
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/components.py",
+      "path_type": "hardlink",
+      "sha256": "cfca2f9b2a80284dca79d8529aec04842f8bd26c22ed9328708f0f807d8c5cd5",
+      "size_in_bytes": 6264
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/launchers.py",
+      "path_type": "hardlink",
+      "sha256": "33b885979b6b1b1327a7f07fb99c301d9ce786a56179dc7c764542edcd2efc10",
+      "size_in_bytes": 7198
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/servers.py",
+      "path_type": "hardlink",
+      "sha256": "f8e92a084b4d912a4b61efc69b6d211ff4f55016e928744863314630a43b30af",
+      "size_in_bytes": 24038
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/adapter/sessions.py",
+      "path_type": "hardlink",
+      "sha256": "851de6b54aac59a397a2848ce147b62bb4609fba66eddda6e00ee0d9a7551180",
+      "size_in_bytes": 11522
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "9c311db6aa8a356fa6c473bd868c5c31c5f22e7a8b2264501a589686ad893cff",
+      "size_in_bytes": 626
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "d5ab89ccd791955e62ad2edbfa0148c80126335785b9578e43da9d2821881433",
+      "size_in_bytes": 666
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__pycache__/json.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "60be15cc8fd12112aca4cf65d832a6e13aa48c07f389587ccf22872727b4f1ae",
+      "size_in_bytes": 12499
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__pycache__/log.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "eae4e9b5938c6df97e0f25134e799982d879c286f49d6a153adf59dc5330125f",
+      "size_in_bytes": 17643
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__pycache__/messaging.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "e1e6c545093dc4a2230773811d33470ea8d95685891e0a7e79fedd013e7c835e",
+      "size_in_bytes": 65794
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__pycache__/singleton.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "ee60fb9fcc3878e11e531876375744b03556bb613cc480c73844ee64aabd5ce6",
+      "size_in_bytes": 7916
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__pycache__/sockets.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f2b18ea85825e0716883b5feaf818ad1bed835c9dee6d206eee6e42df7d64440",
+      "size_in_bytes": 5195
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__pycache__/stacks.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "e64ddbe4e923befea4ed67cc9ca479b990b738ebf8c24c75639a0141b3781852",
+      "size_in_bytes": 2359
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__pycache__/timestamp.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "31526bc3f71955d8812f956d7b7ecd6d6051b67969f3714be6fe5ad39f841152",
+      "size_in_bytes": 654
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/__pycache__/util.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "cb3468388db4ae2c77114df41b935fff6ac9ae4870b799a588da8cdbb016aa8d",
+      "size_in_bytes": 6335
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/json.py",
+      "path_type": "hardlink",
+      "sha256": "52726ee0f7b4e142a785fdb3f644a2f16d3a4d73f5152ffca6a4053385539dd7",
+      "size_in_bytes": 9966
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/log.py",
+      "path_type": "hardlink",
+      "sha256": "3026dc27471ace1c1779d9024de793dd06e80c645ddfa40a0fd810cbb5ed4a99",
+      "size_in_bytes": 12117
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/messaging.py",
+      "path_type": "hardlink",
+      "sha256": "9881ea019dd0565c67c9cdace89fef53fe4543a55e26c4f01568868bda1d1e87",
+      "size_in_bytes": 58081
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/singleton.py",
+      "path_type": "hardlink",
+      "sha256": "cb13c8dcc64f140186dac47e0f415ab325bbaae39881f1d93c7045989ee4f263",
+      "size_in_bytes": 7851
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/sockets.py",
+      "path_type": "hardlink",
+      "sha256": "13068ac27af9d4b070f459457a684aac6f4d0041bf565b60093e8877fc613553",
+      "size_in_bytes": 4353
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/stacks.py",
+      "path_type": "hardlink",
+      "sha256": "1af4dc2776494cfeefcf3c69c7a265ac70261f0ab2e68cf583eefa6d4dfce90c",
+      "size_in_bytes": 1588
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/timestamp.py",
+      "path_type": "hardlink",
+      "sha256": "d8b5ac61f650706f16e8a67ca9243e1ca3cc7d4d617fd35cf87d696004464602",
+      "size_in_bytes": 432
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/common/util.py",
+      "path_type": "hardlink",
+      "sha256": "ca78841ba23adf5ecf798b55b64a09c3105bb230a2162ebbf1549bf9882ffb24",
+      "size_in_bytes": 4810
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "6d21153e53b6253d3396e827a2c0f00873d618bfe598d8c93739ad5c0d9aeb38",
+      "size_in_bytes": 922
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/__main__.py",
+      "path_type": "hardlink",
+      "sha256": "bbd35ce0f697f8a90f35f7999a61fc2e9847ed92af6e2f95b862709c8891551a",
+      "size_in_bytes": 3903
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "89947bb42ae08152a11fb6696d5c65a65d6e035267eb92460cb5ff733a9339a2",
+      "size_in_bytes": 1050
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/__pycache__/__main__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "9eb71bca8cf7d42e674e2794338396bb47c5b776cecd7999dbadf018be13fa0f",
+      "size_in_bytes": 2477
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/__pycache__/debuggee.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "4a0a40e0f3bbfb1b6554db01cf05c2f6eccc05b74f8e3abcc088212c8d671872",
+      "size_in_bytes": 10098
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/__pycache__/handlers.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "405c0a3eb56f3b4e07315a40616b7ee41e314ebd04743cf4d5736543e56a3fe0",
+      "size_in_bytes": 6066
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/__pycache__/output.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "f12c4abc691007454c437f0f1103914eb72147fbb724b355678586896ad96643",
+      "size_in_bytes": 4974
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/__pycache__/winapi.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "466df2171bbfa2def4abe947c1fd41411808451c4cae786080dc49ee4a6febfd",
+      "size_in_bytes": 4359
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/debuggee.py",
+      "path_type": "hardlink",
+      "sha256": "9da6d27c6ecea487c99b1ff9377dc7d222611cfeece80667e46e4b0e6eb9df7a",
+      "size_in_bytes": 8823
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/handlers.py",
+      "path_type": "hardlink",
+      "sha256": "276281efbd0ce642a64d5a649c7432c94c135681b65ba09907d2296a6d0bb3b6",
+      "size_in_bytes": 5880
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/output.py",
+      "path_type": "hardlink",
+      "sha256": "d72d3d9f39cfb6452aaa2748ea0d1fae5e5dd6e89fd2841facfba73020ee8d4e",
+      "size_in_bytes": 3861
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/launcher/winapi.py",
+      "path_type": "hardlink",
+      "sha256": "4eff7541e0717b6d03207beae279b9c6f56c02a5e7516ba73f8a28a2790bf026",
+      "size_in_bytes": 3233
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/public_api.py",
+      "path_type": "hardlink",
+      "sha256": "a94220c2f7aa3695906e0326fafeb129b999990c8f493a99d241b475d4bf7174",
+      "size_in_bytes": 6514
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/server/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "b2fa2ecbd2525bd0fe4f2ab6ac00a48efbf38558be40e1c1b0939b721a9e321e",
+      "size_in_bytes": 330
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/server/__pycache__/__init__.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "90f6e6ee31a3408258480f91018b8a2ecd3bf6de4e18b5c099e069ee221f97ca",
+      "size_in_bytes": 208
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/server/__pycache__/api.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "177bbc8fbc954491468350cca0ff94e554877ee85c066fa902ec3616f0fa91f4",
+      "size_in_bytes": 14722
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/server/__pycache__/attach_pid_injected.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "902b1b60456df86aabeeed2da97b96a821745dc9d48d2f76a7eb567db283781c",
+      "size_in_bytes": 3613
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/server/__pycache__/cli.cpython-312.pyc",
+      "path_type": "hardlink",
+      "sha256": "6cee54342bc799bc12c8c013ac600cbd302bf8ee5229179f5de55e2a88944b14",
+      "size_in_bytes": 18279
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/server/api.py",
+      "path_type": "hardlink",
+      "sha256": "b019c724a3bf2b06f1b724bd7ac48f27992edaf52312110ad62a094a4061cdbd",
+      "size_in_bytes": 12154
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/server/attach_pid_injected.py",
+      "path_type": "hardlink",
+      "sha256": "b9a7820272841447a1671c855a0312affdc233810b1b81fd18289fea8e17caff",
+      "size_in_bytes": 2826
+    },
+    {
+      "_path": "lib/python3.12/site-packages/debugpy/server/cli.py",
+      "path_type": "hardlink",
+      "sha256": "5957f24fc146a1a8c43f5223037f1c21e372dd93effe941a09b85d5b0f56949c",
+      "size_in_bytes": 13723
+    }
+  ],
+  "paths_version": 1
+}

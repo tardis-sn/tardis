@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6",
+        "tornado >=2.0"
+    ],
+    "fn": "snakeviz-2.2.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "d9750d7c0ef0ab69cbee7557e88dd128",
+    "name": "snakeviz",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "b97fcfe889d650c861439072bcb68e8ac02dd8447376980a317ab1651cd53542",
+    "size": 171161,
+    "subdir": "noarch",
+    "timestamp": 1682336626654,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/snakeviz-2.2.0-pyhd8ed1ab_0.conda",
+    "version": "2.2.0"
+}

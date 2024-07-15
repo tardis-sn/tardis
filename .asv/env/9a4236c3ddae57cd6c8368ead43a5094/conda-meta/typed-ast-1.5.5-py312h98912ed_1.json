@@ -1,0 +1,199 @@
+{
+    "arch": "x86_64",
+    "build": "py312h98912ed_1",
+    "build_number": 1,
+    "build_string": "py312h98912ed_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "python >=3.12.0rc3,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "extracted_package_dir": "pkgs/typed-ast-1.5.5-py312h98912ed_1",
+    "files": [
+        "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/LICENSE",
+        "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/METADATA",
+        "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/RECORD",
+        "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/WHEEL",
+        "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/typed_ast/__init__.py",
+        "lib/python3.12/site-packages/typed_ast/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/typed_ast/__pycache__/ast27.cpython-312.pyc",
+        "lib/python3.12/site-packages/typed_ast/__pycache__/ast3.cpython-312.pyc",
+        "lib/python3.12/site-packages/typed_ast/__pycache__/conversions.cpython-312.pyc",
+        "lib/python3.12/site-packages/typed_ast/_ast27.cpython-312-x86_64-linux-gnu.so",
+        "lib/python3.12/site-packages/typed_ast/_ast3.cpython-312-x86_64-linux-gnu.so",
+        "lib/python3.12/site-packages/typed_ast/ast27.py",
+        "lib/python3.12/site-packages/typed_ast/ast3.py",
+        "lib/python3.12/site-packages/typed_ast/conversions.py",
+        "lib/python3.12/site-packages/typed_ast/tests/__pycache__/test_basics.cpython-312.pyc",
+        "lib/python3.12/site-packages/typed_ast/tests/test_basics.py"
+    ],
+    "fn": "typed-ast-1.5.5-py312h98912ed_1.conda",
+    "license": "Apache-2.0",
+    "license_family": "Apache",
+    "link": {
+        "source": "pkgs/typed-ast-1.5.5-py312h98912ed_1",
+        "type": 1
+    },
+    "md5": "09f88fbe0bd63d7d632d687a6c6cf2d7",
+    "name": "typed-ast",
+    "package_tarball_full_path": "pkgs/typed-ast-1.5.5-py312h98912ed_1.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/LICENSE",
+                "path_type": "hardlink",
+                "sha256": "3f07c33e21c93a2dbf4fa239d1fc626268a5b081e8b79aca3b8f0a47b050f14c",
+                "sha256_in_prefix": "3f07c33e21c93a2dbf4fa239d1fc626268a5b081e8b79aca3b8f0a47b050f14c",
+                "size_in_bytes": 15191
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "1586c7ff0538361b2ead56edee2f4ad96503e33d87567fa843a73fe7a8612966",
+                "sha256_in_prefix": "1586c7ff0538361b2ead56edee2f4ad96503e33d87567fa843a73fe7a8612966",
+                "size_in_bytes": 1731
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "cb819d4478766680a7ced932123de00ae2b4026cd8d9971b26a64bb12292a727",
+                "sha256_in_prefix": "cb819d4478766680a7ced932123de00ae2b4026cd8d9971b26a64bb12292a727",
+                "size_in_bytes": 1551
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "92a0882861bfbcd45a4ff7d0aaad995165f50733ad70bb96b440cdd1f4f96a3b",
+                "sha256_in_prefix": "92a0882861bfbcd45a4ff7d0aaad995165f50733ad70bb96b440cdd1f4f96a3b",
+                "size_in_bytes": 105
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "90a2d5059a5c78cfa7d0a41d55831af6bf848b2fe128e8025af32e7648102246",
+                "sha256_in_prefix": "90a2d5059a5c78cfa7d0a41d55831af6bf848b2fe128e8025af32e7648102246",
+                "size_in_bytes": 105
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast-1.5.5.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "2c2981ca0616068eaaa88a1a64d89ca3153e0cef6047626f8509152704b23759",
+                "sha256_in_prefix": "2c2981ca0616068eaaa88a1a64d89ca3153e0cef6047626f8509152704b23759",
+                "size_in_bytes": 23
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "7ac60636c183f6f2898b137af9b4a9720620c6101ecf1976f51808cac37ad208",
+                "sha256_in_prefix": "7ac60636c183f6f2898b137af9b4a9720620c6101ecf1976f51808cac37ad208",
+                "size_in_bytes": 22
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "hardlink",
+                "sha256": "64ddb1beab6db540c2dd2678c74ce146318a712e0890d9e10f70d9e35b369ed4",
+                "sha256_in_prefix": "64ddb1beab6db540c2dd2678c74ce146318a712e0890d9e10f70d9e35b369ed4",
+                "size_in_bytes": 173
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/__pycache__/ast27.cpython-312.pyc",
+                "path_type": "hardlink",
+                "sha256": "a5b040b3f13c34fa79a62b90ad7ac07de636443cb0777a53e74a4933490a2e3c",
+                "sha256_in_prefix": "a5b040b3f13c34fa79a62b90ad7ac07de636443cb0777a53e74a4933490a2e3c",
+                "size_in_bytes": 17017
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/__pycache__/ast3.cpython-312.pyc",
+                "path_type": "hardlink",
+                "sha256": "15ea7adb794a4526b91718cad551f5ae18d459e16fd643af2fdeaeff24ed029f",
+                "sha256_in_prefix": "15ea7adb794a4526b91718cad551f5ae18d459e16fd643af2fdeaeff24ed029f",
+                "size_in_bytes": 18044
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/__pycache__/conversions.cpython-312.pyc",
+                "path_type": "hardlink",
+                "sha256": "45d1c4c91a66bf81ae2dc554888053652820a0b43904a481b5e1618d1b019113",
+                "sha256_in_prefix": "45d1c4c91a66bf81ae2dc554888053652820a0b43904a481b5e1618d1b019113",
+                "size_in_bytes": 14255
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/_ast27.cpython-312-x86_64-linux-gnu.so",
+                "path_type": "hardlink",
+                "sha256": "56193afb5f5e0f9e1037bf79a38411bc308d3cee4af074cc89c77b369a9b7213",
+                "sha256_in_prefix": "56193afb5f5e0f9e1037bf79a38411bc308d3cee4af074cc89c77b369a9b7213",
+                "size_in_bytes": 278488
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/_ast3.cpython-312-x86_64-linux-gnu.so",
+                "path_type": "hardlink",
+                "sha256": "819136520df894ed7e2242b4242fa92061fa8c84b85484a68532ab6b3af189e2",
+                "sha256_in_prefix": "819136520df894ed7e2242b4242fa92061fa8c84b85484a68532ab6b3af189e2",
+                "size_in_bytes": 341208
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/ast27.py",
+                "path_type": "hardlink",
+                "sha256": "328b8d9a5494208344ca5dcb05aefde835c1bd934e8e8e7e8023f3a184436f54",
+                "sha256_in_prefix": "328b8d9a5494208344ca5dcb05aefde835c1bd934e8e8e7e8023f3a184436f54",
+                "size_in_bytes": 12630
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/ast3.py",
+                "path_type": "hardlink",
+                "sha256": "d856ffd135249f19833f30573d87b55e41a124bd49c5e476ccb8af5882374ea2",
+                "sha256_in_prefix": "d856ffd135249f19833f30573d87b55e41a124bd49c5e476ccb8af5882374ea2",
+                "size_in_bytes": 13761
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/conversions.py",
+                "path_type": "hardlink",
+                "sha256": "27dc010c283e8adddcc5f4a72003169c10e2c0bca97d105ced14dfb51226c1a9",
+                "sha256_in_prefix": "27dc010c283e8adddcc5f4a72003169c10e2c0bca97d105ced14dfb51226c1a9",
+                "size_in_bytes": 8632
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/tests/__pycache__/test_basics.cpython-312.pyc",
+                "path_type": "hardlink",
+                "sha256": "ec64f2bf4d15b56ef21521876d8bb1a3e16291d390b9e2b6a4bff1623b77bc7e",
+                "sha256_in_prefix": "ec64f2bf4d15b56ef21521876d8bb1a3e16291d390b9e2b6a4bff1623b77bc7e",
+                "size_in_bytes": 12831
+            },
+            {
+                "_path": "lib/python3.12/site-packages/typed_ast/tests/test_basics.py",
+                "path_type": "hardlink",
+                "sha256": "d9a4263977ea2b204d695a41f4579890ca925b2f50cf5686c150acef422b0caa",
+                "sha256_in_prefix": "d9a4263977ea2b204d695a41f4579890ca925b2f50cf5686c150acef422b0caa",
+                "size_in_bytes": 7516
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": "linux",
+    "requested_spec": "",
+    "sha256": "4e027e704c654c791cf7e643658c700e66558fda66aa2e3c4dca5b216d60b822",
+    "size": 204947,
+    "subdir": "linux-64",
+    "timestamp": 1695410050990,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/typed-ast-1.5.5-py312h98912ed_1.conda",
+    "version": "1.5.5"
+}

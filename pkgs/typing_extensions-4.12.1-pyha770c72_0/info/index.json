@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyha770c72_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.8"
+  ],
+  "license": "PSF-2.0",
+  "license_family": "PSF",
+  "name": "typing_extensions",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1717287863652,
+  "version": "4.12.1"
+}

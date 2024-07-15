@@ -1,0 +1,333 @@
+{
+    "arch": null,
+    "build": "py_0",
+    "build_number": 0,
+    "build_string": "py_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "future >=0.14.0",
+        "python"
+    ],
+    "extracted_package_dir": "pkgs/commonmark-0.9.1-py_0",
+    "files": [
+        "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/LICENSE",
+        "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/METADATA",
+        "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/RECORD",
+        "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/WHEEL",
+        "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/entry_points.txt",
+        "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/top_level.txt",
+        "lib/python3.12/site-packages/commonmark/__init__.py",
+        "lib/python3.12/site-packages/commonmark/blocks.py",
+        "lib/python3.12/site-packages/commonmark/cmark.py",
+        "lib/python3.12/site-packages/commonmark/common.py",
+        "lib/python3.12/site-packages/commonmark/dump.py",
+        "lib/python3.12/site-packages/commonmark/entitytrans.py",
+        "lib/python3.12/site-packages/commonmark/inlines.py",
+        "lib/python3.12/site-packages/commonmark/main.py",
+        "lib/python3.12/site-packages/commonmark/node.py",
+        "lib/python3.12/site-packages/commonmark/normalize_reference.py",
+        "lib/python3.12/site-packages/commonmark/render/__init__.py",
+        "lib/python3.12/site-packages/commonmark/render/html.py",
+        "lib/python3.12/site-packages/commonmark/render/renderer.py",
+        "lib/python3.12/site-packages/commonmark/render/rst.py",
+        "lib/python3.12/site-packages/commonmark/tests/__init__.py",
+        "lib/python3.12/site-packages/commonmark/tests/rst_tests.py",
+        "lib/python3.12/site-packages/commonmark/tests/run_spec_tests.py",
+        "lib/python3.12/site-packages/commonmark/tests/unit_tests.py",
+        "lib/python3.12/site-packages/commonmark/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/__pycache__/blocks.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/__pycache__/cmark.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/__pycache__/common.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/__pycache__/dump.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/__pycache__/entitytrans.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/__pycache__/inlines.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/__pycache__/main.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/__pycache__/node.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/__pycache__/normalize_reference.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/render/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/render/__pycache__/html.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/render/__pycache__/renderer.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/render/__pycache__/rst.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/tests/__pycache__/__init__.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/tests/__pycache__/rst_tests.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/tests/__pycache__/run_spec_tests.cpython-312.pyc",
+        "lib/python3.12/site-packages/commonmark/tests/__pycache__/unit_tests.cpython-312.pyc",
+        "bin/cmark"
+    ],
+    "fn": "commonmark-0.9.1-py_0.tar.bz2",
+    "license": "BSD 3-Clause",
+    "license_family": "BSD",
+    "link": {
+        "source": "pkgs/commonmark-0.9.1-py_0",
+        "type": 1
+    },
+    "md5": "6aa0173c14befcd577ded130cf6f22f5",
+    "name": "commonmark",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/commonmark-0.9.1-py_0.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/LICENSE",
+                "path_type": "hardlink",
+                "sha256": "da0cd83d183c1d7819cbf04541c2a5d1f5f6838ed82810a9143a89ddcbc2b7de",
+                "sha256_in_prefix": "da0cd83d183c1d7819cbf04541c2a5d1f5f6838ed82810a9143a89ddcbc2b7de",
+                "size_in_bytes": 1645
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "1657a0df18736e0172237864b714f820a4b5cc47f81f6caea9a82be39b565468",
+                "sha256_in_prefix": "1657a0df18736e0172237864b714f820a4b5cc47f81f6caea9a82be39b565468",
+                "size_in_bytes": 5710
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "6b7740e557c10769ba7931f2cb60be5e5cd8a03009efc67864614e36d7e684a7",
+                "sha256_in_prefix": "6b7740e557c10769ba7931f2cb60be5e5cd8a03009efc67864614e36d7e684a7",
+                "size_in_bytes": 2686
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "f3335865bc10497a01f487d73a33df78dc2f02c00b0237df824dbb16abc259ba",
+                "sha256_in_prefix": "f3335865bc10497a01f487d73a33df78dc2f02c00b0237df824dbb16abc259ba",
+                "size_in_bytes": 110
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/entry_points.txt",
+                "path_type": "hardlink",
+                "sha256": "d810b083c0a096d4331ecf5f101021c806224488fdd7edcca33233f57b3e9c24",
+                "sha256_in_prefix": "d810b083c0a096d4331ecf5f101021c806224488fdd7edcca33233f57b3e9c24",
+                "size_in_bytes": 49
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark-0.9.1.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "1deb251ae7f6d984e78c971ed81f50db2acc440aff1a26b61038b8ec3c9efc88",
+                "sha256_in_prefix": "1deb251ae7f6d984e78c971ed81f50db2acc440aff1a26b61038b8ec3c9efc88",
+                "size_in_bytes": 11
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "46aa9152afe71e44f9c08b224047482df97a8454a2a242d25a97d202f80511ad",
+                "sha256_in_prefix": "46aa9152afe71e44f9c08b224047482df97a8454a2a242d25a97d202f80511ad",
+                "size_in_bytes": 302
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/blocks.py",
+                "path_type": "hardlink",
+                "sha256": "1863f0df876254312711e3bdf4e12ed8e46680a0b5c7ccaf6229f7b837584108",
+                "sha256_in_prefix": "1863f0df876254312711e3bdf4e12ed8e46680a0b5c7ccaf6229f7b837584108",
+                "size_in_bytes": 30411
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/cmark.py",
+                "path_type": "hardlink",
+                "sha256": "b2c086e730ac162a5e9cd9b08dcf05ae24695639fb51b9c331473b58659c187e",
+                "sha256_in_prefix": "b2c086e730ac162a5e9cd9b08dcf05ae24695639fb51b9c331473b58659c187e",
+                "size_in_bytes": 1430
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/common.py",
+                "path_type": "hardlink",
+                "sha256": "3c4f2846eada247f08668bcf524cb0522ffc8b1e3234caee109b107e16737a9d",
+                "sha256_in_prefix": "3c4f2846eada247f08668bcf524cb0522ffc8b1e3234caee109b107e16737a9d",
+                "size_in_bytes": 3309
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/dump.py",
+                "path_type": "hardlink",
+                "sha256": "546b2738d5bf1ad9b0a79eea7e3e13670dedc83bf7b2312d5b71aa6e859e6495",
+                "sha256_in_prefix": "546b2738d5bf1ad9b0a79eea7e3e13670dedc83bf7b2312d5b71aa6e859e6495",
+                "size_in_bytes": 3644
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/entitytrans.py",
+                "path_type": "hardlink",
+                "sha256": "e8241349eed120ebc21533800be57c7fd507584955a3e5a86e975506c42c1d2f",
+                "sha256_in_prefix": "e8241349eed120ebc21533800be57c7fd507584955a3e5a86e975506c42c1d2f",
+                "size_in_bytes": 61553
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/inlines.py",
+                "path_type": "hardlink",
+                "sha256": "9b2040acfdf8c8e715de5bb04c5a044f55b1afa62b67fd8de3219463f18a7f30",
+                "sha256_in_prefix": "9b2040acfdf8c8e715de5bb04c5a044f55b1afa62b67fd8de3219463f18a7f30",
+                "size_in_bytes": 30985
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/main.py",
+                "path_type": "hardlink",
+                "sha256": "58da74acd6bba453bc683c86ecfc6d62e85030918f73bb5e4779cf9893d09204",
+                "sha256_in_prefix": "58da74acd6bba453bc683c86ecfc6d62e85030918f73bb5e4779cf9893d09204",
+                "size_in_bytes": 1268
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/node.py",
+                "path_type": "hardlink",
+                "sha256": "79566e3d4d5e0cdfa0c844245ed1020d40149a00bb891ca79c19371aea171b4e",
+                "sha256_in_prefix": "79566e3d4d5e0cdfa0c844245ed1020d40149a00bb891ca79c19371aea171b4e",
+                "size_in_bytes": 4614
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/normalize_reference.py",
+                "path_type": "hardlink",
+                "sha256": "75e73e80bed1fa1672c31cb8805d1beb43fa164b0453b02f5c0cd866c3f45057",
+                "sha256_in_prefix": "75e73e80bed1fa1672c31cb8805d1beb43fa164b0453b02f5c0cd866c3f45057",
+                "size_in_bytes": 6388
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/render/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/render/html.py",
+                "path_type": "hardlink",
+                "sha256": "78b38ce241960814b474e333a74465b972f66c34da70707a848d486b1f8f9816",
+                "sha256_in_prefix": "78b38ce241960814b474e333a74465b972f66c34da70707a848d486b1f8f9816",
+                "size_in_bytes": 6585
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/render/renderer.py",
+                "path_type": "hardlink",
+                "sha256": "6a56520e98a93059cc4faf46d579a66a946b743414ec5e09f5ed05fd5dda6a1c",
+                "sha256_in_prefix": "6a56520e98a93059cc4faf46d579a66a946b743414ec5e09f5ed05fd5dda6a1c",
+                "size_in_bytes": 1121
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/render/rst.py",
+                "path_type": "hardlink",
+                "sha256": "39359361cdbd41115d0b4a7a2cd2f6c03770fc23492a339e32b54c7cd40988ba",
+                "sha256_in_prefix": "39359361cdbd41115d0b4a7a2cd2f6c03770fc23492a339e32b54c7cd40988ba",
+                "size_in_bytes": 3879
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/tests/__init__.py",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/tests/rst_tests.py",
+                "path_type": "hardlink",
+                "sha256": "1ad5b7684dbacde01b3f940ff8f136b2303f7e9561136588b915acd6774c02af",
+                "sha256_in_prefix": "1ad5b7684dbacde01b3f940ff8f136b2303f7e9561136588b915acd6774c02af",
+                "size_in_bytes": 3540
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/tests/run_spec_tests.py",
+                "path_type": "hardlink",
+                "sha256": "00c73f0b3156168a2b4a0af456514e3d4587294817acf98540d8b92bfa54ca47",
+                "sha256_in_prefix": "00c73f0b3156168a2b4a0af456514e3d4587294817acf98540d8b92bfa54ca47",
+                "size_in_bytes": 7622
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/tests/unit_tests.py",
+                "path_type": "hardlink",
+                "sha256": "7f917b804b3d71c6c96f885801f7551c4bb2ec683abf7668ace97ed239aa0117",
+                "sha256_in_prefix": "7f917b804b3d71c6c96f885801f7551c4bb2ec683abf7668ace97ed239aa0117",
+                "size_in_bytes": 4495
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/blocks.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/cmark.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/common.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/dump.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/entitytrans.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/inlines.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/main.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/node.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/__pycache__/normalize_reference.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/render/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/render/__pycache__/html.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/render/__pycache__/renderer.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/render/__pycache__/rst.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/tests/__pycache__/__init__.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/tests/__pycache__/rst_tests.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/tests/__pycache__/run_spec_tests.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/commonmark/tests/__pycache__/unit_tests.cpython-312.pyc",
+                "path_type": "pyc_file"
+            },
+            {
+                "_path": "bin/cmark",
+                "path_type": "unix_python_entry_point"
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "",
+    "sha256": "10577f82bafd5d37f0c3f2122272d0dc1f2d133655c2bdd1a3cd5f910d0bd4c5",
+    "size": 47354,
+    "subdir": "noarch",
+    "timestamp": 1570221752112,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/commonmark-0.9.1-py_0.tar.bz2",
+    "version": "0.9.1"
+}

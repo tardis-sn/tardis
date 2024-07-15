@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "py312hf06ca03_0",
+    "build_number": 0,
+    "build_string": "py312hf06ca03_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libffi >=3.4,<4.0a0",
+        "libgcc-ng >=12",
+        "pycparser",
+        "python >=3.12.0rc3,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "cffi-1.16.0-py312hf06ca03_0.conda",
+    "license": "MIT",
+    "md5": "56b0ca764ce23cc54f3f7e2a7b970f6d",
+    "name": "cffi",
+    "platform": "linux",
+    "sha256": "5a36e2c254603c367d26378fa3a205bd92263e30acf195f488749562b4c44251",
+    "size": 294523,
+    "subdir": "linux-64",
+    "timestamp": 1696001868949,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/cffi-1.16.0-py312hf06ca03_0.conda",
+    "version": "1.16.0"
+}

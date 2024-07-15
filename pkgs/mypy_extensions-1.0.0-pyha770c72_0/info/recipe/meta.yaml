@@ -1,0 +1,72 @@
+# This file created by conda-build 3.23.3
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat Feb  4 20:40:40 2023
+# ------------------------------------------------
+
+package:
+  name: mypy_extensions
+  version: 1.0.0
+source:
+  sha256: 75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782
+  url: https://pypi.io/packages/source/m/mypy_extensions/mypy_extensions-1.0.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/mypy_extensions_1675543315189/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place/bin/python
+    -m pip install . -vv
+  string: pyha770c72_0
+requirements:
+  build: []
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2022.12.7 ha878542_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 12.2.0 h65d4601_19
+    - libgomp 12.2.0 h65d4601_19
+    - libnsl 2.0.0 h7f98852_0
+    - libsqlite 3.40.0 h753d276_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.13 h166bdaf_4
+    - ncurses 6.3 h27087fc_1
+    - openssl 3.0.7 h0b41bf4_2
+    - pip 23.0 pyhd8ed1ab_0
+    - python 3.11.0 he550d4f_1_cpython
+    - readline 8.1.2 h0f457ee_0
+    - setuptools 67.1.0 pyhd8ed1ab_0
+    - tk 8.6.12 h27826a3_0
+    - tzdata 2022g h191b570_0
+    - wheel 0.38.4 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.5
+test:
+  commands:
+    - pip check
+  imports:
+    - mypy_extensions
+  requires:
+    - pip
+about:
+  description: 'The ''mypy_extensions'' module defines experimental extensions to
+    the
+
+    standard ''typing'' module that are supported by the mypy typechecker.
+
+    '
+  dev_url: https://github.com/python/mypy/blob/master/extensions
+  doc_url: https://mypy.readthedocs.io
+  home: http://www.mypy-lang.org/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Experimental type system extensions for programs checked with the mypy
+    typechecker.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - nehaljwani
+    - ocefpaf

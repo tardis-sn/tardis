@@ -1,0 +1,172 @@
+From 3ec2dcc70d96fab0f67ca14904853fc49d52c503 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Tue, 7 May 2024 15:59:09 -0500
+Subject: [PATCH] Add gssapi support to cmake
+
+---
+ CMakeLists.txt                             | 26 +++++++++++++
+ builds/cmake/Modules/Findgssapi_krb5.cmake | 45 ++++++++++++++++++++++
+ builds/cmake/platform.hpp.in               |  1 +
+ tests/CMakeLists.txt                       |  4 ++
+ unittests/CMakeLists.txt                   |  4 ++
+ 7 files changed, 91 insertions(+)
+ create mode 100644 builds/cmake/Modules/Findgssapi_krb5.cmake
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6b62cc1ec3..1859493835 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -295,6 +295,16 @@ else() # ENABLE_CURVE
+   message(STATUS "CURVE security is disabled")
+ endif()
+ 
++option(WITH_GSSAPI_KRB5 "Use libgssapi_krb5" OFF)
++if(WITH_GSSAPI_KRB5)
++  find_package("gssapi_krb5" REQUIRED)
++  message(STATUS "Using GSSAPI_KRB5")
++  include_directories(${GSSAPI_KRB5_INCLUDE_DIRS})
++  link_directories(${GSSAPI_KRB5_LIBRARY_DIRS})
++  set(HAVE_LIBGSSAPI_KRB5 1)
++endif()
++
++
+ set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+ 
+ option(WITH_MILITANT "Enable militant assertions" OFF)
+@@ -1218,6 +1228,10 @@ if(ZMQ_HAVE_TIPC)
+   list(APPEND cxx-sources tipc_address.cpp tipc_connecter.cpp tipc_listener.cpp)
+ endif()
+ 
++if(WITH_GSSAPI_KRB5)
++  list(APPEND cxx-sources gssapi_client.cpp gssapi_mechanism_base.cpp gssapi_server.cpp)
++endif()
++
+ # -----------------------------------------------------------------------------
+ # source generators
+ 
+@@ -1491,6 +1505,10 @@ if(BUILD_SHARED)
+     endif()
+   endif()
+ 
++  if(WITH_GSSAPI_KRB5)
++    target_link_libraries(libzmq ${GSSAPI_KRB5_LIBRARIES})
++  endif()
++
+   if(HAVE_WS2_32)
+     target_link_libraries(libzmq ws2_32)
+   elseif(HAVE_WS2)
+@@ -1541,6 +1559,10 @@ if(BUILD_STATIC)
+     endif()
+   endif()
+ 
++  if(WITH_GSSAPI_KRB5)
++    target_link_libraries(libzmq-static ${GSSAPI_KRB5_LIBRARIES})
++  endif()
++
+   if(HAVE_WS2_32)
+     target_link_libraries(libzmq-static ws2_32)
+   elseif(HAVE_WS2)
+@@ -1610,6 +1632,10 @@ if(BUILD_SHARED)
+         target_link_libraries(${perf-tool} ${SODIUM_LIBRARIES})
+       endif()
+ 
++      if(WITH_GSSAPI_KRB5)
++        target_link_libraries(${perf-tool} ${GSSAPI_KRB5_LIBRARIES})
++      endif()
++
+       if(ZMQ_BUILD_FRAMEWORK)
+         # Copy perf-tools binaries into Framework
+         add_custom_command(
+diff --git a/builds/cmake/Modules/Findgssapi_krb5.cmake b/builds/cmake/Modules/Findgssapi_krb5.cmake
+new file mode 100644
+index 0000000000..f4416c6acc
+--- /dev/null
++++ b/builds/cmake/Modules/Findgssapi_krb5.cmake
+@@ -0,0 +1,45 @@
++if (NOT MSVC)
++find_package(PkgConfig REQUIRED) 
++pkg_check_modules(PC_GSSAPI_KRB5 "libgssapi_krb5")
++if (PC_GSSAPI_KRB5_FOUND)
++  set(pkg_config_names_private "${pkg_config_names_private} libgssapi_krb5")
++endif()
++if (NOT PC_GSSAPI_KRB5_FOUND)
++    pkg_check_modules(PC_GSSAPI_KRB5 "gssapi_krb5")
++    if (PC_GSSAPI_KRB5_FOUND)
++      set(pkg_config_names_private "${pkg_config_names_private} gssapi_krb5")
++    endif()
++endif (NOT PC_GSSAPI_KRB5_FOUND)
++if (PC_GSSAPI_KRB5_FOUND)
++  set(GSSAPI_KRB5_INCLUDE_HINTS ${PC_GSSAPI_KRB5_INCLUDE_DIRS} ${PC_GSSAPI_KRB5_INCLUDE_DIRS}/*)
++  set(GSSAPI_KRB5_LIBRARY_HINTS ${PC_GSSAPI_KRB5_LIBRARY_DIRS} ${PC_GSSAPI_KRB5_LIBRARY_DIRS}/*)
++else()
++  set(pkg_config_libs_private "${pkg_config_libs_private} -lgssapi_krb5")
++endif()
++endif (NOT MSVC)
++
++# some libraries install the headers is a subdirectory of the include dir
++# returned by pkg-config, so use a wildcard match to improve chances of finding
++# headers and libraries.
++find_path(
++    GSSAPI_KRB5_INCLUDE_DIRS
++    NAMES gssapi/gssapi_krb5.h
++    HINTS ${GSSAPI_KRB5_INCLUDE_HINTS}
++)
++
++set (GSSAPI_NAMES libgssapi_krb5 gssapi_krb5)
++if (${CMAKE_SIZEOF_VOID_P} STREQUAL 8)
++  set (GSSAPI_NAMES ${GSSAPI_NAMES} gssapi64)
++elseif (${CMAKE_SIZEOF_VOID_P} STREQUAL 4)
++  set (GSSAPI_NAMES ${GSSAPI_NAMES} gssapi32)
++endif()
++
++find_library(
++    GSSAPI_KRB5_LIBRARIES
++    NAMES ${GSSAPI_NAMES}
++    HINTS ${GSSAPI_KRB5_LIBRARY_HINTS}
++)
++
++include(FindPackageHandleStandardArgs)
++find_package_handle_standard_args(gssapi_krb5 DEFAULT_MSG GSSAPI_KRB5_LIBRARIES GSSAPI_KRB5_INCLUDE_DIRS)
++mark_as_advanced(GSSAPI_KRB5_FOUND GSSAPI_KRB5_LIBRARIES GSSAPI_KRB5_INCLUDE_DIRS)
+diff --git a/builds/cmake/platform.hpp.in b/builds/cmake/platform.hpp.in
+index a06390a0d6..e3b7ab8b95 100644
+--- a/builds/cmake/platform.hpp.in
++++ b/builds/cmake/platform.hpp.in
+@@ -77,6 +77,7 @@
+ #cmakedefine ZMQ_HAVE_CURVE
+ #cmakedefine ZMQ_USE_LIBSODIUM
+ #cmakedefine SODIUM_STATIC
++#cmakedefine HAVE_LIBGSSAPI_KRB5
+ #cmakedefine ZMQ_USE_GNUTLS
+ #cmakedefine ZMQ_USE_RADIX_TREE
+ #cmakedefine HAVE_IF_NAMETOINDEX
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index d342202986..fa462becbe 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -288,6 +288,10 @@ foreach(test ${tests})
+     target_link_libraries(${test} ${RT_LIBRARY})
+   endif()
+ 
++  if (WITH_GSSAPI_KRB5)
++    target_link_libraries(${test} ${GSSAPI_KRB5_LIBRARIES})
++  endif()
++
+   if(CMAKE_SYSTEM_NAME MATCHES "QNX")
+     target_link_libraries(${test} socket)
+     target_link_libraries(${test} m)
+diff --git a/unittests/CMakeLists.txt b/unittests/CMakeLists.txt
+index 7132f00ba3..6f835122e9 100644
+--- a/unittests/CMakeLists.txt
++++ b/unittests/CMakeLists.txt
+@@ -43,6 +43,10 @@ foreach(test ${unittests})
+     target_link_libraries(${test} m)
+   endif()
+ 
++  if (WITH_GSSAPI_KRB5)
++    target_link_libraries(${test} ${GSSAPI_KRB5_LIBRARIES})
++  endif()
++
+   if(WIN32)
+     add_test(
+       NAME ${test}

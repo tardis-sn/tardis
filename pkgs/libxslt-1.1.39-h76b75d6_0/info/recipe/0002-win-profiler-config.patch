@@ -1,0 +1,52 @@
+--- win32/configure.js
++++ win32/configure.js
+@@ -43,6 +43,7 @@
+ var withXsltDebug = true;
+ var withMemDebug = false;
+ var withDebugger = true;
++var withProfiler = true;
+ var withIconv = true;
+ var withZlib = false;
+ var withCrypto = true;
+@@ -102,6 +103,7 @@
+ 	txt += "  xslt_debug: Enable XSLT debbugging module (" + (withXsltDebug? "yes" : "no")  + ")\n";
+ 	txt += "  mem_debug:  Enable memory debugger (" + (withMemDebug? "yes" : "no")  + ")\n";
+ 	txt += "  debugger:   Enable external debugger support (" + (withDebugger? "yes" : "no")  + ")\n";
++	txt += "  profiler:   Enable built-in profiling support (" + (withProfiler? "yes" : "no")  + ")\n";
+ 	txt += "  iconv:      Use iconv library (" + (withIconv? "yes" : "no")  + ")\n";
+ 	txt += "  zlib:       Use zlib library (" + (withZlib? "yes" : "no") + ")\n";
+ 	txt += "  crypto:     Enable Crypto support (" + (withCrypto? "yes" : "no") + ")\n";
+@@ -188,6 +190,7 @@
+ 	vf.WriteLine("WITH_DEBUG=" + (withXsltDebug? "1" : "0"));
+ 	vf.WriteLine("WITH_MEM_DEBUG=" + (withMemDebug? "1" : "0"));
+ 	vf.WriteLine("WITH_DEBUGGER=" + (withDebugger? "1" : "0"));
++	vf.WriteLine("WITH_PROFILER=" + (withProfiler? "1" : "0"));
+ 	vf.WriteLine("WITH_ICONV=" + (withIconv? "1" : "0"));
+ 	vf.WriteLine("WITH_ZLIB=" + (withZlib? "1" : "0"));
+ 	vf.WriteLine("WITH_CRYPTO=" + (withCrypto? "1" : "0"));
+@@ -238,6 +241,8 @@
+ 			of.WriteLine(s.replace(/\@WITH_MEM_DEBUG\@/, withMemDebug? "1" : "0"));
+ 		} else if (s.search(/\@WITH_DEBUGGER\@/) != -1) {
+ 			of.WriteLine(s.replace(/\@WITH_DEBUGGER\@/, withDebugger? "1" : "0"));
++		} else if (s.search(/\@WITH_PROFILER\@/) != -1) {
++			of.WriteLine(s.replace(/\@WITH_PROFILER\@/, withProfiler? "1" : "0"));
+ 		} else if (s.search(/\@WITH_MODULES\@/) != -1) {
+ 			of.WriteLine(s.replace(/\@WITH_MODULES\@/, withModules? "1" : "0"));
+ 		} else if (s.search(/\@LIBXSLT_DEFAULT_PLUGINS_PATH\@/) != -1) {
+@@ -333,6 +338,8 @@
+ 			withMemDebug = strToBool(arg.substring(opt.length + 1, arg.length));
+ 		else if (opt == "debugger")
+ 			withDebugger = strToBool(arg.substring(opt.length + 1, arg.length));
++		else if (opt == "profiler")
++			withProfiler = strToBool(arg.substring(opt.length + 1, arg.length));
+ 		else if (opt == "debug")
+ 			buildDebug = strToBool(arg.substring(opt.length + 1, arg.length));
+ 		else if (opt == "iconv")
+@@ -473,6 +480,7 @@
+ txtOut += "  Debugging module: " + boolToStr(withXsltDebug) + "\n";
+ txtOut += "  Memory debugging: " + boolToStr(withMemDebug) + "\n";
+ txtOut += "  Debugger support: " + boolToStr(withDebugger) + "\n";
++txtOut += "  Profiler support: " + boolToStr(withProfiler) + "\n";
+ txtOut += "         Use iconv: " + boolToStr(withIconv) + "\n";
+ txtOut += "         With zlib: " + boolToStr(withZlib) + "\n";
+ txtOut += "            Crypto: " + boolToStr(withCrypto) + "\n";

@@ -1,0 +1,54 @@
+{% set version = "1.5.5" %}
+
+package:
+  name: typed-ast
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/t/typed_ast/typed_ast-{{ version }}.tar.gz
+  sha256: 94282f7a354f36ef5dbce0ef3467ebf6a258e370ab33d5b40c249fa996e590dd
+
+build:
+  number: 1
+  script: {{ PYTHON }} -m pip install . -vv
+  skip: true  # [py2k]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - {{ compiler('c') }}
+  host:
+    - python
+    - pip
+  run:
+    - python
+
+test:
+  imports:
+    - typed_ast
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/python/typed_ast
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE
+  summary: a fork of Python 2 and 3 ast modules with type comment support
+  description: |
+    typed_ast is a Python 3 package that provides a Python 2.7 and Python 3
+    parser similar to the standard ast library. Unlike ast, the parsers in
+    typed_ast include PEP 484 type comments and are independent of the version
+    of Python under which they are run. The typed_ast parsers produce the
+    standard Python AST (plus type comments), and are both fast and correct, as
+    they are based on the CPython 2.7 and 3.6 parsers.
+  doc_url: https://github.com/python/typed_ast/blob/master/README.md
+  dev_url: https://github.com/python/typed_ast
+
+extra:
+  recipe-maintainers:
+    - nehaljwani
+    - ocefpaf

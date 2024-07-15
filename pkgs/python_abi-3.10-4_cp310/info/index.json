@@ -1,0 +1,16 @@
+{
+  "arch": "x86_64",
+  "build": "4_cp310",
+  "build_number": 4,
+  "constrains": [
+    "python 3.10.* *_cpython"
+  ],
+  "depends": [],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "python_abi",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1695147363189,
+  "version": "3.10"
+}

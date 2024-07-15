@@ -1,0 +1,97 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed May  1 21:36:39 2024
+# ------------------------------------------------
+
+package:
+  name: libwebp
+  version: 1.4.0
+source:
+  sha256: 61f873ec69e3be1b99535634340d5bde750b2e4447caa1db9f61be3fd49ab1e5
+  url: http://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.4.0.tar.gz
+build:
+  number: '0'
+  run_exports:
+    - libwebp-base >=1.4.0,<2.0a0
+  string: h2c329e2_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha885e6a_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_6
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gnuconfig 2020.11.07 hd8ed1ab_0
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libgcc-devel_linux-64 12.3.0 h0223996_106
+    - libgcc-ng 13.2.0 h77fa898_6
+    - libgomp 13.2.0 h77fa898_6
+    - libsanitizer 12.3.0 hb8811af_6
+    - libstdcxx-ng 13.2.0 hc0a3c3a_6
+    - make 4.3 hd18ef5c_1
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - giflib 5.2.2 hd590300_0
+    - lerc 4.0.0 h27087fc_0
+    - libdeflate 1.20 hd590300_0
+    - libgcc-ng 13.2.0 h77fa898_6
+    - libgomp 13.2.0 h77fa898_6
+    - libjpeg-turbo 3.0.0 hd590300_1
+    - libpng 1.6.43 h2797004_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_6
+    - libtiff 4.6.0 h1dd3fc0_3
+    - libwebp-base 1.4.0 hd590300_0
+    - libzlib 1.2.13 hd590300_5
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.5 hfc55251_0
+  run:
+    - giflib >=5.2.2,<5.3.0a0
+    - libgcc-ng >=12
+    - libjpeg-turbo >=3.0.0,<4.0a0
+    - libpng >=1.6.43,<1.7.0a0
+    - libtiff >=4.6.0,<4.7.0a0
+    - libwebp-base 1.4.0.*
+    - libwebp-base >=1.4.0,<2.0a0
+test:
+  commands:
+    - test -f $PREFIX/bin/cwebp
+    - test -f $PREFIX/bin/dwebp
+    - test -f $PREFIX/bin/gif2webp
+    - test -f $PREFIX/bin/img2webp
+    - test -f $PREFIX/bin/webpinfo
+    - test -f $PREFIX/bin/webpmux
+    - test ! -f $PREFIX/lib/libwebdecoder.a
+    - test ! -f $PREFIX/lib/libwebp.a
+    - test ! -f $PREFIX/lib/libwebpdemux.a
+    - test ! -f $PREFIX/lib/libwebpmux.a
+    - dwebp examples/test.webp
+  source_files:
+    - examples/test.webp
+about:
+  description: 'WebP is a method of lossy and lossless compression that can be used
+    on a large variety of photographic, translucent and graphical images found on
+    the web. The degree of lossy compression is adjustable so a user can choose the
+    trade-off between file size and image quality. libwebp-base provides the headers
+    and shared libraries. For cwebp and dwep, binaries install libwebp.
+
+    '
+  dev_url: https://chromium.googlesource.com/webm/libwebp
+  doc_url: https://developers.google.com/speed/webp/docs/using
+  home: https://developers.google.com/speed/webp
+  license: BSD-3-Clause
+  license_file: COPYING
+  summary: WebP image library
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240501.7.1
+  recipe-maintainers:
+    - carterbox
+    - dschreij
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/libwebp-feedstock
+  sha: fc1b9ba61fb50a4f6843f5c82cb543c240d5856c

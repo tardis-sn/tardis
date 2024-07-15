@@ -1,0 +1,21 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "contentMediaType": "image/png",
+      "contentSchema": {
+        "$id": "http://example.com/oh-hey-a-contentSchema",
+        "abc": 123
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/oh-hey-a-contentSchema",
+      "target": {
+        "$id": "http://example.com/oh-hey-a-contentSchema",
+        "abc": 123
+      }
+    }
+  ]
+}

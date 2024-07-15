@@ -1,0 +1,11 @@
+{
+  "noarch": {
+    "entry_points": [
+      "jupyter-kernel = jupyter_client.kernelapp:main",
+      "jupyter-kernelspec = jupyter_client.kernelspecapp:KernelSpecApp.launch_instance",
+      "jupyter-run = jupyter_client.runapp:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

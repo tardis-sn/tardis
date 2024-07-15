@@ -1,0 +1,56 @@
+{% set version = "1.1.39" %}
+
+package:
+  name: libxslt
+  version: {{ version }}
+
+source:
+  url: https://download.gnome.org/sources/libxslt/{{ version[0:3] }}/libxslt-{{ version }}.tar.xz
+  sha256: 2a20ad621148339b0759c4d4e96719362dee64c9a096dbba625ba053846349f0
+  patches:
+    - 0001-Make-and-install-a-pkg-config-file-on-Windows.patch
+    - 0002-win-profiler-config.patch
+
+build:
+  number: 0
+  run_exports:
+    # forward compatible: https://abi-laboratory.pro/tracker/timeline/libxslt/
+    - {{ pin_subpackage('libxslt') }}
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - gnuconfig  # [unix]
+    - make
+    - pkg-config
+  host:
+    - libxml2
+
+test:
+  requires:
+    - pkg-config
+  commands:
+    - xsltproc --version
+    - pkg-config --cflags libxslt libexslt
+    - pkg-config --libs libxslt libexslt
+
+about:
+  home: https://gitlab.gnome.org/GNOME/libxslt
+  license: MIT
+  license_file: COPYING
+  summary: The XSLT C library developed for the GNOME project
+  description: |
+    "Libxslt is the XSLT C library developed for the GNOME project.
+    XSLT itself is a an XML language to define transformation for XML.
+    Libxslt is based on libxml2 the XML C library developed for the GNOME project.
+    It also implements most of the EXSLT set of processor-portable extensions functions
+    and some of Saxon's evaluate and expressions extensions."
+  doc_url: https://gitlab.gnome.org/GNOME/libxslt/-/wikis
+  dev_url: https://gitlab.gnome.org/GNOME/libxslt
+  doc_source_url: https://github.com/GNOME/libxslt/tree/master/doc
+
+extra:
+  recipe-maintainers:
+    - mbargull
+    - ocefpaf
+    - scopatz

@@ -1,0 +1,89 @@
+# This file created by conda-build 3.21.8
+# ------------------------------------------------
+
+package:
+  name: black
+  version: 22.3.0
+source:
+  sha256: 35020b8886c022ced9282b51b5a875b6d1ab0c387b31a065b84db7c33085ca79
+  url: https://pypi.io/packages/source/b/black/black-22.3.0.tar.gz
+build:
+  entry_points:
+    - black = black:patched_main
+  noarch: python
+  number: 0
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2021.10.8 ha878542_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 11.2.0 h1d223b6_14
+    - libgomp 11.2.0 h1d223b6_14
+    - libnsl 2.0.0 h7f98852_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.11 h166bdaf_1014
+    - ncurses 6.3 h9c3ff4c_0
+    - openssl 3.0.2 h166bdaf_1
+    - packaging 21.3 pyhd8ed1ab_0
+    - pip 22.0.4 pyhd8ed1ab_0
+    - pyparsing 3.0.7 pyhd8ed1ab_0
+    - python 3.10.4 h2660328_0_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1 h46c0cb4_0
+    - setuptools 61.2.0 py310hff52083_0
+    - setuptools-scm 6.4.2 pyhd8ed1ab_0
+    - setuptools_scm 6.4.2 hd8ed1ab_0
+    - sqlite 3.37.1 h4ff8645_0
+    - tk 8.6.12 h27826a3_0
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - tzdata 2022a h191b570_0
+    - wheel 0.37.1 pyhd8ed1ab_0
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h166bdaf_1014
+  run:
+    - click >=8.0.0
+    - dataclasses >=0.6
+    - mypy_extensions >=0.4.3
+    - pathspec >=0.9,<1
+    - platformdirs >=2
+    - python >=3.6
+    - tomli >=1.1.0
+    - typed-ast >=1.4.2
+    - typing_extensions >=3.10,!=3.10.0.1
+test:
+  commands:
+    - black --help
+    - pip check
+  requires:
+    - pip
+about:
+  description: 'Black is the uncompromising Python code formatter. By using it, you
+    agree
+
+    to cease control over minutiae of hand-formatting. In return, Black gives
+
+    you speed, determinism, and freedom from pycodestyle nagging about
+
+    formatting. You will save time and mental energy for more important matters.
+
+    '
+  dev_url: https://github.com/psf/black
+  doc_url: https://black.readthedocs.io/
+  home: https://github.com/psf/black
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: The uncompromising code formatter.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - ambv
+    - carlodri
+    - mariusvniekerk
+    - seanlaw
+    - xhochy

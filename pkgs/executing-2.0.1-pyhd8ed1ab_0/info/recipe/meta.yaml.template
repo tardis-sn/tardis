@@ -1,0 +1,46 @@
+{% set name = "executing" %}
+{% set version = "2.0.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 35afe2ce3affba8ee97f2d69927fa823b08b472b7b994e36a52a964b93d16147
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=2.7
+    - setuptools
+    - setuptools_scm
+  run:
+    - python >=2.7
+
+test:
+  imports:
+    - executing
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://pypi.org/project/executing
+  summary: Get the currently executing AST node of a frame, and other information
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  dev_url: https://github.com/alexmojaki/executing
+
+extra:
+  recipe-maintainers:
+    - alexmojaki
+    - anthchirp

@@ -1,0 +1,29 @@
+--- a/tools/test/h5diff/testh5diff.sh.in
++++ b/tools/test/h5diff/testh5diff.sh.in
+@@ -709,7 +709,7 @@
+ TOOLTEST h5diff_58.txt -v2 h5diff_dset1.h5 h5diff_dset2.h5 refreg
+ TOOLTEST h5diff_58_ref.txt -v2 h5diff_dset1.h5 h5diff_dset2.h5 /g1/reference2D
+ # STD_REF_OBJ
+-TOOLTEST h5diff_reg.txt -v2 trefer_attr.h5 trefer_ext2.h5 Dataset3 Dataset3
++# TOOLTEST h5diff_reg.txt -v2 trefer_attr.h5 trefer_ext2.h5 Dataset3 Dataset3
+ 
+ # test for both dset and attr with same type but with different size
+ # ( HDDFV-7942 )
+@@ -728,7 +728,7 @@
+ 
+ 
+ # 6.0: Check if the command line number of arguments is less than 3
+-TOOLTEST h5diff_600.txt h5diff_basic1.h5
++# TOOLTEST h5diff_600.txt h5diff_basic1.h5
+ 
+ # 6.1: Check if non-exist object name is specified
+ TOOLTEST h5diff_601.txt h5diff_basic1.h5 h5diff_basic1.h5 nono_obj
+@@ -1161,7 +1161,7 @@
+ # test to verify HDFFV-8625
+ TOOLTEST h5diff_8625.txt -v --enable-error-stack h5diff_comp_vl_strs.h5 h5diff_comp_vl_strs.h5 /group/Compound_dset1 /group_copy/Compound_dset3
+ # test to verify HDFFV-8639
+-TOOLTEST h5diff_8639.txt -v h5diff_attr3.h5 h5diff_attr2.h5 /g1
++# TOOLTEST h5diff_8639.txt -v h5diff_attr3.h5 h5diff_attr2.h5 /g1
+ TOOLTEST h5diff_vlstr.txt -v  tvlstr.h5 tvlstr2.h5
+ 
+ # ##############################################################################

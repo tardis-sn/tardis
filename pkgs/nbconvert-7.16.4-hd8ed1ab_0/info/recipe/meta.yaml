@@ -1,0 +1,61 @@
+# This file created by conda-build 24.3.0
+# ------------------------------------------------
+
+package:
+  name: nbconvert
+  version: 7.16.4
+source:
+  sha256: 86ca91ba266b0a448dc96fa6c5b9d98affabde2867b363258703536807f9f7f4
+  url: https://pypi.io/packages/source/n/nbconvert/nbconvert-7.16.4.tar.gz
+build:
+  noarch: generic
+  number: 0
+  string: hd8ed1ab_0
+requirements:
+  build: []
+  run:
+    - nbconvert-core 7.16.4 pyhd8ed1ab_0
+    - nbconvert-pandoc 7.16.4 hd8ed1ab_0
+test:
+  commands:
+    - pip check
+    - jupyter nbconvert --version
+    - jupyter dejavu --version
+    - jupyter nbconvert --help
+    - jupyter dejavu --help
+  requires:
+    - pip
+about:
+  description: 'The nbconvert tool, jupyter nbconvert, converts notebooks to various
+    other
+
+    formats via Jinja templates. The nbconvert tool allows you to convert an
+
+    .ipynb notebook file into various static formats.
+
+    '
+  dev_url: https://github.com/jupyter/nbconvert
+  doc_url: https://nbconvert.readthedocs.org/
+  home: https://jupyter.org
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: Converting Jupyter Notebooks
+extra:
+  copy_test_source_files: true
+  feedstock-name: nbconvert
+  final: true
+  flow_run_id: azure_20240430.2.1
+  recipe-maintainers:
+    - blink1073
+    - bollwyvl
+    - jakirkham
+    - jasongrout
+    - martinRenou
+    - minrk
+    - mpacer
+    - mseal
+    - ocefpaf
+    - pelson
+    - takluyver
+  remote_url: https://github.com/conda-forge/nbconvert-feedstock
+  sha: e8e81c38c0943eb27cce6409178c4d772b963bd9

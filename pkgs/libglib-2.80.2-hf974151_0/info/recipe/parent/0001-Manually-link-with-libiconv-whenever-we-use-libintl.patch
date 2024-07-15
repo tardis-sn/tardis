@@ -1,0 +1,76 @@
+commit 7bb34f6eaf691d9fc18c1a75df8f70713a9d8108
+Author: Isuru Fernando <isuruf@gmail.com>
+Date:   Sun Apr 5 23:57:06 2020 +0000
+
+    Manually link with libiconv whenever we use libintl.
+    
+    Sadly our Windows libintl DLL doesn't convey that it should pull in libiconv
+    as a dependency (nor does it use pkg-config). Until I figure that out, let's
+    just manually link with libintl when needed.
+    
+    There is also some hacking of gconvert.c and the toplevel meson.build file
+    needed to adjust the build system -- it assumes that on Windows you're always
+    going to use an internal iconv.
+    
+    Original Author: Peter Williams <peter@newton.cx>
+
+diff --git a/gio/win32/meson.build b/gio/win32/meson.build
+index 6699f10..1011270 100644
+--- a/gio/win32/meson.build
++++ b/gio/win32/meson.build
+@@ -15,7 +15,7 @@ giowin32_lib = static_library('giowin32',
+     gioenumtypes_dep,
+     libglib_dep,
+     gmodule_inc_dep,
+-  ],
++  ] + libiconv,
+   gnu_symbol_visibility : 'hidden',
+   pic : true,
+   c_args : [gio_c_args, gio_c_args_internal])
+diff --git a/glib/gconvert.c b/glib/gconvert.c
+index e7c222f..e352ace 100644
+--- a/glib/gconvert.c
++++ b/glib/gconvert.c
+@@ -23,18 +23,12 @@
+ #include "config.h"
+ #include "glibconfig.h"
+ 
+-#ifndef G_OS_WIN32
+ #include <iconv.h>
+-#endif
+ #include <errno.h>
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
+ 
+-#ifdef G_OS_WIN32
+-#include "win_iconv.c"
+-#endif
+-
+ #ifdef G_PLATFORM_WIN32
+ #define STRICT
+ #include <windows.h>
+diff --git a/meson.build b/meson.build
+index 7534542..c47242d 100644
+--- a/meson.build
++++ b/meson.build
+@@ -2162,7 +2162,7 @@ glibconfig_conf.set10('G_HAVE_GROWING_STACK', growing_stack)
+ # We should never use the MinGW C library's iconv because it may not be
+ # available in the actual runtime environment. On Windows, we always use
+ # the built-in implementation
+-if host_system == 'windows'
++if host_system == 'IGNOREME windows'
+   # We have a #include "win_iconv.c" in gconvert.c on Windows, so we don't need
+   # any external library for it
+   libiconv = []
+@@ -2236,8 +2236,8 @@ if libintl.found() and libintl.type_name() != 'internal'
+   #
+   # Meson's builtin dependency lookup as of 0.60.0 doesn't check for
+   # pthread, so we do this manually here.
+-  if cc.has_function('ngettext', dependencies : libintl, prefix: libintl_prefix)
+-    libintl_deps += [libintl]
++  if cc.has_function('ngettext', dependencies : [libintl] + libiconv, prefix: libintl_prefix)
++    libintl_deps += [libintl] + libiconv
+   else
+     libintl_iconv = cc.find_library('iconv', required : false)
+     if libintl_iconv.found() and cc.has_function('ngettext', args : osx_ldflags, dependencies : [libintl, libintl_iconv])

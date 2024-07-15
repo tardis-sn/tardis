@@ -1,0 +1,59 @@
+{
+  "paths": [
+    {
+      "_path": "site-packages/backcall-0.2.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "site-packages/backcall-0.2.0.dist-info/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "d422f8ce77312733c07f5fec8ccbe61d58d539774f7a66f37e4bc54740d86020",
+      "size_in_bytes": 1490
+    },
+    {
+      "_path": "site-packages/backcall-0.2.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "2d3f3fa46849df8645f2358464bdcbfa107b1cb064b1c23aabd71d8a90d6c1aa",
+      "size_in_bytes": 1966
+    },
+    {
+      "_path": "site-packages/backcall-0.2.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "97704d4b972b6733d89e10fa29d978370c18acf7afc629610729e5e479dc8145",
+      "size_in_bytes": 872
+    },
+    {
+      "_path": "site-packages/backcall-0.2.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "e2f19058c1c93b748ecaf61c2c7aabdfcd16da7f741427f392b3ff618df18eaf",
+      "size_in_bytes": 99
+    },
+    {
+      "_path": "site-packages/backcall-0.2.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "5ff435c770b6a1b2c02f31128d7a65c392b909f54fdb5d3ff5b0eca61db0b420",
+      "size_in_bytes": 104
+    },
+    {
+      "_path": "site-packages/backcall/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "bfd61414c08da701e97f2f4cfac7d50c861a7fed0c72823e012fb78fdf111b43",
+      "size_in_bytes": 213
+    },
+    {
+      "_path": "site-packages/backcall/_signatures.py",
+      "path_type": "hardlink",
+      "sha256": "cb7a71fdf4c5559332f3e9b04cebd2c6538e68b51d1c9985dfb93b46ff4d5eed",
+      "size_in_bytes": 29847
+    },
+    {
+      "_path": "site-packages/backcall/backcall.py",
+      "path_type": "hardlink",
+      "sha256": "0d0ccd5efe3b668a1af184d7e41135f51b8bc788f2ac4b105112531e1aa1738f",
+      "size_in_bytes": 3752
+    }
+  ],
+  "paths_version": 1
+}

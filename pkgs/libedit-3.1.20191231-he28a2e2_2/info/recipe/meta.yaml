@@ -1,0 +1,74 @@
+# This file created by conda-build 3.19.2
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun Aug 16 22:18:50 2020
+# ------------------------------------------------
+
+package:
+    name: libedit
+    version: 3.1.20191231
+source:
+    fn: libedit-20191231-3.1.tar.gz
+    sha256: dbb82cb7e116a5f8025d35ef5b4f7d4a3cdd0a3909a146a39112095a2d229071
+    url: http://thrysoee.dk/editline/libedit-20191231-3.1.tar.gz
+build:
+    number: '2'
+    run_exports:
+        - libedit >=3.1.20191231,<3.2.0a0
+    string: he28a2e2_2
+requirements:
+    build:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - autoconf 2.69 pl526h14c3975_9
+        - automake 1.16.2 pl526_1
+        - binutils_impl_linux-64 2.34 h2122c62_9
+        - binutils_linux-64 2.34 h47ac705_27
+        - gcc_impl_linux-64 7.5.0 hda68d29_13
+        - gcc_linux-64 7.5.0 hf34d7eb_27
+        - kernel-headers_linux-64 2.6.32 h77966d4_13
+        - ld_impl_linux-64 2.34 hc38a660_9
+        - libgcc-ng 9.3.0 h24d8f2e_15
+        - libgomp 9.3.0 h24d8f2e_15
+        - libstdcxx-ng 9.3.0 hdf63c60_15
+        - libtool 2.4.6 h516909a_1003
+        - m4 1.4.18 h14c3975_1001
+        - make 4.3 h516909a_0
+        - perl 5.26.2 h516909a_1006
+        - sysroot_linux-64 2.12 h77966d4_13
+    host:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 1_gnu
+        - libgcc-ng 9.3.0 h24d8f2e_15
+        - libgomp 9.3.0 h24d8f2e_15
+        - libstdcxx-ng 9.3.0 hdf63c60_15
+        - ncurses 6.2 he1b5a44_1
+    run:
+        - libgcc-ng >=7.5.0
+        - ncurses >=6.2,<6.3.0a0
+test:
+    commands:
+        - test -f $PREFIX/lib/libedit.so
+        - test ! -f $PREFIX/lib/libedit.a
+about:
+    description: 'This is an autotool- and libtoolized port of the NetBSD Editline
+        library
+
+        (libedit). This Berkeley-style licensed command line editor library provides
+
+        generic line editing, history, and tokenization functions, similar to those
+
+        found in GNU Readline
+
+        '
+    home: http://thrysoee.dk/editline/
+    license: BSD-2-Clause
+    license_family: BSD
+    license_file: COPYING
+    summary: Editline Library (libedit)
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - djsutherland
+        - mingwandroid
+        - scopatz

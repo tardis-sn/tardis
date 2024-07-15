@@ -1,0 +1,46 @@
+{% set version = "2.5.2" %}
+
+package:
+  name: openjpeg
+  version: {{ version }}
+
+source:
+  url: https://github.com/uclouvain/openjpeg/archive/v{{ version }}.tar.gz
+  sha256: 90e3896fed910c376aaf79cdd98bdfdaf98c6472efd8e1debf0a854938cbda6a
+
+build:
+  number: 0
+  run_exports:
+    # good compatibility in 2.x series, check before new release
+    # http://www.openjpeg.org/abi-check/timeline/openjpeg/
+    - {{ pin_subpackage('openjpeg') }}
+
+requirements:
+  build:
+    - cmake
+    - make  # [not win]
+    - ninja  # [win]
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+  host:
+    - libtiff
+    - libpng
+    - zlib
+
+test:
+  files:
+    - p0_01.j2k
+  commands:
+    - opj_dump -i p0_01.j2k
+
+about:
+  home: http://www.openjpeg.org/
+  license: BSD-2-Clause
+  license_file: LICENSE
+  summary: An open-source JPEG 2000 codec written in C
+
+extra:
+  recipe-maintainers:
+    - gillins
+    - mingwandroid
+    - ocefpaf

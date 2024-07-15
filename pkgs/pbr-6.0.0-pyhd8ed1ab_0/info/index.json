@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "pip",
+    "python >=3.6"
+  ],
+  "license": "Apache-2.0",
+  "license_family": "Apache",
+  "name": "pbr",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1699384879677,
+  "version": "6.0.0"
+}

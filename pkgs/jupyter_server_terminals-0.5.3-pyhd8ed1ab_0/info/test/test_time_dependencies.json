@@ -1,0 +1,1 @@
+["coverage", "pytest-timeout", "pytest >=7.0", "pytest-jupyter-server >=0.5.3", "jupyter_server >=2.0.0rc8", "pip"]

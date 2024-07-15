@@ -1,0 +1,93 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon May 13 13:12:33 2024
+# ------------------------------------------------
+
+package:
+  name: libxml2
+  version: 2.12.7
+source:
+  patches:
+    - 0002-Make-and-install-a-pkg-config-file-on-Windows.patch
+  sha256: a7c1277f4e859883ff3aaa09a545561b7515e078a97eb240bb92bf5a03ae03fc
+  url: https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.12.7/libxml2-v2.12.7.tar.gz
+build:
+  number: '0'
+  run_exports:
+    - libxml2 >=2.12.7,<3.0a0
+  string: hc051c1a_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - autoconf 2.71 pl5321h2b4cb7a_1
+    - automake 1.16.5 pl5321ha770c72_0
+    - binutils_impl_linux-64 2.40 ha885e6a_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libiconv 1.17 hd590300_2
+    - libsanitizer 12.3.0 hb8811af_7
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libtool 2.4.7 h27087fc_0
+    - libxcrypt 4.4.36 hd590300_1
+    - m4 1.4.18 h516909a_1001
+    - make 4.3 hd18ef5c_1
+    - perl 5.32.1 7_hd590300_perl5
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - icu 73.2 h59595ed_0
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libiconv 1.17 hd590300_2
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libzlib 1.2.13 hd590300_5
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.2.13 hd590300_5
+  run:
+    - icu >=73.2,<74.0a0
+    - libgcc-ng >=12
+    - libiconv >=1.17,<2.0a0
+    - libzlib >=1.2.13,<1.3.0a0
+    - xz >=5.2.6,<6.0a0
+test:
+  commands:
+    - xmllint test.xml
+  files:
+    - test.xml
+about:
+  description: 'Though libxml2 is written in C a variety of language
+
+    bindings make it available in other environments.
+
+    '
+  dev_url: https://git.gnome.org/browse/libxml2/
+  doc_source_url: https://github.com/GNOME/libxml2/blob/master/doc/index.html
+  doc_url: http://xmlsoft.org/html/index.html
+  home: http://xmlsoft.org/
+  license: MIT
+  license_family: MIT
+  license_file: Copyright
+  summary: The XML C parser and toolkit of Gnome
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240513.2.1
+  recipe-maintainers:
+    - gillins
+    - isuruf
+    - jakirkham
+    - jschueller
+    - msarahan
+    - ocefpaf
+    - scopatz
+  remote_url: https://github.com/conda-forge/libxml2-feedstock
+  sha: 320c9eb50a4bb6c459cdad6b574dcb5b57da048c

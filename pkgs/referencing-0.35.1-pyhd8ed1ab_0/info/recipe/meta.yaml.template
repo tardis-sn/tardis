@@ -1,0 +1,51 @@
+{% set version = "0.35.1" %}
+
+package:
+  name: referencing
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/r/referencing/referencing-{{ version }}.tar.gz
+  sha256: 25b42124a6c8b632a425174f24087783efb348a6f1e0008e63cd4466fedf703c
+
+build:
+  noarch: python
+  number: 0
+  script_env:
+    - REFERENCING_SUITE=./suite
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - hatch-vcs
+    - hatchling
+    - pip
+    - python >=3.8
+  run:
+    - attrs >=22.2.0
+    - python >=3.8
+    - rpds-py >=0.7.0
+
+test:
+  source_files:
+    - suite
+  imports:
+    - referencing
+  commands:
+    - pip check
+    - pytest -vv --pyargs referencing --cov=referencing --cov-branch --cov-report=term-missing:skip-covered --no-cov-on-fail --cov-fail-under=99
+  requires:
+    - pip
+    - pytest-cov
+    - pytest-subtests
+
+about:
+  home: https://github.com/python-jsonschema/referencing
+  summary: JSON Referencing + Python
+  license: MIT
+  license_file: COPYING
+  doc_url: https://referencing.readthedocs.io
+
+extra:
+  recipe-maintainers:
+    - bollwyvl

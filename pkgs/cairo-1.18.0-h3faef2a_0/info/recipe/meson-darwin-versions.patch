@@ -1,0 +1,48 @@
+diff --git a/src/meson.build b/src/meson.build
+index ac06ac6..498080f 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -240,6 +240,11 @@ if get_option('default_library') == 'static' and host_machine.system() == 'windo
+   add_project_arguments('-DCAIRO_WIN32_STATIC_BUILD', language: 'c')
+ endif
+ 
++# conda-forge: maintain versioning compatibility with the previous
++# Autotools-based binaries. The `cairo_version` integer follows the
++# same scheme as the previous Autotools system.
++darwin_versions = ['11603.0.0', '@0@.0.0'.format(cairo_version)]
++
+ libcairo = library('cairo', cairo_sources,
+   dependencies: deps,
+   c_args: cairo_no_warn_c_args + pthread_c_args + ['-DCAIRO_COMPILATION'],
+@@ -248,6 +253,7 @@ libcairo = library('cairo', cairo_sources,
+   gnu_symbol_visibility: 'hidden',
+   soversion: cairo_version_sonum,
+   version: cairo_libversion,
++  darwin_versions: darwin_versions,
+   install: true,
+   include_directories: incbase,
+ )
+diff --git a/util/cairo-gobject/meson.build b/util/cairo-gobject/meson.build
+index 6600887..c80806f 100644
+--- a/util/cairo-gobject/meson.build
++++ b/util/cairo-gobject/meson.build
+@@ -12,6 +12,7 @@ libcairogobject = library('cairo-gobject', cairo_gobject_sources,
+   dependencies: [glib_dep, gobject_dep, libcairo_dep],
+   soversion: cairo_version_sonum,
+   version: cairo_libversion,
++  darwin_versions: darwin_versions,  # conda-forge: this is defined in src/meson.build
+   gnu_symbol_visibility: 'hidden',
+   c_args: ['-DCAIRO_COMPILATION'],
+   link_args: extra_link_args,
+diff --git a/util/cairo-script/meson.build b/util/cairo-script/meson.build
+index 60cec2b..454979c 100644
+--- a/util/cairo-script/meson.build
++++ b/util/cairo-script/meson.build
+@@ -30,6 +30,7 @@ libcairoscript = library('cairo-script-interpreter',
+   dependencies: deps + [libcairo_dep, lzo_dep],
+   soversion: cairo_version_sonum,
+   version: cairo_libversion,
++  darwin_versions: darwin_versions,  # conda-forge: this is defined in src/meson.build
+   c_args: ['-DCAIRO_COMPILATION'],
+   link_args: extra_link_args,
+   install: true,

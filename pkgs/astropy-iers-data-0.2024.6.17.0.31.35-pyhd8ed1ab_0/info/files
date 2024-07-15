@@ -1,0 +1,17 @@
+site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/INSTALLER
+site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/LICENSE.rst
+site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/METADATA
+site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/RECORD
+site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/REQUESTED
+site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/WHEEL
+site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/direct_url.json
+site-packages/astropy_iers_data-0.2024.6.17.0.31.35.dist-info/top_level.txt
+site-packages/astropy_iers_data/__init__.py
+site-packages/astropy_iers_data/_version.py
+site-packages/astropy_iers_data/data/Leap_Second.dat
+site-packages/astropy_iers_data/data/README.rst
+site-packages/astropy_iers_data/data/ReadMe.eopc04
+site-packages/astropy_iers_data/data/ReadMe.finals2000A
+site-packages/astropy_iers_data/data/eopc04.1962-now
+site-packages/astropy_iers_data/data/finals2000A.all
+site-packages/astropy_iers_data/tests/__init__.py

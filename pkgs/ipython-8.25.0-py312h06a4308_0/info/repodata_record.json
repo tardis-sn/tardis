@@ -1,0 +1,32 @@
+{
+    "arch": "x86_64",
+    "build": "py312h06a4308_0",
+    "build_number": 0,
+    "build_string": "py312h06a4308_0",
+    "channel": "https://repo.anaconda.com/pkgs/main/linux-64",
+    "constrains": [],
+    "depends": [
+        "decorator",
+        "jedi >=0.16",
+        "matplotlib-inline",
+        "pexpect >4.3",
+        "prompt_toolkit >=3.0.41,<3.1.0",
+        "pygments >=2.4.0",
+        "python >=3.12,<3.13.0a0",
+        "stack_data",
+        "traitlets >=5.13.0"
+    ],
+    "fn": "ipython-8.25.0-py312h06a4308_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "2c767a19ad2dee3fffccf0dc57c51c42",
+    "name": "ipython",
+    "platform": "linux",
+    "sha256": "269718a49e125534f024841e41c3507bf1f266e9c13e1bb32ce2bbb7deb1b6ff",
+    "size": 1494686,
+    "subdir": "linux-64",
+    "timestamp": 1718288110973,
+    "track_features": "",
+    "url": "https://repo.anaconda.com/pkgs/main/linux-64/ipython-8.25.0-py312h06a4308_0.conda",
+    "version": "8.25.0"
+}

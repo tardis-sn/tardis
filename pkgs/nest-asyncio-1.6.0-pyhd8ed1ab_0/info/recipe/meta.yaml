@@ -1,0 +1,81 @@
+# This file created by conda-build 3.28.4
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun Jan 21 15:22:06 2024
+# ------------------------------------------------
+
+package:
+  name: nest-asyncio
+  version: 1.6.0
+source:
+  sha256: 6f172d5449aca15afd6c646851f4e31e02c598d553a667e38cafa997cfec55fe
+  url: https://pypi.io/packages/source/n/nest_asyncio/nest_asyncio-1.6.0.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/nest-asyncio_1705850609492/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehol/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_3
+    - libgomp 13.2.0 h807b86a_3
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.0 hd590300_1
+    - pip 23.3.2 pyhd8ed1ab_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023d h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.5
+test:
+  imports:
+    - nest_asyncio
+about:
+  description: 'By design asyncio does not allow its event loop to be nested.
+
+    This presents a practical problem - when in an environment where the event loop
+    is already running it''s impossible to run tasks and wait for the result.
+
+    Trying to do so will give the error RuntimeError - This event loop is already
+    running.
+
+    The issue pops up in various environments, such as web servers, GUI applications
+    and in Jupyter notebooks.
+
+    This module patches asyncio to allow nested use of asyncio.run and loop.run_until_complete.
+
+    '
+  dev_url: https://github.com/erdewit/nest_asyncio
+  doc_url: https://github.com/erdewit/nest_asyncio
+  home: https://github.com/erdewit/nest_asyncio
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Patch asyncio to allow nested event loops
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240121.2.1
+  recipe-maintainers:
+    - SylvainCorlay
+    - dhirschfeld
+    - pavelzw
+    - yehoshuadimarsky
+  remote_url: https://github.com/conda-forge/nest-asyncio-feedstock
+  sha: ca338fcd52aec3d44cdbbc32ec3ef9326da5ee47

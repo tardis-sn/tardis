@@ -1,0 +1,70 @@
+# This file created by conda-build 3.21.7
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat Jan 22 18:24:42 2022
+# ------------------------------------------------
+
+package:
+  name: pure_eval
+  version: 0.2.2
+source:
+  sha256: 2b45320af6dfaa1750f543d714b6d1c520a1688dec6fd24d339063ce0aaa9ac3
+  url: https://pypi.io/packages/source/p/pure_eval/pure_eval-0.2.2.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: '/home/conda/feedstock_root/build_artifacts/pure_eval_1642875951954/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+    -m pip install . --no-deps --ignore-installed -vvv '
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 1_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2021.10.8 ha878542_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 11.2.0 h1d223b6_11
+    - libgomp 11.2.0 h1d223b6_11
+    - libnsl 2.0.0 h7f98852_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.11 h36c2ea0_1013
+    - ncurses 6.2 h58526e2_4
+    - openssl 3.0.0 h7f98852_2
+    - packaging 21.3 pyhd8ed1ab_0
+    - pip 21.3.1 pyhd8ed1ab_0
+    - pyparsing 3.0.7 pyhd8ed1ab_0
+    - python 3.10.2 h543edf9_0_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1 h46c0cb4_0
+    - setuptools 60.5.0 py310hff52083_0
+    - setuptools-scm 6.4.2 pyhd8ed1ab_0
+    - setuptools_scm 6.4.2 hd8ed1ab_0
+    - sqlite 3.37.0 h9cd32fc_0
+    - tk 8.6.11 h27826a3_1
+    - tomli 2.0.0 pyhd8ed1ab_1
+    - tzdata 2021e he74cb21_0
+    - wheel 0.37.1 pyhd8ed1ab_0
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.11 h36c2ea0_1013
+  run:
+    - python >=3.5
+test:
+  commands:
+    - pip check
+  imports:
+    - pure_eval
+  requires:
+    - pip
+about:
+  dev_url: http://github.com/alexmojaki/pure_eval
+  doc_url: http://github.com/alexmojaki/pure_eval
+  home: http://github.com/alexmojaki/pure_eval
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: Safely evaluate AST nodes without side effects
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - alexmojaki

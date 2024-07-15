@@ -1,0 +1,191 @@
+{% set version = "1.14.3" %}
+{% set maj_min_ver = ".".join(version.split(".")[:2]) %}
+{% set build = 5 %}
+
+# recipe-lint fails if mpi is undefined
+{% set mpi = mpi or 'nompi' %}
+{% if mpi == "nompi" %}
+# prioritize nompi via build number
+{% set build = build + 100 %}
+{% endif %}
+
+{% if mpi != "nompi" %}
+{% set mpi_prefix = "mpi_" + mpi %}
+{% else %}
+{% set mpi_prefix = "nompi" %}
+{% endif %}
+# add build string so packages can depend on
+# mpi or nompi variants
+# dependencies:
+# `hdf5 * mpi_mpich_*` for mpich
+# `hdf5 * mpi_*` for any mpi
+# `hdf5 * nompi_*` for no mpi
+
+# mpi builds require the right mpi
+# non-mpi builds *do not* appear to require non-mpi builds
+# at least not always
+
+{% if mpi != 'nompi' %}
+{% set build_pin = mpi_prefix + '_*' %}
+{% else %}
+{% set build_pin = '' %}
+{% endif %}
+
+package:
+  name: hdf5
+  version: {{ version }}
+
+source:
+  url: https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-{{ maj_min_ver }}/hdf5-{{ version }}/src/hdf5-{{ version }}.tar.gz
+  sha256: 09cdb287aa7a89148c1638dd20891fdbae08102cf433ef128fd345338aa237c7
+  patches:
+    # Atomicity tests seem to fail for openmpi
+    # This seems to be a known bug
+    # https://github.com/HDFGroup/hdf5/issues/2196
+    - patches/testpar_Makefile.am.patch
+    # ref: http://hdf-forum.184993.n3.nabble.com/HDF5-1-8-14-15-16-with-OpenMPI-1-10-1-and-Intel-16-1-td4028533.html
+    - patches/testpar_pflush.sh.in.openmpi.patch  # [mpi == 'openmpi']
+    # h5diff help output test is flaky with mpi
+    - patches/testh5diff.sh.in.patch              # [mpi != 'nompi']
+    # Enable cross-compiling on osx
+    - patches/0001-avoid-test-execution-when-cross-compiling.patch  # [osx and build_platform != target_platform]
+    - patches/0002-run-host-H5detect-when-cross-compiling.patch     # [osx and build_platform != target_platform]
+
+build:
+  number: {{ build }}
+  string: {{ mpi_prefix }}_h{{ PKG_HASH }}_{{ build }}
+  run_exports:
+    - {{ pin_subpackage('hdf5', max_pin='x.x.x') }} {{ build_pin }}
+
+
+requirements:
+  build:
+    - gnuconfig  # [unix]
+    - {{ compiler('c') }}
+    - {{ stdlib('c') }}
+    - {{ compiler('cxx') }}
+    - {{ compiler('fortran') }}  # [not win]
+    - cmake                      # [win]
+    - automake                   # [not win]
+    - autoconf                   # [not win]
+    - libtool                    # [not win]
+    - make                       # [not win]
+    - ninja                      # [win]
+    - {{ mpi }}  # [build_platform != target_platform and mpi != 'nompi']
+    - libgfortran-devel_osx-64  # [build_platform != target_platform and build_platform == 'osx-64']
+    # Keep both versions of openssl in sync
+    - openssl
+  host:
+    - {{ mpi }}   # [mpi != 'nompi' and mpi != 'impi']
+    - impi-devel  # [mpi == 'impi']
+    - zlib
+    - libaec
+    - libcurl
+    - openssl
+
+test:
+  requires:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - {{ compiler('fortran') }}  # [not win]
+    - pkg-config                 # [not win]
+    - cmake                      # [not win]
+    - make                       # [not win]
+    # Need zlib to compile test programs
+    - zlib
+  files:
+    - test
+  commands:
+    # Verify UNIX CLI tools.
+    {% if mpi == 'nompi' %}
+    {% set h5_compilers = [
+        "h5c++",
+        "h5cc",
+        "h5fc",
+    ] %}
+    {% else %}
+    # no p on parallel h5c++!
+    {% set h5_compilers = [
+        "h5c++",
+        "h5pcc",
+        "h5pfc",
+    ] %}
+    {% endif %}
+    {% set hdf5_unix_cmds = h5_compilers + [
+        "h5redeploy",
+    ] %}
+    {% if build_platform == target_platform %}
+    {% set hdf5_unix_cmds = hdf5_unix_cmds + [
+        "h5perf_serial",
+    ] %}
+    {% endif %}
+    {% for each_hdf5_unix_cmd in hdf5_unix_cmds %}
+    - command -v {{ each_hdf5_unix_cmd }}   # [not win]
+    {% endfor %}
+    # Verify CLI tools.
+    {% set hdf5_cmds = [
+        "gif2h5",
+        "h52gif",
+        "h5copy",
+        "h5debug",
+        "h5diff",
+        "h5dump",
+        "h5import",
+        "h5jam",
+        "h5ls",
+        "h5mkgrp",
+        "h5repack",
+        "h5repart",
+        "h5stat",
+        "h5unjam",
+    ] %}
+    {% if mpi != 'nompi' %}
+    {% set hdf5_cmds = hdf5_cmds + [
+        "ph5diff",
+    ] %}
+    {% endif %}
+    {% for each_hdf5_cmd in hdf5_cmds %}
+    - command -v {{ each_hdf5_cmd }}  # [not win]
+    - where {{ each_hdf5_cmd }}  # [win]
+    {% endfor %}
+    # Verify libraries.
+    {% set hdf5_libs = [
+        "hdf5",
+        "hdf5_cpp",
+        "hdf5_hl",
+        "hdf5_hl_cpp"
+    ] %}
+    {% for each_hdf5_lib in hdf5_libs %}
+    - test -f $PREFIX/lib/lib{{ each_hdf5_lib }}${SHLIB_EXT}  # [not win]
+    - if not exist %PREFIX%\\Library\\lib\\{{ each_hdf5_lib }}.lib exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\bin\\{{ each_hdf5_lib }}.dll exit 1  # [win]
+    {% endfor %}
+    # Check ros3 driver
+    - h5dump --filedriver=ros3 "http://s3.amazonaws.com/hdfgroup/data/hdf5demo/tall.h5" | grep '^HDF5'  # [unix]
+    # Jan 2023 -- hmaarrfk. Tests will fail on windows without --s3-cred specified
+    # https://github.com/HDFGroup/hdf5/issues/2406
+    - h5dump --filedriver=ros3 --s3-cred="(,,)" "https://s3.amazonaws.com/hdfgroup/data/hdf5demo/tall.h5" | findstr "^HDF5"  # [win]
+
+about:
+  home: https://www.hdfgroup.org/solutions/hdf5/
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: COPYING
+  summary: HDF5 is a data model, library, and file format for storing and managing data
+  dev_url: https://github.com/HDFGroup/hdf5
+  doc_url: https://portal.hdfgroup.org/display/HDF5/HDF5
+
+extra:
+  recipe-maintainers:
+    - hmaarrfk
+    - jakirkham
+    - gillins
+    - groutr
+    - ocefpaf
+    - astrofrog
+    - marqh
+    - marcelotrevisani
+    - scopatz
+    - davidbrochart
+    - SylvainCorlay
+    - varlackc

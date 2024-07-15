@@ -1,0 +1,24 @@
+{
+    "arch": "x86_64",
+    "build": "h0b41bf4_1003",
+    "build_number": 1003,
+    "build_string": "h0b41bf4_1003",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12"
+    ],
+    "fn": "xorg-xextproto-7.3.0-h0b41bf4_1003.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "bce9f945da8ad2ae9b1d7165a64d0f87",
+    "name": "xorg-xextproto",
+    "platform": "linux",
+    "sha256": "b8dda3b560e8a7830fe23be1c58cc41f407b2e20ae2f3b6901eb5842ba62b743",
+    "size": 30270,
+    "subdir": "linux-64",
+    "timestamp": 1677036833037,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/xorg-xextproto-7.3.0-h0b41bf4_1003.conda",
+    "version": "7.3.0"
+}

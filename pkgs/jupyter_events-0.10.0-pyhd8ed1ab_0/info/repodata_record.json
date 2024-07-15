@@ -1,0 +1,32 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "jsonschema-with-format-nongpl >=4.18.0",
+        "python >=3.8",
+        "python-json-logger >=2.0.4",
+        "pyyaml >=5.3",
+        "referencing",
+        "rfc3339-validator",
+        "rfc3986-validator >=0.1.1",
+        "traitlets >=5.3"
+    ],
+    "fn": "jupyter_events-0.10.0-pyhd8ed1ab_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "ed45423c41b3da15ea1df39b1f80c2ca",
+    "name": "jupyter_events",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "cd3f41dc093162a41d4bae171e40a1b9b115c4d488e9bb837a8fa9d084931fb9",
+    "size": 21475,
+    "subdir": "noarch",
+    "timestamp": 1710805759187,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/jupyter_events-0.10.0-pyhd8ed1ab_0.conda",
+    "version": "0.10.0"
+}

@@ -1,0 +1,12 @@
+{
+  "noarch": {
+    "entry_points": [
+      "jupyter-nbclassic = nbclassic.notebookapp:main",
+      "jupyter-nbclassic-bundlerextension = nbclassic.bundler.bundlerextensions:main",
+      "jupyter-nbclassic-extension = nbclassic.nbextensions:main",
+      "jupyter-nbclassic-serverextension = nbclassic.serverextensions:main"
+    ],
+    "type": "python"
+  },
+  "package_metadata_version": 1
+}

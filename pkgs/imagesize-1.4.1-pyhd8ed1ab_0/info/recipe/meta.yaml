@@ -1,0 +1,64 @@
+# This file created by conda-build 3.21.9
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Jul  4 12:57:51 2022
+# ------------------------------------------------
+
+package:
+  name: imagesize
+  version: 1.4.1
+source:
+  sha256: 69150444affb9cb0d5cc5a92b3676f0b2fb7cd9ae39e947a5e11a36b4497cd4a
+  url: https://pypi.io/packages/source/i/imagesize/imagesize-1.4.1.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/imagesize_1656939531508/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_p/bin/python
+    -m pip install . --no-deps -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2022.6.15 ha878542_0
+    - ld_impl_linux-64 2.36.1 hea4e1c9_2
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 12.1.0 h8d9b700_16
+    - libgomp 12.1.0 h8d9b700_16
+    - libnsl 2.0.0 h7f98852_0
+    - libuuid 2.32.1 h7f98852_1000
+    - libzlib 1.2.12 h166bdaf_1
+    - ncurses 6.3 h27087fc_1
+    - openssl 3.0.4 h166bdaf_2
+    - pip 22.1.2 pyhd8ed1ab_0
+    - python 3.10.5 ha86cf86_0_cpython
+    - python_abi 3.10 2_cp310
+    - readline 8.1.2 h0f457ee_0
+    - setuptools 63.1.0 py310hff52083_0
+    - sqlite 3.39.0 h4ff8645_0
+    - tk 8.6.12 h27826a3_0
+    - tzdata 2022a h191b570_0
+    - wheel 0.37.1 pyhd8ed1ab_0
+    - xz 5.2.5 h516909a_1
+    - zlib 1.2.12 h166bdaf_1
+  run:
+    - python >=3.4
+test:
+  imports:
+    - imagesize
+about:
+  description: 'This module analyzes jpeg/jpeg2000/png/gif image header and
+
+    return image size.
+
+    '
+  dev_url: https://github.com/shibukawa/imagesize_py
+  home: https://github.com/shibukawa/imagesize_py
+  license: MIT
+  license_file: LICENSE.rst
+  summary: Getting image size from png/jpeg/jpeg2000/gif file
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - chohner

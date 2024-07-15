@@ -1,0 +1,101 @@
+{
+    "arch": null,
+    "build": "pyhc8e2a94_3",
+    "build_number": 3,
+    "build_string": "pyhc8e2a94_3",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "extracted_package_dir": "pkgs/dataclasses-0.8-pyhc8e2a94_3",
+    "files": [
+        "lib/python3.12/site-packages/dataclasses-0.8.dist-info/INSTALLER",
+        "lib/python3.12/site-packages/dataclasses-0.8.dist-info/LICENSE.txt",
+        "lib/python3.12/site-packages/dataclasses-0.8.dist-info/METADATA",
+        "lib/python3.12/site-packages/dataclasses-0.8.dist-info/RECORD",
+        "lib/python3.12/site-packages/dataclasses-0.8.dist-info/REQUESTED",
+        "lib/python3.12/site-packages/dataclasses-0.8.dist-info/WHEEL",
+        "lib/python3.12/site-packages/dataclasses-0.8.dist-info/direct_url.json",
+        "lib/python3.12/site-packages/dataclasses-0.8.dist-info/top_level.txt"
+    ],
+    "fn": "dataclasses-0.8-pyhc8e2a94_3.tar.bz2",
+    "license": "Apache-2.0",
+    "link": {
+        "source": "pkgs/dataclasses-0.8-pyhc8e2a94_3",
+        "type": 1
+    },
+    "md5": "a362b2124b06aad102e2ee4581acee7d",
+    "name": "dataclasses",
+    "noarch": "python",
+    "package_tarball_full_path": "pkgs/dataclasses-0.8-pyhc8e2a94_3.tar.bz2",
+    "paths_data": {
+        "paths": [
+            {
+                "_path": "lib/python3.12/site-packages/dataclasses-0.8.dist-info/INSTALLER",
+                "path_type": "hardlink",
+                "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+                "size_in_bytes": 5
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dataclasses-0.8.dist-info/LICENSE.txt",
+                "path_type": "hardlink",
+                "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+                "sha256_in_prefix": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+                "size_in_bytes": 11358
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dataclasses-0.8.dist-info/METADATA",
+                "path_type": "hardlink",
+                "sha256": "ef8c0f0a9ba32f7bbfba12f17b2d87f1795d6bb0dd75bf6b090a4ac52f0b0952",
+                "sha256_in_prefix": "ef8c0f0a9ba32f7bbfba12f17b2d87f1795d6bb0dd75bf6b090a4ac52f0b0952",
+                "size_in_bytes": 224
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dataclasses-0.8.dist-info/RECORD",
+                "path_type": "hardlink",
+                "sha256": "f0e160bcce961ee19d647b13c4f8746fc9a19746f14d01709582c04045da779b",
+                "sha256_in_prefix": "f0e160bcce961ee19d647b13c4f8746fc9a19746f14d01709582c04045da779b",
+                "size_in_bytes": 682
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dataclasses-0.8.dist-info/REQUESTED",
+                "path_type": "hardlink",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dataclasses-0.8.dist-info/WHEEL",
+                "path_type": "hardlink",
+                "sha256": "7b0c04b9e8a8d42d977874ef4f5ee7f1d6542603afc82582b7459534b0a53fda",
+                "sha256_in_prefix": "7b0c04b9e8a8d42d977874ef4f5ee7f1d6542603afc82582b7459534b0a53fda",
+                "size_in_bytes": 92
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dataclasses-0.8.dist-info/direct_url.json",
+                "path_type": "hardlink",
+                "sha256": "7f0b8cb5036b4bca58bca609e6cf40a74f673b870719128d52c09ece8ba44192",
+                "sha256_in_prefix": "7f0b8cb5036b4bca58bca609e6cf40a74f673b870719128d52c09ece8ba44192",
+                "size_in_bytes": 107
+            },
+            {
+                "_path": "lib/python3.12/site-packages/dataclasses-0.8.dist-info/top_level.txt",
+                "path_type": "hardlink",
+                "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+                "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+                "size_in_bytes": 1
+            }
+        ],
+        "paths_version": 1
+    },
+    "platform": null,
+    "requested_spec": "",
+    "sha256": "63a83e62e0939bc1ab32de4ec736f6403084198c4639638b354a352113809c92",
+    "size": 9870,
+    "subdir": "noarch",
+    "timestamp": 1628958582931,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/dataclasses-0.8-pyhc8e2a94_3.tar.bz2",
+    "version": "0.8"
+}

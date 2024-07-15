@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "h7f98852_1007",
+  "build_number": 1007,
+  "depends": [
+    "libgcc-ng >=9.3.0"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "xorg-xproto",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1607291557628,
+  "version": "7.0.31"
+}

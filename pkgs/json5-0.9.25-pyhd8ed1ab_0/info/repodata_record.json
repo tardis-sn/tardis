@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7,<4.0"
+    ],
+    "fn": "json5-0.9.25-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "md5": "5d8c241a9261e720a34a07a3e1ac4109",
+    "name": "json5",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "0c75e428970e8bb72ba1dd3a6dc32b8d68f6534b4fe16b38e53364963fdc8e38",
+    "size": 27995,
+    "subdir": "noarch",
+    "timestamp": 1712986338874,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/json5-0.9.25-pyhd8ed1ab_0.conda",
+    "version": "0.9.25"
+}

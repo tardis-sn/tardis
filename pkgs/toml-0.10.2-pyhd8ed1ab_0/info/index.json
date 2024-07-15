@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=2.7"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "toml",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1604308660817,
+  "version": "0.10.2"
+}

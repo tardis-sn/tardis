@@ -1,0 +1,1 @@
+["pytest-cov", "numpy", "pytest >=6.0", "flaky", "pytest-timeout", "matplotlib-base", "jupyter_client !=7.3.2=*_0", "pip", "ipyparallel", "curio"]

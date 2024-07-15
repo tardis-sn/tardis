@@ -1,0 +1,12 @@
+prefix=/home/conda/feedstock_root/build_artifacts/libtiff_1711217801390/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libtiff
+Description:  Tag Image File Format (TIFF) library.
+Version: 4.6.0
+Libs: -L${libdir} -ltiff
+Libs.private: -lwebp -lzstd -llzma -lLerc -ljpeg -ldeflate -lz -lm 
+Cflags: -I${includedir}
+Requires.private: libwebp libzstd liblzma libjpeg libdeflate zlib 

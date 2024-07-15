@@ -1,0 +1,66 @@
+{% set version = "6.0.1" %}
+
+package:
+  name: pyyaml
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/P/PyYAML/PyYAML-{{ version }}.tar.gz
+  sha256: bfdf460b1736c775f2ba9f6a92bca30bc2095067b8a9d77876d1fad6cc3b4a43
+  patches:
+    - 0001-Ensure-we-do-not-end-up-wih-CRLF-line-endings-on-tes.patch
+    - 0002-remove-setuptools-use-distutils-py38.patch  # [py<39]
+
+build:
+  number: 1
+  script:
+    - >
+      "{{ PYTHON }}" -m pip install .
+      --global-option="--with-libyaml"
+      --global-option="build_ext"
+      --global-option="-I${PREFIX}/include"  # [unix]
+      --global-option="-L${PREFIX}/lib"      # [unix]
+      --global-option="-I%LIBRARY_INC%"      # [win]
+      --global-option="-L%LIBRARY_LIB%"      # [win]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - cython <3.0.0                          # [build_platform != target_platform]
+    - {{ compiler('c') }}
+  host:
+    - python
+    - cython <3.0.0  # https://github.com/yaml/pyyaml/issues/601
+    - setuptools
+    - pip
+    - yaml
+  run:
+    - python
+    - yaml
+
+test:
+  imports:
+    - yaml
+    - _yaml   # [python_impl == "cpython"]
+  commands:
+    # temporarily skipping pip check on win and pypy build because of bizarre tqdm issue
+    - pip check  # [not (win and python_impl == 'pypy')]
+  requires:
+    - pip
+
+about:
+  home: http://pyyaml.org/wiki/PyYAML
+  license_file: LICENSE
+  license: MIT
+  license_family: MIT
+  summary: YAML parser and emitter for Python
+  dev_url: https://github.com/yaml/pyyaml
+  doc_url: http://pyyaml.org/wiki/PyYAML
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - msarahan
+    - pelson
+    - ocefpaf

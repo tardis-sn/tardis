@@ -1,0 +1,17 @@
+{
+  "arch": null,
+  "build": "pyh04b8f61_3",
+  "build_number": 3,
+  "depends": [
+    "mpmath >=0.19",
+    "python >=3.8"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "sympy",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1684180691391,
+  "version": "1.12"
+}

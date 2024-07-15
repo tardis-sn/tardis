@@ -1,0 +1,102 @@
+Metadata-Version: 2.1
+Name: astropy-iers-data
+Version: 0.2024.6.24.0.31.11
+Summary: IERS Earth Rotation and Leap Second tables for the astropy core package
+Author-email: Astropy Developers <astropy.team@gmail.com>
+License: Copyright (c) 2023, Astropy Developers
+        
+        All rights reserved.
+        
+        Redistribution and use in source and binary forms, with or without modification,
+        are permitted provided that the following conditions are met:
+        
+        * Redistributions of source code must retain the above copyright notice, this
+          list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright notice, this
+          list of conditions and the following disclaimer in the documentation and/or
+          other materials provided with the distribution.
+        * Neither the name of the Astropy Team nor the names of its contributors may be
+          used to endorse or promote products derived from this software without
+          specific prior written permission.
+        
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+        ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+        ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+        (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+        LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+        ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+        SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+        
+Project-URL: repository, https://github.com/astropy/astropy-iers-data
+Project-URL: documentation, https://github.com/astropy/astropy-iers-data/blob/main/README.rst
+Keywords: astropy,data,IERS
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.8
+Description-Content-Type: text/x-rst
+License-File: LICENSE.rst
+Provides-Extra: docs
+Requires-Dist: pytest ; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: pytest-remotedata ; extra == 'test'
+Requires-Dist: hypothesis ; extra == 'test'
+
+IERS Earth Rotation and Leap Second tables for the astropy core package
+-----------------------------------------------------------------------
+
+.. image:: https://zenodo.org/badge/644894042.svg
+   :target: https://zenodo.org/badge/latestdoi/644894042
+
+**Note:** This package is not currently meant to be used directly by users, and only
+meant to be used from the core astropy package.
+
+https://docs.astropy.org/en/latest/utils/iers.html
+
+License
+-------
+
+This project is Copyright (c) Astropy Developers and licensed under
+the terms of the BSD 3-Clause license. This package is based upon
+the `OpenAstronomy packaging guide <https://github.com/OpenAstronomy/packaging-guide>`_
+which is licensed under the BSD 3-clause licence. See the licenses folder for
+more information.
+
+
+Contributing
+------------
+
+We love contributions! astropy-iers-data is open source,
+built on open source, and we'd love to have you hang out in our community.
+
+**Imposter syndrome disclaimer**: We want your help. No, really.
+
+There may be a little voice inside your head that is telling you that you're not
+ready to be an open source contributor; that your skills aren't nearly good
+enough to contribute. What could you possibly offer a project like this one?
+
+We assure you - the little voice in your head is wrong. If you can write code at
+all, you can contribute code to open source. Contributing to open source
+projects is a fantastic way to advance one's coding skills. Writing perfect code
+isn't the measure of a good developer (that would disqualify all of us!); it's
+trying to create something, making mistakes, and learning from those
+mistakes. That's how we all improve, and we are happy to help others learn.
+
+Being an open source contributor doesn't just mean writing code, either. You can
+help out by writing documentation, tests, or even giving feedback about the
+project (and yes - that includes giving feedback about the contribution
+process). Some of these contributions may be the most valuable to the project as
+a whole, because you're coming to the project with fresh eyes, so you can see
+the errors and assumptions that seasoned contributors have glossed over.
+
+Note: This disclaimer was originally written by
+`Adrienne Lowe <https://github.com/adriennefriend>`_ for a
+`PyCon talk <https://www.youtube.com/watch?v=6Uj746j9Heo>`_, and was adapted by
+astropy-iers-data based on its use in the README file for the
+`MetPy project <https://github.com/Unidata/MetPy>`_.

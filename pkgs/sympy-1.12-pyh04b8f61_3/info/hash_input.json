@@ -1,0 +1,6 @@
+{
+  "channel_targets": "conda-forge main",
+  "with_gmpy": "False",
+  "gmp": "6",
+  "target_platform": "linux-64"
+}

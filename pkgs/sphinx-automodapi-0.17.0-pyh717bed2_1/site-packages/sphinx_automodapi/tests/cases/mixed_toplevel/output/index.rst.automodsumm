@@ -1,0 +1,15 @@
+.. currentmodule:: sphinx_automodapi.tests.example_module
+
+.. autosummary::
+    :toctree: api
+
+    add
+    multiply
+    subtract
+.. currentmodule:: sphinx_automodapi.tests.example_module
+
+.. autosummary::
+    :toctree: api
+
+    Egg
+    Spam

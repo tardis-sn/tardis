@@ -1,0 +1,90 @@
+{% set version = "5.2.6" %}
+
+package:
+  name: xz
+  version: {{ version }}
+
+source:
+  url: http://downloads.sourceforge.net/project/lzmautils/xz-{{ version }}.tar.bz2
+  sha256: 13e3402e301b6018f6a71ef0e497f714c6d11e214ae82dab156b81c2a64acb25
+  patches:
+    - 0001-Add-vs2008-support-via-cmake.patch
+    - 0002-Add-gettimeofday-for-VS2008.patch
+
+build:
+  number: 0
+  run_exports:
+    # XZ's track record of backcompat is very good.  Keep default pins (next major version)
+    #    https://abi-laboratory.pro/tracker/timeline/xz/
+    - {{ pin_subpackage('xz') }}
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - c99-to-c89  # [win and vc<14]
+    - cmake  # [win]
+    - ninja  # [win]
+    - make  # [not win]
+    - automake  # [not win]
+    - libtool  # [not win]
+  host:
+    - msinttypes  # [win and vc<14]
+
+outputs:
+  - name: xz
+    script: install.sh  # [unix]
+    script: install.bat  # [win]
+    test:
+      commands:
+        - xz --help  # [not win]
+        - unxz --help  # [not win]
+        - lzma --help  # [not win]
+        - xz.exe --help  # [win]
+        - unxz.exe --help  # [win]
+        - if not exist %LIBRARY_PREFIX%\bin\liblzma.dll exit 1  # [win]
+        - if not exist %LIBRARY_PREFIX%\lib\liblzma.lib exit 1  # [win]
+        - if exist %LIBRARY_PREFIX%\lib\liblzma_static.lib exit 1  # [win]
+        - if not exist %LIBRARY_PREFIX%\include\lzma.h exit 1  # [win]
+        - test -f ${PREFIX}/lib/liblzma${SHLIB_EXT}  # [unix]
+        - test ! -f ${PREFIX}/lib/liblzma.a          # [unix]
+  - name: xz-static
+    script: install.sh  # [unix]
+    script: install.bat  # [win]
+    requirements:
+      build:
+        - {{ compiler('c') }}
+        - c99-to-c89  # [win and vc<14]
+        - cmake  # [win]
+        - ninja  # [win]
+        - make  # [not win]
+        - automake  # [not win]
+      host:
+        - msinttypes  # [win and vc<14]
+        - {{ pin_subpackage('xz', exact=True) }}
+      run:
+        - {{ pin_subpackage('xz', exact=True) }}
+    test:
+      commands:
+        - if not exist %LIBRARY_PREFIX%\lib\liblzma_static.lib exit 1  # [win]
+        - test -f ${PREFIX}/lib/liblzma.a          # [unix]
+
+about:
+  home: http://tukaani.org/xz/
+  license: LGPL-2.1 and GPL-2.0
+  license_file: COPYING
+  summary: Data compression software with high compression ratio
+  description: |
+    XZ Utils is free general-purpose data compression software with a high
+    compression ratio. XZ Utils were written for POSIX-like systems, but also
+    work on some not-so-POSIX systems.
+  doc_url: http://tukaani.org/xz/
+  doc_source_url: https://github.com/xz-mirror/xz/blob/master/README
+  dev_url: http://git.tukaani.org/
+
+extra:
+  recipe-maintainers:
+    - msarahan
+    - ocefpaf
+    - mingwandroid
+    - nehaljwani
+    - scopatz

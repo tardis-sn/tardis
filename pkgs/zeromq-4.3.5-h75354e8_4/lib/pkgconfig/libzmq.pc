@@ -1,0 +1,12 @@
+prefix=/home/conda/feedstock_root/build_artifacts/zeromq_1715606741098/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libzmq
+Description: 0MQ c++ library
+Version: 4.3.5
+Libs: -L${libdir} -lzmq
+Libs.private: -lstdc++  -lpthread -lrt
+Requires.private:  krb5-gssapi libsodium
+Cflags: -I${includedir} 

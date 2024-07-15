@@ -1,0 +1,24 @@
+{
+    "arch": "x86_64",
+    "build": "py312h06a4308_0",
+    "build_number": 0,
+    "build_string": "py312h06a4308_0",
+    "channel": "https://repo.anaconda.com/pkgs/main/linux-64",
+    "constrains": [],
+    "depends": [
+        "python >=3.12,<3.13.0a0"
+    ],
+    "fn": "send2trash-1.8.2-py312h06a4308_0.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "6de7b7d88a0ad8549d30cb9bf1676c7e",
+    "name": "send2trash",
+    "platform": "linux",
+    "sha256": "032644e7e2f76b0d83a2ef7c41850077ace201efa9bb9aa56276c12274e70be4",
+    "size": 31404,
+    "subdir": "linux-64",
+    "timestamp": 1701732363988,
+    "track_features": "",
+    "url": "https://repo.anaconda.com/pkgs/main/linux-64/send2trash-1.8.2-py312h06a4308_0.conda",
+    "version": "1.8.2"
+}

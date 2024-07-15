@@ -1,0 +1,24 @@
+{
+    "arch": "x86_64",
+    "build": "py312h7900ff3_3",
+    "build_number": 3,
+    "build_string": "py312h7900ff3_3",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "docutils-0.20.1-py312h7900ff3_3.conda",
+    "license": "CC-PDDC AND BSD-3-Clause AND BSD-2-Clause AND ZPL-2.1",
+    "md5": "1b90835ae26b9b8250b302649359a989",
+    "name": "docutils",
+    "platform": "linux",
+    "sha256": "b9fb75d806afc53d9d7b98edb0c45ac38a3cc983916b8dac4ad7ddac5c18a024",
+    "size": 898253,
+    "subdir": "linux-64",
+    "timestamp": 1701882735141,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/docutils-0.20.1-py312h7900ff3_3.conda",
+    "version": "0.20.1"
+}

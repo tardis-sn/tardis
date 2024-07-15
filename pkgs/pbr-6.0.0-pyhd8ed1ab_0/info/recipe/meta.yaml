@@ -1,0 +1,76 @@
+# This file created by conda-build 3.27.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Nov  7 19:17:02 2023
+# ------------------------------------------------
+
+package:
+  name: pbr
+  version: 6.0.0
+source:
+  fn: pbr-6.0.0.tar.gz
+  sha256: d1377122a5a00e2f940ee482999518efe16d745d423a670c27773dfbc3c9a7d9
+  url: https://pypi.org/packages/source/p/pbr/pbr-6.0.0.tar.gz
+build:
+  entry_points:
+    - pbr = pbr.cmd.main:main
+  noarch: python
+  number: '0'
+  preserve_egg_dir: true
+  script: /home/conda/feedstock_root/build_artifacts/pbr_1699384704298/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.7.22 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_2
+    - libgomp 13.2.0 h807b86a_2
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.0 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.1.4 hd590300_0
+    - pip 23.3.1 pyhd8ed1ab_0
+    - python 3.12.0 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 68.2.2 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.41.3 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - pip
+    - python >=3.6
+test:
+  commands:
+    - pip check
+    - pbr --help
+  imports:
+    - pbr
+    - pbr.cmd
+    - pbr.hooks
+  requires:
+    - pip
+about:
+  dev_url: https://git.openstack.org/cgit/openstack-dev/pbr
+  doc_url: https://docs.openstack.org/developer/pbr/
+  home: https://launchpad.net/pbr
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE
+  summary: Python Build Reasonableness
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20231107.2.1
+  recipe-maintainers:
+    - jakirkham
+    - tschoonj
+  remote_url: https://github.com/conda-forge/pbr-feedstock
+  sha: ffad38ca6a0ecfd415366147b998b4dc7a4fc443

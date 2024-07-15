@@ -1,0 +1,52 @@
+# This file created by conda-build 24.3.0
+# ------------------------------------------------
+
+package:
+  name: liblapack
+  version: 3.9.0
+source:
+  - patches:
+      - patches/0001-Test-BLAS-and-LAPACKE-in-addition-to-LAPACK.patch
+    sha256: 106087f1bb5f46afdfba7f569d0cbe23dacb9a07cd24733765a0e89dbe1ad573
+    url: https://github.com/Reference-LAPACK/lapack/archive/v3.9.0.tar.gz
+  - folder: vecLibFort
+    sha256: 80de7c6e83d1d84d016b4cb299f2c15f5a82b9d36865dd5c16bf221fe9a303ad
+    url: https://github.com/isuruf/vecLibFort/archive/99af8640e98c829b41c3235e3706760cd5696fe4.tar.gz
+build:
+  number: 22
+  run_exports:
+    - liblapack >=3.9.0,<3.10.0a0
+  string: 22_linux64_openblas
+  track_features: null
+requirements:
+  host:
+    - libblas 3.9.0 22_linux64_openblas
+  run:
+    - libblas 3.9.0 22_linux64_openblas
+  run_constrained:
+    - blas * openblas
+    - libcblas 3.9.0 22_linux64_openblas
+    - liblapacke 3.9.0 22_linux64_openblas
+test:
+  commands:
+    - test -f $PREFIX/lib/liblapack.so.3
+about:
+  home: https://github.com/conda-forge/blas-feedstock
+  license: BSD-3-Clause
+  license_file:
+    - LICENSE.txt
+  summary: Metapackage to select the BLAS variant. Use conda's pinning mechanism in
+    your environment to control which variant you want.
+extra:
+  copy_test_source_files: true
+  feedstock-name: blas
+  final: true
+  flow_run_id: azure_20240407.2.1
+  recipe-maintainers:
+    - h-vetinari
+    - isuruf
+    - jakirkham
+    - ocefpaf
+    - pelson
+  remote_url: https://github.com/conda-forge/blas-feedstock
+  sha: f32074a05351e9dcb18dd93d386817f21cc64c92

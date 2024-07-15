@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6"
+    ],
+    "fn": "defusedxml-0.7.1-pyhd8ed1ab_0.tar.bz2",
+    "license": "PSF-2.0",
+    "license_family": "PSF",
+    "md5": "961b3a227b437d82ad7054484cfa71b2",
+    "name": "defusedxml",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "9717a059677553562a8f38ff07f3b9f61727bd614f505658b0a5ecbcf8df89be",
+    "size": 24062,
+    "subdir": "noarch",
+    "timestamp": 1615232388757,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/defusedxml-0.7.1-pyhd8ed1ab_0.tar.bz2",
+    "version": "0.7.1"
+}

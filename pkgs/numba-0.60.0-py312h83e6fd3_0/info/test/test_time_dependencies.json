@@ -1,0 +1,1 @@
+["cffi", "ipython", "jinja2", "numpy !=1.26.0", "setuptools", "scipy", "tbb", "gcc_linux-64 12.*", "pip", "gxx_linux-64 12.*"]

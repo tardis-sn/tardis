@@ -1,0 +1,10 @@
+{
+  "c_stdlib_version": "2.12",
+  "c_compiler": "gcc",
+  "channel_targets": "conda-forge main",
+  "c_stdlib": "sysroot",
+  "target_platform": "linux-64",
+  "graphviz": "11",
+  "c_compiler_version": "12",
+  "python": "3.10.* *_cpython"
+}

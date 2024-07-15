@@ -1,0 +1,129 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Jun 19 21:47:36 2024
+# ------------------------------------------------
+
+package:
+  name: pillow
+  version: 10.3.0
+source:
+  patches:
+    - patches/0001-Build-without-USE_WIN32_FILEIO.patch
+    - patches/0002-Added-patch-to-fix-failing-Windows-test.patch
+    - patches/0003-add-WEBP_ROOT-XCB_ROOT.patch
+  sha256: 5a2f1a812237bf9bd57f283422f46ca97a1c3d43d5f67b9bf8a0d499c4b97c85
+  url: https://github.com/python-pillow/Pillow/archive/refs/tags/10.3.0.tar.gz
+build:
+  number: '1'
+  string: py312h287a98d_1
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_7
+    - binutils_linux-64 2.40 hb3c18ed_7
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_10
+    - gcc_linux-64 12.3.0 h9528a6a_7
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - libgcc-devel_linux-64 12.3.0 h6b66f73_110
+    - libgcc-ng 13.2.0 h77fa898_10
+    - libgomp 13.2.0 h77fa898_10
+    - libsanitizer 12.3.0 hb8811af_10
+    - libstdcxx-ng 13.2.0 hc0a3c3a_10
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.6.2 hbcca054_0
+    - freetype 2.12.1 h267a509_2
+    - giflib 5.2.2 hd590300_0
+    - lcms2 2.16 hb7c19ff_0
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - lerc 4.0.0 h27087fc_0
+    - libdeflate 1.20 hd590300_0
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_10
+    - libgomp 13.2.0 h77fa898_10
+    - libjpeg-turbo 3.0.0 hd590300_1
+    - libnsl 2.0.1 hd590300_0
+    - libpng 1.6.43 h2797004_0
+    - libsqlite 3.46.0 hde9e2c9_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_10
+    - libtiff 4.6.0 h1dd3fc0_3
+    - libuuid 2.38.1 h0b41bf4_0
+    - libwebp 1.4.0 h2c329e2_0
+    - libwebp-base 1.4.0 hd590300_0
+    - libxcb 1.16 hd590300_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - ncurses 6.5 h59595ed_0
+    - openjpeg 2.5.2 h488ebb8_0
+    - openssl 3.3.1 h4ab18f5_0
+    - pip 24.0 pyhd8ed1ab_0
+    - pthread-stubs 0.4 h36c2ea0_1001
+    - python 3.12.4 h194c7f8_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 70.0.0 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xorg-libxau 1.0.11 hd590300_0
+    - xorg-libxdmcp 1.1.3 h7f98852_0
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.3.1 h4ab18f5_1
+    - zstd 1.5.6 ha6fb4c9_0
+  run:
+    - freetype >=2.12.1,<3.0a0
+    - lcms2 >=2.16,<3.0a0
+    - libgcc-ng >=12
+    - libjpeg-turbo >=3.0.0,<4.0a0
+    - libtiff >=4.6.0,<4.7.0a0
+    - libwebp-base >=1.4.0,<2.0a0
+    - libxcb >=1.16,<1.17.0a0
+    - libzlib >=1.3.1,<2.0a0
+    - openjpeg >=2.5.2,<3.0a0
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+    - tk >=8.6.13,<8.7.0a0
+test:
+  commands:
+    - pytest -k "not (_not_a_real_test or (test_imageshow and test_show) or test_strip_ycbcr_jpeg_2x2_sampling
+      or test_tiff_crashes[Tests/images/crash-81154a65438ba5aaeca73fd502fa4850fbde60f8.tif])"
+      --durations=50
+  files:
+    - Tests/images
+  imports:
+    - PIL
+    - PIL.Image
+    - PIL.ImageCms
+  requires:
+    - aiohttp
+    - fsspec
+    - gcc_linux-64 12.*
+    - pytest
+    - pytest-timeout
+    - requests
+    - setuptools
+  source_files:
+    - Tests/
+about:
+  dev_url: https://github.com/python-pillow/Pillow/
+  home: https://pillow.readthedocs.io
+  license: HPND
+  license_file: LICENSE
+  summary: Pillow is the friendly PIL fork by Alex Clark and Contributors
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240619.2.1
+  recipe-maintainers:
+    - h-vetinari
+    - jakirkham
+    - ocefpaf
+    - patricksnape
+    - pelson
+  remote_url: https://github.com/conda-forge/pillow-feedstock
+  sha: bf06999bf9f46006fde532d00017d132e2445f73

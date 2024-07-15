@@ -1,0 +1,47 @@
+{% set version = "1.1.7" %}
+
+package:
+  name: jupyterlab_widgets
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/j/jupyterlab_widgets/jupyterlab_widgets-{{ version }}.tar.gz
+  sha256: 318dab34267915d658e7b0dc57433ff0ce0d52b3e283986b73b66f7ab9017ae8
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.7
+    - jupyter-packaging
+
+  run:
+    - python >=3.7
+
+  run_constrained:
+    - jupyterlab >=3,<5
+
+test:
+  imports:
+    - jupyterlab_widgets
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/jupyter-widgets/ipywidgets
+  summary: JupyterLab extension providing HTML widgets
+  license: BSD-3-Clause
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - jasongrout
+    - SylvainCorlay
+    - martinRenou
+    - jtpio
+    - bollwyvl

@@ -1,0 +1,61 @@
+# This file created by conda-build 3.19.2
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Jun 23 18:33:15 2020
+# ------------------------------------------------
+
+package:
+    name: latexcodec
+    version: 2.0.1
+source:
+    fn: latexcodec-2.0.1.tar.gz
+    sha256: eda36ddfc969f86c9a8fdd50c12b484fa42dbfa33b84422144643b60081ca022
+    url: https://github.com/mcmtroffaes/latexcodec/archive/2.0.1.tar.gz
+build:
+    noarch: python
+    number: '0'
+    script: /home/conda/feedstock_root/build_artifacts/latexcodec_1592937263153/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_/bin/python
+        -m pip install . --no-deps -vv
+    string: pyh9f0ad1d_0
+requirements:
+    host:
+        - _libgcc_mutex 0.1 conda_forge
+        - _openmp_mutex 4.5 0_gnu
+        - ca-certificates 2020.6.20 hecda079_0
+        - certifi 2020.6.20 py36h9f0ad1d_0
+        - ld_impl_linux-64 2.34 h53a641e_5
+        - libffi 3.2.1 he1b5a44_1007
+        - libgcc-ng 9.2.0 h24d8f2e_2
+        - libgomp 9.2.0 h24d8f2e_2
+        - libstdcxx-ng 9.2.0 hdf63c60_2
+        - ncurses 6.1 hf484d3e_1002
+        - openssl 1.1.1g h516909a_0
+        - pip 20.1.1 py_1
+        - python 3.6.10 h8356626_1011_cpython
+        - python_abi 3.6 1_cp36m
+        - readline 8.0 hf8c457e_0
+        - setuptools 47.3.1 py36h9f0ad1d_0
+        - six 1.15.0 pyh9f0ad1d_0
+        - sqlite 3.30.1 hcee41ef_0
+        - tk 8.6.10 hed695b0_0
+        - wheel 0.34.2 py_1
+        - xz 5.2.5 h516909a_0
+        - zlib 1.2.11 h516909a_1006
+    run:
+        - python
+        - six
+test:
+    imports:
+        - latexcodec
+about:
+    dev_url: https://github.com/mcmtroffaes/latexcodec
+    doc_url: http://latexcodec.readthedocs.io/
+    home: https://github.com/mcmtroffaes/latexcodec
+    license: MIT
+    license_family: MIT
+    license_file: LICENSE.rst
+    summary: Lexer and codec to work with LaTeX code in Python.
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - scopatz

@@ -1,0 +1,71 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Jun 17 04:52:26 2024
+# ------------------------------------------------
+
+package:
+  name: astropy-iers-data
+  version: 0.2024.6.17.0.31.35
+source:
+  sha256: a6e0dca0985e15dfc4f3fc508bfb29b2b046b59eb9d028416860afa9c63b17eb
+  url: https://pypi.io/packages/source/a/astropy-iers-data/astropy_iers_data-0.2024.6.17.0.31.35.tar.gz
+build:
+  noarch: python
+  number: '0'
+  script: /home/conda/feedstock_root/build_artifacts/astropy-iers-data_1718600011636/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla/bin/python
+    -m pip install . -vv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.6.2 hbcca054_0
+    - ld_impl_linux-64 2.40 hf3520f5_6
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_10
+    - libgomp 13.2.0 h77fa898_10
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.46.0 hde9e2c9_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.3.1 h4ab18f5_1
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.1 h4ab18f5_0
+    - packaging 24.1 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 70.0.0 pyhd8ed1ab_0
+    - setuptools-scm 8.1.0 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - typing-extensions 4.12.2 hd8ed1ab_0
+    - typing_extensions 4.12.2 pyha770c72_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.8
+test:
+  commands:
+    - pip check
+  imports:
+    - astropy_iers_data
+  requires:
+    - pip
+about:
+  home: https://github.com/astropy/astropy-iers-data/
+  license: BSD-3-Clause
+  license_file: LICENSE.rst
+  summary: IERS Earth Rotation and Leap Second tables for the astropy core package
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240617.2.1
+  recipe-maintainers:
+    - astrofrog
+    - mwcraig
+  remote_url: https://github.com/conda-forge/astropy-iers-data-feedstock
+  sha: 4eae4f90e3be0083efd1e3bc0a1302f69e26ac1e

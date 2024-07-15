@@ -1,0 +1,50 @@
+{% set name = "httpcore" %}
+{% set version = "1.0.5" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 34a38e2f9291467ee3b44e89dd52615370e152954ba21721378a87b2960f7a61
+
+build:
+  noarch: python
+  number: 0
+  script: '{{ PYTHON }} -m pip install . -vv '
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+    - hatchling
+    - hatch-fancy-pypi-readme
+
+  run:
+    - python >=3.8
+    - h11 >=0.13,<0.15
+    - h2 >=3,<5
+    - sniffio ==1.*
+    - anyio >=3.0,<5.0
+    - certifi
+
+test:
+  requires:
+    - pip
+  imports:
+    - httpcore
+  commands:
+    - pip check
+
+about:
+  home: https://github.com/encode/httpcore
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE.md
+  summary: The next generation HTTP client.
+
+extra:
+  recipe-maintainers:
+    - nicoddemus
+    - synapticarbors

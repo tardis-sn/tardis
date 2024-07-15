@@ -1,0 +1,130 @@
+{% set name = "numba" %}
+{% set version = "0.60.0" %}
+{% set sha256 = "5df6158e5584eece5fc83294b949fd30b9f1125df7708862205217e068aabf16" %}
+
+package:
+  name: numba
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: 0
+  entry_points:
+    - numba = numba.misc.numba_entry:main
+  script:
+    - export CC="${CC} -pthread"  # [linux]
+    - export CXX="${CXX} -pthread"  # [linux]
+    - {{ PYTHON }} -m pip install . --no-deps --ignore-installed -vvv
+  ignore_run_exports:
+    # tbb-devel triggers hard dependency on tbb, this is not the case.
+    - tbb
+  skip: true  # [py<39 or (python_impl == 'pypy')]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - numpy                                  # [build_platform != target_platform]
+    - {{ stdlib('c') }}
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    # llvm is needed for the headers
+    - llvm-openmp  # [osx]
+    - libgomp      # [linux]
+
+  host:
+    - python
+    - pip
+    - setuptools
+    - llvmlite 0.43.*
+    - numpy
+    - tbb-devel 2021.6.0
+
+  run:
+    - python
+    - {{ pin_compatible('llvmlite', max_pin='x.x') }}
+    # NumPy has a hard upper limit.
+    # Also NumPy 1.22.0, 1.22.1, 1.22.2 are all broken for ufuncs
+    # xref: https://github.com/numba/numba/issues/7756
+    - numpy >=1.22.3,<2.1
+
+  run_constrained:
+    - {{ pin_compatible('tbb', max_pin=None) }}
+    # avoid confusion from openblas bugs
+    - libopenblas !=0.3.6             # [x86_64]
+    - libopenblas >=0.3.18, !=0.3.20  # [arm64]
+    # CUDA 11.2 or later is required for CUDA support
+    - cuda-version >=11.2
+    - cudatoolkit >=11.2
+    # scipy 1.0 or later
+    - scipy >=1.0
+    # CUDA Python 11.6 or later
+    - cuda-python >=11.6
+
+test:
+  requires:
+    - pip
+    # Required to test optional Numba features
+    - jinja2
+    - cffi
+    - scipy
+    # At least NumPy 1.26.0 has an issue with arctanh on glibc<=2.17.
+    # ref: https://github.com/numpy/numpy/issues/25087
+    - numpy !=1.26.0  # [linux and x86_64]
+    - ipython
+    - setuptools
+    - tbb
+    # Need these for AOT.
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+
+  imports:
+    - numba
+    - numba.core.annotations
+    - numba.core.datamodel
+    - numba.core.rewrites
+    - numba.core.runtime
+    - numba.core.typeconv
+    - numba.core.typing
+    - numba.core.unsafe
+    - numba.cuda
+    - numba.cuda.cudadrv
+    - numba.cuda.kernels
+    - numba.cuda.simulator
+    - numba.cuda.simulator.cudadrv
+    - numba.cuda.tests
+    - numba.cuda.tests.cudadrv
+    - numba.cuda.tests.cudapy
+    - numba.cuda.tests.cudasim
+    - numba.cuda.tests.nocuda
+    - numba.experimental.jitclass
+    - numba.np.ufunc
+    - numba.scripts
+    - numba.testing
+    - numba.tests
+    - numba.tests.npyufunc
+
+about:
+  home: http://numba.pydata.org
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: NumPy aware dynamic Python compiler using LLVM
+  description: |
+    Numba is an Open Source NumPy-aware optimizing compiler for Python 
+    sponsored by Anaconda, Inc. It uses the remarkable LLVM compiler 
+    infrastructure to compile Python syntax to machine code."
+  doc_url: http://numba.pydata.org/
+  dev_url: https://github.com/numba/numba
+
+extra:
+  recipe-maintainers:
+    - souravsingh
+    - marcelotrevisani
+    - henryiii
+    - mbargull
+    - jakirkham
+    - step21

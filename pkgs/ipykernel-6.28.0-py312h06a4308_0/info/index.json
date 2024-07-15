@@ -1,0 +1,27 @@
+{
+  "arch": "x86_64",
+  "build": "py312h06a4308_0",
+  "build_number": 0,
+  "depends": [
+    "comm >=0.1.1",
+    "debugpy >=1.6.5",
+    "ipython >=7.23.1",
+    "jupyter_client >=6.1.12",
+    "jupyter_core >=4.12,!=5.0.*",
+    "matplotlib-inline >=0.1",
+    "nest-asyncio",
+    "packaging",
+    "psutil",
+    "python >=3.12,<3.13.0a0",
+    "pyzmq >=24",
+    "tornado >=6.1",
+    "traitlets >=5.4.0"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "ipykernel",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1705934373987,
+  "version": "6.28.0"
+}

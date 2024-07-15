@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=2.7"
+    ],
+    "fn": "toml-0.10.2-pyhd8ed1ab_0.tar.bz2",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "f832c45a477c78bebd107098db465095",
+    "name": "toml",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "f0f3d697349d6580e4c2f35ba9ce05c65dc34f9f049e85e45da03800b46139c1",
+    "size": 18433,
+    "subdir": "noarch",
+    "timestamp": 1604308660817,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_0.tar.bz2",
+    "version": "0.10.2"
+}

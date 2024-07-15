@@ -1,0 +1,19 @@
+{
+  "arch": "x86_64",
+  "build": "h8ee46fc_0",
+  "build_number": 0,
+  "depends": [
+    "libgcc-ng >=12",
+    "libxcb >=1.15,<1.16.0a0",
+    "xorg-kbproto",
+    "xorg-xextproto >=7.3.0,<8.0a0",
+    "xorg-xproto"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "xorg-libx11",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1712415742569,
+  "version": "1.8.9"
+}

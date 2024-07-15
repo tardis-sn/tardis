@@ -1,0 +1,15 @@
+{
+  "arch": "x86_64",
+  "build": "h76b75d6_0",
+  "build_number": 0,
+  "depends": [
+    "libgcc-ng >=12",
+    "libxml2 >=2.12.1,<2.13.0a0"
+  ],
+  "license": "MIT",
+  "name": "libxslt",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1701628814990,
+  "version": "1.1.39"
+}

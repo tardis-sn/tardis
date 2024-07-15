@@ -1,0 +1,38 @@
+{% set version = "0.5.1" %}
+
+package:
+  name: webencodings
+  version: {{ version }}
+
+source:
+  url: https://github.com/gsnedders/python-webencodings/archive/v{{ version }}.tar.gz
+  sha256: 082367f568a7812aa5f6922ffe3d9d027cd83829dc32bcaac4c874eeed618000
+
+build:
+  number: 2
+  noarch: python
+  script: {{ PYTHON }} -m pip install .
+
+requirements:
+  host:
+    - python >=2.6
+    - pip
+  run:
+    - python >=2.6
+
+test:
+  imports:
+    - webencodings
+
+about:
+  home: https://github.com/gsnedders/python-webencodings
+  license: BSD-3-Clause
+  license_file: LICENSE
+  doc_url: https://pythonhosted.org/webencodings
+  dev_url: https://github.com/gsnedders/python-webencodings
+  summary: Character encoding aliases for legacy web content
+
+extra:
+  recipe-maintainers:
+    - jschueller
+    - ocefpaf

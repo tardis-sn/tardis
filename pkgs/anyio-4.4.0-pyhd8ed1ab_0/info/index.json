@@ -1,0 +1,24 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "constrains": [
+    "uvloop >=0.17",
+    "trio >=0.23"
+  ],
+  "depends": [
+    "exceptiongroup >=1.0.2",
+    "idna >=2.8",
+    "python >=3.8",
+    "sniffio >=1.1",
+    "typing_extensions >=4.1"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "anyio",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1717693144467,
+  "version": "4.4.0"
+}

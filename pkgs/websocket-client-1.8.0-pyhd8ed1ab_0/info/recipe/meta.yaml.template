@@ -1,0 +1,49 @@
+{% set name = "websocket-client" %}
+{% set version = "1.8.0" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_') }}-{{ version }}.tar.gz
+  sha256: 3239df9f44da632f96012472805d40a23281a991027ce11d2f45a6f24ac4c3da
+
+build:
+  number: 0
+  noarch: python
+  entry_points:
+    - wsdump=websocket._wsdump:main
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+  run:
+    - python >=3.8
+
+test:
+  imports:
+    - websocket
+    - websocket.tests
+  commands:
+    - pip check
+    - wsdump --help
+  requires:
+    - pip
+
+about:
+  home: https://github.com/websocket-client/websocket-client.git
+  summary: WebSocket client for Python with low level API options
+  dev_url: https://github.com/websocket-client/websocket-client/
+  doc_url: https://websocket-client.readthedocs.io/en/latest/
+  license: Apache-2.0
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - scopatz
+    - BastianZim
+    - wshanks

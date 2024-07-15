@@ -1,0 +1,8 @@
+.. currentmodule:: sphinx_automodapi.tests.example_module.slots
+
+.. autosummary::
+    :toctree: api
+
+    SlotDict
+    DerivedParam
+    DerivedSlotParam

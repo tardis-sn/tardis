@@ -1,0 +1,56 @@
+{% set version = "1.0.18" %}
+
+package:
+  name: libsodium
+  version: {{ version }}
+
+source:
+  url: https://download.libsodium.org/libsodium/releases/libsodium-{{ version }}.tar.gz
+  sha256: 6f504490b342a4f8a4c4a02fc9b866cbef8622d5df4e5452b46be121e46636c1
+
+build:
+  number: 1
+  run_exports:
+    # libsodium can bump its ABI version in patch releases,
+    # so we have to pin it down
+    - {{ pin_subpackage("libsodium", max_pin="x.x.x") }}
+
+requirements:
+  build:
+    - libtool  # [unix]
+    - {{ compiler('c') }}
+    - make
+  host:
+    - msinttypes  # [win and vc<14]
+
+test:
+  commands:
+    - test -f ${PREFIX}/include/sodium.h         # [unix]
+    - test -f ${PREFIX}/lib/libsodium.a          # [unix]
+    - test -f ${PREFIX}/lib/libsodium.dylib      # [osx]
+    - test -f ${PREFIX}/lib/libsodium.so         # [linux]
+
+    - if not exist %LIBRARY_INC%\sodium.h              exit 1  # [win]
+    - if not exist %LIBRARY_INC%\sodium\version.h      exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\libsodium.dll         exit 1  # [win]
+    - if not exist %LIBRARY_LIB%\libsodium.lib         exit 1  # [win]
+    - if not exist %LIBRARY_LIB%\libsodium_static.lib  exit 1  # [win]
+
+about:
+  home: http://libsodium.org
+  license: ISC
+  license_file: LICENSE
+  summary: A modern and easy-to-use crypto library.
+  description: |
+    Sodium is a new, easy-to-use software library for encryption, decryption,
+    signatures, password hashing and more. It is a portable, cross-compilable,
+    installable, packageable fork of NaCl, with a compatible API, and an
+    extended API to improve usability even further. Its goal is to provide all
+    of the core operations needed to build higher-level cryptographic tools.
+  doc_url: https://download.libsodium.org/doc
+  dev_url: https://github.com/jedisct1/libsodium
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - minrk

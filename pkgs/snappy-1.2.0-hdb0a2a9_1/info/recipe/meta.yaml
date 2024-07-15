@@ -1,0 +1,100 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon Apr  8 15:40:53 2024
+# ------------------------------------------------
+
+package:
+  name: snappy
+  version: 1.2.0
+source:
+  patches:
+    - patches/0001-change-static-lib-output-name-on-windows.patch
+    - patches/0002-Unbundle-gtest.patch
+    - patches/0003-Disable-BMI2.patch
+    - patches/0004-cmake-add-option-to-enable-disable-RTTI.patch
+    - patches/0005-Omit-Werror-during-compilation.patch
+    - patches/0006-Update-version-number-to-1.2.0.patch
+  sha256: 9b8f10fbb5e3bc112f2e5e64f813cb73faea42ec9c533a5023b5ae08aedef42e
+  url: https://github.com/google/snappy/archive/1.2.0.tar.gz
+build:
+  ignore_run_exports_from:
+    - lz4-c
+  number: '1'
+  run_exports:
+    - snappy >=1.2.0,<1.3.0a0
+  string: hdb0a2a9_1
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.28.1 hd590300_0
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cmake 3.29.1 hcfe8598_0
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gxx_impl_linux-64 12.3.0 he2b93b0_5
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libcurl 8.7.1 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_105
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuv 1.48.0 hd590300_0
+    - libzlib 1.2.13 hd590300_5
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.2.1 hd590300_1
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.5 hfc55251_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - gmock 1.13.0 ha770c72_1
+    - gtest 1.13.0 h00ab1b0_1
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - lz4-c 1.9.3 h9c3ff4c_1
+  run:
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+test:
+  commands:
+    - test -e $PREFIX/include/snappy.h
+    - test -e $PREFIX/include/snappy-stubs-public.h
+    - test -e $PREFIX/lib/libsnappy$SHLIB_EXT
+    - test -f $PREFIX/lib/libsnappy.so.${PKG_VERSION}
+about:
+  home: https://github.com/google/snappy
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: COPYING
+  summary: A fast compressor/decompressor
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240408.10.1
+  recipe-maintainers:
+    - djsutherland
+    - groutr
+    - jakirkham
+    - wesm
+    - xhochy
+  remote_url: https://github.com/conda-forge/snappy-feedstock
+  sha: 16114fed9ca8adf716b9ab1188e8ab5c15c6c9db

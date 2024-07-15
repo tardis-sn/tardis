@@ -1,0 +1,97 @@
+# This file created by conda-build 24.1.2
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Feb 28 22:22:21 2024
+# ------------------------------------------------
+
+package:
+  name: openjpeg
+  version: 2.5.2
+source:
+  sha256: 90e3896fed910c376aaf79cdd98bdfdaf98c6472efd8e1debf0a854938cbda6a
+  url: https://github.com/uclouvain/openjpeg/archive/v2.5.2.tar.gz
+build:
+  number: '0'
+  run_exports:
+    - openjpeg >=2.5.2,<3.0a0
+  string: h488ebb8_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hbdbef99_2
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.27.0 hd590300_0
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cmake 3.28.3 hcfe8598_0
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h76fc315_2
+    - gxx_impl_linux-64 12.3.0 he2b93b0_5
+    - gxx_linux-64 12.3.0 h8a814eb_2
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libcurl 8.5.0 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.5.0 hcb278e6_1
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_105
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libuv 1.47.0 hd590300_0
+    - libzlib 1.2.13 hd590300_5
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.1 hd590300_0
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.5 hfc55251_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - lerc 4.0.0 h27087fc_0
+    - libdeflate 1.19 hd590300_0
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libjpeg-turbo 3.0.0 hd590300_1
+    - libpng 1.6.43 h2797004_0
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - libtiff 4.6.0 ha9c0a0a_2
+    - libwebp-base 1.3.2 hd590300_0
+    - libzlib 1.2.13 hd590300_5
+    - xz 5.2.6 h166bdaf_0
+    - zlib 1.2.13 hd590300_5
+    - zstd 1.5.5 hfc55251_0
+  run:
+    - libgcc-ng >=12
+    - libpng >=1.6.43,<1.7.0a0
+    - libstdcxx-ng >=12
+    - libtiff >=4.6.0,<4.7.0a0
+    - libzlib >=1.2.13,<1.3.0a0
+test:
+  commands:
+    - opj_dump -i p0_01.j2k
+  files:
+    - p0_01.j2k
+about:
+  home: http://www.openjpeg.org/
+  license: BSD-2-Clause
+  license_file: LICENSE
+  summary: An open-source JPEG 2000 codec written in C
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240228.3.1
+  recipe-maintainers:
+    - gillins
+    - mingwandroid
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/openjpeg-feedstock
+  sha: b3e3604a6a7f9d72edb18e3cc42799f896572921

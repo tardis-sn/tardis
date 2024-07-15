@@ -1,0 +1,31 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "docutils",
+        "jinja2",
+        "nbconvert",
+        "nbformat",
+        "python >=3.6",
+        "sphinx",
+        "traitlets"
+    ],
+    "fn": "nbsphinx-0.9.4-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "9dc80eaeff56fb67dbf4f871b81bc13a",
+    "name": "nbsphinx",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "2d5756e2ab94ba73d630b97bc8ce6b0ea6eb60aadc2ad7e47e6e6d48fe3f87e8",
+    "size": 33630,
+    "subdir": "noarch",
+    "timestamp": 1715074950890,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/nbsphinx-0.9.4-pyhd8ed1ab_0.conda",
+    "version": "0.9.4"
+}

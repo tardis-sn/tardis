@@ -1,0 +1,21 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "oneOf": [
+        { "$id": "http://example.com/0", "title": "First!" },
+        { "$id": "http://example.com/1", "title": "Second!" }
+      ]
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/0",
+      "target": { "$id": "http://example.com/0", "title": "First!" }
+    },
+    {
+      "ref": "http://example.com/1",
+      "target": { "$id": "http://example.com/1", "title": "Second!" }
+    }
+  ]
+}

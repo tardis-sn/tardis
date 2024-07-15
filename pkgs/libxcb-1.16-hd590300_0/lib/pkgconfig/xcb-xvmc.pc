@@ -1,0 +1,11 @@
+prefix=/home/conda/feedstock_root/build_artifacts/libxcb_1693088751823/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: XCB XvMC
+Description: XCB XvMC Extension
+Version: 1.16
+Requires.private: xcb xcb-xv
+Libs: -L${libdir} -lxcb-xvmc
+Cflags: -I${includedir}

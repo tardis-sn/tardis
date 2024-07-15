@@ -1,0 +1,24 @@
+{
+    "arch": null,
+    "build": "pyhc8e2a94_3",
+    "build_number": 3,
+    "build_string": "pyhc8e2a94_3",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.7"
+    ],
+    "fn": "dataclasses-0.8-pyhc8e2a94_3.tar.bz2",
+    "license": "Apache-2.0",
+    "md5": "a362b2124b06aad102e2ee4581acee7d",
+    "name": "dataclasses",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "63a83e62e0939bc1ab32de4ec736f6403084198c4639638b354a352113809c92",
+    "size": 9870,
+    "subdir": "noarch",
+    "timestamp": 1628958582931,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/dataclasses-0.8-pyhc8e2a94_3.tar.bz2",
+    "version": "0.8"
+}

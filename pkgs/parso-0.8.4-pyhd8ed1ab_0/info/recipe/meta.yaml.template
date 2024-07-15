@@ -1,0 +1,46 @@
+{% set name = "parso" %}
+{% set version = "0.8.4" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: eb3a7b58240fb99099a345571deecc0f9540ea5f4dd2fe14c2a99d6b281ab92d
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.6
+    - pip
+  run:
+    - python >=3.6
+
+test:
+  imports:
+    - parso
+    - parso.pgen2
+    - parso.python
+
+about:
+  home: https://github.com/davidhalter/parso
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: A Python Parser
+  description: |
+    Parso is a Python parser that supports error recovery and round-trip parsing for different Python versions (in multiple Python versions). 
+    Parso is also able to list multiple syntax errors in your python file.
+  doc_url: https://parso.readthedocs.io/en/latest/
+  dev_url: https://github.com/davidhalter/parso
+
+extra:
+  recipe-maintainers:
+    - iron0012
+    - synapticarbors

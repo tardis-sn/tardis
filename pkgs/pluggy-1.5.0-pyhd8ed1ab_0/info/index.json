@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.8"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "pluggy",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1713667175451,
+  "version": "1.5.0"
+}

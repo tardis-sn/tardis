@@ -1,0 +1,17 @@
+{
+  "c_stdlib": "sysroot",
+  "libaec": "1",
+  "cxx_compiler": "gxx",
+  "mpi": "nompi",
+  "channel_targets": "conda-forge main",
+  "zlib": "1.2",
+  "target_platform": "linux-64",
+  "c_stdlib_version": "2.12",
+  "cxx_compiler_version": "12",
+  "fortran_compiler_version": "12",
+  "c_compiler_version": "12",
+  "fortran_compiler": "gfortran",
+  "c_compiler": "gcc",
+  "libcurl": "8",
+  "openssl": "3"
+}

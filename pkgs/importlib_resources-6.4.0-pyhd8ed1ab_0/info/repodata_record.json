@@ -1,0 +1,27 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [
+        "importlib-resources >=6.4.0,<6.4.1.0a0"
+    ],
+    "depends": [
+        "python >=3.8",
+        "zipp >=3.1.0"
+    ],
+    "fn": "importlib_resources-6.4.0-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "md5": "c5d3907ad8bd7bf557521a1833cf7e6d",
+    "name": "importlib_resources",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "c6ae80c0beaeabb342c5b041f19669992ae6e937dbec56ced766cb035900f9de",
+    "size": 33056,
+    "subdir": "noarch",
+    "timestamp": 1711041009039,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.4.0-pyhd8ed1ab_0.conda",
+    "version": "6.4.0"
+}

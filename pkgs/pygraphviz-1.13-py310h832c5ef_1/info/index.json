@@ -1,0 +1,18 @@
+{
+  "arch": "x86_64",
+  "build": "py310h832c5ef_1",
+  "build_number": 1,
+  "depends": [
+    "graphviz >=11.0.0,<12.0a0",
+    "libgcc-ng >=12",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "pygraphviz",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1718440489602,
+  "version": "1.13"
+}

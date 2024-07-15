@@ -1,0 +1,51 @@
+{% set version = "7.5.4" %}
+
+package:
+  name: coverage
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/c/coverage/coverage-{{ version }}.tar.gz
+  sha256: a44963520b069e12789d0faea4e9fdb1e410cdc4aab89d94f7f55cbb7fef0353
+
+build:
+  number: 0
+  skip: true  # [py<37]
+  entry_points:
+    - coverage = coverage.cmdline:main
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+  host:
+    - python
+    - pip
+  run:
+    - python
+    # extra dependency
+    - tomli
+
+test:
+  requires:
+    - pip
+  imports:
+    - coverage
+  commands:
+    - pip check
+    - coverage --help
+
+about:
+  home: https://coverage.readthedocs.io
+  license: Apache-2.0
+  license_file: LICENSE.txt
+  summary: Code coverage measurement for Python
+
+extra:
+  recipe-maintainers:
+    - thewchan
+    - ericmjl
+    - jakirkham
+    - ocefpaf

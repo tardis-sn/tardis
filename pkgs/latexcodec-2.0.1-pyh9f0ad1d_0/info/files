@@ -1,0 +1,12 @@
+site-packages/latexcodec-2.0.1.dist-info/AUTHORS.rst
+site-packages/latexcodec-2.0.1.dist-info/INSTALLER
+site-packages/latexcodec-2.0.1.dist-info/LICENSE.rst
+site-packages/latexcodec-2.0.1.dist-info/METADATA
+site-packages/latexcodec-2.0.1.dist-info/RECORD
+site-packages/latexcodec-2.0.1.dist-info/WHEEL
+site-packages/latexcodec-2.0.1.dist-info/direct_url.json
+site-packages/latexcodec-2.0.1.dist-info/top_level.txt
+site-packages/latexcodec-2.0.1.dist-info/zip-safe
+site-packages/latexcodec/__init__.py
+site-packages/latexcodec/codec.py
+site-packages/latexcodec/lexer.py

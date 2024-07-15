@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6"
+    ],
+    "fn": "python-json-logger-2.0.7-pyhd8ed1ab_0.conda",
+    "license": "BSD-2-Clause",
+    "license_family": "BSD",
+    "md5": "a61bf9ec79426938ff785eb69dbb1960",
+    "name": "python-json-logger",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "4790787fe1f4e8da616edca4acf6a4f8ed4e7c6967aa31b920208fc8f95efcca",
+    "size": 13383,
+    "subdir": "noarch",
+    "timestamp": 1677079727691,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/python-json-logger-2.0.7-pyhd8ed1ab_0.conda",
+    "version": "2.0.7"
+}

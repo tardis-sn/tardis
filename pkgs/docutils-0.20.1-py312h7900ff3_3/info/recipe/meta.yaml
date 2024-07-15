@@ -1,0 +1,93 @@
+# This file created by conda-build 3.27.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Dec  6 17:08:27 2023
+# ------------------------------------------------
+
+package:
+  name: docutils
+  version: 0.20.1
+source:
+  sha256: f08a4e276c3a1583a86dce3e34aba3fe04d02bba2dd51ed16106244e8a923e3b
+  url: https://pypi.io/packages/source/d/docutils/docutils-0.20.1.tar.gz
+build:
+  number: '3'
+  script: /home/conda/feedstock_root/build_artifacts/docutils_1701882580574/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+    -m pip install . -vv
+  string: py312h7900ff3_3
+requirements:
+  build: []
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_3
+    - libgomp 13.2.0 h807b86a_3
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.0 hd590300_1
+    - pip 23.3.1 pyhd8ed1ab_0
+    - python 3.12.0 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 68.2.2 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+test:
+  commands:
+    - pip check
+  imports:
+    - docutils
+    - docutils.languages
+    - docutils.parsers
+    - docutils.parsers.rst
+    - docutils.parsers.rst.directives
+    - docutils.parsers.rst.languages
+    - docutils.readers
+    - docutils.transforms
+    - docutils.utils
+    - docutils.utils.math
+    - docutils.writers
+    - docutils.writers.html4css1
+    - docutils.writers.html5_polyglot
+    - docutils.writers.latex2e
+    - docutils.writers.odf_odt
+    - docutils.writers.pep_html
+    - docutils.writers.s5_html
+    - docutils.writers.xetex
+  requires:
+    - pip
+about:
+  description: 'Docutils is an open-source text processing system for processing plaintext
+
+    documentation into useful formats, such as HTML, LaTeX, man-pages, open-
+
+    document, or XML.
+
+    '
+  dev_url: http://svn.code.sf.net/p/docutils/code
+  doc_source_url: https://sourceforge.net/p/docutils/code/HEAD/tree/trunk/docutils/docs/index.txt
+  doc_url: http://docutils.sourceforge.net/docs/index.html
+  home: http://docutils.sourceforge.net/
+  license: CC-PDDC AND BSD-3-Clause AND BSD-2-Clause AND ZPL-2.1
+  license_file: COPYING.txt
+  summary: Docutils -- Python Documentation Utilities
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20231206.2.1
+  recipe-maintainers:
+    - nehaljwani
+    - ocefpaf
+  remote_url: https://github.com/conda-forge/docutils-feedstock
+  sha: 51c201f119ca198d931e63c35636f4b27e16ad0a

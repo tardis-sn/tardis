@@ -1,0 +1,125 @@
+# This file created by conda-build 3.25.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Tue Jun 27 12:42:03 2023
+# ------------------------------------------------
+
+package:
+  name: jupyter_server
+  version: 2.7.0
+source:
+  sha256: 36da0a266d31a41ac335a366c88933c17dfa5bb817a48f5c02c16d303bc9477f
+  url:
+    - https://github.com/jupyter-server/jupyter_server/releases/download/v2.7.0/jupyter_server-2.7.0.tar.gz
+    - https://pypi.io/packages/source/j/jupyter-server/jupyter_server-2.7.0.tar.gz
+build:
+  entry_points:
+    - jupyter-server = jupyter_server.serverapp:main
+  noarch: python
+  number: '0'
+  script:
+    - /home/conda/feedstock_root/build_artifacts/jupyter_server_1687869799272/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeh/bin/python
+      -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
+  string: pyhd8ed1ab_0
+requirements:
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 h7f98852_4
+    - ca-certificates 2023.5.7 hbcca054_0
+    - editables 0.3 pyhd8ed1ab_0
+    - hatch-jupyter-builder 0.8.3 pyhd8ed1ab_0
+    - hatchling 1.18.0 pyhd8ed1ab_0
+    - icu 72.1 hcb278e6_0
+    - importlib-metadata 6.7.0 pyha770c72_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.1.0 he5830b7_0
+    - libgomp 13.1.0 he5830b7_0
+    - libnsl 2.0.0 h7f98852_0
+    - libsqlite 3.42.0 h2797004_0
+    - libstdcxx-ng 13.1.0 hfd8a6a1_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libuv 1.44.2 h166bdaf_0
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 hcb278e6_0
+    - nodejs 18.15.0 h4abf6b9_1
+    - openssl 3.1.1 hd590300_1
+    - packaging 23.1 pyhd8ed1ab_0
+    - pathspec 0.11.1 pyhd8ed1ab_0
+    - pip 23.1.2 pyhd8ed1ab_0
+    - pluggy 1.2.0 pyhd8ed1ab_0
+    - python 3.11.4 hab00c5b_0_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 68.0.0 pyhd8ed1ab_0
+    - tk 8.6.12 h27826a3_0
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - trove-classifiers 2023.5.24 pyhd8ed1ab_0
+    - tzdata 2023c h71feb2d_0
+    - wheel 0.40.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+    - zipp 3.15.0 pyhd8ed1ab_0
+    - zlib 1.2.13 hd590300_5
+  run:
+    - anyio >=3.1.0,<4
+    - argon2-cffi
+    - jinja2
+    - jupyter_client >=7.4.4
+    - jupyter_core >=4.12,!=5.0.*
+    - jupyter_events >=0.4.0
+    - jupyter_server_terminals
+    - nbconvert-core >=6.4.4
+    - nbformat >=5.3.0
+    - overrides
+    - packaging
+    - prometheus_client
+    - python >=3.8
+    - pyzmq >=24
+    - send2trash
+    - terminado >=0.8.3
+    - tornado >=6.2.0
+    - traitlets >=5.6.0
+    - websocket-client
+test:
+  commands:
+    - pip check
+    - jupyter server -h
+    - pytest -vv --cov=jupyter_server -k "not (delete or merge_config)" --cov-report=term-missing:skip-covered
+      --no-cov-on-fail --cov-fail-under=70
+  downstreams:
+    - jupyterlab >=3.2
+    - jupyterlab_server >=2.20.0
+  imports:
+    - jupyter_server
+  requires:
+    - coverage
+    - flaky
+    - ipykernel
+    - pip
+    - pytest >=7.0
+    - pytest-console-scripts
+    - pytest-cov
+    - pytest-jupyter-server >=0.6.0=*_1
+    - pytest-timeout
+    - requests
+  source_files:
+    - tests
+about:
+  dev_url: https://github.com/jupyter/jupyter_server
+  home: https://jupyter-server.readthedocs.io
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: "The backend\u2014i.e. core services, APIs, and REST endpoints to Jupyter\
+    \ web applications."
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - SylvainCorlay
+    - Zsailer
+    - blink1073
+    - bollwyvl
+    - jasongrout
+    - maartenbreddels
+    - minrk

@@ -1,0 +1,27 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_1",
+    "build_number": 1,
+    "build_string": "pyhd8ed1ab_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8",
+        "sphinx >=6",
+        "tabulate >=0.8.10",
+        "tomli >=1.1.0"
+    ],
+    "fn": "numpydoc-1.7.0-pyhd8ed1ab_1.conda",
+    "license": "BSD-3-Clause",
+    "md5": "66798cbfdcb003d9fbccd92cd08eb3ac",
+    "name": "numpydoc",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "5adeb26861eb2aa8a9c86d945f0817c0c33544d96d209fe6578423959c5988af",
+    "size": 57592,
+    "subdir": "noarch",
+    "timestamp": 1717502988256,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/numpydoc-1.7.0-pyhd8ed1ab_1.conda",
+    "version": "1.7.0"
+}

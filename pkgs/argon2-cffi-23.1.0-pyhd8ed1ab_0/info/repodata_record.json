@@ -1,0 +1,29 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [
+        "argon2_cffi ==999"
+    ],
+    "depends": [
+        "argon2-cffi-bindings",
+        "python >=3.7",
+        "typing-extensions"
+    ],
+    "fn": "argon2-cffi-23.1.0-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "3afef1f55a1366b4d3b6a0d92e2235e4",
+    "name": "argon2-cffi",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "130766446f5507bd44df957b6b5c898a8bd98f024bb426ed6cb9ff1ad67fc677",
+    "size": 18602,
+    "subdir": "noarch",
+    "timestamp": 1692818472638,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/argon2-cffi-23.1.0-pyhd8ed1ab_0.conda",
+    "version": "23.1.0"
+}

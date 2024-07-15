@@ -1,0 +1,24 @@
+{
+    "arch": "x86_64",
+    "build": "hcb278e6_0",
+    "build_number": 0,
+    "build_string": "hcb278e6_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "libstdcxx-ng >=12"
+    ],
+    "fn": "lz4-c-1.9.4-hcb278e6_0.conda",
+    "license": "BSD-2-Clause",
+    "md5": "318b08df404f9c9be5712aaa5a6f0bb0",
+    "name": "lz4-c",
+    "platform": "linux",
+    "sha256": "1b4c105a887f9b2041219d57036f72c4739ab9e9fe5a1486f094e58c76b31f5f",
+    "size": 143402,
+    "subdir": "linux-64",
+    "timestamp": 1674727076728,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/lz4-c-1.9.4-hcb278e6_0.conda",
+    "version": "1.9.4"
+}

@@ -1,0 +1,25 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.8"
+    ],
+    "fn": "pluggy-1.5.0-pyhd8ed1ab_0.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "d3483c8fc2dc2cc3f5cf43e26d60cabf",
+    "name": "pluggy",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "33eaa3359948a260ebccf9cdc2fd862cea5a6029783289e13602d8e634cd9a26",
+    "size": 23815,
+    "subdir": "noarch",
+    "timestamp": 1713667175451,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/pluggy-1.5.0-pyhd8ed1ab_0.conda",
+    "version": "1.5.0"
+}

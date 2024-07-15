@@ -1,0 +1,14 @@
+{
+  "c_compiler_version": "12",
+  "zstd": "1.5",
+  "zlib": "1",
+  "c_stdlib_version": "2.12",
+  "cxx_compiler": "gxx",
+  "c_compiler": "gcc",
+  "c_stdlib": "sysroot",
+  "channel_targets": "conda-forge main",
+  "target_platform": "linux-64",
+  "cxx_compiler_version": "12",
+  "lz4_c": "1.9.3",
+  "snappy": "1.2"
+}

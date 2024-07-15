@@ -1,0 +1,68 @@
+# This file created by conda-build 24.1.2
+# ------------------------------------------------
+
+package:
+  name: expat
+  version: 2.6.2
+source:
+  sha256: 9c7c1b5dcbc3c237c500a8fb1493e14d9582146dd9b42aa8d3ffb856a3b927e0
+  url: https://github.com/libexpat/libexpat/releases/download/R_2_6_2/expat-2.6.2.tar.bz2
+build:
+  ignore_run_exports_from:
+    - gxx_linux-64 12.*
+  number: 0
+  run_exports:
+    - libexpat >=2.6.2,<3.0a0
+  string: h59595ed_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gnuconfig 2020.11.07 hd8ed1ab_0
+    - gxx_impl_linux-64 12.3.0 he2b93b0_5
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libstdcxx-devel_linux-64 12.3.0 h8bca6fd_105
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - make 4.3 hd18ef5c_1
+    - sysroot_linux-64 2.12 he073ed8_17
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+  run:
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-ng >=12
+test: {}
+about:
+  home: http://expat.sourceforge.net/
+  license: MIT
+  license_family: MIT
+  license_file: COPYING
+  summary: Expat XML parser library in C
+extra:
+  copy_test_source_files: true
+  feedstock-name: expat
+  final: true
+  flow_run_id: azure_20240313.2.1
+  recipe-maintainers:
+    - isuruf
+    - kwilcox
+    - mingwandroid
+    - msarahan
+    - ocefpaf
+    - pelson
+    - scopatz
+  remote_url: https://github.com/conda-forge/expat-feedstock
+  sha: 3b79b49057607217c3d2007c702ce85f6b975cae

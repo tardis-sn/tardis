@@ -1,0 +1,2 @@
+channel_sources:                                                        # [win]
+  - conda-forge/label/numpy_rc,conda-forge/label/meson_dev,conda-forge  # [win]

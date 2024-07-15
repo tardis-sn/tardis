@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "python >=3.6",
+    "tornado >=2.0"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "snakeviz",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1682336626654,
+  "version": "2.2.0"
+}

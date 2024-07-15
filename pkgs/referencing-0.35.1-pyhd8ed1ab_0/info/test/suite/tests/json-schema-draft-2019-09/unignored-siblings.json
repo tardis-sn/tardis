@@ -1,0 +1,22 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "$id": "http://example.com/",
+      "allOf": [
+        {
+          "$id": "not-ignored-id.json",
+          "$ref": "foo.json"
+        },
+        { "$id": "foo.json" },
+        { "$id": "not-ignored-id.json/foo.json" }
+      ]
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/not-ignored-id.json",
+      "target": { "$id": "not-ignored-id.json", "$ref": "foo.json" }
+    }
+  ]
+}

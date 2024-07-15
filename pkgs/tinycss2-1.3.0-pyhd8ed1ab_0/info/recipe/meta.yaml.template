@@ -1,0 +1,47 @@
+{% set version = "1.3.0" %}
+
+package:
+  name: tinycss2
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/t/tinycss2/tinycss2-{{ version }}.tar.gz
+  sha256: 152f9acabd296a8375fbca5b84c961ff95971fcfc32e79550c8df8e29118c54d
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - flit
+    - python >=3.5
+    - pip
+    - pytest-runner
+    - webencodings >=0.4
+  run:
+    - python >=3.5
+    - webencodings >=0.4
+
+test:
+  imports:
+    - tinycss2
+
+about:
+  home: https://github.com/Kozea/tinycss2
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Low-level CSS parser for Python
+  description: |
+    tinycss2 is a rewrite of tinycss with a simpler API, based on the more recent
+    CSS Syntax Level 3 Specification.
+  doc_url: http://tinycss2.readthedocs.io
+  dev_url: https://github.com/Kozea/tinycss2
+
+extra:
+  recipe-maintainers:
+    - johanneskoester
+    - mrandrewandrade
+    - thewchan

@@ -1,0 +1,25 @@
+{
+  "arch": "x86_64",
+  "build": "py312hdcec9eb_0",
+  "build_number": 0,
+  "depends": [
+    "freetype >=2.12.1,<3.0a0",
+    "lcms2 >=2.16,<3.0a0",
+    "libgcc-ng >=12",
+    "libjpeg-turbo >=3.0.0,<4.0a0",
+    "libtiff >=4.6.0,<4.7.0a0",
+    "libwebp-base >=1.3.2,<2.0a0",
+    "libxcb >=1.15,<1.16.0a0",
+    "libzlib >=1.2.13,<1.3.0a0",
+    "openjpeg >=2.5.2,<3.0a0",
+    "python >=3.12,<3.13.0a0",
+    "python_abi 3.12.* *_cp312",
+    "tk >=8.6.13,<8.7.0a0"
+  ],
+  "license": "HPND",
+  "name": "pillow",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1712154634705,
+  "version": "10.3.0"
+}

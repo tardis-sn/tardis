@@ -1,0 +1,48 @@
+{% set name = "snakeviz" %}
+{% set version = "2.2.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/s/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 7bfd00be7ae147eb4a170a471578e1cd3f41f803238958b6b8efcf2c698a6aa9
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+  entry_points:
+    - snakeviz = snakeviz.cli:main
+  number: 0
+
+requirements:
+  host:
+    - pip
+    - python >=3.6
+    - setuptools
+    - tornado >=2.0
+  run:
+    - python >=3.6
+    - tornado >=2.0
+
+test:
+  commands:
+    - snakeviz -h
+  imports:
+    - snakeviz
+
+about:
+  home: https://jiffyclub.github.io/snakeviz/
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: An in-browser Python profile viewer
+  description: |
+    SnakeViz is a viewer for Python profiling data that runs as a web application in your browser.
+  doc_url: https://jiffyclub.github.io/snakeviz
+  dev_url: https://github.com/jiffyclub/snakeviz
+
+extra:
+  recipe-maintainers:
+    - gforsyth
+    - stanmart

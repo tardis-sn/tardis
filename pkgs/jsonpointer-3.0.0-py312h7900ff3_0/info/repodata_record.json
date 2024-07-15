@@ -1,0 +1,24 @@
+{
+    "arch": "x86_64",
+    "build": "py312h7900ff3_0",
+    "build_number": 0,
+    "build_string": "py312h7900ff3_0",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "python >=3.12,<3.13.0a0",
+        "python_abi 3.12.* *_cp312"
+    ],
+    "fn": "jsonpointer-3.0.0-py312h7900ff3_0.conda",
+    "license": "BSD-3-Clause",
+    "md5": "320338762418ae59539ae368d4386085",
+    "name": "jsonpointer",
+    "platform": "linux",
+    "sha256": "b5d17c5db3c7306d3625745a27359f806a6dd94707d76d74cba541fc1daa2ae3",
+    "size": 17497,
+    "subdir": "linux-64",
+    "timestamp": 1718283512438,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/jsonpointer-3.0.0-py312h7900ff3_0.conda",
+    "version": "3.0.0"
+}

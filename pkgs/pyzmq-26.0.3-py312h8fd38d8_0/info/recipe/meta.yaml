@@ -1,0 +1,138 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Mon May  6 19:38:25 2024
+# ------------------------------------------------
+
+package:
+  name: pyzmq
+  version: 26.0.3
+source:
+  sha256: dba7d9f2e047dfa2bca3b01f4f84aa5246725203d6284e3790f2ca15fba6b40a
+  url: https://pypi.io/packages/source/p/pyzmq/pyzmq-26.0.3.tar.gz
+build:
+  number: '0'
+  string: py312h8fd38d8_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha885e6a_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.28.1 hd590300_0
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cmake 3.29.2 hcfe8598_0
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_7
+    - gcc_linux-64 12.3.0 h6477408_3
+    - gxx_impl_linux-64 12.3.0 h2a574ab_7
+    - gxx_linux-64 12.3.0 h4a1b8e8_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libcurl 8.7.1 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-devel_linux-64 12.3.0 h0223996_107
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 hb8811af_7
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-devel_linux-64 12.3.0 h0223996_107
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libuv 1.48.0 hd590300_0
+    - libzlib 1.2.13 hd590300_5
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.3.0 hd590300_0
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.6 ha6fb4c9_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2024.2.2 hbcca054_0
+    - cython 3.0.10 py312h30efb56_0
+    - exceptiongroup 1.2.0 pyhd8ed1ab_2
+    - importlib-metadata 7.1.0 pyha770c72_0
+    - importlib-resources 6.4.0 pyhd8ed1ab_0
+    - importlib_resources 6.4.0 pyhd8ed1ab_0
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 h55db66e_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libexpat 2.6.2 h59595ed_0
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h77fa898_7
+    - libgomp 13.2.0 h77fa898_7
+    - libnsl 2.0.1 hd590300_0
+    - libsodium 1.0.18 h36c2ea0_1
+    - libsqlite 3.45.3 h2797004_0
+    - libstdcxx-ng 13.2.0 hc0a3c3a_7
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4.20240210 h59595ed_0
+    - openssl 3.3.0 hd590300_0
+    - packaging 24.0 pyhd8ed1ab_0
+    - pathspec 0.12.1 pyhd8ed1ab_0
+    - pip 24.0 pyhd8ed1ab_0
+    - python 3.12.3 hab00c5b_0_cpython
+    - python_abi 3.12 4_cp312
+    - readline 8.2 h8228510_1
+    - scikit-build-core 0.9.3 pyh4af843d_0
+    - setuptools 69.5.1 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tomli 2.0.1 pyhd8ed1ab_0
+    - typing-extensions 4.11.0 hd8ed1ab_0
+    - typing_extensions 4.11.0 pyha770c72_0
+    - tzdata 2024a h0c530f3_0
+    - wheel 0.43.0 pyhd8ed1ab_1
+    - xz 5.2.6 h166bdaf_0
+    - zeromq 4.3.5 h75354e8_3
+    - zipp 3.17.0 pyhd8ed1ab_0
+  run:
+    - libgcc-ng >=12
+    - libsodium >=1.0.18,<1.0.19.0a0
+    - libsodium >=1.0.18,<1.0.19.0a0
+    - libstdcxx-ng >=12
+    - python >=3.12,<3.13.0a0
+    - python_abi 3.12.* *_cp312
+    - zeromq >=4.3.5,<4.4.0a0
+test:
+  commands:
+    - pip check
+    - py.test --pyargs zmq.tests.test_socket
+  imports:
+    - zmq
+    - zmq.backend.cython
+    - zmq.devices.monitoredqueue
+  requires:
+    - pip
+    - pytest
+about:
+  home: https://github.com/zeromq/pyzmq
+  license: BSD-3-Clause
+  license_file:
+    - LICENSE.md
+  summary: Python bindings for zeromq
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240506.1.1
+  recipe-maintainers:
+    - JohanMabille
+    - SylvainCorlay
+    - jakirkham
+    - jan-janssen
+    - minrk
+    - msarahan
+    - ocefpaf
+    - pelson
+  remote_url: https://github.com/conda-forge/pyzmq-feedstock
+  sha: 7fb648d1f5099f520a013bfd3a0dcd952d836056

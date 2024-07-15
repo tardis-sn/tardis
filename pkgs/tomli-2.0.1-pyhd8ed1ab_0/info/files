@@ -1,0 +1,12 @@
+site-packages/tomli-2.0.1.dist-info/INSTALLER
+site-packages/tomli-2.0.1.dist-info/LICENSE
+site-packages/tomli-2.0.1.dist-info/METADATA
+site-packages/tomli-2.0.1.dist-info/RECORD
+site-packages/tomli-2.0.1.dist-info/REQUESTED
+site-packages/tomli-2.0.1.dist-info/WHEEL
+site-packages/tomli-2.0.1.dist-info/direct_url.json
+site-packages/tomli/__init__.py
+site-packages/tomli/_parser.py
+site-packages/tomli/_re.py
+site-packages/tomli/_types.py
+site-packages/tomli/py.typed

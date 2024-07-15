@@ -1,0 +1,28 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_1",
+    "build_number": 1,
+    "build_string": "pyhd8ed1ab_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [
+        "jupyterlab >=4.0.8,<5.0.0"
+    ],
+    "depends": [
+        "pygments >=2.4.1,<3",
+        "python >=3.7"
+    ],
+    "fn": "jupyterlab_pygments-0.3.0-pyhd8ed1ab_1.conda",
+    "license": "BSD-3-Clause",
+    "license_family": "BSD",
+    "md5": "afcd1b53bcac8844540358e33f33d28f",
+    "name": "jupyterlab_pygments",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "4aa622bbcf97e44cd1adf0100b7ff71b7e20268f043bdf6feae4d16152f1f242",
+    "size": 18776,
+    "subdir": "noarch",
+    "timestamp": 1707149279640,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/jupyterlab_pygments-0.3.0-pyhd8ed1ab_1.conda",
+    "version": "0.3.0"
+}

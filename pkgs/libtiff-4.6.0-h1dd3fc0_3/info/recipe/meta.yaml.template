@@ -1,0 +1,81 @@
+{% set version = "4.6.0" %}
+
+package:
+  name: libtiff
+  version: {{ version }}
+
+source:
+  url: https://download.osgeo.org/libtiff/tiff-{{ version }}.tar.gz
+  sha256: 88b3979e6d5c7e32b50d7ec72fb15af724f6ab2cbf7e10880c360a77e4b5d99a
+  patches:
+    # It seems that a recent patch in tifffile 4.1 may have broken
+    # binary compatibility on windows.
+    # https://gitlab.com/libtiff/libtiff/issues/173
+    # https://github.com/python-pillow/Pillow/issues/4237
+    - patches/use_unix_io.patch
+
+build:
+  number: 3
+  # Does a very good job of maintaining compatibility.
+  # Except broke abi between 4.4 and 4.5.0
+  #    https://github.com/conda-forge/libtiff-feedstock/issues/77
+  #    https://abi-laboratory.pro/tracker/timeline/libtiff/
+  run_exports:
+    - {{ pin_subpackage('libtiff', max_pin='x.x') }}
+  missing_dso_whitelist:
+    # Only used by libtiff,bin/tiffgt (a viewer), which is ok.
+    - /opt/X11/lib/libGL.1.dylib
+    - /opt/X11/lib/libglut.3.dylib
+
+requirements:
+  build:
+    - libtool  # [unix]
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - cmake  # [win]
+    - ninja  # [win]
+    - make      # [unix]
+  host:
+    - zlib
+    - libjpeg-turbo
+    - xz
+    - zstd
+    - lerc
+    - libdeflate
+    - libwebp-base  # [linux or osx]
+
+test:
+  # TODO: enable this after the release. The ABI broke
+  # downstreams:
+  #   - pillow >=8
+  #   - py-opencv >=4
+  #   - tifffile
+  commands:
+    - test ! -f ${PREFIX}/lib/libtiff.a  # [not win]
+    - test ! -f ${PREFIX}/lib/libtiffxx.a  # [not win]
+    - test -f ${PREFIX}/lib/libtiff{{ SHLIB_EXT }}  # [not win]
+    - test -f ${PREFIX}/lib/libtiffxx{{ SHLIB_EXT }}  # [not win]
+    - if not exist %PREFIX%\\Library\\bin\\tiff.dll exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\bin\\libtiff.dll exit 1  # [win]
+    # It seems that libtiffxx does not have a dll on windows
+    # https://gitlab.com/libtiff/libtiff/-/merge_requests/338
+    - if not exist %PREFIX%\\Library\\lib\\tiffxx.lib exit 1  # [win]
+
+about:
+  home: http://www.libtiff.org/
+  license: HPND
+  license_file: LICENSE.md
+  summary: Support for the Tag Image File Format (TIFF).
+  description: |
+    This software provides support for the Tag Image File Format (TIFF), a
+    widely used format for storing image data.
+  doc_url: http://www.libtiff.org/document.html
+
+extra:
+  recipe-maintainers:
+    - jakirkham
+    - mingwandroid
+    - msarahan
+    - ocefpaf
+    - stuarteberg
+    - hmaarrfk

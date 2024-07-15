@@ -1,0 +1,30 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "additionalItems": true,
+      "additionalProperties": true,
+      "contains": true,
+      "items": true,
+      "not": false,
+      "propertyNames": true,
+      "allOf": [true],
+      "anyOf": [true],
+      "oneOf": [true],
+      "definitions": {
+        "foo": true,
+        "bar": { "$id": "bar" }
+      },
+      "dependencies": { "foo": true },
+      "patternProperties": { "foo": true },
+      "properties": { "foo": true }
+    }
+  },
+  "tests": [
+    {
+      "base_uri": "http://example.com/",
+      "ref": "bar",
+      "target": { "$id": "bar" }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+diff --git a/cmake/WindowsSupport.cmake b/cmake/WindowsSupport.cmake
+index 93c1309..5a2eaa9 100644
+--- a/cmake/WindowsSupport.cmake
++++ b/cmake/WindowsSupport.cmake
+@@ -30,9 +30,6 @@ endif()
+ 
+ # Win32 file I/O
+ set(win32_io_default OFF)
+-if(WIN32)
+-    set(win32_io_default ON)
+-endif()
+ 
+ option(win32-io "Use Win32 I/O" ${win32_io_default})
+ 

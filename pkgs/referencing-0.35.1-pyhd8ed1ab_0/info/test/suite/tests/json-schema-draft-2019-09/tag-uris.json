@@ -1,0 +1,64 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "tag:bowtie.report,2023-11:referencing-suite-tag-uris-external-id": {
+      "$defs": {
+        "foo": {
+          "$id": "tag:bowtie.report,2023-11:referencing-suite-tag-uris-id",
+          "$defs": {
+            "bar": {
+              "$anchor": "baz",
+              "quux": "eggs"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "tag:bowtie.report,2023-11:referencing-suite-tag-uris-id",
+      "target": {
+        "$id": "tag:bowtie.report,2023-11:referencing-suite-tag-uris-id",
+        "$defs": {
+          "bar": {
+            "$anchor": "baz",
+            "quux": "eggs"
+          }
+        }
+      },
+      "then": {
+        "ref": "#baz",
+        "target": { "$anchor": "baz", "quux": "eggs" }
+      }
+    },
+    {
+      "ref": "tag:bowtie.report,2023-11-01:referencing-suite-tag-uris-id",
+      "error": true,
+      "why": {
+        "summary": "Month and day default to 01, but are still specified to be distinct from their explicit forms.",
+        "specifications": [
+          {
+            "rfc": 4151,
+            "section": "2.2",
+            "link": "https://datatracker.ietf.org/doc/html/rfc4151#section-2.2"
+          }
+        ]
+      }
+    },
+    {
+      "ref": "tag:BOWTIE.REPORT,2023-11:referencing-suite-tag-uris-id",
+      "error": true,
+      "why": {
+        "summary": "It's recommended domains be lowercase, but regardless different authority names are considered different.",
+        "specifications": [
+          {
+            "rfc": 4151,
+            "section": "2.1",
+            "link": "https://datatracker.ietf.org/doc/html/rfc4151#section-2.1"
+          }
+        ]
+      }
+    }
+  ]
+}

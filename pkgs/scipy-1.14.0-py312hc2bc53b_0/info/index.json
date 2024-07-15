@@ -1,0 +1,24 @@
+{
+  "arch": "x86_64",
+  "build": "py312hc2bc53b_0",
+  "build_number": 0,
+  "depends": [
+    "libblas >=3.9.0,<4.0a0",
+    "libcblas >=3.9.0,<4.0a0",
+    "libgcc-ng >=12",
+    "libgfortran-ng",
+    "libgfortran5 >=12.3.0",
+    "liblapack >=3.9.0,<4.0a0",
+    "libstdcxx-ng >=12",
+    "numpy <2.3",
+    "numpy >=1.19,<3",
+    "python >=3.12,<3.13.0a0",
+    "python_abi 3.12.* *_cp312"
+  ],
+  "license": "BSD-3-Clause",
+  "name": "scipy",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1719281955218,
+  "version": "1.14.0"
+}

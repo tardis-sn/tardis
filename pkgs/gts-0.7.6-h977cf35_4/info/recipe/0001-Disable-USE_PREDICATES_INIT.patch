@@ -1,0 +1,58 @@
+From 213e5948712f7fcb9748c6ad431b8346e35885f4 Mon Sep 17 00:00:00 2001
+From: Chris Burr <christopher.burr@cern.ch>
+Date: Mon, 7 Dec 2020 08:58:12 +0100
+Subject: [PATCH] Disable USE_PREDICATES_INIT
+
+---
+ src/Makefile.in  | 5 +----
+ src/predicates.c | 3 ---
+ 2 files changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/src/Makefile.in b/src/Makefile.in
+index 5881bea..2783b71 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -226,17 +226,14 @@ INCLUDES = -I$(top_srcdir) -I$(includedir) -DG_LOG_DOMAIN=\"Gts\"
+ bin_SCRIPTS = gts-config
+ BUILT_SOURCES = \
+ 	gts-config \
+-	predicates_init.h
+ 
+ lib_LTLIBRARIES = libgts.la
+ libgts_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)\
+ 	-release $(LT_RELEASE) -export-dynamic
+ 
+ libgts_la_DEPENDENCIES = \
+-	predicates_init.h
+ 
+ libgts_la_SOURCES = \
+-	predicates_init.h \
+ 	object.c \
+ 	point.c \
+ 	vertex.c \
+@@ -669,7 +666,7 @@ uninstall-am: uninstall-binSCRIPTS uninstall-includeHEADERS \
+ 
+ gts-config: gts-config.in
+ 
+-predicates.o: predicates.c predicates_init.h predicates.h
++predicates.o: predicates.c predicates.h
+ 	$(COMPILE) -c $(srcdir)/predicates.c
+ 
+ predicates_init: predicates_init.c rounding.h
+diff --git a/src/predicates.c b/src/predicates.c
+index 3c850a8..4bcac8d 100644
+--- a/src/predicates.c
++++ b/src/predicates.c
+@@ -118,9 +118,6 @@
+ #include <math.h>
+ #include "predicates.h"
+ 
+-/* Use header file generated automatically by predicates_init. */
+-#define USE_PREDICATES_INIT
+-
+ #ifdef USE_PREDICATES_INIT
+ #include "predicates_init.h"
+ #endif /* USE_PREDICATES_INIT */
+-- 
+2.27.0
+

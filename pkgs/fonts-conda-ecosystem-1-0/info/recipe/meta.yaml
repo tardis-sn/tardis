@@ -1,0 +1,35 @@
+# This file created by conda-build 3.18.9
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Wed Aug 28 06:40:16 2019
+# ------------------------------------------------
+
+package:
+    name: fonts-conda-ecosystem
+    version: '1'
+build:
+    noarch: generic
+    number: '0'
+    string: '0'
+requirements:
+    build:
+        - font-ttf-dejavu-sans-mono 2.37 hab24e00_0
+        - font-ttf-inconsolata 2.001 hab24e00_0
+        - font-ttf-source-code-pro 2.030 hab24e00_0
+        - font-ttf-ubuntu 0.83 hab24e00_0
+        - fonts-conda-forge 1 0
+    run:
+        - fonts-conda-forge
+test:
+    commands:
+        - ls -alh ${PREFIX}/fonts/
+about:
+    home: https://conda.io
+    license: BSD-3-Clause
+    license_family: BSD
+    license_file: LICENSE.txt
+    summary: Meta package pointing to the ecosystem specific font package
+extra:
+    copy_test_source_files: true
+    final: true
+    recipe-maintainers:
+        - dbast

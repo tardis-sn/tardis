@@ -1,0 +1,16 @@
+{
+  "arch": null,
+  "build": "hd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "importlib-metadata >=8.0.0,<8.0.1.0a0"
+  ],
+  "license": "Apache-2.0",
+  "license_family": "APACHE",
+  "name": "importlib_metadata",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1719361975786,
+  "version": "8.0.0"
+}

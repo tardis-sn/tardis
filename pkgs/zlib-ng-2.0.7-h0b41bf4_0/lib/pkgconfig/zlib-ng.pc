@@ -1,0 +1,13 @@
+prefix=/home/conda/feedstock_root/build_artifacts/zlib-ng_1679094700839/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+sharedlibdir=${libdir}
+includedir=${prefix}/include
+
+Name: zlib-ng
+Description: zlib-ng compression library
+Version: 2.0.7
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz-ng
+Cflags: -I${includedir}

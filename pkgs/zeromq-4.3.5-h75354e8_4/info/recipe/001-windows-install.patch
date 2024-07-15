@@ -1,0 +1,23 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e92141d0..81d66004 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1651,17 +1651,7 @@ if(WITH_DOC)
+   endif()
+ endif()
+ 
+-if(WIN32)
+-  set(ZEROMQ_CMAKECONFIG_INSTALL_DIR
+-      "CMake"
+-      CACHE STRING "install path for ZeroMQConfig.cmake")
+-else()
+-  # CMake search path wants either "share" (AKA GNUInstallDirs DATAROOTDIR) for arch-independent, or LIBDIR for arch-
+-  # dependent, plus "cmake" as prefix
+-  set(ZEROMQ_CMAKECONFIG_INSTALL_DIR
+-      "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+-      CACHE STRING "install path for ZeroMQConfig.cmake")
+-endif()
++set(ZEROMQ_CMAKECONFIG_INSTALL_DIR "share/cmake/${PROJECT_NAME}" CACHE STRING "install path for ZeroMQConfig.cmake")
+ 
+ if((NOT CMAKE_VERSION VERSION_LESS 3.0) AND (BUILD_SHARED OR BUILD_STATIC))
+   export(EXPORT ${PROJECT_NAME}-targets FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")

@@ -1,0 +1,61 @@
+{% set name = "jedi" %}
+{% set version = "0.19.1" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: cf0496f3651bc65d7174ac1b7d043eff454892c708a87d1b683e57b569927ffd
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - python >=3.6
+    - pip
+  run:
+    - python >=3.6
+    - parso >=0.8.3,<0.9.0
+
+test:
+  requires:
+    - pip
+  imports:
+    - jedi
+    - jedi.api
+    - jedi.common
+    - jedi.inference
+    - jedi.inference.compiled
+    - jedi.inference.compiled.subprocess
+    - jedi.inference.gradual
+    - jedi.inference.value
+    - jedi.plugins
+  commands:
+    - python -m pip check
+
+about:
+  home: https://github.com/davidhalter/jedi/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: An autocompletion tool for Python that can be used for text editors.
+  description: |
+    Jedi is a static analysis tool for Python that can be used in IDEs/editors.
+    Its historic focus is autocompletion, but does static analysis for now as
+    well. Jedi is fast and is very well tested. It understands Python on a
+    deeper level than all other static analysis frameworks for Python.
+  dev_url: https://github.com/davidhalter/jedi/
+  doc_url: http://jedi.readthedocs.io/en/latest/
+  doc_source_url: https://github.com/davidhalter/jedi/blob/master/docs/index.rst
+
+extra:
+  recipe-maintainers:
+    - goanpeca
+    - asmeurer
+    - nehaljwani
+    - ocefpaf

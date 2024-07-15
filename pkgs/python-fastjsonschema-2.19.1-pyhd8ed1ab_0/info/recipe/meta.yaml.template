@@ -1,0 +1,53 @@
+{% set version = "2.19.1" %}
+
+package:
+  name: python-fastjsonschema
+  version: {{ version }}
+
+source:
+  - folder: dist
+    url: https://pypi.io/packages/source/f/fastjsonschema/fastjsonschema-{{ version }}.tar.gz
+    sha256: e3126a94bdc4623d3de4485f8d468a12f02a67921315ddc87836d6e456dc789d
+  - folder: src
+    url: https://github.com/horejsek/python-fastjsonschema/archive/v{{ version }}.tar.gz
+    sha256: 8c86c2eef8c52b8af584e920effd10bcb10e6417e0bbd560e16e6191bae2ec63
+
+build:
+  noarch: python
+  number: 0
+  script: cd dist && {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.3
+    - pip
+  run:
+    - python >=3.3
+
+test:
+  source_files:
+    - src/tests
+  requires:
+    - pytest-cov
+    - pytest-benchmark
+  imports:
+    - fastjsonschema
+  commands:
+    - cd src && cd tests && pytest -vv --cov fastjsonschema -k "not (compile_to_code_ipv6_regex or compile_to_code_custom_format_with_refs)" --cov-report term-missing:skip-covered --no-cov-on-fail --cov-fail-under 84
+
+about:
+  home: https://github.com/horejsek/python-fastjsonschema
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: src/LICENSE
+  summary: Fastest Python implementation of JSON schema
+  description: |
+    fastjsonschema implements validation of JSON documents by JSON schema. The
+    library implements JSON schema drafts 04, 06 and 07. The main purpose is to
+    have a really fast implementation.
+  doc_url: https://horejsek.github.io/python-fastjsonschema
+  doc_source_url: https://github.com/horejsek/python-fastjsonschema/tree/master/docs
+
+extra:
+  recipe-maintainers:
+    - bollwyvl

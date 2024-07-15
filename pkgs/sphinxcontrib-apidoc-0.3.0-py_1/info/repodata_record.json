@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "py_1",
+    "build_number": 1,
+    "build_string": "py_1",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "pbr",
+        "python"
+    ],
+    "fn": "sphinxcontrib-apidoc-0.3.0-py_1.tar.bz2",
+    "license": "BSD-2-Clause",
+    "license_family": "BSD",
+    "md5": "855b087883443abb10f5faf6eef40860",
+    "name": "sphinxcontrib-apidoc",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "6dd136a86576c400b0bdbfffbdba4a35015846a0a7eb1129a1401a17d4f60b19",
+    "size": 10555,
+    "subdir": "noarch",
+    "timestamp": 1553967001880,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-apidoc-0.3.0-py_1.tar.bz2",
+    "version": "0.3.0"
+}

@@ -1,0 +1,98 @@
+{% set version = "2.2.2" %}
+
+package:
+  name: pandas
+  version: {{ version }}
+
+source:
+  url: https://github.com/pandas-dev/pandas/releases/download/v{{ version }}/pandas-{{ version }}.tar.gz
+  sha256: 9e79019aba43cb4fda9e4d983f8e88ca0373adbb697ae9c6c43093218de28b54
+
+build:
+  number: 1
+  script:
+    - export PYTHONUNBUFFERED=1  # [ppc64le]
+    # Cross-compilation stuff vendored from numpy-feedstock
+    # necessary for cross-compilation to point to the right env
+    - export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig                                    # [build_platform != target_platform]
+    - echo "python = '${PREFIX}/bin/python'" >> ${CONDA_PREFIX}/meson_cross_file.txt  # [build_platform != target_platform]
+    - MESON_ARGS_REDUCED="$(echo $MESON_ARGS | sed 's/--buildtype release //g')"  # [unix]
+    - {{ PYTHON }} -m pip install -vv --no-deps --ignore-installed . -Csetup-args=${MESON_ARGS_REDUCED// / -Csetup-args=}  # [unix]
+    - {{ PYTHON }} -m pip install -vv --no-deps --ignore-installed .  # [not unix]
+  skip: true  # [py<39]
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - cython >=3.0.5                         # [build_platform != target_platform]
+    - numpy                                  # [build_platform != target_platform]
+    - meson-python                           # [build_platform != target_platform]
+    - ninja                                  # [build_platform != target_platform]
+    - {{ compiler('c') }}
+    - {{ stdlib('c') }}
+    - {{ compiler('cxx') }}
+  host:
+    - python
+    - pip
+    - cython >=3.0.5
+    - numpy
+    - versioneer
+    - meson =1.2.1
+    - meson-python =0.13.1
+    - tomli  # [py<311]
+    - ninja
+  run:
+    - python
+    - python-dateutil >=2.8.1
+    - pytz >=2020.1
+    - python-tzdata >=2022a
+
+test:
+  imports:
+    - pandas
+  commands:
+    - pip check
+    # Skip test suite on PyPy as it segfaults there
+    # xref: https://github.com/conda-forge/pandas-feedstock/issues/148
+    #
+    # do not run test suite in emulation because it takes ~5h; rely on upstream CI for aarch
+    {% set markers = ["not clipboard", "not single_cpu", "not slow", "not network", "not db"] %}
+    {% set extra_args = ["-m " + " and ".join(markers)] %}
+    {% set tests_to_skip = "_not_a_real_test" %}
+    {% set extra_args = extra_args + ["-k", "not (" + tests_to_skip + ")", "--no-strict-data-files"] %}
+    - python -c "import pandas; pandas.test(extra_args={{ extra_args }})"  # [(build_platform == target_platform) and (python_impl == "cpython")]
+  requires:
+    - pip
+    - pytest >=6.0
+    - pytest-xdist >=1.31
+    - pytest-cov
+    - boto3
+    - hypothesis
+    - numpy
+    - psutil
+    - tomli  # [py<311]
+
+about:
+  home: http://pandas.pydata.org
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: >-
+    Powerful data structures for data analysis, time series, and statistics
+  doc_url: https://pandas.pydata.org/docs/
+  dev_url: https://github.com/pandas-dev/pandas
+
+extra:
+  recipe-maintainers:
+    - jreback
+    - jorisvandenbossche
+    - msarahan
+    - ocefpaf
+    - TomAugspurger
+    - WillAyd
+    - simonjayhawkins
+    - mroeschke
+    - datapythonista
+    - phofl
+    - lithomas1
+    - marcogorelli

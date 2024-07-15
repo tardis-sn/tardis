@@ -1,0 +1,68 @@
+# This file created by conda-build 3.28.3
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Thu Jan 18 07:56:07 2024
+# ------------------------------------------------
+
+package:
+  name: beautifulsoup4
+  version: 4.12.3
+source:
+  sha256: 74e3d1928edc070d21748185c46e3fb33490f22f52a3addee9aee0f4f7781051
+  url: https://pypi.io/packages/source/b/beautifulsoup4/beautifulsoup4-4.12.3.tar.gz
+build:
+  noarch: python
+  number: '0'
+  string: pyha770c72_0
+requirements:
+  build: []
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - bzip2 1.0.8 hd590300_5
+    - ca-certificates 2023.11.17 hbcca054_0
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libexpat 2.5.0 hcb278e6_1
+    - libffi 3.4.2 h7f98852_5
+    - libgcc-ng 13.2.0 h807b86a_3
+    - libgomp 13.2.0 h807b86a_3
+    - libnsl 2.0.1 hd590300_0
+    - libsqlite 3.44.2 h2797004_0
+    - libuuid 2.38.1 h0b41bf4_0
+    - libxcrypt 4.4.36 hd590300_1
+    - libzlib 1.2.13 hd590300_5
+    - ncurses 6.4 h59595ed_2
+    - openssl 3.2.0 hd590300_1
+    - pip 23.3.2 pyhd8ed1ab_0
+    - python 3.12.1 hab00c5b_1_cpython
+    - readline 8.2 h8228510_1
+    - setuptools 69.0.3 pyhd8ed1ab_0
+    - tk 8.6.13 noxft_h4845f30_101
+    - tzdata 2023d h0c530f3_0
+    - wheel 0.42.0 pyhd8ed1ab_0
+    - xz 5.2.6 h166bdaf_0
+  run:
+    - python >=3.6
+    - soupsieve >=1.2
+about:
+  description: 'Beautiful Soup is a library for pulling data out of HTML and XML files.
+
+    It provides ways of navigating, searching, and modifying parse trees.
+
+    '
+  dev_url: https://code.launchpad.net/beautifulsoup
+  doc_source_url: https://github.com/newvem/beautifulsoup4/blob/master/doc/source/index.rst
+  doc_url: http://beautiful-soup-4.readthedocs.io/en/latest/
+  home: http://www.crummy.com/software/BeautifulSoup/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Python library designed for screen-scraping
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240118.2.1
+  recipe-maintainers:
+    - jschueller
+    - nehaljwani
+  remote_url: https://github.com/conda-forge/beautifulsoup4-feedstock
+  sha: d9946a02e2cc75b56e1210a7639a6708d8b94e91

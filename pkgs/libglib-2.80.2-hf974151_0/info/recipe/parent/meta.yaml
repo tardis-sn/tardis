@@ -1,0 +1,224 @@
+{% set version = "2.80.2" %}
+{% set major_minor = ".".join(version.split(".")[:2]) %}
+{% set posix = 'm2-' if win else '' %}
+{% set native = 'm2w64-' if win else '' %}
+
+package:
+  name: glib-split
+  version: {{ version }}
+
+source:
+  url: https://download.gnome.org/sources/glib/{{ major_minor }}/glib-{{ version }}.tar.xz
+  sha256: b9cfb6f7a5bd5b31238fd5d56df226b2dda5ea37611475bf89f6a0f9400fe8bd
+  patches:
+    # Related to this patch https://bugzilla.gnome.org/show_bug.cgi?id=673135
+    # However, it was rejected by upstream. Homebrew decided to keep their own
+    # copy ( https://raw.githubusercontent.com/Homebrew/patches/59e4d32/glib/hardcoded-paths.diff ).
+    # We are essentially using that copy, but with some tweaks. Info at the link below.
+    #
+    # https://github.com/Homebrew/legacy-homebrew/blob/21ce7a56cb3fc40fe93d731cc654c69268796772/Library/Formula/glib.rb#L33-L39
+    #
+    - hardcoded-paths.patch  # [unix]
+
+    # "Fixes" for tests that apply to all platforms:
+    - crossplatform-test-tweaks.patch
+
+    - 0001-Attempt-to-mask-out-qemu-failing-tests.patch               # [ppc64le or aarch64]
+    # Windows:
+    - 0001-Manually-link-with-libiconv-whenever-we-use-libintl.patch  # [win]
+    - 0002-Increase-some-test-timeouts.patch                          # [win]
+
+build:
+  number: 0
+  ignore_run_exports_from:
+    - python *
+
+requirements:
+  build:
+    - gettext-tools
+    - {{ posix }}patch  # [win]
+    - meson
+    - ninja
+    - {{ native }}pkg-config
+    - {{ compiler('c') }}
+    - {{ stdlib("c") }}
+    - {{ compiler('cxx') }}
+    - python >=2.7
+    - packaging
+    - setuptools
+    - libffi         # [build_platform != target_platfrom]
+    - libintl-devel  # [(build_platform != target_platform) and (not linux)]
+    - zlib           # [build_platform != target_platfrom]
+    - pcre2          # [build_platform != target_platfrom]
+    - libiconv       # [build_platform != target_platfrom]
+  host:
+    - libffi
+    - libintl-devel  # [not linux]
+    - zlib
+    - pcre2
+    - libiconv
+  run:
+    - python >=2.7
+
+outputs:
+  - name: libglib
+    script: install.sh  # [unix]
+    script: install.bat  # [not unix]
+    build:
+      ignore_run_exports_from:
+        - python *
+        - {{ compiler('cxx') }}  # [unix]
+      run_exports:
+        - {{ pin_subpackage("libglib") }}
+    requirements:
+      build:
+        - gettext-tools
+        - {{ posix }}patch  # [win]
+        - meson
+        - ninja
+        - {{ native }}pkg-config
+        - {{ compiler('c') }}
+        - {{ stdlib("c") }}
+        - {{ compiler('cxx') }}
+        - ninja
+        - python >=2.7
+        - packaging
+        - setuptools
+      host:
+        - libffi
+        - libintl-devel  # [not linux]
+        - zlib
+        - pcre2
+        - libiconv
+      run_constrained:
+        # Avoid colliding with older glib builds that didn't have a libglib output
+        - glib {{ version }} *_{{ PKG_BUILDNUM }}
+    test:
+      commands:
+        - test -f ${PREFIX}/lib/libglib-2.0.0{{ SHLIB_EXT }}  # [osx]
+        - test -f ${PREFIX}/lib/libglib-2.0{{ SHLIB_EXT }}.0  # [linux]
+        - test ! -f ${PREFIX}/lib/libgobject-2.0.la  # [not win]
+        - test ! -f ${PREFIX}/lib/libglib-2.0${SHLIB_EXT}  # [not win]
+        - test -f ${PREFIX}/lib/pkgconfig/glib-2.0.pc  # [unix]
+        - test -f ${PREFIX}/etc/conda/activate.d/libglib_activate.sh  # [not win]
+        - test -f ${PREFIX}/etc/conda/deactivate.d/libglib_deactivate.sh  # [not win]
+        # Introspection data is needed at runtime
+        - test -f ${PREFIX}/share/gir-1.0/GLib-2.0.gir              # [unix]
+        - test -f ${PREFIX}/lib/girepository-1.0/GLib-2.0.typelib   # [unix]
+        - if not exist %LIBRARY_PREFIX%\share\gir-1.0\GLib-2.0.gir exit 1             # [win]
+        - if not exist %LIBRARY_PREFIX%\lib\girepository-1.0\GLib-2.0.typelib exit 1  # [win]
+  - name: glib-tools
+    script: install.sh  # [unix]
+    script: install.bat  # [not unix]
+    build:
+      ignore_run_exports_from:
+        - python *
+        - {{ compiler('cxx') }}  # [unix]
+        - libiconv
+        - zlib
+    requirements:
+      build:
+        - gettext-tools
+        - {{ posix }}patch  # [win]
+        - meson
+        - ninja
+        - {{ native }}pkg-config
+        - {{ compiler('c') }}
+        - {{ stdlib("c") }}
+        - {{ compiler('cxx') }}
+        - ninja
+        - python >=2.7
+        - packaging
+        - setuptools
+      host:
+        - {{ pin_subpackage("libglib", exact=True) }}
+        - libintl-devel  # [not linux]
+        - libiconv
+        - zlib
+      run:
+        - {{ pin_subpackage("libglib", exact=True) }}
+    test:
+      commands:
+        # Check that binaries can run -- instigated by Meson Linux rpath issue
+        - gapplication help  # [linux]
+        - gdbus help
+        - gio version
+        - gio-querymodules .
+        - glib-compile-schemas --help
+        - gresource help
+  - name: glib
+    script: install.sh  # [unix]
+    script: install.bat  # [not unix]
+    build:
+      ignore_run_exports_from:
+        - python *
+        - {{ compiler('cxx') }}  # [unix]
+        - libiconv
+        - pcre2
+        - zlib
+        - m2-sed  # [win]
+      ignore_run_exports:
+        # This is intentional to workaround conda-build's overdependening checks.
+        - libintl-devel
+      run_exports:
+        - {{ pin_subpackage("libglib") }}
+    requirements:
+      build:
+        - gettext-tools
+        - {{ posix }}patch  # [win]
+        - meson
+        - ninja
+        - {{ native }}pkg-config
+        - {{ compiler('c') }}
+        - {{ stdlib("c") }}
+        - {{ compiler('cxx') }}
+        - ninja
+        - python >=2.7
+        - packaging
+        - setuptools
+      host:
+        - {{ pin_subpackage("libglib", exact=True) }}
+        - {{ pin_subpackage("glib-tools", exact=True) }}
+        - libintl-devel  # [not linux]
+        - libffi
+        - libiconv
+        - pcre2
+        - zlib
+      run:
+        - python *
+        - {{ pin_subpackage("libglib", exact=True) }}
+        - {{ pin_subpackage("glib-tools", exact=True) }}
+        # glib headers depend on libintl headers
+        - libintl-devel  # [not linux]
+    test:
+      requires:
+        - {{ compiler('c') }}
+        - pkg-config
+      files:
+        - test.c
+        - test-win.bat
+      commands:
+        - test -f ${PREFIX}/lib/libglib-2.0${SHLIB_EXT}             # [unix]
+        - glib-compile-resources --help
+        - gobject-query --help
+        - gtester --help  # [not win]
+        - ${CC} ${LDFLAGS} ${CFLAGS} test.c $(pkg-config --cflags --libs glib-2.0) -o test-glib && ./test-glib  # [unix]
+        - test-win.bat  # [win]
+
+about:
+  home: https://developer.gnome.org/glib/
+  license: LGPL-2.1-or-later
+  license_file: COPYING
+  summary: Provides core application building blocks for libraries and applications written in C.
+
+extra:
+  feedstock-name: glib
+  recipe-maintainers:
+    - ccordoba12
+    - jakirkham
+    - scopatz
+    - ocefpaf
+    - pkgw
+    - isuruf
+    - xhochy
+    - tschoonj

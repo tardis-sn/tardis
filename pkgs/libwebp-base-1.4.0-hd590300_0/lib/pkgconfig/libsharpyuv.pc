@@ -1,0 +1,11 @@
+prefix=/home/conda/feedstock_root/build_artifacts/libwebp-base_1713199734470/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehol
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/webp
+
+Name: libsharpyuv
+Description: Library for sharp RGB to YUV conversion
+Version: 1.4.0
+Cflags: -I${includedir}
+Libs: -L${libdir} -lsharpyuv
+Libs.private: -lm  -lpthread

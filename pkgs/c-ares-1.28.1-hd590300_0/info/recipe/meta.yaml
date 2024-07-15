@@ -1,0 +1,54 @@
+# This file created by conda-build 24.3.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sat Mar 30 17:20:58 2024
+# ------------------------------------------------
+
+package:
+  name: c-ares
+  version: 1.28.1
+source:
+  sha256: 675a69fc54ddbf42e6830bc671eeb6cd89eeca43828eb413243fd2c0a760809d
+  url: https://c-ares.haxx.se/download/c-ares-1.28.1.tar.gz
+build:
+  number: '0'
+  run_exports:
+    - c-ares >=1.28.1,<2.0a0
+  string: hd590300_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 hf600244_0
+    - binutils_linux-64 2.40 hdade7a5_3
+    - cmake-no-system 3.29.0 h59595ed_0
+    - gcc_impl_linux-64 12.3.0 he2b93b0_5
+    - gcc_linux-64 12.3.0 h6477408_3
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - ld_impl_linux-64 2.40 h41732ed_0
+    - libgcc-devel_linux-64 12.3.0 h8bca6fd_105
+    - libgcc-ng 13.2.0 h807b86a_5
+    - libgomp 13.2.0 h807b86a_5
+    - libsanitizer 12.3.0 h0f45ef3_5
+    - libstdcxx-ng 13.2.0 h7e041cc_5
+    - ninja 1.11.1 h924138e_0
+    - sysroot_linux-64 2.12 he073ed8_17
+  run:
+    - libgcc-ng >=12
+  run_constraint:
+    - c-ares-static <0a0
+about:
+  home: https://c-ares.haxx.se/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.md
+  summary: This is c-ares, an asynchronous resolver library
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240330.2.1
+  recipe-maintainers:
+    - ocefpaf
+    - wesm
+    - xhochy
+  remote_url: https://github.com/conda-forge/c-ares-feedstock
+  sha: 67cd1d46854f72f025fa69260b8bb5d73db17da1

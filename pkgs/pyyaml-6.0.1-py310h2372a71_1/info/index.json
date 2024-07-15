@@ -1,0 +1,18 @@
+{
+  "arch": "x86_64",
+  "build": "py310h2372a71_1",
+  "build_number": 1,
+  "depends": [
+    "libgcc-ng >=12",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310",
+    "yaml >=0.2.5,<0.3.0a0"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "pyyaml",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1695373587159,
+  "version": "6.0.1"
+}

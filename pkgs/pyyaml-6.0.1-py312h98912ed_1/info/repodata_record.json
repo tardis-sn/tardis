@@ -1,0 +1,27 @@
+{
+    "arch": "x86_64",
+    "build": "py312h98912ed_1",
+    "build_number": 1,
+    "build_string": "py312h98912ed_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "libgcc-ng >=12",
+        "python >=3.12.0rc3,<3.13.0a0",
+        "python_abi 3.12.* *_cp312",
+        "yaml >=0.2.5,<0.3.0a0"
+    ],
+    "fn": "pyyaml-6.0.1-py312h98912ed_1.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "e3fd78d8d490af1d84763b9fe3f2e552",
+    "name": "pyyaml",
+    "platform": "linux",
+    "sha256": "7f347a10a7121b08d79d21cd4f438c07c23479ea0c74dfb89d6dc416f791bb7f",
+    "size": 196583,
+    "subdir": "linux-64",
+    "timestamp": 1695373632212,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/pyyaml-6.0.1-py312h98912ed_1.conda",
+    "version": "6.0.1"
+}

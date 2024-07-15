@@ -1,0 +1,19 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "asttokens",
+    "executing",
+    "pure_eval",
+    "python >=3.5"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "stack_data",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1669632203115,
+  "version": "0.6.2"
+}

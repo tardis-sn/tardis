@@ -1,0 +1,24 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "constrains": [
+    "pytest-faulthandler >=2"
+  ],
+  "depends": [
+    "colorama",
+    "exceptiongroup >=1.0.0rc8",
+    "iniconfig",
+    "packaging",
+    "pluggy <2.0,>=1.5",
+    "python >=3.8",
+    "tomli >=1"
+  ],
+  "license": "MIT",
+  "name": "pytest",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1717533913269,
+  "version": "8.2.2"
+}

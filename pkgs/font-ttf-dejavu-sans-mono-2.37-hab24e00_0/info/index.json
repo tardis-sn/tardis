@@ -1,0 +1,14 @@
+{
+  "arch": null,
+  "build": "hab24e00_0",
+  "build_number": 0,
+  "depends": [],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "font-ttf-dejavu-sans-mono",
+  "noarch": "generic",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1566932522327,
+  "version": "2.37"
+}

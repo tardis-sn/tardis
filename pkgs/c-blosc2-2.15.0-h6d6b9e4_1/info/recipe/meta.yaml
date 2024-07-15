@@ -1,0 +1,99 @@
+# This file created by conda-build 24.5.1
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Fri Jun 21 07:03:36 2024
+# ------------------------------------------------
+
+package:
+  name: c-blosc2
+  version: 2.15.0
+source:
+  sha256: 1e7d9d099963ad0123ddd76b2b715b5aa1ea4b95c491d3a11508e487ebab7307
+  url: https://github.com/Blosc/c-blosc2/archive/v2.15.0.tar.gz
+build:
+  number: '1'
+  run_exports:
+    - c-blosc2 >=2.15.0,<2.16.0a0
+  string: h6d6b9e4_1
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.40 ha1999f0_7
+    - binutils_linux-64 2.40 hb3c18ed_8
+    - bzip2 1.0.8 hd590300_5
+    - c-ares 1.28.1 hd590300_0
+    - ca-certificates 2024.6.2 hbcca054_0
+    - cmake 3.29.6 hcafd917_0
+    - gcc_impl_linux-64 12.3.0 h58ffeeb_11
+    - gcc_linux-64 12.3.0 h9528a6a_8
+    - gxx_impl_linux-64 12.3.0 h2a574ab_11
+    - gxx_linux-64 12.3.0 ha28b414_8
+    - kernel-headers_linux-64 2.6.32 he073ed8_17
+    - keyutils 1.6.1 h166bdaf_0
+    - krb5 1.21.2 h659d440_0
+    - ld_impl_linux-64 2.40 hf3520f5_7
+    - libcurl 8.8.0 hca28451_0
+    - libedit 3.1.20191231 he28a2e2_2
+    - libev 4.33 hd590300_2
+    - libexpat 2.6.2 h59595ed_0
+    - libgcc-devel_linux-64 12.3.0 h6b66f73_111
+    - libgcc-ng 13.2.0 h77fa898_11
+    - libgomp 13.2.0 h77fa898_11
+    - libnghttp2 1.58.0 h47da74e_1
+    - libsanitizer 12.3.0 hb8811af_11
+    - libssh2 1.11.0 h0841786_0
+    - libstdcxx-devel_linux-64 12.3.0 h6b66f73_111
+    - libstdcxx-ng 13.2.0 hc0a3c3a_11
+    - libuv 1.48.0 hd590300_0
+    - libzlib 1.3.1 h4ab18f5_1
+    - make 4.3 hd18ef5c_1
+    - ncurses 6.5 h59595ed_0
+    - openssl 3.3.1 h4ab18f5_0
+    - rhash 1.4.4 hd590300_0
+    - sysroot_linux-64 2.12 he073ed8_17
+    - xz 5.2.6 h166bdaf_0
+    - zstd 1.5.6 ha6fb4c9_0
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 13.2.0 h77fa898_11
+    - libgomp 13.2.0 h77fa898_11
+    - libstdcxx-ng 13.2.0 hc0a3c3a_11
+    - libzlib 1.3.1 h4ab18f5_1
+    - lz4-c 1.9.3 h9c3ff4c_1
+    - zlib-ng 2.2.0 hac33072_0
+    - zstd 1.5.6 ha6fb4c9_0
+  run:
+    - libgcc-ng >=12
+    - libstdcxx-ng >=12
+    - lz4-c >=1.9.3,<1.10.0a0
+    - zlib-ng >=2.2.0,<2.3.0a0
+    - zstd >=1.5.6,<1.6.0a0
+test:
+  commands:
+    - test -e $PREFIX/include/blosc2.h
+    - test -e $PREFIX/include/blosc2/blosc2-export.h
+    - test -e $PREFIX/lib/libblosc2${SHLIB_EXT}
+    - test -e $PREFIX/lib/pkgconfig/blosc2.pc
+about:
+  description: 'Next generation of C-Blosc library bringing in a new container (schunk)
+    that can optionally be persisted (frame).  Also, more filters, codecs and other
+    bells and whistles like pre-filter support have been added.  The API tries to
+    be as compatible as possible with the original C-Blosc.
+
+    '
+  home: https://github.com/Blosc/c-blosc2
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE.txt
+  summary: A simple, compressed, fast and persistent data store library for C
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: azure_20240621.1.1
+  recipe-maintainers:
+    - FrancescAlted
+    - hmaarrfk
+    - zklaus
+  remote_url: https://github.com/conda-forge/c-blosc2-feedstock
+  sha: 12594f70de28010d0b374efc819531a2b33be905

@@ -1,0 +1,20 @@
+{
+  "$schema": "../../test-schema.json",
+  "registry": {
+    "http://example.com/": {
+      "$defs": {
+        "foo": { "$anchor": "foo", "bar": "baz" }
+      }
+    }
+  },
+  "tests": [
+    {
+      "ref": "http://example.com/",
+      "target": { "$defs": { "foo": { "$anchor": "foo", "bar": "baz" } } },
+      "then": {
+        "ref": "#foo",
+        "target": { "$anchor": "foo", "bar": "baz" }
+      }
+    }
+  ]
+}

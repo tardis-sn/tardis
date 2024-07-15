@@ -1,0 +1,28 @@
+{
+    "arch": "x86_64",
+    "build": "py310hff52083_1",
+    "build_number": 1,
+    "build_string": "py310hff52083_1",
+    "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+    "constrains": [],
+    "depends": [
+        "docutils >=0.14",
+        "pybtex >=0.16",
+        "python >=3.10,<3.11.0a0",
+        "python_abi 3.10.* *_cp310",
+        "setuptools"
+    ],
+    "fn": "pybtex-docutils-1.0.3-py310hff52083_1.conda",
+    "license": "MIT",
+    "license_family": "MIT",
+    "md5": "034283fbf3c33795e7fa63b25ddbe70c",
+    "name": "pybtex-docutils",
+    "platform": "linux",
+    "sha256": "c7317b100c3721fbd1876125707053d955c027605a83a0b0b9d5f57737aa18ff",
+    "size": 15100,
+    "subdir": "linux-64",
+    "timestamp": 1695539433013,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/linux-64/pybtex-docutils-1.0.3-py310hff52083_1.conda",
+    "version": "1.0.3"
+}

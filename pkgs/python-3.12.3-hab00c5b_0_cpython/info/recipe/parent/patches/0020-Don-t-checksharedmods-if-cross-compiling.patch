@@ -1,0 +1,35 @@
+From c0c767d515e1cf5724a3d13804e41860d0ddc996 Mon Sep 17 00:00:00 2001
+From: "Uwe L. Korn" <uwe.korn@quantco.com>
+Date: Fri, 1 Sep 2023 23:32:14 +0200
+Subject: [PATCH 20/22] Don't checksharedmods if cross-compiling
+
+---
+ Makefile.pre.in | 2 +-
+ if_runnable.sh  | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+ create mode 100755 if_runnable.sh
+
+diff --git a/Makefile.pre.in b/Makefile.pre.in
+index df08b7461a..d3e0878335 100644
+--- a/Makefile.pre.in
++++ b/Makefile.pre.in
+@@ -992,7 +992,7 @@ sharedmods: $(SHAREDMODS) pybuilddir.txt
+ # dependency on BUILDPYTHON ensures that the target is run last
+ .PHONY: checksharedmods
+ checksharedmods: sharedmods $(PYTHON_FOR_BUILD_DEPS) $(BUILDPYTHON)
+-	@$(RUNSHARED) $(PYTHON_FOR_BUILD) $(srcdir)/Tools/build/check_extension_modules.py
++	@$(RUNSHARED) $(srcdir)/if_runnable.sh $(PYTHON_FOR_BUILD) $(srcdir)/Tools/build/check_extension_modules.py
+ 
+ .PHONY: rundsymutil
+ rundsymutil: sharedmods $(PYTHON_FOR_BUILD_DEPS) $(BUILDPYTHON)
+diff --git a/if_runnable.sh b/if_runnable.sh
+new file mode 100755
+index 0000000000..14f84a8597
+--- /dev/null
++++ b/if_runnable.sh
+@@ -0,0 +1,5 @@
++#!/bin/bash
++
++if [[ "${target_platform}" == "${build_platform}" || "${CROSSCOMPILING_EMULATOR:-}" != "" ]]; then
++    exec $*
++fi

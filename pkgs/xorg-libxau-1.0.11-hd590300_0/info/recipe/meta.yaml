@@ -1,0 +1,59 @@
+# This file created by conda-build 3.24.0
+# meta.yaml template originally from:
+# /home/conda/recipe_root, last modified Sun May 21 02:56:16 2023
+# ------------------------------------------------
+
+package:
+  name: xorg-libxau
+  version: 1.0.11
+source:
+  sha256: f3fa3282f5570c3f6bd620244438dbfbdd580fc80f02f549587a0f8ab329bbeb
+  url: https://www.x.org/releases/individual/lib/libXau-1.0.11.tar.xz
+build:
+  detect_binary_files_with_prefix: true
+  number: '0'
+  run_exports:
+    - xorg-libxau >=1.0.11,<2.0a0
+  string: hd590300_0
+requirements:
+  build:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - binutils_impl_linux-64 2.39 he00db2b_1
+    - binutils_linux-64 2.39 h5fc0e48_13
+    - gcc_impl_linux-64 12.2.0 hcc96c02_19
+    - gcc_linux-64 12.2.0 h4798a0e_13
+    - gettext 0.21.1 h27087fc_0
+    - kernel-headers_linux-64 2.6.32 he073ed8_15
+    - ld_impl_linux-64 2.39 hcc3a1bd_1
+    - libgcc-devel_linux-64 12.2.0 h3b97bd3_19
+    - libgcc-ng 12.2.0 h65d4601_19
+    - libgomp 12.2.0 h65d4601_19
+    - libsanitizer 12.2.0 h46fd767_19
+    - libstdcxx-ng 12.2.0 h46fd767_19
+    - make 4.3 hd18ef5c_1
+    - pkg-config 0.29.2 h36c2ea0_1008
+    - sysroot_linux-64 2.12 he073ed8_15
+  host:
+    - _libgcc_mutex 0.1 conda_forge
+    - _openmp_mutex 4.5 2_gnu
+    - libgcc-ng 12.2.0 h65d4601_19
+    - libgomp 12.2.0 h65d4601_19
+    - xorg-util-macros 1.19.3 h7f98852_0
+    - xorg-xproto 7.0.31 h7f98852_1007
+  run:
+    - libgcc-ng >=12
+test:
+  commands:
+    - test -f $PREFIX/lib/libXau.so
+about:
+  home: https://www.x.org/
+  license: MIT
+  license_family: MIT
+  license_file: COPYING
+  summary: A simple X Windows authentication protocol.
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - pkgw

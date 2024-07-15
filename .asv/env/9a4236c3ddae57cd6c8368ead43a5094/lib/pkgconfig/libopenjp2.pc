@@ -1,0 +1,15 @@
+prefix=/home/charon/coding/open-source/tardis/.asv/env/9a4236c3ddae57cd6c8368ead43a5094
+bindir=${prefix}/bin
+mandir=${prefix}/share/man
+docdir=${prefix}/share/doc/openjpeg
+libdir=${prefix}/lib
+includedir=${prefix}/include/openjpeg-2.5
+
+Name: openjp2
+Description: JPEG2000 library (Part 1 and 2)
+URL: http://www.openjpeg.org/
+Version: 2.5.2
+Libs: -L${libdir} -lopenjp2
+Libs.private: -lm
+Cflags: -I${includedir}
+Cflags.private: -DOPJ_STATIC

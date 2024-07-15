@@ -1,0 +1,13 @@
+diff --git a/pyproject.toml b/pyproject.toml
+index 0082fab10d..0f5f1e9f5a 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -126,7 +126,7 @@ wcslint = "astropy.wcs.wcslint:main"
+ requires = ["setuptools",
+             "setuptools_scm>=6.2",
+             "cython>=3.0.0,<3.1.0",
+-            "numpy>=2.0.0rc1", # see https://github.com/astropy/astropy/issues/16257
++            "numpy",
+             "extension-helpers==1.*"]
+ build-backend = "setuptools.build_meta"
+ 

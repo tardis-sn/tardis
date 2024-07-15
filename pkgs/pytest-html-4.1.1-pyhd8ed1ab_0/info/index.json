@@ -1,0 +1,18 @@
+{
+  "arch": null,
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "depends": [
+    "jinja2 >=3.0.0",
+    "pytest >=7.0.0",
+    "pytest-metadata >=2.0.0",
+    "python >=3.8"
+  ],
+  "license": "MPL-2.0",
+  "name": "pytest-html",
+  "noarch": "python",
+  "platform": null,
+  "subdir": "noarch",
+  "timestamp": 1700764716523,
+  "version": "4.1.1"
+}

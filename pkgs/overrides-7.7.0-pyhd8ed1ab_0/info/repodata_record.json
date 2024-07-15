@@ -1,0 +1,26 @@
+{
+    "arch": null,
+    "build": "pyhd8ed1ab_0",
+    "build_number": 0,
+    "build_string": "pyhd8ed1ab_0",
+    "channel": "https://conda.anaconda.org/conda-forge/noarch",
+    "constrains": [],
+    "depends": [
+        "python >=3.6",
+        "typing_utils"
+    ],
+    "fn": "overrides-7.7.0-pyhd8ed1ab_0.conda",
+    "license": "Apache-2.0",
+    "license_family": "APACHE",
+    "md5": "24fba5a9d161ad8103d4e84c0e1a3ed4",
+    "name": "overrides",
+    "noarch": "python",
+    "platform": null,
+    "sha256": "5e238e5e646414d517a13f6786c7227206ace58271e3ef63f6adca4d6a4c2839",
+    "size": 30232,
+    "subdir": "noarch",
+    "timestamp": 1706394723472,
+    "track_features": "",
+    "url": "https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_0.conda",
+    "version": "7.7.0"
+}

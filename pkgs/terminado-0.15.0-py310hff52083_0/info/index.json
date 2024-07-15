@@ -1,0 +1,17 @@
+{
+  "arch": "x86_64",
+  "build": "py310hff52083_0",
+  "build_number": 0,
+  "depends": [
+    "ptyprocess",
+    "python >=3.10,<3.11.0a0",
+    "python_abi 3.10.* *_cp310",
+    "tornado >=6.1.0"
+  ],
+  "license": "BSD-2-Clause",
+  "name": "terminado",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1652790692422,
+  "version": "0.15.0"
+}

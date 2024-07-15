@@ -1,0 +1,47 @@
+{% set version = "1.0.8" %}
+
+package:
+  name: sphinxcontrib-applehelp
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/s/sphinxcontrib-applehelp/sphinxcontrib_applehelp-{{ version }}.tar.gz
+  sha256: c40a4f96f3776c4393d933412053962fac2b84f4c99a7982ba42e09576a70619
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.9
+    - pip
+    - flit-core >=3.7
+  run:
+    - python >=3.9
+    - sphinx >=5
+
+test:
+  imports:
+    - sphinxcontrib
+    - sphinxcontrib.applehelp
+  requires:
+    - pip
+  commands:
+    - pip check
+
+about:
+  home: https://www.sphinx-doc.org/
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: sphinxcontrib-applehelp is a sphinx extension which outputs Apple help books
+  doc_url: https://www.sphinx-doc.org/en/master/
+  dev_url: https://github.com/sphinx-doc/sphinxcontrib-applehelp
+
+extra:
+  recipe-maintainers:
+    - AA-Turner
+    - conda-forge/sphinx
+    - ocefpaf

@@ -1,0 +1,16 @@
+{
+  "arch": "x86_64",
+  "build": "hdb0a2a9_1",
+  "build_number": 1,
+  "depends": [
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "snappy",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1712591084054,
+  "version": "1.2.0"
+}

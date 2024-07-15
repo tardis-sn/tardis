@@ -1,0 +1,306 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" .>
+    <title>{{profile_name.split('/')[-1].split('.')[0]}}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/static/snakeviz.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="/static/vendor/jquery.dataTables.min.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <h1 id="snakeviz-text">
+      <a href="https://jiffyclub.github.io/snakeviz/">SnakeViz</a>
+    </h1>
+
+    <!-- reset button -->
+    <span id="resetbuttons">
+      <div class="button-div">
+        <button id="resetbutton-root" disabled="True">Reset Root</button>
+      </div>
+      <div class="button-div">
+        <button id="resetbutton-zoom" disabled="True">Reset Zoom</button>
+      </div>
+    </span>
+
+    <!-- style select -->
+    <label id='sv-style-label'>Style:&nbsp;
+      <select name="sv-style" id="sv-style-select">
+        <option value="icicle" selected>Icicle</option>
+        <option value="sunburst">Sunburst</option>
+      </select>
+    </label>
+
+    <!-- depth select -->
+    <label id='sv-depth-label'>Depth:&nbsp;
+      <select name="sv-depth" id="sv-depth-select">
+        {% for i in [3, 5, 10, 15, 20] %}
+          <option value="{{i}}" {% if i == 10 %}selected{% end %}>{{i}}</option>
+        {% end %}
+      </select>
+    </label>
+
+    <!-- cutoff select -->
+    <label id='sv-cutoff-label'>Cutoff:
+      <select name="sv-cutoff" id="sv-cutoff-select">
+        <option value="0.001" selected>1 &frasl; 1000</option>
+        <option value="0.01">1 &frasl; 100</option>
+        <option value="0">None</option>
+      </select>
+    </label>
+
+    <!-- information div -->
+    <div id="sv-info-div"></div>
+
+    <!-- call stack -->
+    <div id="sv-call-stack">
+      <div id="working-spinner" class="spinner">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+      </div>
+      <div style="display: inline-block;">
+        <button id="sv-call-stack-btn">Call Stack</button>
+      </div>
+      <div id="sv-call-stack-list"></div>
+    </div>
+
+    <!-- Error message -->
+    <div id="sv-error-div" class="sv-error-msg">
+      <p>
+        An error occurred processing your profile.
+        You can try a lower depth, a larger cutoff,
+        or try profiling a smaller portion of your code.
+        If you continue to have problems you can
+        <a href="https://github.com/jiffyclub/snakeviz/issues">
+          contact us on GitHub</a>.
+      </p>
+      <div id="sv-error-close-div" class="sv-error-close">Close</div>
+    </div>
+
+    <!-- vis -->
+    <div style="text-align: center;">
+      <div id="chart"></div>
+    </div>
+    <br>
+
+    <!-- stats table -->
+    <div id="table_div">
+      <table cellpadding="0" cellspacing="0" border="0" class="display" id="pstats-table">
+        <thead>
+          <tr>
+            <th title="Total number of calls to the function. If there are two numbers, that means the function recursed and the first is the total number of calls and the second is the number of primitive (non-recursive) calls.">ncalls</th>
+            <th title="Total time spent in the function, not including time spent in calls to sub-functions.">tottime</th>
+            <th title="`tottime` divided by `ncalls`">percall</th>
+            <th title="Cumulative time spent in this function and all sub-functions.">cumtime</th>
+            <th title="`cumtime` divided by `ncalls`">percall</th>
+            <th title="File name and line number were the function is defined, and the function’s name.">filename:lineno(function)</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+
+    <!-- footer -->
+    <footer class="sv-footer">
+      <a class="footer-link" href="https://jiffyclub.github.io/snakeviz/">SnakeViz Docs</a>
+    </footer>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- Vendor JS -->
+    <script src="/static/vendor/jquery-3.2.1.min.js"></script>
+    <script src="/static/vendor/d3.v3.min.js"></script>
+    <script src="/static/vendor/jquery.dataTables.min.js"></script>
+    <script src="/static/vendor/lodash.min.js"></script>
+    <script src="/static/vendor/immutable.min.js"></script>
+
+    <!-- SnakeViz JS -->
+    <script>
+      // Make the stats table
+      var table_data = {% raw table_rows %};
+      $(document).ready(function() {
+        var table = $('#pstats-table').dataTable({
+          'data': table_data,
+          'columns': [
+            // Note: columns are also defined in #pstats-table in HTML above,
+            // this list must line up with that.
+            {'type': 'num', 'searchable': 'false',
+             'data': {
+              '_': function (row) {return row[0][0];},
+              'sort': function (row) {return row[0][1]}
+             }},
+            {'type': 'num', 'searchable': 'false'},
+            {'type': 'num', 'searchable': 'false'},
+            {'type': 'num', 'searchable': 'false'},
+            {'type': 'num', 'searchable': 'false'},
+            {}
+          ],
+          'order': [1, 'desc'],
+          'paging': false
+        }).api();
+        $('#pstats-table tbody').on('click', 'tr', function() {
+          var name = table.row(this).data()[6];
+          sv_root_func_name = name;
+          sv_draw_vis(name);
+          sv_call_stack = [name];
+          sv_update_call_stack_list();
+          $('#resetbutton-zoom').prop('disabled', true);
+          $('#resetbutton-root').prop('disabled', false);
+        }).on('mouseenter', 'tr', function () {
+          $(this).children('td').addClass('data-table-hover');
+        }).on('mouseleave', 'tr', function () {
+          $(this).children('td').removeClass('data-table-hover');
+        });
+      });
+    </script>
+
+    <!-- Web worker code for generating D3 JSON in a separate thread -->
+    <script id="hierarchy-worker" type="javascript/worker">
+      // This will all go into a web worker that will be used to generate
+      // the visualization JSON while leaving the rest of the app responsive.
+      //
+      // We put this here instead of in a separate JS file so that the worker
+      // can be stopped and restarted without loading the code from the server,
+      // and so that the stats data can be embedded in the worker.
+
+      var stats = {% raw callees %};
+      function sv_build_hierarchy(
+          node_name, depth, max_depth, cutoff, node_time, parent_name, call_stack) {
+
+        // track visited functions so we can avoid infinitely displaying
+        // instances of recursion
+        if (_.isUndefined(call_stack)) {
+          var call_stack = Immutable.Set([node_name])
+        } else {
+          var call_stack = call_stack.add(node_name);
+        };
+
+        var data = {
+          name: node_name,
+          display_name: stats[node_name]['display_name'],
+          time: node_time,
+          cumulative: stats[node_name]['stats'][3],
+          parent_name: parent_name
+        };
+
+        if (depth < max_depth && !_.isEmpty(stats[node_name]['children'])) {
+          child_names = {};
+          for (var child_name in stats[node_name]['children']) {
+            // Cut off children that have already been visited (recursion)
+            if (!call_stack.contains(child_name)) {
+              child_names[child_name] = stats[node_name]['children'][child_name];
+            }
+          }
+
+          // Normalize the child times.
+          // Unfortunately, stats[child_name]['callers'][node_name][3] doesn't
+          // give us the time that child spend under node in this instance, but
+          // in all instances across the call tree. Yikes!
+          // This may lead to unexpected behavior, e.g., the child times add up
+          // to more than the node time. A normalization is necessary.
+          var child_times = {};
+          var total_children_time = 0.0;
+          for (var child_name in child_names) {
+            child_times[child_name] = stats[child_name]['callers'][node_name][3];
+            total_children_time += child_times[child_name];
+          }
+          if (total_children_time > node_time) {
+            for (var child_name in child_names) {
+              child_times[child_name] *= (node_time / total_children_time);
+            }
+          }
+
+          data['children'] = [];
+          // recurse
+          for (var child_name in child_names) {
+            if (child_times[child_name]/node_time > cutoff) {
+              data['children'].push(
+                sv_build_hierarchy(
+                  child_name, depth+1, max_depth, cutoff,
+                  child_times[child_name], node_name, call_stack
+                  ));
+            }
+          }
+
+          // D3, the plotting framework, only accounts for times in the leaf
+          // nodes. Hence, if the node_time exceeds the total time in its
+          // children, we need to add another child node to account for the the
+          // time spent in node itself.
+          if (total_children_time < node_time) {
+            data['children'].push({
+              name: node_name,
+              display_name: data['display_name'],
+              parent_name: data['parent_name'],
+              cumulative: stats[node_name]['stats'][3],
+              time: node_time - total_children_time
+            });
+          }
+        }
+
+        return data;
+      }
+
+      self.onmessage = function (event) {
+        // Try loading JS from CDN in case snakeviz server is off
+        try {
+          importScripts(
+            "https://cdnjs.cloudflare.com/ajax/libs/immutable/3.8.1/immutable.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js");
+        }
+        // If the user is offline try loading from the SnakeViz server
+        catch (e) {
+          try {
+            importScripts(
+              event.data['url'] + "/static/vendor/immutable.min.js",
+              event.data['url'] + "/static/vendor/lodash.min.js");
+          }
+          catch (e) {
+            throw 'Could not load JS libraries in worker.';
+          }
+        }
+        var depth = 0;
+        var max_depth = event.data['depth'];
+        var cutoff = event.data['cutoff'];
+        var node_name = event.data['name'];
+        var parent_name = event.data['parent_name'];
+        var node_time = stats[node_name]['stats'][3];
+        self.postMessage(JSON.stringify(
+          sv_build_hierarchy(
+            node_name, depth, max_depth, cutoff, node_time, parent_name
+            )));
+      };
+    </script>
+
+    <!-- Load SnakeViz JS Files -->
+    <script src='/static/snakeviz.js'></script>
+    <script src='/static/drawsvg.js'></script>
+
+    <!-- Do initial setup stuff -->
+    <script>
+      // Initialize data
+      $(document).ready(_.defer(function () {
+        var profile_data = {% raw callees %};
+        sv_json_cache = {};
+        sv_worker = sv_make_worker();
+        sv_root_func_name = sv_find_root(profile_data);
+        sv_root_func_name__cached = sv_root_func_name;
+        sv_call_stack = [sv_root_func_name];
+        sv_total_time = profile_data[sv_root_func_name]['stats'][3];
+      }));
+      // Initialize the call stack button
+      $(document).ready(_.defer(function () {
+        sv_update_call_stack_list();
+        sv_call_stack_btn_for_show();
+      }));
+      // Draw the visualization
+      $(document).ready(_.defer(function () {
+        sv_draw_vis(sv_root_func_name);
+      }));
+    </script>
+  </body>
+</html>
