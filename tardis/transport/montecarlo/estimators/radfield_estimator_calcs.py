@@ -10,10 +10,7 @@ from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
 )
 from tardis.transport.montecarlo.configuration.constants import KB, H
-from tardis.transport.montecarlo.configuration.montecarlo_globals import (
-    ENABLE_FULL_RELATIVITY,
-)
-
+from tardis.transport.montecarlo.configuration import montecarlo_globals 
 
 @njit(**njit_dict_no_parallel)
 def update_base_estimators(
@@ -109,7 +106,7 @@ def update_line_estimators(
     distance_trace : float
     time_explosion : float
     """
-    if not ENABLE_FULL_RELATIVITY:
+    if not montecarlo_globals.ENABLE_FULL_RELATIVITY:
         energy = calc_packet_energy(r_packet, distance_trace, time_explosion)
     else:
         energy = calc_packet_energy_full_relativity(r_packet)

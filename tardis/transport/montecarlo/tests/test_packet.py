@@ -11,9 +11,7 @@ import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.transport.montecarlo.configuration.montecarlo_globals import (
-    ENABLE_FULL_RELATIVITY,
-)
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_line_estimators,
 )
@@ -306,13 +304,13 @@ def test_move_r_packet(
     expected_j = expected_params["j"]
     expected_nubar = expected_params["nubar"]
 
-    ENABLE_FULL_RELATIVITY = enable_full_relativity
+    montecarlo_globals.ENABLE_FULL_RELATIVITY = enable_full_relativity
 
-    if ENABLE_FULL_RELATIVITY:
+    if montecarlo_globals.ENABLE_FULL_RELATIVITY:
         expected_j *= doppler_factor
         expected_nubar *= doppler_factor
 
-    ENABLE_FULL_RELATIVITY = False
+    montecarlo_globals.ENABLE_FULL_RELATIVITY = False
     assert_allclose(
         estimators.j_estimator[packet.current_shell_id], expected_j, rtol=5e-7
     )

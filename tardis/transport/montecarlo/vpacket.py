@@ -21,10 +21,7 @@ from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
     SIGMA_THOMSON,
 )
-from tardis.transport.montecarlo.configuration.montecarlo_globals import (
-    CONTINUUM_PROCESSES_ENABLED,
-    ENABLE_FULL_RELATIVITY,
-)
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
 )
@@ -101,7 +98,7 @@ def trace_vpacket_within_shell(
 
     comov_nu = v_packet.nu * doppler_factor
 
-    if CONTINUUM_PROCESSES_ENABLED:
+    if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         (
             chi_bf_tot,
             chi_bf_contributions,
@@ -116,7 +113,7 @@ def trace_vpacket_within_shell(
     else:
         chi_continuum = chi_e
 
-    if ENABLE_FULL_RELATIVITY:
+    if montecarlo_globals.ENABLE_FULL_RELATIVITY:
         chi_continuum *= doppler_factor
 
     tau_continuum = chi_continuum * distance_boundary
@@ -268,7 +265,7 @@ def trace_vpacket_volley(
         r_inner_over_r = numba_radial_1d_geometry.r_inner[0] / r_packet.r
         mu_min = -math.sqrt(1 - r_inner_over_r * r_inner_over_r)
         v_packet_on_inner_boundary = False
-        if ENABLE_FULL_RELATIVITY:
+        if montecarlo_globals.ENABLE_FULL_RELATIVITY:
             mu_min = angle_aberration_LF_to_CMF(
                 r_packet, time_explosion, mu_min
             )
@@ -276,7 +273,7 @@ def trace_vpacket_volley(
         v_packet_on_inner_boundary = True
         mu_min = 0.0
 
-        if ENABLE_FULL_RELATIVITY:
+        if montecarlo_globals.ENABLE_FULL_RELATIVITY:
             inv_c = 1 / C_SPEED_OF_LIGHT
             inv_t = 1 / time_explosion
             beta_inner = numba_radial_1d_geometry.r_inner[0] * inv_t * inv_c
@@ -291,7 +288,7 @@ def trace_vpacket_volley(
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
         if v_packet_on_inner_boundary:  # The weights are described in K&S 2014
-            if not ENABLE_FULL_RELATIVITY:
+            if not montecarlo_globals.ENABLE_FULL_RELATIVITY:
                 weight = 2 * v_packet_mu / no_of_vpackets
             else:
                 weight = (
@@ -305,7 +302,7 @@ def trace_vpacket_volley(
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
         # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
-        if ENABLE_FULL_RELATIVITY:
+        if montecarlo_globals.ENABLE_FULL_RELATIVITY:
             v_packet_mu = angle_aberration_CMF_to_LF(
                 r_packet, time_explosion, v_packet_mu
             )

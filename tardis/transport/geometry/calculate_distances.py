@@ -12,9 +12,7 @@ from tardis.transport.montecarlo.configuration.constants import (
     SIGMA_THOMSON,
     CLOSE_LINE_THRESHOLD,
 )
-from tardis.transport.montecarlo.configuration.montecarlo_globals import (
-    ENABLE_FULL_RELATIVITY,
-)
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 from tardis.transport.montecarlo.utils import MonteCarloException
 from tardis.transport.montecarlo.r_packet import (
@@ -107,7 +105,7 @@ def calculate_distance_line(
     else:
         raise MonteCarloException("nu difference is less than 0.0")
 
-    if ENABLE_FULL_RELATIVITY:
+    if montecarlo_globals.ENABLE_FULL_RELATIVITY:
         return calculate_distance_line_full_relativity(
             nu_line, nu, time_explosion, r_packet
         )

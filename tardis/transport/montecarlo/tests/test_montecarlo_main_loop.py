@@ -4,10 +4,7 @@ import numpy.testing as npt
 import pytest
 
 from tardis.simulation import Simulation
-from tardis.transport.montecarlo.configuration.montecarlo_globals import (
-    LEGACY_MODE_ENABLED,
-    ENABLE_VPACKET_TRACKING,
-)
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 @pytest.mark.xfail(reason="To be implemented")
@@ -36,7 +33,7 @@ def test_montecarlo_main_loop(
     atomic_dataset,
 ):
     atomic_dataset = deepcopy(atomic_dataset)
-    LEGACY_MODE_ENABLED = True
+    montecarlo_globals.LEGACY_MODE_ENABLED = True
     montecarlo_main_loop_simulation = Simulation.from_config(
         montecarlo_main_loop_config,
         atom_data=atomic_dataset,
@@ -79,7 +76,6 @@ def test_montecarlo_main_loop(
     npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
     npt.assert_allclose(actual_energy, expected_energy, rtol=1e-13)
     npt.assert_allclose(actual_nu, expected_nu, rtol=1e-13)
-    LEGACY_MODE_ENABLED = False
 
 
 def test_montecarlo_main_loop_vpacket_log(
@@ -87,7 +83,7 @@ def test_montecarlo_main_loop_vpacket_log(
     regression_data,
     atomic_dataset,
 ):
-    ENABLE_VPACKET_TRACKING = True
+    montecarlo_globals.ENABLE_VPACKET_TRACKING = True
     atomic_dataset = deepcopy(atomic_dataset)
     montecarlo_main_loop_config.montecarlo.no_of_virtual_packets = 5
 
@@ -101,7 +97,7 @@ def test_montecarlo_main_loop_vpacket_log(
 
     transport = montecarlo_main_loop_simulation.transport
 
-    assert ENABLE_VPACKET_TRACKING is True
+    assert montecarlo_globals.ENABLE_VPACKET_TRACKING is True
 
     expected_hdf_store = regression_data.sync_hdf_store(
         montecarlo_main_loop_simulation
@@ -157,3 +153,5 @@ def test_montecarlo_main_loop_vpacket_log(
         rtol=1e-12,
         atol=1e-15,
     )
+
+    montecarlo_globals.ENABLE_VPACKET_TRACKING = False

@@ -9,9 +9,7 @@ from tardis.transport.montecarlo import (
 from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
 )
-from tardis.transport.montecarlo.configuration.montecarlo_globals import (
-    ENABLE_FULL_RELATIVITY,
-)
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 @njit(**njit_dict_no_parallel)
@@ -19,7 +17,7 @@ def get_doppler_factor(r, mu, time_explosion):
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
     beta = r * inv_t * inv_c
-    if not ENABLE_FULL_RELATIVITY:
+    if not montecarlo_globals.ENABLE_FULL_RELATIVITY:
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_doppler_factor_full_relativity(mu, beta)
@@ -53,7 +51,7 @@ def get_inverse_doppler_factor(
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
     beta = r * inv_t * inv_c
-    if not ENABLE_FULL_RELATIVITY:
+    if not montecarlo_globals.ENABLE_FULL_RELATIVITY:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_inverse_doppler_factor_full_relativity(mu, beta)

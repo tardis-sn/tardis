@@ -9,11 +9,7 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_distance_line,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.configuration.montecarlo_globals import (
-    CONTINUUM_PROCESSES_ENABLED,
-    DISABLE_LINE_SCATTERING,
-    ENABLE_FULL_RELATIVITY,
-)
+from tardis.transport.montecarlo.configuration import montecarlo_globals 
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_base_estimators,
     update_line_estimators,
@@ -113,7 +109,7 @@ def trace_packet(
                 r_packet.next_line_id = cur_line_id
                 break
             elif distance == distance_continuum:
-                if not CONTINUUM_PROCESSES_ENABLED:
+                if not montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                     interaction_type = InteractionType.ESCATTERING
                 else:
                     zrand = np.random.random()
@@ -136,7 +132,7 @@ def trace_packet(
             time_explosion,
         )
 
-        if tau_trace_combined > tau_event and not DISABLE_LINE_SCATTERING:
+        if tau_trace_combined > tau_event and not montecarlo_globals.DISABLE_LINE_SCATTERING:
             interaction_type = InteractionType.LINE  # Line
             r_packet.last_interaction_in_nu = r_packet.nu
             r_packet.last_line_interaction_in_id = cur_line_id
@@ -162,7 +158,7 @@ def trace_packet(
             cur_line_id += 1
         if distance_continuum < distance_boundary:
             distance = distance_continuum
-            if not CONTINUUM_PROCESSES_ENABLED:
+            if not montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 interaction_type = InteractionType.ESCATTERING
             else:
                 zrand = np.random.random()
@@ -212,7 +208,7 @@ def move_r_packet(
         comov_energy = r_packet.energy * doppler_factor
 
         # Account for length contraction
-        if ENABLE_FULL_RELATIVITY:
+        if montecarlo_globals.ENABLE_FULL_RELATIVITY:
             distance *= doppler_factor
 
         update_base_estimators(

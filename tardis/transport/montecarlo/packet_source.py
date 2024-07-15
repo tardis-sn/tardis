@@ -6,9 +6,7 @@ from astropy import units as u
 
 from tardis import constants as const
 from tardis.io.util import HDFWriterMixin
-from tardis.transport.montecarlo.configuration.montecarlo_globals import (
-    LEGACY_MODE_ENABLED,
-)
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.packet_collections import (
     PacketCollection,
 )
@@ -33,7 +31,7 @@ class BasePacketSource(abc.ABC):
 
     def __init__(self, base_seed=None, legacy_second_seed=None):
         self.base_seed = base_seed
-        if LEGACY_MODE_ENABLED and legacy_second_seed is not None:
+        if montecarlo_globals.LEGACY_MODE_ENABLED and legacy_second_seed is not None:
             np.random.seed(legacy_second_seed)
         else:
             np.random.seed(self.base_seed)
@@ -214,7 +212,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         l_coef = np.pi**4 / 90.0
 
         # For testing purposes
-        if LEGACY_MODE_ENABLED:
+        if montecarlo_globals.LEGACY_MODE_ENABLED:
             xis = np.random.random((5, no_of_packets))
         else:
             xis = self.rng.random((5, no_of_packets))
@@ -242,7 +240,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         """
 
         # For testing purposes
-        if LEGACY_MODE_ENABLED:
+        if montecarlo_globals.LEGACY_MODE_ENABLED:
             return np.sqrt(np.random.random(no_of_packets))
         else:
             return np.sqrt(self.rng.random(no_of_packets))

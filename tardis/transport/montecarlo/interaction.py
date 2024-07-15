@@ -11,10 +11,7 @@ from tardis.transport.montecarlo.macro_atom import (
 from tardis.transport.montecarlo.configuration.constants import (
     LineInteractionType,
 )
-from tardis.transport.montecarlo.configuration.montecarlo_globals import (
-    CONTINUUM_PROCESSES_ENABLED,
-    ENABLE_FULL_RELATIVITY,
-)
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
 )
@@ -221,7 +218,7 @@ def macro_atom_event(
     )
 
     if (
-        CONTINUUM_PROCESSES_ENABLED
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.FF_EMISSION
     ):
         free_free_emission(
@@ -231,7 +228,7 @@ def macro_atom_event(
         )
 
     elif (
-        CONTINUUM_PROCESSES_ENABLED
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.BF_EMISSION
     ):
         bound_free_emission(
@@ -241,7 +238,7 @@ def macro_atom_event(
             transition_id,
         )
     elif (
-        CONTINUUM_PROCESSES_ENABLED
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.BF_COOLING
     ):
         bf_cooling(
@@ -251,7 +248,7 @@ def macro_atom_event(
         )
 
     elif (
-        CONTINUUM_PROCESSES_ENABLED
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
     ):
         adiabatic_cooling(r_packet)
@@ -356,7 +353,7 @@ def free_free_emission(
     current_line_id = get_current_line_id(comov_nu, opacity_state.line_list_nu)
     r_packet.next_line_id = current_line_id
 
-    if ENABLE_FULL_RELATIVITY:
+    if montecarlo_globals.ENABLE_FULL_RELATIVITY:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
@@ -392,7 +389,7 @@ def bound_free_emission(
     current_line_id = get_current_line_id(comov_nu, opacity_state.line_list_nu)
     r_packet.next_line_id = current_line_id
 
-    if ENABLE_FULL_RELATIVITY:
+    if montecarlo_globals.ENABLE_FULL_RELATIVITY:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
@@ -432,7 +429,7 @@ def thomson_scatter(
 
     r_packet.nu = comov_nu * inverse_new_doppler_factor
     r_packet.energy = comov_energy * inverse_new_doppler_factor
-    if ENABLE_FULL_RELATIVITY:
+    if montecarlo_globals.ENABLE_FULL_RELATIVITY:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
@@ -528,7 +525,7 @@ def line_emission(
     r_packet.next_line_id = emission_line_id + 1
     nu_line = opacity_state.line_list_nu[emission_line_id]
 
-    if ENABLE_FULL_RELATIVITY:
+    if montecarlo_globals.ENABLE_FULL_RELATIVITY:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
