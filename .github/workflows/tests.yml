@@ -1,83 +1,65 @@
-# #  For more information about TARDIS pipelines, please refer to:
-# #
-# #    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
 
-# name: tests
+name: tests
 
-# on:
-#   push:
-#     branches:
-#     - '*'
-
-#   pull_request:
-#     branches:
-#     - '*'
+on:
+  push:
+    branches:
+    - '*'
+  pull_request:
+    branches:
+    - '*'
     
-#     types:
-#       - opened
-#       - reopened
-#       - synchronize
-#       - labeled
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
 
-# env:
-#   CACHE_NUMBER: 0  # increase to reset cache manually
-#   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
-#                 --cov=tardis --cov-report=xml --cov-report=html
-#   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
+                --cov=tardis --cov-report=xml --cov-report=html
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-#   cancel-in-progress: true
+defaults:
+  run:
+    shell: bash -l {0}
+ 
 
-# defaults:
-#   run:
-#     shell: bash -l {0}
+jobs:
+  tests:
+    name: ${{ matrix.continuum }} continuum ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: [osx-arm64, linux-64]
+        continuum: ['not', '']
+        include:
+          - label: osx-arm64
+            os: macos-latest
+            prefix: /Users/runner/miniconda3/envs/tardis
 
-# jobs:
-#   build:
-#     if: github.repository_owner == 'tardis-sn'
-#     strategy:
-#       matrix:
-#         pip: [true, false]
-#         label: [osx-arm64, linux-64]
-#         include:
-#           - label: osx-arm64
-#             os: macos-latest
-#             prefix: /Users/runner/miniconda3/envs/tardis
+          - label: linux-64
+            os: ubuntu-latest
+            prefix: /usr/share/miniconda3/envs/tardis
+    steps:
+      - uses: actions/checkout@v4
 
-#           - label: linux-64
-#             os: ubuntu-latest
-#             prefix: /usr/share/miniconda3/envs/tardis
-
-#     name: ${{ matrix.label }}-pip-${{ matrix.pip }}
-#     runs-on: ${{ matrix.os }}
-#     steps:
-#       - uses: actions/checkout@v4
-
-#       - name: Setup LFS
-#         uses: ./.github/actions/setup_lfs
+      - name: Setup tardis
+        uses: ./.github/actions/setup_tardis
+        with: 
+          os-label: ${{ matrix.label }}
       
-#       - name: Setup environment
-#         uses: ./.github/actions/setup_env
-#         with: 
-#           os-label: ${{ matrix.label }}
+      - name: Install package editable
+        run: |
+          pip install -e . --user
 
-#       - name: Install package editable
-#         run: |
-#           pip install -e .
-#           echo "TARDIS_PIP_PATH=tardis" >> $GITHUB_ENV
-#         if: matrix.pip == false
-
-#       - name: Install package git
-#         run: pip install git+https://github.com/tardis-sn/tardis.git@${{ github.ref }}
-#         if: matrix.pip == true
-
-#       - name: Set pip path
-#         if: matrix.pip == true
-#         run: |
-#           location_line=$(pip show tardis | grep -i -x "Location:.*")
-#           directory_path=$(echo $location_line | awk -F " " '{print $2}')
-#           echo "TARDIS_PIP_PATH=$directory_path" >> $GITHUB_ENV
+      - name: Run tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
       
 #       - name: Set install path
 #         if: matrix.pip == false
