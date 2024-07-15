@@ -61,8 +61,6 @@ def test_trace_vpacket_within_shell(
         verysimple_numba_radial_1d_geometry,
         verysimple_time_explosion,
         verysimple_opacity_state,
-        enable_full_relativity=False,
-        continuum_processes_enabled=False,
     )
 
     npt.assert_almost_equal(tau_trace_combined, 8164850.891288479)
@@ -92,8 +90,6 @@ def test_trace_vpacket(
         verysimple_opacity_state,
         10.0,
         0.0,
-        enable_full_relativity=False,
-        continuum_processes_enabled=False,
     )
 
     npt.assert_almost_equal(tau_trace_combined, 8164850.891288479)
@@ -162,6 +158,4 @@ def test_trace_bad_vpacket(
         verysimple_opacity_state,
         10.0,
         0.0,
-        enable_full_relativity=False,
-        continuum_processes_enabled=False,
     )
