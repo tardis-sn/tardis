@@ -1,6 +1,5 @@
 from numba import njit
 
-import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis import constants as const
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
@@ -10,6 +9,7 @@ from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
 )
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_bound_free_estimators,
 )
@@ -83,7 +83,7 @@ def single_packet_loop(
         montecarlo_configuration.SURVIVAL_PROBABILITY,
     )
 
-    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
         rpacket_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
@@ -257,7 +257,7 @@ def single_packet_loop(
             )
         else:
             pass
-        if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+        if montecarlo_globals.ENABLE_RPACKET_TRACKING:
             rpacket_tracker.track(r_packet)
 
 

@@ -3,21 +3,22 @@ import logging
 from astropy import units as u
 from numba import cuda, set_num_threads
 
+import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
 from tardis.transport.montecarlo import (
     montecarlo_main_loop,
 )
-import tardis.transport.montecarlo.configuration.constants as constants
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    initialize_estimator_statistics,
-)
-from tardis.transport.montecarlo.formal_integral import FormalIntegrator
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
 )
+from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+    initialize_estimator_statistics,
+)
+from tardis.transport.montecarlo.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
@@ -209,7 +210,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         update_iterations_pbar(1)
         refresh_packet_pbar()
         # Condition for Checking if RPacket Tracking is enabled
-        if self.montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+        if self.enable_rpacket_tracking:
             transport_state.rpacket_tracker = rpacket_trackers
 
         if self.transport_state.rpacket_tracker is not None:

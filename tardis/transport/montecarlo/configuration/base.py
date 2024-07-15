@@ -3,6 +3,7 @@ from numba import float64, int64, boolean
 from numba.experimental import jitclass
 import numpy as np
 
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,
 )
@@ -76,4 +77,6 @@ def configuration_initialize(config, transport, number_of_vpackets):
         ).value
     )
     config.ENABLE_VPACKET_TRACKING = transport.enable_vpacket_tracking
-    config.ENABLE_RPACKET_TRACKING = transport.enable_rpacket_tracking
+    montecarlo_globals.ENABLE_RPACKET_TRACKING = (
+        transport.enable_rpacket_tracking
+    )
