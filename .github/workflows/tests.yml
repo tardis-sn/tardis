@@ -86,17 +86,22 @@ jobs:
           echo "TARDIS_PIP_PATH=$directory_path" >> $GITHUB_ENV
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "not continuum"
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "not (continuum or rpacket_tracking)"
         working-directory: ${{ env.TARDIS_PIP_PATH }}
         if: always()
+      
+      - name: Upload to Codecov
+        run: bash <(curl -s https://codecov.io/bash)
 
       - name: Run continuum tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m continuum
         working-directory: ${{ env.TARDIS_PIP_PATH }}
         if: always()
 
-      - name: Upload to Codecov
-        run: bash <(curl -s https://codecov.io/bash)
+      - name: Run rpacket tracking tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m rpacket_tracking
+        working-directory: ${{ env.TARDIS_PIP_PATH }}
+        if: always()
       
       - name: Refdata Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
