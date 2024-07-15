@@ -48,7 +48,6 @@ def test_line_scatter(
         time_explosion,
         line_interaction_type,
         verysimple_opacity_state,
-        continuum_processes_enabled=False,
         enable_full_relativity=False,
     )
 

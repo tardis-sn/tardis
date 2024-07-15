@@ -243,7 +243,6 @@ def test_trace_packet(
         verysimple_time_explosion,
         verysimple_opacity_state,
         verysimple_estimators,
-        continuum_processes_enabled=False,
         enable_full_relativity=False,
         disable_line_scattering=False,
     )

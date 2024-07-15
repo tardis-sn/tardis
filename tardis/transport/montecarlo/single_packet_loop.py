@@ -1,5 +1,6 @@
 from numba import njit
 
+import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis import constants as const
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
@@ -21,16 +22,12 @@ from tardis.transport.montecarlo.r_packet import (
     InteractionType,
     PacketStatus,
 )
-from tardis.transport.montecarlo.vpacket import trace_vpacket_volley
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-    get_inverse_doppler_factor,
-)
 from tardis.transport.montecarlo.r_packet_transport import (
     move_packet_across_shell_boundary,
     move_r_packet,
     trace_packet,
 )
+from tardis.transport.montecarlo.vpacket import trace_vpacket_volley
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -84,7 +81,6 @@ def single_packet_loop(
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         montecarlo_configuration.VPACKET_TAU_RUSSIAN,
         montecarlo_configuration.SURVIVAL_PROBABILITY,
-        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
     )
 
     if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
@@ -105,7 +101,7 @@ def single_packet_loop(
         chi_e = chi_electron_calculator(
             opacity_state, comov_nu, r_packet.current_shell_id
         )
-        if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
             (
                 chi_bf_tot,
                 chi_bf_contributions,
@@ -128,7 +124,6 @@ def single_packet_loop(
                 estimators,
                 chi_continuum,
                 escat_prob,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.DISABLE_LINE_SCATTERING,
             )
@@ -156,7 +151,6 @@ def single_packet_loop(
                 estimators,
                 chi_continuum,
                 escat_prob,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.DISABLE_LINE_SCATTERING,
             )
@@ -189,7 +183,6 @@ def single_packet_loop(
                 time_explosion,
                 line_interaction_type,
                 opacity_state,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             trace_vpacket_volley(
@@ -201,7 +194,6 @@ def single_packet_loop(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
                 montecarlo_configuration.SURVIVAL_PROBABILITY,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
@@ -229,10 +221,9 @@ def single_packet_loop(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
                 montecarlo_configuration.SURVIVAL_PROBABILITY,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
             )
         elif (
-            montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
             and interaction_type == InteractionType.CONTINUUM_PROCESS
         ):
             r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
@@ -251,7 +242,6 @@ def single_packet_loop(
                 chi_ff,
                 chi_bf_contributions,
                 current_continua,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
 
@@ -264,7 +254,6 @@ def single_packet_loop(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
                 montecarlo_configuration.SURVIVAL_PROBABILITY,
-                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
             )
         else:
             pass

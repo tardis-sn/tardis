@@ -29,7 +29,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             next_line_id=0,
             index=0,
         )
-    
+
     @property
     def r_packet(self):
         return RPacket(
@@ -62,9 +62,6 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         verysimple_time_explosion = self.verysimple_time_explosion
         verysimple_opacity_state = self.verysimple_opacity_state
         enable_full_relativity = self.verysimple_enable_full_relativity
-        continuum_processes_enabled = (
-            self.verysimple_continuum_processes_enabled
-        )
 
         # Give the vpacket a reasonable line ID
         self.v_packet_initialize_line_id(
@@ -80,7 +77,6 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             verysimple_time_explosion,
             verysimple_opacity_state,
             enable_full_relativity,
-            continuum_processes_enabled,
         )
 
     def time_trace_vpacket(self):
@@ -91,9 +87,6 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         verysimple_time_explosion = self.verysimple_time_explosion
         verysimple_opacity_state = self.verysimple_opacity_state
         enable_full_relativity = self.verysimple_enable_full_relativity
-        continuum_processes_enabled = (
-            self.verysimple_continuum_processes_enabled
-        )
         tau_russian = self.verysimple_tau_russian
         survival_probability = self.verysimple_survival_probability
 
@@ -116,7 +109,6 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             tau_russian,
             survival_probability,
             enable_full_relativity,
-            continuum_processes_enabled,
         )
 
     @property
@@ -139,9 +131,6 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         enable_full_relativity = self.verysimple_enable_full_relativity
         verysimple_time_explosion = self.verysimple_time_explosion
         verysimple_opacity_state = self.verysimple_opacity_state
-        continuum_processes_enabled = (
-            self.verysimple_continuum_processes_enabled
-        )
         tau_russian = self.verysimple_tau_russian
         survival_probability = self.verysimple_survival_probability
 
@@ -153,20 +142,13 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             tau_russian,
             survival_probability,
             enable_full_relativity,
-            continuum_processes_enabled,
         )
 
     @parameterize(
         {
             "Paramters": [
-                {
-                    "tau_russian": 10.0,
-                    "survival_possibility": 0.0
-                },
-                {
-                    "tau_russian": 15.0,
-                    "survival_possibility": 0.1
-                },
+                {"tau_russian": 10.0, "survival_possibility": 0.0},
+                {"tau_russian": 15.0, "survival_possibility": 0.1},
             ]
         }
     )
@@ -180,6 +162,5 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             False,
             parameters["tau_russian"],
             parameters["survival_possibility"],
-            False
+            False,
         )
-

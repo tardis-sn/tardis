@@ -147,7 +147,6 @@ def continuum_event(
     chi_ff,
     chi_bf_contributions,
     current_continua,
-    continuum_processes_enabled,
     enable_full_relativity,
 ):
     """
@@ -189,7 +188,6 @@ def continuum_event(
         r_packet,
         time_explosion,
         opacity_state,
-        continuum_processes_enabled,
         enable_full_relativity,
     )
 
@@ -200,7 +198,6 @@ def macro_atom_event(
     r_packet,
     time_explosion,
     opacity_state,
-    continuum_processes_enabled,
     enable_full_relativity,
 ):
     """
@@ -218,7 +215,7 @@ def macro_atom_event(
     )
 
     if (
-        continuum_processes_enabled
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         and transition_type == MacroAtomTransitionType.FF_EMISSION
     ):
         free_free_emission(
@@ -226,7 +223,7 @@ def macro_atom_event(
         )
 
     elif (
-        continuum_processes_enabled
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         and transition_type == MacroAtomTransitionType.BF_EMISSION
     ):
         bound_free_emission(
@@ -237,7 +234,7 @@ def macro_atom_event(
             enable_full_relativity,
         )
     elif (
-        continuum_processes_enabled
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         and transition_type == MacroAtomTransitionType.BF_COOLING
     ):
         bf_cooling(
@@ -245,7 +242,7 @@ def macro_atom_event(
         )
 
     elif (
-        continuum_processes_enabled
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
     ):
         adiabatic_cooling(r_packet)
@@ -427,7 +424,6 @@ def line_scatter(
     time_explosion,
     line_interaction_type,
     opacity_state,
-    continuum_processes_enabled,
     enable_full_relativity,
 ):
     """
@@ -471,7 +467,6 @@ def line_scatter(
             r_packet,
             time_explosion,
             opacity_state,
-            continuum_processes_enabled,
             enable_full_relativity,
         )
 

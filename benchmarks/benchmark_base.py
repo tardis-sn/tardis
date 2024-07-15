@@ -19,6 +19,7 @@ from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 from tardis.tests.fixtures.regression_data import RegressionData
 from tardis.transport.montecarlo import RPacket
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
@@ -260,7 +261,6 @@ class BenchmarkBase:
             self.nb_simulation_verysimple.plasma,
             line_interaction_type="macroatom",
             disable_line_scattering=self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            continuum_processes_enabled=self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
         )
 
     @property
