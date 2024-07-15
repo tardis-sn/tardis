@@ -21,15 +21,28 @@ on:
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
-                --cov=tardis --cov-report=xml --cov-report=html
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 defaults:
   run:
     shell: bash -l {0}
  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+    
 
 jobs:
+  codecov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true # optional (default = false)
+          token: ${{ env.CODECOV_TOKEN }}
+          verbose: true
+
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -49,9 +62,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup tardis
-        uses: ./.github/actions/setup_tardis
-        with: 
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
+      
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
           os-label: ${{ matrix.label }}
       
       - name: Install package editable
