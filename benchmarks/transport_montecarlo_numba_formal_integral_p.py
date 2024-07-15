@@ -9,8 +9,6 @@ from numba import config
 import tardis.transport.montecarlo.formal_integral as formal_integral
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis import constants as c
-from tardis import run_tardis
-from tardis.io.configuration.config_reader import Configuration
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
 config.THREADING_LAYER='workqueue'
@@ -19,22 +17,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
     """
     Class to benchmark the numba formal integral function.
     """
-
-    def __init__(self):
-        super().__init__()
-
-        self.config = None
-        filename = "data/tardis_configv1_benchmark.yml"
-        path = self.get_relative_path(filename)
-        self.config = Configuration.from_yaml(path)
-
-        self.Simulation = run_tardis(
-            self.config, log_level="ERROR", show_progress_bars=False
-        )
-
-        self.FormalIntegrator = formal_integral.FormalIntegrator(
-            self.Simulation.simulation_state, self.Simulation.plasma, self.Simulation.transport
-        )
 
     @parameterize(
         {
@@ -123,12 +105,13 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
 
     # Benchmark for functions in FormalIntegrator class
     def time_FormalIntegrator_functions(self):
-        self.FormalIntegrator.calculate_spectrum(
-            self.Simulation.transport.transport_state.spectrum.frequency
+        FormalIntegrator = formal_integral.FormalIntegrator(
+            self.simulation_verysimple.simulation_state, self.simulation_verysimple.plasma, self.simulation_verysimple.transport
         )
-        self.FormalIntegrator.make_source_function()
-        self.FormalIntegrator.generate_numba_objects()
-        self.FormalIntegrator.formal_integral(
-            self.Simulation.transport.transport_state.spectrum.frequency,
+        FormalIntegrator.calculate_spectrum(self.simulation_verysimple.transport.transport_state.spectrum.frequency)
+        FormalIntegrator.make_source_function()
+        FormalIntegrator.generate_numba_objects()
+        FormalIntegrator.formal_integral(
+            self.simulation_verysimple.transport.transport_state.spectrum.frequency,
             1000
         )
