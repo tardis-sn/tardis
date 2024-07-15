@@ -17,7 +17,7 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_distance_line,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.numba_config import (
+from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
     SIGMA_THOMSON,
 )

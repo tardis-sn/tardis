@@ -14,7 +14,7 @@ from tardis.opacities.opacity_state import (
     OpacityState,
     opacity_state_initialize,
 )
-from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,

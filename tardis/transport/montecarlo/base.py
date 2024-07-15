@@ -8,13 +8,13 @@ from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
 from tardis.transport.montecarlo import (
     montecarlo_main_loop,
-    numba_config,
 )
+import tardis.transport.montecarlo.configuration.constants as constants
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
 )
 from tardis.transport.montecarlo.formal_integral import FormalIntegrator
-from tardis.transport.montecarlo.montecarlo_configuration import (
+from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
 )
@@ -245,10 +245,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 "Likely bug in formal integral - "
                 "will not give same results."
             )
-            numba_config.SIGMA_THOMSON = 1e-200
+            constants.SIGMA_THOMSON = 1e-200
         else:
             logger.debug("Electron scattering switched on")
-            numba_config.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
+            constants.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
         spectrum_frequency = quantity_linspace(
             config.spectrum.stop.to("Hz", u.spectral()),
