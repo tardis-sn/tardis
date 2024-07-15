@@ -1,6 +1,7 @@
 import numpy as np
 from numba import njit
 
+import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis import constants as const
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.macro_atom import (
@@ -215,7 +216,7 @@ def macro_atom_event(
     )
 
     if (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.FF_EMISSION
     ):
         free_free_emission(
@@ -223,7 +224,7 @@ def macro_atom_event(
         )
 
     elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.BF_EMISSION
     ):
         bound_free_emission(
@@ -234,7 +235,7 @@ def macro_atom_event(
             enable_full_relativity,
         )
     elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.BF_COOLING
     ):
         bf_cooling(
@@ -242,7 +243,7 @@ def macro_atom_event(
         )
 
     elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
     ):
         adiabatic_cooling(r_packet)

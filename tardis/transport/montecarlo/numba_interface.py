@@ -5,7 +5,7 @@ from numba.experimental import jitclass
 import numpy as np
 
 from tardis import constants as const
-import tardis.montecarlo.transport.configuration.montecarlo_globals as montecarlo_globals
+import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
