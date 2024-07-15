@@ -14,7 +14,7 @@ from tardis.transport.montecarlo.configuration import (
     montecarlo_globals,
 )
 from tardis.transport.montecarlo.configuration.base import (
-    configuration_initialize,
+    initialize_configuration,
     MonteCarloConfiguration,
 )
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
@@ -187,9 +187,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             montecarlo_configuration=self.montecarlo_configuration,
         )
 
-        transport_state._montecarlo_virtual_luminosity.value[
-            :
-        ] = v_packets_energy_hist
+        transport_state._montecarlo_virtual_luminosity.value[:] = (
+            v_packets_energy_hist
+        )
         transport_state.last_interaction_type = last_interaction_tracker.types
         transport_state.last_interaction_in_nu = last_interaction_tracker.in_nus
         transport_state.last_line_interaction_in_id = (
@@ -276,7 +276,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
 
         montecarlo_configuration = MonteCarloConfiguration()
-        configuration_initialize(
+        initialize_configuration(
             montecarlo_configuration, config, enable_virtual_packet_logging
         )
 
