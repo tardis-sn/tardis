@@ -37,6 +37,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
       - name: Setup environment
         uses: ./.github/actions/setup_env
         with:
