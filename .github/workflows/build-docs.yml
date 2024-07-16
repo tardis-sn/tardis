@@ -103,9 +103,8 @@ jobs:
       - name: Install package
         run: pip install -e .
 
-      - name: Install Sphinx and extensions
+      - name: Install Sphinx extensions
         run: |
-          pip install sphinx
           pip install sphinxcontrib-googleanalytics
 
       - name: Build documentation
