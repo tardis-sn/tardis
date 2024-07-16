@@ -2,22 +2,23 @@ import logging
 import sys
 from ipywidgets import Output, Tab, Layout
 from IPython.display import display
-
-from tardis.io.logger.colored_logger import ColoredFormatter, formatter_message
+from tardis.io.logger.colored_logger import ColoredFormatter
 
 logging.captureWarnings(True)
 logger = logging.getLogger("tardis")
 
 # Create Output widgets for each log level
 log_outputs = {
-    "DEBUG/INFO": Output(layout=Layout(height='300px', overflow_y='auto')),
     "WARNING/ERROR": Output(layout=Layout(height='300px', overflow_y='auto')),
+    "INFO": Output(layout=Layout(height='300px', overflow_y='auto')),
+    "DEBUG": Output(layout=Layout(height='300px', overflow_y='auto')),
 }
 
 # Create a Tab widget to hold the Output widgets
-tab = Tab(children=[log_outputs[level] for level in log_outputs.keys()])
-for i, level in enumerate(log_outputs.keys()):
-    tab.set_title(i, level)
+tab = Tab(children=[log_outputs["WARNING/ERROR"], log_outputs["INFO"], log_outputs["DEBUG"]])
+tab.set_title(0, "WARNING/ERROR")
+tab.set_title(1, "INFO")
+tab.set_title(2, "DEBUG")
 
 display(tab)
 
@@ -27,16 +28,19 @@ class WidgetHandler(logging.Handler):
 
     def emit(self, record):
         log_entry = self.format(record)
-        if record.levelno in (logging.DEBUG, logging.INFO):
-            with log_outputs["DEBUG/INFO"]:
-                print(log_entry)
-        elif record.levelno in (logging.WARNING, logging.ERROR):
+        if record.levelno in (logging.WARNING, logging.ERROR):
             with log_outputs["WARNING/ERROR"]:
+                print(log_entry)
+        elif record.levelno == logging.INFO:
+            with log_outputs["INFO"]:
+                print(log_entry)
+        elif record.levelno == logging.DEBUG:
+            with log_outputs["DEBUG"]:
                 print(log_entry)
 
 # Setup widget handler
 widget_handler = WidgetHandler()
-widget_handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))  # TODO: Make ColoredFormatter work here
+widget_handler.setFormatter(ColoredFormatter()) #TODO: Make ColoredFormatter work
 
 logger.addHandler(widget_handler)
 logging.getLogger("py.warnings").addHandler(widget_handler)
@@ -47,6 +51,7 @@ LOGGING_LEVELS = {
     "INFO": logging.INFO,
     "WARNING": logging.WARNING,
     "ERROR": logging.ERROR,
+    #"CRITICAL": logging.CRITICAL,
 }
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_SPECIFIC_STATE = False
