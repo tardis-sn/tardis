@@ -171,7 +171,7 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     return isotope_decay_df
 
 
-def evolve_mass_fraction(raw_isotope_mass_fraction, time_array):
+def time_evolve_mass_fraction(raw_isotope_mass_fraction, time_array):
     """
     Function to evolve the mass fraction of isotopes with time.
 
@@ -206,7 +206,7 @@ def evolve_mass_fraction(raw_isotope_mass_fraction, time_array):
     return time_evolved_isotope_mass_fraction
 
 
-def time_evolve_mass_fractions(
+def time_evolve_cumulative_decay(
     raw_isotope_mass_fraction, shell_masses, gamma_ray_lines, time_array
 ):
     """
@@ -231,35 +231,29 @@ def time_evolve_mass_fractions(
 
     """
 
-    isotope_mass_fraction_list = []
-    cumulative_decay_df_list = []
+    isotope_decay_df_list = []
     initial_isotope_mass_fraction = raw_isotope_mass_fraction
 
-    decay_times = np.diff(time_array)
+    dt = np.diff(time_array)
 
-    for time in decay_times:
+    for time in dt:
+
+        isotope_dict = create_isotope_dicts(
+            initial_isotope_mass_fraction, shell_masses
+        )
+        inventories = create_inventories_dict(isotope_dict)
+        total_decays = calculate_total_decays(inventories, time)
+        isotope_df_time = create_isotope_decay_df(total_decays, gamma_ray_lines)
+        isotope_decay_df_list.append(isotope_df_time)
+
         decayed_isotope_mass_fraction = IsotopicMassFraction(
             initial_isotope_mass_fraction
         ).decay(time)
 
-        isotope_dict = create_isotope_dicts(
-            decayed_isotope_mass_fraction, shell_masses
-        )
-        inventories = create_inventories_dict(isotope_dict)
-        cumulative_decay_df = calculate_total_decays(inventories, time)
-        isotope_decay_df = create_isotope_decay_df(
-            cumulative_decay_df, gamma_ray_lines
-        )
-        isotope_mass_fraction_list.append(isotope_decay_df)
-        cumulative_decay_df_list.append(cumulative_decay_df)
         initial_isotope_mass_fraction = decayed_isotope_mass_fraction
 
-    time_evolved_cumulative_decay = pd.concat(
-        cumulative_decay_df_list, keys=time_array, names=["time"]
+    time_evolved_decay_df = pd.concat(
+        isotope_decay_df_list, keys=time_array, names=["time"]
     )
 
-    time_evolve_decay_df = pd.concat(
-        isotope_mass_fraction_list, keys=time_array, names=["time"]
-    )
-
-    return time_evolve_decay_df, time_evolved_cumulative_decay
+    return time_evolved_decay_df
