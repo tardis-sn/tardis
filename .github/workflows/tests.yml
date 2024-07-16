@@ -36,10 +36,17 @@ jobs:
   codecov:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          os-label: linux-64
+      - name: Generate coverage report
+        run: |
+          pytest --cov=tardis --cov-report=xml --cov-report=html
       - uses: codecov/codecov-action@v4
         with:
-          fail_ci_if_error: true # optional (default = false)
+          fail_ci_if_error: true
           token: ${{ env.CODECOV_TOKEN }}
           verbose: true
 
