@@ -10,11 +10,8 @@ logger = logging.getLogger("tardis")
 
 # Create Output widgets for each log level
 log_outputs = {
-    "DEBUG": Output(layout=Layout(height='300px', overflow_y='auto')),
-    "INFO": Output(layout=Layout(height='300px', overflow_y='auto')),
-    "WARNING": Output(layout=Layout(height='300px', overflow_y='auto')),
-    "ERROR": Output(layout=Layout(height='300px', overflow_y='auto')),
-    "CRITICAL": Output(layout=Layout(height='300px', overflow_y='auto'))
+    "DEBUG/INFO": Output(layout=Layout(height='300px', overflow_y='auto')),
+    "WARNING/ERROR": Output(layout=Layout(height='300px', overflow_y='auto')),
 }
 
 # Create a Tab widget to hold the Output widgets
@@ -30,9 +27,11 @@ class WidgetHandler(logging.Handler):
 
     def emit(self, record):
         log_entry = self.format(record)
-        level_name = record.levelname
-        if level_name in log_outputs:
-            with log_outputs[level_name]:
+        if record.levelno in (logging.DEBUG, logging.INFO):
+            with log_outputs["DEBUG/INFO"]:
+                print(log_entry)
+        elif record.levelno in (logging.WARNING, logging.ERROR):
+            with log_outputs["WARNING/ERROR"]:
                 print(log_entry)
 
 # Setup widget handler
@@ -48,7 +47,6 @@ LOGGING_LEVELS = {
     "INFO": logging.INFO,
     "WARNING": logging.WARNING,
     "ERROR": logging.ERROR,
-    "CRITICAL": logging.CRITICAL,
 }
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_SPECIFIC_STATE = False
@@ -66,8 +64,8 @@ class FilterLog(object):
         particular log_level
     """
 
-    def __init__(self, log_level):
-        self.log_level = log_level
+    def __init__(self, log_levels):
+        self.log_levels = log_levels
 
     def filter(self, log_record):
         """
@@ -88,7 +86,7 @@ class FilterLog(object):
             False, if the current log_record doesn't have the
             same log_level as the specified one
         """
-        return log_record.levelno == self.log_level
+        return log_record.levelno in self.log_levels
 
 
 def logging_state(log_level, tardis_config, specific_log_level):
@@ -165,7 +163,7 @@ def logging_state(log_level, tardis_config, specific_log_level):
                 logger.removeFilter(filter)
 
     if specific_log_level:
-        filter_log = FilterLog(LOGGING_LEVELS[logging_level])
+        filter_log = FilterLog([LOGGING_LEVELS[logging_level], logging.INFO, logging.DEBUG])
         for logger in tardis_loggers:
             logger.addFilter(filter_log)
     else:
