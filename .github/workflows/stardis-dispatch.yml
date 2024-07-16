@@ -1,0 +1,23 @@
+name: Stardis Dispatch
+on:
+    push:
+      branches:
+        - master
+    workflow_dispatch:
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get commit SHA
+        id: get_sha
+        run: echo "::set-output name=COMMIT_SHA::$(git rev-parse HEAD)"
+      - name: Dispatch to Stardis
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            -d '{ "event_type": "repo-push", "client_payload": {"commit_sha": "${{ steps.get_sha.outputs.COMMIT_SHA }}"}}' \
+            https://api.github.com/repos/tardis-sn/stardis/dispatches
