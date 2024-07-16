@@ -72,7 +72,14 @@ def montecarlo_main_loop(
     # Pre-allocate a list of vpacket collections for later storage
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
-    rpacket_trackers = List()
+    rpacket_trackers = None
+    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
+        rpacket_trackers = List()
+        rpacket_trackers.append(
+            RPacketTracker(
+                montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+            )
+        )
     for i in range(no_of_packets):
         vpacket_collections.append(
             VPacketCollection(
@@ -82,11 +89,6 @@ def montecarlo_main_loop(
                 montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
                 number_of_vpackets,
                 montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
-            )
-        )
-        rpacket_trackers.append(
-            RPacketTracker(
-                montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
             )
         )
 
@@ -130,7 +132,9 @@ def montecarlo_main_loop(
         vpacket_collection = vpacket_collections[i]
 
         # RPacket Tracker for this thread
-        rpacket_tracker = rpacket_trackers[i]
+        rpacket_tracker = None
+        if montecarlo_globals.ENABLE_RPACKET_TRACKING:
+            rpacket_tracker = rpacket_trackers[i]
 
         loop = single_packet_loop(
             r_packet,
