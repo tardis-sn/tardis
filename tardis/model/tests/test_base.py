@@ -1,5 +1,3 @@
-import os
-from pathlib import Path
 import pytest
 import pandas as pd
 from astropy import units as u

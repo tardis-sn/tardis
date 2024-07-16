@@ -10,7 +10,6 @@ from tardis.io.util import HDFWriterMixin
 from tardis.transport.montecarlo import (
     montecarlo_main_loop,
 )
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,

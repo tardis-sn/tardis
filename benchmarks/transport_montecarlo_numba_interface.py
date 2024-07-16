@@ -2,7 +2,6 @@
 Basic TARDIS Benchmark.
 """
 
-import numpy as np
 from asv_runner.benchmarks.mark import parameterize
 
 from tardis.opacities.opacity_state import opacity_state_initialize

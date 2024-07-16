@@ -8,11 +8,6 @@ from tardis.energy_input.energy_source import (
     get_nuclear_lines_database,
 )
 from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
-from tardis.energy_input.gamma_ray_channel import (
-    calculate_total_decays,
-    create_inventories_dict,
-    create_isotope_dicts,
-)
 
 from tardis.energy_input.gamma_ray_transport import (
     calculate_total_decays_old,

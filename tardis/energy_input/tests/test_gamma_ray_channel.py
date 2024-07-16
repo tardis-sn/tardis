@@ -5,13 +5,9 @@ import astropy.units as u
 import numpy.testing as npt
 import radioactivedecay as rd
 import astropy.constants as const
-from radioactivedecay import converters
 
 from tardis.model import SimulationState
 from tardis.io.configuration import config_reader
-from tardis.energy_input.energy_source import (
-    get_nuclear_lines_database,
-)
 from tardis.energy_input.gamma_ray_channel import (
     create_isotope_dicts,
     create_inventories_dict,

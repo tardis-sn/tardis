@@ -3,7 +3,6 @@ import numpy as np
 import numpy.testing as npt
 
 from tardis.energy_input.gamma_ray_interactions import (
-    compton_scatter,
     pair_creation_packet,
     scatter_type,
 )

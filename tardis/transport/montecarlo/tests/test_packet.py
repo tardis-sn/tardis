@@ -6,7 +6,6 @@ import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.estimators.radfield_mc_estimators
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
-import tardis.transport.montecarlo.numba_interface as numba_interface
 import tardis.transport.montecarlo.r_packet as r_packet
 import tardis.transport.montecarlo.utils as utils
 import tardis.transport.frame_transformations as frame_transformations

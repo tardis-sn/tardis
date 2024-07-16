@@ -4,7 +4,6 @@ import copy
 import tardis
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.atom_data import AtomData
 from tardis.model import SimulationState
 
 

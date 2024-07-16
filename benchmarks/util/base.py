@@ -1,5 +1,5 @@
-from os.path import dirname, realpath, join
-from pathlib import Path, PosixPath
+from os.path import dirname, realpath
+from pathlib import Path
 
 
 class Base:

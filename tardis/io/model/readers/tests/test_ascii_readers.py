@@ -1,15 +1,11 @@
 import os
 from astropy import units as u
-from tardis import io
 from tardis.io.model.readers.generic_readers import ConfigurationError
 
 import numpy.testing as npt
 
 import pytest
 
-import numpy as np
-
-from pathlib import Path
 from tardis.io.model.readers.base import read_density_file
 
 from tardis.io.model.readers.generic_readers import (

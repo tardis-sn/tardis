@@ -3,12 +3,10 @@ from collections import Counter as counter
 
 import numpy as np
 import pandas as pd
-import radioactivedecay as rd
 from numba import njit
 from scipy.interpolate import PchipInterpolator
 from scipy.special import exp1
 
-from tardis import constants as const
 from tardis.plasma.exceptions import IncompleteAtomicData
 from tardis.plasma.properties.base import (
     BaseAtomicDataProperty,

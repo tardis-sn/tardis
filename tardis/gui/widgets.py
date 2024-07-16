@@ -21,12 +21,10 @@ from matplotlib.backends.backend_qt5 import (
     NavigationToolbar2QT as NavigationToolbar,
 )
 from matplotlib import colors
-from matplotlib.patches import Circle
 import matplotlib.pylab as plt
 from astropy import units as u
 
 import tardis
-from tardis import analysis, util
 
 
 class MatplotlibWidget(FigureCanvas):

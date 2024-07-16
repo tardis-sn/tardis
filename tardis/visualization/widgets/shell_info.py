@@ -1,5 +1,3 @@
-from tardis.base import run_tardis
-from tardis.io.atom_data.atom_web_download import download_atom_data
 from tardis.util.base import (
     atomic_number2element_symbol,
     species_tuple_to_string,

@@ -1,6 +1,5 @@
 import pytest
 import numpy as np
-import numpy.testing as npt
 
 from astropy import units as u
 from io import StringIO
@@ -12,7 +11,6 @@ from tardis.util.base import (
     int_to_roman,
     roman_to_int,
     calculate_luminosity,
-    create_synpp_yaml,
     intensity_black_body,
     species_tuple_to_string,
     species_string_to_tuple,

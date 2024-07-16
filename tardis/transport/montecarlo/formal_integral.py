@@ -6,12 +6,10 @@ import scipy.sparse.linalg as linalg
 from scipy.interpolate import interp1d
 from astropy import units as u
 from tardis import constants as const
-from numba import njit, char, float64, int64, typeof, byte, prange
-from numba.experimental import jitclass
+from numba import njit, prange
 
 
 from tardis.opacities.opacity_state import (
-    OpacityState,
     opacity_state_initialize,
 )
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
@@ -19,7 +17,6 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
-    OpacityState,
 )
 from tardis.transport.montecarlo.formal_integral_cuda import (
     CudaFormalIntegrator,
