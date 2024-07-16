@@ -4,7 +4,7 @@ from astropy import units as u
 from numba import float64, int64, cuda
 import math
 
-from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
@@ -149,7 +149,6 @@ def cuda_formal_integral(
             )
 
             for _ in range(max(nu_end_idx - pline, 0)):
-
                 # calculate e-scattering optical depth to next resonance point
                 zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
                 if first == 1:

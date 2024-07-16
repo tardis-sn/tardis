@@ -22,5 +22,4 @@ class BenchmarkMontecarloMontecarloNumbaNumbaInterface(BenchmarkBase):
             plasma,
             line_interaction_type,
             self.verysimple_disable_line_scattering,
-            self.verysimple_continuum_processes_enabled,
         )
