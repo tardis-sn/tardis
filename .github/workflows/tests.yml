@@ -34,6 +34,7 @@ concurrency:
 
 jobs:
   codecov:
+    if: github.repository_owner == 'tardis-sn'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +56,7 @@ jobs:
 
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.os }}
+    if: github.repository_owner == 'tardis-sn'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
