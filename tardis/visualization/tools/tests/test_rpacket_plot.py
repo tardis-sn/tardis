@@ -1,13 +1,10 @@
 """Tests for RPacketPlotter Plots"""
 
 import math
-from tardis.base import run_tardis
 import astropy.units as u
 import pytest
-import pandas as pd
 import numpy as np
 import numpy.testing as npt
-from copy import deepcopy
 from tardis.visualization import RPacketPlotter
 
 
