@@ -11,3 +11,4 @@ from tardis.visualization.widgets.grotrian import GrotrianWidget
 from tardis.visualization.widgets.custom_abundance import CustomAbundanceWidget
 from tardis.visualization.tools.sdec_plot import SDECPlotter
 from tardis.visualization.tools.rpacket_plot import RPacketPlotter
+from tardis.visualization.tools.liv_plot import LIVPlotter

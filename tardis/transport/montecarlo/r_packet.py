@@ -40,6 +40,7 @@ rpacket_spec = [
     ("index", int64),
     ("last_interaction_type", int64),
     ("last_interaction_in_nu", float64),
+    ("last_interaction_in_r", float64),
     ("last_line_interaction_in_id", int64),
     ("last_line_interaction_out_id", int64),
     ("last_line_interaction_shell_id", int64),
@@ -59,6 +60,7 @@ class RPacket(object):
         self.index = index
         self.last_interaction_type = -1
         self.last_interaction_in_nu = 0.0
+        self.last_interaction_in_r = 0.0
         self.last_line_interaction_in_id = -1
         self.last_line_interaction_out_id = -1
         self.last_line_interaction_shell_id = -1
