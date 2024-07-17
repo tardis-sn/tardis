@@ -50,18 +50,19 @@ def simulation_simple(config_verysimple, atomic_dataset):
 class TestRPacketPlotter:
     """Test the RPacketPlotter class."""
 
-    def test_get_coordinates_with_theta_init(self, simulation_simple):
+    def test_get_coordinates_with_theta_init(self, simulation_rpacket_tracking):
         """
         Test for the get_coordinates_with_theta_init method.
 
         Parameters
         ----------
-        simulation_simple : tardis.simulation.base.Simulation
+        simulation_rpacket_tracking : tardis.simulation.base.Simulation
             Simulation object.
         """
-        sim = simulation_simple
-        rpacket_plotter = RPacketPlotter.from_simulation(sim)
-        single_packet_df = sim.transport.transport_state.rpacket_tracker_df.loc[
+        rpacket_plotter = RPacketPlotter.from_simulation(
+            simulation_rpacket_tracking
+        )
+        single_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
             0
         ]
         (
@@ -86,7 +87,7 @@ class TestRPacketPlotter:
         expected_radius_array = (
             (single_packet_df["r"].to_numpy())
             * 1e-5
-            / sim.simulation_state.time_explosion.value
+            / simulation_rpacket_tracking.simulation_state.time_explosion.value
         )
         npt.assert_array_equal(
             np.floor(radius_array),
@@ -95,27 +96,24 @@ class TestRPacketPlotter:
 
     @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     def test_get_coordinates_multiple_packets(
-        self, simulation_simple, no_of_packets
+        self, simulation_rpacket_tracking, no_of_packets
     ):
         """
         Test for the get_coordinates_multiple_packets method.
 
         Parameters
         ----------
-        simulation_simple : tardis.simulation.base.Simulation
+        simulation_rpacket_tracking : tardis.simulation.base.Simulation
             Simulation object.
         no_of_packets : int
             Number of Packets.
         """
-        sim = simulation_simple
         rpacket_plotter = RPacketPlotter.from_simulation(
-            sim, no_of_packets=no_of_packets
+            simulation_rpacket_tracking, no_of_packets=no_of_packets
         )
-        multiple_packet_df = (
-            sim.transport.transport_state.rpacket_tracker_df.loc[
-                0 : (no_of_packets - 1)
-            ]
-        )
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+            0 : (no_of_packets - 1)
+        ]
         (
             rpackets_x,
             rpackets_y,
@@ -130,9 +128,9 @@ class TestRPacketPlotter:
 
         # checking coordinates of every packet
         for rpacket in range(no_of_packets):
-            single_packet_df = (
-                sim.transport.transport_state.rpacket_tracker_df.loc[rpacket]
-            )
+            single_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+                rpacket
+            ]
             (
                 expected_rpacket_x,
                 expected_rpacket_y,
@@ -140,7 +138,7 @@ class TestRPacketPlotter:
             ) = rpacket_plotter.get_coordinates_with_theta_init(
                 single_packet_df["r"],
                 single_packet_df["mu"],
-                sim.simulation_state.time_explosion.value,
+                simulation_rpacket_tracking.simulation_state.time_explosion.value,
                 single_packet_df["interaction_type"],
                 thetas[rpacket],
             )
@@ -151,26 +149,25 @@ class TestRPacketPlotter:
             )
 
     @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
-    def test_get_equal_array_size(self, simulation_simple, no_of_packets):
+    def test_get_equal_array_size(
+        self, simulation_rpacket_tracking, no_of_packets
+    ):
         """
         Test for the get_equal_array_size method.
 
         Parameters
         ----------
-        simulation_simple : tardis.simulation.base.Simulation
+        simulation_rpacket_tracking: tardis.simulation.base.Simulation
             Simulation object.
         no_of_packets : int
             Number of Packets
         """
-        sim = simulation_simple
         rpacket_plotter = RPacketPlotter.from_simulation(
-            sim, no_of_packets=no_of_packets
+            simulation_rpacket_tracking, no_of_packets=no_of_packets
         )
-        multiple_packet_df = (
-            sim.transport.transport_state.rpacket_tracker_df.loc[
-                0 : (no_of_packets - 1)
-            ]
-        )
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+            0 : (no_of_packets - 1)
+        ]
         (
             multiple_packet_x,
             multiple_packet_y,
@@ -225,28 +222,27 @@ class TestRPacketPlotter:
 
     @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     @pytest.mark.parametrize("theme", ["light", "dark"])
-    def test_get_frames(self, simulation_simple, no_of_packets, theme):
+    def test_get_frames(
+        self, simulation_rpacket_tracking, no_of_packets, theme
+    ):
         """
         Test for the get_frames method.
 
         Parameters
         ----------
-        simulation_simple : tardis.simulation.base.Simulation
+        simulation_rpacket_tracking : tardis.simulation.base.Simulation
             Simulation object.
         no_of_packets : int
             Number of Packets
         theme : str
             Theme of plot.
         """
-        sim = simulation_simple
         rpacket_plotter = RPacketPlotter.from_simulation(
-            sim, no_of_packets=no_of_packets
+            simulation_rpacket_tracking, no_of_packets=no_of_packets
         )
-        multiple_packet_df = (
-            sim.transport.transport_state.rpacket_tracker_df.loc[
-                0 : (no_of_packets - 1)
-            ]
-        )
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+            0 : (no_of_packets - 1)
+        ]
         (
             multiple_packet_x,
             multiple_packet_y,
@@ -274,9 +270,10 @@ class TestRPacketPlotter:
                 npt.assert_allclose(expected_y, packet_frame.y)
 
     @pytest.mark.parametrize("max_step_size", [10, 30, 50])
-    def test_get_slider_steps(self, simulation_simple, max_step_size):
-        sim = simulation_simple
-        rpacket_plotter = RPacketPlotter.from_simulation(sim)
+    def test_get_slider_steps(self, simulation_rpacket_tracking, max_step_size):
+        rpacket_plotter = RPacketPlotter.from_simulation(
+            simulation_rpacket_tracking
+        )
         slider_steps = rpacket_plotter.get_slider_steps(max_step_size)
         for index, step in enumerate(slider_steps):
             assert step["args"][0][0] == index
@@ -284,28 +281,27 @@ class TestRPacketPlotter:
 
     @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     @pytest.mark.parametrize("theme", ["light", "dark"])
-    def test_generate_plot(self, simulation_simple, no_of_packets, theme):
+    def test_generate_plot(
+        self, simulation_rpacket_tracking, no_of_packets, theme
+    ):
         """
         Test for the generate_plot method.
 
         Parameters
         ----------
-        simulation_simple : tardis.simulation.base.Simulation
+        simulation_rpacket_tracking : tardis.simulation.base.Simulation
             Simulation object.
         no_of_packets : int
             Number of Packets
         theme : str
             Theme of plot.
         """
-        sim = simulation_simple
         rpacket_plotter = RPacketPlotter.from_simulation(
-            sim, no_of_packets=no_of_packets
+            simulation_rpacket_tracking, no_of_packets=no_of_packets
         )
-        multiple_packet_df = (
-            sim.transport.transport_state.rpacket_tracker_df.loc[
-                0 : (no_of_packets - 1)
-            ]
-        )
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+            0 : (no_of_packets - 1)
+        ]
         (
             multiple_packet_x,
             multiple_packet_y,
@@ -322,7 +318,11 @@ class TestRPacketPlotter:
 
         fig = rpacket_plotter.generate_plot(theme=theme)
 
-        shell_radii = sim.simulation_state.velocity.to_value(u.km / u.s)
+        shell_radii = (
+            simulation_rpacket_tracking.simulation_state.velocity.to_value(
+                u.km / u.s
+            )
+        )
 
         # testing the shells and the photosphere
         for index, shell in enumerate(fig.layout.shapes):
