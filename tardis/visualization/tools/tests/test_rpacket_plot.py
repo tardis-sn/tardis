@@ -34,7 +34,7 @@ class TestRPacketPlotter:
         ) = rpacket_plotter.get_coordinates_with_theta_init(
             single_packet_df["r"],
             single_packet_df["mu"],
-            sim.simulation_state.time_explosion.value,
+            simulation_rpacket_tracking.simulation_state.time_explosion.value,
             single_packet_df["interaction_type"],
             0,
         )

@@ -10,6 +10,7 @@ from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
 from tardis.tests.fixtures.regression_data import regression_data
+from tardis import run_tardis
 
 # ensuring that regression_data is not removed by ruff
 assert regression_data is not None
@@ -268,7 +269,7 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
     simulation object with track_rpacket enabled
     """
     config_rpacket_tracking.montecarlo.iterations = 3
-    config_rpacket_tracking.no_of_packets = 4000
+    config_rpacket_tracking.montecarlo.no_of_packets = 4000
     config_rpacket_tracking.montecarlo.last_no_of_packets = -1
 
     config_rpacket_tracking.montecarlo.tracking.track_rpacket = True
