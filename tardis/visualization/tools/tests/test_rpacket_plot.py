@@ -51,10 +51,7 @@ class TestRPacketPlotter:
             * 1e-5
             / simulation_rpacket_tracking.simulation_state.time_explosion.value
         )
-        npt.assert_array_equal(
-            np.floor(radius_array),
-            np.floor(expected_radius_array),
-        )
+        npt.assert_allclose(radius_array, expected_radius_array)
 
     @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     def test_get_coordinates_multiple_packets(
