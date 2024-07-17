@@ -66,10 +66,9 @@ def last_interaction_type_rpacket_tracker(rpacket_tracker):
     interaction_type = np.empty(no_of_packets, dtype=np.int64)
 
     for i in range(no_of_packets):
-        interactions = rpacket_tracker[i].num_interactions
-        interaction_type[i] = rpacket_tracker[i].interaction_type[
-            interactions - 1
-        ]
+        # the last interaction is the second last element since the last element
+        # correspond to reabsorbed/emission of the packet
+        interaction_type[i] = rpacket_tracker[i].interaction_type[-2]
 
     return interaction_type
 
@@ -83,8 +82,8 @@ def shell_id_rpacket_tracker(
     shell_id = np.empty(no_of_packets, dtype=np.int64)
 
     for i in range(no_of_packets):
-        interactions = rpacket_tracker[i].num_interactions
-        shell_id[i] = rpacket_tracker[i].shell_id[interactions - 1]
+        shell_id[i] = rpacket_tracker[i].shell_id[-2]
+
     mask = last_interaction_type_rpacket_tracker == InteractionType.LINE
     last_line_interaction_shell_id = shell_id[mask]
 
@@ -98,8 +97,7 @@ def nu_rpacket_tracker(rpacket_tracker):
     nu = np.empty(no_of_packets, dtype=np.float64)
 
     for i in range(no_of_packets):
-        interactions = rpacket_tracker[i].num_interactions
-        nu[i] = rpacket_tracker[i].nu[interactions - 1]
+        nu[i] = rpacket_tracker[i].nu[-2]
 
     return nu
 
