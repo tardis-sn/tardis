@@ -72,9 +72,8 @@ def montecarlo_main_loop(
     # Pre-allocate a list of vpacket collections for later storage
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
-    rpacket_trackers = None
+    rpacket_trackers = List()
     if montecarlo_globals.ENABLE_RPACKET_TRACKING:
-        rpacket_trackers = List()
         for i in range(no_of_packets):
             rpacket_trackers.append(
                 RPacketTracker(
