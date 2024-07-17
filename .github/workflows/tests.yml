@@ -11,13 +11,12 @@ on:
   pull_request:
     branches:
     - '*'
-    
     types:
       - opened
       - reopened
       - synchronize
       - labeled
-  workflow_call:
+  workflow_call: # to be called by the pre release workflow
     inputs:
       pip_git:
         description: "Whether or not to install tardis using git"
