@@ -8,6 +8,9 @@ from tardis.transport.montecarlo.packet_trackers import (
 )
 
 
+pytestmark = pytest.mark.rpacket_tracking
+
+
 @pytest.fixture()
 def interaction_type_last_interaction_class(
     simulation_rpacket_tracking,
