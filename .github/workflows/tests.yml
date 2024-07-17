@@ -94,7 +94,7 @@ jobs:
           os-label: ${{ matrix.label }}
       
       - name: Install package editable
-        if: ! ${{ inputs.pip_git }}
+        if: ${{ !inputs.pip_git }}
         run: |
           pip install -e . --user
       
