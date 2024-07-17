@@ -9,5 +9,4 @@ def simulation_verysimple_opacity_state(simulation_verysimple):
         simulation_verysimple.plasma,
         line_interaction_type="macroatom",
         disable_line_scattering=False,
-        continuum_processes_enabled=False,
     )

@@ -10,17 +10,12 @@ from tardis.io.util import HDFWriterMixin
 from tardis.transport.montecarlo import (
     montecarlo_main_loop,
 )
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
 )
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
-)
-from tardis.transport.montecarlo.montecarlo_configuration import (
-    MonteCarloConfiguration,
-    configuration_initialize,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
