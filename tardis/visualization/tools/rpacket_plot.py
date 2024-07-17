@@ -473,18 +473,7 @@ class RPacketPlotter:
                 rpacket_interactions.append(0)
             else:
                 # current slope is the slope of line from previous position of the packet to the current position
-                current_slope = (
-                    rpacket_y[step_no] - rpacket_y[step_no - 1]
-                ) / (rpacket_x[step_no] - rpacket_x[step_no - 1])
-                # next slope is the slope of line from current position of the packet to the next position
-                next_slope = (rpacket_y[step_no + 1] - rpacket_y[step_no]) / (
-                    rpacket_x[step_no + 1] - rpacket_x[step_no]
-                )
-                # here if the slope changes significantly we say, its an interaction
-                if math.isclose(current_slope, next_slope, rel_tol=1e-10):
-                    rpacket_interactions.append(0)
-                else:
-                    rpacket_interactions.append(last_interaction_type[step_no])
+                rpacket_interactions.append(last_interaction_type[step_no])
 
         return rpacket_x, rpacket_y, rpacket_interactions
 
