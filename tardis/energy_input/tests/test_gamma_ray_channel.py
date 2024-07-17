@@ -17,9 +17,11 @@ from tardis.energy_input.gamma_ray_channel import (
     create_inventories_dict,
     calculate_total_decays,
     create_isotope_decay_df,
+    time_evolve_cumulative_decay,
 )
 from tardis.energy_input.gamma_ray_transport import get_taus
 from tardis.energy_input.util import KEV2ERG
+from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
 
 
 @pytest.fixture(scope="module")
@@ -311,5 +313,42 @@ def test_total_energy_production(gamma_ray_test_composition, atomic_dataset):
     ]
     co56_energy = co_56_df["decay_energy_erg"].sum()
     actual = ni56_energy + co56_energy
+
+    npt.assert_allclose(actual, expected)
+
+
+def test_cumulative_decays(gamma_ray_test_composition, atomic_dataset):
+    """
+    Function to test the cumulative decay of isotopes.
+    Parameters
+    ----------
+    gamma_ray_simulation_state: Tardis simulation state
+    atomic_dataset: Tardis atomic-nuclear dataset
+    """
+
+    time_start = 0.1 * u.d
+    time_end = 100 * u.d
+    time_steps = 2
+    time_space = "linear"
+    time_delta = (time_end - time_start).value
+
+    gamma_ray_lines = atomic_dataset.decay_radiation_data
+    raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
+    isotope_dict = create_isotope_dicts(raw_isotopic_mass_fraction, cell_masses)
+    inventories_dict = create_inventories_dict(isotope_dict)
+    total_decays = calculate_total_decays(inventories_dict, time_delta)
+    isotope_decay_df = create_isotope_decay_df(total_decays, gamma_ray_lines)
+
+    times, effective_times = get_effective_time_array(
+        time_start.value, time_end.value, time_space, time_steps
+    )
+    # total decay energy in the entire time range
+    actual = isotope_decay_df["decay_energy_erg"].sum()
+
+    # time evolve the decay energy
+    evolve_decays_with_time = time_evolve_cumulative_decay(
+        raw_isotopic_mass_fraction, cell_masses, gamma_ray_lines, times
+    )
+    expected = evolve_decays_with_time["decay_energy_erg"].sum()
 
     npt.assert_allclose(actual, expected)
