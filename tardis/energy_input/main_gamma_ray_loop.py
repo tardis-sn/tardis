@@ -203,10 +203,14 @@ def run_gamma_ray_loop(
         taus,
         parents,
     )
+
     logger.info("Creating packets")
     packet_collection = packet_source.create_packets(
         cumulative_decays_df, num_decays, seed
     )
+
+    return packet_collection
+
     logger.info("Creating packet list")
     packets = []
     packets = [
@@ -241,7 +245,10 @@ def run_gamma_ray_loop(
     logger.info(f"Total CMF energy is {total_cmf_energy}")
     logger.info(f"Total RF energy is {total_rf_energy}")
 
-    (energy_out, packets_array,) = gamma_packet_loop(
+    (
+        energy_out,
+        packets_array,
+    ) = gamma_packet_loop(
         packets,
         grey_opacity,
         photoabsorption_opacity,
