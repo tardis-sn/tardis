@@ -325,9 +325,9 @@ class LineInfoWidget:
 
             if group_mode == "both":
                 # Group by both exc. line ids and de-exc. line ids
-                current_last_lines_in["line_id_out"] = (
-                    current_last_lines_out.line_id
-                )
+                current_last_lines_in[
+                    "line_id_out"
+                ] = current_last_lines_out.line_id
                 grouped_line_interactions = current_last_lines_in.groupby(
                     ["line_id", "line_id_out"]
                 )
