@@ -62,7 +62,7 @@ jobs:
 
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.rpacket_tracking }} rpacket_tracking ${{ matrix.os }} ${{ inputs.pip_tests && 'pip tests enabled' || '' }}
-    # if: github.repository_owner == 'tardis-sn'
+    if: github.repository_owner == 'tardis-sn'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
