@@ -84,8 +84,7 @@ def single_packet_loop(
         montecarlo_configuration.SURVIVAL_PROBABILITY,
     )
 
-    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
-        rpacket_tracker.track(r_packet)
+    rpacket_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
@@ -258,13 +257,11 @@ def single_packet_loop(
             )
         else:
             pass
-        if (
-            montecarlo_globals.ENABLE_RPACKET_TRACKING
-            and interaction_type != InteractionType.BOUNDARY
-        ):
+        if interaction_type != InteractionType.BOUNDARY:
             rpacket_tracker.track(r_packet)
 
     # Registering the final boundary interaction.
+    # Only for RPacketTracker
     if montecarlo_globals.ENABLE_RPACKET_TRACKING:
         temp_r_packet = RPacket(
             r_packet.r,
