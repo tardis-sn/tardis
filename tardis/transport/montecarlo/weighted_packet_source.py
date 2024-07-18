@@ -111,7 +111,10 @@ class BlackBodyWeightedSource(BasePacketSource, HDFWriterMixin):
         nu_min = nus.min()
         nu_max = nus.max()
 
-        self.nus = np.random.uniform(nu_min.cgs.value, nu_max.cgs.value, no_of_packets)*nus.unit
+        self.nus = (
+            np.random.uniform(nu_min.cgs.value, nu_max.cgs.value, no_of_packets)
+            * nus.unit
+        )
 
         return self.nus
 
@@ -172,4 +175,3 @@ class BlackBodyWeightedSource(BasePacketSource, HDFWriterMixin):
             (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
             ** 0.25
         ).to("K")
-

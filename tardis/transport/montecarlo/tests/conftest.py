@@ -35,6 +35,7 @@ def montecarlo_main_loop_config(
     del config_montecarlo_1e5_verysimple["config_dirname"]
     return config_montecarlo_1e5_verysimple
 
+
 @pytest.fixture(scope="package")
 def nb_simulation_verysimple(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
@@ -42,10 +43,10 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
     sim.iterate(10)
     return sim
 
+
 @pytest.fixture(scope="package")
 def simple_weighted_packet_source():
-    packet_source = BlackBodyWeightedSource(
-        base_seed=1963)
+    packet_source = BlackBodyWeightedSource(base_seed=1963)
 
     return packet_source
 
