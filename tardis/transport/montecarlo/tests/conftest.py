@@ -44,9 +44,7 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 @pytest.fixture(scope="package")
 def simple_weighted_packet_source():
     packet_source = BlackBodyWeightedSource(
-        base_seed=1963,
-        legacy_second_seed=2508,
-        legacy_mode_enabled=True,)
+        base_seed=1963)
 
     return packet_source
 
