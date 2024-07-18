@@ -28,7 +28,7 @@ def test_montecarlo_main_loop_weighted(
     montecarlo_main_loop_simulation_weighted.run_final()
 
     # Get the montecarlo simple regression data
-    regression_data_dir = regression_data.absolute_regression_data_dir.parents[0] / "test_montecarlo_main_loop/test_montecarlo_main_loop.h5"
+    regression_data_dir = regression_data.absolute_regression_data_dir.absolute().parents[0] / "test_montecarlo_main_loop/test_montecarlo_main_loop.h5"
     expected_hdf_store = pd.HDFStore(regression_data_dir, mode="r")
 
     # Load compare data from refdata
