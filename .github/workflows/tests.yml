@@ -8,7 +8,6 @@ on:
   push:
     branches:
     - '*'
-
   pull_request:
     branches:
     - '*'
@@ -22,24 +21,52 @@ on:
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
-                --cov=tardis --cov-report=xml --cov-report=html
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
 
 defaults:
   run:
     shell: bash -l {0}
+ 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+    
 
 jobs:
-  build:
+  codecov:
     if: github.repository_owner == 'tardis-sn'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          os-label: linux-64
+      - name: Generate coverage report
+        run: |
+          pytest --cov=tardis --cov-report=xml --cov-report=html
+      - uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          fail_ci_if_error: true
+          token: ${{ env.CODECOV_TOKEN }}
+          verbose: true
+
+  tests:
+    name: ${{ matrix.continuum }} continuum ${{ matrix.rpacket_tracking }} rpacket_tracking ${{ matrix.os }}
+    if: github.repository_owner == 'tardis-sn'
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        pip: [true, false]
         label: [osx-arm64, linux-64]
+        continuum: ['not', '']
+        rpacket_tracking: ['not', '']
+        exclude:
+          - continuum: ''
+            rpacket_tracking: ''
         include:
           - label: osx-arm64
             os: macos-latest
@@ -48,9 +75,6 @@ jobs:
           - label: linux-64
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
-
-    name: ${{ matrix.label }}-pip-${{ matrix.pip }}
-    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -59,46 +83,16 @@ jobs:
       
       - name: Setup environment
         uses: ./.github/actions/setup_env
-        with: 
+        with:
           os-label: ${{ matrix.label }}
-
+      
       - name: Install package editable
         run: |
-          pip install -e .
-          echo "TARDIS_PIP_PATH=tardis" >> $GITHUB_ENV
-        if: matrix.pip == false
-
-      - name: Install package git
-        run: pip install git+https://github.com/tardis-sn/tardis.git@${{ github.ref }}
-        if: matrix.pip == true
-
-      - name: Set pip path
-        if: matrix.pip == true
-        run: |
-          location_line=$(pip show tardis | grep -i -x "Location:.*")
-          directory_path=$(echo $location_line | awk -F " " '{print $2}')
-          echo "TARDIS_PIP_PATH=$directory_path" >> $GITHUB_ENV
-      
-      - name: Set install path
-        if: matrix.pip == false
-        run: |
-          directory_path="."
-          echo "TARDIS_PIP_PATH=$directory_path" >> $GITHUB_ENV
+          pip install -e . --user
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "not continuum"
-        working-directory: ${{ env.TARDIS_PIP_PATH }}
-        if: always()
-
-      - name: Run continuum tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m continuum
-        working-directory: ${{ env.TARDIS_PIP_PATH }}
-        if: always()
-
-      - name: Upload to Codecov
-        run: bash <(curl -s https://codecov.io/bash)
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking" 
       
       - name: Refdata Generation tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
-        working-directory: ${{ env.TARDIS_PIP_PATH }}
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking" 
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'

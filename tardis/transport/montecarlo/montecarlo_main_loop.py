@@ -4,12 +4,13 @@ from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
 
 from tardis.transport.montecarlo import njit_dict
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
     consolidate_vpacket_tracker,
     initialize_last_interaction_tracker,
 )
+from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
     RPacket,
@@ -185,7 +186,7 @@ def montecarlo_main_loop(
             1,
         )
 
-    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 

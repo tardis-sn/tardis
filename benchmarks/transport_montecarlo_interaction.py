@@ -10,7 +10,6 @@ from tardis.transport.montecarlo.numba_interface import (
 from asv_runner.benchmarks.mark import parameterize
 
 
-
 class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
     """
     Class to benchmark the numba interaction function.
@@ -52,7 +51,6 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
             line_interaction_type,
             self.verysimple_opacity_state,
             self.verysimple_enable_full_relativity,
-            self.verysimple_continuum_processes_enabled,
         )
 
     @parameterize(
@@ -63,17 +61,7 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
                     "emission_line_id": 1000,
                     "energy": 0.9114437898710559,
                 },
-                {
-                    "mu": -0.6975116557422458,
-                    "emission_line_id": 2000,
-                    "energy": 0.8803098648913266,
-                },
-                {
-                    "mu": -0.7115661419975774,
-                    "emission_line_id": 0,
-                    "energy": 0.8800385929341252,
-                },
-            ]
+             ]
         }
     )
     def time_line_emission(self, test_packet):

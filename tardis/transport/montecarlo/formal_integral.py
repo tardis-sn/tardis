@@ -14,7 +14,8 @@ from tardis.opacities.opacity_state import (
     OpacityState,
     opacity_state_initialize,
 )
-from tardis.transport.montecarlo.numba_config import SIGMA_THOMSON
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
@@ -289,7 +290,6 @@ class FormalIntegrator(object):
                 plasma,
                 transport.line_interaction_type,
                 self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-                self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
@@ -312,7 +312,6 @@ class FormalIntegrator(object):
             self.original_plasma,
             self.transport.line_interaction_type,
             self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
         )
         if self.transport.use_gpu:
             self.integrator = CudaFormalIntegrator(
@@ -364,7 +363,7 @@ class FormalIntegrator(object):
                 'and line_interaction_type == "macroatom"'
             )
 
-        if self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
             return raise_or_return(
                 "The FormalIntegrator currently does not work for "
                 "continuum interactions."

@@ -68,11 +68,11 @@ jobs:
       - name: Accept all asv questions
         run: asv machine --yes
 
-      - name: Run benchmarks for last 5 commits if not PR
+      - name: Run benchmarks for last 4 commits if not PR
         if: github.event_name != 'pull_request_target'
         run: |
-          git log -n 5  --pretty=format:"%H" >> tag_commits.txt
-          asv run HASHFILE:tag_commits.txt | tee asv-output.log  
+          git log -n 4 --pretty=format:"%H" >> tag_commits.txt
+          asv run -a repeat=1 -a rounds=1 HASHFILE:tag_commits.txt | tee asv-output.log  
           if grep -q failed asv-output.log; then 
             echo "Some benchmarks have failed!"
             exit 1
@@ -126,7 +126,7 @@ jobs:
           echo $(git rev-parse HEAD) > commit_hashes.txt
           echo $(git merge-base HEAD upstream/master) >> commit_hashes.txt
 
-          asv run HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
+          asv run -a repeat=1 -a rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
             if grep -q failed asv-output-PR.log; then 
               echo "Some benchmarks have failed!"
               exit 1

@@ -189,6 +189,8 @@ text_file_format = "rst"
 markers = [
     # continuum tests
     "continuum",
+    # rpacket tracking tests
+    "rpacket_tracking"
 ]
 
 [tool.tardis]

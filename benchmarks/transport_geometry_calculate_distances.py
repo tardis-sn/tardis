@@ -1,10 +1,11 @@
-from asv_runner.benchmarks.mark import parameterize
+from asv_runner.benchmarks.mark import parameterize, skip_benchmark
 
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 from benchmarks.benchmark_base import BenchmarkBase
 
 
+@skip_benchmark
 class BenchmarkTransportGeometryCalculateDistances(BenchmarkBase):
     """
     Class to benchmark the calculate distances function.

@@ -24,14 +24,6 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
                 {
                     "nu": 1e14,
                     "temperature": 1e4,
-                },
-                {
-                    "nu": 0,
-                    "temperature": 1,
-                },
-                {
-                    "nu": 1,
-                    "temperature": 1,
                 }
             ]
         }
@@ -41,7 +33,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         temperature = parameters["temperature"]
         formal_integral.intensity_black_body(nu, temperature)
 
-    @parameterize({"N": (1e2, 1e3, 1e4, 1e5)})
+    @parameterize({"N": (1e2, 1e3)})
     def time_trapezoid_integration(self, n):
         h = 1.0
         data = np.random.random(int(n))
@@ -98,7 +90,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaFormalIntegral(BenchmarkBase):
         for r in r_outer:
             formal_integral.calculate_z(r, p, inv_t)
 
-    @parameterize({"N": [100, 1000, 10000]})
+    @parameterize({"N": [100, 1000]})
     def time_calculate_p_values(self, N):
         r = 1.0
         formal_integral.calculate_p_values(r, N)

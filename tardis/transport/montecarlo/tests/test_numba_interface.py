@@ -12,7 +12,6 @@ def test_opacity_state_initialize(nb_simulation_verysimple, input_params):
         plasma,
         line_interaction_type,
         disable_line_scattering=False,
-        continuum_processes_enabled=False,
     )
 
     npt.assert_allclose(
@@ -72,6 +71,9 @@ def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
     last_interaction_in_nus = np.array(
         [3.0e15, 0.0, 1e15, 1e5], dtype=np.float64
     )
+    last_interaction_in_rs = np.array(
+        [3e42, 4.5e45, 0, 9.0e40], dtype=np.float64
+    )
     last_interaction_types = np.array([1, 1, 3, 2], dtype=np.int64)
     last_interaction_in_ids = np.array([100, 0, 1, 1000], dtype=np.int64)
     last_interaction_out_ids = np.array([1201, 123, 545, 1232], dtype=np.int64)
@@ -83,6 +85,7 @@ def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
         initial_mu,
         initial_r,
         last_interaction_in_nu,
+        last_interaction_in_r,
         last_interaction_type,
         last_interaction_in_id,
         last_interaction_out_id,
@@ -93,6 +96,7 @@ def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
         initial_mus,
         initial_rs,
         last_interaction_in_nus,
+        last_interaction_in_rs,
         last_interaction_types,
         last_interaction_in_ids,
         last_interaction_out_ids,
@@ -104,6 +108,7 @@ def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
             initial_mu,
             initial_r,
             last_interaction_in_nu,
+            last_interaction_in_r,
             last_interaction_type,
             last_interaction_in_id,
             last_interaction_out_id,
@@ -139,6 +144,12 @@ def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
             : verysimple_3vpacket_collection.idx
         ],
         last_interaction_in_nus,
+    )
+    npt.assert_array_equal(
+        verysimple_3vpacket_collection.last_interaction_in_r[
+            : verysimple_3vpacket_collection.idx
+        ],
+        last_interaction_in_rs,
     )
     npt.assert_array_equal(
         verysimple_3vpacket_collection.last_interaction_type[

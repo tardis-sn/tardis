@@ -46,6 +46,7 @@ def simulation_simple(config_verysimple, atomic_dataset):
     return sim
 
 
+@pytest.mark.rpacket_tracking
 class TestRPacketPlotter:
     """Test the RPacketPlotter class."""
 

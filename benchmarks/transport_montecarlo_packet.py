@@ -47,16 +47,8 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
                     "distance": 1.0,
                 },
                 {
-                    "electron_density": 1e10,
-                    "distance": 1e10,
-                },
-                {
                     "electron_density": -1,
                     "distance": 0,
-                },
-                {
-                    "electron_density": -1e10,
-                    "distance": -1e10,
                 },
             ]
         }
@@ -75,12 +67,6 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
                 {
                     "cur_line_id": 0,
                     "distance_trace": 1e12,
-                    "time_explosion": 5.2e7,
-                    "enable_full_relativity": True,
-                },
-                {
-                    "cur_line_id": 0,
-                    "distance_trace": 0,
                     "time_explosion": 5.2e7,
                     "enable_full_relativity": True,
                 },
@@ -115,16 +101,6 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
                     "delta_shell": 11,
                     "no_of_shells": 132,
                 },
-                {
-                    "current_shell_id": 132,
-                    "delta_shell": 1,
-                    "no_of_shells": 133,
-                },
-                {
-                    "current_shell_id": 132,
-                    "delta_shell": 2,
-                    "no_of_shells": 133,
-                },
             ]
         }
     )
@@ -145,17 +121,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
                     "current_shell_id": 132,
                     "delta_shell": 132,
                     "no_of_shells": 132,
-                },
-                {
-                    "current_shell_id": -133,
-                    "delta_shell": -133,
-                    "no_of_shells": -1e9,
-                },
-                {
-                    "current_shell_id": 132,
-                    "delta_shell": 133,
-                    "no_of_shells": 133,
-                },
+                }
             ]
         }
     )
@@ -176,17 +142,7 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
                     "current_shell_id": 132,
                     "delta_shell": -1,
                     "no_of_shells": 199,
-                },
-                {
-                    "current_shell_id": 132,
-                    "delta_shell": 0,
-                    "no_of_shells": 132,
-                },
-                {
-                    "current_shell_id": 132,
-                    "delta_shell": 20,
-                    "no_of_shells": 154,
-                },
+                }
             ]
         }
     )

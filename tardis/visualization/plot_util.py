@@ -60,3 +60,22 @@ def get_mid_point_idx(arr):
     """
     mid_value = (arr[0] + arr[-1]) / 2
     return np.abs(arr - mid_value).argmin()
+
+
+def to_rgb255_string(color_tuple):
+    """
+    Convert a matplotlib RGBA tuple to a generic RGB 255 string.
+
+    Parameters
+    ----------
+    color_tuple : tuple
+        Matplotlib RGBA tuple of float values in closed interval [0, 1]
+
+    Returns
+    -------
+    str
+        RGB string of format rgb(r,g,b) where r,g,b are integers between
+        0 and 255 (both inclusive)
+    """
+    color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
+    return f"rgb{color_tuple_255}"
