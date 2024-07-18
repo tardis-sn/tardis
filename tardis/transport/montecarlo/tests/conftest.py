@@ -13,6 +13,7 @@ from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
+from tardis.transport.montecarlo.weighted_packet_source import BlackBodyWeightedSource
 
 
 from tardis.transport.montecarlo.numba_interface import (
@@ -26,6 +27,15 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.iterate(10)
     return sim
+
+@pytest.fixture(scope="package")
+def simple_weighted_packet_source():
+    packet_source = BlackBodyWeightedSource(
+        base_seed=1963,
+        legacy_second_seed=2508,
+        legacy_mode_enabled=True,)
+
+    return packet_source
 
 
 @pytest.fixture(scope="package")
