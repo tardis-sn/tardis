@@ -1,4 +1,6 @@
-# Functions that are important for the general usage of TARDIS.
+"""
+Functions that are important for the general usage of TARDIS.
+"""
 
 import logging
 
@@ -32,7 +34,7 @@ def run_tardis(
         the atomic data. Atomic data to use for this TARDIS simulation. If set to None (i.e. default),
         the atomic data will be loaded according to keywords set in the configuration
     packet_source : class, optional
-        A custom packet source class or a child class of `tardis.montecarlo.packet_source`
+        A custom packet source class or a child class of `tardis.transport.montecarlo.packet_source`
         used to override the TARDIS `BasePacketSource` class.
     simulation_callbacks : list of lists, default: `[]`, optional
         Set of callbacks to call at the end of every iteration of the Simulation.
@@ -69,7 +71,7 @@ def run_tardis(
     Please see the `logging tutorial <https://tardis-sn.github.io/tardis/io/optional/logging_configuration.html>`_ to know more about `log_level` and `specific` options.
     """
     from tardis.io.logger.logger import logging_state
-    from tardis.io.config_reader import Configuration
+    from tardis.io.configuration.config_reader import Configuration
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
 
@@ -110,6 +112,7 @@ def run_tardis(
     for cb in simulation_callbacks:
         simulation.add_callback(*cb)
 
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
     return simulation

@@ -9,23 +9,23 @@ on:
     branches: [master]
     types: [closed]
 
-  workflow_dispatch:  # manual trigger
+  workflow_dispatch: # manual trigger
 
 jobs:
   create:
     if: github.event_name == 'workflow_dispatch' ||
-        (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
+      (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Install setuptools_scm
         run: pip install 'setuptools_scm<7'
@@ -34,7 +34,7 @@ jobs:
         run: python .ci-helpers/get_current_version.py
 
       - name: Get next version
-        run:  |
+        run: |
           python .ci-helpers/get_next_version.py
           echo "NEW_TAG=$(python .ci-helpers/get_next_version.py)" >> $GITHUB_ENV
 

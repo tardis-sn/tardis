@@ -30,7 +30,7 @@ this method by following the steps described below.
 
   ::
 
-    $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
+    $ wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-{platform}-64.lock
 
 2. Create and activate the ``tardis`` environment.
 
@@ -39,19 +39,7 @@ this method by following the steps described below.
     $ conda create --name tardis --file conda-{platform}-64.lock
     $ conda activate tardis
 
-3. a. Non-developers can install the latest release from ``conda-forge`` with the ``--no-deps`` flag,
-
-      ::
-
-        $ conda install tardis-sn --channel conda-forge --no-deps
-
-      or trying the most recent, unreleased changes from upstream.
-
-      ::
-
-        $ pip install git+https://github.com/tardis-sn/tardis.git@master
-
-   b. Instead, developers should `fork the repository <https://github.com/tardis-sn/tardis/fork>`_, configure
+3. a. Developers should `fork the repository <https://github.com/tardis-sn/tardis/fork>`_, configure
       GitHub to `work with SSH keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
       set up the `upstream remote <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork>`_,
       and install the package in development mode.
@@ -68,7 +56,24 @@ this method by following the steps described below.
       .. note::
 
         The complete developer guidelines can be found :ref:`here <developer_guidelines>`.
+        
+    b. Non-developers can install from specific releases using pip-
 
+      ::
+
+        $ pip install git+https://github.com/tardis-sn/tardis.git@{tag}
+
+      For example- 
+
+      ::
+      
+        $ pip install git+https://github.com/tardis-sn/tardis.git@release-latest
+
+      or trying the most recent, unreleased changes from upstream.
+
+      ::
+
+        $ pip install git+https://github.com/tardis-sn/tardis.git@master
 
 4. Once finished working, you can deactivate your environment.
 
@@ -82,16 +87,16 @@ You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TAR
 to start running simulations.
 
 
-Install from package
-====================
+.. Install from package
+.. ====================
 
-It's also possible to install TARDIS by pulling the `conda-forge package <https://anaconda.org/conda-forge/tardis-sn>`_
-into a clean environment. However, we still encourage using lockfiles to ensure
-reproducibility of scientific results.
+.. It's also possible to install TARDIS by pulling the `conda-forge package <https://anaconda.org/conda-forge/tardis-sn>`_
+.. into a clean environment. However, we still encourage using lockfiles to ensure
+.. reproducibility of scientific results.
 
-::
+.. ::
 
-    $ conda create --name tardis-forge tardis-sn --channel conda-forge
+..     $ conda create --name tardis-forge tardis-sn --channel conda-forge
 
 
 Environment update
@@ -101,6 +106,7 @@ To update the environment after a new release, download the latest lockfile and 
 
 ::
 
+    $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
     $ conda update --name tardis --file conda-{platform}-64.lock
 
 .. note::
@@ -110,3 +116,15 @@ To update the environment after a new release, download the latest lockfile and 
   ::
 
       $ conda compare --name tardis tardis_env3.yml
+
+**Recommended approach:**
+
+We highly recommend deleting your existing environment and creating a new one using the latest lockfile whenever you need to update your environment after a new release.
+
+Use the following ``conda`` command to remove your current ``tardis`` environment:
+
+::
+  $ conda remove --name tardis --all
+
+Now, you can create a new environment by following the steps given `here <https://tardis-sn.github.io/tardis/installation.html#install-with-lockfiles>`_.
+

@@ -1,12 +1,37 @@
+[project]
+name = "tardis"
+authors = [{ name = "TARDIS Collaboration", email = "wkerzendorf@gmail.com" }]
+license = { text = "BSD-3-Clause" }
+classifiers = ["License :: OSI Approved :: BSD License"]
+description = "TARDIS - Temperature And Radiative Diffusion In Supernovae"
+readme = { file = "README.rst", content-type = "text/x-rst" }
+requires-python = ">=3.7"
+dependencies = ["astropy"]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+test = ["pytest-astropy"]
+docs = ["sphinx-astropy"]
+
+[project.scripts]
+cmfgen2tardis = "tardis.scripts.cmfgen2tardis:main"
+
+[project.urls]
+Homepage = "https://tardis-sn.github.io/"
+Documentation = "https://tardis-sn.github.io/tardis/"
+Repository = "https://github.com/tardis-sn/tardis"
+Issues = "https://github.com/tardis-sn/tardis/issues/"
+Changelog = "https://tardis-sn.github.io/tardis/contributing/CHANGELOG.html"
+
 [build-system]
 requires = ["setuptools",
             "setuptools_scm",
             "wheel"]
-build-backend = 'setuptools.build_meta'
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 80
-target-version = ['py36']
+target-version = ["py36"]
 exclude = '''
 (
   /(
@@ -41,10 +66,132 @@ ignore-nested-functions = false
 ignore-nested-classes = true
 ignore-private = true
 ignore-property-decorators = true
-#ignore-regex = ["^get$", "^mock_.*", ".*BaseClass.*"]
+ignore-regex = ["^test"]
 ignore-semiprivate = true
 ignore-setters = true
 omit-covered-files = false
 quiet = false
 verbose = 0
 #whitelist-regex = []
+
+[tool.ruff]
+line-length = 80
+lint.select = ["ALL"]
+exclude=[]
+lint.ignore = [  # NOTE: non-permanent exclusions should be added to `.ruff.toml` instead.
+
+    # flake8-builtins (A) : shadowing a Python built-in.
+    # New ones should be avoided and is up to maintainers to enforce.
+    "A00",
+
+    # flake8-annotations (ANN)
+    "ANN101",  # No annotation for `self`.
+    "ANN102",  # No annotation for `cls`.
+
+    # flake8-bugbear (B)
+    "B008",  # FunctionCallArgumentDefault
+
+    # flake8-commas (COM)
+    "COM812",  # TrailingCommaMissing
+    "COM819",  # TrailingCommaProhibited
+
+    # pydocstyle (D)
+    # Missing Docstrings
+    "D102",  # Missing docstring in public method. Don't check b/c docstring inheritance.
+    "D105",  # Missing docstring in magic method. Don't check b/c class docstring.
+    # Whitespace Issues
+    "D200",  # FitsOnOneLine
+    # Docstring Content Issues
+    "D410",  # BlankLineAfterSection. Using D412 instead.
+    "D400",  # EndsInPeriod.  NOTE: might want to revisit this.
+
+    # pycodestyle (E, W)
+    "E711",  # NoneComparison  (see unfixable)
+    "E741",  # AmbiguousVariableName. Physics variables are often poor code variables
+
+    # flake8-fixme (FIX)
+    "FIX002",  # Line contains TODO | notes for improvements are OK iff the code works
+
+    # ISC001 shouldn't be used with ruff format
+    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    "ISC001",
+
+    # pep8-naming (N)
+    "N803",  # invalid-argument-name. Physics variables are often poor code variables
+    "N806",  # non-lowercase-variable-in-function. Physics variables are often poor code variables
+
+    # pandas-vet (PD)
+    "PD",
+
+    # flake8-self (SLF)
+    "SLF001", # private member access
+
+    # flake8-todos (TD)
+    "TD002",  # Missing author in TODO
+
+    # Ruff-specific rules (RUF)
+    "RUF005",  # unpack-instead-of-concatenating-to-collection-literal -- it's not clearly faster.
+]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"setup.py" = ["INP001"]  # Part of configuration, not a package.
+".github/workflows/*.py" = ["INP001"]
+"test_*.py" = [
+    "B018",  # UselessExpression
+    "D",  # pydocstyle
+    "S101",  # Use of assert detected
+]
+".pyinstaller/*.py" = ["INP001"]  # Not a package.
+"conftest.py" = ["INP001"]  # Part of configuration, not a package.
+"docs/*.py" = [
+    "INP001",  # implicit-namespace-package. The examples are not a package.
+]
+
+[tool.ruff.lint.flake8-annotations]
+ignore-fully-untyped = true
+mypy-init-return = true
+
+[tool.ruff.lint.flake8-comprehensions]
+allow-dict-calls-with-keyword-arguments = true
+
+[tool.ruff.lint.flake8-type-checking]
+exempt-modules = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["tardis", "carsus", "stardis"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.setuptools]
+packages = ["tardis"]
+license-files = ["LICENSE.rst", "licenses/*.rst"]
+
+[tool.setuptools.package-data]
+tardis = ["data/*"]
+tardis_grid = ["tests/data/*", "./"]
+tardis_io = [
+    "configuration/schemas/*",
+    "configuration/tests/data/*", 
+    "model/readers/tests/data/*"
+]
+tardis_model_tests = ["data/*"]
+tardis_montecarlo_tests = ["data/*"]
+tardis_plasma_tests = ["data/*"]
+tardis_scripts = ["debug/*"]
+tardis_tests_integration_tests = ["**/*"]
+tardis_visualization = ["tools/tests/data/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tardis"]
+astropy_header = true
+text_file_format = "rst"
+markers = [
+    # continuum tests
+    "continuum",
+    # rpacket tracking tests
+    "rpacket_tracking"
+]
+
+[tool.tardis]
+edit_on_github = false

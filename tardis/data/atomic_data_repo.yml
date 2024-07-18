@@ -1,8 +1,9 @@
 default: kurucz_cd23_chianti_H_He
 
 kurucz_cd23_chianti_H_He:
-  url: https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&resolveLfs=true
+  url: https://media.githubusercontent.com/media/tardis-sn/tardis-refdata/master/atom_data/kurucz_cd23_chianti_H_He.h5
   mirrors:
     - https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&resolveLfs=true
     - https://media.githubusercontent.com/media/tardis-sn/tardis-refdata/master/atom_data/kurucz_cd23_chianti_H_He.h5
   uuid: NA
+  md5: b95b862ef9f06ac20ad4fa70070af59d

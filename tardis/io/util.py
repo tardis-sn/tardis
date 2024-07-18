@@ -1,22 +1,22 @@
 # Utility functions for the IO part of TARDIS
 
+import collections.abc as collections_abc
+import hashlib
+import logging
 import os
 import re
 import shutil
-import logging
-
-import pandas as pd
-import numpy as np
-import collections.abc as collections_abc
 from collections import OrderedDict
+from functools import lru_cache
 
+import numpy as np
+import pandas as pd
 import yaml
-
-from tardis import constants as const
 from astropy import units as u
 from astropy.utils.data import download_file
 
 from tardis import __path__ as TARDIS_PATH
+from tardis import constants as const
 
 logger = logging.getLogger(__name__)
 
@@ -242,7 +242,7 @@ class HDFWriterMixin(object):
                     path_or_buf, complevel=complevel, complib=complib
                 )
             except TypeError as e:
-                if e.message == "Expected bytes, got HDFStore":
+                if str(e) == "Expected bytes, got HDFStore":
                     # when path_or_buf is an HDFStore buffer instead
                     logger.debug(
                         "Expected bytes, got HDFStore. Changing path to HDF buffer"
@@ -274,7 +274,7 @@ class HDFWriterMixin(object):
                         pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
                 else:
                     pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
-            else:  # value is a TARDIS object like model, runner or plasma
+            else:  # value is a TARDIS object like model, transport or plasma
                 try:
                     value.to_hdf(buf, path, name=key, overwrite=overwrite)
                 except AttributeError:
@@ -387,7 +387,8 @@ class PlasmaWriterMixin(HDFWriterMixin):
         )
 
 
-def download_from_url(url, dst, src=None):
+@lru_cache(maxsize=None)
+def download_from_url(url, dst, checksum, src=None, retries=3):
     """Download files from a given URL
 
     Parameters
@@ -396,9 +397,24 @@ def download_from_url(url, dst, src=None):
         URL to download from
     dst : str
         Destination folder for the downloaded file
-    src : list
+    src : tuple
         List of URLs to use as mirrors
     """
 
     cached_file_path = download_file(url, sources=src, pkgname="tardis")
-    shutil.copy(cached_file_path, dst)
+
+    with open(cached_file_path, "rb") as f:
+        new_checksum = hashlib.md5(f.read()).hexdigest()
+
+    if checksum == new_checksum:
+        shutil.copy(cached_file_path, dst)
+
+    elif checksum != new_checksum and retries > 0:
+        retries -= 1
+        logger.warning(
+            f"Incorrect checksum, retrying... ({retries+1} attempts remaining)"
+        )
+        download_from_url(url, dst, checksum, src, retries)
+
+    else:
+        logger.error("Maximum number of retries reached. Aborting")

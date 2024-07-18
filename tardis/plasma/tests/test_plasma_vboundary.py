@@ -1,10 +1,10 @@
-import tardis
-import pytest
 import os
-import astropy.units as u
 
-from tardis.io.config_reader import Configuration
-from tardis.io.atom_data.base import AtomData
+import astropy.units as u
+import pytest
+
+import tardis
+from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 
 DATA_PATH = os.path.join(tardis.__path__[0], "plasma", "tests", "data")

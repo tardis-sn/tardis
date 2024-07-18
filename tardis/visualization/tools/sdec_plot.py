@@ -4,27 +4,26 @@ Spectral element DEComposition (SDEC) Plot for TARDIS simulation models.
 This plot is a spectral diagnostics plot similar to those originally
 proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 """
-import numpy as np
-import pandas as pd
-import astropy.units as u
-from astropy.modeling.models import BlackBody
 
-import matplotlib.pyplot as plt
+import logging
+
+import astropy.units as u
 import matplotlib.cm as cm
 import matplotlib.colors as clr
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
+from astropy.modeling.models import BlackBody
 
 from tardis.util.base import (
     atomic_number2element_symbol,
     element_symbol2atomic_number,
-    species_string_to_tuple,
-    species_tuple_to_string,
-    roman_to_int,
     int_to_roman,
+    roman_to_int,
+    species_string_to_tuple,
 )
 from tardis.visualization import plot_util as pu
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +41,7 @@ class SDECData:
         last_line_interaction_in_id,
         last_line_interaction_out_id,
         last_line_interaction_in_nu,
+        last_interaction_in_r,
         lines_df,
         packet_nus,
         packet_energies,
@@ -69,6 +69,8 @@ class SDECData:
             emission (interaction out)
         last_line_interaction_in_nu : np.array
             Frequency values of the last absorption of emitted packets
+        last_line_interaction_in_r : np.array
+            Radius of the last interaction experienced by emitted packets
         lines_df : pd.DataFrame
             Data about the atomic lines present in simulation model's plasma
         packet_nus : astropy.Quantity
@@ -90,6 +92,7 @@ class SDECData:
             Time of simulation, having unit of s (second)
         """
         # Save packets properties in a dataframe for easier data manipulation
+        packet_nus = u.Quantity(packet_nus, u.Hz)
         self.packets_df = pd.DataFrame(
             {
                 "nus": packet_nus,
@@ -99,6 +102,7 @@ class SDECData:
                 "last_line_interaction_out_id": last_line_interaction_out_id,
                 "last_line_interaction_in_id": last_line_interaction_in_id,
                 "last_line_interaction_in_nu": last_line_interaction_in_nu,
+                "last_interaction_in_r": last_interaction_in_r,
             }
         )
 
@@ -165,26 +169,32 @@ class SDECData:
         lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
             "line_id"
         )
-        r_inner = sim.model.r_inner
-        t_inner = sim.model.t_inner
-        time_of_simulation = sim.runner.time_of_simulation
+        transport_state = sim.transport.transport_state
+        r_inner = sim.simulation_state.geometry.r_inner_active
+        t_inner = sim.simulation_state.packet_source.temperature
+        time_of_simulation = (
+            transport_state.packet_collection.time_of_simulation * u.s
+        )
 
         if packets_mode == "virtual":
             return cls(
-                last_interaction_type=sim.runner.virt_packet_last_interaction_type,
-                last_line_interaction_in_id=sim.runner.virt_packet_last_line_interaction_in_id,
-                last_line_interaction_out_id=sim.runner.virt_packet_last_line_interaction_out_id,
-                last_line_interaction_in_nu=sim.runner.virt_packet_last_interaction_in_nu,
+                last_interaction_type=transport_state.vpacket_tracker.last_interaction_type,
+                last_line_interaction_in_id=transport_state.vpacket_tracker.last_interaction_in_id,
+                last_line_interaction_out_id=transport_state.vpacket_tracker.last_interaction_out_id,
+                last_line_interaction_in_nu=transport_state.vpacket_tracker.last_interaction_in_nu,
+                last_interaction_in_r=transport_state.vpacket_tracker.last_interaction_in_r,
                 lines_df=lines_df,
-                packet_nus=u.Quantity(sim.runner.virt_packet_nus, "Hz"),
+                packet_nus=u.Quantity(
+                    transport_state.vpacket_tracker.nus, "Hz"
+                ),
                 packet_energies=u.Quantity(
-                    sim.runner.virt_packet_energies, "erg"
+                    transport_state.vpacket_tracker.energies, "erg"
                 ),
                 r_inner=r_inner,
-                spectrum_delta_frequency=sim.runner.spectrum_virtual.delta_frequency,
-                spectrum_frequency_bins=sim.runner.spectrum_virtual._frequency,
-                spectrum_luminosity_density_lambda=sim.runner.spectrum_virtual.luminosity_density_lambda,
-                spectrum_wavelength=sim.runner.spectrum_virtual.wavelength,
+                spectrum_delta_frequency=transport_state.spectrum_virtual.delta_frequency,
+                spectrum_frequency_bins=transport_state.spectrum_virtual._frequency,
+                spectrum_luminosity_density_lambda=transport_state.spectrum_virtual.luminosity_density_lambda,
+                spectrum_wavelength=transport_state.spectrum_virtual.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -192,29 +202,35 @@ class SDECData:
         elif packets_mode == "real":
             # Packets-specific properties need to be only for those packets
             # which got emitted
+            transport_state = sim.transport.transport_state
             return cls(
-                last_interaction_type=sim.runner.last_interaction_type[
-                    sim.runner.emitted_packet_mask
+                last_interaction_type=transport_state.last_interaction_type[
+                    transport_state.emitted_packet_mask
                 ],
-                last_line_interaction_in_id=sim.runner.last_line_interaction_in_id[
-                    sim.runner.emitted_packet_mask
+                last_line_interaction_in_id=transport_state.last_line_interaction_in_id[
+                    transport_state.emitted_packet_mask
                 ],
-                last_line_interaction_out_id=sim.runner.last_line_interaction_out_id[
-                    sim.runner.emitted_packet_mask
+                last_line_interaction_out_id=transport_state.last_line_interaction_out_id[
+                    transport_state.emitted_packet_mask
                 ],
-                last_line_interaction_in_nu=sim.runner.last_interaction_in_nu[
-                    sim.runner.emitted_packet_mask
+                last_line_interaction_in_nu=transport_state.last_interaction_in_nu[
+                    transport_state.emitted_packet_mask
+                ],
+                last_interaction_in_r=transport_state.last_interaction_in_r[
+                    transport_state.emitted_packet_mask
                 ],
                 lines_df=lines_df,
-                packet_nus=sim.runner.output_nu[sim.runner.emitted_packet_mask],
-                packet_energies=sim.runner.output_energy[
-                    sim.runner.emitted_packet_mask
+                packet_nus=transport_state.packet_collection.output_nus[
+                    transport_state.emitted_packet_mask
+                ],
+                packet_energies=transport_state.packet_collection.output_energies[
+                    transport_state.emitted_packet_mask
                 ],
                 r_inner=r_inner,
-                spectrum_delta_frequency=sim.runner.spectrum.delta_frequency,
-                spectrum_frequency_bins=sim.runner.spectrum._frequency,
-                spectrum_luminosity_density_lambda=sim.runner.spectrum.luminosity_density_lambda,
-                spectrum_wavelength=sim.runner.spectrum.wavelength,
+                spectrum_delta_frequency=transport_state.spectrum.delta_frequency,
+                spectrum_frequency_bins=transport_state.spectrum._frequency,
+                spectrum_luminosity_density_lambda=transport_state.spectrum.luminosity_density_lambda,
+                spectrum_wavelength=transport_state.spectrum.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -247,63 +263,76 @@ class SDECData:
                 .set_index("line_id")
             )
             r_inner = u.Quantity(
-                hdf["/simulation/model/r_inner"].to_numpy(), "cm"
+                hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
             )  # Convert pd.Series to np.array to construct quantity from it
-            t_inner = u.Quantity(hdf["/simulation/model/scalars"].t_inner, "K")
+            t_inner = u.Quantity(
+                hdf["/simulation/simulation_state/scalars"].t_inner, "K"
+            )
             time_of_simulation = u.Quantity(
-                hdf["/simulation/runner/scalars"].time_of_simulation, "s"
+                hdf[
+                    "/simulation/transport/transport_state/scalars"
+                ].time_of_simulation,
+                "s",
             )
 
             if packets_mode == "virtual":
                 return cls(
                     last_interaction_type=hdf[
-                        "/simulation/runner/virt_packet_last_interaction_type"
+                        "/simulation/transport/transport_state/virt_packet_last_interaction_type"
                     ],
                     last_line_interaction_in_id=hdf[
-                        "/simulation/runner/virt_packet_last_line_interaction_in_id"
+                        "/simulation/transport/transport_state/virt_packet_last_line_interaction_in_id"
                     ],
                     last_line_interaction_out_id=hdf[
-                        "/simulation/runner/virt_packet_last_line_interaction_out_id"
+                        "/simulation/transport/transport_state/virt_packet_last_line_interaction_out_id"
                     ],
                     last_line_interaction_in_nu=u.Quantity(
                         hdf[
-                            "/simulation/runner/virt_packet_last_interaction_in_nu"
+                            "/simulation/transport/transport_state/virt_packet_last_interaction_in_nu"
                         ].to_numpy(),
                         "Hz",
                     ),
+                    last_interaction_in_r=u.Quantity(
+                        hdf[
+                            "/simulation/transport/transport_state/virt_packet_last_interaction_in_r"
+                        ].to_numpy(),
+                        "cm",
+                    ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(
-                        hdf["/simulation/runner/virt_packet_nus"].to_numpy(),
+                        hdf[
+                            "/simulation/transport/transport_state/virt_packet_nus"
+                        ].to_numpy(),
                         "Hz",
                     ),
                     packet_energies=u.Quantity(
                         hdf[
-                            "/simulation/runner/virt_packet_energies"
+                            "/simulation/transport/transport_state/virt_packet_energies"
                         ].to_numpy(),
                         "erg",
                     ),
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/runner/spectrum_virtual/scalars"
+                            "/simulation/transport/transport_state/spectrum_virtual/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/runner/spectrum_virtual/_frequency"
+                            "/simulation/transport/transport_state/spectrum_virtual/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/runner/spectrum_virtual/luminosity_density_lambda"
+                            "/simulation/transport/transport_state/spectrum_virtual/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",  # luminosity_density_lambda is saved in hdf in CGS
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/runner/spectrum_virtual/wavelength"
+                            "/simulation/transport/transport_state/spectrum_virtual/wavelength"
                         ].to_numpy(),
                         "cm",  # wavelength is saved in hdf in CGS
                     ).to("AA"),
@@ -313,61 +342,67 @@ class SDECData:
 
             elif packets_mode == "real":
                 emitted_packet_mask = hdf[
-                    "/simulation/runner/emitted_packet_mask"
+                    "/simulation/transport/transport_state/emitted_packet_mask"
                 ].to_numpy()
                 return cls(
                     # First convert series read from hdf to array before masking
                     # to eliminate index info which creates problems otherwise
                     last_interaction_type=hdf[
-                        "/simulation/runner/last_interaction_type"
+                        "/simulation/transport/transport_state/last_interaction_type"
                     ].to_numpy()[emitted_packet_mask],
                     last_line_interaction_in_id=hdf[
-                        "/simulation/runner/last_line_interaction_in_id"
+                        "/simulation/transport/transport_state/last_line_interaction_in_id"
                     ].to_numpy()[emitted_packet_mask],
                     last_line_interaction_out_id=hdf[
-                        "/simulation/runner/last_line_interaction_out_id"
+                        "/simulation/transport/transport_state/last_line_interaction_out_id"
                     ].to_numpy()[emitted_packet_mask],
                     last_line_interaction_in_nu=u.Quantity(
                         hdf[
-                            "/simulation/runner/last_interaction_in_nu"
+                            "/simulation/transport/transport_state/last_interaction_in_nu"
                         ].to_numpy()[emitted_packet_mask],
                         "Hz",
                     ),
+                    last_interaction_in_r=u.Quantity(
+                        hdf[
+                            "/simulation/transport/transport_state/last_interaction_in_r"
+                        ].to_numpy()[emitted_packet_mask],
+                        "cm",
+                    ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(
-                        hdf["/simulation/runner/output_nu"].to_numpy()[
-                            emitted_packet_mask
-                        ],
+                        hdf[
+                            "/simulation/transport/transport_state/output_nu"
+                        ].to_numpy()[emitted_packet_mask],
                         "Hz",
                     ),
                     packet_energies=u.Quantity(
-                        hdf["/simulation/runner/output_energy"].to_numpy()[
-                            emitted_packet_mask
-                        ],
+                        hdf[
+                            "/simulation/transport/transport_state/output_energy"
+                        ].to_numpy()[emitted_packet_mask],
                         "erg",
                     ),
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/runner/spectrum/scalars"
+                            "/simulation/transport/transport_state/spectrum/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/runner/spectrum/_frequency"
+                            "/simulation/transport/transport_state/spectrum/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/runner/spectrum/luminosity_density_lambda"
+                            "/simulation/transport/transport_state/spectrum/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/runner/spectrum/wavelength"
+                            "/simulation/transport/transport_state/spectrum/wavelength"
                         ].to_numpy(),
                         "cm",
                     ).to("AA"),
@@ -415,23 +450,23 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        if sim.runner.virt_logging:
+        if sim.transport.transport_state.virt_logging:
             return cls(
-                dict(
-                    virtual=SDECData.from_simulation(sim, "virtual"),
-                    real=SDECData.from_simulation(sim, "real"),
-                )
+                {
+                    "virtual": SDECData.from_simulation(sim, "virtual"),
+                    "real": SDECData.from_simulation(sim, "real"),
+                }
             )
         else:
             return cls(
-                dict(
-                    virtual=None,
-                    real=SDECData.from_simulation(sim, "real"),
-                )
+                {
+                    "virtual": None,
+                    "real": SDECData.from_simulation(sim, "real"),
+                }
             )
 
     @classmethod
-    def from_hdf(cls, hdf_fpath):
+    def from_hdf(cls, hdf_fpath, packets_mode=None):
         """
         Create an instance of SDECPlotter from a simulation HDF file.
 
@@ -439,17 +474,39 @@ class SDECPlotter:
         ----------
         hdf_fpath : str
             Valid path to the HDF file where simulation is saved
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered, either real or virtual. If not
+            specified, both modes are returned
 
         Returns
         -------
         SDECPlotter
         """
-        return cls(
-            dict(
-                virtual=SDECData.from_hdf(hdf_fpath, "virtual"),
-                real=SDECData.from_hdf(hdf_fpath, "real"),
-            )
+        assert packets_mode in [None, "virtual", "real"], (
+            "Invalid value passed to packets_mode. Only "
+            "allowed values are 'virtual', 'real' or None"
         )
+        if packets_mode == "virtual":
+            return cls(
+                {
+                    "virtual": SDECData.from_hdf(hdf_fpath, "virtual"),
+                    "real": None,
+                }
+            )
+        elif packets_mode == "real":
+            return cls(
+                {
+                    "virtual": None,
+                    "real": SDECData.from_hdf(hdf_fpath, "real"),
+                }
+            )
+        else:
+            return cls(
+                {
+                    "virtual": SDECData.from_hdf(hdf_fpath, "virtual"),
+                    "real": SDECData.from_hdf(hdf_fpath, "real"),
+                }
+            )
 
     def _parse_species_list(self, species_list):
         """
@@ -463,17 +520,17 @@ class SDECPlotter:
             (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
 
         """
-
         if species_list is not None:
             # check if there are any digits in the species list. If there are, then exit.
             # species_list should only contain species in the Roman numeral
             # format, e.g. Si II, and each ion must contain a space
-            if any(char.isdigit() for char in " ".join(species_list)) == True:
+            if any(char.isdigit() for char in " ".join(species_list)) is True:
                 raise ValueError(
                     "All species must be in Roman numeral form, e.g. Si II"
                 )
             else:
                 full_species_list = []
+                species_mapped = {}
                 for species in species_list:
                     # check if a hyphen is present. If it is, then it indicates a
                     # range of ions. Add each ion in that range to the list as a new entry
@@ -511,20 +568,20 @@ class SDECPlotter:
                 # the requested ion
                 for species in full_species_list:
                     if " " in species:
-                        requested_species_ids.append(
-                            [
-                                species_string_to_tuple(species)[0] * 100
-                                + species_string_to_tuple(species)[1]
-                            ]
+                        species_id = (
+                            species_string_to_tuple(species)[0] * 100
+                            + species_string_to_tuple(species)[1]
                         )
+                        requested_species_ids.append([species_id])
+                        species_mapped[species_id] = [species_id]
                     else:
                         atomic_number = element_symbol2atomic_number(species)
-                        requested_species_ids.append(
-                            [
-                                atomic_number * 100 + ion_number
-                                for ion_number in np.arange(atomic_number)
-                            ]
-                        )
+                        species_ids = [
+                            atomic_number * 100 + ion_number
+                            for ion_number in np.arange(atomic_number)
+                        ]
+                        requested_species_ids.append(species_ids)
+                        species_mapped[atomic_number * 100] = species_ids
                         # add the atomic number to a list so you know that this element should
                         # have all species in the same colour, i.e. it was requested like
                         # species_list = [Si]
@@ -535,6 +592,7 @@ class SDECPlotter:
                     for species_id in temp_list
                 ]
 
+                self._species_mapped = species_mapped
                 self._species_list = requested_species_ids
                 self._keep_colour = keep_colour
         else:
@@ -594,7 +652,7 @@ class SDECPlotter:
         self.plot_frequency = self.data[packets_mode].spectrum_frequency
 
         # Filter their plottable range based on packet_wvl_range specified
-        if packet_wvl_range:
+        if packet_wvl_range is not None:
             packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
 
             # Index of value just before the 1st value that is > packet_nu_range[1]
@@ -694,7 +752,7 @@ class SDECPlotter:
             # Repeat this for the emission and absorption dfs
             # This will require creating a temporary list that includes 'noint' and 'escatter'
             # packets, because you don't want them dropped or included in 'other'
-            temp = [species for species in self._species_list]
+            temp = list(self._species_list)
             temp.append("noint")
             temp.append("escatter")
             mask = np.in1d(
@@ -718,7 +776,7 @@ class SDECPlotter:
                 axis=1,
             )
 
-            temp = [species for species in self._species_list]
+            temp = list(self._species_list)
             mask = np.in1d(
                 np.array(list(self.absorption_luminosities_df.keys())), temp
             )
@@ -1091,6 +1149,7 @@ class SDECPlotter:
         cmapname="jet",
         nelements=None,
         species_list=None,
+        blackbody_photosphere=True,
     ):
         """
         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
@@ -1134,13 +1193,14 @@ class SDECPlotter:
             Must be given in Roman numeral format. Can include specific ions, a range of ions,
             individual elements, or any combination of these:
             e.g. ['Si II', 'Ca II', 'C', 'Fe I-V']
+        blackbody_photosphere: bool
+            Whether to include the blackbody photosphere in the plot. Default value is True
 
         Returns
         -------
         matplotlib.axes._subplots.AxesSubplot
             Axis on which SDEC Plot is created
         """
-
         # If species_list and nelements requested, tell user that nelements is ignored
         if species_list is not None and nelements is not None:
             logger.info(
@@ -1191,7 +1251,7 @@ class SDECPlotter:
             if distance is None:
                 raise ValueError(
                     """
-                    Distance must be specified if an observed_spectrum is given 
+                    Distance must be specified if an observed_spectrum is given
                     so that the model spectrum can be converted into flux space correctly.
                     """
                 )
@@ -1212,17 +1272,18 @@ class SDECPlotter:
             )
 
         # Plot photosphere
-        self.ax.plot(
-            self.plot_wavelength.value,
-            self.photosphere_luminosity.value,
-            "--r",
-            label="Blackbody Photosphere",
-        )
+        if blackbody_photosphere:
+            self.ax.plot(
+                self.plot_wavelength.value,
+                self.photosphere_luminosity.value,
+                "--r",
+                label="Blackbody Photosphere",
+            )
 
         # Set legends and labels
         self.ax.legend(fontsize=12)
         self.ax.set_xlabel(r"Wavelength $[\mathrm{\AA}]$", fontsize=12)
-        if distance:  # Set y-axis label for flux
+        if distance is not None:  # Set y-axis label for flux
             self.ax.set_ylabel(
                 r"$F_{\lambda}$ [erg $\mathrm{s^{-1}}$ $\mathrm{cm^{-2}}$ $\mathrm{\AA^{-1}}$]",
                 fontsize=12,
@@ -1297,23 +1358,25 @@ class SDECPlotter:
                     cmap=self.cmap,
                     linewidth=0,
                 )
-            except:
+            except KeyError:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the emitted packets; skipping"
                     )
+                    logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
                         f"{int_to_roman(ion_number + 1)}"
                         f" is not in the emitted packets; skipping"
                     )
+                    logger.info(info_msg)
 
     def _plot_absorption_mpl(self):
         """Plot absorption part of the SDEC Plot using matplotlib."""
@@ -1353,27 +1416,28 @@ class SDECPlotter:
                     linewidth=0,
                 )
 
-            except:
+            except KeyError:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the absorbed packets; skipping"
                     )
+                    logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
                         f"{int_to_roman(ion_number + 1)}"
                         f" is not in the absorbed packets; skipping"
                     )
+                    logger.info(info_msg)
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
-
         color_values = [
             self.cmap(species_counter / len(self._species_name))
             for species_counter in range(len(self._species_name))
@@ -1447,13 +1511,11 @@ class SDECPlotter:
                 if previous_atomic_number == 0:
                     # If this is the first species being plotted, then take note of the atomic number
                     # don't update the colour index
-                    color_counter = color_counter
                     previous_atomic_number = atomic_number
                 elif previous_atomic_number in self._keep_colour:
                     # If the atomic number is in the list of elements that should all be plotted in the same colour
                     # then don't update the colour index if this element has been plotted already
                     if previous_atomic_number == atomic_number:
-                        color_counter = color_counter
                         previous_atomic_number = atomic_number
                     else:
                         # Otherwise, increase the colour counter by one, because this is a new element
@@ -1487,6 +1549,7 @@ class SDECPlotter:
         cmapname="jet",
         nelements=None,
         species_list=None,
+        blackbody_photosphere=True,
     ):
         """
         Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
@@ -1530,12 +1593,14 @@ class SDECPlotter:
             Must be given in Roman numeral format. Can include specific ions, a range of ions,
             individual elements, or any combination of these:
             e.g. ['Si II', 'Ca II', 'C', 'Fe I-V']
+        blackbody_photosphere: bool
+            Whether to include the blackbody photosphere in the plot. Default value is True
+
         Returns
         -------
         plotly.graph_objs._figure.Figure
             Figure object on which SDEC Plot is created
         """
-
         # If species_list and nelements requested, tell user that nelements is ignored
         if species_list is not None and nelements is not None:
             logger.info(
@@ -1577,13 +1642,13 @@ class SDECPlotter:
                     x=self.plot_wavelength.value,
                     y=self.modeled_spectrum_luminosity.value,
                     mode="lines",
-                    line=dict(
-                        color="blue",
-                        width=1,
-                    ),
+                    line={
+                        "color": "blue",
+                        "width": 1,
+                    },
                     name=f"{packets_mode.capitalize()} Spectrum",
                     hovertemplate="(%{x:.2f}, %{y:.3g})",
-                    hoverlabel=dict(namelength=-1),
+                    hoverlabel={"namelength": -1},
                 )
             )
 
@@ -1592,7 +1657,7 @@ class SDECPlotter:
             if distance is None:
                 raise ValueError(
                     """
-                    Distance must be specified if an observed_spectrum is given 
+                    Distance must be specified if an observed_spectrum is given
                     so that the model spectrum can be converted into flux space correctly.
                     """
                 )
@@ -1609,28 +1674,29 @@ class SDECPlotter:
                 y=observed_spectrum_flux.value,
                 name="Observed Spectrum",
                 line={"color": "black", "width": 1.2},
-                hoverlabel=dict(namelength=-1),
+                hoverlabel={"namelength": -1},
                 hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
 
         # Plot photosphere
-        self.fig.add_trace(
-            go.Scatter(
-                x=self.plot_wavelength.value,
-                y=self.photosphere_luminosity.value,
-                mode="lines",
-                line=dict(width=1.5, color="red", dash="dash"),
-                name="Blackbody Photosphere",
-                hoverlabel=dict(namelength=-1),
-                hovertemplate="(%{x:.2f}, %{y:.3g})",
+        if blackbody_photosphere:
+            self.fig.add_trace(
+                go.Scatter(
+                    x=self.plot_wavelength.value,
+                    y=self.photosphere_luminosity.value,
+                    mode="lines",
+                    line={"width": 1.5, "color": "red", "dash": "dash"},
+                    name="Blackbody Photosphere",
+                    hoverlabel={"namelength": -1},
+                    hovertemplate="(%{x:.2f}, %{y:.3g})",
+                )
             )
-        )
 
         self._show_colorbar_ply()
 
         # Set label and other layout options
         xlabel = pu.axis_label_in_latex("Wavelength", u.AA)
-        if distance:  # Set y-axis label for flux
+        if distance is not None:  # Set y-axis label for flux
             ylabel = pu.axis_label_in_latex(
                 "F_{\\lambda}", u.Unit("erg/(s cm**2 AA)"), only_text=False
             )
@@ -1639,34 +1705,15 @@ class SDECPlotter:
                 "L_{\\lambda}", u.Unit("erg/(s AA)"), only_text=False
             )
         self.fig.update_layout(
-            xaxis=dict(
-                title=xlabel,
-                exponentformat="none",
-            ),
-            yaxis=dict(title=ylabel, exponentformat="e"),
+            xaxis={
+                "title": xlabel,
+                "exponentformat": "none",
+            },
+            yaxis={"title": ylabel, "exponentformat": "e"},
             height=graph_height,
         )
 
         return self.fig
-
-    @staticmethod
-    def to_rgb255_string(color_tuple):
-        """
-        Convert a matplotlib RGBA tuple to a generic RGB 255 string.
-
-        Parameters
-        ----------
-        color_tuple : tuple
-            Matplotlib RGBA tuple of float values in closed interval [0, 1]
-
-        Returns
-        -------
-        str
-            RGB string of format rgb(r,g,b) where r,g,b are integers between
-            0 and 255 (both inclusive)
-        """
-        color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
-        return f"rgb{color_tuple_255}"
 
     def _plot_emission_ply(self):
         """Plot emission part of the SDEC Plot using plotly."""
@@ -1692,7 +1739,7 @@ class SDECPlotter:
                 name="Electron Scatter Only",
                 fillcolor="#8F8F8F",
                 stackgroup="emission",
-                hoverlabel=dict(namelength=-1),
+                hoverlabel={"namelength": -1},
                 hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
         )
@@ -1722,37 +1769,38 @@ class SDECPlotter:
                         y=self.emission_luminosities_df[identifier],
                         mode="none",
                         name=species_name + " Emission",
-                        hovertemplate=f"<b>{species_name} Emission </b>"
+                        hovertemplate=f"<b>{species_name:s} Emission<br>"  # noqa: ISC003
                         + "(%{x:.2f}, %{y:.3g})<extra></extra>",
-                        fillcolor=self.to_rgb255_string(
+                        fillcolor=pu.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="emission",
                         showlegend=False,
-                        hoverlabel=dict(namelength=-1),
+                        hoverlabel={"namelength": -1},
                     )
                 )
-            except:
+            except KeyError:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the emitted packets; skipping"
                     )
+                    logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
                         f"{int_to_roman(ion_number + 1)}"
                         f" is not in the emitted packets; skipping"
                     )
+                    logger.info(info_msg)
 
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
-
         # If 'other' column exists then plot as silver
         if "other" in self.absorption_luminosities_df.keys():
             self.fig.add_trace(
@@ -1780,34 +1828,36 @@ class SDECPlotter:
                         y=self.absorption_luminosities_df[identifier] * -1,
                         mode="none",
                         name=species_name + " Absorption",
-                        hovertemplate=f"<b>{species_name} Absorption </b>"
+                        hovertemplate=f"<b>{species_name:s} Absorption<br>"  # noqa: ISC003
                         + "(%{x:.2f}, %{y:.3g})<extra></extra>",
-                        fillcolor=self.to_rgb255_string(
+                        fillcolor=pu.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="absorption",
                         showlegend=False,
-                        hoverlabel=dict(namelength=-1),
+                        hoverlabel={"namelength": -1},
                     )
                 )
 
-            except:
+            except KeyError:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the absorbed packets; skipping"
                     )
+                    logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
                         f"{int_to_roman(ion_number + 1)}"
                         f" is not in the absorbed packets; skipping"
                     )
+                    logger.info(info_msg)
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
@@ -1819,7 +1869,7 @@ class SDECPlotter:
         # twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)
         categorical_colorscale = []
         for species_counter in range(len(self._species_name)):
-            color = self.to_rgb255_string(
+            color = pu.to_rgb255_string(
                 self.cmap(colorscale_bins[species_counter])
             )
             categorical_colorscale.append(
@@ -1829,21 +1879,21 @@ class SDECPlotter:
                 (colorscale_bins[species_counter + 1], color)
             )
 
-        coloraxis_options = dict(
-            colorscale=categorical_colorscale,
-            showscale=True,
-            cmin=0,
-            cmax=len(self._species_name),
-            colorbar=dict(
-                title="Elements",
-                tickvals=np.arange(0, len(self._species_name)) + 0.5,
-                ticktext=self._species_name,
+        coloraxis_options = {
+            "colorscale": categorical_colorscale,
+            "showscale": True,
+            "cmin": 0,
+            "cmax": len(self._species_name),
+            "colorbar": {
+                "title": "Elements",
+                "tickvals": np.arange(0, len(self._species_name)) + 0.5,
+                "ticktext": self._species_name,
                 # to change length and position of colorbar
-                len=0.75,
-                yanchor="top",
-                y=0.75,
-            ),
-        )
+                "len": 0.75,
+                "yanchor": "top",
+                "y": 0.75,
+            },
+        }
 
         # Plot an invisible one point scatter trace, to make colorbar show up
         scatter_point_idx = pu.get_mid_point_idx(self.plot_wavelength)

@@ -8,71 +8,91 @@ on:
   push:
     branches:
     - '*'
-
   pull_request:
     branches:
     - '*'
+    
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
-  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata
-                --cov=tardis --cov-report=xml --cov-report=html
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
 
 defaults:
   run:
     shell: bash -l {0}
+ 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+    
 
 jobs:
-  build:
-
-    strategy:
-      matrix:
-        include:
-
-        - os: ubuntu-latest
-          label: linux-64
-          prefix: /usr/share/miniconda3/envs/tardis
-
-        - os: macos-latest
-          label: osx-64
-          prefix: /Users/runner/miniconda3/envs/tardis
-
-    name: ${{ matrix.label }}
-    runs-on: ${{ matrix.os }}
+  codecov:
+    if: github.repository_owner == 'tardis-sn'
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Download reference data
-        run: bash .ci-helpers/download_reference_data.sh
-
+      - uses: actions/checkout@v4
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
       - name: Setup environment
-        uses: conda-incubator/setup-miniconda@v2
+        uses: ./.github/actions/setup_env
         with:
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            activate-environment: tardis
-            use-mamba: true
-
-      - uses: actions/cache@v2
+          os-label: linux-64
+      - name: Generate coverage report
+        run: |
+          pytest --cov=tardis --cov-report=xml --cov-report=html
+      - uses: codecov/codecov-action@v4
+        if: always()
         with:
-          path: ${{ matrix.prefix }}
-          key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
-        id: cache-conda
+          fail_ci_if_error: true
+          token: ${{ env.CODECOV_TOKEN }}
+          verbose: true
 
-      - name: Update environment
-        run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true'
+  tests:
+    name: ${{ matrix.continuum }} continuum ${{ matrix.rpacket_tracking }} rpacket_tracking ${{ matrix.os }}
+    if: github.repository_owner == 'tardis-sn'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: [osx-arm64, linux-64]
+        continuum: ['not', '']
+        rpacket_tracking: ['not', '']
+        exclude:
+          - continuum: ''
+            rpacket_tracking: ''
+        include:
+          - label: osx-arm64
+            os: macos-latest
+            prefix: /Users/runner/miniconda3/envs/tardis
 
-      - name: Install package
-        run: pip install -e .
+          - label: linux-64
+            os: ubuntu-latest
+            prefix: /usr/share/miniconda3/envs/tardis
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
+      
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          os-label: ${{ matrix.label }}
+      
+      - name: Install package editable
+        run: |
+          pip install -e . --user
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }}
-
-      - name: Upload to Codecov
-        run: bash <(curl -s https://codecov.io/bash)
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking" 
+      
+      - name: Refdata Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking" 
+        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'

@@ -1,28 +1,27 @@
 import logging
+from collections import Counter as counter
 
 import numpy as np
 import pandas as pd
-from numba import njit
-from scipy.special import exp1
-from scipy.interpolate import PchipInterpolator
-from collections import Counter as counter
 import radioactivedecay as rd
-from tardis import constants as const
+from numba import njit
+from scipy.interpolate import PchipInterpolator
+from scipy.special import exp1
 
-from tardis.plasma.properties.base import (
-    ProcessingPlasmaProperty,
-    HiddenPlasmaProperty,
-    BaseAtomicDataProperty,
-)
+from tardis import constants as const
 from tardis.plasma.exceptions import IncompleteAtomicData
+from tardis.plasma.properties.base import (
+    BaseAtomicDataProperty,
+    HiddenPlasmaProperty,
+    ProcessingPlasmaProperty,
+)
 from tardis.plasma.properties.continuum_processes import (
-    get_ground_state_multi_index,
-    K_B,
-    BETA_COLL,
-    H,
     A0,
+    BETA_COLL,
+    K_B,
     M_E,
-    C,
+    H,
+    get_ground_state_multi_index,
 )
 
 logger = logging.getLogger(__name__)
@@ -32,8 +31,6 @@ __all__ = [
     "Lines",
     "LinesLowerLevelIndex",
     "LinesUpperLevelIndex",
-    "AtomicMass",
-    "IsotopeMass",
     "IonizationData",
     "ZetaData",
     "NLTEData",
@@ -77,8 +74,6 @@ class Levels(BaseAtomicDataProperty):
         return levels[levels.index.isin(selected_atoms, level="atomic_number")]
 
     def _set_index(self, levels):
-        # levels = levels.set_index(['atomic_number', 'ion_number',
-        #                          'level_number'])
         return (
             levels.index,
             levels["energy"],
@@ -459,14 +454,34 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
     def calculate(self, atomic_data):
         index = pd.MultiIndex.from_arrays(
             [
-                atomic_data.lines_upper2level_idx,
-                atomic_data.lines_lower2level_idx,
+                atomic_data.lines_upper2macro_reference_idx,
+                atomic_data.lines_lower2macro_reference_idx,
             ],
             names=["source_level_idx", "destination_level_idx"],
         )
         level_idxs2line_idx = pd.Series(
             np.arange(len(index)), index=index, name="lines_idx"
         )
+
+        # Check for duplicate indices
+        if level_idxs2line_idx.index.duplicated().any():
+            logger.warning(
+                "Duplicate indices in level_idxs2line_idx. "
+                "Dropping duplicates. "
+                "This is an issue with the atomic data & carsus. "
+                "Once fixed upstream, this warning will be removed. "
+                "This will raise an error in the future instead. "
+                "See https://github.com/tardis-sn/carsus/issues/384"
+            )
+            # This is necessary since pd.DataFrame.drop_duplicates()
+            # does not remove duplicates if the data is different
+            # and only the index is duplicated. See the example given
+            # in the pandas documentation:
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html
+            level_idxs2line_idx = level_idxs2line_idx[
+                ~level_idxs2line_idx.index.duplicated()
+            ]
+
         return level_idxs2line_idx
 
 
@@ -522,69 +537,6 @@ class LevelIdxs2TransitionIdx(HiddenPlasmaProperty):
         return level_idxs2transition_idx
 
 
-class AtomicMass(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    atomic_mass : pandas.Series
-        Atomic masses of the elements used. Indexed by atomic number.
-    """
-
-    outputs = ("atomic_mass",)
-
-    def calculate(self, atomic_data, selected_atoms):
-        if getattr(self, self.outputs[0]) is not None:
-            return (getattr(self, self.outputs[0]),)
-        else:
-            return atomic_data.atom_data.loc[selected_atoms].mass
-
-
-class IsotopeMass(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    isotope_mass : pandas.Series
-        Masses of the isotopes used. Indexed by isotope name e.g. 'Ni56'.
-    """
-
-    outputs = ("isotope_mass",)
-
-    def calculate(self, isotope_abundance):
-        """
-        Determine mass of each isotope.
-
-        Parameters
-        ----------
-        isotope_abundance : pandas.DataFrame
-            Fractional abundance of isotopes.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Masses of the isotopes used. Indexed by isotope name e.g. 'Ni56'.
-        """
-        if getattr(self, self.outputs[0]) is not None:
-            return (getattr(self, self.outputs[0]),)
-        else:
-            if isotope_abundance.empty:
-                return None
-            isotope_mass_dict = {}
-            for Z, A in isotope_abundance.index:
-                element_name = rd.utils.Z_to_elem(Z)
-                isotope_name = element_name + str(A)
-
-                isotope_mass_dict[(Z, A)] = rd.Nuclide(isotope_name).atomic_mass
-
-            isotope_mass_df = pd.DataFrame.from_dict(
-                isotope_mass_dict, orient="index", columns=["mass"]
-            )
-            isotope_mass_df.index = pd.MultiIndex.from_tuples(
-                isotope_mass_df.index
-            )
-            isotope_mass_df.index.names = ["atomic_number", "mass_number"]
-            return isotope_mass_df / const.N_A
-
-
 class IonizationData(BaseAtomicDataProperty):
     """
     Attributes
@@ -601,7 +553,7 @@ class IonizationData(BaseAtomicDataProperty):
         ionization_data = ionization_data[mask]
         counts = ionization_data.groupby(level="atomic_number").count()
 
-        if np.alltrue(counts.index == counts):
+        if np.all(counts.index == counts):
             return ionization_data
         else:
             raise IncompleteAtomicData(
@@ -632,7 +584,7 @@ class ZetaData(BaseAtomicDataProperty):
         zeta_data_check = counter(zeta_data.atomic_number.values)
         keys = np.array(list(zeta_data_check.keys()))
         values = np.array(zeta_data_check.values())
-        if np.alltrue(keys + 1 == values) and keys:
+        if np.all(keys + 1 == values) and keys:
             return zeta_data
         else:
             #            raise IncompleteAtomicData('zeta data')
@@ -646,7 +598,7 @@ class ZetaData(BaseAtomicDataProperty):
                     if (atom, ion) not in zeta_data.index:
                         missing_ions.append((atom, ion))
                     updated_index.append([atom, ion])
-            logger.warn(
+            logger.warning(
                 f"Zeta_data missing - replaced with 1s. Missing ions: {missing_ions}"
             )
             updated_index = np.array(updated_index)

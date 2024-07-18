@@ -3,7 +3,7 @@ Helium NLTE
 
 The `helium_treatment` setting in the TARDIS config. file will accept one of three options:
  * `none`: The default setting. Populate helium in the same way as the other elements.
- * `recomb-nlte`: Treats helium in NLTE using the analytical approximation outlined in an upcoming paper. 
+ * `recomb-nlte`: Treats helium in NLTE using the analytical approximation outlined in :cite:`Boyle2017`. 
  * `numerical-nlte`: To be implemented. Will allow the use of a separate module (not distributed with TARDIS) to perform helium NLTE calculations numerically.
 
 Recombination He NLTE

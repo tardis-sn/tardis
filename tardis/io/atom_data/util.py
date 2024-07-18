@@ -1,7 +1,8 @@
 import os
 import logging
+from pathlib import Path
 
-from tardis.io.config_internal import get_data_dir
+from tardis.io.configuration.config_internal import get_data_dir
 from tardis.io.atom_data.atom_web_download import (
     get_atomic_repo_config,
     download_atom_data,
@@ -16,26 +17,28 @@ def resolve_atom_data_fname(fname):
 
     Parameters
     ----------
-    fname : str
+    fname : Path
         name or path of atom data HDF file
 
     Returns
     -------
-        : str
+        : Path
         resolved fpath
     """
 
+    fname = Path(fname)
     if os.path.exists(fname):
         return fname
 
-    fpath = os.path.join(os.path.join(get_data_dir(), fname))
+    fname = Path(fname.stem).with_suffix(".h5")
+    fpath = Path(os.path.join(get_data_dir(), fname))
     if os.path.exists(fpath):
         logger.info(
             f"\n\tAtom Data {fname} not found in local path.\n\tExists in TARDIS Data repo {fpath}"
         )
         return fpath
 
-    atom_data_name = fname.replace(".h5", "")
+    atom_data_name = fname.stem
     atom_repo_config = get_atomic_repo_config()
     if atom_data_name in atom_repo_config:
         raise IOError(

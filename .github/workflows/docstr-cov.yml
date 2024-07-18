@@ -1,4 +1,4 @@
-# Log in to jsonbin.org with tardis-bot GitHub account to get an API key and 
+# Log in to jsonbin.org with tardis-bot GitHub account to get an API key and
 # store it as a repository secret.
 
 # Updated badge will be available at:
@@ -9,11 +9,11 @@ name: docstr-cov
 on:
   push:
     branches:
-    - master
+      - master
 
   pull_request:
     branches:
-    - master
+      - master
 
 env:
   THRESHOLD: 0.05
@@ -25,18 +25,17 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.x
 
       - name: Install interrogate
-        run: pip install interrogate==1.5.0 parse==1.19.0
+        run: pip install interrogate==1.5.0 parse==1.19.0 setuptools
 
       - name: Get SHAs
         run: |
@@ -47,7 +46,7 @@ jobs:
           elif [[ ${{ github.event_name }} == 'pull_request' ]]; then
             echo "BASE=${{ github.event.pull_request.base.sha }}" >> $GITHUB_ENV
             echo "HEAD=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
-          
+
           else
             echo "Unexpected event trigger"
             exit 1

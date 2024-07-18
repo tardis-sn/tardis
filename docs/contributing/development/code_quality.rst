@@ -19,12 +19,43 @@ TARDIS follows the `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_ style gu
 Black
 -----
 `Black <https://black.readthedocs.io/en/stable/index.html>`_ is a PEP 8 compliant opinionated code formatter. At TARDIS. we use Black to automatically conform to PEP 8. It is already installed in the TARDIS conda environment, so all you have to do is to run Black before commiting your changes: ::
-    
+
     black {source_file_or_directory}
 
 A better method is to run Black automatically - first `integrate it within the code editor <https://black.readthedocs.io/en/stable/editor_integration.html>`_ you use and then enable the "format on save" or "format on type" option in your editor settings.
 
 .. warning :: If your code doesn't follow the Black code style, then the Black-check action on your PR will fail.
+
+Ruff
+----
+`Ruff <https://docs.astral.sh/ruff/>`_ is a code linter and formatter that checks for common mistakes and automatically fixes them. It is currently not installed in the TARDIS conda environment, so you will have to install it manually: ::
+
+    conda install -c conda-forge ruff
+
+To run Ruff, use the following command: ::
+
+    ruff check <source_file_or_directory> # Lints the code
+    ruff check <source_file_or_directory> --fix # Lints and fixes any fixable errors
+
+Currently, Ruff is not integrated with the TARDIS CI and is not a requirement for merging a PR. However, it is recommended to run Ruff on your code before commiting it to ensure that new code already follows these rules.
+
+.. note :: We adopt the linting rules utilized by astropy. Permanent rules are defined in the ``pyproject.toml``, non-permanent rules are defined in the ``.ruff.toml`` file. If you want to add a new rule, please add it to the ``.ruff.toml`` file. If you want to add a permanent rule, please open a PR to the ``pyproject.toml``.
+
+.. note :: Ruff can also be used for formatting code, but for now we recommend using Black for this purpose as the CI is configured to run Black on all PRs.
+
+Pre-commit (Optional)
+----
+`Pre-commit <https://pre-commit.com/>`_ hooks are tools that help enforce quality standards by running checks on your code before you commit. If you choose to use pre-commit on your local machine, please follow these steps:
+
+Install pre-commit by running: ::
+
+    pip install pre-commit
+
+Set up the pre-commit hooks with: ::
+
+    pre-commit install
+
+This needs to be done only once per repository. The pre-commit hooks will now automatically run on each commit to ensure your changes meet our code quality standards.
 
 Naming Conventions
 ------------------
@@ -33,7 +64,7 @@ While Black automatically conforms your code to a majority of the PEP 8 style gu
 
 - Function names should be lowercase, with words separated by underscores as necessary to improve readability (i.e. snake_case).
 
-- Variable names follow the same convention as function names. 
+- Variable names follow the same convention as function names.
 
 - Class names should use the CapWords convention.
 
@@ -74,7 +105,7 @@ At TARDIS, we follow the `Numpy docstring format <https://numpydoc.readthedocs.i
 
 Some of the important formatting conventions to note here are:
 
-- The docstring should have no leading or trailing carriage returns, and there should be a carriage return between each segment. 
+- The docstring should have no leading or trailing carriage returns, and there should be a carriage return between each segment.
 
 - At the start of the docstring there is a summary explaining the purpose of the function/class/module/method. This summary should follow standard English syntax, starting with a capitalized letter and ending with appropriate punctuation.
 
@@ -85,7 +116,7 @@ Some of the important formatting conventions to note here are:
 - In the above example the return variable and type is specified. For the "Returns" section, the type must always be stated, even if the variable is not. The "Returns" section should follow the format of:
 
 .. code-block:: python
-    
+
     """
     Returns
     -------

@@ -1,18 +1,11 @@
-import os
-import pandas as pd
+import numpy as np
+import numpy.testing as npt
+import pandas.testing as pdt
 import pytest
-import pandas.util.testing as pdt
-from numpy.testing import assert_almost_equal
-from tardis.plasma.properties import property_collections
 
 ###
 # saving and loading of plasma properties in the HDF file
 ###
-
-
-@pytest.fixture(scope="module", autouse=True)
-def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.plasma.to_hdf(hdf_file_path, overwrite=True)
 
 
 plasma_properties_list = [
@@ -52,70 +45,54 @@ plasma_properties_list = [
 
 
 @pytest.mark.parametrize("attr", plasma_properties_list)
-def test_hdf_plasma(hdf_file_path, simulation_verysimple, attr):
+def test_hdf_plasma(simulation_verysimple, attr, regression_data):
     if hasattr(simulation_verysimple.plasma, attr):
         actual = getattr(simulation_verysimple.plasma, attr)
+        expected = regression_data.sync_ndarray(actual)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        path = os.path.join("plasma", attr)
-        expected = pd.read_hdf(hdf_file_path, path)
-        assert_almost_equal(actual, expected.values)
+        npt.assert_allclose(actual, expected)
 
 
-def test_hdf_levels(hdf_file_path, simulation_verysimple):
-    actual = getattr(simulation_verysimple.plasma, "levels")
+def test_hdf_levels(simulation_verysimple, regression_data):
+    actual = simulation_verysimple.plasma.levels.to_frame()
+    expected = regression_data.sync_dataframe(actual)
     if hasattr(actual, "cgs"):
-        actual = actual.cgs.value
-    path = os.path.join("plasma", "levels")
-    expected = pd.read_hdf(hdf_file_path, path)
-    pdt.assert_almost_equal(pd.DataFrame(actual), expected)
+        raise ValueError("should not ever happen")
+    pdt.assert_frame_equal(actual, expected)
 
 
-scalars_list = ["time_explosion", "link_t_rad_t_electron"]
+SCALARS_LIST = ["time_explosion", "link_t_rad_t_electron"]
 
 
-@pytest.mark.parametrize("attr", scalars_list)
-def test_hdf_scalars(hdf_file_path, simulation_verysimple, attr):
+@pytest.mark.parametrize("attr", SCALARS_LIST)
+def test_hdf_scalars(simulation_verysimple, attr, regression_data):
     actual = getattr(simulation_verysimple.plasma, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    path = os.path.join("plasma", "scalars")
-    expected = pd.read_hdf(hdf_file_path, path)[attr]
-    assert_almost_equal(actual, expected)
+    expected = regression_data.sync_ndarray(actual)
+    npt.assert_allclose(actual, expected)
 
 
-def test_hdf_helium_treatment(hdf_file_path, simulation_verysimple):
-    actual = getattr(simulation_verysimple.plasma, "helium_treatment")
-    path = os.path.join("plasma", "scalars")
-    expected = pd.read_hdf(hdf_file_path, path)["helium_treatment"]
+def test_hdf_helium_treatment(simulation_verysimple, regression_data):
+    actual = simulation_verysimple.plasma.helium_treatment
+    expected = regression_data.sync_str(actual)
     assert actual == expected
 
 
-def test_atomic_data_uuid(hdf_file_path, simulation_verysimple):
-    actual = getattr(simulation_verysimple.plasma.atomic_data, "uuid1")
-    path = os.path.join("plasma", "scalars")
-    expected = pd.read_hdf(hdf_file_path, path)["atom_data_uuid"]
+def test_atomic_data_uuid(simulation_verysimple, regression_data):
+    actual = simulation_verysimple.plasma.atomic_data.uuid1
+    expected = regression_data.sync_str(actual)
     assert actual == expected
 
 
-@pytest.fixture(scope="module", autouse=True)
-def to_hdf_collection_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.plasma.to_hdf(
-        hdf_file_path,
-        name="collection",
-        collection=property_collections.basic_inputs,
-        overwrite=True,
-    )
+COLLECTION_PROPERTIES = ["t_rad", "w"]
 
 
-collection_properties = ["t_rad", "w", "density"]
-
-
-@pytest.mark.parametrize("attr", collection_properties)
-def test_collection(hdf_file_path, simulation_verysimple, attr):
+@pytest.mark.parametrize("attr", COLLECTION_PROPERTIES)
+def test_collection(simulation_verysimple, attr, regression_data):
     actual = getattr(simulation_verysimple.plasma, attr)
+    expected = regression_data.sync_ndarray(actual)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    path = os.path.join("collection", attr)
-    expected = pd.read_hdf(hdf_file_path, path)
-    assert_almost_equal(actual, expected.values)
+    npt.assert_allclose(actual, expected)

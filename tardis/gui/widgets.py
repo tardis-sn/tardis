@@ -310,8 +310,6 @@ class ConfigEditor(QtWidgets.QWidget):
                 },
                 "last_no_of_packets": [False, -1],
                 "no_of_virtual_packets": [False, 0],
-                "enable_reflective_inner_boundary": [False, False],
-                "inner_boundary_albedo": [False, 0.0],
                 "convergence_strategy": {
                     "type": [
                         True,
@@ -406,7 +404,6 @@ class ConfigEditor(QtWidgets.QWidget):
 
                 elif isinstance(dict2[key], list):
                     if isinstance(dict2[key][1], list):
-
                         # options = dict2[key][1] #This is passed by reference.
                         # So copy the list manually.
                         options = [
@@ -539,9 +536,9 @@ class ModelViewer(QtWidgets.QWidget):
         )
 
         labeltext = f"Iterations requested: {self.model.iterations} <br/> Iterations executed:  {self.model.iterations_executed}<br/>\
-                     Model converged     : {model_converged} <br/> Simulation Time    :  {self.model.runner.time_of_simulation.value} s <br/>\
+                     Model converged     : {model_converged} <br/> Simulation Time    :  {self.model.transport.time_of_simulation.value} s <br/>\
                      Inner Temperature   : {self.model.model.t_inner.value} K <br/> Number of packets  :  {self.model.last_no_of_packets}<br/>\
-                     Inner Luminosity    : {self.model.runner.calculate_luminosity_inner(self.model.model)}"
+                     Inner Luminosity    : {self.model.transport.calculate_luminosity_inner(self.model.model)}"
 
         self.outputLabel.setText(labeltext)
 
@@ -642,13 +639,16 @@ class ModelViewer(QtWidgets.QWidget):
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
         """Change the spectrum data to the virtual spectrum."""
-        if self.model.runner.spectrum_virtual.luminosity_density_lambda is None:
+        if (
+            self.model.transport.spectrum_virtual.luminosity_density_lambda
+            is None
+        ):
             luminosity_density_lambda = np.zeros_like(
-                self.model.runner.spectrum_virtual.wavelength
+                self.model.transport.spectrum_virtual.wavelength
             )
         else:
             luminosity_density_lambda = (
-                self.model.runner.spectrum_virtual.luminosity_density_lambda.value
+                self.model.transport.spectrum_virtual.luminosity_density_lambda.value
             )
 
         self.change_spectrum(luminosity_density_lambda, "spec_flux_angstrom")
@@ -656,13 +656,13 @@ class ModelViewer(QtWidgets.QWidget):
     def change_spectrum_to_spec_flux_angstrom(self):
         """Change spectrum data back from virtual spectrum. (See the
         method above)."""
-        if self.model.runner.spectrum.luminosity_density_lambda is None:
+        if self.model.transport.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
-                self.model.runner.spectrum.wavelength
+                self.model.transport.spectrum.wavelength
             )
         else:
             luminosity_density_lambda = (
-                self.model.runner.spectrum.luminosity_density_lambda.value
+                self.model.transport.spectrum.luminosity_density_lambda.value
             )
 
         self.change_spectrum(luminosity_density_lambda, "spec_flux_angstrom")
@@ -683,12 +683,12 @@ class ModelViewer(QtWidgets.QWidget):
         self.spectrum.ax.set_title("Spectrum")
         self.spectrum.ax.set_xlabel("Wavelength (A)")
         self.spectrum.ax.set_ylabel("Intensity")
-        wavelength = self.model.runner.spectrum.wavelength.value
-        if self.model.runner.spectrum.luminosity_density_lambda is None:
+        wavelength = self.model.transport.spectrum.wavelength.value
+        if self.model.transport.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(wavelength)
         else:
             luminosity_density_lambda = (
-                self.model.runner.spectrum.luminosity_density_lambda.value
+                self.model.transport.spectrum.luminosity_density_lambda.value
             )
 
         self.spectrum.dataplot = self.spectrum.ax.plot(
@@ -934,8 +934,8 @@ class LineInfo(QtWidgets.QDialog):
             f"Line Interaction: {wavelength_start:.2f} - {wavelength_end:.2f} (A) "
         )
         self.layout = QtWidgets.QVBoxLayout()
-        packet_nu_line_interaction = analysis.LastLineInteraction.from_model(
-            self.parent.model
+        packet_nu_line_interaction = (
+            analysis.LastLineInteraction.from_simulation(self.parent.model)
         )
         packet_nu_line_interaction.packet_filter_mode = "packet_nu"
         packet_nu_line_interaction.wavelength_start = (
@@ -943,8 +943,8 @@ class LineInfo(QtWidgets.QDialog):
         )
         packet_nu_line_interaction.wavelength_end = wavelength_end * u.angstrom
 
-        line_in_nu_line_interaction = analysis.LastLineInteraction.from_model(
-            self.parent.model
+        line_in_nu_line_interaction = (
+            analysis.LastLineInteraction.from_simulation(self.parent.model)
         )
         line_in_nu_line_interaction.packet_filter_mode = "line_in_nu"
         line_in_nu_line_interaction.wavelength_start = (

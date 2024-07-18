@@ -15,6 +15,7 @@ __pycache__
 */cython_version.py
 htmlcov
 .coverage
+coverage.xml
 MANIFEST
 .ipynb_checkpoints
 
@@ -71,3 +72,17 @@ pip-wheel-metadata/
 
 # Mac OSX
 .DS_Store
+
+# Visual Studio Code
+*.code-workspace
+
+# Random files
+.hypothesis/unicode_data/11.0.0/charmap.json.gz
+
+# Data files
+benchmarks/data/*.h5
+
+# ASV
+.asv/
+pkgs/
+release_hashes.txt

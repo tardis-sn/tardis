@@ -1,14 +1,6 @@
 import argparse
-import datetime
-import json
 import logging
 import subprocess
-import time
-import yaml
-
-import dokuwiki
-import requests
-
 
 logger = logging.getLogger(__name__)
 
@@ -33,15 +25,6 @@ parser.add_argument(
 
 def run_tests():
     args = parser.parse_args()
-
-    integration_tests_config = yaml.load(
-        open(args.yaml_filepath), Loader=yaml.CLoader
-    )
-    doku_conn = dokuwiki.DokuWiki(
-        url=integration_tests_config["dokuwiki"]["url"],
-        user=integration_tests_config["dokuwiki"]["username"],
-        password=integration_tests_config["dokuwiki"]["password"],
-    )
     less_packets = "--less-packets" if args.less_packets else ""
     test_command = [
         "python",
@@ -53,34 +36,3 @@ def run_tests():
         f"{less_packets}",
     ]
     subprocess.call(test_command)
-
-    while True:
-        # Request Github API and get githash of master on Github.
-        gh_request = requests.get(
-            "https://api.github.com/repos/tardis-sn/tardis/branches/master"
-        )
-        gh_master_head_data = json.loads(gh_request.content)
-        gh_tardis_githash = gh_master_head_data["commit"]["sha"][:7]
-
-        # Check whether a report of this githash is uploaded on dokuwiki.
-        # If not, then this is a new commit and tests should be executed.
-        dokuwiki_report = doku_conn.pages.get(f"reports:{gh_tardis_githash}")
-
-        # If dokuwiki returns empty string, then it means that report has not
-        # been created yet.
-        if len(dokuwiki_report) == 0:
-            subprocess.call(
-                [
-                    "git",
-                    "pull",
-                    "https://www.github.com/tardis-sn/tardis",
-                    "master",
-                ]
-            )
-            subprocess.call(test_command)
-        else:
-            checked = datetime.datetime.now()
-            logger.info(
-                f'Up-to-date. Checked on {checked.strftime("%d-%b-%Y")} {checked.strftime("%H:%M:%S")}'
-            )
-            time.sleep(600)

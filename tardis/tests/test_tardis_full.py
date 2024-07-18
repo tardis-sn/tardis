@@ -1,23 +1,26 @@
-import os
-import pytest
-import numpy as np
+from pathlib import Path
+
 import numpy.testing as npt
+import pandas as pd
+import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
-from tardis.simulation.base import Simulation
-from tardis.io.config_reader import Configuration
-
 from tardis import run_tardis
+from tardis.io.configuration.config_reader import Configuration
+from tardis.simulation.base import Simulation
+from tardis.tests.fixtures.regression_data import RegressionData
 
 
-def test_run_tardis_from_config_obj(atomic_data_fname):
+def test_run_tardis_from_config_obj(
+    atomic_data_fname, example_configuration_dir: Path
+):
     """
     Tests whether the run_tardis function can take in the Configuration object
     as arguments
     """
     config = Configuration.from_yaml(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
     )
     config["atom_data"] = atomic_data_fname
 
@@ -27,87 +30,64 @@ def test_run_tardis_from_config_obj(atomic_data_fname):
         pytest.fail(str(e.args[0]))
 
 
-class TestRunnerSimple:
+class TestTransportSimple:
     """
     Very simple run
     """
 
-    name = "test_runner_simple"
+    regression_data: RegressionData = None
 
     @pytest.fixture(scope="class")
-    def runner(self, atomic_data_fname, tardis_ref_data, generate_reference):
+    def transport_state(
+        self,
+        request,
+        atomic_data_fname,
+        generate_reference,
+        example_configuration_dir: Path,
+    ):
         config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+            str(example_configuration_dir / "tardis_configv1_verysimple.yml")
         )
         config["atom_data"] = atomic_data_fname
 
         simulation = Simulation.from_config(config)
-        simulation.run()
+        simulation.run_convergence()
+        simulation.run_final()
 
-        if not generate_reference:
-            return simulation.runner
-        else:
-            simulation.runner.hdf_properties = [
-                "j_blue_estimator",
-                "spectrum",
-                "spectrum_virtual",
-            ]
-            simulation.runner.to_hdf(
-                tardis_ref_data, "", self.name, overwrite=True
-            )
-            pytest.skip("Reference data was generated during this run.")
+        transport_state = simulation.transport.transport_state
+        request.cls.regression_data = RegressionData(request)
+        request.cls.regression_data.sync_hdf_store(transport_state)
 
-    @pytest.fixture(scope="class")
-    def refdata(self, tardis_ref_data):
-        def get_ref_data(key):
-            return tardis_ref_data[os.path.join(self.name, key)]
+        return transport_state
 
-        return get_ref_data
+    def get_expected_data(self, key: str):
+        return pd.read_hdf(self.regression_data.fpath, key)
 
-    def test_j_blue_estimators(self, runner, refdata):
-        j_blue_estimator = refdata("j_blue_estimator").values
+    def test_j_blue_estimators(self, transport_state):
+        key = "transport_state/j_blue_estimator"
+        expected = self.get_expected_data(key)
 
-        npt.assert_allclose(runner.j_blue_estimator, j_blue_estimator)
-
-    def test_spectrum(self, runner, refdata):
-        luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
-
-        assert_quantity_allclose(runner.spectrum.luminosity, luminosity)
-
-    def test_virtual_spectrum(self, runner, refdata):
-        luminosity = u.Quantity(
-            refdata("spectrum_virtual/luminosity"), "erg /s"
+        npt.assert_allclose(
+            transport_state.radfield_mc_estimators.j_blue_estimator,
+            expected.values,
         )
 
-        assert_quantity_allclose(runner.spectrum_virtual.luminosity, luminosity)
+    def test_spectrum(self, transport_state):
+        key = "transport_state/spectrum/luminosity"
+        expected = self.get_expected_data(key)
 
-    def test_runner_properties(self, runner):
-        """
-        Tests whether a number of runner attributes exist and also verifies
-        their types
+        luminosity = u.Quantity(expected, "erg /s")
 
-        Currently, runner attributes needed to call the model routine to_hdf5
-        are checked.
-        """
-
-        virt_type = np.ndarray
-
-        props_required_by_modeltohdf5 = dict(
-            [
-                ("virt_packet_last_interaction_type", virt_type),
-                ("virt_packet_last_line_interaction_in_id", virt_type),
-                ("virt_packet_last_line_interaction_out_id", virt_type),
-                ("virt_packet_last_interaction_in_nu", virt_type),
-                ("virt_packet_nus", virt_type),
-                ("virt_packet_energies", virt_type),
-            ]
+        assert_quantity_allclose(
+            transport_state.spectrum.luminosity, luminosity
         )
 
-        required_props = props_required_by_modeltohdf5.copy()
+    def test_virtual_spectrum(self, transport_state):
+        key = "transport_state/spectrum_virtual/luminosity"
+        expected = self.get_expected_data(key)
 
-        for prop, prop_type in required_props.items():
-            actual = getattr(runner, prop)
-            assert type(actual) == prop_type, (
-                f"wrong type of attribute '{prop}':"
-                f"expected {prop_type}, found {type(actual)}"
-            )
+        luminosity = u.Quantity(expected, "erg /s")
+
+        assert_quantity_allclose(
+            transport_state.spectrum_virtual.luminosity, luminosity
+        )

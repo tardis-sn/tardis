@@ -1,8 +1,9 @@
 from tardis.base import run_tardis
-from tardis.io.atom_data.util import download_atom_data
+from tardis.io.atom_data.atom_web_download import download_atom_data
 from tardis.util.base import (
     atomic_number2element_symbol,
     species_tuple_to_string,
+    is_notebook,
 )
 
 from tardis.visualization.widgets.util import create_table_widget
@@ -18,7 +19,7 @@ class BaseShellInfo:
     def __init__(
         self,
         t_radiative,
-        w,
+        dilution_factor,
         abundance,
         number_density,
         ion_number_density,
@@ -30,7 +31,7 @@ class BaseShellInfo:
         ----------
         t_radiative : array_like
             Radiative Temperature of each shell of simulation
-        w : array_like
+        dilution_factor : array_like
             Dilution Factor (W) of each shell of simulation model
         abundance : pandas.DataFrame
             Fractional abundance of elements where row labels are atomic number
@@ -46,7 +47,7 @@ class BaseShellInfo:
             number, ion number, level number) and column labels are shell number
         """
         self.t_radiative = t_radiative
-        self.w = w
+        self.dilution_factor = dilution_factor
         self.abundance = abundance
         self.number_density = number_density
         self.ion_number_density = ion_number_density
@@ -62,7 +63,10 @@ class BaseShellInfo:
             simulation model
         """
         shells_temp_w = pd.DataFrame(
-            {"Rad. Temp.": self.t_radiative, "W": self.w}
+            {
+                "Rad. Temp.": self.t_radiative,
+                "Dilution Factor": self.dilution_factor,
+            }
         )
         shells_temp_w.index = range(
             1, len(self.t_radiative) + 1
@@ -184,8 +188,8 @@ class SimulationShellInfo(BaseShellInfo):
             TARDIS Simulation object produced by running a simulation
         """
         super().__init__(
-            sim_model.model.t_radiative,
-            sim_model.model.w,
+            sim_model.simulation_state.t_radiative,
+            sim_model.simulation_state.dilution_factor,
             sim_model.plasma.abundance,
             sim_model.plasma.number_density,
             sim_model.plasma.ion_number_density,
@@ -210,8 +214,8 @@ class HDFShellInfo(BaseShellInfo):
         """
         with pd.HDFStore(hdf_fpath, "r") as sim_data:
             super().__init__(
-                sim_data["/simulation/model/t_radiative"],
-                sim_data["/simulation/model/w"],
+                sim_data["/simulation/simulation_state/t_radiative"],
+                sim_data["/simulation/simulation_state/dilution_factor"],
                 sim_data["/simulation/plasma/abundance"],
                 sim_data["/simulation/plasma/number_density"],
                 sim_data["/simulation/plasma/ion_number_density"],
@@ -435,53 +439,56 @@ class ShellInfoWidget:
         ipywidgets.Box
             Shell info widget containing all component widgets
         """
-        # CSS properties of the layout of shell info tables container
-        tables_container_layout = dict(
-            display="flex",
-            align_items="flex-start",
-            justify_content="space-between",
-        )
-        tables_container_layout.update(layout_kwargs)
+        if not is_notebook():
+            print("Please use a notebook to display the widget")
+        else:
+            # CSS properties of the layout of shell info tables container
+            tables_container_layout = dict(
+                display="flex",
+                align_items="flex-start",
+                justify_content="space-between",
+            )
+            tables_container_layout.update(layout_kwargs)
 
-        # Setting tables' widths
-        self.shells_table.layout.width = shells_table_width
-        self.element_count_table.layout.width = element_count_table_width
-        self.ion_count_table.layout.width = ion_count_table_width
-        self.level_count_table.layout.width = level_count_table_width
+            # Setting tables' widths
+            self.shells_table.layout.width = shells_table_width
+            self.element_count_table.layout.width = element_count_table_width
+            self.ion_count_table.layout.width = ion_count_table_width
+            self.level_count_table.layout.width = level_count_table_width
 
-        # Attach event listeners to table widgets
-        self.shells_table.on(
-            "selection_changed", self.update_element_count_table
-        )
-        self.element_count_table.on(
-            "selection_changed", self.update_ion_count_table
-        )
-        self.ion_count_table.on(
-            "selection_changed", self.update_level_count_table
-        )
+            # Attach event listeners to table widgets
+            self.shells_table.on(
+                "selection_changed", self.update_element_count_table
+            )
+            self.element_count_table.on(
+                "selection_changed", self.update_ion_count_table
+            )
+            self.ion_count_table.on(
+                "selection_changed", self.update_level_count_table
+            )
 
-        # Putting all table widgets in a container styled with tables_container_layout
-        shell_info_tables_container = ipw.Box(
-            [
-                self.shells_table,
-                self.element_count_table,
-                self.ion_count_table,
-                self.level_count_table,
-            ],
-            layout=ipw.Layout(**tables_container_layout),
-        )
-        self.shells_table.change_selection([1])
+            # Putting all table widgets in a container styled with tables_container_layout
+            shell_info_tables_container = ipw.Box(
+                [
+                    self.shells_table,
+                    self.element_count_table,
+                    self.ion_count_table,
+                    self.level_count_table,
+                ],
+                layout=ipw.Layout(**tables_container_layout),
+            )
+            self.shells_table.change_selection([1])
 
-        # Notes text explaining how to interpret tables widgets' data
-        text = ipw.HTML(
-            "<b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all "
-            "values sum to 1)<br><b>W</b> denotes <i>Dilution Factor</i> and "
-            "<b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i>"
-        )
+            # Notes text explaining how to interpret tables widgets' data
+            text = ipw.HTML(
+                "<b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all "
+                "values sum to 1)<br><b>W</b> denotes <i>Dilution Factor</i> and "
+                "<b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i>"
+            )
 
-        # Put text horizontally before shell info container
-        shell_info_widget = ipw.VBox([text, shell_info_tables_container])
-        return shell_info_widget
+            # Put text horizontally before shell info container
+            shell_info_widget = ipw.VBox([text, shell_info_tables_container])
+            return shell_info_widget
 
 
 def shell_info_from_simulation(sim_model):

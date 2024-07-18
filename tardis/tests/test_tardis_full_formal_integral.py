@@ -1,20 +1,21 @@
-import os
-import pytest
+from pathlib import Path
+
 import numpy.testing as npt
+import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
+from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation.base import Simulation
-from tardis.io.config_reader import Configuration
 
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]
 
 
 @pytest.fixture(scope="module", params=config_line_modes)
-def base_config(request):
+def base_config(request, example_configuration_dir: Path):
     config = Configuration.from_yaml(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
     )
 
     config["plasma"]["line_interaction_type"] = request.param
@@ -34,15 +35,15 @@ def config(base_config, request):
     return base_config
 
 
-class TestRunnerSimpleFormalInegral:
+class TestTransportSimpleFormalIntegral:
     """
     Very simple run with the formal integral spectral synthesis method
     """
 
-    _name = "test_runner_simple_integral"
+    _name = "test_transport_simple_integral"
 
     @pytest.fixture(scope="class")
-    def runner(
+    def transport(
         self, config, atomic_data_fname, tardis_ref_data, generate_reference
     ):
         config.atom_data = atomic_data_fname
@@ -52,17 +53,14 @@ class TestRunnerSimpleFormalInegral:
             self.name += "_interp"
 
         simulation = Simulation.from_config(config)
-        simulation.run()
+        simulation.run_convergence()
+        simulation.run_final()
 
         if not generate_reference:
-            return simulation.runner
+            return simulation.transport
         else:
-            simulation.runner.hdf_properties = [
-                "j_blue_estimator",
-                "spectrum",
-                "spectrum_integrated",
-            ]
-            simulation.runner.to_hdf(
+            simulation.transport.hdf_properties = ["transport_state"]
+            simulation.transport.to_hdf(
                 tardis_ref_data, "", self.name, overwrite=True
             )
             pytest.skip("Reference data was generated during this run.")
@@ -70,30 +68,32 @@ class TestRunnerSimpleFormalInegral:
     @pytest.fixture(scope="class")
     def refdata(self, tardis_ref_data):
         def get_ref_data(key):
-            return tardis_ref_data[os.path.join(self.name, key)]
+            return tardis_ref_data[f"{self.name}/{key}"]
 
         return get_ref_data
 
-    def test_j_blue_estimators(self, runner, refdata):
-        j_blue_estimator = refdata("j_blue_estimator").values
+    def test_j_blue_estimators(self, transport, refdata):
+        j_blue_estimator = refdata("transport_state/j_blue_estimator").values
 
-        npt.assert_allclose(runner.j_blue_estimator, j_blue_estimator)
+        npt.assert_allclose(
+            transport.transport_state.radfield_mc_estimators.j_blue_estimator,
+            j_blue_estimator,
+        )
 
-    def test_spectrum(self, runner, refdata):
-        luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
-
-        assert_quantity_allclose(runner.spectrum.luminosity, luminosity)
-
-    def test_spectrum_integrated(self, runner, refdata):
+    def test_spectrum(self, transport, refdata):
         luminosity = u.Quantity(
-            refdata("spectrum_integrated/luminosity"), "erg /s"
+            refdata("transport_state/spectrum/luminosity"), "erg /s"
         )
 
-        print(
-            "actual, desired: ",
-            luminosity,
-            runner.spectrum_integrated.luminosity,
-        )
         assert_quantity_allclose(
-            runner.spectrum_integrated.luminosity, luminosity
+            transport.transport_state.spectrum.luminosity, luminosity
+        )
+
+    def test_spectrum_integrated(self, transport, refdata):
+        luminosity = u.Quantity(
+            refdata("transport_state/spectrum_integrated/luminosity"), "erg /s"
+        )
+
+        assert_quantity_allclose(
+            transport.transport_state.spectrum_integrated.luminosity, luminosity
         )

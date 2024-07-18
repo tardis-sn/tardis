@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 import numpy.testing as npt
-import os
+
 from astropy import units as u
 from io import StringIO
 
@@ -24,12 +24,19 @@ from tardis.util.base import (
     convert_abundances_format,
 )
 
-data_path = os.path.join("tardis", "io", "tests", "data")
-
 
 @pytest.fixture
-def artis_abundances_fname():
-    return os.path.join(data_path, "artis_abundances.dat")
+def artis_abundances_fname(example_model_file_dir):
+    return example_model_file_dir / "artis_abundances.dat"
+
+
+@pytest.fixture(scope="session")
+def monkeysession():
+    """
+    Creates a session-scoped fixture to be used to mock functions dependent on the user.
+    """
+    with pytest.MonkeyPatch.context() as mp:
+        yield mp
 
 
 def test_malformed_species_error():

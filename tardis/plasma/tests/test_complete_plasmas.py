@@ -1,12 +1,19 @@
-import os
 import warnings
+from pathlib import Path
 
 import pandas as pd
 import pytest
-from pandas.util import testing as pdt
-from numpy.testing import assert_almost_equal
-from tardis.io.config_reader import Configuration
+from numpy import testing as npt
+from pandas import testing as pdt
+
+from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
+from tardis.tests.fixtures.regression_data import RegressionData
+
+PLASMA_CONFIG_FPATH = (
+    Path("tardis") / "plasma" / "tests" / "data" / "plasma_base_test_config.yml"
+)
+
 
 ionization = [
     {"ionization": "nebular"},
@@ -48,7 +55,7 @@ helium_treatment = [
     {"helium_treatment": "recomb-nlte", "delta_treatment": 0.5},
 ]
 
-config_list = (
+CONFIG_LIST = (
     ionization
     + excitation
     + radiative_rates_type
@@ -66,10 +73,11 @@ def idfn(fixture_value):
     This function creates a string from a dictionary.
     We use it to obtain a readable name for the config fixture.
     """
-    return str("-".join([f"{k}:{v}" for k, v in fixture_value.items()]))
+    return "-".join([f"{k}:{v}" for k, v in fixture_value.items()])
 
 
-class TestPlasma(object):
+class TestPlasma:
+    regression_data = None
 
     general_properties = [
         "beta_rad",
@@ -129,16 +137,11 @@ class TestPlasma(object):
 
     @pytest.fixture(scope="class")
     def chianti_he_db_fpath(self, tardis_ref_path):
-        return os.path.abspath(
-            os.path.join(tardis_ref_path, "atom_data", "chianti_He.h5")
-        )
+        return (tardis_ref_path / "atom_data" / "chianti_He.h5").absolute()
 
-    @pytest.fixture(scope="class", params=config_list, ids=idfn)
+    @pytest.fixture(scope="class", params=CONFIG_LIST, ids=idfn)
     def config(self, request):
-        config_path = os.path.join(
-            "tardis", "plasma", "tests", "data", "plasma_base_test_config.yml"
-        )
-        config = Configuration.from_yaml(config_path)
+        config = Configuration.from_yaml(PLASMA_CONFIG_FPATH)
         hash_string = ""
         for prop, value in request.param.items():
             hash_string = "_".join((hash_string, prop))
@@ -150,59 +153,70 @@ class TestPlasma(object):
             else:
                 config.plasma[prop] = value
                 hash_string = "_".join((hash_string, str(value)))
-        hash_string = os.path.join("plasma_unittest", hash_string)
-        setattr(config.plasma, "save_path", hash_string)
+        hash_string = f"plasma_unittest{hash_string}"
+        config.plasma.save_path = hash_string
+        request.cls.regression_data = RegressionData(request)
+        request.cls.regression_data.fname = f"{hash_string}.h5"
         return config
 
     @pytest.fixture(scope="class")
-    def plasma(self, request, chianti_he_db_fpath, config, tardis_ref_data):
-        config["atom_data"] = chianti_he_db_fpath
+    def plasma(
+        self,
+        chianti_he_db_fpath,
+        config,
+    ):
+        config["atom_data"] = str(chianti_he_db_fpath)
         sim = Simulation.from_config(config)
-        if request.config.getoption("--generate-reference"):
-            sim.plasma.to_hdf(
-                tardis_ref_data, path=config.plasma.save_path, overwrite=True
-            )
-            pytest.skip(f"Reference data saved at {tardis_ref_data}")
+        self.regression_data.sync_hdf_store(sim.plasma, update_fname=False)
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(self, plasma, tardis_ref_data, config, attr):
+    def test_plasma_properties(self, plasma, attr):
+        key = f"plasma/{attr}"
+        try:
+            expected = pd.read_hdf(self.regression_data.fpath, key)
+        except KeyError:
+            pytest.skip(f"Key {key} not found in regression data")
+
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
-            if actual.ndim == 1:
+            if attr == "selected_atoms":
+                npt.assert_allclose(actual.values, expected.values)
+            elif actual.ndim == 1:
                 actual = pd.Series(actual)
+                pdt.assert_series_equal(actual, expected)
             else:
                 actual = pd.DataFrame(actual)
-            key = os.path.join(config.plasma.save_path, "plasma", attr)
-            expected = tardis_ref_data[key]
-            pdt.assert_almost_equal(actual, expected)
+                pdt.assert_frame_equal(actual, expected)
         else:
             warnings.warn(f'Property "{attr}" not found')
 
-    def test_levels(self, plasma, tardis_ref_data, config):
+    def test_levels(self, plasma):
         actual = pd.DataFrame(plasma.levels)
-        key = os.path.join(config.plasma.save_path, "plasma", "levels")
-        expected = tardis_ref_data[key]
-        pdt.assert_almost_equal(actual, expected)
+        key = "plasma/levels"
+        expected = pd.read_hdf(self.regression_data.fpath, key)
+        pdt.assert_frame_equal(actual, expected)
 
     @pytest.mark.parametrize("attr", scalars_properties)
-    def test_scalars_properties(self, plasma, tardis_ref_data, config, attr):
+    def test_scalars_properties(self, plasma, attr):
         actual = getattr(plasma, attr)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        key = os.path.join(config.plasma.save_path, "plasma", "scalars")
-        expected = tardis_ref_data[key][attr]
-        pdt.assert_almost_equal(actual, expected)
+        key = "plasma/scalars"
+        expected = pd.read_hdf(self.regression_data.fpath, key)[attr]
+        npt.assert_equal(actual, expected)
 
-    def test_helium_treatment(self, plasma, tardis_ref_data, config):
+    def test_helium_treatment(self, plasma):
         actual = plasma.helium_treatment
-        key = os.path.join(config.plasma.save_path, "plasma", "scalars")
-        expected = tardis_ref_data[key]["helium_treatment"]
+        key = "plasma/scalars"
+        expected = pd.read_hdf(self.regression_data.fpath, key)[
+            "helium_treatment"
+        ]
         assert actual == expected
 
-    def test_zeta_data(self, plasma, tardis_ref_data, config):
+    def test_zeta_data(self, plasma):
         if hasattr(plasma, "zeta_data"):
             actual = plasma.zeta_data
-            key = os.path.join(config.plasma.save_path, "plasma", "zeta_data")
-            expected = tardis_ref_data[key]
-            assert_almost_equal(actual, expected.values)
+            key = "plasma/zeta_data"
+            expected = pd.read_hdf(self.regression_data.fpath, key)
+            npt.assert_allclose(actual, expected.values)

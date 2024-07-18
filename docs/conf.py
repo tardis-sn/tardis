@@ -30,6 +30,8 @@ import sys
 import datetime
 import tardis  # FIXME: this import is required by astropy.constants
 from importlib import import_module
+import toml
+from pathlib import Path
 
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
@@ -39,13 +41,15 @@ except ImportError:
     )
     sys.exit(1)
 
-# Get configuration information from setup.cfg
-from configparser import ConfigParser
+#Get configuration information from pyproject.toml
+toml_conf_path = Path(__file__).parent.parent / "pyproject.toml"
 
-conf = ConfigParser()
-
-conf.read([os.path.join(os.path.dirname(__file__), "..", "setup.cfg")])
-setup_cfg = dict(conf.items("metadata"))
+with open(toml_conf_path, 'r') as f_toml:
+    toml_config = toml.load(f_toml)
+toml_config_project_dict = toml_config["project"]
+toml_config_tool_dict = toml_config['tool']
+for k,v in toml_config_project_dict.items():
+    print(k,v)
 
 # -- General configuration ----------------------------------------------------
 
@@ -182,16 +186,16 @@ else:
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
-project = setup_cfg["name"]
-author = setup_cfg["author"]
+project = toml_config_project_dict["name"]
+author = toml_config_project_dict["authors"][0]["name"]
 copyright = "2013-{0}, {1}".format(datetime.datetime.now().year, author)
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-import_module(setup_cfg["name"])
-package = sys.modules[setup_cfg["name"]]
+import_module(toml_config_project_dict["name"])
+package = sys.modules[toml_config_project_dict["name"]]
 
 # The short X.Y version.
 version = "latest"  # package.__version__.split("-", 1)[0]
@@ -277,21 +281,18 @@ man_pages = [
 
 # -- Options for the edit_on_github extension ---------------------------------
 
-if setup_cfg.get("edit_on_github").lower() == "true":
+if toml_config_tool_dict["tardis"]['edit_on_github'] == True:
 
     extensions += ["sphinx_astropy.ext.edit_on_github"]
 
-    edit_on_github_project = setup_cfg["github_project"]
+    edit_on_github_project = toml_config_project_dict["github_project"]
     edit_on_github_branch = "main"
 
     edit_on_github_source_root = ""
     edit_on_github_doc_root = "docs"
 
 # -- Resolving issue number to links in changelog -----------------------------
-github_issues_url = "https://github.com/{0}/issues/".format(
-    setup_cfg["github_project"]
-)
-
+github_issues_url = toml_config_project_dict['urls']['Issues']
 
 # -- Options for linkcheck output -------------------------------------------
 linkcheck_retry = 5
@@ -350,13 +351,28 @@ def generate_tutorials_page(app):
 
     for root, dirs, fnames in os.walk("io/"):
         for fname in fnames:
-            if fname.endswith(".ipynb") and "checkpoint" not in fname:
+            if fname.startswith("tutorial_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
                 notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
 
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
 
     with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
+        f.write(f"{title}\n{description}\n{notebooks}")
+
+def generate_how_to_guides_page(app):
+    """Create how_to_guides.rst"""
+    notebooks = ""
+
+    for root, dirs, fnames in os.walk("io/"):
+        for fname in fnames:
+            if fname.startswith("how_to_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
+                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+
+    title = "How-To Guides\n*********\n"
+    description = "The following pages contain the TARDIS how-to guides:"
+
+    with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
 
@@ -397,5 +413,6 @@ def create_redirect_files(app, docname):
 
 def setup(app):
     app.connect("builder-inited", generate_tutorials_page)
+    app.connect("builder-inited", generate_how_to_guides_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)

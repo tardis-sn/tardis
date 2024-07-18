@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
-from numba import njit
 import radioactivedecay as rd
 
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.util.base import (
     atomic_number2element_symbol,
 )
@@ -11,87 +9,6 @@ from tardis.energy_input.util import (
     convert_half_life_to_astropy_units,
     ELECTRON_MASS_ENERGY_KEV,
 )
-
-
-@njit(**njit_dict_no_parallel)
-def sample_mass(masses, inner_radius, outer_radius):
-    """Samples location weighted by mass
-
-    Parameters
-    ----------
-    masses : array
-        Shell masses
-    inner_radius : array
-        Inner radii
-    outer_radius : array
-        Outer radii
-
-    Returns
-    -------
-    float
-        Sampled radius
-    int
-        Sampled shell index
-    """
-    norm_mass = masses / np.sum(masses)
-    cdf = np.cumsum(norm_mass)
-    shell = np.searchsorted(cdf, np.random.random())
-
-    z = np.random.random()
-    radius = (
-        z * inner_radius[shell] ** 3.0 + (1.0 - z) * outer_radius[shell] ** 3.0
-    ) ** (1.0 / 3.0)
-
-    return radius, shell
-
-
-@njit(**njit_dict_no_parallel)
-def create_energy_cdf(energy, intensity):
-    """Creates a CDF of given intensities
-
-    Parameters
-    ----------
-    energy :  One-dimensional Numpy Array, dtype float
-        Array of energies
-    intensity :  One-dimensional Numpy Array, dtype float
-        Array of intensities
-
-    Returns
-    -------
-    One-dimensional Numpy Array, dtype float
-        Sorted energy array
-    One-dimensional Numpy Array, dtype float
-        CDF where each index corresponds to the energy in
-        the sorted array
-    """
-    energy.sort()
-    sorted_indices = np.argsort(energy)
-    sorted_intensity = intensity[sorted_indices]
-    norm_intensity = sorted_intensity / np.sum(sorted_intensity)
-    cdf = np.cumsum(norm_intensity)
-
-    return energy, cdf
-
-
-@njit(**njit_dict_no_parallel)
-def sample_energy_distribution(energy_sorted, cdf):
-    """Randomly samples a CDF of energies
-
-    Parameters
-    ----------
-    energy_sorted : One-dimensional Numpy Array, dtype float
-        Sorted energy array
-    cdf : One-dimensional Numpy Array, dtype float
-        CDF
-
-    Returns
-    -------
-    float
-        Sampled energy
-    """
-    index = np.searchsorted(cdf, np.random.random())
-
-    return energy_sorted[index]
 
 
 def setup_input_energy(nuclear_data, source):
@@ -113,8 +30,10 @@ def setup_input_energy(nuclear_data, source):
         CDF where each index corresponds to the energy in
         the sorted array
     """
-    intensity = nuclear_data.query("type==" + source)["intensity"].to_numpy()
-    energy = nuclear_data.query("type==" + source)["energy"].to_numpy()
+    intensity = nuclear_data[nuclear_data.Radiation == source]["Rad Intensity"]
+    energy = nuclear_data[nuclear_data.Radiation == source]["Rad Energy"]
+
+    intensity /= 100  # = [i / 100 if i > 1 else i for i in intensity]
 
     return energy, intensity
 
@@ -270,12 +189,9 @@ def get_nuclear_lines_database(
     -------
     pandas DataFrame
         The decay radiation lines
-    pandas DataFrame
-        Meta information
     """
-    decay_radiation_db = pd.read_hdf(path, "decay_radiation")
-    meta = pd.read_hdf(path, "metadata")
-    return decay_radiation_db, meta
+    decay_radiation_db = pd.read_hdf(path, "decay_radiation_data")
+    return decay_radiation_db
 
 
 def positronium_continuum():

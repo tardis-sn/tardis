@@ -1,0 +1,133 @@
+$$target: plasma.yml
+type: object
+additionalProperties: false
+properties:
+  initial_t_inner:
+    type: quantity
+    default: -1 K
+    description: initial temperature of the inner boundary black body. If set to -1
+      K  will result in automatic calculation of boundary
+  initial_t_rad:
+    type: quantity
+    default: -1 K
+    description: initial radiative temperature in all cells. If set to -1 K will result
+      in automtatic calculation of the initial temperatures
+  disable_electron_scattering:
+    type: boolean
+    default: false
+    description: disable electron scattering process in montecarlo part - non-physical
+      only for tests
+  disable_line_scattering:
+    type: boolean
+    default: false
+    description: disable line scattering process in montecarlo part - non-physical
+      only for tests
+  ionization:
+    type: string
+    enum:
+    - nebular
+    - lte
+    description: ionization treatment mode
+  excitation:
+    type: string
+    enum:
+    - lte
+    - dilute-lte
+    description: excitation treatment mode
+  radiative_rates_type:
+    type: string
+    enum:
+    - dilute-blackbody
+    - detailed
+    - blackbody
+    description: radiative rates treatment mode
+  line_interaction_type:
+    type: string
+    enum:
+    - scatter
+    - downbranch
+    - macroatom
+    description: line interaction mode
+  w_epsilon:
+    type: number
+    default: 1e-10
+    description: w to use when j_blues get numerically 0. - avoids numerical complications
+  delta_treatment:
+    type: number
+    description: In the saha calculation set delta equals to the number given in this
+      configuration item. if set to None (default), normal delta treatment (as described
+      in Mazzali & Lucy 1993) will be applied
+  nlte:
+    type: object
+    default: {}
+    additionalProperties: false
+    properties:
+      species:
+        type: array
+        default: []
+        description: Species that are requested to be NLTE treated in the format  ['Si
+          2', 'Ca 1', etc.]
+      coronal_approximation:
+        type: boolean
+        default: false
+        description: set all jblues=0.0
+      classical_nebular:
+        type: boolean
+        default: false
+        description: sets all beta_sobolevs to 1
+  continuum_interaction:
+    type: object
+    default: {}
+    additionalProperties: false
+    properties:
+      species:
+        type: array
+        default: []
+        description: Species that are requested to be treated with continuum
+            interactios (radiative/collisional ionization and recombination)
+            in the format ['Si II', 'Ca I', etc.]
+      enable_adiabatic_cooling:
+        type: boolean
+        default: false
+        description: enables adiabatic cooling of the electron gas
+      enable_two_photon_decay:
+        type: boolean
+        default: false
+        description: enables two photon decay processes
+  helium_treatment:
+    type: string
+    default: none
+    enum:
+    - none
+    - recomb-nlte
+    - numerical-nlte
+    description: none to treat He as the other elements. recomb-nlte to treat with
+      NLTE approximation.
+  heating_rate_data_file:
+    type: string
+    default: none
+    description: Path to file containing heating rate/light curve data.
+  link_t_rad_t_electron:
+    type: number
+    default: 0.9
+    description: Value used for estimating the electron temperature from radiation temperature.
+  nlte_ionization_species:
+    type: array
+    default: []
+    description: List of species treated with nlte ionization. In the format ["H I", "He II"] etc.
+  nlte_excitation_species:
+    type: array
+    default: []
+    description: List of species treated with nlte excitation. In the format ["H I", "He II"] etc.
+  nlte_solver:
+    type: string
+    default: root
+    enum:
+      - root
+      - lu
+    description: Selects NLTE population equation solver approach.
+required:
+- ionization
+- excitation
+- radiative_rates_type
+- line_interaction_type

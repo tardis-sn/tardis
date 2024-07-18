@@ -1,0 +1,137 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: update-refdata
+
+on:
+  repository_dispatch:
+    types: [update-refdata-command]
+
+env:
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --generate-reference
+  CACHE_NUMBER: 1 # increase to reset cache manually
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  pr-open:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pull/${{ github.event.client_payload.pull_request.number }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.client_payload.pull_request.head.sha }}
+
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
+
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with: 
+          os-label: linux-64
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Generate new reference data
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}
+
+      - name: Remove unwanted files
+        run: rm .lfs-assets-id
+        working-directory: tardis-refdata
+
+      - name: Create pull request refdata
+        uses: peter-evans/create-pull-request@v4
+        with:
+          path: tardis-refdata
+          token: ${{ secrets.BOT_TOKEN }}
+          committer: TARDIS Bot <tardis.sn.bot@gmail.com>
+          author: TARDIS Bot <tardis.sn.bot@gmail.com>
+          branch: pr-${{ github.event.client_payload.pull_request.number }}
+          base: master
+          push-to-fork: tardis-bot/tardis-refdata
+          commit-message: Automated update (tardis pr-${{ github.event.client_payload.pull_request.number }})
+          title: Automated update (tardis pr-${{ github.event.client_payload.pull_request.number }})
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            These are the changes made by https://github.com/tardis-sn/tardis/pull/${{ github.event.client_payload.pull_request.number }}, please be careful before merging this pull request.
+        id: create-pr
+
+      - name: Create pull request regression data
+        uses: peter-evans/create-pull-request@v4
+        with:
+          path: tardis-regression-data
+          token: ${{ secrets.BOT_TOKEN }}
+          committer: TARDIS Bot <tardis.sn.bot@gmail.com>
+          author: TARDIS Bot <tardis.sn.bot@gmail.com>
+          branch: pr-${{ github.event.client_payload.pull_request.number }}
+          base: master
+          push-to-fork: tardis-bot/tardis-regression-data
+          commit-message: Automated update (tardis pr-${{ github.event.client_payload.pull_request.number }})
+          title: Automated update (tardis pr-${{ github.event.client_payload.pull_request.number }})
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            These are the changes made by https://github.com/tardis-sn/tardis/pull/${{ github.event.client_payload.pull_request.number }}, please be careful before merging this pull request.
+        id: create-pr-regression
+
+      - name: Find comment
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body-includes: Hi, human.
+        if: always()
+
+      - name: Post comment (success)
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
+
+            [**Click here**](${{ env.REFDATA_URL }}) to see pull request for refdata update.
+            [**Click here**](${{ env.REGDATA_URL }}) to see pull request for regression data update.
+        env:
+          REFDATA_URL: https://github.com/tardis-sn/tardis-refdata/pulls
+          REGDATA_URL: https://github.com/tardis-sn/tardis-regression-data/pulls
+
+        if: success()
+
+      - name: Post comment (failure)
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **`${{ github.workflow }}`** workflow has **failed** :x:
+
+            [**Click here**](${{ env.URL }}) to see the build log.
+        env:
+          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+        if: failure()

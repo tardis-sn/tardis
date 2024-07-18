@@ -6,49 +6,18 @@ name: pre-release
 
 on:
   schedule:
-    - cron: '0 0 * * 0'
-
-  workflow_dispatch:  # manual trigger
+    - cron: "0 0 * * 0"
+  workflow_dispatch: # manual trigger
 
 defaults:
   run:
     shell: bash -l {0}
 
 jobs:
-  lock:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup environment
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            auto-activate-base: true
-            activate-environment: ""
-            use-mamba: true
-
-      - name: Install conda-lock
-        run: mamba install -c conda-forge conda-lock=1.0.5
-
-      - name: Generate lockfiles
-        run: |
-          conda-lock -f tardis_env3.yml -p linux-64 -p osx-64
-          conda lock render conda-lock.yml
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: lockfiles
-          path: |
-              conda-linux-64.lock
-              conda-osx-64.lock
-              conda-lock.yml
-
   zenodo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: tardis-sn/tardis_zenodo
           token: ${{ secrets.BOT_TOKEN }}
@@ -58,14 +27,25 @@ jobs:
         env:
           KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
 
-      - name: Setup environment
-        uses: conda-incubator/setup-miniconda@v2
+      - name: Download Lock File
+        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
+        shell: bash
+        
+      - name: Generate Cache Key
+        run: | 
+          file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
+        id: cache-environment-key
+        shell: bash
+          
+      - uses: mamba-org/setup-micromamba@v1
         with:
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            environment-file: conda-linux-64.lock
-            activate-environment: tardis_zenodo
-            use-mamba: true
+          environment-file: conda-linux-64.lock
+          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          environment-name: tardis
+          cache-environment: true
+          cache-downloads: true
 
       - name: Run Notebook
         run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
@@ -74,26 +54,23 @@ jobs:
         run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
         if: failure()
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: zenodo_json
           path: .zenodo.json
 
   pull_request:
-    needs: [lock, zenodo]
+    needs: zenodo
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: /tmp
 
-      - name: Copy files to repository
+      - name: Copy zenodo.json to repository
         run: |
-          cp /tmp/lockfiles/conda-linux-64.lock .
-          cp /tmp/lockfiles/conda-osx-64.lock .
-          cp /tmp/lockfiles/conda-lock.yml .
           cp /tmp/zenodo_json/.zenodo.json .
 
       - name: Get current date
@@ -134,23 +111,32 @@ jobs:
             > ```
             >
             > Once all the checks pass, you can safely merge this pull request manually.
-          labels: build-docs
-          reviewers: wkerzendorf, andrewfullard, epassaro
+          labels: automated, build-docs
+          team-reviewers: tardis-infrastructure
         id: create-pr
 
       - name: Wait for pull request
         run: sleep 30
 
-      - name: Approve pull request
-        uses: juliangruber/approve-pull-request-action@v2
-        with:
-          github-token: ${{ secrets.PR_APPROVAL_TOKEN }}
-          number: ${{ steps.create-pr.outputs.pull-request-number }}
+      - name: Approve pull request (I)
+        run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
+        if: steps.create-pr.outputs.pull-request-operation == 'created'
+
+      - name: Approve pull request (II)
+        run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.CORE_COORDINATOR_TOKEN }}
         if: steps.create-pr.outputs.pull-request-operation == 'created'
 
       - name: Enable automerge
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
-          token: ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
           merge-method: squash
+        if: steps.create-pr.outputs.pull-request-operation == 'created'
+
+  compare_refdata:
+    uses: tardis-sn/tardis-refdata/.github/workflows/compare-refdata.yml@master

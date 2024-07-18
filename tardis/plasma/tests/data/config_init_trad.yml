@@ -59,7 +59,7 @@ montecarlo:
   # threads is used or the number specified in the OMP_NUM_THREADS environment
   # variable
   # --------
-  nthreads: 16
+  nthreads: 1
 
   last_no_of_packets: 1.e+5
   no_of_virtual_packets: 10

@@ -1,16 +1,17 @@
 """Tests for SDEC Plots."""
-from tardis.base import run_tardis
-import pytest
-import pandas as pd
-import numpy as np
 import os
 from copy import deepcopy
-from tardis.visualization.tools.sdec_plot import SDECData, SDECPlotter
+
 import astropy.units as u
+import numpy as np
+import pandas as pd
+import pytest
+import tables
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
-import tables
-import re
+
+from tardis.base import run_tardis
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 
 
 def make_valid_name(testid):
@@ -158,6 +159,7 @@ class TestSDECPlotter:
         plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
         species : list
         """
+        # THIS NEEDS TO BE RUN FIRST. NOT INDEPENDENT TESTS
         plotter._parse_species_list(species)
         subgroup_name = make_valid_name(request.node.callspec.id)
         if request.config.getoption("--generate-reference"):
@@ -408,12 +410,14 @@ class TestSDECPlotter:
         species_list : list of str
         """
         subgroup_name = make_valid_name("mpl" + request.node.callspec.id)
+        if distance is None:
+            observed_spectrum = None
         fig = plotter.generate_plot_mpl(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
             show_modeled_spectrum=show_modeled_spectrum,
-            observed_spectrum=observed_spectrum if distance else None,
+            observed_spectrum=observed_spectrum,
             nelements=nelements,
             species_list=species_list,
         )
@@ -549,12 +553,16 @@ class TestSDECPlotter:
         species_list : list of str
         """
         subgroup_name = make_valid_name("ply" + request.node.callspec.id)
+        if distance is not None:
+            observed_spectrum = observed_spectrum
+        else:
+            observed_spectrum = None
         fig = plotter.generate_plot_ply(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
             show_modeled_spectrum=show_modeled_spectrum,
-            observed_spectrum=observed_spectrum if distance else None,
+            observed_spectrum=observed_spectrum,
             nelements=nelements,
             species_list=species_list,
         )

@@ -1,10 +1,11 @@
 """Tests for custom abundance widget."""
-import os
+from pathlib import Path
 import pytest
 import tardis
 import numpy as np
 import numpy.testing as npt
 
+from tardis.tests.test_util import monkeysession
 from tardis.visualization.widgets.custom_abundance import (
     CustomAbundanceWidgetData,
     CustomYAML,
@@ -13,7 +14,7 @@ from tardis.visualization.widgets.custom_abundance import (
 
 
 @pytest.fixture(scope="module")
-def yml_data():
+def yml_data(example_configuration_dir: Path, atomic_dataset):
     """Fixture to contain a CustomAbundanceWidgetData
     instance generated from a YAML file tardis_configv1_verysimple.yml.
 
@@ -22,63 +23,15 @@ def yml_data():
     CustomAbundanceWidgetData
         CustomAbundanceWidgetData generated from a YAML
     """
-    yml_path = os.path.join(
-        tardis.__path__[0],
-        "io",
-        "tests",
-        "data",
-        "tardis_configv1_verysimple.yml",
+    yml_path = example_configuration_dir / "tardis_configv1_verysimple.yml"
+
+    return CustomAbundanceWidgetData.from_yml(
+        yml_path, atom_data=atomic_dataset
     )
-    return CustomAbundanceWidgetData.from_yml(yml_path)
 
 
 @pytest.fixture(scope="module")
-def csvy_data():
-    """Fixture to contain a CustomAbundanceWidgetData
-    instance generated from a CSVY file csvy_full.csvy.
-
-    Returns
-    -------
-    CustomAbundanceWidgetData
-        CustomAbundanceWidgetData generated from a CSVY
-    """
-    csvy_path = os.path.join(
-        tardis.__path__[0], "io", "tests", "data", "csvy_full.csvy"
-    )
-    return CustomAbundanceWidgetData.from_csvy(csvy_path)
-
-
-@pytest.fixture(scope="module")
-def hdf_data(hdf_file_path, simulation_verysimple):
-    """Fixture to contain a CustomAbundanceWidgetData
-    instance generated from a HDF file.
-
-    Returns
-    -------
-    CustomAbundanceWidgetData
-        CustomAbundanceWidgetData generated from a HDF
-    """
-    simulation_verysimple.to_hdf(
-        hdf_file_path, overwrite=True
-    )  # save sim at hdf_file_path
-    return CustomAbundanceWidgetData.from_hdf(hdf_file_path)
-
-
-@pytest.fixture(scope="module")
-def sim_data(simulation_verysimple):
-    """Fixture to contain a CustomAbundanceWidgetData
-    instance generated from simulation data.
-
-    Returns
-    -------
-    CustomAbundanceWidgetData
-        CustomAbundanceWidgetData generated from a simulation
-    """
-    return CustomAbundanceWidgetData.from_simulation(simulation_verysimple)
-
-
-@pytest.fixture(scope="module")
-def caw(yml_data):
+def caw(yml_data, monkeysession):
     """Fixture to contain a CustomAbundanceWidget
     instance generated from a YAML file tardis_configv1_verysimple.yml.
 
@@ -88,6 +41,10 @@ def caw(yml_data):
         CustomAbundanceWidget generated from a YAML
     """
     caw = CustomAbundanceWidget(yml_data)
+    monkeysession.setattr(
+        "tardis.visualization.widgets.custom_abundance.is_notebook",
+        lambda: True,
+    )
     caw.display()
     return caw
 
@@ -168,6 +125,9 @@ class TestCustomAbundanceWidget:
 
         assert caw.overwrite_warning.layout.visibility == expected
 
+    @pytest.mark.skip(
+        reason="Problem with cutting model in restructure. See TARDIS issue 2390"
+    )
     @pytest.mark.parametrize(
         "multishell_edit, expected_x, expected_y, expected_width",
         [

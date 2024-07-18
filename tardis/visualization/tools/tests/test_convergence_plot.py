@@ -1,5 +1,10 @@
 """Tests for Convergence Plots."""
+
+from copy import deepcopy
+
 import pytest
+from tardis.tests.test_util import monkeysession
+from tardis import run_tardis
 from tardis.visualization.tools.convergence_plot import (
     ConvergencePlots,
     transition_colors,
@@ -139,7 +144,9 @@ def test_update_plasma_plots(convergence_plots):
         # check values for t_rad subplot
         assert convergence_plots.plasma_plot.data[index].xaxis == "x"
         assert convergence_plots.plasma_plot.data[index].yaxis == "y"
-        assert convergence_plots.plasma_plot.data[index].y == tuple(t_rad_val)
+        assert (
+            convergence_plots.plasma_plot.data[index].y[:-1] == tuple(t_rad_val)
+        ).all()
         assert convergence_plots.plasma_plot.data[index].x == tuple(
             velocity.to(u.km / u.s).value
         )
@@ -148,7 +155,9 @@ def test_update_plasma_plots(convergence_plots):
         # check values for w subplot
         assert convergence_plots.plasma_plot.data[index].xaxis == "x2"
         assert convergence_plots.plasma_plot.data[index].yaxis == "y2"
-        assert convergence_plots.plasma_plot.data[index].y == tuple(w_val)
+        assert (
+            convergence_plots.plasma_plot.data[index].y[:-1] == tuple(w_val)
+        ).all()
         assert convergence_plots.plasma_plot.data[index].x == tuple(
             velocity.to(u.km / u.s).value
         )
@@ -205,3 +214,19 @@ def test_override_plot_parameters(convergence_plots):
     assert (
         convergence_plots.plasma_plot["layout"]["xaxis2"]["showgrid"] == False
     )
+
+
+def test_convergence_plot_command_line(
+    config_verysimple, atomic_dataset, monkeysession
+):
+    monkeysession.setattr(
+        "tardis.simulation.base.is_notebook",
+        lambda: False,
+    )
+    atomic_data = deepcopy(atomic_dataset)
+    with pytest.raises(RuntimeError):
+        run_tardis(
+            config_verysimple,
+            atom_data=atomic_data,
+            show_convergence_plots=True,
+        )

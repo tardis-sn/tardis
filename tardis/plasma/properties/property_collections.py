@@ -1,4 +1,9 @@
+from tardis.opacities.macro_atom.base import (
+    NonMarkovChainTransitionProbabilities,
+    TransitionProbabilities,
+)
 from tardis.plasma.properties import *
+from tardis.opacities.tau_sobolev import TauSobolev
 
 
 class PlasmaPropertyCollection(list):
@@ -9,7 +14,7 @@ basic_inputs = PlasmaPropertyCollection(
     [
         TRadiative,
         Abundance,
-        Density,
+        NumberDensity,
         TimeExplosion,
         AtomicData,
         DilutionFactor,
@@ -25,11 +30,9 @@ basic_properties = PlasmaPropertyCollection(
         BetaRadiation,
         Levels,
         Lines,
-        AtomicMass,
         PartitionFunction,
         GElectron,
         IonizationData,
-        NumberDensity,
         LinesLowerLevelIndex,
         LinesUpperLevelIndex,
         TauSobolev,
@@ -59,8 +62,11 @@ nlte_properties = PlasmaPropertyCollection(
         BetaSobolev,
     ]
 )
-nlte_solver_properties = PlasmaPropertyCollection(
-    [NLTEIndexHelper, NLTERateEquationSolver]
+nlte_root_solver_properties = PlasmaPropertyCollection(
+    [NLTEIndexHelper, NLTEPopulationSolverRoot]
+)
+nlte_lu_solver_properties = PlasmaPropertyCollection(
+    [NLTEIndexHelper, NLTEPopulationSolverLU]
 )
 helium_nlte_properties = PlasmaPropertyCollection(
     [
@@ -138,12 +144,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         CollRecombRateCoeff,
         RawCollIonTransProbs,
         ContinuumInteractionHandler,
-        BoundFreeOpacityInterpolator,
-        FreeFreeOpacity,
-        ContinuumOpacityCalculator,
         BetaSobolev,
-        FreeFreeFrequencySampler,
-        FreeBoundFrequencySampler,
     ]
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
@@ -154,7 +155,4 @@ two_photon_properties = PlasmaPropertyCollection(
         TwoPhotonEmissionCDF,
         TwoPhotonFrequencySampler,
     ]
-)
-isotope_properties = PlasmaPropertyCollection(
-    [IsotopeAbundance, IsotopeMass, IsotopeNumberDensity]
 )

@@ -1,0 +1,88 @@
+$$target: montecarlo.yml
+type: object
+additionalProperties: false
+properties:
+  nthreads:
+    type: number
+    multipleOf: 1.0
+    default: 1
+    description: The number of Numba threads for parallelisation. Must be between 1 and the 
+      environment variable NUMBA_NUM_THREADS (by default NUMBA_NUM_THREADS is equal to the 
+      number of CPU cores on the local system).
+  seed:
+    type: number
+    multipleOf: 1.0
+    default: 23111963
+    description: Seed for the random number generator
+  no_of_packets:
+    type: number
+    multipleOf: 1.0
+    description: The number of packets used in each iteration.
+  iterations:
+    type: number
+    multipleOf: 1.0
+    description: Number of maximum iterations
+  last_no_of_packets:
+    type: number
+    multipleOf: 1.0
+    default: -1
+    description: This can set the number of packets for the last run. If set negative
+      it will remain the same as all other runs.
+  no_of_virtual_packets:
+    type: number
+    multipleOf: 1.0
+    default: 0
+    description: Setting the number of virtual packets for the last iteration.
+  virtual_spectrum_spawn_range:
+    type: object
+    default: {}
+    properties:
+      start:
+        type: quantity
+        default: 1 angstrom
+      end:
+        type: quantity
+        default: inf angstrom
+    description: Limits of virtual packet spawn spectrum (giving maximum and minimum packet
+      frequency)
+  convergence_strategy:
+    oneOf:
+    - $ref: 'montecarlo_definitions.yml#/definitions/convergence_strategy/damped'
+    - $ref: 'montecarlo_definitions.yml#/definitions/convergence_strategy/custom'
+    default:
+      type: 'damped'
+  enable_full_relativity:
+    type: boolean
+    default: false
+    description: Enables a more complete treatment of relativitic effects. This includes
+      angle aberration as well as use of the fully general Doppler formula.
+  enable_nonhomologous_expansion:
+    type: boolean
+    default: false
+    description: Enables nonhomologous expansion. Treats shells as piece-wise homologous areas for velocity-radius dependence.
+  tracking:
+    type: object
+    default: {}
+    properties:
+      track_rpacket:
+        type: boolean
+        default: false
+        description: Allows for Tracking the properties of the RPackets in Single Packet Loop
+      initial_array_length:
+        type: number
+        default: 10
+        multiple: 1
+        description: Configures the initial array length for the RPacketCollection Properties arrays
+      description: Sets up tracking for Montecarlo 
+  debug_packets:
+    type: boolean
+    default: false
+    description: Decide whether to go into debugging mode. [EXPERIMENTAL FEATURE DO NOT RELY ON IT]
+  logger_buffer:
+    type: number
+    default: 1
+    description: Provides option to not log every line.
+
+required:
+- no_of_packets
+- iterations

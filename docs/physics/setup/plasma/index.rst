@@ -73,6 +73,9 @@ The next more complex class is `LTEPlasma` which will calculate the ionization b
 
 TARDIS also allows for NLTE treatments of specified species, as well as special NLTE treatments for Helium.
 
+.. note::
+    The NLTE treatment of specified species is currently incompatible with the NLTE treatment for helium and cannot be used simultaneously.
+
 .. toctree::
     :maxdepth: 2
 

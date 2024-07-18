@@ -11,18 +11,23 @@ from radioactivedecay.utils import Z_DICT, elem_to_Z
 from pathlib import Path
 
 import tardis
-from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
-from tardis.io.config_reader import Configuration
-from tardis.model import Radial1DModel
-from tardis.model.density import (
+from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
+from tardis.util.base import (
+    quantity_linspace,
+    is_valid_nuclide_or_elem,
+    is_notebook,
+)
+from tardis.io.configuration.config_reader import Configuration
+from tardis.model import SimulationState
+from tardis.io.model.parse_density_configuration import (
     calculate_power_law_density,
     calculate_exponential_density,
 )
-from tardis.io.config_validator import validate_dict
-from tardis.io.parsers.csvy import load_csvy
-from tardis.io.model_reader import (
-    read_uniform_abundances,
-    parse_csv_abundances,
+from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.readers.csvy import load_csvy
+from tardis.io.model.readers.csvy import (
+    parse_csv_mass_fractions,
 )
 from tardis.util.base import atomic_number2element_symbol, quantity_linspace
 from tardis.visualization.tools.convergence_plot import transition_colors
@@ -151,11 +156,11 @@ class CustomAbundanceWidgetData:
 
         if hasattr(csvy_model_config, "abundance"):
             abundances_section = csvy_model_config.abundance
-            abundance, isotope_abundance = read_uniform_abundances(
+            abundance, isotope_abundance = read_uniform_mass_fractions(
                 abundances_section, no_of_shells
             )
         else:
-            _, abundance, isotope_abundance = parse_csv_abundances(
+            _, abundance, isotope_abundance = parse_csv_mass_fractions(
                 csvy_model_data
             )
             abundance = abundance.loc[:, 1:]
@@ -182,7 +187,7 @@ class CustomAbundanceWidgetData:
         )
 
     @classmethod
-    def from_yml(cls, fpath):
+    def from_yml(cls, fpath, atom_data=None):
         """Create a new CustomAbundanceWidgetData instance with data
         from YAML file.
 
@@ -196,22 +201,29 @@ class CustomAbundanceWidgetData:
         CustomAbundanceWidgetData
         """
         config = Configuration.from_yaml(fpath)
-
+        if atom_data is None:
+            atom_data = AtomData.from_hdf(config.atom_data)
         if hasattr(config, "csvy_model"):
-            model = Radial1DModel.from_csvy(config)
+            simulation_state = SimulationState.from_csvy(
+                config, atom_data=atom_data
+            )
         else:
-            model = Radial1DModel.from_config(config)
+            simulation_state = SimulationState.from_config(
+                config, atom_data=atom_data
+            )
 
-        velocity = model.velocity
-        density_t_0 = model.homologous_density.time_0
-        density = model.homologous_density.density_0
-        abundance = model.raw_abundance
-        isotope_abundance = model.raw_isotope_abundance
+        velocity = simulation_state.velocity
+        density_t_0 = simulation_state.time_explosion
+        density = simulation_state.density
+        abundance = simulation_state.abundance
+        isotopic_mass_fraction = (
+            simulation_state.composition.isotopic_mass_fraction
+        )
 
         # Combine elements and isotopes to one DataFrame
         abundance["mass_number"] = ""
         abundance.set_index("mass_number", append=True, inplace=True)
-        abundance = pd.concat([abundance, isotope_abundance])
+        abundance = pd.concat([abundance, isotopic_mass_fraction])
         abundance.sort_index(inplace=True)
 
         return cls(
@@ -269,8 +281,10 @@ class CustomAbundanceWidgetData:
         -------
         CustomAbundanceWidgetData
         """
-        abundance = sim.model.raw_abundance.copy()
-        isotope_abundance = sim.model.raw_isotope_abundance.copy()
+        abundance = sim.simulation_state.abundance.copy()
+        isotope_abundance = (
+            sim.simulation_state.composition.raw_isotope_abundance.copy()
+        )
 
         # integrate element and isotope to one DataFrame
         abundance["mass_number"] = ""
@@ -278,9 +292,9 @@ class CustomAbundanceWidgetData:
         abundance = pd.concat([abundance, isotope_abundance])
         abundance.sort_index(inplace=True)
 
-        velocity = sim.model.velocity
-        density_t_0 = sim.model.homologous_density.time_0
-        density = sim.model.homologous_density.density_0
+        velocity = sim.simulation_state.velocity
+        density_t_0 = sim.simulation_state.time_explosion
+        density = sim.simulation_state.density
 
         return cls(
             density_t_0=density_t_0,
@@ -1276,109 +1290,114 @@ class CustomAbundanceWidget:
         ipywidgets.widgets.widget_box.VBox
             A box that contains all the widgets in the GUI.
         """
-        # --------------Combine widget components--------------
-        self.box_editor = ipw.HBox(
-            [
-                ipw.VBox(self.input_items),
-                ipw.VBox(self.checks, layout=ipw.Layout(margin="0 0 0 10px")),
-            ]
-        )
+        if not is_notebook():
+            print("Please use a notebook to display the widget")
+        else:
+            # --------------Combine widget components--------------
+            self.box_editor = ipw.HBox(
+                [
+                    ipw.VBox(self.input_items),
+                    ipw.VBox(
+                        self.checks, layout=ipw.Layout(margin="0 0 0 10px")
+                    ),
+                ]
+            )
 
-        box_add_shell = ipw.HBox(
-            [
-                self.input_v_start,
-                self.input_v_end,
-                self.btn_add_shell,
-                self.overwrite_warning,
-            ],
-            layout=ipw.Layout(margin="0 0 0 50px"),
-        )
+            box_add_shell = ipw.HBox(
+                [
+                    self.input_v_start,
+                    self.input_v_end,
+                    self.btn_add_shell,
+                    self.overwrite_warning,
+                ],
+                layout=ipw.Layout(margin="0 0 0 50px"),
+            )
 
-        box_head = ipw.HBox(
-            [self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell]
-        )
+            box_head = ipw.HBox(
+                [self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell]
+            )
 
-        box_add_element = ipw.HBox(
-            [self.input_symb, self.btn_add_element, self.symb_warning],
-            layout=ipw.Layout(margin="0 0 0 80px"),
-        )
+            box_add_element = ipw.HBox(
+                [self.input_symb, self.btn_add_element, self.symb_warning],
+                layout=ipw.Layout(margin="0 0 0 80px"),
+            )
 
-        help_note = ipw.HTML(
-            value="<p style='text-indent: 40px'>* Select a checkbox "
-            "to lock the abundance of corresponding element. </p>"
-            "<p style='text-indent: 40px'> On clicking the 'Normalize' "
-            "button, the locked abundance(s) will <b>not be normalized</b>."
-            " </p>",
-            indent=True,
-        )
+            help_note = ipw.HTML(
+                value="<p style='text-indent: 40px'>* Select a checkbox "
+                "to lock the abundance of corresponding element. </p>"
+                "<p style='text-indent: 40px'> On clicking the 'Normalize' "
+                "button, the locked abundance(s) will <b>not be normalized</b>."
+                " </p>",
+                indent=True,
+            )
 
-        self.abundance_note = ipw.HTML(
-            description="(The following abundances are for the innermost "
-            "shell in selected range.)",
-            layout=ipw.Layout(visibility="hidden"),
-            style={"description_width": "initial"},
-        )
+            self.abundance_note = ipw.HTML(
+                description="(The following abundances are for the innermost "
+                "shell in selected range.)",
+                layout=ipw.Layout(visibility="hidden"),
+                style={"description_width": "initial"},
+            )
 
-        box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
+            box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
 
-        box_apply = ipw.VBox(
-            [
-                ipw.Label(value="Apply abundance(s) to:"),
-                self.rbs_single_apply,
-                ipw.HBox(
-                    [
-                        self.rbs_multi_apply,
-                        self.irs_shell_range,
-                        self.abundance_note,
-                    ]
-                ),
-            ],
-            layout=ipw.Layout(margin="0 0 15px 50px"),
-        )
+            box_apply = ipw.VBox(
+                [
+                    ipw.Label(value="Apply abundance(s) to:"),
+                    self.rbs_single_apply,
+                    ipw.HBox(
+                        [
+                            self.rbs_multi_apply,
+                            self.irs_shell_range,
+                            self.abundance_note,
+                        ]
+                    ),
+                ],
+                layout=ipw.Layout(margin="0 0 15px 50px"),
+            )
 
-        box_features = ipw.VBox([box_norm, help_note])
-        box_abundance = ipw.VBox(
-            [
-                box_apply,
-                ipw.HBox([self.box_editor, box_features]),
-                box_add_element,
-            ]
-        )
-        box_density = self.density_editor.display()
+            box_features = ipw.VBox([box_norm, help_note])
+            box_abundance = ipw.VBox(
+                [
+                    box_apply,
+                    ipw.HBox([self.box_editor, box_features]),
+                    box_add_element,
+                ]
+            )
+            box_density = self.density_editor.display()
 
-        main_tab = ipw.Tab([box_abundance, box_density])
-        main_tab.set_title(0, "Edit Abundance")
-        main_tab.set_title(1, "Edit Density")
+            main_tab = ipw.Tab([box_abundance, box_density])
+            main_tab.set_title(0, "Edit Abundance")
+            main_tab.set_title(1, "Edit Density")
 
-        hint = ipw.HTML(
-            value="<b><font size='3'>Save model as file: </font></b>"
-        )
-        box_output = ipw.VBox(
-            [
-                hint,
-                self.input_i_time_0,
-                ipw.HBox(
-                    [self.input_path, self.btn_output, self.ckb_overwrite]
-                ),
-            ]
-        )
+            hint = ipw.HTML(
+                value="<b><font size='3'>Save model as file: </font></b>"
+            )
+            box_output = ipw.VBox(
+                [
+                    hint,
+                    self.input_i_time_0,
+                    ipw.HBox(
+                        [self.input_path, self.btn_output, self.ckb_overwrite]
+                    ),
+                ]
+            )
 
-        # Initialize the widget and plot colormap
-        self.plot_cmap = cmap
-        self.update_line_color()
-        self.read_abundance()
-        self.density_editor.read_density()
+            # Initialize the widget and plot colormap
+            self.plot_cmap = cmap
+            self.update_line_color()
+            self.read_abundance()
+            self.density_editor.read_density()
 
-        return ipw.VBox(
-            [
-                self.tbs_scale,
-                self.fig,
-                box_head,
-                main_tab,
-                box_output,
-                self.error_view,
-            ]
-        )
+            return ipw.VBox(
+                [
+                    self.tbs_scale,
+                    self.fig,
+                    box_head,
+                    main_tab,
+                    box_output,
+                    self.error_view,
+                ]
+            )
 
     @error_view.capture(clear_output=True)
     def to_csvy(self, path, overwrite):

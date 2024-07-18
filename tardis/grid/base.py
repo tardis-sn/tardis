@@ -3,8 +3,9 @@ import numpy as np
 import copy
 import tardis
 
-from tardis.io.config_reader import Configuration
-from tardis.model import Radial1DModel
+from tardis.io.configuration.config_reader import Configuration
+from tardis.io.atom_data import AtomData
+from tardis.model import SimulationState
 
 
 def _set_tardis_config_property(tardis_config, key, value):
@@ -93,9 +94,9 @@ class tardisGrid:
             _set_tardis_config_property(tmp_config, colname, value)
         return tmp_config
 
-    def grid_row_to_model(self, row_index):
+    def grid_row_to_simulation_state(self, row_index, atomic_data):
         """
-        Generates a TARDIS Radial1DModel object using the base
+        Generates a TARDIS SimulationState object using the base
         self.config modified by the specified grid row.
 
         Parameters
@@ -105,11 +106,13 @@ class tardisGrid:
 
         Returns
         -------
-        model : tardis.model.base.Radial1DModel
+        model : tardis.model.base.SimulationState
         """
         rowconfig = self.grid_row_to_config(row_index)
-        model = Radial1DModel.from_config(rowconfig)
-        return model
+        simulation_state = SimulationState.from_config(
+            rowconfig, atom_data=atomic_data
+        )
+        return simulation_state
 
     def run_sim_from_grid(self, row_index, **tardiskwargs):
         """

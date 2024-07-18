@@ -14,7 +14,7 @@ Monte Carlo Radiative Transfer methods track a sufficiently large number of phot
 propagate through the supernova ejecta. The initial properties of these photons are randomly (in a probabilistic
 sense) assigned in accordance with the macroscopic properties of the radiation field (see :doc:`initialization`)
 and in a similar manner the decisions about when, where and how the photons interact with the surrounding material
-are made (see :ref:`Propagation <propagation>`). Given a large enough sample, these photons behave as a microcosom
+are made (see :ref:`Propagation <propagation>`). Given a large enough sample, these photons behave as a microcosm
 of all of the light traveling through the ejecta -- that is, based on the behavior of these photons, we can draw
 conclusions about the propagation of light through the ejecta as a whole (see :ref:`estimators`). This is eventually
 used to determine the actual steady-state plasma properties (see :doc:`../update_and_conv/update_and_conv`) and the
@@ -26,7 +26,7 @@ emitted spectrum (see :ref:`spectrum`).
 Random Sampling Basics
 ======================
 
-During both the initialization of these photons and their propagation through the ejecta are modeled through
+Both the initialization of these photons and their propagation through the ejecta are modeled through
 probabilistic processes. This involves assigning probabilities to the occurrence of certain events or properties.
 For example, during isotropic scattering, finding a photon scattering into any given direction is equally likely.
 During the Monte Carlo simulation, assignments
@@ -95,8 +95,8 @@ Here, all scattering angles are equally likely. Thus, the corresponding
 
 .. math::
 
-    \rho_{\mu}(\mu) &= \frac{1}{2}\\
-    f_{\mu}(\mu) &= \frac{1}{2} (\mu - 1).
+    \rho(\mu) &= \frac{1}{2}\\
+    f(\mu) &= \frac{1}{2} (\mu + 1).
 
 This leads to the sampling rule
 
@@ -112,8 +112,8 @@ The probability of a photon interacting after covering an optical depth
 
 .. math::
 
-    \rho_{\tau}(\tau) &= \exp(-\tau)\\
-    f_{\tau}(\tau) &= 1 - \exp(-\tau).
+    \rho(\tau) &= \exp(-\tau)\\
+    f(\tau) &= 1 - \exp(-\tau).
 
 
 With the inverse transformation method, the optical depth to the next interaction location may then be sampled by 

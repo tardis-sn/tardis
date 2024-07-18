@@ -1,7 +1,7 @@
 import pytest
 import logging
 
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 from tardis.io.logger.logger import LOGGING_LEVELS
 from tardis import run_tardis
@@ -23,7 +23,8 @@ def test_logging_simulation(atomic_data_fname, caplog):
 
     simulation = Simulation.from_config(config)
 
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
     for record in caplog.records:
         assert record.levelno >= logging.INFO

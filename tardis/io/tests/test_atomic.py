@@ -49,13 +49,18 @@ def test_atom_data_levels(levels):
 
 def test_atom_data_lines(lines):
     assert_quantity_allclose(
-        lines.at[(2, 0, 0, 6), "wavelength_cm"] * u.Unit("cm"),
+        lines.loc[(2, 0, 0, 6), "wavelength_cm"].values[0] * u.Unit("cm"),
         584.335 * u.Unit("Angstrom"),
     )
 
 
 def test_atomic_reprepare(kurucz_atomic_data):
-    kurucz_atomic_data.prepare_atom_data([14, 20])
+    kurucz_atomic_data.prepare_atom_data(
+        [14, 20],
+        line_interaction_type="scatter",
+        nlte_species=[],
+        continuum_interaction_species=[],
+    )
     lines = kurucz_atomic_data.lines.reset_index()
     assert lines["atomic_number"].isin([14, 20]).all()
     assert len(lines.loc[lines["atomic_number"] == 14]) > 0

@@ -17,6 +17,8 @@ from tardis.io.util import get_internal_data_path
 from IPython import get_ipython, display
 import tqdm
 import tqdm.notebook
+import functools
+import warnings
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -30,7 +32,11 @@ tardis_dir = os.path.realpath(tardis.__path__[0])
 ATOMIC_SYMBOLS_DATA = (
     pd.read_csv(
         get_internal_data_path("atomic_symbols.dat"),
-        delim_whitespace=True,
+        # The argument `delim_whitespace` was changed to `sep`
+        #   because the first one is deprecated since version 2.2.0.
+        #   The regular expression means: the separation is one or
+        #   more spaces together (simple space, tabs, new lines).
+        sep=r"\s+",
         names=["atomic_number", "symbol"],
     )
     .set_index("atomic_number")
@@ -192,7 +198,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
 
     Parameters
     ----------
-    radial1d_mdl : Radial1DModel
+    radial1d_mdl : SimulationState
         Inputted object that will be read into YAML file
     fname : str
         File name for the synpp yaml
@@ -241,10 +247,10 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         )
 
     yaml_reference["output"]["min_wl"] = float(
-        radial1d_mdl.runner.spectrum.wavelength.to("angstrom").value.min()
+        radial1d_mdl.transport.spectrum.wavelength.to("angstrom").value.min()
     )
     yaml_reference["output"]["max_wl"] = float(
-        radial1d_mdl.runner.spectrum.wavelength.to("angstrom").value.max()
+        radial1d_mdl.transport.spectrum.wavelength.to("angstrom").value.max()
     )
 
     # raise Exception("there's a problem here with units what units does synpp expect?")
@@ -387,7 +393,7 @@ def species_string_to_tuple(species_string):
                 f"Given ion number ('{ion_number_string}') could not be parsed"
             )
 
-    if ion_number > atomic_number:
+    if ion_number - 1 > atomic_number:
         raise ValueError(
             "Species given does not exist: ion number > atomic number"
         )
@@ -699,6 +705,14 @@ def update_packet_pbar(i, current_iteration, no_of_packets, total_iterations):
     packet_pbar.update(i)
 
 
+def refresh_packet_pbar():
+    """
+    Refresh packet progress bar after each iteration.
+
+    """
+    packet_pbar.refresh()
+
+
 def update_iterations_pbar(i):
     """
     Update progress bar for each iteration.
@@ -753,3 +767,21 @@ def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):
             bar.reset(total=total_iterations)
         else:
             pass
+
+
+def deprecated(func):
+    """
+    A decorator to add a deprecation warning to a function that is no longer used
+
+    Parameters
+    ----------
+
+    func : function
+    """
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        warnings.warn("This function is deprecated.", DeprecationWarning)
+        return func(*args, **kwargs)
+
+    return wrapper
