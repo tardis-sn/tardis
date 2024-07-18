@@ -20,6 +20,19 @@ from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )
 
+@pytest.fixture(scope="function")
+def montecarlo_main_loop_config(
+    config_montecarlo_1e5_verysimple,
+):
+    # Setup model config from verysimple
+
+    config_montecarlo_1e5_verysimple.montecarlo.last_no_of_packets = 1e5
+    config_montecarlo_1e5_verysimple.montecarlo.no_of_virtual_packets = 0
+    config_montecarlo_1e5_verysimple.montecarlo.iterations = 1
+    config_montecarlo_1e5_verysimple.plasma.line_interaction_type = "macroatom"
+
+    del config_montecarlo_1e5_verysimple["config_dirname"]
+    return config_montecarlo_1e5_verysimple
 
 @pytest.fixture(scope="package")
 def nb_simulation_verysimple(config_verysimple, atomic_dataset):
