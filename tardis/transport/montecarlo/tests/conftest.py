@@ -1,24 +1,25 @@
 from copy import deepcopy
 
-import pytest
 import numpy as np
+import pytest
 from numba import njit
-from tardis.opacities.opacity_state import opacity_state_initialize
-from tardis.transport.montecarlo.packet_collections import (
-    VPacketCollection,
-)
 
+from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.transport.montecarlo.weighted_packet_source import BlackBodyWeightedSource
-
-
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )
+from tardis.transport.montecarlo.packet_collections import (
+    VPacketCollection,
+)
+from tardis.transport.montecarlo.weighted_packet_source import (
+    BlackBodyWeightedSource,
+)
+
 
 @pytest.fixture(scope="function")
 def montecarlo_main_loop_config(

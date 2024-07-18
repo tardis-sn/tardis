@@ -1,13 +1,9 @@
 from copy import deepcopy
 
 import numpy.testing as npt
-import pytest
-
-from tardis.simulation import Simulation
 import pandas as pd
 
-
-
+from tardis.simulation import Simulation
 
 
 def test_montecarlo_main_loop_weighted(

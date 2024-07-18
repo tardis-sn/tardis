@@ -1,7 +1,12 @@
-from tardis.transport.montecarlo.packet_source import BasePacketSource, HDFWriterMixin
-import numpy as np
-from astropy import units as u, constants as const
 import numexpr as ne
+import numpy as np
+from astropy import constants as const
+from astropy import units as u
+
+from tardis.transport.montecarlo.packet_source import (
+    BasePacketSource,
+    HDFWriterMixin,
+)
 from tardis.util.base import intensity_black_body
 
 
@@ -88,7 +93,6 @@ class BlackBodyWeightedSource(BasePacketSource, HDFWriterMixin):
         array of frequencies
             numpy.ndarray
         """
-
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
         l_coef = np.pi**4 / 90.0
 
@@ -113,8 +117,8 @@ class BlackBodyWeightedSource(BasePacketSource, HDFWriterMixin):
 
     def create_packet_mus(self, no_of_packets):
         """
-        Create zero-limb-darkening packet :math:`\mu` distributed
-        according to :math:`\\mu=\\sqrt{z}, z \isin [0, 1]`
+        Create zero-limb-darkening packet :math:`\\mu` distributed
+        according to :math:`\\mu=\\sqrt{z}, z \\isin [0, 1]`
 
         Parameters
         ----------
@@ -126,7 +130,6 @@ class BlackBodyWeightedSource(BasePacketSource, HDFWriterMixin):
         Directions for packets
             numpy.ndarray
         """
-
         # For testing purposes
         if self.legacy_mode_enabled:
             return np.sqrt(np.random.random(no_of_packets))
@@ -148,7 +151,6 @@ class BlackBodyWeightedSource(BasePacketSource, HDFWriterMixin):
         energies for packets
             numpy.ndarray
         """
-
         try:
             self.nus
         except AttributeError:
@@ -163,7 +165,6 @@ class BlackBodyWeightedSource(BasePacketSource, HDFWriterMixin):
 
         Parameters
         ----------
-
         luminosity : u.Quantity
 
         """
