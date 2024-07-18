@@ -23,7 +23,7 @@ class BlackBodyWeightedSource(BasePacketSource, HDFWriterMixin):
     """
 
     hdf_properties = ["radius", "temperature", "base_seed"]
-    hdf_name = "black_body_simple_source"
+    hdf_name = "black_body_weighted_source"
 
     @classmethod
     def from_simulation_state(cls, simulation_state, *args, **kwargs):
