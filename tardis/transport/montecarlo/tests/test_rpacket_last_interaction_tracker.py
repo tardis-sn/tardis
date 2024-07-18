@@ -9,7 +9,7 @@ from tardis.transport.montecarlo.packet_trackers import (
 
 
 @pytest.fixture(scope="module")
-def interaction_type_last_interaction_class_old(
+def interaction_type_in_use(
     nb_simulation_verysimple,
 ):
     """Last interaction types of rpacket from LastInteractionTracker"""
@@ -19,19 +19,19 @@ def interaction_type_last_interaction_class_old(
 
 
 @pytest.fixture()
-def shell_id_last_interaction_class_old(
+def shell_id_in_use(
     nb_simulation_verysimple,
-    interaction_type_last_interaction_class_old,
+    interaction_type_in_use,
 ):
     """Last interaction types of rpacket from LastInteractionTracker"""
     transport_state = nb_simulation_verysimple.transport.transport_state
     shell_id = transport_state.last_line_interaction_shell_id
-    mask = interaction_type_last_interaction_class_old == InteractionType.LINE
+    mask = interaction_type_in_use == InteractionType.LINE
     return shell_id[mask]
 
 
 @pytest.fixture(scope="module")
-def interaction_type_last_interaction_class_new(
+def interaction_type_to_check(
     nb_simulation_verysimple,
 ):
     """Last interaction types of rpacket from RPacketLastInteractionTracker"""
@@ -48,9 +48,9 @@ def interaction_type_last_interaction_class_new(
 
 
 @pytest.fixture()
-def shell_id_last_interaction_class_new(
+def shell_id_to_check(
     nb_simulation_verysimple,
-    interaction_type_last_interaction_class_new,
+    interaction_type_to_check,
 ):
     """Last interaction types of rpacket from RPacketLastInteractionTracker"""
     transport_state = nb_simulation_verysimple.transport.transport_state
@@ -59,12 +59,12 @@ def shell_id_last_interaction_class_new(
         transport_state.rpacket_tracker
     ):
         shell_id[i] = last_interaction_tracker.shell_id
-    mask = interaction_type_last_interaction_class_new == InteractionType.LINE
+    mask = interaction_type_to_check == InteractionType.LINE
     return shell_id[mask]
 
 
 @pytest.fixture()
-def nu_from_packet_collection(
+def nu_packet_collection(
     nb_simulation_verysimple,
 ):
     """Last interaction output nus of rpacket from packet_collection"""
@@ -75,7 +75,7 @@ def nu_from_packet_collection(
 
 
 @pytest.fixture()
-def nu_from_last_interaction_class_new(
+def nu_to_check(
     nb_simulation_verysimple,
 ):
     """Last interaction output nus of rpacket from RPacketLastInteractionTracker"""
@@ -108,30 +108,18 @@ def test_tracking_manual(static_packet):
     npt.assert_almost_equal(tracker.energy, 0.9)
 
 
-def test_config_flags(nb_simulation_verysimple):
-    ENABLE_RPACKET_TRACKING = (
-        nb_simulation_verysimple.transport.montecarlo_configuration.ENABLE_RPACKET_TRACKING
-    )
-    ENABLE_RPACKET_LAST_INTERACTION_TRACKING = (
-        nb_simulation_verysimple.transport.montecarlo_configuration.ENABLE_RPACKET_LAST_INTERACTION_TRACKING
-    )
-
-    assert ENABLE_RPACKET_TRACKING == None
-    assert ENABLE_RPACKET_LAST_INTERACTION_TRACKING == True
-
-
 @pytest.mark.parametrize(
     "expected,obtained",
     [
         (
-            "interaction_type_last_interaction_class_old",
-            "interaction_type_last_interaction_class_new",
+            "interaction_type_in_use",
+            "interaction_type_to_check",
         ),
         (
-            "shell_id_last_interaction_class_old",
-            "shell_id_last_interaction_class_new",
+            "shell_id_in_use",
+            "shell_id_to_check",
         ),
-        ("nu_from_packet_collection", "nu_from_last_interaction_class_new"),
+        ("nu_packet_collection", "nu_to_check"),
     ],
 )
 def test_last_interaction_properties(expected, obtained, request):
