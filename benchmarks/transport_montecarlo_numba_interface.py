@@ -14,7 +14,7 @@ class BenchmarkMontecarloMontecarloNumbaNumbaInterface(BenchmarkBase):
     Class to benchmark the numba interface function.
     """
 
-    @parameterize({"Input params": ["scatter", "macroatom", "downbranch"]})
+    @parameterize({"Input params": ["scatter", "macroatom"]})
     def time_opacity_state_initialize(self, input_params):
         line_interaction_type = input_params
         plasma = self.nb_simulation_verysimple.plasma

@@ -31,7 +31,6 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
         {
             "Line interaction type": [
                 LineInteractionType.SCATTER,
-                LineInteractionType.DOWNBRANCH,
                 LineInteractionType.MACROATOM,
             ],
         }
@@ -60,17 +59,7 @@ class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
                     "mu": 0.8599443103322428,
                     "emission_line_id": 1000,
                     "energy": 0.9114437898710559,
-                },
-                {
-                    "mu": -0.6975116557422458,
-                    "emission_line_id": 2000,
-                    "energy": 0.8803098648913266,
-                },
-                {
-                    "mu": -0.7115661419975774,
-                    "emission_line_id": 0,
-                    "energy": 0.8800385929341252,
-                },
+                }
             ]
         }
     )

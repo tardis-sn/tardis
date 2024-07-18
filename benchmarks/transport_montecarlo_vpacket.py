@@ -161,6 +161,5 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             self.verysimple_opacity_state,
             False,
             parameters["tau_russian"],
-            parameters["survival_possibility"],
-            False,
+            parameters["survival_possibility"]
         )
