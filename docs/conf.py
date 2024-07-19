@@ -261,6 +261,13 @@ htmlhelp_basename = project + "doc"
 modindex_common_prefix = ["tardis."]
 
 
+
+# -- Google Analytics Using Extension -------------------------------------------------
+
+if os.getenv("GITHUB_ACTIONS"):
+  extensions.append("sphinxcontrib.googleanalytics")
+  googleanalytics_id = "G-53HJHD1BWS"
+
 # -- Options for LaTeX output -------------------------------------------------
 
 # Grouping the document tree into LaTeX files. List of tuples

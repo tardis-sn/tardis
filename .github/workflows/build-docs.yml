@@ -103,6 +103,10 @@ jobs:
       - name: Install package
         run: pip install -e .
 
+      - name: Install Sphinx extensions
+        run: |
+          pip install sphinxcontrib-googleanalytics
+
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
 
