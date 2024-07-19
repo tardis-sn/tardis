@@ -262,6 +262,7 @@ def single_packet_loop(
 
     # Registering the final boundary interaction.
     # Only for RPacketTracker
+    # This is required by the RPacketPlotter tool
     if montecarlo_globals.ENABLE_RPACKET_TRACKING:
         temp_r_packet = RPacket(
             r_packet.r,
