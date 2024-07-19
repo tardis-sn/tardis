@@ -34,58 +34,76 @@ class BenchmarkMontecarloMontecarloNumbaOpacities(BenchmarkBase):
 
     @parameterize(
         {
-            "Ejecta density": [
-                1.0,
-                1e-2,
-                1e-2,
-                1e5,
-            ],
-            "Energy": [
-                511.0,
-                255.5,
-                255.5,
-                511.0e7,
-            ],
-            "Iron group fraction": [
-                0.0,
-                0.5,
-                0.25,
-                1.0,
-            ],
+            "Parameters": [
+                {
+                    "Ejecta_density": 0.01,
+                    "Energy": 511.0,
+                    "Iron_group_fraction": 0.5,
+                },
+                {
+                    "Ejecta_density": 0.01,
+                    "Energy": 5110000000.0,
+                    "Iron_group_fraction": 0.0,
+                },
+                {
+                    "Ejecta_density": 0.01,
+                    "Energy": 255.5,
+                    "Iron_group_fraction": 0.0,
+                },
+                {
+                    "Ejecta_density": 0.01,
+                    "Energy": 255.5,
+                    "Iron_group_fraction": 0.5,
+                },
+                {
+                    "Ejecta_density": 100000.0,
+                    "Energy": 255.5,
+                    "Iron_group_fraction": 1.0,
+                }
+            ]
         }
     )
-    def time_photoabsorption_opacity_calculation(
-        self, ejecta_density, energy, iron_group_fraction
-    ):
+    def time_photoabsorption_opacity_calculation(self, parameters):
         calculate_opacity.photoabsorption_opacity_calculation(
-            energy, ejecta_density, iron_group_fraction
+            parameters["Energy"],
+            parameters["Ejecta_density"],
+            parameters["Iron_group_fraction"],
         )
 
     @parameterize(
         {
-            "Ejecta density": [
-                1.0,
-                1e-2,
-                1e-2,
-                1e5,
-            ],
-            "Energy": [
-                511.0,
-                1500,
-                1200,
-                511.0e7,
-            ],
-            "Iron group fraction": [
-                0.0,
-                0.5,
-                0.25,
-                1.0,
-            ],
+            "Parameters": [
+                {
+                    "Ejecta_density": 0.01,
+                    "Energy": 511.0,
+                    "Iron_group_fraction": 0.5,
+                },
+                {
+                    "Ejecta_density": 0.01,
+                    "Energy": 5110000000.0,
+                    "Iron_group_fraction": 0.0,
+                },
+                {
+                    "Ejecta_density": 0.01,
+                    "Energy": 255.5,
+                    "Iron_group_fraction": 0.0,
+                },
+                {
+                    "Ejecta_density": 0.01,
+                    "Energy": 255.5,
+                    "Iron_group_fraction": 0.5,
+                },
+                {
+                    "Ejecta_density": 100000.0,
+                    "Energy": 255.5,
+                    "Iron_group_fraction": 1.0,
+                }
+            ]
         }
     )
-    def time_pair_creation_opacity_calculation(
-        self, ejecta_density, energy, iron_group_fraction
-    ):
+    def time_pair_creation_opacity_calculation(self, parameters):
         calculate_opacity.pair_creation_opacity_calculation(
-            energy, ejecta_density, iron_group_fraction
+            parameters["Energy"],
+            parameters["Ejecta_density"],
+            parameters["Iron_group_fraction"],
         )
