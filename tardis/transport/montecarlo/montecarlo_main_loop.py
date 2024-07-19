@@ -10,7 +10,11 @@ from tardis.transport.montecarlo.packet_collections import (
     consolidate_vpacket_tracker,
     initialize_last_interaction_tracker,
 )
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
+import tardis.transport.montecarlo.montecarlo_main_loop as montecarlo_loop
+from tardis.transport.montecarlo.packet_trackers import (
+    RPacketTracker,
+    RPacketLastInteractionTracker,
+)
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
     RPacket,
@@ -19,6 +23,8 @@ from tardis.transport.montecarlo.single_packet_loop import (
     single_packet_loop,
 )
 from tardis.util.base import update_packet_pbar
+
+ENABLE_RPACKET_TRACKING = False
 
 
 @njit(**njit_dict)
@@ -73,6 +79,17 @@ def montecarlo_main_loop(
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
     rpacket_trackers = List()
+    if ENABLE_RPACKET_TRACKING:
+        for i in range(no_of_packets):
+            rpacket_trackers.append(
+                RPacketTracker(
+                    montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+                )
+            )
+    else:
+        for i in range(no_of_packets):
+            rpacket_trackers.append(RPacketLastInteractionTracker())
+
     for i in range(no_of_packets):
         vpacket_collections.append(
             VPacketCollection(
@@ -82,11 +99,6 @@ def montecarlo_main_loop(
                 montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
                 number_of_vpackets,
                 montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
-            )
-        )
-        rpacket_trackers.append(
-            RPacketTracker(
-                montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
             )
         )
 
@@ -128,7 +140,6 @@ def montecarlo_main_loop(
 
         # Get the local v_packet_collection for this thread
         vpacket_collection = vpacket_collections[i]
-
         # RPacket Tracker for this thread
         rpacket_tracker = rpacket_trackers[i]
 
@@ -186,7 +197,7 @@ def montecarlo_main_loop(
             1,
         )
 
-    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
+    if ENABLE_RPACKET_TRACKING:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 

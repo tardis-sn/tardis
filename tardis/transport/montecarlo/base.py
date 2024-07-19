@@ -7,10 +7,9 @@ import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
-from tardis.transport.montecarlo import (
+from tardis.transport.montecarlo.montecarlo_main_loop import (
     montecarlo_main_loop,
 )
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
@@ -210,11 +209,13 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         update_iterations_pbar(1)
         refresh_packet_pbar()
-        # Condition for Checking if RPacket Tracking is enabled
-        if self.enable_rpacket_tracking:
-            transport_state.rpacket_tracker = rpacket_trackers
 
-        if self.transport_state.rpacket_tracker is not None:
+        transport_state.rpacket_tracker = rpacket_trackers
+
+        # Need to change the implementation of rpacket_trackers_to_dataframe
+        # Such that it also takes of the case of
+        # RPacketLastInteractionTracker
+        if self.enable_rpacket_tracking:
             self.transport_state.rpacket_tracker_df = (
                 rpacket_trackers_to_dataframe(
                     self.transport_state.rpacket_tracker

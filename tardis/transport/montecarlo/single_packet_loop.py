@@ -9,6 +9,7 @@ from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
 )
+from tardis.transport.montecarlo.r_packet import RPacket
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_bound_free_estimators,
@@ -83,8 +84,7 @@ def single_packet_loop(
         montecarlo_configuration.SURVIVAL_PROBABILITY,
     )
 
-    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
-        rpacket_tracker.track(r_packet)
+    rpacket_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
@@ -257,8 +257,24 @@ def single_packet_loop(
             )
         else:
             pass
-        if montecarlo_globals.ENABLE_RPACKET_TRACKING:
+        if interaction_type != InteractionType.BOUNDARY:
             rpacket_tracker.track(r_packet)
+
+    # Registering the final boundary interaction.
+    # Only for RPacketTracker
+    # This is required by the RPacketPlotter tool
+    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
+        temp_r_packet = RPacket(
+            r_packet.r,
+            r_packet.mu,
+            r_packet.nu,
+            r_packet.energy,
+            r_packet.seed,
+            r_packet.index,
+        )
+        temp_r_packet.current_shell_id = r_packet.current_shell_id
+        temp_r_packet.status = r_packet.status
+        rpacket_tracker.track(temp_r_packet)
 
 
 @njit
