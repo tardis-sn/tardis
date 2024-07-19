@@ -19,5 +19,5 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             -H "Content-Type: application/json" \
-            -d '{ "event_type": "trigger-workflow", "client_payload": {"commit_sha": "${{ steps.get_sha.outputs.COMMIT_SHA }}"}}' \
+            -d '{ "event_type": "Tardis-Dispatch", "client_payload": {"commit_sha": "${{ steps.get_sha.outputs.COMMIT_SHA }}"}}' \
             https://api.github.com/repos/${{github.repository_owner}}/stardis/dispatches
