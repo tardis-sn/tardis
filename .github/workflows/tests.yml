@@ -11,12 +11,18 @@ on:
   pull_request:
     branches:
     - '*'
-    
     types:
       - opened
       - reopened
       - synchronize
       - labeled
+  workflow_call: # to be called by the pre release workflow
+    inputs:
+      pip_git:
+        description: "Whether or not to install tardis using git"
+        required: false
+        type: boolean
+        default: false
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
@@ -55,7 +61,7 @@ jobs:
           verbose: true
 
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.rpacket_tracking }} rpacket_tracking ${{ matrix.os }}
+    name: ${{ matrix.continuum }} continuum ${{ matrix.rpacket_tracking }} rpacket_tracking ${{ matrix.os }} ${{ inputs.pip_tests && 'pip tests enabled' || '' }}
     if: github.repository_owner == 'tardis-sn'
     runs-on: ${{ matrix.os }}
     strategy:
@@ -87,8 +93,14 @@ jobs:
           os-label: ${{ matrix.label }}
       
       - name: Install package editable
+        if: ${{ !inputs.pip_git }}
         run: |
           pip install -e . --user
+      
+      - name: Install package git
+        if: ${{ inputs.pip_git }}
+        run: |
+          pip install git+https://github.com/tardis-sn/tardis.git@master
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking" 
