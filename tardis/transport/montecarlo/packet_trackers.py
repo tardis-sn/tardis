@@ -203,3 +203,7 @@ class RPacketLastInteractionTracker(object):
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
         self.interaction_type = r_packet.last_interaction_type
+
+    # To make it compatible with RPacketTracker
+    def finalize_array():
+        pass
