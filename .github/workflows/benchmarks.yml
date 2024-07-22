@@ -98,9 +98,17 @@ jobs:
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
 
-      - name: Run benchmarks
+      - name: Run benchmarks for base and head commits of PR
         if: github.event_name == 'pull_request_target'
-        run: asv run --config asv.conf.json
+        run: |
+          echo $(git rev-parse HEAD) > commit_hashes.txt
+          echo $(git merge-base HEAD origin/master) >> commit_hashes.txt
+
+          asv run -a repeat=2 -a rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
+            if grep -q failed asv-output-PR.log; then 
+              echo "Some benchmarks have failed!"
+              exit 1
+            fi
 
       - name: Compare Master and PR head
         run: asv compare origin/master HEAD --config asv.conf.json | tee asv-compare-output.log
@@ -119,18 +127,6 @@ jobs:
         uses: juliangruber/read-file-action@v1.0.0
         with:
           path: asv-compare-changed-output.log
-
-      - name: Run benchmarks for base to head commits of PR
-        if: github.event_name == 'pull_request_target'
-        run: |
-          echo $(git rev-parse HEAD) > commit_hashes.txt
-          echo $(git merge-base HEAD origin/master) >> commit_hashes.txt
-
-          asv run -a repeat=1 -a rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
-            if grep -q failed asv-output-PR.log; then 
-              echo "Some benchmarks have failed!"
-              exit 1
-            fi
 
       - name: Generate Graphs and HTML of PR
         if: github.event_name == 'pull_request_target'
