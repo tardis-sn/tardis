@@ -205,5 +205,5 @@ class RPacketLastInteractionTracker(object):
         self.interaction_type = r_packet.last_interaction_type
 
     # To make it compatible with RPacketTracker
-    def finalize_array():
+    def finalize_array(self):
         pass
