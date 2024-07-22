@@ -175,6 +175,7 @@ def cuda_formal_integral(
         )  # +1 is the offset as the original is from z[1:]
 
         nu_end_idx = line_search_cuda(line_list_nu, nu_end, len(line_list_nu))
+        zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
         escat_contrib += (
             (zend - zstart)
             * escat_op
