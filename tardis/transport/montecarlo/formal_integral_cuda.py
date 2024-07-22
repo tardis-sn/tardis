@@ -13,6 +13,212 @@ H_CGS = 6.62606957e-27
 
 
 @cuda.jit
+def cuda_vector_integrator(L, I_nu, N, R_max):
+
+    nu_idx = cuda.grid(1)
+    L[nu_idx] = (
+        8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu[nu_idx], R_max / N)
+    )
+
+@cuda.jit
+def cuda_formal_integral_fast(
+    r_inner,
+    r_outer,
+    time_explosion,
+    line_list_nu,
+    iT,
+    inu,
+    inu_size,
+    att_S_ul,
+    Jred_lu,
+    Jblue_lu,
+    tau_sobolev,
+    electron_density,
+    N,
+    pp,
+    exp_tau,
+    I_nu,
+    z,
+    shell_id,
+):
+    """
+    The CUDA version of numba_formal_integral that can run
+    on a NVIDIA GPU.
+
+    Parameters
+    ----------
+    r_inner : array(float64, 1d, C)
+        self.geometry.r_inner
+    r_outer : array(float64, 1d, C)
+        self.geometry.r_outer
+    time_explosion: float64
+        self.geometry.time_explosion
+    line_list_nu : array(float64, 1d, A)
+        self.plasma.line_list_nu
+    iT : np.float64
+    inu : np.float64
+    inu_size : int64
+    att_S_ul : array(float64, 1d, C)
+    Jred_lu : array(float64, 1d, C)
+    Jblue_lu : array(float64, 1d, C)
+    tau_sobolev : array(float64, 2d, C)
+    electron_density : array(float64, 1d, C)
+    N : int64
+    L : array(float64, 1d, C)
+        This is where the results will be stored
+    pp : array(float64, 1d, C)
+    exp_tau : array(float64, 1d, C)
+    I_nu array(floatt64, 2d, C)
+    z : array(float64, 2d, C)
+    shell_id : array(int64, 2d, C)
+    """
+
+    # todo: add all the original todos
+
+    # global read-only values
+    size_line, size_shell = tau_sobolev.shape
+    size_tau = size_line * size_shell
+    R_ph = r_inner[0]  # make sure these are cgs
+    R_max = r_outer[size_shell - 1]
+
+    nu_idx, p_idx = cuda.grid(2) # 2D Cuda Grid, nu x p
+    p_idx += 1 # Because the iteration starts at 1
+    # Check to see if CUDA is out of bounds
+    if nu_idx >= inu_size:
+        return
+
+    if p_idx >= N:
+        return
+
+    # These all have their own version for each thread to avoid race conditions
+    I_nu_thread = I_nu[nu_idx]
+    z_thread = z[nu_idx]
+    shell_id_thread = shell_id[nu_idx]
+
+    offset = 0
+    size_z = 0
+    idx_nu_start = 0
+    direction = 0
+    first = 0
+    i = 0
+    p = 0.0
+    nu_start = 0.0
+    nu_end = 0.0
+    nu = 0.0
+    zstart = 0.0
+    zend = 0.0
+    escat_contrib = 0.0
+    escat_op = 0.0
+    Jkkp = 0.0
+    pexp_tau = 0
+    patt_S_ul = 0
+    pJred_lu = 0
+    pJblue_lu = 0
+    pline = 0
+
+    nu = inu[nu_idx]
+
+    # now loop over discrete values along line
+
+    escat_contrib = 0.0
+    p = pp[p_idx]
+
+    # initialize z intersections for p values
+    size_z = populate_z_cuda(
+        r_inner, r_outer, time_explosion, p, z_thread, shell_id_thread
+    )
+    if p <= R_ph:
+        I_nu_thread[p_idx] = intensity_black_body_cuda(nu * z_thread[0], iT)
+    else:
+        I_nu_thread[p_idx] = 0
+    nu_start = nu * z_thread[0]
+    nu_end = nu * z_thread[1]
+
+    idx_nu_start = line_search_cuda(line_list_nu, nu_start, size_line)
+    offset = shell_id_thread[0] * size_line
+    # start tracking accumulated e-scattering optical depth
+    zstart = time_explosion / C_INV * (1.0 - z_thread[0])
+    # Initialize "pointers"
+    pline = int(idx_nu_start)
+    pexp_tau = int(offset + idx_nu_start)
+    patt_S_ul = int(offset + idx_nu_start)
+    pJred_lu = int(offset + idx_nu_start)
+    pJblue_lu = int(offset + idx_nu_start)
+
+    # flag for first contribution to integration on current p-ray
+    first = 1
+
+    # loop over all interactions
+    for i in range(size_z - 1):
+        escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON
+        nu_end = (
+            nu * z_thread[i + 1]
+        )  # +1 is the offset as the original is from z[1:]
+
+        nu_end_idx = line_search_cuda(
+            line_list_nu, nu_end, len(line_list_nu)
+        )
+
+        for _ in range(max(nu_end_idx - pline, 0)):
+            # calculate e-scattering optical depth to next resonance point
+            zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
+            if first == 1:
+                # first contribution to integration
+                # NOTE: this treatment of I_nu_b (given
+                #   by boundary conditions) is not in Lucy 1999;
+                #   should be re-examined carefully
+                escat_contrib += (
+                    (zend - zstart)
+                    * escat_op
+                    * (Jblue_lu[pJblue_lu] - I_nu_thread[p_idx])
+                )
+                first = 0
+            else:
+                # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
+                Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
+                escat_contrib += (
+                    (zend - zstart) * escat_op * (Jkkp - I_nu_thread[p_idx])
+                )
+                # this introduces the necessary offset of one element between
+                # pJblue_lu and pJred_lu
+                pJred_lu += 1
+            I_nu_thread[p_idx] += escat_contrib
+            # // Lucy 1999, Eq 26
+            I_nu_thread[p_idx] *= exp_tau[pexp_tau]
+            I_nu_thread[p_idx] += att_S_ul[patt_S_ul]
+
+            # // reset e-scattering opacity
+            escat_contrib = 0.0
+            zstart = zend
+
+            pline += 1
+            pexp_tau += 1
+            patt_S_ul += 1
+            pJblue_lu += 1
+
+        # calculate e-scattering optical depth to grid cell boundary
+
+        Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
+        zend = time_explosion / C_INV * (1.0 - nu_end / nu)
+        escat_contrib += (
+            (zend - zstart) * escat_op * (Jkkp - I_nu_thread[p_idx])
+        )
+        zstart = zend
+
+        # advance pointers
+        direction = int(
+            (shell_id_thread[i + 1] - shell_id_thread[i]) * size_line
+        )
+        pexp_tau += direction
+        patt_S_ul += direction
+        pJred_lu += direction
+        pJblue_lu += direction
+
+    I_nu_thread[p_idx] *= p
+
+
+
+@cuda.jit
 def cuda_formal_integral(
     r_inner,
     r_outer,
@@ -236,20 +442,15 @@ class CudaFormalIntegrator(object):
         """
         Simple wrapper for the CUDA implementation of the formal integral
         """
-        L = np.zeros(inu_size, dtype=np.float64)  # array(float64, 1d, C)
         # global read-only values
         size_line, size_shell = tau_sobolev.shape  # int64, int64
         size_tau = size_line * size_shell  # int64
-
+        
         pp = np.zeros(N, dtype=np.float64)  # array(float64, 1d, C)
         exp_tau = np.zeros(size_tau, dtype=np.float64)  # array(float64, 1d, C)
         exp_tau = np.exp(-tau_sobolev.T.ravel())  # array(float64, 1d, C)
         pp[::] = calculate_p_values(
             self.geometry.r_outer[size_shell - 1], N
-        )  # array(float64, 1d, C)
-
-        I_nu = np.zeros(
-            (inu_size, N), dtype=np.float64
         )  # array(float64, 1d, C)
         z = np.zeros(
             (inu_size, 2 * size_shell), dtype=np.float64
@@ -257,16 +458,40 @@ class CudaFormalIntegrator(object):
         shell_id = np.zeros(
             (inu_size, 2 * size_shell), dtype=np.int64
         )  # array(int64, 1d, C)
-        THREADS_PER_BLOCK = 32
-        blocks_per_grid = (inu_size // THREADS_PER_BLOCK) + 1
 
-        cuda_formal_integral[blocks_per_grid, THREADS_PER_BLOCK](
-            self.geometry.r_inner,
-            self.geometry.r_outer,
+        # These get separate names since they'll be copied back
+        d_L = cuda.device_array((inu_size,), dtype=np.float64)
+        d_I_nu = cuda.device_array((inu_size, N), dtype=np.float64)
+
+        # Copy these arrays to the device, we don't need them again 
+        # But they must be initialized with zeros
+        z = cuda.to_device(z) 
+        shell_id = cuda.to_device(shell_id)
+        pp = cuda.to_device(pp)
+        exp_tau = cuda.to_device(exp_tau)
+        r_inner = cuda.to_device(self.geometry.r_inner)
+        r_outer = cuda.to_device(self.geometry.r_outer)
+        line_list_nu = cuda.to_device(self.plasma.line_list_nu)
+        inu = cuda.to_device(inu.value)
+        att_S_ul = cuda.to_device(att_S_ul)
+        Jred_lu = cuda.to_device(Jred_lu)
+        Jblue_lu = cuda.to_device(Jblue_lu)
+        tau_sobolev = cuda.to_device(tau_sobolev)
+        electron_density = cuda.to_device(electron_density)
+
+        # Thread/Block Allocation, this seems to work
+        THREADS_PER_BLOCK_NU = 32
+        THREADS_PER_BLOCK_P = 16
+        blocks_per_grid_nu = (inu_size // THREADS_PER_BLOCK_NU) + 1
+        blocks_per_grid_p = ((N - 1) // THREADS_PER_BLOCK_P) + 1
+
+        cuda_formal_integral_fast[(blocks_per_grid_nu, blocks_per_grid_p), (THREADS_PER_BLOCK_NU, THREADS_PER_BLOCK_P)](
+            r_inner,
+            r_outer,
             self.time_explosion,
-            self.plasma.line_list_nu,
+            line_list_nu,
             iT.value,
-            inu.value,
+            inu,
             inu_size,
             att_S_ul,
             Jred_lu,
@@ -274,13 +499,17 @@ class CudaFormalIntegrator(object):
             tau_sobolev,
             electron_density,
             N,
-            L,
             pp,
             exp_tau,
-            I_nu,
+            d_I_nu,
             z,
             shell_id,
         )
+
+        R_max = self.geometry.r_outer[size_shell - 1]
+        cuda_vector_integrator[blocks_per_grid_nu, THREADS_PER_BLOCK_NU](d_L, d_I_nu, N, R_max)
+        L = d_L.copy_to_host()
+        I_nu = d_I_nu.copy_to_host()
 
         return L, I_nu
 
