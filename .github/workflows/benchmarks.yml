@@ -124,7 +124,7 @@ jobs:
         if: github.event_name == 'pull_request_target'
         run: |
           echo $(git rev-parse HEAD) > commit_hashes.txt
-          echo $(git merge-base HEAD upstream/master) >> commit_hashes.txt
+          echo $(git merge-base HEAD origin/master) >> commit_hashes.txt
 
           asv run -a repeat=1 -a rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
             if grep -q failed asv-output-PR.log; then 
