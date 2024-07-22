@@ -176,10 +176,10 @@ def cuda_formal_integral(
 
         nu_end_idx = line_search_cuda(line_list_nu, nu_end, len(line_list_nu))
         escat_contrib += (
-                    (zend - zstart)
-                    * escat_op
-                    * (Jblue_lu[pJblue_lu] - I_nu_thread[p_idx])
-                )
+            (zend - zstart)
+            * escat_op
+            * (Jblue_lu[pJblue_lu] - I_nu_thread[p_idx])
+        )
         pJred_lu += 1
         I_nu_thread[p_idx] += escat_contrib
         # // Lucy 1999, Eq 26
@@ -199,7 +199,7 @@ def cuda_formal_integral(
             # calculate e-scattering optical depth to next resonance point
             zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
 
-                # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
+            # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
             Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
             escat_contrib += (
                 (zend - zstart) * escat_op * (Jkkp - I_nu_thread[p_idx])
