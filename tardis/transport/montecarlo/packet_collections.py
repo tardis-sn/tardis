@@ -105,7 +105,7 @@ class LastInteractionTracker:
 
 vpacket_collection_spec = [
     ("source_rpacket_index", int64),
-    ("spectrum_frequency", float64[:]),
+    ("spectrum_frequency_grid", float64[:]),
     ("v_packet_spawn_start_frequency", float64),
     ("v_packet_spawn_end_frequency", float64),
     ("nus", float64[:]),
@@ -129,13 +129,13 @@ class VPacketCollection:
     def __init__(
         self,
         source_rpacket_index,
-        spectrum_frequency,
+        spectrum_frequency_grid,
         v_packet_spawn_start_frequency,
         v_packet_spawn_end_frequency,
         number_of_vpackets,
         temporary_v_packet_bins,
     ):
-        self.spectrum_frequency = spectrum_frequency
+        self.spectrum_frequency_grid = spectrum_frequency_grid
         self.v_packet_spawn_start_frequency = v_packet_spawn_start_frequency
         self.v_packet_spawn_end_frequency = v_packet_spawn_end_frequency
         self.nus = np.empty(temporary_v_packet_bins, dtype=np.float64)
@@ -298,7 +298,7 @@ class VPacketCollection:
 
 @njit(**njit_dict_no_parallel)
 def consolidate_vpacket_tracker(
-    vpacket_collections, spectrum_frequency, start_frequency, end_frequency
+    vpacket_collections, spectrum_frequency_grid, start_frequency, end_frequency
 ):
     """
     Consolidate the vpacket trackers from multiple collections into a single vpacket tracker.
@@ -307,7 +307,7 @@ def consolidate_vpacket_tracker(
     ----------
     vpacket_collections : List[VPacketCollection]
         List of vpacket collections to consolidate.
-    spectrum_frequency : ndarray
+    spectrum_frequency_grid : ndarray
         Array of spectrum frequencies.
 
     Returns
@@ -322,7 +322,7 @@ def consolidate_vpacket_tracker(
 
     vpacket_tracker = VPacketCollection(
         -1,
-        spectrum_frequency,
+        spectrum_frequency_grid,
         start_frequency,
         end_frequency,
         -1,
