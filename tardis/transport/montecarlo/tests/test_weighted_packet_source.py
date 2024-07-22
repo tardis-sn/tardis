@@ -14,7 +14,7 @@ from tardis.tests.fixtures.regression_data import RegressionData
 
 class TestBlackBodyWeightedSource:
     @pytest.fixture(scope="class")
-    def blackbodyweightedource(self, request):
+    def blackbodyweightedsource(self, request):
         """
         Create blackbodyweightedsource instance.
 
