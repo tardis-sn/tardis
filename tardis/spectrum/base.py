@@ -48,8 +48,8 @@ class SpectrumSolver(HDFWriterMixin):
     def spectrum_virtual_packets(self):
         if np.all(self.montecarlo_virtual_luminosity == 0):
             warnings.warn(
-                "SpectrumSolver.spectrum_virtual_packets"
-                "is zero. Please run the montecarlo simulation with"
+                "SpectrumSolver.spectrum_virtual_packets "
+                "is zero. Please run the montecarlo simulation with "
                 "no_of_virtual_packets > 0",
                 UserWarning,
             )
