@@ -36,6 +36,7 @@ def montecarlo_main_loop(
     montecarlo_configuration,
     estimators,
     spectrum_frequency_grid,
+    rpacket_trackers,
     number_of_vpackets,
     iteration,
     show_progress_bars,
@@ -77,19 +78,6 @@ def montecarlo_main_loop(
 
     # Pre-allocate a list of vpacket collections for later storage
     vpacket_collections = List()
-    # Configuring the Tracking for R_Packets
-    rpacket_trackers = List()
-    if ENABLE_RPACKET_TRACKING:
-        for i in range(no_of_packets):
-            rpacket_trackers.append(
-                RPacketTracker(
-                    montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
-                )
-            )
-    else:
-        for i in range(no_of_packets):
-            rpacket_trackers.append(RPacketLastInteractionTracker())
-
     for i in range(no_of_packets):
         vpacket_collections.append(
             VPacketCollection(
@@ -197,7 +185,7 @@ def montecarlo_main_loop(
             1,
         )
 
-    if ENABLE_RPACKET_TRACKING:
+    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 
@@ -205,5 +193,4 @@ def montecarlo_main_loop(
         v_packets_energy_hist,
         last_interaction_tracker,
         vpacket_tracker,
-        rpacket_trackers,
     )
