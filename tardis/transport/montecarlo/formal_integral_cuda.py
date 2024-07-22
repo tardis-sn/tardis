@@ -87,13 +87,9 @@ def cuda_formal_integral(
     shell_id : array(int64, 2d, C)
     """
 
-    # todo: add all the original todos
-
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
-    size_tau = size_line * size_shell
     R_ph = r_inner[0]  # make sure these are cgs
-    R_max = r_outer[size_shell - 1]
 
     nu_idx, p_idx = cuda.grid(2)  # 2D Cuda Grid, nu x p
     p_idx += 1  # Because the iteration starts at 1
@@ -131,9 +127,6 @@ def cuda_formal_integral(
     pline = 0
 
     nu = inu[nu_idx]
-
-    # now loop over discrete values along line
-
     escat_contrib = 0.0
     p = pp[p_idx]
 
