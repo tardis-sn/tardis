@@ -185,63 +185,6 @@ class TestLIVPlotter:
             )
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
-    def test_calculate_interactions(self, request, plotter, packets_mode):
-        """
-        Test _calculate_interactions method.
-
-        Parameters
-        ----------
-        request : _pytest.fixtures.SubRequest
-        plotter : tardis.visualization.tools.liv_plot.LIVPlotter
-        packets_mode : str
-        """
-        plotter._calculate_interactions(packets_mode)
-
-        subgroup_name = make_valid_name(request.node.callspec.id)
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="interaction_counts",
-                obj=plotter.interaction_counts,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="interaction_positions",
-                obj=plotter.interaction_positions,
-            )
-
-            pytest.skip("Reference data was generated during this run.")
-        else:
-            group = self.hdf_file.get_node("/" + subgroup_name)
-
-            np.testing.assert_allclose(
-                plotter.interaction_counts,
-                self.hdf_file.get_node(group, "interaction_counts"),
-            )
-
-            np.testing.assert_allclose(
-                plotter.interaction_positions,
-                self.hdf_file.get_node(group, "interaction_positions"),
-            )
-
-    def test_construct_liv_plot(self, plotter):
-        """
-        Test that construct_liv_plot returns the expected plot object.
-
-        Parameters
-        ----------
-        plotter : tardis.visualization.tools.liv_plot.LIVPlotter
-        """
-        plot = plotter.construct_liv_plot()
-        assert isinstance(plot, PolyCollection)
-
-    @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     def test_generate_plot_data(self, request, plotter, packets_mode):
         """
         Test generate_plot_data method.
@@ -252,7 +195,7 @@ class TestLIVPlotter:
         plotter : tardis.visualization.tools.liv_plot.LIVPlotter
         packets_mode : str
         """
-        plot_data = plotter.generate_plot_data(packets_mode)
+        plotter._generate_plot_data(packets_mode)
 
         subgroup_name = make_valid_name(request.node.callspec.id)
         if request.config.getoption("--generate-reference"):
@@ -261,46 +204,63 @@ class TestLIVPlotter:
                 name=subgroup_name,
             )
             self.hdf_file.create_carray(
-                group,
-                name="plot_data",
-                obj=plot_data,
+                group, name="plot_data", obj=plotter.plot_data
+            )
+
+            self.hdf_file.create_carray(
+                group, name="plot_color", obj=plotter.plot_color
             )
             pytest.skip("Reference data was generated during this run.")
         else:
             group = self.hdf_file.get_node("/" + subgroup_name)
+
             np.testing.assert_allclose(
-                plot_data,
+                np.asarray(plotter.plot_data),
                 self.hdf_file.get_node(group, "plot_data"),
             )
 
-    def test_prepare_plot_data(self, request, plotter):
-        """
-        Test _prepare_plot_data method.
+            np.testing.assert_allclose(
+                np.asarray(plotter.plot_color),
+                self.hdf_file.get_node(group, "plot_color"),
+            )
 
-        Parameters
-        ----------
-        request : _pytest.fixtures.SubRequest
-        plotter : tardis.visualization.tools.liv_plot.LIVPlotter
-        """
-        plot_data = plotter._prepare_plot_data()
+    @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
+    @pytest.mark.parametrize(
+        "species_list", [["Si II", "Ca II", "C", "Fe I-V"]]
+    )
+    @pytest.mark.parametrize("num_bins", [5, 10, 25, 40])
+    @pytest.mark.parametrize("nelements", [1, None])
+    def test_prepare_plot_data(
+        self,
+        request,
+        plotter,
+        packets_mode,
+        species_list,
+        num_bins,
+        nelements,
+    ):
+        plotter._prepare_plot_data(
+            packets_mode, species_list, num_bins, nelements
+        )
 
-        subgroup_name = make_valid_name(request.node.callspec.id)
+        subgroup_name = make_valid_name(request.nod.callspec.id)
         if request.config.getoption("--generate-reference"):
             group = self.hdf_file.create_group(
                 self.hdf_file.root,
                 name=subgroup_name,
             )
+
             self.hdf_file.create_carray(
-                group,
-                name="prepared_plot_data",
-                obj=plot_data,
+                group, name="new_bin_edges", obj=plotter.new_bin_edges
             )
             pytest.skip("Reference data was generated during this run.")
+
         else:
             group = self.hdf_file.get_node("/" + subgroup_name)
+
             np.testing.assert_allclose(
-                plot_data,
-                self.hdf_file.get_node(group, "prepared_plot_data"),
+                np.asarray(plotter.new_bin_edges),
+                self.hdf_file.get_node(group, "new_bin_edges"),
             )
 
     def test_get_step_plot_data(self, request, plotter):
@@ -321,19 +281,44 @@ class TestLIVPlotter:
                 name=subgroup_name,
             )
             self.hdf_file.create_carray(
-                group,
-                name="step_plot_data",
-                obj=step_plot_data,
+                group, name="step_x", obj=plotter.step_x
+            )
+            self.hdf_file.create_carray(
+                group, name="step_y", obj=plotter.step_y
             )
             pytest.skip("Reference data was generated during this run.")
         else:
             group = self.hdf_file.get_node("/" + subgroup_name)
             np.testing.assert_allclose(
-                step_plot_data,
-                self.hdf_file.get_node(group, "step_plot_data"),
+                np.asarray(plotter.step_x),
+                self.hdf_file.get_node(group, "step_x"),
+            )
+            np.testing.assert_allclose(
+                np.asarray(plotter.step_y),
+                self.hdf_file.get_node(group, "step_y"),
             )
 
-    def test_generate_plot_mpl(self, request, plotter):
+    @pytest.mark.parametrize(
+        "species_list", [["Si II", "Ca II", "C", "Fe I-V"]]
+    )
+    @pytest.mark.parametrize("nelements", [1, None])
+    @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
+    @pytest.mark.parametrize("xlog_scale", [True, False])
+    @pytest.mark.parametrize("ylog_scale", [True, False])
+    @pytest.mark.parametrize("num_bins", [5, 10, 25, 40])
+    @pytest.mark.parametrize("velocity_range", [(12500, 15000), (15050, 19000)])
+    def test_generate_plot_mpl(
+        self,
+        request,
+        plotter,
+        species_list,
+        nelements,
+        packets_mode,
+        xlog_scale,
+        ylog_scale,
+        num_bins,
+        velocity_range,
+    ):
         """
         Test generate_plot_mpl method.
 
@@ -342,9 +327,17 @@ class TestLIVPlotter:
         request : _pytest.fixtures.SubRequest
         plotter : tardis.visualization.tools.liv_plot.LIVPlotter
         """
-        fig = plotter.generate_plot_mpl()
+        subgroup_name = make_valid_name("mpl" + request.node.callspec.id)
+        fig = plotter.generate_plot_mpl(
+            species_list,
+            nelements,
+            packets_mode,
+            xlog_scale,
+            ylog_scale,
+            num_bins,
+            velocity_range,
+        )
 
-        subgroup_name = make_valid_name(request.node.callspec.id)
         if request.config.getoption("--generate-reference"):
             group = self.hdf_file.create_group(
                 self.hdf_file.root,
@@ -363,7 +356,27 @@ class TestLIVPlotter:
                 self.hdf_file.get_node(group, "mpl_fig"),
             )
 
-    def test_generate_plot_ply(self, request, plotter):
+    @pytest.mark.parametrize(
+        "species_list", [["Si II", "Ca II", "C", "Fe I-V"]]
+    )
+    @pytest.mark.parametrize("nelements", [1, 2, 3, 4])
+    @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
+    @pytest.mark.parametrize("xlog_scale", [True, False])
+    @pytest.mark.parametrize("ylog_scale", [True, False])
+    @pytest.mark.parametrize("num_bins", [5, 10, 25, 40])
+    @pytest.mark.parametrize("velocity_range", [(12500, 15000), (15050, 19000)])
+    def test_generate_plot_ply(
+        self,
+        request,
+        plotter,
+        species_list,
+        nelements,
+        packets_mode,
+        xlog_scale,
+        ylog_scale,
+        num_bins,
+        velocity_range,
+    ):
         """
         Test generate_plot_ply method.
 
@@ -372,9 +385,17 @@ class TestLIVPlotter:
         request : _pytest.fixtures.SubRequest
         plotter : tardis.visualization.tools.liv_plot.LIVPlotter
         """
-        fig = plotter.generate_plot_ply()
+        subgroup_name = make_valid_name("ply" + request.node.callspec.id)
+        fig = plotter.generate_plot_ply(
+            species_list,
+            nelements,
+            packets_mode,
+            xlog_scale,
+            ylog_scale,
+            num_bins,
+            velocity_range,
+        )
 
-        subgroup_name = make_valid_name(request.node.callspec.id)
         if request.config.getoption("--generate-reference"):
             group = self.hdf_file.create_group(
                 self.hdf_file.root,
