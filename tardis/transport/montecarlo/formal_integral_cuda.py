@@ -195,7 +195,7 @@ def cuda_formal_integral(
         patt_S_ul += 1
         pJblue_lu += 1
 
-        for _ in range(max(nu_end_idx - pline, 1) - 1):
+        for _ in range(1, max(nu_end_idx - pline, 1)):
             # calculate e-scattering optical depth to next resonance point
             zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
 
