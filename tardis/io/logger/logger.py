@@ -2,9 +2,24 @@ import logging
 import re
 from ipywidgets import Output, Tab, Layout
 from IPython.display import display, HTML
-#from tardis.io.logger.colored_logger import ColoredFormatter
 
 def logging_state(log_level, tardis_config, specific_log_level):
+    """
+    Function to set the logging configuration for the simulation output
+    Called from within run_tardis()
+    Configured via functional arguments passed through run_tardis() - log_level & specific_log_level
+    Configured via YAML parameters under `debug` section - log_level & specific_log_level
+
+    Parameters
+    ----------
+    log_level : str
+        Allows input of the log level for the simulation.
+        Uses Python logging framework to determine the messages that will be output.
+    tardis_config : dict
+        Configuration dictionary for TARDIS.
+    specific_log_level : bool
+        Allows setting specific logging levels. Logs of the `log_level` level would be output.
+    """
     if "debug" in tardis_config:
         specific_log_level = (
             tardis_config["debug"]["specific_log_level"]
@@ -40,7 +55,7 @@ def logging_state(log_level, tardis_config, specific_log_level):
     logging_level = logging_level.upper()
     if not logging_level in ["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "ALL"]:
         raise ValueError(
-            f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following ['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR']"
+            f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following ['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'ALL']"
         )
 
     logger = logging.getLogger("tardis")
@@ -79,16 +94,44 @@ tab.set_title(3, "ALL")
 
 display(tab)
 
-# Function to remove ANSI escape sequences
 def remove_ansi_escape_sequences(text):
+    """
+    Remove ANSI escape sequences from a string.
+
+    Parameters
+    ----------
+    text : str
+        The input string containing ANSI escape sequences.
+
+    Returns
+    -------
+    str
+        The cleaned string without ANSI escape sequences.
+    """
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
     return ansi_escape.sub('', text)
 
 class WidgetHandler(logging.Handler):
+    """
+    A custom logging handler that outputs log messages to IPython widgets.
+
+    Parameters
+    ----------
+    logging.Handler : class
+        Inherits from the logging.Handler class.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def emit(self, record):
+        """
+        Emit a log record.
+
+        Parameters
+        ----------
+        record : logging.LogRecord
+            The log record to be emitted.
+        """
         log_entry = self.format(record)
         clean_log_entry = remove_ansi_escape_sequences(log_entry)
 
@@ -145,15 +188,33 @@ logger.addHandler(widget_handler)
 logging.getLogger("py.warnings").addHandler(widget_handler)
 
 class FilterLog(object):
+    """
+    Filter Log Class for Filtering Logging Output
+    to a particular level.
+
+    Parameters
+    ----------
+    log_level : logging object
+        allows to have a filter for the
+        particular log_level
+    """
     def __init__(self, log_levels):
         self.log_levels = log_levels
 
     def filter(self, log_record):
-        return log_record.levelno in self.log_levels
+        """
+         Determine if the specified record is to be logged.
 
-# Example for testing, will remove later
-logger.debug('This is a debug message.')
-logger.info('This is an info message.')
-logger.warning('This is a warning message.')
-logger.error('This is an error message.')
-logger.critical('This is a critical message.')
+        Parameters
+        ----------
+        log_record : logging.LogRecord
+            The log record to be filtered.
+
+        Returns
+        -------
+        boolean : True, if the current log_record has the
+            level that of the specified log_level,
+            False, if the current log_record doesn't have the
+            same log_level as the specified one.
+        """
+        return log_record.levelno in self.log_levels
