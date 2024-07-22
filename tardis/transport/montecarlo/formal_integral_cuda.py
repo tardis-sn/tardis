@@ -62,29 +62,44 @@ def cuda_formal_integral(
     Parameters
     ----------
     r_inner : array(float64, 1d, C)
-        self.geometry.r_inner
+        inner radius of each shell
     r_outer : array(float64, 1d, C)
-        self.geometry.r_outer
+        outer radius of each shell
     time_explosion: float64
-        self.geometry.time_explosion
+        geometrical explosion time
     line_list_nu : array(float64, 1d, A)
-        self.plasma.line_list_nu
+        List of line transition frequencies
     iT : np.float64
+        interpolated temperture in cgs units
     inu : np.float64
+        interpolated frequencies in cgs units
     inu_size : int64
+        size of inu array
     att_S_ul : array(float64, 1d, C)
+        attentuated source function
     Jred_lu : array(float64, 1d, C)
+        J estimator from red end of the line from lower to upper level
     Jblue_lu : array(float64, 1d, C)
+        J estimator from blue end of the line from lower to upper level
     tau_sobolev : array(float64, 2d, C)
+        Sobolev Optical depth for each line in each shell
     electron_density : array(float64, 1d, C)
+        electron density in each shell
     N : int64
+        Number of impact parameter values (p)
     L : array(float64, 1d, C)
+        Luminosity density at each frequencyt
         This is where the results will be stored
     pp : array(float64, 1d, C)
+        Impact parameter arrays
     exp_tau : array(float64, 1d, C)
+        $\exp{-tau}$ array to speed up computation
     I_nu array(floatt64, 2d, C)
+        Radiative intensity per unit frequency per impact parameter
     z : array(float64, 2d, C)
+        Ray intersections with the shells
     shell_id : array(int64, 2d, C)
+        List of shells for each thread
     """
 
     # global read-only values
@@ -168,10 +183,6 @@ def cuda_formal_integral(
             # calculate e-scattering optical depth to next resonance point
             zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
             if first == 1:
-                # first contribution to integration
-                # NOTE: this treatment of I_nu_b (given
-                #   by boundary conditions) is not in Lucy 1999;
-                #   should be re-examined carefully
                 escat_contrib += (
                     (zend - zstart)
                     * escat_op
@@ -267,6 +278,8 @@ class CudaFormalIntegrator(object):
         )  # array(int64, 1d, C)
 
         # These get separate names since they'll be copied back
+        # These are device objects stored on the GPU
+        # for the Luminosity density and Radiative intensity
         d_L = cuda.device_array((inu_size,), dtype=np.float64)
         d_I_nu = cuda.device_array((inu_size, N), dtype=np.float64)
 
