@@ -33,6 +33,7 @@ def cuda_vector_integrator(L, I_nu, N, R_max):
         8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu[nu_idx], R_max / N)
     )
 
+
 @cuda.jit
 def cuda_formal_integral(
     r_inner,
@@ -94,8 +95,8 @@ def cuda_formal_integral(
     R_ph = r_inner[0]  # make sure these are cgs
     R_max = r_outer[size_shell - 1]
 
-    nu_idx, p_idx = cuda.grid(2) # 2D Cuda Grid, nu x p
-    p_idx += 1 # Because the iteration starts at 1
+    nu_idx, p_idx = cuda.grid(2)  # 2D Cuda Grid, nu x p
+    p_idx += 1  # Because the iteration starts at 1
     # Check to see if CUDA is out of bounds
     if nu_idx >= inu_size:
         return
@@ -168,9 +169,7 @@ def cuda_formal_integral(
             nu * z_thread[i + 1]
         )  # +1 is the offset as the original is from z[1:]
 
-        nu_end_idx = line_search_cuda(
-            line_list_nu, nu_end, len(line_list_nu)
-        )
+        nu_end_idx = line_search_cuda(line_list_nu, nu_end, len(line_list_nu))
 
         for _ in range(max(nu_end_idx - pline, 0)):
             # calculate e-scattering optical depth to next resonance point
@@ -230,7 +229,6 @@ def cuda_formal_integral(
     I_nu_thread[p_idx] *= p
 
 
-
 class CudaFormalIntegrator(object):
     """
     Helper class for performing the formal integral
@@ -279,9 +277,9 @@ class CudaFormalIntegrator(object):
         d_L = cuda.device_array((inu_size,), dtype=np.float64)
         d_I_nu = cuda.device_array((inu_size, N), dtype=np.float64)
 
-        # Copy these arrays to the device, we don't need them again 
+        # Copy these arrays to the device, we don't need them again
         # But they must be initialized with zeros
-        z = cuda.to_device(z) 
+        z = cuda.to_device(z)
         shell_id = cuda.to_device(shell_id)
         pp = cuda.to_device(pp)
         exp_tau = cuda.to_device(exp_tau)
@@ -301,7 +299,10 @@ class CudaFormalIntegrator(object):
         blocks_per_grid_nu = (inu_size // THREADS_PER_BLOCK_NU) + 1
         blocks_per_grid_p = ((N - 1) // THREADS_PER_BLOCK_P) + 1
 
-        cuda_formal_integral[(blocks_per_grid_nu, blocks_per_grid_p), (THREADS_PER_BLOCK_NU, THREADS_PER_BLOCK_P)](
+        cuda_formal_integral[
+            (blocks_per_grid_nu, blocks_per_grid_p),
+            (THREADS_PER_BLOCK_NU, THREADS_PER_BLOCK_P),
+        ](
             r_inner,
             r_outer,
             self.time_explosion,
@@ -323,7 +324,9 @@ class CudaFormalIntegrator(object):
         )
 
         R_max = self.geometry.r_outer[size_shell - 1]
-        cuda_vector_integrator[blocks_per_grid_nu, THREADS_PER_BLOCK_NU](d_L, d_I_nu, N, R_max)
+        cuda_vector_integrator[blocks_per_grid_nu, THREADS_PER_BLOCK_NU](
+            d_L, d_I_nu, N, R_max
+        )
         L = d_L.copy_to_host()
         I_nu = d_I_nu.copy_to_host()
 
