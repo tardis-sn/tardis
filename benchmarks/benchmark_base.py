@@ -68,6 +68,16 @@ class BenchmarkBase:
         )
 
     @property
+    def config_rpacket_tracking(self):
+        config = Configuration.from_yaml(
+            "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml"
+        )
+        config.montecarlo.tracking.track_rpacket = True
+        config.montecarlo.iterations = 1
+        config.montecarlo.no_of_packets = 4000
+        return config
+
+    @property
     def tardis_ref_path(self):
         # TODO: This route is fixed but needs to get from the arguments given in the command line.
         #       /app/tardis-refdata
