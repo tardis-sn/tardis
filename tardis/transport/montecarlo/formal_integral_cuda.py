@@ -183,10 +183,6 @@ def cuda_formal_integral(
             # calculate e-scattering optical depth to next resonance point
             zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
             if first == 1:
-                # first contribution to integration
-                # NOTE: this treatment of I_nu_b (given
-                #   by boundary conditions) is not in Lucy 1999;
-                #   should be re-examined carefully
                 escat_contrib += (
                     (zend - zstart)
                     * escat_op
