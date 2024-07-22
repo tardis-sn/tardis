@@ -437,18 +437,18 @@ class RadioactivePacketSource(BasePacketSource):
                 packet_energies_cmf[
                     packet_index - isotope_packet_count : packet_index
                 ] = initial_packet_energies_cmf
-                nus_rf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_rf
-                nus_cmf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_cmf
-                shells[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_shells
-                times[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_times
+                nus_rf[packet_index - isotope_packet_count : packet_index] = (
+                    initial_nus_rf
+                )
+                nus_cmf[packet_index - isotope_packet_count : packet_index] = (
+                    initial_nus_cmf
+                )
+                shells[packet_index - isotope_packet_count : packet_index] = (
+                    initial_shells
+                )
+                times[packet_index - isotope_packet_count : packet_index] = (
+                    initial_times
+                )
 
         return GXPacketCollection(
             locations,
@@ -708,73 +708,6 @@ class GammaRayPacketSource(BasePacketSource):
                 )
         return decay_times
 
-    def sample_decay_times(self, isotopes, taus, times, number_of_packets):
-        """
-        Sample decay times for a given number of packets
-
-        Parameters
-        ----------
-        isotopes : array
-            Array of isotope names as strings
-        taus : dict
-            Dictionary of isotope mean lifetimes in seconds
-        times : array
-            Array of time steps in seconds
-        number_of_packets : int
-            Number of packets
-
-        Returns
-        -------
-        decay_times : array
-            Array of decay times for each packet
-
-        """
-
-        decay_times = np.zeros(number_of_packets)
-
-        for i, isotope in enumerate(isotopes):
-            # decay time of the packet cannot be less than the minimum time in the simulation
-            decay_time_min = times[0]
-            # decay time of the packet cannot be greater than the maximum time in the simulation
-            decay_time_max = times[-1]
-
-            # rejection sampling on decay times
-            while (decay_times[i] <= decay_time_min) or (
-                decay_times[i] >= decay_time_max
-            ):
-                decay_times[i] = -taus[isotope] * np.log(np.random.random())
-
-        return decay_times
-
-    def sample_decay_times_uniformly(self, time, number_of_packets, seed):
-        """
-        Sample decay times uniformly
-
-        Parameters
-        ----------
-        time : array
-            Array of time steps in seconds
-        number_of_packets : int
-            Number of packets
-
-        Returns
-        -------
-        decay_times : array
-            Array of decay times for each packet
-
-        """
-
-        decay_times = np.zeros(number_of_packets)
-
-        np.random.seed(seed)
-        decay_times[0] = self.times[0]
-        decay_times[-1] = self.times[-1]
-
-        for j in range(1, number_of_packets - 1):
-            decay_times[j] = np.random.uniform(time[j - 1], time[j])
-
-        return decay_times
-
     def create_packets(
         self, decays_per_isotope, number_of_packets, seed, *args, **kwargs
     ):
@@ -832,16 +765,6 @@ class GammaRayPacketSource(BasePacketSource):
         sampled_times = (
             sampled_packets_df.index.get_level_values("time") * 86400.0
         )
-
-        # Get the indices of the time steps from the sampled times
-
-        # decay_times = self.sample_decay_times_uniformly(
-        #    sampled_times, number_of_packets, seed
-        # )
-
-        # get the time of the middle of the step for each packet
-        # decay_time_indices = np.searchsorted(self.effective_times, decay_times)
-        # 3D locations
 
         decay_time_indices = []
         for i in range(number_of_packets):
