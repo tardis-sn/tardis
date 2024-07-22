@@ -130,7 +130,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             estimators,
             geometry_state=geometry_state,
             opacity_state=opacity_state,
-            time_explosion=simulation_state.time_explosion,
         )
 
         transport_state.enable_full_relativity = (
@@ -146,6 +145,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
     def run(
         self,
         transport_state,
+        time_explosion,
         iteration=0,
         total_iterations=0,
         show_progress_bars=True,
