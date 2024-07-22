@@ -48,7 +48,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
     def __init__(
         self,
-        spectrum_frequency,
+        spectrum_frequency_grid,
         virtual_spectrum_spawn_range,
         enable_full_relativity,
         line_interaction_type,
@@ -63,7 +63,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         montecarlo_configuration=None,
     ):
         # inject different packets
-        self.spectrum_frequency = spectrum_frequency
+        self.spectrum_frequency_grid = spectrum_frequency_grid
         self.virtual_spectrum_spawn_range = virtual_spectrum_spawn_range
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
@@ -171,7 +171,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             transport_state.opacity_state,
             self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
-            self.spectrum_frequency.value,
+            self.spectrum_frequency_grid.value,
             number_of_vpackets,
             iteration=iteration,
             show_progress_bars=show_progress_bars,
@@ -241,7 +241,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             logger.debug("Electron scattering switched on")
             constants.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
-        spectrum_frequency = quantity_linspace(
+        spectrum_frequency_grid = quantity_linspace(
             config.spectrum.stop.to("Hz", u.spectral()),
             config.spectrum.start.to("Hz", u.spectral()),
             num=config.spectrum.num + 1,
@@ -281,7 +281,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
 
         return cls(
-            spectrum_frequency=spectrum_frequency,
+            spectrum_frequency_grid=spectrum_frequency_grid,
             virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,
             line_interaction_type=config.plasma.line_interaction_type,

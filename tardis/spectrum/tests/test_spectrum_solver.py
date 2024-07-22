@@ -41,16 +41,16 @@ class TestSpectrumSolver:
 
     def test_initialization(self, simulation):
         transport_state = simulation.transport.transport_state
-        spectrum_frequency = simulation.transport.spectrum_frequency
+        spectrum_frequency_grid = simulation.transport.spectrum_frequency_grid
 
-        solver = SpectrumSolver(transport_state, spectrum_frequency)
+        solver = SpectrumSolver(transport_state, spectrum_frequency_grid)
         assert solver.transport_state == transport_state
         assert np.array_equal(
-            solver.spectrum_frequency.value, spectrum_frequency.value
+            solver.spectrum_frequency_grid.value, spectrum_frequency_grid.value
         )
         assert np.array_equal(
             solver._montecarlo_virtual_luminosity.value,
-            np.zeros_like(spectrum_frequency.value),
+            np.zeros_like(spectrum_frequency_grid.value),
         )
         assert solver._integrator is None
         assert solver.integrator_settings is None
@@ -58,9 +58,9 @@ class TestSpectrumSolver:
 
     def test_spectrum_real_packets(self, simulation):
         transport_state = simulation.transport.transport_state
-        spectrum_frequency = simulation.transport.spectrum_frequency
+        spectrum_frequency_grid = simulation.transport.spectrum_frequency_grid
 
-        solver = SpectrumSolver(transport_state, spectrum_frequency)
+        solver = SpectrumSolver(transport_state, spectrum_frequency_grid)
         result = solver.spectrum_real_packets.luminosity
         key = "simulation/spectrum_solver/spectrum_real_packets/luminosity"
         expected = self.get_expected_data(key)
@@ -74,9 +74,9 @@ class TestSpectrumSolver:
 
     def test_spectrum_real_packets_reabsorbed(self, simulation):
         transport_state = simulation.transport.transport_state
-        spectrum_frequency = simulation.transport.spectrum_frequency
+        spectrum_frequency_grid = simulation.transport.spectrum_frequency_grid
 
-        solver = SpectrumSolver(transport_state, spectrum_frequency)
+        solver = SpectrumSolver(transport_state, spectrum_frequency_grid)
         result = solver.spectrum_real_packets_reabsorbed.luminosity
         key = "simulation/spectrum_solver/spectrum_real_packets_reabsorbed/luminosity"
         expected = self.get_expected_data(key)

@@ -22,11 +22,11 @@ class SpectrumSolver(HDFWriterMixin):
 
     hdf_name = "spectrum"
 
-    def __init__(self, transport_state, spectrum_frequency):
+    def __init__(self, transport_state, spectrum_frequency_grid):
         self.transport_state = transport_state
-        self.spectrum_frequency = spectrum_frequency
+        self.spectrum_frequency_grid = spectrum_frequency_grid
         self._montecarlo_virtual_luminosity = u.Quantity(
-            np.zeros_like(self.spectrum_frequency.value), "erg / s"
+            np.zeros_like(self.spectrum_frequency_grid.value), "erg / s"
         )  # should be init with v_packets_energy_hist
         self._integrator = None
         self.integrator_settings = None
@@ -35,13 +35,13 @@ class SpectrumSolver(HDFWriterMixin):
     @property
     def spectrum_real_packets(self):
         return TARDISSpectrum(
-            self.spectrum_frequency, self.montecarlo_emitted_luminosity
+            self.spectrum_frequency_grid, self.montecarlo_emitted_luminosity
         )
 
     @property
     def spectrum_real_packets_reabsorbed(self):
         return TARDISSpectrum(
-            self.spectrum_frequency, self.montecarlo_reabsorbed_luminosity
+            self.spectrum_frequency_grid, self.montecarlo_reabsorbed_luminosity
         )
 
     @property
@@ -55,7 +55,7 @@ class SpectrumSolver(HDFWriterMixin):
             )
 
         return TARDISSpectrum(
-            self.spectrum_frequency, self.montecarlo_virtual_luminosity
+            self.spectrum_frequency_grid, self.montecarlo_virtual_luminosity
         )
 
     @property
@@ -65,7 +65,7 @@ class SpectrumSolver(HDFWriterMixin):
             # is not used in calculate_spectrum
             try:
                 self._spectrum_integrated = self.integrator.calculate_spectrum(
-                    self.spectrum_frequency[:-1],
+                    self.spectrum_frequency_grid[:-1],
                     points=self.integrator_settings.points,
                     interpolate_shells=self.integrator_settings.interpolate_shells,
                 )
@@ -109,7 +109,7 @@ class SpectrumSolver(HDFWriterMixin):
             np.histogram(
                 self.transport_state.reabsorbed_packet_nu,
                 weights=self.transport_state.reabsorbed_packet_luminosity,
-                bins=self.spectrum_frequency,
+                bins=self.spectrum_frequency_grid,
             )[0],
             "erg / s",
         )
@@ -120,7 +120,7 @@ class SpectrumSolver(HDFWriterMixin):
             np.histogram(
                 self.transport_state.emitted_packet_nu,
                 weights=self.transport_state.emitted_packet_luminosity,
-                bins=self.spectrum_frequency,
+                bins=self.spectrum_frequency_grid,
             )[0],
             "erg / s",
         )
@@ -180,7 +180,7 @@ class SpectrumSolver(HDFWriterMixin):
 
     @classmethod
     def from_config(cls, config):
-        spectrum_frequency = quantity_linspace(
+        spectrum_frequency_grid = quantity_linspace(
             config.spectrum.stop.to("Hz", u.spectral()),
             config.spectrum.start.to("Hz", u.spectral()),
             num=config.spectrum.num + 1,
@@ -188,5 +188,5 @@ class SpectrumSolver(HDFWriterMixin):
 
         return cls(
             transport_state=None,
-            spectrum_frequency=spectrum_frequency,
+            spectrum_frequency_grid=spectrum_frequency_grid,
         )
