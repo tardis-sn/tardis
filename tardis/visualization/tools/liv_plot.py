@@ -214,9 +214,8 @@ class LIVPlotter:
             .groupby(by="last_line_interaction_species")
         )
 
-        plot_colors = []
-        plot_data = []
-        species_not_wvl_range = []
+        self.plot_colors = []
+        self.plot_data = []
         species_counter = 0
 
         for specie_list in self._species_mapped.values():
@@ -239,14 +238,9 @@ class LIVPlotter:
                     ).to("km/s")
                     full_v_last.extend(v_last_interaction)
             if full_v_last:
-                plot_data.append(full_v_last)
-                plot_colors.append(self._color_list[species_counter])
+                self.plot_data.append(full_v_last)
+                self.plot_colors.append(self._color_list[species_counter])
                 species_counter += 1
-        if species_not_wvl_range:
-            logger.info(
-                f"{species_not_wvl_range} were not found in the provided wavelength range."
-            )
-        return plot_data, plot_colors
 
     def _prepare_plot_data(
         self,
@@ -348,7 +342,7 @@ class LIVPlotter:
                 <= packet_nu_range[0]
             )
 
-        plot_data, plot_colors = self._generate_plot_data(packets_mode)
+        self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to("km/s")
 
         if num_bins:
@@ -358,15 +352,13 @@ class LIVPlotter:
                 logger.warning(
                     "Number of bins must be less than or equal to number of shells. Plotting with number of bins equals to number of shells."
                 )
-                new_bin_edges = bin_edges
+                self.new_bin_edges = bin_edges
             else:
-                new_bin_edges = np.linspace(
+                self.new_bin_edges = np.linspace(
                     bin_edges[0], bin_edges[-1], num_bins + 1
                 )
         else:
-            new_bin_edges = bin_edges
-
-        return plot_data, plot_colors, new_bin_edges
+            self.new_bin_edges = bin_edges
 
     def _get_step_plot_data(self, data, bin_edges):
         """
@@ -387,9 +379,8 @@ class LIVPlotter:
             y-coordinates for the step plot.
         """
         hist, _ = np.histogram(data, bins=bin_edges)
-        step_x = np.repeat(bin_edges, 2)[1:-1]
-        step_y = np.repeat(hist, 2)
-        return step_x, step_y
+        self.step_x = np.repeat(bin_edges, 2)[1:-1]
+        self.step_y = np.repeat(hist, 2)
 
     def generate_plot_mpl(
         self,
@@ -448,7 +439,7 @@ class LIVPlotter:
             )
             nelements = None
 
-        plot_data, plot_colors, bin_edges = self._prepare_plot_data(
+        self._prepare_plot_data(
             packets_mode,
             packet_wvl_range,
             species_list,
@@ -457,18 +448,20 @@ class LIVPlotter:
             nelements,
         )
 
+        bin_edges = self.new_bin_edges
+
         if ax is None:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
         else:
             self.ax = ax
 
         for data, color, name in zip(
-            plot_data, plot_colors, self._species_name
+            self.plot_data, self.plot_colors, self._species_name
         ):
-            step_x, step_y = self._get_step_plot_data(data, bin_edges)
+            self._get_step_plot_data(data, bin_edges)
             self.ax.plot(
-                step_x,
-                step_y,
+                self.step_x,
+                self.step_y,
                 label=name,
                 color=color,
                 linewidth=2.5,
@@ -548,7 +541,7 @@ class LIVPlotter:
             )
             nelements = None
 
-        plot_data, plot_colors, bin_edges = self._prepare_plot_data(
+        self._prepare_plot_data(
             packets_mode,
             packet_wvl_range,
             species_list,
@@ -557,19 +550,21 @@ class LIVPlotter:
             nelements,
         )
 
+        bin_edges = self.new_bin_edges
+
         if fig is None:
             self.fig = go.Figure()
         else:
             self.fig = fig
 
         for data, color, name in zip(
-            plot_data, plot_colors, self._species_name
+            self.plot_data, self.plot_colors, self._species_name
         ):
-            step_x, step_y = self._get_step_plot_data(data, bin_edges)
+            self._get_step_plot_data(data, bin_edges)
             self.fig.add_trace(
                 go.Scatter(
-                    x=step_x,
-                    y=step_y,
+                    x=self.step_x,
+                    y=self.step_y,
                     mode="lines",
                     line=dict(
                         color=pu.to_rgb255_string(color),
