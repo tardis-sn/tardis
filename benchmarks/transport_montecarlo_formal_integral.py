@@ -22,14 +22,6 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
                 {
                     "nu": 1e14,
                     "temperature": 1e4,
-                },
-                {
-                    "nu": 0,
-                    "temperature": 1,
-                },
-                {
-                    "nu": 1,
-                    "temperature": 1,
                 }
             ]
         }
