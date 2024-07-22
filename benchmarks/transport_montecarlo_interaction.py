@@ -10,7 +10,7 @@ from tardis.transport.montecarlo.numba_interface import (
 from asv_runner.benchmarks.mark import parameterize
 
 
-class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
+class BenchmarkTransportMontecarloInteraction(BenchmarkBase):
     """
     Class to benchmark the numba interaction function.
     """

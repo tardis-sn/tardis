@@ -6,7 +6,7 @@ from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.montecarlo_main_loop import montecarlo_main_loop
 
 
-class BenchmarkTransportMontecarloMainLoop(BenchmarkBase):
+class BenchmarkTransportMontecarloMontecarloMainLoop(BenchmarkBase):
     """
     class to benchmark montecarlo_main_loop function.
     """
