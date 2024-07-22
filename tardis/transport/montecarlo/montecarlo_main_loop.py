@@ -10,7 +10,6 @@ from tardis.transport.montecarlo.packet_collections import (
     consolidate_vpacket_tracker,
     initialize_last_interaction_tracker,
 )
-import tardis.transport.montecarlo.montecarlo_main_loop as montecarlo_loop
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketTracker,
     RPacketLastInteractionTracker,
@@ -23,8 +22,6 @@ from tardis.transport.montecarlo.single_packet_loop import (
     single_packet_loop,
 )
 from tardis.util.base import update_packet_pbar
-
-ENABLE_RPACKET_TRACKING = False
 
 
 @njit(**njit_dict)
