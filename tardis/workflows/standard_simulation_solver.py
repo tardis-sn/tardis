@@ -2,16 +2,20 @@ import logging
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 from astropy import units as u
+from IPython.display import display
 
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
+from tardis.io.logger.logger import logging_state
 from tardis.model import SimulationState
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.util.base import is_notebook
 
 # logging support
 logger = logging.getLogger(__name__)
@@ -22,11 +26,14 @@ class StandardSimulationSolver:
         # Convergence
         self.consecutive_converges_count = 0
         self.converged = False
-        self.total_iterations = 1
         self.completed_iterations = 0
+        self.luminosity_requested = (
+            configuration.supernova.luminosity_requested.cgs
+        )
 
         atom_data = self._get_atom_data(configuration)
 
+        # set up states and solvers
         self.simulation_state = SimulationState.from_config(
             configuration,
             atom_data=atom_data,
@@ -59,7 +66,10 @@ class StandardSimulationSolver:
                 const.c / configuration.supernova.luminosity_wavelength_start
             ).to(u.Hz)
 
-        self.real_packet_count = configuration.montecarlo.no_of_packets
+        # montecarlo settings
+        self.total_iterations = int(configuration.montecarlo.iterations)
+
+        self.real_packet_count = int(configuration.montecarlo.no_of_packets)
 
         final_iteration_packet_count = (
             configuration.montecarlo.last_no_of_packets
@@ -77,6 +87,7 @@ class StandardSimulationSolver:
             configuration.montecarlo.no_of_virtual_packets
         )
 
+        # spectrum settings
         self.integrated_spectrum_settings = configuration.spectrum.integrated
         self.spectrum_solver = SpectrumSolver.from_config(configuration)
 
