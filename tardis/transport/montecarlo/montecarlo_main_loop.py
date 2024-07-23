@@ -33,7 +33,6 @@ def montecarlo_main_loop(
     montecarlo_configuration,
     estimators,
     spectrum_frequency_grid,
-    rpacket_trackers,
     number_of_vpackets,
     iteration,
     show_progress_bars,
