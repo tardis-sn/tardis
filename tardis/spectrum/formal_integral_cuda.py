@@ -88,7 +88,7 @@ def cuda_formal_integral(
     N : int64
         Number of impact parameter values (p)
     L : array(float64, 1d, C)
-        Luminosity density at each frequencyt
+        Luminosity density at each frequency
         This is where the results will be stored
     pp : array(float64, 1d, C)
         Impact parameter arrays
