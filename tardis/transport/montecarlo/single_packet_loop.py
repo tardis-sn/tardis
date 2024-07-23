@@ -63,7 +63,8 @@ def single_packet_loop(
         and if virtual packets are requested - also updates the vpacket_collection
     """
 
-    time.sleep(2)
+    for i in range(200):
+        print("hello")
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
     if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
