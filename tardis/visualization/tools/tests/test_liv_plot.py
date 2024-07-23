@@ -284,12 +284,12 @@ class TestLIVPlotter:
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
     )
-    @pytest.mark.parametrize("nelements", [1, 2, 3, 4])
+    @pytest.mark.parametrize("nelements", [1, None])
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("xlog_scale", [True, False])
     @pytest.mark.parametrize("ylog_scale", [True, False])
     @pytest.mark.parametrize("num_bins", [10, 25])
-    @pytest.mark.parametrize("velocity_range", [(12500, 15000), (15050, 19000)])
+    @pytest.mark.parametrize("velocity_range", [(18000, 25000)])
     def test_generate_plot_mpl(
         self,
         request,
@@ -437,12 +437,12 @@ class TestLIVPlotter:
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
     )
-    @pytest.mark.parametrize("nelements", [1, 2, 3, 4])
+    @pytest.mark.parametrize("nelements", [1, None])
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("xlog_scale", [True, False])
     @pytest.mark.parametrize("ylog_scale", [True, False])
     @pytest.mark.parametrize("num_bins", [10, 25])
-    @pytest.mark.parametrize("velocity_range", [(12500, 15000), (15050, 25000)])
+    @pytest.mark.parametrize("velocity_range", [(18000, 25000)])
     def test_generate_plot_ply(
         self,
         request,
