@@ -28,9 +28,7 @@ def make_valid_name(testid):
     testid : str
         Sanitized ID.
     """
-    testid = testid.replace("-", "_")
-    testid = "_" + testid
-    return testid
+    return "_" + testid.replace("-", "_")
 
 
 def convert_to_native_type(obj):
@@ -150,9 +148,9 @@ class TestLIVPlotter:
         ----------
         request : _pytest.fixtures.SubRequest
         plotter : tardis.visualization.tools.liv_plot.LIVPlotter
-        species_list : list of species to plot
-        packets_mode : str, optional
-        nelements : int, optional
+        species_list : List of species to plot.
+        packets_mode : str, Packet mode, either 'virtual' or 'real'.
+        nelements : int, Number of elements to include in plot.
         """
         subgroup_name = make_valid_name(request.node.callspec.id)
         plotter._parse_species_list(
@@ -230,11 +228,11 @@ class TestLIVPlotter:
         ----------
         request : _pytest.fixtures.SubRequest
         plotter : tardis.visualization.tools.liv_plot.LIVPlotter
+        packets_mode : str, Packet mode, either 'virtual' or 'real'.
         species_list : list of species to plot
-        packets_mode : str, optional
         cmapname : str
-        num_bins : int, optional
-        nelements : int, optional
+        num_bins : int, Number of bins for regrouping within the same range.
+        nelements : int, Number of elements to include in plot.
         """
         subgroup_name = make_valid_name(request.node.callspec.id)
         plotter._prepare_plot_data(
