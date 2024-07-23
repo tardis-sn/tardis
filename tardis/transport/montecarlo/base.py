@@ -2,7 +2,6 @@ import logging
 
 from astropy import units as u
 from numba import cuda, set_num_threads
-from numba.typed import List
 
 import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
