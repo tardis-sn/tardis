@@ -18,24 +18,82 @@ logger = logging.getLogger(__name__)
 
 
 class StandardSimulationSolver:
-    def __init__(self):
-        self.simulation_state = None
-        self.atom_data = None
-        self.spectrum_solver = None
-        self.transport_solver = None
-        self.plasma_solver = None
-        self.virtual_packet_count = 0
-        self.integrated_spectrum_settings = None
-
+    def __init__(self, configuration):
         # Convergence
-        self.convergence_strategy = None
         self.consecutive_converges_count = 0
         self.converged = False
         self.total_iterations = 1
         self.completed_iterations = 0
-        self.luminosity_nu_start = 0
-        self.luminosity_nu_end = 0
-        self.luminosity_requested = 0 * u.erg / u.s
+
+        atom_data = self._get_atom_data(configuration)
+
+        self.simulation_state = SimulationState.from_config(
+            configuration,
+            atom_data=atom_data,
+        )
+
+        self.plasma_solver = assemble_plasma(
+            configuration,
+            self.simulation_state,
+            atom_data=atom_data,
+        )
+
+        self.transport_solver = MonteCarloTransportSolver.from_config(
+            configuration,
+            packet_source=self.simulation_state.packet_source,
+            enable_virtual_packet_logging=False,
+        )
+
+        self.luminosity_nu_start = (
+            configuration.supernova.luminosity_wavelength_end.to(
+                u.Hz, u.spectral()
+            )
+        )
+
+        if u.isclose(
+            configuration.supernova.luminosity_wavelength_start, 0 * u.angstrom
+        ):
+            self.luminosity_nu_end = np.inf * u.Hz
+        else:
+            self.luminosity_nu_end = (
+                const.c / configuration.supernova.luminosity_wavelength_start
+            ).to(u.Hz)
+
+        self.real_packet_count = configuration.montecarlo.no_of_packets
+
+        final_iteration_packet_count = (
+            configuration.montecarlo.last_no_of_packets
+        )
+
+        if (
+            final_iteration_packet_count is None
+            or final_iteration_packet_count < 0
+        ):
+            final_iteration_packet_count = self.real_packet_count
+
+        self.final_iteration_packet_count = int(final_iteration_packet_count)
+
+        self.virtual_packet_count = int(
+            configuration.montecarlo.no_of_virtual_packets
+        )
+
+        self.integrated_spectrum_settings = configuration.spectrum.integrated
+        self.spectrum_solver = SpectrumSolver.from_config(configuration)
+
+        self.convergence_strategy = (
+            configuration.montecarlo.convergence_strategy
+        )
+
+        # Convergence solvers
+        self.t_radiative_convergence_solver = ConvergenceSolver(
+            self.convergence_strategy.t_rad
+        )
+        self.dilution_factor_convergence_solver = ConvergenceSolver(
+            self.convergence_strategy.w
+        )
+        self.t_inner_convergence_solver = ConvergenceSolver(
+            self.convergence_strategy.t_inner
+        )
 
     def _get_atom_data(self, configuration):
         if "atom_data" in configuration:
@@ -230,77 +288,6 @@ class StandardSimulationSolver:
             self.spectrum_solver._integrator = FormalIntegrator(
                 self.simulation_state, self.plasma_solver, self.transport_solver
             )
-
-    def setup_solver(self, configuration):
-        atom_data = self._get_atom_data(configuration)
-
-        self.simulation_state = SimulationState.from_config(
-            configuration,
-            atom_data=atom_data,
-        )
-
-        self.plasma_solver = assemble_plasma(
-            configuration,
-            self.simulation_state,
-            atom_data=atom_data,
-        )
-
-        self.transport_solver = MonteCarloTransportSolver.from_config(
-            configuration,
-            packet_source=self.simulation_state.packet_source,
-            enable_virtual_packet_logging=False,
-        )
-
-        self.luminosity_nu_start = (
-            configuration.supernova.luminosity_wavelength_end.to(
-                u.Hz, u.spectral()
-            )
-        )
-
-        if u.isclose(
-            configuration.supernova.luminosity_wavelength_start, 0 * u.angstrom
-        ):
-            self.luminosity_nu_end = np.inf * u.Hz
-        else:
-            self.luminosity_nu_end = (
-                const.c / configuration.supernova.luminosity_wavelength_start
-            ).to(u.Hz)
-
-        self.real_packet_count = configuration.montecarlo.no_of_packets
-
-        final_iteration_packet_count = (
-            configuration.montecarlo.last_no_of_packets
-        )
-
-        if (
-            final_iteration_packet_count is None
-            or final_iteration_packet_count < 0
-        ):
-            final_iteration_packet_count = self.real_packet_count
-
-        self.final_iteration_packet_count = int(final_iteration_packet_count)
-
-        self.virtual_packet_count = int(
-            configuration.montecarlo.no_of_virtual_packets
-        )
-
-        self.integrated_spectrum_settings = configuration.spectrum.integrated
-        self.spectrum_solver = SpectrumSolver.from_config(configuration)
-
-        self.convergence_strategy = (
-            configuration.montecarlo.convergence_strategy
-        )
-
-        # Convergence solvers
-        self.t_radiative_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.t_rad
-        )
-        self.dilution_factor_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.w
-        )
-        self.t_inner_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.t_inner
-        )
 
     def solve(self):
         converged = False
