@@ -87,3 +87,28 @@ class TestSpectrumSolver:
             result,
             luminosity,
         )
+
+    def test_solve(self, simulation):
+        transport_state = simulation.transport.transport_state
+        spectrum_frequency_grid = simulation.transport.spectrum_frequency_grid
+
+        solver = SpectrumSolver(transport_state, spectrum_frequency_grid)
+        result_real, result_virtual, result_integrated = solver.solve()
+        key_real = "simulation/spectrum_solver/spectrum_real_packets/luminosity"
+        expected_real = self.get_expected_data(key_real)
+
+        luminosity_real = u.Quantity(expected_real, "erg /s")
+
+        assert_quantity_allclose(
+            result_real.luminosity,
+            luminosity_real,
+        )
+
+        assert_quantity_allclose(
+            result_virtual.luminosity,
+            u.Quantity(
+                np.zeros_like(spectrum_frequency_grid.value)[:-1], "erg / s"
+            ),
+        )
+
+        assert result_integrated is None
