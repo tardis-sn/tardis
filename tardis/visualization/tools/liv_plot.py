@@ -199,14 +199,6 @@ class LIVPlotter:
         ----------
         packets_mode : str
             Packet mode, either 'virtual' or 'real'.
-
-        Returns
-        -------
-        plot_data : list
-            List of velocity data for each species.
-
-        plot_colors : list
-            List of colors corresponding to each species.
         """
         groups = (
             self.data[packets_mode]
@@ -285,15 +277,6 @@ class LIVPlotter:
         ValueError
             If no species are provided for plotting, or if no valid species are
             found in the model.
-
-        Returns
-        -------
-        plot_data : list
-            List of velocity data for each species.
-        plot_colors : list
-            List of colors corresponding to each species.
-        new_bin_edges : np.ndarray
-            Array of bin edges for the velocity data.
         """
         if species_list is None:
             # Extract all unique elements from the packets data
@@ -370,13 +353,6 @@ class LIVPlotter:
             Data to be binned into a histogram.
         bin_edges : array-like
             Edges of the bins for the histogram.
-
-        Returns
-        -------
-        step_x : np.ndarray
-            x-coordinates for the step plot.
-        step_y : np.ndarray
-            y-coordinates for the step plot.
         """
         hist, _ = np.histogram(data, bins=bin_edges)
         self.step_x = np.repeat(bin_edges, 2)[1:-1]

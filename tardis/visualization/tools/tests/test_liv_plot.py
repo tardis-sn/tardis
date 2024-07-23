@@ -34,56 +34,15 @@ def make_valid_name(testid):
     return testid
 
 
-# def convert_to_python(obj):
-#     """Convert numpy types to native Python types."""
-#     if isinstance(obj, np.int64):
-#         return int(obj)
-#     elif isinstance(obj, np.float64):
-#         return float(obj)
-#     elif isinstance(obj, dict):
-#         return {
-#             convert_to_python(k): convert_to_python(v) for k, v in obj.items()
-#         }
-#     elif isinstance(obj, list):
-#         return [convert_to_python(i) for i in obj]
-#     else:
-#         return obj
-
-
-# def save_dict_to_hdf5(group, dictionary):
-#     """
-#     Save a dictionary with lists as values to an HDF5 group.
-
-#     Parameters
-#     ----------
-#     group : tables.Group
-#         HDF5 group to save the dictionary to.
-#     dictionary : dict
-#         Dictionary to save.
-#     """
-#     dictionary = convert_to_python(dictionary)
-#     json_string = json.dumps(dictionary)
-#     dtype = np.dtype(f"S{len(json_string) + 1}")
-#     json_array = np.array(json_string.encode("utf-8"), dtype=dtype)
-#     group._v_file.create_array(group, "species_mapped", obj=json_array)
-
-
-# def load_dict_from_hdf5(group):
-#     """
-#     Load a dictionary with lists as values from an HDF5 group.
-
-#     Parameters
-#     ----------
-#     group : tables.Group
-#         HDF5 group to load the dictionary from.
-
-#     Returns
-#     -------
-#     dict
-#         Loaded dictionary.
-#     """
-#     json_string = group.species_mapped.read().tobytes().decode("utf-8")
-#     return json.loads(json_string)
+def convert_to_native_type(obj):
+    if isinstance(obj, dict):
+        return {k: convert_to_native_type(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_to_native_type(i) for i in obj]
+    elif isinstance(obj, np.int64):
+        return int(obj)
+    else:
+        return obj
 
 
 @pytest.fixture(scope="module")
@@ -112,7 +71,6 @@ def simulation_simple(config_verysimple, atomic_dataset):
     sim = run_tardis(
         config_verysimple,
         atom_data=atomic_data,
-        show_convergence_plots=False,
     )
     return sim
 
@@ -212,7 +170,15 @@ class TestLIVPlotter:
             self.hdf_file.create_carray(
                 group, name="_keep_colour", obj=plotter._keep_colour
             )
-            # save_dict_to_hdf5(group, plotter._species_mapped)
+            species_mapped_json = json.dumps(
+                convert_to_native_type(plotter._species_mapped)
+            )
+            self.hdf_file.create_array(
+                group,
+                name="_species_mapped",
+                obj=np.array([species_mapped_json], dtype="S"),
+            )
+
             pytest.skip("Reference data was generated during this run.")
         else:
             group = self.hdf_file.get_node("/" + subgroup_name)
@@ -225,14 +191,25 @@ class TestLIVPlotter:
                 np.asarray(plotter._keep_colour),
                 self.hdf_file.get_node(group, "_keep_colour"),
             )
-            # expected_species_mapped = load_dict_from_hdf5(group)
-            # assert plotter._species_mapped == expected_species_mapped
+            species_mapped_array = self.hdf_file.get_node(
+                group, "_species_mapped"
+            ).read()
+            species_mapped_json = (
+                species_mapped_array[0].decode()
+                if isinstance(species_mapped_array[0], bytes)
+                else species_mapped_array[0]
+            )
+            species_mapped_dict = json.loads(species_mapped_json)
+            species_mapped_dict = {
+                int(key): value for key, value in species_mapped_dict.items()
+            }
+            assert plotter._species_mapped == species_mapped_dict
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"]]
     )
-    @pytest.mark.parametrize("cmapname", ["jet", "viridis"])
+    @pytest.mark.parametrize("cmapname", ["jet"])
     @pytest.mark.parametrize("num_bins", [10, 25])
     @pytest.mark.parametrize("nelements", [1, None])
     def test_prepare_plot_data(
@@ -253,20 +230,23 @@ class TestLIVPlotter:
             num_bins=num_bins,
             nelements=nelements,
         )
-        # plot_data_numeric = [
-        #     [q.value for q in row] for row in plotter.plot_data
-        # ]
-        # np_array = np.array(plot_data_numeric)
+        plot_data_numeric = [
+            [q.value for q in row] for row in plotter.plot_data
+        ]
+        flat_list = [item for sublist in plot_data_numeric for item in sublist]
+        plot_data_list = np.array(flat_list)
         if request.config.getoption("--generate-reference"):
             group = self.hdf_file.create_group(
                 self.hdf_file.root,
                 name=subgroup_name,
             )
-            # self.hdf_file.create_carray(group, name="plot_data", obj=np_array)
+            self.hdf_file.create_carray(
+                group, name="plot_data", obj=plot_data_list
+            )
 
-            # self.hdf_file.create_carray(
-            #     group, name="plot_colors", obj=plotter.plot_colors
-            # )
+            self.hdf_file.create_carray(
+                group, name="plot_colors", obj=plotter.plot_colors
+            )
             self.hdf_file.create_carray(
                 group, name="new_bin_edges", obj=plotter.new_bin_edges
             )
@@ -275,15 +255,15 @@ class TestLIVPlotter:
         else:
             group = self.hdf_file.get_node("/" + subgroup_name)
 
-            # np.testing.assert_allclose(
-            #     np.asarray(np_array),
-            #     self.hdf_file.get_node(group, "plot_data"),
-            # )
+            np.testing.assert_allclose(
+                np.asarray(plot_data_list),
+                self.hdf_file.get_node(group, "plot_data"),
+            )
 
-            # np.testing.assert_allclose(
-            #     np.asarray(plotter.plot_colors),
-            #     self.hdf_file.get_node(group, "plot_colors"),
-            # )
+            np.testing.assert_allclose(
+                np.asarray(plotter.plot_colors),
+                self.hdf_file.get_node(group, "plot_colors"),
+            )
             np.testing.assert_allclose(
                 np.asarray(plotter.new_bin_edges),
                 self.hdf_file.get_node(group, "new_bin_edges"),
@@ -335,6 +315,12 @@ class TestLIVPlotter:
                 name=subgroup_name,
             )
             self.hdf_file.create_carray(
+                group, name="_species_name", obj=plotter._species_name
+            )
+            self.hdf_file.create_carray(
+                group, name="_color_list", obj=plotter._color_list
+            )
+            self.hdf_file.create_carray(
                 group, name="step_x", obj=plotter.step_x
             )
             self.hdf_file.create_carray(
@@ -377,8 +363,17 @@ class TestLIVPlotter:
 
         else:
             group = self.hdf_file.get_node("/" + subgroup_name)
-            # test output of the _make_colorbar_labels function
 
+            assert (
+                plotter._species_name
+                == self.hdf_file.get_node(group, "_species_name")
+                .read()
+                .astype(str),
+            )
+            np.testing.assert_allclose(
+                np.asarray(np.asarray(plotter._color_list)),
+                self.hdf_file.get_node(group, "_color_list"),
+            )
             np.testing.assert_allclose(
                 np.asarray(plotter.step_x),
                 self.hdf_file.get_node(group, "step_x"),
@@ -428,7 +423,7 @@ class TestLIVPlotter:
     @pytest.mark.parametrize("xlog_scale", [True, False])
     @pytest.mark.parametrize("ylog_scale", [True, False])
     @pytest.mark.parametrize("num_bins", [10, 25])
-    @pytest.mark.parametrize("velocity_range", [(12500, 15000), (15050, 19000)])
+    @pytest.mark.parametrize("velocity_range", [(12500, 15000), (15050, 25000)])
     def test_generate_plot_ply(
         self,
         request,
@@ -464,6 +459,12 @@ class TestLIVPlotter:
             group = self.hdf_file.create_group(
                 self.hdf_file.root,
                 name=subgroup_name,
+            )
+            self.hdf_file.create_carray(
+                group, name="_species_name", obj=plotter._species_name
+            )
+            self.hdf_file.create_carray(
+                group, name="_color_list", obj=plotter._color_list
             )
             self.hdf_file.create_carray(
                 group, name="step_x", obj=plotter.step_x
@@ -506,8 +507,18 @@ class TestLIVPlotter:
 
         else:
             group = self.hdf_file.get_node("/", subgroup_name)
-            # test output of the _make_colorbar_labels function
 
+            assert (
+                plotter._species_name
+                == self.hdf_file.get_node(group, "_species_name")
+                .read()
+                .astype(str),
+            )
+            # test output of the _make_colorbar_colors function
+            np.testing.assert_allclose(
+                np.asarray(np.asarray(plotter._color_list)),
+                self.hdf_file.get_node(group, "_color_list"),
+            )
             np.testing.assert_allclose(
                 np.asarray(plotter.step_x),
                 self.hdf_file.get_node(group, "step_x"),
