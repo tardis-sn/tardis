@@ -172,7 +172,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 rpacket_last_interaction_tracker_list(number_of_rpackets)
             )
 
-
         (
             v_packets_energy_hist,
             last_interaction_tracker,
