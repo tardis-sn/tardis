@@ -1,4 +1,4 @@
-from numba import float64, int64
+from numba import float64, int64, njit
 from numba.experimental import jitclass
 import numpy as np
 import pandas as pd
@@ -207,3 +207,19 @@ class RPacketLastInteractionTracker(object):
     # To make it compatible with RPacketTracker
     def finalize_array(self):
         pass
+
+
+@njit
+def rpacket_tracker_list(no_of_packets, length):
+    rpacket_trackers = List()
+    for i in range(no_of_packets):
+        rpacket_trackers.append(RPacketTracker(length))
+    return rpacket_trackers
+
+
+@njit
+def rpacket_last_interaction_tracker_list(no_of_packets):
+    rpacket_trackers = List()
+    for i in range(no_of_packets):
+        rpacket_trackers.append(RPacketLastInteractionTracker())
+    return rpacket_trackers

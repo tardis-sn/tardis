@@ -25,8 +25,8 @@ from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )
 from tardis.transport.montecarlo.packet_trackers import (
-    RPacketTracker,
-    RPacketLastInteractionTracker,
+    rpacket_tracker_list,
+    rpacket_last_interaction_tracker_list,
     rpacket_trackers_to_dataframe,
 )
 from tardis.util.base import (
