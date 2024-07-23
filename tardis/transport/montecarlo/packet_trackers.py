@@ -211,7 +211,7 @@ class RPacketLastInteractionTracker(object):
 
 
 @njit
-def rpacket_tracker_list(no_of_packets, length):
+def generate_rpacket_tracker_list(no_of_packets, length):
     rpacket_trackers = List()
     for i in range(no_of_packets):
         rpacket_trackers.append(RPacketTracker(length))
@@ -219,7 +219,7 @@ def rpacket_tracker_list(no_of_packets, length):
 
 
 @njit
-def rpacket_last_interaction_tracker_list(no_of_packets):
+def generate_rpacket_last_interaction_tracker_list(no_of_packets):
     rpacket_trackers = List()
     for i in range(no_of_packets):
         rpacket_trackers.append(RPacketLastInteractionTracker())

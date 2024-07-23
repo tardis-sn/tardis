@@ -24,8 +24,8 @@ from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )
 from tardis.transport.montecarlo.packet_trackers import (
-    rpacket_tracker_list,
-    rpacket_last_interaction_tracker_list,
+    generate_rpacket_tracker_list,
+    generate_rpacket_last_interaction_tracker_list,
     rpacket_trackers_to_dataframe,
 )
 from tardis.util.base import (
@@ -163,13 +163,15 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         number_of_rpackets = len(transport_state.packet_collection.initial_nus)
 
         if self.enable_rpacket_tracking:
-            transport_state.rpacket_tracker = rpacket_tracker_list(
+            transport_state.rpacket_tracker = generate_rpacket_tracker_list(
                 number_of_rpackets,
                 self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
             )
         else:
             transport_state.rpacket_tracker = (
-                rpacket_last_interaction_tracker_list(number_of_rpackets)
+                generate_rpacket_last_interaction_tracker_list(
+                    number_of_rpackets
+                )
             )
 
         (
