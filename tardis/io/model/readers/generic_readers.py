@@ -1,14 +1,14 @@
-from astropy import units as u
-from typing import Any, Tuple
-from numpy import recfromtxt
-import pandas as pd
-from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z
 from pathlib import Path
+from typing import Any, Tuple
 
 import numpy as np
-from tardis.io.model.readers.util import read_csv_isotope_abundances
+import pandas as pd
+from astropy import units as u
+from numpy import recfromtxt
+from radioactivedecay import Nuclide
+from radioactivedecay.utils import Z_DICT, elem_to_Z
 
+from tardis.io.model.readers.util import read_csv_isotope_mass_fractions
 from tardis.util.base import parse_quantity
 
 
@@ -41,7 +41,6 @@ def read_simple_ascii_density(
     mean_density: u.Quantity
         mean density
     """
-
     with open(fname) as fh:
         time_of_model_string = fh.readline().strip()
         time_of_model = parse_quantity(time_of_model_string)
@@ -61,10 +60,10 @@ def read_simple_ascii_density(
 def read_csv_composition(fname, delimiter=r"\s+"):
     """Read composition from a simple CSV file
 
-    The CSV file can contain specific isotopes or elemental abundances in the
+    The CSV file can contain specific isotopes or elemental mass fractions in the
     different columns. The first row must contain the header in which the
     contents of each column is specified by the elemental symbol (for elemental
-    abundances) or by the symbol plus mass number (for isotopic abundances).
+    mass fractions) or by the symbol plus mass number (for isotopic mass fractions).
 
     Example: C O Fe Ni56 Co
 
@@ -73,16 +72,15 @@ def read_csv_composition(fname, delimiter=r"\s+"):
     fname : str
         filename of the csv file
     """
-
-    return read_csv_isotope_abundances(
+    return read_csv_isotope_mass_fractions(
         fname, delimiter=delimiter, skip_columns=0, skip_rows=[1]
     )
 
 
-def read_simple_ascii_abundances(fname):
+def read_simple_ascii_mass_fractions(fname):
     """
-    Reading an abundance file of the following structure (example; lines starting with hash will be ignored):
-    The first line of abundances describe the abundances in the center of the model and are not used.
+    Reading a mass fraction file of the following structure (example; lines starting with hash will be ignored):
+    The first line of mass fractions describe the mass fractions in the center of the model and are not used.
     #index element1, element2, ..., element30
     0 0.4 0.3, .. 0.2
 
@@ -95,32 +93,32 @@ def read_simple_ascii_abundances(fname):
     -------
     index : np.ndarray
         containing the indices
-    abundances : pandas.DataFrame
+    mass_fractions : pandas.DataFrame
         data frame containing index, element1 - element30 and columns according to the shells
     """
     data = np.loadtxt(fname)
 
     index = data[1:, 0].astype(int)
-    abundances = pd.DataFrame(
+    mass_fractions = pd.DataFrame(
         data[1:, 1:].transpose(), index=np.arange(1, data.shape[1])
     )
 
-    return index, abundances
+    return index, mass_fractions
 
 
-def read_uniform_abundances(abundances_section, no_of_shells):
+def read_uniform_mass_fractions(mass_fractions_section, no_of_shells):
     """
     Parameters
     ----------
-    abundances_section : config.model.abundances
+    mass_fractions_section : config.model.abundances
     no_of_shells : int
 
     Returns
     -------
-    abundance : pandas.DataFrame
-    isotope_abundance : pandas.DataFrame
+    mass_fractions : pandas.DataFrame
+    isotope_mass_fractions : pandas.DataFrame
     """
-    abundance = pd.DataFrame(
+    mass_fractions = pd.DataFrame(
         columns=np.arange(no_of_shells),
         index=pd.Index(np.arange(1, 120), name="atomic_number"),
         dtype=np.float64,
@@ -129,30 +127,30 @@ def read_uniform_abundances(abundances_section, no_of_shells):
     isotope_index = pd.MultiIndex(
         [[]] * 2, [[]] * 2, names=["atomic_number", "mass_number"]
     )
-    isotope_abundance = pd.DataFrame(
+    isotope_mass_fractions = pd.DataFrame(
         columns=np.arange(no_of_shells), index=isotope_index, dtype=np.float64
     )
 
-    for element_symbol_string in abundances_section:
+    for element_symbol_string in mass_fractions_section:
         if element_symbol_string in ["type", "model_isotope_time_0"]:
             continue
         try:
             if element_symbol_string in Z_DICT.values():
                 z = elem_to_Z(element_symbol_string)
-                abundance.loc[z] = float(
-                    abundances_section[element_symbol_string]
+                mass_fractions.loc[z] = float(
+                    mass_fractions_section[element_symbol_string]
                 )
             else:
                 nuc = Nuclide(element_symbol_string)
                 mass_no = nuc.A
                 z = nuc.Z
-                isotope_abundance.loc[(z, mass_no), :] = float(
-                    abundances_section[element_symbol_string]
+                isotope_mass_fractions.loc[(z, mass_no), :] = float(
+                    mass_fractions_section[element_symbol_string]
                 )
 
         except RuntimeError as err:
             raise RuntimeError(
-                f"Abundances are not defined properly in config file : {err.args}"
+                f"mass_fractions are not defined properly in config file : {err.args}"
             )
 
-    return abundance, isotope_abundance
+    return mass_fractions, isotope_mass_fractions

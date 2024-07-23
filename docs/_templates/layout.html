@@ -5,6 +5,15 @@
 {# Add github banner (from: https://github.com/blog/273-github-ribbons). #}
 {% block header %}
   {{ super() }}
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-53HJHD1BWS');
+  </script>
   <a href="http://github.com/wkerzendorf/tardis"><img style="position: fixed; top: 0px; right: 0; border: 0; z-index: 100000;image-orientation: 90deg;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"/></a>
 {% endblock %}
 {% block extrahead %}

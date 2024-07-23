@@ -12,15 +12,19 @@ import tardis
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import ConfigurationError
+from tardis.io.model.parse_packet_source_configuration import (
+    initialize_packet_source,
+)
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
-from tardis.model.parse_input import initialize_packet_source
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.simulation.convergence import ConvergenceSolver
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
+from tardis.spectrum.base import SpectrumSolver
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -115,6 +119,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         "iterations_t_rad",
         "iterations_electron_densities",
         "iterations_t_inner",
+        "spectrum_solver",
     ]
     hdf_name = "simulation"
 
@@ -134,6 +139,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         show_convergence_plots,
         convergence_plots_kwargs,
         show_progress_bars,
+        spectrum_solver,
+        integrator_settings,
     ):
         super(Simulation, self).__init__(
             iterations, simulation_state.no_of_shells
@@ -151,6 +158,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.luminosity_nu_start = luminosity_nu_start
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
+        self.spectrum_solver = spectrum_solver
+        self.integrator_settings = integrator_settings
         self.show_progress_bars = show_progress_bars
         self.version = tardis.__version__
 
@@ -198,19 +207,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
-        self.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED = (
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = (
             not self.plasma.continuum_interaction_species.empty
         )
 
     def estimate_t_inner(
-        self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
+        self,
+        input_t_inner,
+        luminosity_requested,
+        emitted_luminosity,
+        t_inner_update_exponent=-0.5,
     ):
-        emitted_luminosity = (
-            self.transport.transport_state.calculate_emitted_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end
-            )
-        )
-
         luminosity_ratios = (
             (emitted_luminosity / luminosity_requested).to(1).value
         )
@@ -253,7 +260,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.consecutive_converges_count = 0
             return False
 
-    def advance_state(self):
+    def advance_state(self, emitted_luminosity):
         """
         Advances the state of the model and the plasma for the next
         iteration of the simulation. Returns True if the convergence criteria
@@ -270,6 +277,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
             self.luminosity_requested,
+            emitted_luminosity,
             t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
 
@@ -381,12 +389,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             iteration=self.iterations_executed,
         )
 
-        self.transport.run(
+        v_packets_energy_hist = self.transport.run(
             transport_state,
             time_explosion=self.simulation_state.time_explosion,
             iteration=self.iterations_executed,
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
+        )
+
+        # Set up spectrum solver
+        self.spectrum_solver.transport_state = transport_state
+        self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
+            v_packets_energy_hist
         )
 
         output_energy = (
@@ -395,13 +409,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = (
-            self.transport.transport_state.calculate_emitted_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end
-            )
+        emitted_luminosity = self.spectrum_solver.calculate_emitted_luminosity(
+            self.luminosity_nu_start, self.luminosity_nu_end
         )
         reabsorbed_luminosity = (
-            self.transport.transport_state.calculate_reabsorbed_luminosity(
+            self.spectrum_solver.calculate_reabsorbed_luminosity(
                 self.luminosity_nu_start, self.luminosity_nu_end
             )
         )
@@ -424,6 +436,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
+        return emitted_luminosity
 
     def run_convergence(self):
         """
@@ -438,8 +451,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.plasma.electron_densities,
                 self.simulation_state.t_inner,
             )
-            self.iterate(self.no_of_packets)
-            self.converged = self.advance_state()
+            emitted_luminosity = self.iterate(self.no_of_packets)
+            self.converged = self.advance_state(emitted_luminosity)
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
             self._call_back()
@@ -464,6 +477,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.simulation_state.t_inner,
         )
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets)
+
+        # Set up spectrum solver integrator
+        self.spectrum_solver.integrator_settings = self.integrator_settings
+        self.spectrum_solver._integrator = FormalIntegrator(
+            self.simulation_state, self.plasma, self.transport
+        )
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "convergence_plots"):
@@ -680,12 +699,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     atom_data=atom_data,
                     legacy_mode_enabled=legacy_mode_enabled,
                 )
+            # Override with custom packet source from function argument if present
             if packet_source is not None:
                 simulation_state.packet_source = initialize_packet_source(
-                    config,
-                    simulation_state.geometry,
-                    packet_source,
-                    legacy_mode_enabled,
+                    packet_source, config, simulation_state.geometry
                 )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
@@ -739,6 +756,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             last_no_of_packets = config.montecarlo.no_of_packets
         last_no_of_packets = int(last_no_of_packets)
 
+        spectrum_solver = SpectrumSolver.from_config(config)
+
         return cls(
             iterations=config.montecarlo.iterations,
             simulation_state=simulation_state,
@@ -754,4 +773,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             convergence_strategy=config.montecarlo.convergence_strategy,
             convergence_plots_kwargs=convergence_plots_kwargs,
             show_progress_bars=show_progress_bars,
+            integrator_settings=config.spectrum.integrated,
+            spectrum_solver=spectrum_solver,
         )
