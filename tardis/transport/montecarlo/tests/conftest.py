@@ -34,7 +34,6 @@ def verysimple_opacity_state(nb_simulation_verysimple):
         nb_simulation_verysimple.plasma,
         line_interaction_type="macroatom",
         disable_line_scattering=False,
-        continuum_processes_enabled=False,
     )
 
 
@@ -68,12 +67,12 @@ def verysimple_estimators(nb_simulation_verysimple):
 
 @pytest.fixture(scope="package")
 def verysimple_vpacket_collection(nb_simulation_verysimple):
-    spectrum_frequency = (
-        nb_simulation_verysimple.transport.spectrum_frequency.value
+    spectrum_frequency_grid = (
+        nb_simulation_verysimple.transport.spectrum_frequency_grid.value
     )
     return VPacketCollection(
         source_rpacket_index=0,
-        spectrum_frequency=spectrum_frequency,
+        spectrum_frequency_grid=spectrum_frequency_grid,
         number_of_vpackets=0,
         v_packet_spawn_start_frequency=0,
         v_packet_spawn_end_frequency=np.inf,
@@ -83,12 +82,12 @@ def verysimple_vpacket_collection(nb_simulation_verysimple):
 
 @pytest.fixture(scope="package")
 def verysimple_3vpacket_collection(nb_simulation_verysimple):
-    spectrum_frequency = (
-        nb_simulation_verysimple.transport.spectrum_frequency.value
+    spectrum_frequency_grid = (
+        nb_simulation_verysimple.transport.spectrum_frequency_grid.value
     )
     return VPacketCollection(
         source_rpacket_index=0,
-        spectrum_frequency=spectrum_frequency,
+        spectrum_frequency_grid=spectrum_frequency_grid,
         number_of_vpackets=3,
         v_packet_spawn_start_frequency=0,
         v_packet_spawn_end_frequency=np.inf,

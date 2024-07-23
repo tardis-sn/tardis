@@ -116,3 +116,15 @@ To update the environment after a new release, download the latest lockfile and 
   ::
 
       $ conda compare --name tardis tardis_env3.yml
+
+**Recommended approach:**
+
+We highly recommend deleting your existing environment and creating a new one using the latest lockfile whenever you need to update your environment after a new release.
+
+Use the following ``conda`` command to remove your current ``tardis`` environment:
+
+::
+  $ conda remove --name tardis --all
+
+Now, you can create a new environment by following the steps given `here <https://tardis-sn.github.io/tardis/installation.html#install-with-lockfiles>`_.
+

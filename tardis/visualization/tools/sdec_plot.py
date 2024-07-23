@@ -4,6 +4,7 @@ Spectral element DEComposition (SDEC) Plot for TARDIS simulation models.
 This plot is a spectral diagnostics plot similar to those originally
 proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 """
+
 import logging
 
 import astropy.units as u
@@ -40,6 +41,7 @@ class SDECData:
         last_line_interaction_in_id,
         last_line_interaction_out_id,
         last_line_interaction_in_nu,
+        last_interaction_in_r,
         lines_df,
         packet_nus,
         packet_energies,
@@ -67,6 +69,8 @@ class SDECData:
             emission (interaction out)
         last_line_interaction_in_nu : np.array
             Frequency values of the last absorption of emitted packets
+        last_line_interaction_in_r : np.array
+            Radius of the last interaction experienced by emitted packets
         lines_df : pd.DataFrame
             Data about the atomic lines present in simulation model's plasma
         packet_nus : astropy.Quantity
@@ -98,6 +102,7 @@ class SDECData:
                 "last_line_interaction_out_id": last_line_interaction_out_id,
                 "last_line_interaction_in_id": last_line_interaction_in_id,
                 "last_line_interaction_in_nu": last_line_interaction_in_nu,
+                "last_interaction_in_r": last_interaction_in_r,
             }
         )
 
@@ -177,6 +182,7 @@ class SDECData:
                 last_line_interaction_in_id=transport_state.vpacket_tracker.last_interaction_in_id,
                 last_line_interaction_out_id=transport_state.vpacket_tracker.last_interaction_out_id,
                 last_line_interaction_in_nu=transport_state.vpacket_tracker.last_interaction_in_nu,
+                last_interaction_in_r=transport_state.vpacket_tracker.last_interaction_in_r,
                 lines_df=lines_df,
                 packet_nus=u.Quantity(
                     transport_state.vpacket_tracker.nus, "Hz"
@@ -185,10 +191,10 @@ class SDECData:
                     transport_state.vpacket_tracker.energies, "erg"
                 ),
                 r_inner=r_inner,
-                spectrum_delta_frequency=transport_state.spectrum_virtual.delta_frequency,
-                spectrum_frequency_bins=transport_state.spectrum_virtual._frequency,
-                spectrum_luminosity_density_lambda=transport_state.spectrum_virtual.luminosity_density_lambda,
-                spectrum_wavelength=transport_state.spectrum_virtual.wavelength,
+                spectrum_delta_frequency=sim.spectrum_solver.spectrum_virtual_packets.delta_frequency,
+                spectrum_frequency_bins=sim.spectrum_solver.spectrum_virtual_packets._frequency,
+                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
+                spectrum_wavelength=sim.spectrum_solver.spectrum_virtual_packets.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -210,6 +216,9 @@ class SDECData:
                 last_line_interaction_in_nu=transport_state.last_interaction_in_nu[
                     transport_state.emitted_packet_mask
                 ],
+                last_interaction_in_r=transport_state.last_interaction_in_r[
+                    transport_state.emitted_packet_mask
+                ],
                 lines_df=lines_df,
                 packet_nus=transport_state.packet_collection.output_nus[
                     transport_state.emitted_packet_mask
@@ -218,10 +227,10 @@ class SDECData:
                     transport_state.emitted_packet_mask
                 ],
                 r_inner=r_inner,
-                spectrum_delta_frequency=transport_state.spectrum.delta_frequency,
-                spectrum_frequency_bins=transport_state.spectrum._frequency,
-                spectrum_luminosity_density_lambda=transport_state.spectrum.luminosity_density_lambda,
-                spectrum_wavelength=transport_state.spectrum.wavelength,
+                spectrum_delta_frequency=sim.spectrum_solver.spectrum_real_packets.delta_frequency,
+                spectrum_frequency_bins=sim.spectrum_solver.spectrum_real_packets._frequency,
+                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
+                spectrum_wavelength=sim.spectrum_solver.spectrum_real_packets.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -260,7 +269,10 @@ class SDECData:
                 hdf["/simulation/simulation_state/scalars"].t_inner, "K"
             )
             time_of_simulation = u.Quantity(
-                hdf["/simulation/transport/scalars"].time_of_simulation, "s"
+                hdf[
+                    "/simulation/transport/transport_state/scalars"
+                ].time_of_simulation,
+                "s",
             )
 
             if packets_mode == "virtual":
@@ -280,6 +292,12 @@ class SDECData:
                         ].to_numpy(),
                         "Hz",
                     ),
+                    last_interaction_in_r=u.Quantity(
+                        hdf[
+                            "/simulation/transport/transport_state/virt_packet_last_interaction_in_r"
+                        ].to_numpy(),
+                        "cm",
+                    ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(
                         hdf[
@@ -296,25 +314,25 @@ class SDECData:
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/scalars"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/_frequency"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/luminosity_density_lambda"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",  # luminosity_density_lambda is saved in hdf in CGS
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/wavelength"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/wavelength"
                         ].to_numpy(),
                         "cm",  # wavelength is saved in hdf in CGS
                     ).to("AA"),
@@ -344,6 +362,12 @@ class SDECData:
                         ].to_numpy()[emitted_packet_mask],
                         "Hz",
                     ),
+                    last_interaction_in_r=u.Quantity(
+                        hdf[
+                            "/simulation/transport/transport_state/last_interaction_in_r"
+                        ].to_numpy()[emitted_packet_mask],
+                        "cm",
+                    ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(
                         hdf[
@@ -360,25 +384,25 @@ class SDECData:
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/scalars"
+                            "/simulation/spectrum_solver/spectrum_real_packets/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/_frequency"
+                            "/simulation/spectrum_solver/spectrum_real_packets/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/luminosity_density_lambda"
+                            "/simulation/spectrum_solver/spectrum_real_packets/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/wavelength"
+                            "/simulation/spectrum_solver/spectrum_real_packets/wavelength"
                         ].to_numpy(),
                         "cm",
                     ).to("AA"),
@@ -506,6 +530,7 @@ class SDECPlotter:
                 )
             else:
                 full_species_list = []
+                species_mapped = {}
                 for species in species_list:
                     # check if a hyphen is present. If it is, then it indicates a
                     # range of ions. Add each ion in that range to the list as a new entry
@@ -543,20 +568,20 @@ class SDECPlotter:
                 # the requested ion
                 for species in full_species_list:
                     if " " in species:
-                        requested_species_ids.append(
-                            [
-                                species_string_to_tuple(species)[0] * 100
-                                + species_string_to_tuple(species)[1]
-                            ]
+                        species_id = (
+                            species_string_to_tuple(species)[0] * 100
+                            + species_string_to_tuple(species)[1]
                         )
+                        requested_species_ids.append([species_id])
+                        species_mapped[species_id] = [species_id]
                     else:
                         atomic_number = element_symbol2atomic_number(species)
-                        requested_species_ids.append(
-                            [
-                                atomic_number * 100 + ion_number
-                                for ion_number in np.arange(atomic_number)
-                            ]
-                        )
+                        species_ids = [
+                            atomic_number * 100 + ion_number
+                            for ion_number in np.arange(atomic_number)
+                        ]
+                        requested_species_ids.append(species_ids)
+                        species_mapped[atomic_number * 100] = species_ids
                         # add the atomic number to a list so you know that this element should
                         # have all species in the same colour, i.e. it was requested like
                         # species_list = [Si]
@@ -567,6 +592,7 @@ class SDECPlotter:
                     for species_id in temp_list
                 ]
 
+                self._species_mapped = species_mapped
                 self._species_list = requested_species_ids
                 self._keep_colour = keep_colour
         else:
@@ -1689,25 +1715,6 @@ class SDECPlotter:
 
         return self.fig
 
-    @staticmethod
-    def to_rgb255_string(color_tuple):
-        """
-        Convert a matplotlib RGBA tuple to a generic RGB 255 string.
-
-        Parameters
-        ----------
-        color_tuple : tuple
-            Matplotlib RGBA tuple of float values in closed interval [0, 1]
-
-        Returns
-        -------
-        str
-            RGB string of format rgb(r,g,b) where r,g,b are integers between
-            0 and 255 (both inclusive)
-        """
-        color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
-        return f"rgb{color_tuple_255}"
-
     def _plot_emission_ply(self):
         """Plot emission part of the SDEC Plot using plotly."""
         # By specifying a common stackgroup, plotly will itself add up
@@ -1764,7 +1771,7 @@ class SDECPlotter:
                         name=species_name + " Emission",
                         hovertemplate=f"<b>{species_name:s} Emission<br>"  # noqa: ISC003
                         + "(%{x:.2f}, %{y:.3g})<extra></extra>",
-                        fillcolor=self.to_rgb255_string(
+                        fillcolor=pu.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="emission",
@@ -1823,7 +1830,7 @@ class SDECPlotter:
                         name=species_name + " Absorption",
                         hovertemplate=f"<b>{species_name:s} Absorption<br>"  # noqa: ISC003
                         + "(%{x:.2f}, %{y:.3g})<extra></extra>",
-                        fillcolor=self.to_rgb255_string(
+                        fillcolor=pu.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="absorption",
@@ -1862,7 +1869,7 @@ class SDECPlotter:
         # twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)
         categorical_colorscale = []
         for species_counter in range(len(self._species_name)):
-            color = self.to_rgb255_string(
+            color = pu.to_rgb255_string(
                 self.cmap(colorscale_bins[species_counter])
             )
             categorical_colorscale.append(

@@ -206,6 +206,7 @@ class ArrayInput(Input):
 class ObjectInput(Input):
 
     input_object_map = {}  # mapping output names from input object attributes
+
     def set_value(self, value):
         for output in self.outputs:
             if output in self.input_object_map:

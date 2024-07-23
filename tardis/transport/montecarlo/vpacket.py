@@ -4,6 +4,7 @@ import numpy as np
 from numba import float64, int64, njit
 from numba.experimental import jitclass
 
+import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.opacities.opacities import (
     chi_continuum_calculator,
 )
@@ -17,7 +18,7 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_distance_line,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.numba_config import (
+from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
     SIGMA_THOMSON,
 )
@@ -69,7 +70,6 @@ def trace_vpacket_within_shell(
     time_explosion,
     opacity_state,
     enable_full_relativity,
-    continuum_processes_enabled,
 ):
     """
     Trace VPacket within one shell (relatively simple operation)
@@ -100,7 +100,7 @@ def trace_vpacket_within_shell(
 
     comov_nu = v_packet.nu * doppler_factor
 
-    if continuum_processes_enabled:
+    if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         (
             chi_bf_tot,
             chi_bf_contributions,
@@ -167,7 +167,6 @@ def trace_vpacket(
     tau_russian,
     survival_probability,
     enable_full_relativity,
-    continuum_processes_enabled,
 ):
     """
     Trace single vpacket.
@@ -194,7 +193,6 @@ def trace_vpacket(
             time_explosion,
             opacity_state,
             enable_full_relativity,
-            continuum_processes_enabled,
         )
         tau_trace_combined += tau_trace_combined_shell
 
@@ -239,7 +237,6 @@ def trace_vpacket_volley(
     enable_full_relativity,
     tau_russian,
     survival_probability,
-    continuum_processes_enabled,
 ):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many)
@@ -352,7 +349,6 @@ def trace_vpacket_volley(
             tau_russian,
             survival_probability,
             enable_full_relativity,
-            continuum_processes_enabled,
         )
 
         v_packet.energy *= math.exp(-tau_vpacket)
@@ -363,6 +359,7 @@ def trace_vpacket_volley(
             v_packet_mu,
             r_packet.r,
             r_packet.last_interaction_in_nu,
+            r_packet.last_interaction_in_r,
             r_packet.last_interaction_type,
             r_packet.last_line_interaction_in_id,
             r_packet.last_line_interaction_out_id,

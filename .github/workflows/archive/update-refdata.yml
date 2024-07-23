@@ -32,23 +32,10 @@ jobs:
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
 
-      - name: Download Lock File
-        run: wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
-
-      - name: Generate Cache Key
-        run: |
-          file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
-          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
-        id: cache-environment-key
-
-      - uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: conda-linux-64.lock
-          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          environment-name: tardis
-          cache-environment: true
-          cache-downloads: true
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with: 
+          os-label: linux-64
 
       - name: Install package
         run: pip install -e .

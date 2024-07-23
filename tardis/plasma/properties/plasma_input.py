@@ -50,6 +50,7 @@ class DilutionFactor(ProcessingPlasmaProperty):
 
     outputs = ("w",)
     latex_name = ("W",)
+
     def calculate(self, dilute_planckian_radiation_field):
         return dilute_planckian_radiation_field.dilution_factor
 

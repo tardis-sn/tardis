@@ -38,7 +38,7 @@ class TestTransportSimple:
     regression_data: RegressionData = None
 
     @pytest.fixture(scope="class")
-    def transport_state(
+    def simulation(
         self,
         request,
         atomic_data_fname,
@@ -54,40 +54,41 @@ class TestTransportSimple:
         simulation.run_convergence()
         simulation.run_final()
 
-        transport_state = simulation.transport.transport_state
         request.cls.regression_data = RegressionData(request)
-        request.cls.regression_data.sync_hdf_store(transport_state)
+        request.cls.regression_data.sync_hdf_store(simulation)
 
-        return transport_state
+        return simulation
 
     def get_expected_data(self, key: str):
         return pd.read_hdf(self.regression_data.fpath, key)
 
-    def test_j_blue_estimators(self, transport_state):
-        key = "transport_state/j_blue_estimator"
+    def test_j_blue_estimators(self, simulation):
+        key = "simulation/transport/transport_state/j_blue_estimator"
         expected = self.get_expected_data(key)
 
         npt.assert_allclose(
-            transport_state.radfield_mc_estimators.j_blue_estimator,
+            simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator,
             expected.values,
         )
 
-    def test_spectrum(self, transport_state):
-        key = "transport_state/spectrum/luminosity"
+    def test_spectrum(self, simulation):
+        key = "simulation/spectrum_solver/spectrum_real_packets/luminosity"
         expected = self.get_expected_data(key)
 
         luminosity = u.Quantity(expected, "erg /s")
 
         assert_quantity_allclose(
-            transport_state.spectrum.luminosity, luminosity
+            simulation.spectrum_solver.spectrum_real_packets.luminosity,
+            luminosity,
         )
 
-    def test_virtual_spectrum(self, transport_state):
-        key = "transport_state/spectrum_virtual/luminosity"
+    def test_virtual_spectrum(self, simulation):
+        key = "simulation/spectrum_solver/spectrum_virtual_packets/luminosity"
         expected = self.get_expected_data(key)
 
         luminosity = u.Quantity(expected, "erg /s")
 
         assert_quantity_allclose(
-            transport_state.spectrum_virtual.luminosity, luminosity
+            simulation.spectrum_solver.spectrum_virtual_packets.luminosity,
+            luminosity,
         )
