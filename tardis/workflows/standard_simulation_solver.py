@@ -212,9 +212,8 @@ class StandardSimulationSolver:
         self.consecutive_converges_count = 0
         return False
 
-    def solve_plasma(
+    def solve_simulation_state(
         self,
-        transport_state,
         estimated_t_radiative,
         estimated_dilution_factor,
         estimated_t_inner,
@@ -241,17 +240,20 @@ class StandardSimulationSolver:
         self.simulation_state.dilution_factor = next_dilution_factor
         self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
+    def solve_plasma(
+        self,
+        transport_state,
+    ):
         update_properties = dict(
             t_rad=self.simulation_state.t_radiative,
             w=self.simulation_state.dilution_factor,
         )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
-        estimators = transport_state.radfield_mc_estimators
         if "j_blue_estimator" in self.plasma_solver.outputs_dict:
             update_properties.update(
-                t_inner=next_t_inner,
-                j_blue_estimator=estimators.j_blue_estimator,
+                t_inner=self.simulation_state.blackbody_packet_source.temperature,
+                j_blue_estimator=transport_state.radfield_mc_estimators.j_blue_estimator,
             )
 
         self.plasma_solver.update(**update_properties)
@@ -272,6 +274,10 @@ class StandardSimulationSolver:
             total_iterations=self.total_iterations,
             show_progress_bars=False,
         )
+
+        output_energy = transport_state.packet_collection.output_energies
+        if np.sum(output_energy < 0) == len(output_energy):
+            logger.critical("No r-packet escaped through the outer boundary.")
 
         return transport_state, virtual_packet_energies
 
@@ -304,12 +310,6 @@ class StandardSimulationSolver:
                 self.real_packet_count
             )
 
-            output_energy = transport_state.packet_collection.output_energies
-            if np.sum(output_energy < 0) == len(output_energy):
-                logger.critical(
-                    "No r-packet escaped through the outer boundary."
-                )
-
             self.spectrum_solver.transport_state = transport_state
 
             emitted_luminosity = (
@@ -324,11 +324,14 @@ class StandardSimulationSolver:
                 estimated_t_inner,
             ) = self.get_convergence_estimates(emitted_luminosity)
 
-            self.solve_plasma(
-                transport_state,
+            self.solve_simulation_state(
                 estimated_t_radiative,
                 estimated_dilution_factor,
                 estimated_t_inner,
+            )
+
+            self.solve_plasma(
+                transport_state,
             )
 
             converged = self.check_convergence(
