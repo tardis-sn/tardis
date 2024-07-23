@@ -199,14 +199,6 @@ class LIVPlotter:
         ----------
         packets_mode : str
             Packet mode, either 'virtual' or 'real'.
-
-        Returns
-        -------
-        plot_data : list
-            List of velocity data for each species.
-
-        plot_colors : list
-            List of colors corresponding to each species.
         """
         groups = self.data[packets_mode].packets_df_line_interaction.groupby(
             by="last_line_interaction_species"
@@ -257,21 +249,14 @@ class LIVPlotter:
         num_bins : int, optional
             Number of bins for regrouping within the same range. If None,
             no regrouping is done.
+        nelements : int, optional
+            Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
 
         Raises
         ------
         ValueError
             If no species are provided for plotting, or if no valid species are
             found in the model.
-
-        Returns
-        -------
-        plot_data : list
-            List of velocity data for each species.
-        plot_colors : list
-            List of colors corresponding to each species.
-        new_bin_edges : np.ndarray
-            Array of bin edges for the velocity data.
         """
         if species_list is None:
             # Extract all unique elements from the packets data
@@ -308,7 +293,7 @@ class LIVPlotter:
             if num_bins < 1:
                 raise ValueError("Number of bins must be positive")
             elif num_bins > len(bin_edges) - 1:
-                logger.warn(
+                logger.warning(
                     "Number of bins must be less than or equal to number of shells. Plotting with number of bins equals to number of shells."
                 )
                 self.new_bin_edges = bin_edges
@@ -329,13 +314,6 @@ class LIVPlotter:
             Data to be binned into a histogram.
         bin_edges : array-like
             Edges of the bins for the histogram.
-
-        Returns
-        -------
-        step_x : np.ndarray
-            x-coordinates for the step plot.
-        step_y : np.ndarray
-            y-coordinates for the step plot.
         """
         hist, _ = np.histogram(data, bins=bin_edges)
         self.step_x = np.repeat(bin_edges, 2)[1:-1]
