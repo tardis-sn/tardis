@@ -21,11 +21,11 @@ from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
     OpacityState,
 )
-from tardis.transport.montecarlo.formal_integral_cuda import (
+from tardis.spectrum.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
 
-from tardis.spectrum import TARDISSpectrum
+from tardis.spectrum.spectrum import TARDISSpectrum
 
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
