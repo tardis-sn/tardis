@@ -17,14 +17,15 @@ from tardis.io.model.parse_packet_source_configuration import (
 )
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.simulation.convergence import ConvergenceSolver
+from tardis.spectrum.base import SpectrumSolver
+from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
-from tardis.spectrum.base import SpectrumSolver
 
 # Adding logging support
 logger = logging.getLogger(__name__)
