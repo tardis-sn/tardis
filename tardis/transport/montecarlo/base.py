@@ -256,7 +256,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             logger.debug("Electron scattering switched on")
             constants.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
-        spectrum_frequency = quantity_linspace(
+        spectrum_frequency_grid = quantity_linspace(
             config.spectrum.stop.to("Hz", u.spectral()),
             config.spectrum.start.to("Hz", u.spectral()),
             num=config.spectrum.num + 1,
