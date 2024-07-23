@@ -35,10 +35,10 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
         FormalIntegrator = formal_integral.FormalIntegrator(
             self.simulation_verysimple.simulation_state, self.simulation_verysimple.plasma, self.simulation_verysimple.transport
         )
-        FormalIntegrator.calculate_spectrum(self.simulation_verysimple.transport.transport_state.spectrum.frequency)
+        FormalIntegrator.calculate_spectrum(self.simulation_verysimple.spectrum_solver.spectrum_real_packets.frequency)
         FormalIntegrator.make_source_function()
         FormalIntegrator.generate_numba_objects()
         FormalIntegrator.formal_integral(
-            self.simulation_verysimple.transport.transport_state.spectrum.frequency,
+            self.simulation_verysimple.spectrum_solver.spectrum_real_packets.frequency,
             1000
         )
