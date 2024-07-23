@@ -167,6 +167,8 @@ def cuda_formal_integral(
     pJred_lu = int(offset + idx_nu_start)
     pJblue_lu = int(offset + idx_nu_start)
 
+    first = 1
+
     # loop over all interactions
     for i in range(size_z - 1):
         escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON
@@ -184,29 +186,25 @@ def cuda_formal_integral(
             )  # check
 
             if first == 1:
-                # first contribution to integration
-                # NOTE: this treatment of I_nu_b (given
-                #   by boundary conditions) is not in Lucy 1999;
-                #   should be re-examined carefully
                 escat_contrib += (
                     (zend - zstart)
                     * escat_op
-                    * (Jblue_lu[pJblue_lu] - I_nu[p_idx])
+                    * (Jblue_lu[pJblue_lu] - I_nu_thread[p_idx])
                 )
                 first = 0
             else:
                 # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
                 Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
                 escat_contrib += (
-                    (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
+                    (zend - zstart) * escat_op * (Jkkp - I_nu_thread[p_idx])
                 )
                 # this introduces the necessary ffset of one element between
                 # pJblue_lu and pJred_lu
                 pJred_lu += 1
-            I_nu[p_idx] += escat_contrib
+            I_nu_thread[p_idx] += escat_contrib
             # // Lucy 1999, Eq 26
-            I_nu[p_idx] *= exp_tau[pexp_tau]
-            I_nu[p_idx] += att_S_ul[patt_S_ul]
+            I_nu_thread[p_idx] *= exp_tau[pexp_tau]
+            I_nu_thread[p_idx] += att_S_ul[patt_S_ul]
 
             # // reset e-scattering opacity
             escat_contrib = 0
