@@ -293,10 +293,10 @@ class StandardSimulationSolver:
 
         # Convergence solvers
         self.t_radiative_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.t_radiative
+            self.convergence_strategy.t_rad
         )
         self.dilution_factor_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.dilution_factor
+            self.convergence_strategy.w
         )
         self.t_inner_convergence_solver = ConvergenceSolver(
             self.convergence_strategy.t_inner
