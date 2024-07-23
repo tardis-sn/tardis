@@ -204,7 +204,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
             self.spectrum_frequency_grid.value,
-            transport_state.rpacket_tracker,
             number_of_vpackets,
             iteration=iteration,
             show_progress_bars=show_progress_bars,
