@@ -30,6 +30,7 @@ from tardis.transport.montecarlo.r_packet_transport import (
 )
 from tardis.transport.montecarlo.vpacket import trace_vpacket_volley
 
+import time
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
@@ -61,6 +62,8 @@ def single_packet_loop(
         This function does not return anything but changes the r_packet object
         and if virtual packets are requested - also updates the vpacket_collection
     """
+
+    time.sleep(2)
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
     if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
