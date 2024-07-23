@@ -1,6 +1,7 @@
 name: "Setup LFS"
 description: "Pull LFS repositories and caches them"
 
+
 inputs:
   refdata-repo:
     description: "tardis refdata repository"
@@ -48,7 +49,7 @@ runs:
     - name: Save LFS cache if not found
       # uses fake ternary
       # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
-      if: ${{ steps.lfs-cache-refdata.outputs.cache-hit != 'true'  && always() || false }}
+      if: ${{ steps.lfs-cache-refdata.outputs.cache-hit != 'true' && !contains(github.ref, 'merge') && always() || false }}
       uses: actions/cache/save@v4
       id: lfs-cache-refdata-save
       with:
@@ -88,7 +89,7 @@ runs:
     - name: Save LFS cache if not found
       # uses fake ternary
       # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
-      if: ${{ steps.lfs-cache-regression-data.outputs.cache-hit != 'true'  && always() || false }}
+      if: ${{ steps.lfs-cache-regression-data.outputs.cache-hit != 'true' && !contains(github.ref, 'merge') && always() || false }}
       uses: actions/cache/save@v4
       id: lfs-cache-regression-data-save
       with:

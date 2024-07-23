@@ -6,7 +6,7 @@ from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
 )
 
-from tardis.transport.montecarlo.numba_config import C_SPEED_OF_LIGHT
+from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
 
 
 @njit(**njit_dict_no_parallel)

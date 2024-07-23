@@ -55,6 +55,10 @@ definitions:
               description: specifies the threshold that is taken as convergence  (i.e.
                 0.05 means that the value does not change more than 5%)
               minimum: 0
+            type:
+              type: string
+              default: 'damped'
+              description: THIS IS A DUMMY VARIABLE DO NOT USE
         t_rad:
           type: object
           additionalProperties: false
@@ -69,6 +73,10 @@ definitions:
               description: specifies the threshold that is taken as convergence  (i.e.
                 0.05 means that the value does not change more than 5%)
               minimum: 0
+            type:
+              type: string
+              default: 'damped'
+              description: THIS IS A DUMMY VARIABLE DO NOT USE
           required:
           - threshold
         w:
@@ -85,6 +93,10 @@ definitions:
               description: specifies the threshold that is taken as convergence  (i.e.
                 0.05 means that the value does not change more than 5%)
               minimum: 0
+            type:
+              type: string
+              default: 'damped'
+              description: THIS IS A DUMMY VARIABLE DO NOT USE
           required:
           - threshold
         lock_t_inner_cycles:

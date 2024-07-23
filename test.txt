@@ -1,2 +1,0 @@
-conda-linux-64.lock:https://conda.anaconda.org/conda-forge/linux-64/pandas-2.2.2-py312h1d6d2e6_1.conda#ae00b61f3000d2284d1f2584d4dfafa8
-conda-osx-64.lock:https://conda.anaconda.org/conda-forge/osx-64/pandas-2.2.2-py312h1171441_1.conda#240737937f1f046b0e03ecc11ac4ec98

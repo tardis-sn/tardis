@@ -4,13 +4,13 @@ from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 
-def read_csv_isotope_abundances(
+def read_csv_isotope_mass_fractions(
     fname, delimiter=r"\s+", skip_columns=0, skip_rows=[1]
 ):
     """
     A generic parser for a TARDIS composition stored as a CSV file
 
-    The parser can read in both elemental and isotopic abundances. The first
+    The parser can read in both elemental and isotopic mass fractions. The first
     column is always expected to contain a running index, labelling the grid
     cells. The parser also allows for additional information to be stored in
     the first skip_columns columns. These will be ignored if skip_columns > 0.
@@ -39,16 +39,15 @@ def read_csv_isotope_abundances(
     Returns
     -------
     index : np.ndarray
-    abundances : pandas.DataFrame
-    isotope_abundance : pandas.MultiIndex
+    mass_fractions : pandas.DataFrame
+    isotope_mass_fraction : pandas.MultiIndex
     """
-
     df = pd.read_csv(
         fname, comment="#", sep=delimiter, skiprows=skip_rows, index_col=0
     )
     df = df.transpose()
 
-    abundance = pd.DataFrame(
+    mass_fractions = pd.DataFrame(
         columns=np.arange(df.shape[1]),
         index=pd.Index([], name="atomic_number"),
         dtype=np.float64,
@@ -57,20 +56,20 @@ def read_csv_isotope_abundances(
     isotope_index = pd.MultiIndex(
         [[]] * 2, [[]] * 2, names=["atomic_number", "mass_number"]
     )
-    isotope_abundance = pd.DataFrame(
+    isotope_mass_fractions = pd.DataFrame(
         columns=np.arange(df.shape[1]), index=isotope_index, dtype=np.float64
     )
 
     for element_symbol_string in df.index[skip_columns:]:
         if element_symbol_string in Z_DICT.values():
             z = elem_to_Z(element_symbol_string)
-            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
+            mass_fractions.loc[z, :] = df.loc[element_symbol_string].tolist()
         else:
             nuc = Nuclide(element_symbol_string)
             z = nuc.Z
             mass_no = nuc.A
-            isotope_abundance.loc[(z, mass_no), :] = df.loc[
+            isotope_mass_fractions.loc[(z, mass_no), :] = df.loc[
                 element_symbol_string
             ].tolist()
 
-    return abundance.index, abundance, isotope_abundance
+    return mass_fractions.index, mass_fractions, isotope_mass_fractions

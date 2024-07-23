@@ -11,7 +11,7 @@ from radioactivedecay.utils import Z_DICT, elem_to_Z
 from pathlib import Path
 
 import tardis
-from tardis.io.model.readers.generic_readers import read_uniform_abundances
+from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
 from tardis.util.base import (
     quantity_linspace,
     is_valid_nuclide_or_elem,
@@ -27,7 +27,7 @@ from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.model.readers.csvy import load_csvy
 from tardis.io.model.readers.csvy import (
-    parse_csv_abundances,
+    parse_csv_mass_fractions,
 )
 from tardis.util.base import atomic_number2element_symbol, quantity_linspace
 from tardis.visualization.tools.convergence_plot import transition_colors
@@ -156,11 +156,11 @@ class CustomAbundanceWidgetData:
 
         if hasattr(csvy_model_config, "abundance"):
             abundances_section = csvy_model_config.abundance
-            abundance, isotope_abundance = read_uniform_abundances(
+            abundance, isotope_abundance = read_uniform_mass_fractions(
                 abundances_section, no_of_shells
             )
         else:
-            _, abundance, isotope_abundance = parse_csv_abundances(
+            _, abundance, isotope_abundance = parse_csv_mass_fractions(
                 csvy_model_data
             )
             abundance = abundance.loc[:, 1:]
