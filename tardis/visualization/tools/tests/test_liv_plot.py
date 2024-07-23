@@ -2,12 +2,11 @@
 
 import os
 from copy import deepcopy
+import json
 
-import astropy.units as u
 import numpy as np
 import pytest
 import tables
-import json
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 
@@ -151,7 +150,9 @@ class TestLIVPlotter:
         ----------
         request : _pytest.fixtures.SubRequest
         plotter : tardis.visualization.tools.liv_plot.LIVPlotter
-        species : list
+        species_list : list of species to plot
+        packets_mode : str, optional
+        nelements : int, optional
         """
         subgroup_name = make_valid_name(request.node.callspec.id)
         plotter._parse_species_list(
@@ -222,6 +223,19 @@ class TestLIVPlotter:
         num_bins,
         nelements,
     ):
+        """
+        Test _parse_species_list method.
+
+        Parameters
+        ----------
+        request : _pytest.fixtures.SubRequest
+        plotter : tardis.visualization.tools.liv_plot.LIVPlotter
+        species_list : list of species to plot
+        packets_mode : str, optional
+        cmapname : str
+        num_bins : int, optional
+        nelements : int, optional
+        """
         subgroup_name = make_valid_name(request.node.callspec.id)
         plotter._prepare_plot_data(
             packets_mode=packets_mode,
@@ -270,7 +284,7 @@ class TestLIVPlotter:
             )
 
     @pytest.mark.parametrize(
-        "species_list", [["Si II", "Ca II", "C", "Fe I-V"]]
+        "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
     )
     @pytest.mark.parametrize("nelements", [1, 2, 3, 4])
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
@@ -297,6 +311,13 @@ class TestLIVPlotter:
         ----------
         request : _pytest.fixtures.SubRequest
         plotter : tardis.visualization.tools.liv_plot.LIVPlotter
+        species_list : List of species to plot.
+        nelements : int, Number of elements to include in plot.
+        packets_mode : str, Packet mode, either 'virtual' or 'real'.
+        xlog_scale : bool, If True, x-axis is scaled logarithmically.
+        ylog_scale : bool, If True, y-axis is scaled logarithmically.
+        num_bins : int, Number of bins for regrouping within the same range.
+        velocity_range : tuple, Limits for the x-axis.
         """
         subgroup_name = make_valid_name("mpl" + request.node.callspec.id)
         fig = plotter.generate_plot_mpl(
@@ -416,7 +437,7 @@ class TestLIVPlotter:
                     )
 
     @pytest.mark.parametrize(
-        "species_list", [["Si II", "Ca II", "C", "Fe I-V"]]
+        "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
     )
     @pytest.mark.parametrize("nelements", [1, 2, 3, 4])
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
@@ -443,6 +464,13 @@ class TestLIVPlotter:
         ----------
         request : _pytest.fixtures.SubRequest
         plotter : tardis.visualization.tools.liv_plot.LIVPlotter
+        species_list : List of species to plot.
+        nelements : int, Number of elements to include in plot.
+        packets_mode : str, Packet mode, either 'virtual' or 'real'.
+        xlog_scale : bool, If True, x-axis is scaled logarithmically.
+        ylog_scale : bool, If True, y-axis is scaled logarithmically.
+        num_bins : int, Number of bins for regrouping within the same range.
+        velocity_range : tuple, Limits for the x-axis.
         """
         subgroup_name = make_valid_name("ply" + request.node.callspec.id)
         fig = plotter.generate_plot_ply(
