@@ -92,13 +92,14 @@ class StandardSimulationSolver:
             configuration.montecarlo.convergence_strategy
         )
 
-        self.t_radiative_convergence_solver = ConvergenceSolver(
+        self.convergence_solvers = {}
+        self.convergence_solvers["t_radiative"] = ConvergenceSolver(
             self.convergence_strategy.t_rad
         )
-        self.dilution_factor_convergence_solver = ConvergenceSolver(
+        self.convergence_solvers["dilution_factor"] = ConvergenceSolver(
             self.convergence_strategy.w
         )
-        self.t_inner_convergence_solver = ConvergenceSolver(
+        self.convergence_solvers["t_inner"] = ConvergenceSolver(
             self.convergence_strategy.t_inner
         )
 
@@ -155,58 +156,37 @@ class StandardSimulationSolver:
             emitted_luminosity,
             t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
-        return (
-            estimated_t_radiative,
-            estimated_dilution_factor,
-            estimated_t_inner,
-        )
+        return {
+            "t_radiative": estimated_t_radiative,
+            "dilution_factor": estimated_dilution_factor,
+            "t_inner": estimated_t_inner,
+        }
 
     def check_convergence(
         self,
-        estimated_t_radiative,
-        estimated_dilution_factor,
-        estimated_t_inner,
+        estimated_values,
     ):
-        t_radiative_converged = (
-            self.t_radiative_convergence_solver.get_convergence_status(
-                self.simulation_state.t_radiative.value,
-                estimated_t_radiative.value,
-                self.simulation_state.no_of_shells,
-            )
-        )
+        convergence_statuses = []
 
-        dilution_factor_converged = (
-            self.dilution_factor_convergence_solver.get_convergence_status(
-                self.simulation_state.dilution_factor,
-                estimated_dilution_factor,
-                self.simulation_state.no_of_shells,
+        for key, solver in self.convergence_solvers.items():
+            current_value = getattr(self.simulation_state, key)
+            estimated_value = estimated_values[key]
+            no_of_shells = (
+                self.simulation_state.no_of_shells if key != "t_inner" else 1
             )
-        )
-
-        t_inner_converged = (
-            self.t_inner_convergence_solver.get_convergence_status(
-                self.simulation_state.t_inner.value,
-                estimated_t_inner.value,
-                1,
+            convergence_statuses.append(
+                solver.get_convergence_status(
+                    current_value, estimated_value, no_of_shells
+                )
             )
-        )
 
-        if np.all(
-            [
-                t_radiative_converged,
-                dilution_factor_converged,
-                t_inner_converged,
-            ]
-        ):
+        if np.all(convergence_statuses):
             hold_iterations = self.convergence_strategy.hold_iterations
             self.consecutive_converges_count += 1
             logger.info(
                 f"Iteration converged {self.consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
                 f"times."
             )
-            # If an iteration has converged, require hold_iterations more
-            # iterations to converge before we conclude that the Simulation
-            # is converged.
             return self.consecutive_converges_count == hold_iterations + 1
 
         self.consecutive_converges_count = 0
@@ -214,31 +194,28 @@ class StandardSimulationSolver:
 
     def solve_simulation_state(
         self,
-        estimated_t_radiative,
-        estimated_dilution_factor,
-        estimated_t_inner,
+        estimated_values,
     ):
-        next_t_radiative = self.t_radiative_convergence_solver.converge(
-            self.simulation_state.t_radiative,
-            estimated_t_radiative,
-        )
-        next_dilution_factor = self.dilution_factor_convergence_solver.converge(
-            self.simulation_state.dilution_factor,
-            estimated_dilution_factor,
-        )
-        if (
-            self.completed_iterations + 1
-        ) % self.convergence_strategy.lock_t_inner_cycles == 0:
-            next_t_inner = self.t_inner_convergence_solver.converge(
-                self.simulation_state.t_inner,
-                estimated_t_inner,
-            )
-        else:
-            next_t_inner = self.simulation_state.t_inner
+        next_values = {}
 
-        self.simulation_state.t_radiative = next_t_radiative
-        self.simulation_state.dilution_factor = next_dilution_factor
-        self.simulation_state.blackbody_packet_source.temperature = next_t_inner
+        for key, solver in self.convergence_solvers.items():
+            if (
+                key == "t_inner"
+                and (self.completed_iterations + 1)
+                % self.convergence_strategy.lock_t_inner_cycles
+                != 0
+            ):
+                next_values[key] = getattr(self.simulation_state, key)
+            else:
+                next_values[key] = solver.converge(
+                    getattr(self.simulation_state, key), estimated_values[key]
+                )
+
+        self.simulation_state.t_radiative = next_values["t_radiative"]
+        self.simulation_state.dilution_factor = next_values["dilution_factor"]
+        self.simulation_state.blackbody_packet_source.temperature = next_values[
+            "t_inner"
+        ]
 
     def solve_plasma(
         self,
@@ -318,27 +295,19 @@ class StandardSimulationSolver:
                 )
             )
 
-            (
-                estimated_t_radiative,
-                estimated_dilution_factor,
-                estimated_t_inner,
-            ) = self.get_convergence_estimates(emitted_luminosity)
+            estimated_values = self.get_convergence_estimates(
+                emitted_luminosity
+            )
 
             self.solve_simulation_state(
-                estimated_t_radiative,
-                estimated_dilution_factor,
-                estimated_t_inner,
+                estimated_values,
             )
 
             self.solve_plasma(
                 transport_state,
             )
 
-            converged = self.check_convergence(
-                estimated_t_radiative,
-                estimated_dilution_factor,
-                estimated_t_inner,
-            )
+            converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
 
             if converged and self.convergence_strategy.stop_if_converged:
