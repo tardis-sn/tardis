@@ -400,9 +400,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         # Set up spectrum solver
         self.spectrum_solver.transport_state = transport_state
-        self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
-            v_packets_energy_hist
-        )
+        self.spectrum_solver._montecarlo_virtual_luminosity.value[
+            :
+        ] = v_packets_energy_hist
 
         output_energy = (
             self.transport.transport_state.packet_collection.output_energies
