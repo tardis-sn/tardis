@@ -17,7 +17,6 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
 )
-from tardis.transport.montecarlo.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
@@ -49,11 +48,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
     def __init__(
         self,
-        spectrum_frequency,
+        spectrum_frequency_grid,
         virtual_spectrum_spawn_range,
         enable_full_relativity,
         line_interaction_type,
-        integrator_settings,
         spectrum_method,
         packet_source,
         enable_virtual_packet_logging=False,
@@ -65,13 +63,11 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         montecarlo_configuration=None,
     ):
         # inject different packets
-        self.spectrum_frequency = spectrum_frequency
+        self.spectrum_frequency_grid = spectrum_frequency_grid
         self.virtual_spectrum_spawn_range = virtual_spectrum_spawn_range
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
-        self.integrator_settings = integrator_settings
         self.spectrum_method = spectrum_method
-        self._integrator = None
 
         self.use_gpu = use_gpu
 
@@ -120,7 +116,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         transport_state = MonteCarloTransportState(
             packet_collection,
             estimators,
-            spectrum_frequency=self.spectrum_frequency,
             geometry_state=geometry_state,
             opacity_state=opacity_state,
         )
@@ -128,10 +123,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         transport_state.enable_full_relativity = (
             self.montecarlo_configuration.ENABLE_FULL_RELATIVITY
         )
-        transport_state.integrator_settings = self.integrator_settings
-        transport_state._integrator = FormalIntegrator(
-            simulation_state, plasma, self
-        )
+
         configuration_initialize(
             self.montecarlo_configuration, self, no_of_virtual_packets
         )
@@ -179,16 +171,13 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             transport_state.opacity_state,
             self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
-            transport_state.spectrum_frequency.value,
+            self.spectrum_frequency_grid.value,
             number_of_vpackets,
             iteration=iteration,
             show_progress_bars=show_progress_bars,
             total_iterations=total_iterations,
         )
 
-        transport_state._montecarlo_virtual_luminosity.value[
-            :
-        ] = v_packets_energy_hist
         transport_state.last_interaction_type = last_interaction_tracker.types
         transport_state.last_interaction_in_nu = last_interaction_tracker.in_nus
         transport_state.last_interaction_in_r = last_interaction_tracker.in_rs
@@ -225,6 +214,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
         )
 
+        return v_packets_energy_hist
+
     @classmethod
     def from_config(
         cls, config, packet_source, enable_virtual_packet_logging=False
@@ -252,7 +243,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             logger.debug("Electron scattering switched on")
             constants.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
-        spectrum_frequency = quantity_linspace(
+        spectrum_frequency_grid = quantity_linspace(
             config.spectrum.stop.to("Hz", u.spectral()),
             config.spectrum.start.to("Hz", u.spectral()),
             num=config.spectrum.num + 1,
@@ -292,11 +283,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
 
         return cls(
-            spectrum_frequency=spectrum_frequency,
+            spectrum_frequency_grid=spectrum_frequency_grid,
             virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,
             line_interaction_type=config.plasma.line_interaction_type,
-            integrator_settings=config.spectrum.integrated,
             spectrum_method=config.spectrum.method,
             packet_source=packet_source,
             debug_packets=config.montecarlo.debug_packets,

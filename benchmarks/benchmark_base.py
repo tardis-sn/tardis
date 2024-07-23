@@ -303,12 +303,10 @@ class BenchmarkBase:
 
     @property
     def verysimple_3vpacket_collection(self):
-        spectrum_frequency = (
-            self.nb_simulation_verysimple.transport.spectrum_frequency.value
-        )
+        spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
         return VPacketCollection(
             source_rpacket_index=0,
-            spectrum_frequency=spectrum_frequency,
+            spectrum_frequency_grid=spectrum_frequency_grid,
             number_of_vpackets=3,
             v_packet_spawn_start_frequency=0,
             v_packet_spawn_end_frequency=np.inf,
