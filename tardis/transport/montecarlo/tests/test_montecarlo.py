@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import tardis.transport.montecarlo.formal_integral as formal_integral
+import tardis.spectrum.formal_integral as formal_integral
 import tardis.transport.montecarlo.r_packet as r_packet
 import tardis.transport.montecarlo.utils as utils
 import tardis.transport.montecarlo.r_packet_transport as r_packet_transport

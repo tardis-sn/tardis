@@ -142,6 +142,6 @@ jobs:
     uses: tardis-sn/tardis-refdata/.github/workflows/compare-refdata.yml@master
   
   pip_tests:
-    uses: ./.github/workflows/tests.yml@master
+    uses: ./.github/workflows/tests.yml
     with:
       pip_git: true

@@ -2,11 +2,10 @@
 Basic TARDIS Benchmark.
 """
 
-import numpy as np
 from asv_runner.benchmarks.mark import parameterize
 from numba import config
 
-import tardis.transport.montecarlo.formal_integral as formal_integral
+import tardis.spectrum.formal_integral as formal_integral
 from benchmarks.benchmark_base import BenchmarkBase
 
 config.THREADING_LAYER='workqueue'
