@@ -389,7 +389,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         v_packets_energy_hist = self.transport.run(
             transport_state,
-            time_explosion=self.simulation_state.time_explosion,
             iteration=self.iterations_executed,
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
