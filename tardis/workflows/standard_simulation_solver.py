@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class StandardSimulationSolver:
-    def __init__(self, convergence_strategy, atom_data_path):
-        self.atom_data_path = atom_data_path
+    def __init__(self):
         self.simulation_state = None
         self.atom_data = None
         self.spectrum_solver = None
@@ -29,7 +28,7 @@ class StandardSimulationSolver:
         self.integrated_spectrum_settings = None
 
         # Convergence
-        self.convergence_strategy = convergence_strategy
+        self.convergence_strategy = None
         self.consecutive_converges_count = 0
         self.converged = False
         self.total_iterations = 1
@@ -37,17 +36,6 @@ class StandardSimulationSolver:
         self.luminosity_nu_start = 0
         self.luminosity_nu_end = 0
         self.luminosity_requested = 0 * u.erg / u.s
-
-        # Convergence solvers
-        self.t_radiative_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.t_radiative
-        )
-        self.dilution_factor_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.dilution_factor
-        )
-        self.t_inner_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.t_inner
-        )
 
     def _get_atom_data(self, configuration):
         if "atom_data" in configuration:
@@ -240,7 +228,7 @@ class StandardSimulationSolver:
                 self.integrated_spectrum_settings
             )
             self.spectrum_solver._integrator = FormalIntegrator(
-                self.simulation_state, self.plasma, self.transport
+                self.simulation_state, self.plasma_solver, self.transport_solver
             )
 
     def setup_solver(self, configuration):
@@ -298,6 +286,21 @@ class StandardSimulationSolver:
 
         self.integrated_spectrum_settings = configuration.spectrum.integrated
         self.spectrum_solver = SpectrumSolver.from_config(configuration)
+
+        self.convergence_strategy = (
+            configuration.montecarlo.convergence_strategy
+        )
+
+        # Convergence solvers
+        self.t_radiative_convergence_solver = ConvergenceSolver(
+            self.convergence_strategy.t_radiative
+        )
+        self.dilution_factor_convergence_solver = ConvergenceSolver(
+            self.convergence_strategy.dilution_factor
+        )
+        self.t_inner_convergence_solver = ConvergenceSolver(
+            self.convergence_strategy.t_inner
+        )
 
     def solve(self):
         converged = False
