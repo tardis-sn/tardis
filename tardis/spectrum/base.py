@@ -22,14 +22,16 @@ class SpectrumSolver(HDFWriterMixin):
 
     hdf_name = "spectrum"
 
-    def __init__(self, transport_state, spectrum_frequency_grid):
+    def __init__(
+        self, transport_state, spectrum_frequency_grid, integrator_settings
+    ):
         self.transport_state = transport_state
         self.spectrum_frequency_grid = spectrum_frequency_grid
         self._montecarlo_virtual_luminosity = u.Quantity(
             np.zeros_like(self.spectrum_frequency_grid.value), "erg / s"
         )  # should be init with v_packets_energy_hist
         self._integrator = None
-        self.integrator_settings = None
+        self.integrator_settings = integrator_settings
         self._spectrum_integrated = None
 
     @property
@@ -189,4 +191,5 @@ class SpectrumSolver(HDFWriterMixin):
         return cls(
             transport_state=None,
             spectrum_frequency_grid=spectrum_frequency_grid,
+            integrator_settings=config.spectrum.integrated,
         )

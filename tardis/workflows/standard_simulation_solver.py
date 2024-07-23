@@ -2,20 +2,16 @@ import logging
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 from astropy import units as u
-from IPython.display import display
 
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
-from tardis.io.logger.logger import logging_state
 from tardis.model import SimulationState
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
-from tardis.util.base import is_notebook
 
 # logging support
 logger = logging.getLogger(__name__)
@@ -91,11 +87,11 @@ class StandardSimulationSolver:
         self.integrated_spectrum_settings = configuration.spectrum.integrated
         self.spectrum_solver = SpectrumSolver.from_config(configuration)
 
+        # Convergence solvers
         self.convergence_strategy = (
             configuration.montecarlo.convergence_strategy
         )
 
-        # Convergence solvers
         self.t_radiative_convergence_solver = ConvergenceSolver(
             self.convergence_strategy.t_rad
         )
@@ -122,10 +118,9 @@ class StandardSimulationSolver:
 
         try:
             atom_data = AtomData.from_hdf(atom_data_fname)
-        except TypeError as e:
-            print(
-                e,
-                "Error might be from the use of an old-format of the atomic database, \n"
+        except TypeError:
+            logger.exception(
+                "TypeError might be from the use of an old-format of the atomic database, \n"
                 "please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data"
                 " for the most recent version.",
             )
@@ -150,7 +145,9 @@ class StandardSimulationSolver:
         (
             estimated_t_radiative,
             estimated_dilution_factor,
-        ) = self.transport_solver.transport_state.calculate_radiationfield_properties()
+        ) = (
+            self.transport_solver.transport_state.calculate_radiationfield_properties()
+        )
 
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
@@ -287,9 +284,9 @@ class StandardSimulationSolver:
         self.spectrum_solver.transport_state = transport_state
 
         if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
-                virtual_packet_energies
-            )
+            self.spectrum_solver._montecarlo_virtual_luminosity.value[
+                :
+            ] = virtual_packet_energies
 
         if self.integrated_spectrum_settings is not None:
             # Set up spectrum solver integrator
