@@ -299,13 +299,9 @@ class StandardSimulationSolver:
                 emitted_luminosity
             )
 
-            self.solve_simulation_state(
-                estimated_values,
-            )
+            self.solve_simulation_state(estimated_values)
 
-            self.solve_plasma(
-                transport_state,
-            )
+            self.solve_plasma(transport_state)
 
             converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
