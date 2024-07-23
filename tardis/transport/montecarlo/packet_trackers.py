@@ -1,5 +1,6 @@
 from numba import float64, int64, njit
 from numba.experimental import jitclass
+from numba.typed import List
 import numpy as np
 import pandas as pd
 
