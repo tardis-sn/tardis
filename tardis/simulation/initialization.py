@@ -2,8 +2,10 @@ import logging
 from pathlib import Path
 
 from tardis.io.atom_data.base import AtomData
+from tardis.io.model.parse_packet_source_configuration import (
+    initialize_packet_source,
+)
 from tardis.model import SimulationState
-from tardis.model.parse_input import initialize_packet_source
 
 logger = logging.getLogger(__name__)
 
