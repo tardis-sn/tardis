@@ -5,25 +5,30 @@ from tempfile import mkstemp
 
 import astropy.units as u
 import numpy as np
-import pandas as pd
 from numba import njit
 
 from benchmarks.util.nlte import NLTE
+from tardis import run_tardis
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model import SimulationState
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 from tardis.tests.fixtures.regression_data import RegressionData
 from tardis.transport.montecarlo import RPacket
-from tardis.transport.montecarlo.numba_interface import (
-    opacity_state_initialize,
+from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
 )
+from tardis.transport.montecarlo.estimators import radfield_mc_estimators
+from tardis.transport.montecarlo.numba_interface import opacity_state_initialize
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
 )
+from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 
 
 class BenchmarkBase:
@@ -234,9 +239,7 @@ class BenchmarkBase:
 
     @property
     def verysimple_packet_collection(self):
-        return (
-            self.nb_simulation_verysimple.transport.transport_state.packet_collection
-        )
+        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
 
     @property
     def nb_simulation_verysimple(self):
@@ -258,7 +261,6 @@ class BenchmarkBase:
             self.nb_simulation_verysimple.plasma,
             line_interaction_type="macroatom",
             disable_line_scattering=self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            continuum_processes_enabled=self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
         )
 
     @property
@@ -267,27 +269,19 @@ class BenchmarkBase:
 
     @property
     def verysimple_disable_line_scattering(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
 
     @property
     def verysimple_continuum_processes_enabled(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
-        )
+        return montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
 
     @property
     def verysimple_tau_russian(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
 
     @property
     def verysimple_survival_probability(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
 
     @property
     def static_packet(self):
@@ -309,12 +303,10 @@ class BenchmarkBase:
 
     @property
     def verysimple_3vpacket_collection(self):
-        spectrum_frequency = (
-            self.nb_simulation_verysimple.transport.spectrum_frequency.value
-        )
+        spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
         return VPacketCollection(
             source_rpacket_index=0,
-            spectrum_frequency=spectrum_frequency,
+            spectrum_frequency_grid=spectrum_frequency_grid,
             number_of_vpackets=3,
             v_packet_spawn_start_frequency=0,
             v_packet_spawn_end_frequency=np.inf,
@@ -350,13 +342,65 @@ class BenchmarkBase:
             return option
 
     @property
-    def tardis_ref_data(self):
-        # TODO: This function is not working in the benchmarks.
-        if self.generate_reference:
-            mode = "w"
-        else:
-            mode = "r"
-        with pd.HDFStore(
-            f"{self.tardis_ref_path}/unit_test_data.h5", mode=mode
-        ) as store:
-            yield store
+    def verysimple_radfield_mc_estimators(self):
+        plasma = self.nb_simulation_verysimple.plasma
+        return radfield_mc_estimators.initialize_estimator_statistics(
+            plasma.tau_sobolevs.shape, plasma.gamma.shape
+        )
+
+    @property
+    def montecarlo_configuration(self):
+        return MonteCarloConfiguration()
+
+    @property
+    def rpacket_tracker(self):
+        return RPacketTracker(0)
+
+    @property
+    def transport_state(self):
+        return self.nb_simulation_verysimple.transport.transport_state
+
+    @property
+    def simulation_rpacket_tracking_enabled(self):
+        config_verysimple = self.config_verysimple
+        config_verysimple.montecarlo.iterations = 3
+        config_verysimple.montecarlo.no_of_packets = 4000
+        config_verysimple.montecarlo.last_no_of_packets = -1
+        config_verysimple.spectrum.virtual.virtual_packet_logging = True
+        config_verysimple.montecarlo.no_of_virtual_packets = 1
+        config_verysimple.montecarlo.tracking.track_rpacket = True
+        config_verysimple.spectrum.num = 2000
+        atomic_data = deepcopy(self.atomic_dataset)
+        sim = run_tardis(
+            config_verysimple,
+            atom_data=atomic_data,
+            show_convergence_plots=False,
+        )
+        return sim
+
+    @property
+    def geometry(self):
+        return NumbaRadial1DGeometry(
+            r_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
+            r_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
+            v_inner=np.array([-1, -1], dtype=np.float64),
+            v_outer=np.array([-1, -1], dtype=np.float64),
+        )
+
+    @property
+    def estimators(self):
+        return radfield_mc_estimators.RadiationFieldMCEstimators(
+            j_estimator=np.array([0.0, 0.0], dtype=np.float64),
+            nu_bar_estimator=np.array([0.0, 0.0], dtype=np.float64),
+            j_blue_estimator=np.array(
+                [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=np.float64
+            ),
+            Edotlu_estimator=np.array(
+                [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64
+            ),
+            photo_ion_estimator=np.empty((0, 0), dtype=np.float64),
+            stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
+            bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
+            stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
+            photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
+        )

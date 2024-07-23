@@ -3,6 +3,7 @@ from numba import float64, int64
 from numba.experimental import jitclass
 
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 opacity_state_spec = [
     ("electron_density", float64[:]),
@@ -110,7 +111,6 @@ def opacity_state_initialize(
     plasma,
     line_interaction_type,
     disable_line_scattering,
-    continuum_processes_enabled,
 ):
     """
     Initialize the OpacityState object and copy over the data over from TARDIS Plasma
@@ -156,7 +156,7 @@ def opacity_state_initialize(
         )
         # TODO: Fix setting of block references for non-continuum mode
 
-        if continuum_processes_enabled:
+        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
             macro_block_references = plasma.macro_block_references
         else:
             macro_block_references = plasma.atomic_data.macro_atom_references[
@@ -169,7 +169,7 @@ def opacity_state_initialize(
             "destination_level_idx"
         ].values
         transition_line_id = plasma.macro_atom_data["lines_idx"].values
-    if continuum_processes_enabled:
+    if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         bf_threshold_list_nu = plasma.nu_i.loc[
             plasma.level2continuum_idx.index
         ].values

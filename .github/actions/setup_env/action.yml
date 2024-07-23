@@ -1,0 +1,32 @@
+name: "Setup environment"
+description: "Sets up environment for tardis and caches it"
+
+inputs:
+  os-label:
+    description: "os label for lock file, default linux"
+    required: true
+    default: "linux"
+
+runs:
+  using: "composite"
+  steps:
+      - name: Download Lock File
+        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ inputs.os-label }}.lock
+        if: matrix.pip == true
+        shell: bash
+      
+      - name: Generate Cache Key
+        run: | 
+          file_hash=$(cat conda-${{ inputs.os-label }}.lock | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
+        id: cache-environment-key
+        shell: bash
+        
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: conda-${{ inputs.os-label }}.lock
+          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          environment-name: tardis
+          cache-environment: true
+          cache-downloads: true

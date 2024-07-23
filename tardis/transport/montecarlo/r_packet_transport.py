@@ -1,6 +1,7 @@
 import numpy as np
 from numba import njit
 
+import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
@@ -28,7 +29,6 @@ def trace_packet(
     estimators,
     chi_continuum,
     escat_prob,
-    continuum_processes_enabled,
     enable_full_relativity,
     disable_line_scattering,
 ):
@@ -113,7 +113,7 @@ def trace_packet(
                 r_packet.next_line_id = cur_line_id
                 break
             elif distance == distance_continuum:
-                if not continuum_processes_enabled:
+                if not montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                     interaction_type = InteractionType.ESCATTERING
                 else:
                     zrand = np.random.random()
@@ -140,6 +140,7 @@ def trace_packet(
         if tau_trace_combined > tau_event and not disable_line_scattering:
             interaction_type = InteractionType.LINE  # Line
             r_packet.last_interaction_in_nu = r_packet.nu
+            r_packet.last_interaction_in_r = r_packet.r
             r_packet.last_line_interaction_in_id = cur_line_id
             r_packet.last_line_interaction_shell_id = r_packet.current_shell_id
             r_packet.next_line_id = cur_line_id
@@ -163,7 +164,7 @@ def trace_packet(
             cur_line_id += 1
         if distance_continuum < distance_boundary:
             distance = distance_continuum
-            if not continuum_processes_enabled:
+            if not montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 interaction_type = InteractionType.ESCATTERING
             else:
                 zrand = np.random.random()
