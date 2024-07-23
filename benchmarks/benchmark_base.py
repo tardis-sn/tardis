@@ -239,7 +239,9 @@ class BenchmarkBase:
 
     @property
     def verysimple_packet_collection(self):
-        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        return (
+            self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        )
 
     @property
     def nb_simulation_verysimple(self):
@@ -269,7 +271,9 @@ class BenchmarkBase:
 
     @property
     def verysimple_disable_line_scattering(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
+        )
 
     @property
     def verysimple_continuum_processes_enabled(self):
@@ -277,11 +281,15 @@ class BenchmarkBase:
 
     @property
     def verysimple_tau_russian(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        )
 
     @property
     def verysimple_survival_probability(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
+        )
 
     @property
     def static_packet(self):
@@ -303,7 +311,9 @@ class BenchmarkBase:
 
     @property
     def verysimple_3vpacket_collection(self):
-        spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        spectrum_frequency_grid = (
+            self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        )
         return VPacketCollection(
             source_rpacket_index=0,
             spectrum_frequency_grid=spectrum_frequency_grid,
@@ -359,6 +369,10 @@ class BenchmarkBase:
     @property
     def transport_state(self):
         return self.nb_simulation_verysimple.transport.transport_state
+
+    @property
+    def spectrum_frequency_grid(self):
+        return self.nb_simulation_verysimple.transport.spectrum_frequency_grid
 
     @property
     def simulation_rpacket_tracking_enabled(self):

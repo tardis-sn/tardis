@@ -10,10 +10,6 @@ from tardis.transport.montecarlo.packet_collections import (
     consolidate_vpacket_tracker,
     initialize_last_interaction_tracker,
 )
-from tardis.transport.montecarlo.packet_trackers import (
-    RPacketTracker,
-    RPacketLastInteractionTracker,
-)
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
     RPacket,
