@@ -35,7 +35,7 @@ def montecarlo_main_loop(
     opacity_state,
     montecarlo_configuration,
     estimators,
-    spectrum_frequency,
+    spectrum_frequency_grid,
     number_of_vpackets,
     iteration,
     show_progress_bars,
@@ -55,7 +55,7 @@ def montecarlo_main_loop(
         Time in seconds
     opacity_state : OpacityState
     estimators : Estimators
-    spectrum_frequency :  astropy.units.Quantity
+    spectrum_frequency_grid :  astropy.units.Quantity
         Frequency bins
     number_of_vpackets : int
         VPackets released per interaction
@@ -72,8 +72,8 @@ def montecarlo_main_loop(
         no_of_packets
     )
 
-    v_packets_energy_hist = np.zeros_like(spectrum_frequency)
-    delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
+    v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
+    delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
 
     # Pre-allocate a list of vpacket collections for later storage
     vpacket_collections = List()
@@ -94,7 +94,7 @@ def montecarlo_main_loop(
         vpacket_collections.append(
             VPacketCollection(
                 i,
-                spectrum_frequency,
+                spectrum_frequency_grid,
                 montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
                 montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
                 number_of_vpackets,
@@ -167,12 +167,12 @@ def montecarlo_main_loop(
         vpacket_collection.finalize_arrays()
 
         v_packets_idx = np.floor(
-            (vpacket_collection.nus - spectrum_frequency[0]) / delta_nu
+            (vpacket_collection.nus - spectrum_frequency_grid[0]) / delta_nu
         ).astype(np.int64)
 
         for j, idx in enumerate(v_packets_idx):
-            if (vpacket_collection.nus[j] < spectrum_frequency[0]) or (
-                vpacket_collection.nus[j] > spectrum_frequency[-1]
+            if (vpacket_collection.nus[j] < spectrum_frequency_grid[0]) or (
+                vpacket_collection.nus[j] > spectrum_frequency_grid[-1]
             ):
                 continue
             v_packets_energy_hist[idx] += vpacket_collection.energies[j]
@@ -183,14 +183,14 @@ def montecarlo_main_loop(
     if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
         vpacket_tracker = consolidate_vpacket_tracker(
             vpacket_collections,
-            spectrum_frequency,
+            spectrum_frequency_grid,
             montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
             montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
         )
     else:
         vpacket_tracker = VPacketCollection(
             -1,
-            spectrum_frequency,
+            spectrum_frequency_grid,
             montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
             montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
             -1,

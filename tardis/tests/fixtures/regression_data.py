@@ -12,11 +12,11 @@ from tardis.io.util import HDFWriterMixin
 class RegressionData:
     def __init__(self, request) -> None:
         self.request = request
+        if request.config.getoption("--tardis-regression-data") is None:
+            pytest.skip("--tardis-regression-data was not specified")
         regression_data_path = Path(
             request.config.getoption("--tardis-regression-data")
         )
-        if regression_data_path is None:
-            pytest.skip("--tardis-regression-data was not specified")
         self.regression_data_path = Path(
             os.path.expandvars(regression_data_path.expanduser())
         )
