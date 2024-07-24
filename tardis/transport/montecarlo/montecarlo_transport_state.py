@@ -96,7 +96,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         )
 
         return (
-            dilute_bb_radfield.t_radiative,
+            dilute_bb_radfield.temperature,
             dilute_bb_radfield.dilution_factor,
         )
 

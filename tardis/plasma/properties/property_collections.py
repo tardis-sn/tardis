@@ -12,11 +12,12 @@ class PlasmaPropertyCollection(list):
 
 basic_inputs = PlasmaPropertyCollection(
     [
-        TRadiative,
+        DilutePlanckianRadField,
         Abundance,
         NumberDensity,
         TimeExplosion,
         AtomicData,
+        TRadiative,
         DilutionFactor,
         LinkTRadTElectron,
         HeliumTreatment,

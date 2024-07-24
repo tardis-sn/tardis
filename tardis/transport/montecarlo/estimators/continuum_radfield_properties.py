@@ -6,8 +6,8 @@ from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.model.radiation_field_state import (
-    DiluteBlackBodyRadiationFieldState,
+from tardis.plasma.radiation_field.planck_rad_field import (
+    DilutePlanckianRadiationField,
 )
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
@@ -76,7 +76,7 @@ class DiluteBlackBodyContinuumPropertiesSolver:
 
     def solve(
         self,
-        dilute_blackbody_radiationfield_state: DiluteBlackBodyRadiationFieldState,
+        dilute_blackbody_radiationfield_state: DilutePlanckianRadiationField,
         t_electrons: u.Quantity,
     ):
         """
@@ -202,7 +202,7 @@ class DiluteBlackBodyContinuumPropertiesSolver:
 
     def calculate_mean_intensity_photo_ion_table(
         self,
-        dilute_blackbody_radiationfield_state: DiluteBlackBodyRadiationFieldState,
+        dilute_blackbody_radiationfield_state: DilutePlanckianRadiationField,
     ):
         mean_intensity = (
             dilute_blackbody_radiationfield_state.calculate_mean_intensity(
@@ -213,7 +213,7 @@ class DiluteBlackBodyContinuumPropertiesSolver:
             mean_intensity,
             index=self.atom_data.photoionization_data.index,
             columns=np.arange(
-                len(dilute_blackbody_radiationfield_state.t_radiative)
+                len(dilute_blackbody_radiationfield_state.temperature)
             ),
         )
         return mean_intensity_df
