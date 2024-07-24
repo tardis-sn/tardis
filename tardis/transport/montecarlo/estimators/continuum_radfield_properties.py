@@ -6,7 +6,9 @@ from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.plasma.properties.continuum_processes import PhotoIonBoltzmannFactor
+from tardis.plasma.properties.continuum_proc.continuum_processes import (
+    PhotoIonBoltzmannFactor,
+)
 from tardis.plasma.radiation_field.planck_rad_field import (
     DilutePlanckianRadiationField,
 )
@@ -139,20 +141,23 @@ class DiluteBlackBodyContinuumPropertiesSolver:
         -----
         Equation 16 in Lucy 2003.
         """
-        gamma = mean_intensity_photo_ion_df.multiply(
+        photo_ion_rate_coefficient = mean_intensity_photo_ion_df.multiply(
             4.0
             * np.pi
             * self.atom_data.photoionization_data.x_sect
             / (self.atom_data.photoionization_data.nu * H),
             axis=0,
         )
-        gamma = integrate_array_by_blocks(
-            gamma.values,
+        photo_ion_rate_coefficient = integrate_array_by_blocks(
+            photo_ion_rate_coefficient.values,
             self.atom_data.photoionization_data.nu.values,
             self.atom_data.photo_ion_block_references,
         )
-        gamma = pd.DataFrame(gamma, index=self.atom_data.photo_ion_unique_index)
-        return gamma
+        photo_ion_rate_coefficient = pd.DataFrame(
+            photo_ion_rate_coefficient,
+            index=self.atom_data.photo_ion_unique_index,
+        )
+        return photo_ion_rate_coefficient
 
     def calculate_stimulated_recomb_rate_factor(
         self,
@@ -221,5 +226,5 @@ class DiluteBlackBodyContinuumPropertiesSolver:
 
 @dataclass
 class ContinuumProperties:
-    stimulated_recomb_rate_factor: pd.DataFrame
+    stimulated_recombination_rate_coefficient: pd.DataFrame
     photo_ionization_rate_coefficient: pd.DataFrame
