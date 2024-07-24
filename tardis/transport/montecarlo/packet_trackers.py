@@ -15,6 +15,7 @@ rpacket_tracker_spec = [
     ("energy", float64[:]),
     ("shell_id", int64[:]),
     ("interaction_type", int64[:]),
+    ("boundary_interaction_shell_transition", int64[:, 2]),
     ("num_interactions", int64),
     ("extend_factor", int64),
 ]
@@ -63,6 +64,9 @@ class RPacketTracker(object):
         self.energy = np.empty(self.length, dtype=np.float64)
         self.shell_id = np.empty(self.length, dtype=np.int64)
         self.interaction_type = np.empty(self.length, dtype=np.int64)
+        self.boundary_shell_transition = np.empty(
+            (self.length, 2), dtype=np.int64
+        )
         self.num_interactions = 0
         self.extend_factor = 2
 
@@ -99,6 +103,23 @@ class RPacketTracker(object):
         ] = r_packet.last_interaction_type
         self.num_interactions += 1
 
+    def track_boundary_interaction(self, current_shell_id, next_shell_id):
+        if self.num_boundary_interactions >= self.length:
+            temp_length = self.length * 2
+            temp_interaction_type = np.empty((temp_length, 2), dtype=np.int64)
+
+            temp_boundary_shell_transition[
+                : self.length
+            ] = self.boundary_shell_transition
+
+            self.boundary_shell_transition = temp_boundary_shell_transition
+
+        self.boundary_shell_transition[self.num_boundary_interactions] = (
+            current_shell_id,
+            next_shell_id,
+        )
+        self.num_boundary_interactions += 1
+
     def finalize_array(self):
         self.status = self.status[: self.num_interactions]
         self.r = self.r[: self.num_interactions]
@@ -107,6 +128,9 @@ class RPacketTracker(object):
         self.energy = self.energy[: self.num_interactions]
         self.shell_id = self.shell_id[: self.num_interactions]
         self.interaction_type = self.interaction_type[: self.num_interactions]
+        self.boundary_shell_transition = self.boundary_shell_transition[
+            self.num_boundary_interactions
+        ]
 
 
 def rpacket_trackers_to_dataframe(rpacket_trackers):
@@ -203,6 +227,10 @@ class RPacketLastInteractionTracker(object):
 
     # To make it compatible with RPacketTracker
     def finalize_array(self):
+        pass
+
+    # To make it compatible with RPacketTracker
+    def track_boundary_interaction(self, current_shell_id, next_shell_id):
         pass
 
 
