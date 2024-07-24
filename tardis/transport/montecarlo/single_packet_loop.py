@@ -85,6 +85,7 @@ def single_packet_loop(
     )
 
     rpacket_tracker.track(r_packet)
+    rpacket_tracker.track_boundary_interaction(-1, r_packet.current_shell_id)
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
@@ -158,6 +159,7 @@ def single_packet_loop(
         # If continuum processes: update continuum estimators
 
         if interaction_type == InteractionType.BOUNDARY:
+            temp_current_shell_id = r_packet.current_shell_id
             move_r_packet(
                 r_packet,
                 distance,
@@ -166,7 +168,17 @@ def single_packet_loop(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             move_packet_across_shell_boundary(
-                r_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
+                r_packet,
+                delta_shell,
+                len(numba_radial_1d_geometry.r_inner),
+            )
+            temp_next_shell_id = (
+                r_packet.current_shell_id
+                if r_packet.status == PacketStatus.IN_PROCESS
+                else -1
+            )
+            rpacket_tracker.track_boundary_interaction(
+                temp_current_shell_id, temp_next_shell_id
             )
 
         elif interaction_type == InteractionType.LINE:
