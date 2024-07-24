@@ -7,15 +7,18 @@ import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
-from tardis.transport.montecarlo.montecarlo_main_loop import (
-    montecarlo_main_loop,
-    numba_config,
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+    configuration_initialize,
 )
 from tardis.transport.montecarlo.estimators.dilute_blackbody_properties import (
     MCRadiationFieldPropertiesSolver,
 )
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
+)
+from tardis.transport.montecarlo.montecarlo_main_loop import (
+    montecarlo_main_loop,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
