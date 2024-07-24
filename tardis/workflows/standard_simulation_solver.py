@@ -129,33 +129,31 @@ class StandardSimulationSolver:
 
         return atom_data
 
-    def estimate_t_inner(
-        self,
-        input_t_inner,
-        luminosity_requested,
-        emitted_luminosity,
-        t_inner_update_exponent=-0.5,
-    ):
-        luminosity_ratios = (
-            (emitted_luminosity / luminosity_requested).to(1).value
-        )
-
-        return input_t_inner * luminosity_ratios**t_inner_update_exponent
-
-    def get_convergence_estimates(self, emitted_luminosity):
+    def get_convergence_estimates(self, transport_state):
         (
             estimated_t_radiative,
             estimated_dilution_factor,
-        ) = (
-            self.transport_solver.transport_state.calculate_radiationfield_properties()
+        ) = self.transport_solver.transport_state.calculate_radiationfield_properties()
+
+        self.initialize_spectrum_solver(
+            transport_state,
+            None,
         )
 
-        estimated_t_inner = self.estimate_t_inner(
-            self.simulation_state.t_inner,
-            self.luminosity_requested,
-            emitted_luminosity,
-            t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
+        emitted_luminosity = self.spectrum_solver.calculate_emitted_luminosity(
+            self.luminosity_nu_start, self.luminosity_nu_end
         )
+
+        luminosity_ratios = (
+            (emitted_luminosity / self.luminosity_requested).to(1).value
+        )
+
+        estimated_t_inner = (
+            self.simulation_state.t_inner
+            * luminosity_ratios
+            ** self.convergence_strategy.t_inner_update_exponent
+        )
+
         return {
             "t_radiative": estimated_t_radiative,
             "dilution_factor": estimated_dilution_factor,
@@ -267,9 +265,9 @@ class StandardSimulationSolver:
         self.spectrum_solver.transport_state = transport_state
 
         if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[
-                :
-            ] = virtual_packet_energies
+            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
+                virtual_packet_energies
+            )
 
         if self.integrated_spectrum_settings is not None:
             # Set up spectrum solver integrator
@@ -287,17 +285,7 @@ class StandardSimulationSolver:
                 self.real_packet_count
             )
 
-            self.spectrum_solver.transport_state = transport_state
-
-            emitted_luminosity = (
-                self.spectrum_solver.calculate_emitted_luminosity(
-                    self.luminosity_nu_start, self.luminosity_nu_end
-                )
-            )
-
-            estimated_values = self.get_convergence_estimates(
-                emitted_luminosity
-            )
+            estimated_values = self.get_convergence_estimates(transport_state)
 
             self.solve_simulation_state(estimated_values)
 
