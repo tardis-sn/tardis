@@ -202,20 +202,6 @@ class ArrayInput(Input):
     def _set_output_value(self, output, value):
         setattr(self, output, np.array(value, copy=False))
 
-
-class ObjectInput(Input):
-
-    input_object_map = {}  # mapping output names from input object attributes
-
-    def set_value(self, value):
-        for output in self.outputs:
-            if output in self.input_object_map:
-                object_attr = self.input_object_map[output]
-                self._set_output_value(output, getattr(value, object_attr))
-            else:
-                self._set_output_value(output, getattr(value, output))
-
-
 class DataFrameInput(Input):
     def _set_output_value(self, output, value):
         setattr(self, output, np.array(pd.DataFrame(value), copy=False))
