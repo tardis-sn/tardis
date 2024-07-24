@@ -10,14 +10,14 @@ from IPython.display import display
 import tardis
 from tardis import constants as const
 from tardis.io.configuration.config_reader import ConfigurationError
-from tardis.io.model.parse_packet_source_configuration import (
-    initialize_packet_source,
-)
 from tardis.io.util import HDFWriterMixin
-from tardis.model import SimulationState
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
+from tardis.simulation.initialization import (
+    initialize_atom_data,
+    initialize_simulation_state,
+)
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
@@ -442,9 +442,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         # Set up spectrum solver
         self.spectrum_solver.transport_state = transport_state
-        self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
-            v_packets_energy_hist
-        )
+        self.spectrum_solver._montecarlo_virtual_luminosity.value[
+            :
+        ] = v_packets_energy_hist
 
         output_energy = (
             self.transport.transport_state.packet_collection.output_energies

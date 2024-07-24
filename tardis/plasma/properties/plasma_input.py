@@ -25,6 +25,8 @@ __all__ = [
 
 class TRadiative(ProcessingPlasmaProperty):
     """
+    Radiative temperature property.
+
     Attributes
     ----------
     t_rad : Numpy Array, dtype float
@@ -39,6 +41,8 @@ class TRadiative(ProcessingPlasmaProperty):
 
 class DilutionFactor(ProcessingPlasmaProperty):
     """
+    Dilution factor of the radiation field.
+
     Attributes
     ----------
     w : Numpy Array, dtype float between 0 and 1
