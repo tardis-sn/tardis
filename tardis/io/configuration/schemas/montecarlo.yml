@@ -48,6 +48,7 @@ properties:
   convergence_strategy:
     oneOf:
     - $ref: 'montecarlo_definitions.yml#/definitions/convergence_strategy/damped'
+    - $ref: 'montecarlo_definitions.yml#/definitions/convergence_strategy/anderson'
     - $ref: 'montecarlo_definitions.yml#/definitions/convergence_strategy/custom'
     default:
       type: 'damped'
