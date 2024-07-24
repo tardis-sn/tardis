@@ -182,14 +182,21 @@ class SpectrumSolver(HDFWriterMixin):
             luminosity_wavelength_filter
         ].sum()
 
-    def solve(self):
+    def solve(self, transport_state):
         """Solve the spectra
+
+        Parameters
+        ----------
+        transport_state: MonteCarloTransportState
+            The transport state to be used to compute the spectra
 
         Returns
         -------
         tuple(TARDISSpectrum)
             Real, virtual and integrated spectra, if available
         """
+        self.transport_state = transport_state
+
         return (
             self.spectrum_real_packets,
             self.spectrum_virtual_packets,

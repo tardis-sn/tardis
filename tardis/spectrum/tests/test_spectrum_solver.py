@@ -93,7 +93,9 @@ class TestSpectrumSolver:
         spectrum_frequency_grid = simulation.transport.spectrum_frequency_grid
 
         solver = SpectrumSolver(transport_state, spectrum_frequency_grid)
-        result_real, result_virtual, result_integrated = solver.solve()
+        result_real, result_virtual, result_integrated = solver.solve(
+            transport_state
+        )
         key_real = "simulation/spectrum_solver/spectrum_real_packets/luminosity"
         expected_real = self.get_expected_data(key_real)
 
