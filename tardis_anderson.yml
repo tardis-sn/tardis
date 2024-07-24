@@ -34,7 +34,7 @@ plasma:
   line_interaction_type: macroatom
 
 montecarlo:
-  seed: 23113963
+  seed: 23111963
   no_of_packets: 4.0e+4
   iterations: 20
   nthreads: 1
@@ -43,14 +43,14 @@ montecarlo:
   no_of_virtual_packets: 10
 
   convergence_strategy:
-    type: anderson
-    damping_constant: 1.0
-    memory: 10
+    type: damped
+    damping_constant: 0.2
+    #memory: 10
     threshold: 0.05
     fraction: 0.8
     hold_iterations: 3
     t_inner:
-      damping_constant: 1.0
+      damping_constant: 0.2
 
 spectrum:
   start: 500 angstrom
