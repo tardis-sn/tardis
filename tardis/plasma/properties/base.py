@@ -202,6 +202,7 @@ class ArrayInput(Input):
     def _set_output_value(self, output, value):
         setattr(self, output, np.array(value, copy=False))
 
+
 class DataFrameInput(Input):
     def _set_output_value(self, output, value):
         setattr(self, output, np.array(pd.DataFrame(value), copy=False))
