@@ -6,6 +6,7 @@ from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
+from tardis.plasma.properties.continuum_processes import PhotoIonBoltzmannFactor
 from tardis.plasma.radiation_field.planck_rad_field import (
     DilutePlanckianRadiationField,
 )
@@ -16,7 +17,6 @@ from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
     integrate_array_by_blocks,
 )
-from tardis.plasma.properties.continuum_processes import PhotoIonBoltzmannFactor
 
 H = const.h.cgs.value
 
