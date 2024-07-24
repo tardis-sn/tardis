@@ -46,7 +46,7 @@ def initialize_packet_source(packet_source, config, geometry):
     return packet_source
 
 
-def parse_packet_source_from_config(config, geometry, legacy_mode_enabled):
+def parse_packet_source_from_config(config, geometry, enable_legacy_mode):
     """
     Parse the packet source based on the given configuration and geometry.
 
@@ -66,12 +66,12 @@ def parse_packet_source_from_config(config, geometry, legacy_mode_enabled):
         packet_source = BlackBodySimpleSourceRelativistic(
             base_seed=config.montecarlo.seed,
             time_explosion=config.supernova.time_explosion,
-            legacy_mode_enabled=legacy_mode_enabled,
+            legacy_mode_enabled=enable_legacy_mode,
         )
     else:
         packet_source = BlackBodySimpleSource(
             base_seed=config.montecarlo.seed,
-            legacy_mode_enabled=legacy_mode_enabled,
+            legacy_mode_enabled=enable_legacy_mode,
         )
 
     return initialize_packet_source(packet_source, config, geometry)

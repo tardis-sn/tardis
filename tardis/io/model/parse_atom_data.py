@@ -1,9 +1,9 @@
-from tardis.io.atom_data.base import AtomData
-from tardis.simulation.initialization import logger
-
-
+import logging
 from pathlib import Path
 
+from tardis.io.atom_data.base import AtomData
+
+logger = logging.getLogger(__name__)
 
 def parse_atom_data(config, atom_data=None):
     """
