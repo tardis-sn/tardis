@@ -23,4 +23,3 @@ class BenchmarkTransportMontecarloSinglePacketLoop(BenchmarkBase):
             self.rpacket_tracker,
             self.montecarlo_configuration
         )
-
