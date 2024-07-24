@@ -10,15 +10,13 @@ from IPython.display import display
 import tardis
 from tardis import constants as const
 from tardis.io.configuration.config_reader import ConfigurationError
-from tardis.io.util import HDFWriterMixin
-from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.simulation.convergence import ConvergenceSolver
+from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
-from tardis.io.model.parse_atom_data import parse_atom_data
-from tardis.spectrum.base import SpectrumSolver
+from tardis.io.util import HDFWriterMixin
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
