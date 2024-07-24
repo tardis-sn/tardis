@@ -14,10 +14,10 @@ from tardis.io.util import HDFWriterMixin
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
-from tardis.simulation.initialization import (
-    initialize_atom_data,
-    initialize_simulation_state,
+from tardis.io.model.parse_simulation_state import (
+    parse_simulation_state,
 )
+from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
@@ -718,8 +718,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
 
-        atom_data = initialize_atom_data(config, atom_data=atom_data)
-        simulation_state = initialize_simulation_state(
+        atom_data = parse_atom_data(config, atom_data=atom_data)
+        simulation_state = parse_simulation_state(
             config, packet_source, legacy_mode_enabled, kwargs, atom_data
         )
         if plasma is None:
