@@ -1,15 +1,15 @@
+import pandas as pd
+
+from tardis import constants as const
 from tardis.plasma.properties.base import (
     ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
 )
 from tardis.plasma.properties.continuum_processes.rates import (
-    H,
     IndexSetterMixin,
 )
 
-
-import pandas as pd
-
+H = const.h.cgs.value
 
 class RawCollIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     """

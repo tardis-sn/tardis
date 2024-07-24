@@ -19,9 +19,11 @@ from tardis.energy_input.util import (
     doppler_factor_3d,
     get_index,
 )
+from tardis.opacities.compton_opacity_calculation import (
+    compton_opacity_calculation,
+)
 from tardis.opacities.opacities import (
     SIGMA_T,
-    compton_opacity_calculation,
     kappa_calculation,
     pair_creation_opacity_artis,
     pair_creation_opacity_calculation,
