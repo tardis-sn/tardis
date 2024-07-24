@@ -16,6 +16,7 @@ packet_collection_spec = [
     ("radiation_field_luminosity", float64),  #
     ("output_nus", float64[:]),
     ("output_energies", float64[:]),
+    ("number_of_packets", int64),
 ]
 
 
@@ -43,6 +44,7 @@ class PacketCollection:
         self.output_energies = (
             np.ones_like(initial_radii, dtype=np.float64) * -99.0
         )
+        self.number_of_packets = len(self.initial_radii)
 
 
 @njit(**njit_dict_no_parallel)
@@ -230,24 +232,24 @@ class VPacketCollection:
             temp_energies[: self.length] = self.energies
             temp_initial_mus[: self.length] = self.initial_mus
             temp_initial_rs[: self.length] = self.initial_rs
-            temp_last_interaction_in_nu[
-                : self.length
-            ] = self.last_interaction_in_nu
-            temp_last_interaction_in_r[
-                : self.length
-            ] = self.last_interaction_in_r
-            temp_last_interaction_type[
-                : self.length
-            ] = self.last_interaction_type
-            temp_last_interaction_in_id[
-                : self.length
-            ] = self.last_interaction_in_id
-            temp_last_interaction_out_id[
-                : self.length
-            ] = self.last_interaction_out_id
-            temp_last_interaction_shell_id[
-                : self.length
-            ] = self.last_interaction_shell_id
+            temp_last_interaction_in_nu[: self.length] = (
+                self.last_interaction_in_nu
+            )
+            temp_last_interaction_in_r[: self.length] = (
+                self.last_interaction_in_r
+            )
+            temp_last_interaction_type[: self.length] = (
+                self.last_interaction_type
+            )
+            temp_last_interaction_in_id[: self.length] = (
+                self.last_interaction_in_id
+            )
+            temp_last_interaction_out_id[: self.length] = (
+                self.last_interaction_out_id
+            )
+            temp_last_interaction_shell_id[: self.length] = (
+                self.last_interaction_shell_id
+            )
 
             self.nus = temp_nus
             self.energies = temp_energies
