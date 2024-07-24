@@ -267,7 +267,6 @@ class RPacketLastInteractionTracker(object):
         """
         pass
 
-    # To make it compatible with RPacketTracker
     def track_boundary_interaction(self, current_shell_id, next_shell_id):
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
