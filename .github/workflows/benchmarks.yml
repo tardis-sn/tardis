@@ -101,8 +101,8 @@ jobs:
       - name: Run benchmarks for base and head commits of PR
         if: github.event_name == 'pull_request_target'
         run: |
-          echo $(git rev-parse HEAD) > commit_hashes.txt
-          echo $(git merge-base HEAD origin/master) >> commit_hashes.txt
+          echo ${{ github.event.pull_request.base.sha }} > commit_hashes.txt
+          echo ${{ github.event.pull_request.head.sha }} >> commit_hashes.txt
 
           asv run -a repeat=2 -a rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
             if grep -q failed asv-output-PR.log; then 
@@ -111,10 +111,10 @@ jobs:
             fi
 
       - name: Compare Master and PR head
-        run: asv compare origin/master HEAD --config asv.conf.json | tee asv-compare-output.log
+        run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} --config asv.conf.json | tee asv-compare-output.log
 
       - name: Compare Master and PR head but only show changed results
-        run: asv compare origin/master HEAD --only-changed --config asv.conf.json | tee asv-compare-changed-output.log
+        run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} --only-changed --config asv.conf.json | tee asv-compare-changed-output.log
 
       - name: Benchmarks compare output
         id: asv_pr_vs_master
