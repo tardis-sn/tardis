@@ -206,7 +206,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
                 )
 
         # initializing rates
-        t_electron = (
+        t_electrons = (
             config.plasma.link_t_rad_t_electron
             * dilute_planckian_radiation_field.temperature.to(u.K).value
         )
@@ -214,14 +214,14 @@ def assemble_plasma(config, simulation_state, atom_data=None):
             atom_data
         )
         initial_continuum_properties = initial_continuum_solver.solve(
-            dilute_planckian_radiation_field, t_electron
+            dilute_planckian_radiation_field, t_electrons
         )
 
         kwargs.update(
             gamma=initial_continuum_properties.photo_ionization_rate_coefficient,
             bf_heating_coeff_estimator=None,
             stim_recomb_cooling_coeff_estimator=None,
-            alpha_stim=config.plasma.link_t_rad_t_electron,
+            alpha_stim=initial_continuum_properties.stimulated_recombination_rate_coefficient,
         )
 
     ##### RADIATIVE RATES SETUP
