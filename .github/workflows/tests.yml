@@ -26,7 +26,7 @@ on:
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
-  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append 
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 defaults:
@@ -88,29 +88,37 @@ jobs:
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking" 
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
       
+      - run: mv .coverage .coverage.${{ strategy.job-index }}
+
       - uses: actions/upload-artifact@v4
         with:
+          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.rpacket_tracking }}-rpacket_tracking-${{ matrix.os }}
           path: |
             .coverage*
-            !.coveragec
+            !.coveragerc
     
   combine_coverage_reports:
     needs: [tests]
     if: github.repository_owner == 'tardis-sn'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Setup environment
         uses: ./.github/actions/setup_env
         with:
           os-label: linux-64
-      
+
       # will download all artifacts(in this case all are coverage reports)
       - uses: actions/download-artifact@v4
-        
-      - run: ls -a
+        with: 
+          path: .
+          merge-multiple: true
       
       - name: Combine coverage reports
-        run: coverage combine
+        run: |
+          coverage combine
+          coverage xml
+          coverage html
       
       - name: Print report
         run: coverage report
