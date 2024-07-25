@@ -26,7 +26,7 @@ on:
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
-  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 defaults:
@@ -39,25 +39,6 @@ concurrency:
     
 
 jobs:
-  codecov:
-    if: github.repository_owner == 'tardis-sn'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup environment
-        uses: ./.github/actions/setup_env
-        with:
-          os-label: linux-64
-      - name: Generate coverage report
-        run: |
-          pytest --cov=tardis --cov-report=xml --cov-report=html
-      - uses: codecov/codecov-action@v4
-        if: always()
-        with:
-          fail_ci_if_error: true
-          token: ${{ env.CODECOV_TOKEN }}
-          verbose: true
-
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.rpacket_tracking }} rpacket_tracking ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
     if: github.repository_owner == 'tardis-sn'
@@ -106,3 +87,37 @@ jobs:
       - name: Refdata Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking" 
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
+      
+      - uses: actions/upload-artifact@v4
+        with:
+          path: |
+            .coverage*
+            !.coveragec
+    
+  combine_coverage_reports:
+    needs: [tests]
+    if: github.repository_owner == 'tardis-sn'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          os-label: linux-64
+      
+      # will download all artifacts(in this case all are coverage reports)
+      - uses: actions/download-artifact@v4
+        
+      - run: ls -a
+      
+      - name: Combine coverage reports
+        run: coverage combine
+      
+      - name: Print report
+        run: coverage report
+
+      - uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
