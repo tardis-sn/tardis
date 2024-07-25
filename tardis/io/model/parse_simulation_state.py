@@ -45,10 +45,7 @@ def parse_simulation_state(
             )
         if packet_source is not None:
             simulation_state.packet_source = initialize_packet_source(
-                config,
-                simulation_state.geometry,
-                packet_source,
-                enable_legacy_mode,
+                packet_source, config, simulation_state.geometry
             )
 
     return simulation_state
