@@ -1,9 +1,7 @@
 import numpy.testing as npt
 import pytest
+from tardis.opacities.opacities import compton_opacity_calculation
 
-from tardis.opacities.compton_opacity_calculation import (
-    compton_opacity_calculation,
-)
 from tardis.opacities.opacities import (
     kappa_calculation,
     pair_creation_opacity_calculation,

@@ -2,7 +2,6 @@ import logging
 
 import numpy as np
 import pandas as pd
-from astropy import units as u
 
 from tardis.plasma import BasePlasma
 from tardis.plasma.base import PlasmaSolverSettings
@@ -44,6 +43,9 @@ from tardis.plasma.properties.property_collections import (
 )
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
+    DiluteBlackBodyContinuumPropertiesSolver,
+)
 from tardis.util.base import species_string_to_tuple
 
 logger = logging.getLogger(__name__)
@@ -129,6 +131,9 @@ def assemble_plasma(config, simulation_state, atom_data=None):
 
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
+
+    ########### SETTING UP CONTINUUM INTERACTIONS
+
     if len(config.plasma.continuum_interaction.species) > 0:
         line_interaction_type = config.plasma.line_interaction_type
         if line_interaction_type != "macroatom":
@@ -200,14 +205,23 @@ def assemble_plasma(config, simulation_state, atom_data=None):
                     f"NLTE solver type unknown - {config.plasma.nlte_solver}"
                 )
 
+        # initializing rates
+        t_electron = (
+            config.plasma.link_t_rad_t_electron
+            * dilute_planckian_radiation_field.temperature.to(u.K).value
+        )
+        initial_continuum_solver = DiluteBlackBodyContinuumPropertiesSolver(
+            atom_data
+        )
+        initial_continuum_properties = initial_continuum_solver.solve(
+            dilute_planckian_radiation_field, t_electron
+        )
+
         kwargs.update(
-            gamma_estimator=None,
+            gamma=initial_continuum_properties.photo_ionization_rate_coefficient,
             bf_heating_coeff_estimator=None,
             stim_recomb_cooling_coeff_estimator=None,
-            alpha_stim_estimator=None,
-            volume=simulation_state.volume,
-            r_inner=simulation_state.r_inner.to(u.cm),
-            t_inner=simulation_state.t_inner,
+            alpha_stim=config.plasma.link_t_rad_t_electron,
         )
 
     ##### RADIATIVE RATES SETUP

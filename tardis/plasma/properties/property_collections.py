@@ -1,12 +1,12 @@
+from tardis.opacities.continuum.bound_free import BoundFreeOpacity
 from tardis.opacities.macro_atom.base import (
     NonMarkovChainTransitionProbabilities,
     TransitionProbabilities,
 )
-from tardis.opacities.tau_sobolev import TauSobolev
-from tardis.opacities.continuum.bound_free import BoundFreeOpacity
 from tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob import (
     RawCollIonTransProbs,
 )
+from tardis.opacities.tau_sobolev import TauSobolev
 from tardis.plasma.properties import *
 
 
@@ -93,6 +93,7 @@ helium_numerical_nlte_properties = PlasmaPropertyCollection(
 )
 continuum_interaction_inputs = PlasmaPropertyCollection(
     [
+        PhotoIonRateCoeff,
         BfHeatingRateCoeffEstimator,
         StimRecombCoolingRateCoeffEstimator,
         YgData,
@@ -101,6 +102,7 @@ continuum_interaction_inputs = PlasmaPropertyCollection(
 continuum_interaction_properties = PlasmaPropertyCollection(
     [
         PhotoIonizationData,
+        SpontRecombRateCoeff,
         ThermalLevelBoltzmannFactorLTE,
         ThermalLTEPartitionFunction,
         BetaElectron,

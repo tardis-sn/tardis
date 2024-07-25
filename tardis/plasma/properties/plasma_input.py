@@ -15,7 +15,6 @@ __all__ = [
     "JBlues",
     "LinkTRadTElectron",
     "HeliumTreatment",
-    "Volume",
     "ContinuumInteractionSpecies",
     "NLTEIonizationSpecies",
     "NLTEExcitationSpecies",
@@ -127,10 +126,6 @@ class LinkTRadTElectron(Input):
 
 class HeliumTreatment(Input):
     outputs = ("helium_treatment",)
-
-class Volume(Input):
-    outputs = ("volume",)
-
 
 class ContinuumInteractionSpecies(Input):
     """

@@ -28,6 +28,7 @@ __all__ = [
     "RawPhotoIonTransProbs",
     "CollDeexcRateCoeff",
     "CollExcRateCoeff",
+    "CollRecombRateCoeff",
     "RawCollisionTransProbs",
     "AdiabaticCoolingRate",
     "FreeFreeCoolingRate",
@@ -314,16 +315,6 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
                 "Negative values in CorrPhotoIonRateCoeff.  Try raising the number of montecarlo packets."
             )
         return gamma_corr
-
-
-class PhotoIonEstimatorsNormFactor(ProcessingPlasmaProperty):
-    outputs = ("photo_ion_norm_factor",)
-    latex_name = (r"\frac{1}{t_\textrm{simulation volume h}}",)
-
-    @staticmethod
-    def calculate(time_simulation, volume):
-        return (time_simulation * volume * H) ** -1
-
 
 class StimRecombCoolingRateCoeffEstimator(Input):
     """
