@@ -3,6 +3,7 @@ from tardis.opacities.macro_atom.base import (
     TransitionProbabilities,
 )
 from tardis.opacities.tau_sobolev import TauSobolev
+from tardis.opacities.continuum.bound_free import BoundFreeOpacity
 from tardis.plasma.properties import *
 
 

@@ -368,6 +368,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # model.calculate_j_blues() equivalent
         # model.update_plasmas() equivalent
         # Bad test to see if this is a nlte run
+
+        if "nlte_data" in self.plasma.outputs_dict:
+            self.plasma.store_previous_properties()
+
+        # JBlues solver
         if (
             self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
             == "blackbody"
@@ -403,8 +408,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             raise ValueError(
                 f"radiative_rates_type type unknown - {self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
             )
-
-            self.plasma.store_previous_properties()
 
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.

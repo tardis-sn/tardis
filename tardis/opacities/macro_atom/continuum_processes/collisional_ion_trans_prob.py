@@ -2,7 +2,6 @@ import pandas as pd
 
 from tardis import constants as const
 from tardis.plasma.properties.base import (
-    ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
 )
 from tardis.plasma.properties.continuum_processes.rates import (
@@ -92,26 +91,3 @@ class RawCollIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
         )
         cool_rate_coll_ion = cool_rate_coll_ion.set_index(ion_cool_index)
         return p_coll_ion, p_coll_recomb, cool_rate_coll_ion
-
-
-class CollRecombRateCoeff(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    coll_recomb_coeff : pandas.DataFrame, dtype float
-        The rate coefficient for collisional recombination.
-        Multiply with the electron density squared and the ion number density
-        to obtain the total rate.
-
-    Notes
-    -----
-    The collisional recombination rate coefficient is calculated from the
-    collisional ionization rate coefficient based on the requirement of detailed
-    balance.
-    """
-
-    outputs = ("coll_recomb_coeff",)
-    latex_name = (r"c_{\kappa\textrm{i,}}",)
-
-    def calculate(self, phi_ik, coll_ion_coeff):
-        return coll_ion_coeff.multiply(phi_ik.loc[coll_ion_coeff.index])

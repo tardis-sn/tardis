@@ -1,15 +1,15 @@
 import numpy as np
 import pandas as pd
+
 from tardis.plasma.properties.base import Input, ProcessingPlasmaProperty
 from tardis.plasma.properties.continuum_processes.rates import C, H
 from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
     integrate_array_by_blocks,
-    ProcessingPlasmaProperty,
 )
 
 
-class StimRecombRateCoeffEstimator(Input):
+class StimRecombRateCoeff(Input):
     """
     Attributes
     ----------
@@ -18,11 +18,11 @@ class StimRecombRateCoeffEstimator(Input):
         recombination.
     """
 
-    outputs = ("alpha_stim_estimator",)
+    outputs = ("alpha_stim",)
     latex_name = (r"\alpha^{\textrm{stim}}_\textrm{estim}",)
 
 
-class StimRecombRateCoeff(ProcessingPlasmaProperty):
+class StimRecombRateCoeffOLD(ProcessingPlasmaProperty):
     """
     Attributes
     ----------

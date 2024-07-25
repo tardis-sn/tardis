@@ -783,3 +783,26 @@ class CollIonRateCoeffSeaton(ProcessingPlasmaProperty):
     def _calculate_u0s(nu, t_electrons):
         u0s = nu[np.newaxis].T / t_electrons * (H / K_B)
         return u0s
+
+
+class CollRecombRateCoeff(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    coll_recomb_coeff : pandas.DataFrame, dtype float
+        The rate coefficient for collisional recombination.
+        Multiply with the electron density squared and the ion number density
+        to obtain the total rate.
+
+    Notes
+    -----
+    The collisional recombination rate coefficient is calculated from the
+    collisional ionization rate coefficient based on the requirement of detailed
+    balance.
+    """
+
+    outputs = ("coll_recomb_coeff",)
+    latex_name = (r"c_{\kappa\textrm{i,}}",)
+
+    def calculate(self, phi_ik, coll_ion_coeff):
+        return coll_ion_coeff.multiply(phi_ik.loc[coll_ion_coeff.index])
