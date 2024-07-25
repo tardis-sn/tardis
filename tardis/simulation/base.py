@@ -10,18 +10,21 @@ from IPython.display import display
 import tardis
 from tardis import constants as const
 from tardis.io.configuration.config_reader import ConfigurationError
+from tardis.io.model.parse_atom_data import parse_atom_data
+from tardis.io.model.parse_simulation_state import (
+    parse_simulation_state,
+)
 from tardis.io.util import HDFWriterMixin
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
-from tardis.io.model.parse_simulation_state import (
-    parse_simulation_state,
-)
-from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
+    MCContinuumPropertiesSolver,
+)
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
@@ -406,14 +409,24 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
 
-        estimators = self.transport.transport_state.radfield_mc_estimators
+        radfield_mc_estimators = (
+            self.transport.transport_state.radfield_mc_estimators
+        )
 
-        if "gamma_estimator" in self.plasma.outputs_dict:
+        if "gamma" in self.plasma.outputs_dict:
+            continuum_property_solver = MCContinuumPropertiesSolver(
+                self.atom_data
+            )
+            estimated_continuum_properties = continuum_property_solver.solve(
+                radfield_mc_estimators,
+                self.transport.transport_state.time_of_simulation,
+                self.transport.transport_state.geometry_state.volume,
+            )
             update_properties.update(
-                gamma_estimator=estimators.photo_ion_estimator,
-                alpha_stim_estimator=estimators.stim_recomb_estimator,
-                bf_heating_coeff_estimator=estimators.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=estimators.stim_recomb_cooling_estimator,
+                gamma=estimated_continuum_properties.photo_ion_coeff,
+                alpha_stim_coeff=estimated_continuum_properties.stim_recomb_estimator,
+                bf_heating_coeff_estimator=radfield_mc_estimators.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=radfield_mc_estimators.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)

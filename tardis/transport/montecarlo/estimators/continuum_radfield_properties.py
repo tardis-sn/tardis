@@ -6,7 +6,7 @@ from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.plasma.properties.continuum_proc.continuum_processes import (
+from tardis.plasma.properties.continuum_processes.rates import (
     PhotoIonBoltzmannFactor,
 )
 from tardis.plasma.radiation_field.planck_rad_field import (

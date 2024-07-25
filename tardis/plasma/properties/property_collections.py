@@ -2,8 +2,8 @@ from tardis.opacities.macro_atom.base import (
     NonMarkovChainTransitionProbabilities,
     TransitionProbabilities,
 )
-from tardis.plasma.properties import *
 from tardis.opacities.tau_sobolev import TauSobolev
+from tardis.plasma.properties import *
 
 
 class PlasmaPropertyCollection(list):
@@ -88,9 +88,6 @@ helium_numerical_nlte_properties = PlasmaPropertyCollection(
 )
 continuum_interaction_inputs = PlasmaPropertyCollection(
     [
-        StimRecombRateCoeffEstimator,
-        PhotoIonRateCoeffEstimator,
-        Volume,
         BfHeatingRateCoeffEstimator,
         StimRecombCoolingRateCoeffEstimator,
         YgData,
@@ -99,15 +96,12 @@ continuum_interaction_inputs = PlasmaPropertyCollection(
 continuum_interaction_properties = PlasmaPropertyCollection(
     [
         PhotoIonizationData,
-        SpontRecombRateCoeff,
-        PhotoIonRateCoeff,
         ThermalLevelBoltzmannFactorLTE,
         ThermalLTEPartitionFunction,
         BetaElectron,
         ThermalGElectron,
         ThermalPhiSahaLTE,
         SahaFactor,
-        PhotoIonEstimatorsNormFactor,
         StimRecombRateCoeff,
         CorrPhotoIonRateCoeff,
         SpontRecombCoolingRateCoeff,

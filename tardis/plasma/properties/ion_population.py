@@ -8,7 +8,7 @@ from scipy import interpolate
 
 from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
-from tardis.plasma.properties.continuum_proc.continuum_processes import (
+from tardis.plasma.properties.continuum_processes.rates import (
     get_ion_multi_index,
 )
 

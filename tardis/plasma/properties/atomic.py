@@ -15,7 +15,7 @@ from tardis.plasma.properties.base import (
     HiddenPlasmaProperty,
     ProcessingPlasmaProperty,
 )
-from tardis.plasma.properties.continuum_proc.continuum_processes import (
+from tardis.plasma.properties.continuum_processes.rates import (
     A0,
     BETA_COLL,
     K_B,

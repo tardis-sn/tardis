@@ -7,7 +7,7 @@ Every property has a calculate function that returns the values of its outputs.
 
 from tardis.opacities.macro_atom.transition_probabilities import *
 from tardis.plasma.properties.atomic import *
-from tardis.plasma.properties.continuum_proc.continuum_processes import *
+from tardis.plasma.properties.continuum_processes.rates import *
 from tardis.plasma.properties.general import *
 from tardis.plasma.properties.helium_nlte import *
 from tardis.plasma.properties.ion_population import *
