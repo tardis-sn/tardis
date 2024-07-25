@@ -8,6 +8,7 @@ import numpy as np
 # NOTE: Currently all of the properties returned are as they are in the plasma, so dataframes, arrays, units, etc is ambiguous
 # NOTE: continuum ff_opacity factor should be computed by the opacity state
 
+
 def get_default(cls, attr, default=None):
 
     return getattr(cls, attr) if hasattr(cls, attr) else default
@@ -192,16 +193,14 @@ class ContinuumState(HDFWriterMixin):
 
     @property
     def bf_threshold_list_nu(self):
-        return self.nu_i.loc[
-            self.level2continuum_idx.index
-        ]
+        return self.nu_i.loc[self.level2continuum_idx.index]
 
     @property
     def phot_nus(self):
         return self.photo_ion_cross_sections.nu.loc[
             self.level2continuum_idx.index
         ]
-    
+
     @property
     def photo_ion_block_references(self):
 
@@ -211,42 +210,33 @@ class ContinuumState(HDFWriterMixin):
             .values.cumsum(),
             [1, 0],
         )
-    
+
     @property
     def photo_ion_nu_threshold_mins(self):
-        
-        return (
-            self.phot_nus.groupby(level=[0, 1, 2], sort=False).first()
-        )
-    
+
+        return self.phot_nus.groupby(level=[0, 1, 2], sort=False).first()
+
     @property
     def photo_ion_nu_threshold_maxs(self):
-        
-        return (
-            self.phot_nus.groupby(level=[0, 1, 2], sort=False).last()
-        )
-    
+
+        return self.phot_nus.groupby(level=[0, 1, 2], sort=False).last()
+
     @property
     def x_sect(self):
         return self.photo_ion_cross_sections.x_sect.loc[
             self.level2continuum_idx.index
         ]
-    
+
     @property
     def chi_bf(self):
         return self._chi_bf.loc[self.level2continuum_idx.index]
-    
+
     @property
     def emissivities(self):
-        return self.fb_emission_cdf.loc[
-            self.level2continuum_idx.index
-        ]
-    
+        return self.fb_emission_cdf.loc[self.level2continuum_idx.index]
+
     @property
     def photo_ion_activation_idx(self):
         return self.photo_ion_idx.loc[
             self.level2continuum_idx.index, "destination_level_idx"
         ]
-    
-
-    
