@@ -4,6 +4,7 @@ from numba.experimental import jitclass
 
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.plasma.plasma_state import PlasmaState, MacroAtomState
 
 opacity_state_spec = [
     ("electron_density", float64[:]),
@@ -29,6 +30,212 @@ opacity_state_spec = [
     ("photo_ion_activation_idx", int64[:]),
     ("k_packet_idx", int64),
 ]
+
+
+class OpacityStatePython:
+
+    def __init__(
+        self,
+        electron_density,
+        t_electrons,
+        line_list_nu,
+        tau_sobolev,
+        line2macro_level_upper,
+        macro_atom_opacity_state,
+        continuum_opacity_state,
+    ):
+        """
+        Opacity State in Python
+
+        Parameters
+        ----------
+        electron_density : numpy.ndarray
+        t_electrons : numpy.ndarray
+        line_list_nu : numpy.ndarray
+        tau_sobolev : numpy.ndarray
+        transition_probabilities : numpy.ndarray
+        line2macro_level_upper : numpy.ndarray
+        macro_block_references : numpy.ndarray
+        transition_type : numpy.ndarray
+        destination_level_id : numpy.ndarray
+        transition_line_id : numpy.ndarray
+        bf_threshold_list_nu : numpy.ndarray
+        """
+        self.electron_density = electron_density
+        self.t_electrons = t_electrons
+        self.line_list_nu = line_list_nu
+        self.line2macro_level_upper = line2macro_level_upper
+
+        self.tau_sobolev = tau_sobolev
+
+        # Continuum Opacity Data
+        self.continuum_opacity_state = continuum_opacity_state
+        self.macro_atom_opacity_state = macro_atom_opacity_state
+
+
+    @classmethod
+    def from_legacy_plasma(cls, plasma, tau_sobolev):
+
+        if hasattr(plasma, 'macro_atom_data'):
+            macro_atom_state = MacroAtomState.from_legacy_plasma(plasma)
+            macro_atom_opacity_state = MacroAtomOpacityStatePython.from_macro_atom_state(macro_atom_state) 
+        else:
+            macro_atom_opacity_state = None
+
+        if hasattr(plasma, 'photo_ion_cross_sections'):
+            continuum_opactity_state =  ContinuumOpacityStatePython.from_legacy_plasma(plasma)
+        else:
+            continuum_opactity_state = None
+
+        plasma_state = PlasmaState.from_legacy_plasma(plasma)
+        atomic_data = plasma.atomic_data
+
+        return cls.from_plasma_state(plasma_state, atomic_data, tau_sobolev, macro_atom_opacity_state, continuum_opactity_state)
+
+
+    @classmethod
+    def from_plasma_state(cls, plasma_state, atomic_data, tau_sobolev, macro_atom_opacity_state=None, continuum_opacity_state=None): 
+        # TODO: Handle Tau Sobolev
+        # TODO: Handle missing continuum/macro_atom states
+
+
+        return cls(plasma_state.electron_density,
+            plasma_state.electron_temperature,
+            atomic_data.lines.nu,
+            tau_sobolev,
+            atomic_data.lines_upper2macro_reference_idx,
+            continuum_opacity_state,
+            macro_atom_opacity_state
+            )
+
+class MacroAtomOpacityStatePython:
+
+    def __init__(self,
+                 transition_probabilities,
+                 macro_block_references,
+                 transition_type,
+                 destination_level_id,
+                 transition_line_id,
+                 ):
+        
+        self.transition_probabilities = transition_probabilities
+        self.macro_block_references = macro_block_references
+        self.transition_type = transition_type
+        self.destination_level_id = destination_level_id
+        self.transition_line_id = transition_line_id
+
+    @classmethod
+    def from_macro_atom_state(cls, macro_atom_state):
+
+        return cls(    
+            macro_atom_state.transition_probabilities,        
+            macro_atom_state.macro_block_references,
+            macro_atom_state.transition_type,
+            macro_atom_state.destination_level_id,
+            macro_atom_state.transition_line_id)
+
+
+class ContinuumOpacityStatePython:
+    """Current State of the Continuum Required for Opacity Computation"""
+
+    def __init__(
+        self,
+        nu_i,
+        level2continuum_idx,
+        p_fb_deactivation,
+        photo_ion_cross_sections,
+        chi_bf,
+        ff_cooling_factor,
+        fb_emission_cdf,
+        photo_ion_idx,
+        k_packet_idx,
+    ):
+
+        self.nu_i = nu_i
+        self.level2continuum_idx = level2continuum_idx
+        self.p_fb_deactivation = p_fb_deactivation
+        self.photo_ion_cross_sections = photo_ion_cross_sections
+        self._chi_bf = chi_bf
+        self.ff_cooling_factor = ff_cooling_factor
+        self.fb_emission_cdf = fb_emission_cdf
+        self.photo_ion_idx = photo_ion_idx
+        self.k_packet_idx = k_packet_idx
+
+    @classmethod
+    def from_legacy_plasma(cls, plasma):
+
+        nu_i = plasma.nu_i
+        level2continuum_idx = plasma.level2continuum_idx
+        p_fb_deactivation = plasma.p_fb_deactivation
+        photo_ion_cross_sections = plasma.photo_ion_cross_sections
+        chi_bf = plasma.chi_bf
+        ff_cooling_factor = plasma.ff_cooling_factor
+        fb_emission_cdf = plasma.fb_emission_cdf
+        photo_ion_idx = plasma.photo_ion_idx
+        k_packet_idx = plasma.k_packet_idx
+
+        return cls(
+            nu_i,
+            level2continuum_idx,
+            p_fb_deactivation,
+            photo_ion_cross_sections,
+            chi_bf,
+            ff_cooling_factor,
+            fb_emission_cdf,
+            photo_ion_idx,
+            k_packet_idx,
+        )
+
+    @property
+    def bf_threshold_list_nu(self):
+        return self.nu_i.loc[self.level2continuum_idx.index]
+
+    @property
+    def phot_nus(self):
+        return self.photo_ion_cross_sections.nu.loc[
+            self.level2continuum_idx.index
+        ]
+
+    @property
+    def photo_ion_block_references(self):
+
+        return np.pad(
+            self.phot_nus.groupby(level=[0, 1, 2], sort=False)
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+
+    @property
+    def photo_ion_nu_threshold_mins(self):
+
+        return self.phot_nus.groupby(level=[0, 1, 2], sort=False).first()
+
+    @property
+    def photo_ion_nu_threshold_maxs(self):
+
+        return self.phot_nus.groupby(level=[0, 1, 2], sort=False).last()
+
+    @property
+    def x_sect(self):
+        return self.photo_ion_cross_sections.x_sect.loc[
+            self.level2continuum_idx.index
+        ]
+
+    @property
+    def chi_bf(self):
+        return self._chi_bf.loc[self.level2continuum_idx.index]
+
+    @property
+    def emissivities(self):
+        return self.fb_emission_cdf.loc[self.level2continuum_idx.index]
+
+    @property
+    def photo_ion_activation_idx(self):
+        return self.photo_ion_idx.loc[
+            self.level2continuum_idx.index, "destination_level_idx"
+        ]
+
 
 
 @jitclass(opacity_state_spec)
