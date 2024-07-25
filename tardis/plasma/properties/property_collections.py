@@ -4,6 +4,9 @@ from tardis.opacities.macro_atom.base import (
 )
 from tardis.opacities.tau_sobolev import TauSobolev
 from tardis.opacities.continuum.bound_free import BoundFreeOpacity
+from tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob import (
+    RawCollIonTransProbs,
+)
 from tardis.plasma.properties import *
 
 
