@@ -7,7 +7,7 @@ from tardis.transport.montecarlo.packet_trackers import (
 )
 
 
-class BenchmarkMontecarloMontecarloNumbaRPacket(BenchmarkBase):
+class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
     """
     Class to benchmark the numba R packet function.
     """

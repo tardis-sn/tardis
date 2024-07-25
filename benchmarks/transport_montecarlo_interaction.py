@@ -10,16 +10,13 @@ from tardis.transport.montecarlo.numba_interface import (
 from asv_runner.benchmarks.mark import parameterize
 
 
-class BenchmarkMontecarloMontecarloNumbaInteraction(BenchmarkBase):
+class BenchmarkTransportMontecarloInteraction(BenchmarkBase):
     """
     Class to benchmark the numba interaction function.
     """
 
     def time_thomson_scatter(self):
         packet = self.packet
-        init_mu = packet.mu
-        init_nu = packet.nu
-        init_energy = packet.energy
         time_explosion = self.verysimple_time_explosion
         enable_full_relativity = self.verysimple_enable_full_relativity
 
