@@ -578,7 +578,7 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     """
     df = pd.read_csv(fname, delimiter=delimiter, comment="#", header=None)
     # Drop shell index column
-    df.drop(df.columns[0], axis=1, inplace=True)
+    df = df.drop(df.columns[0], axis=1)
     # Assign header row
     df.columns = [Z_DICT[i] for i in range(1, df.shape[1] + 1)]
     return df

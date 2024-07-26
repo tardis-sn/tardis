@@ -26,7 +26,7 @@ def test_simple_decay(simple_abundance_model):
 @pytest.fixture
 def raw_abundance_simple():
     abundances = pd.DataFrame([[0.2, 0.2], [0.1, 0.1]], index=[28, 30])
-    abundances.index.rename("atomic_number", inplace=True)
+    abundances.index = abundances.index.rename("atomic_number")
     return abundances
 
 
