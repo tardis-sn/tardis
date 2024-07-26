@@ -371,10 +371,6 @@ class BenchmarkBase:
         return self.nb_simulation_verysimple.transport.transport_state
 
     @property
-    def spectrum_frequency_grid(self):
-        return self.nb_simulation_verysimple.transport.spectrum_frequency_grid
-
-    @property
     def simulation_rpacket_tracking_enabled(self):
         config_verysimple = self.config_verysimple
         config_verysimple.montecarlo.iterations = 3
