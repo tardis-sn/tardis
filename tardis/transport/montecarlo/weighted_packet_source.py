@@ -53,7 +53,7 @@ class BlackBodyWeightedSource(BlackBodySimpleSource):
         nu_max = nus.max()
 
         self.nus = (
-            np.random.uniform(nu_min.cgs.value, nu_max.cgs.value, no_of_packets)
+            self.rng.uniform(nu_min.cgs.value, nu_max.cgs.value, no_of_packets)
             * nus.unit
         )
 
