@@ -39,18 +39,14 @@ concurrency:
 
 jobs:
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.rpacket_tracking }} rpacket_tracking ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
     if: github.repository_owner == 'tardis-sn'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         label: [osx-arm64, linux-64]
-        continuum: ["not", ""]
-        rpacket_tracking: ["not", ""]
-        exclude:
-          - continuum: ""
-            rpacket_tracking: ""
+        continuum: ['not', '']
         include:
           - label: osx-arm64
             os: macos-latest
@@ -86,18 +82,17 @@ jobs:
           pip install qgridnext
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking"
-
-      - name: Regression Data Generation tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking"
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum" 
+      
+      - name: Refdata Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum" 
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
 
       - run: mv .coverage .coverage.${{ strategy.job-index }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.rpacket_tracking }}-rpacket_tracking-${{ matrix.os }}
-          include-hidden-files: true
+          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.os }}
           path: |
             .coverage*
             !.coveragerc
