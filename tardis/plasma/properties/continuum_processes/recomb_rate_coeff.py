@@ -9,7 +9,7 @@ from tardis.transport.montecarlo.estimators.util import (
 )
 
 
-class StimRecombRateCoeff(Input):
+class StimRecombRateFactor(Input):
     """
     Attributes
     ----------
@@ -18,11 +18,11 @@ class StimRecombRateCoeff(Input):
         recombination.
     """
 
-    outputs = ("alpha_stim",)
+    outputs = ("alpha_stim_factor",)
     latex_name = (r"\alpha^{\textrm{stim}}_\textrm{estim}",)
 
 
-class StimRecombRateCoeffOLD(ProcessingPlasmaProperty):
+class StimRecombRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
@@ -35,54 +35,10 @@ class StimRecombRateCoeffOLD(ProcessingPlasmaProperty):
 
     def calculate(
         self,
-        photo_ion_cross_sections,
-        alpha_stim_estimator,
-        photo_ion_norm_factor,
-        photo_ion_block_references,
-        photo_ion_index,
-        dilute_planckian_radiation_field,
+        alpha_stim_factor,
         phi_ik,
-        t_electrons,
-        boltzmann_factor_photo_ion,
-        level2continuum_idx,
     ):
-        # Used for initialization
-        if alpha_stim_estimator is None:
-            alpha_stim = self.calculate_from_dilute_bb(
-                photo_ion_cross_sections,
-                photo_ion_block_references,
-                photo_ion_index,
-                dilute_planckian_radiation_field,
-                t_electrons,
-                boltzmann_factor_photo_ion,
-            )
-        else:
-            alpha_stim_estimator = bound_free_estimator_array2frame(
-                alpha_stim_estimator, level2continuum_idx
-            )
-            alpha_stim = alpha_stim_estimator * photo_ion_norm_factor
-        alpha_stim *= phi_ik.loc[alpha_stim.index]
-        return alpha_stim
-
-    @staticmethod
-    def calculate_from_dilute_bb(
-        photo_ion_cross_sections,
-        photo_ion_block_references,
-        photo_ion_index,
-        dilute_planckian_radiation_field,
-        t_electrons,
-        boltzmann_factor_photo_ion,
-    ):
-        nu = photo_ion_cross_sections["nu"]
-        x_sect = photo_ion_cross_sections["x_sect"]
-        j_nus = dilute_planckian_radiation_field.calculate_mean_intensity(nu)
-        j_nus *= boltzmann_factor_photo_ion
-        alpha_stim = j_nus.multiply(4.0 * np.pi * x_sect / nu / H, axis=0)
-        alpha_stim = integrate_array_by_blocks(
-            alpha_stim.values, nu.values, photo_ion_block_references
-        )
-        alpha_stim = pd.DataFrame(alpha_stim, index=photo_ion_index)
-        return alpha_stim
+        return alpha_stim_factor * phi_ik.loc[alpha_stim_factor.index]
 
 
 class SpontRecombRateCoeff(ProcessingPlasmaProperty):
@@ -99,7 +55,6 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
     def calculate(
         self,
         photo_ion_cross_sections,
-        t_electrons,
         photo_ion_block_references,
         photo_ion_index,
         phi_ik,

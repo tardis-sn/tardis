@@ -43,9 +43,9 @@ def test_continuum_estimators(
         continuum_simulation.plasma.gamma,
     )
     stimulated_recomb_rate_coeff = (
-        continuum_properties_dilute_bb.stimulated_recombination_rate_coefficient
+        continuum_properties_dilute_bb.stimulated_recombination_rate_factor
         * continuum_plasma.phi_ik.loc[
-            continuum_properties_dilute_bb.stimulated_recombination_rate_coefficient.index
+            continuum_properties_dilute_bb.stimulated_recombination_rate_factor.index
         ]
     )
     pdt.assert_frame_equal(
@@ -76,9 +76,9 @@ def test_continuum_estimators(
         continuum_simulation.plasma.gamma,
     )
     stimulated_recomb_rate_coeff = (
-        continuum_properties_mc.stimulated_recombination_rate_coefficient
+        continuum_properties_mc.stimulated_recombination_rate_factor
         * continuum_plasma.phi_ik.loc[
-            continuum_properties_dilute_bb.stimulated_recombination_rate_coefficient.index
+            continuum_properties_dilute_bb.stimulated_recombination_rate_factor.index
         ]
     )
     pdt.assert_frame_equal(

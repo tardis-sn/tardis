@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+from astropy import units as u
 
 from tardis.plasma import BasePlasma
 from tardis.plasma.base import PlasmaSolverSettings
@@ -221,7 +222,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
             gamma=initial_continuum_properties.photo_ionization_rate_coefficient,
             bf_heating_coeff_estimator=None,
             stim_recomb_cooling_coeff_estimator=None,
-            alpha_stim=initial_continuum_properties.stimulated_recombination_rate_coefficient,
+            alpha_stim_factor=initial_continuum_properties.stimulated_recombination_rate_factor,
         )
 
     ##### RADIATIVE RATES SETUP

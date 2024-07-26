@@ -94,6 +94,7 @@ helium_numerical_nlte_properties = PlasmaPropertyCollection(
 continuum_interaction_inputs = PlasmaPropertyCollection(
     [
         PhotoIonRateCoeff,
+        StimRecombRateFactor,
         BfHeatingRateCoeffEstimator,
         StimRecombCoolingRateCoeffEstimator,
         YgData,
@@ -101,6 +102,7 @@ continuum_interaction_inputs = PlasmaPropertyCollection(
 )
 continuum_interaction_properties = PlasmaPropertyCollection(
     [
+        StimRecombRateCoeff,
         PhotoIonizationData,
         SpontRecombRateCoeff,
         ThermalLevelBoltzmannFactorLTE,
@@ -109,7 +111,6 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         ThermalGElectron,
         ThermalPhiSahaLTE,
         SahaFactor,
-        StimRecombRateCoeff,
         CorrPhotoIonRateCoeff,
         SpontRecombCoolingRateCoeff,
         RawRecombTransProbs,
