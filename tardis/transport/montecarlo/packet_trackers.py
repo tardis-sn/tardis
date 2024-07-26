@@ -212,6 +212,16 @@ class RPacketLastInteractionTracker(object):
 
 @njit
 def generate_rpacket_tracker_list(no_of_packets, length):
+    """
+    Parameters
+    ----------
+    no_of_packets : The count of RPackets that are sent in the ejecta
+    length : initial length of the tracking array
+
+    Returns
+    -------
+    A list containing RPacketTracker for each RPacket
+    """
     rpacket_trackers = List()
     for i in range(no_of_packets):
         rpacket_trackers.append(RPacketTracker(length))
@@ -220,6 +230,15 @@ def generate_rpacket_tracker_list(no_of_packets, length):
 
 @njit
 def generate_rpacket_last_interaction_tracker_list(no_of_packets):
+    """
+    Parameters
+    ----------
+    no_of_packets : The count of RPackets that are sent in the ejecta
+
+    Returns
+    -------
+    A list containing RPacketLastInteractionTracker for each RPacket
+    """
     rpacket_trackers = List()
     for i in range(no_of_packets):
         rpacket_trackers.append(RPacketLastInteractionTracker())
