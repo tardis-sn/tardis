@@ -10,7 +10,7 @@ from tardis.io.configuration import config_reader
 from astropy.units import Quantity
 from tardis.io.configuration.config_reader import Configuration
 from tardis.plasma.exceptions import PlasmaConfigError
-from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.plasma.assembly.standard_plasmas import assemble_plasma
 
 
 def test_convergence_section_parser():

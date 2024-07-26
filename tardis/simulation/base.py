@@ -16,7 +16,7 @@ from tardis.io.model.parse_simulation_state import (
 )
 from tardis.io.util import HDFWriterMixin
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.plasma.assembly.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator

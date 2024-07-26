@@ -4,7 +4,7 @@ import pytest
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
-from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.plasma.assembly.standard_plasmas import assemble_plasma
 
 
 @pytest.fixture
