@@ -161,9 +161,7 @@ class RegressionData:
                 f"Skipping test to generate regression data: {self.fpath}"
             )
         else:
-            h5_file = pd.HDFStore(self.fpath, mode="r")
-            yield h5_file
-            h5_file.close()
+            return pd.HDFStore(self.fpath, mode="r")
 
 
 @pytest.fixture(scope="function")
