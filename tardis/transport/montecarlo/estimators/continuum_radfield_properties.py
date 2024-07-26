@@ -109,7 +109,7 @@ class DiluteBlackBodyContinuumPropertiesSolver:
         photo_ion_rate_coeff = self.calculate_photo_ionization_rate_coefficient(
             mean_intensity_photo_ion_df
         )
-        stimulated_recomb_rate_coeff = (
+        stimulated_recomb_rate_factor = (
             self.calculate_stimulated_recomb_rate_factor(
                 mean_intensity_photo_ion_df,
                 photo_ion_boltzmann_factor,
@@ -117,7 +117,7 @@ class DiluteBlackBodyContinuumPropertiesSolver:
         )
 
         return ContinuumProperties(
-            stimulated_recomb_rate_coeff, photo_ion_rate_coeff
+            stimulated_recomb_rate_factor, photo_ion_rate_coeff
         )
 
     def calculate_photo_ionization_rate_coefficient(
@@ -214,14 +214,13 @@ class DiluteBlackBodyContinuumPropertiesSolver:
                 self.atom_data.photoionization_data.nu.values
             )
         )
-        mean_intensity_df = pd.DataFrame(
+        return pd.DataFrame(
             mean_intensity,
             index=self.atom_data.photoionization_data.index,
             columns=np.arange(
                 len(dilute_blackbody_radiationfield_state.temperature)
             ),
         )
-        return mean_intensity_df
 
 
 @dataclass
