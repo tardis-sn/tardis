@@ -221,7 +221,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         # it is currently in the same if else block, and thus may block
         # the addition of the components from the else block.
         raise PlasmaConfigError(
-            "Helium NLTE treatment is incompatible with the NLTE eonization and excitation treatment."
+            "Helium NLTE treatment is incompatible with the NLTE ionization and excitation treatment."
         )
 
     # TODO: Disentangle these if else block such that compatible components
