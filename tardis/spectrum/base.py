@@ -22,14 +22,16 @@ class SpectrumSolver(HDFWriterMixin):
 
     hdf_name = "spectrum"
 
-    def __init__(self, transport_state, spectrum_frequency_grid):
+    def __init__(
+        self, transport_state, spectrum_frequency_grid, integrator_settings=None
+    ):
         self.transport_state = transport_state
         self.spectrum_frequency_grid = spectrum_frequency_grid
         self._montecarlo_virtual_luminosity = u.Quantity(
             np.zeros_like(self.spectrum_frequency_grid.value), "erg / s"
         )  # should be init with v_packets_energy_hist
         self._integrator = None
-        self.integrator_settings = None
+        self.integrator_settings = integrator_settings
         self._spectrum_integrated = None
 
     @property
@@ -60,7 +62,7 @@ class SpectrumSolver(HDFWriterMixin):
 
     @property
     def spectrum_integrated(self):
-        if self._spectrum_integrated is None:
+        if self._spectrum_integrated is None and self.integrator is not None:
             # This was changed from unpacking to specific attributes as compute
             # is not used in calculate_spectrum
             try:
@@ -83,13 +85,15 @@ class SpectrumSolver(HDFWriterMixin):
                     np.array([np.nan, np.nan]) * u.Hz,
                     np.array([np.nan]) * u.erg / u.s,
                 )
+        else:
+            self._spectrum_integrated = None
         return self._spectrum_integrated
 
     @property
     def integrator(self):
         if self._integrator is None:
             warnings.warn(
-                "MontecarloTransport.integrator: "
+                "SpectrumSolver.integrator: "
                 "The FormalIntegrator is not yet available."
                 "Please run the montecarlo simulation at least once.",
                 UserWarning,
@@ -178,6 +182,27 @@ class SpectrumSolver(HDFWriterMixin):
             luminosity_wavelength_filter
         ].sum()
 
+    def solve(self, transport_state):
+        """Solve the spectra
+
+        Parameters
+        ----------
+        transport_state: MonteCarloTransportState
+            The transport state to be used to compute the spectra
+
+        Returns
+        -------
+        tuple(TARDISSpectrum)
+            Real, virtual and integrated spectra, if available
+        """
+        self.transport_state = transport_state
+
+        return (
+            self.spectrum_real_packets,
+            self.spectrum_virtual_packets,
+            self.spectrum_integrated,
+        )
+
     @classmethod
     def from_config(cls, config):
         spectrum_frequency_grid = quantity_linspace(
@@ -189,4 +214,5 @@ class SpectrumSolver(HDFWriterMixin):
         return cls(
             transport_state=None,
             spectrum_frequency_grid=spectrum_frequency_grid,
+            integrator_settings=config.spectrum.integrated,
         )
