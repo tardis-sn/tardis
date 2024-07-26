@@ -31,6 +31,10 @@ class BlackBodyWeightedSource(BlackBodySimpleSource):
     hdf_properties = ["radius", "temperature", "base_seed"]
     hdf_name = "black_body_weighted_source"
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._reseed(self.base_seed) # Needed because base_source doesn't seed by default
+
     def create_packet_nus(self, no_of_packets, l_samples=1000):
         """
         Create packet :math:`\\nu` distributed uniformly over

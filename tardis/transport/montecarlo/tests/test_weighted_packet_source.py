@@ -27,8 +27,7 @@ class TestBlackBodyWeightedSource:
             radius=123,
             temperature=10000 * u.K,
             base_seed=1963,
-            legacy_second_seed=2508,
-            legacy_mode_enabled=True,
+            legacy_mode_enabled=False,
         )
         yield bb
 
