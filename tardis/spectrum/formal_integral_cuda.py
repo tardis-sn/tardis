@@ -55,7 +55,7 @@ def cuda_formal_integral(
     z,
     shell_id,
 ):
-    """
+    r"""
     The CUDA version of numba_formal_integral that can run
     on a NVIDIA GPU.
 
