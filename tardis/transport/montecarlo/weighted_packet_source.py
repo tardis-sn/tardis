@@ -33,7 +33,9 @@ class BlackBodyWeightedSource(BlackBodySimpleSource):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._reseed(self.base_seed) # Needed because base_source doesn't seed by default
+        self._reseed(
+            self.base_seed
+        )  # Needed because base_source doesn't seed by default
 
     def create_packet_nus(self, no_of_packets, l_samples=1000):
         """
