@@ -48,7 +48,7 @@ jobs:
           fetch-depth: 0
         if: github.event_name == 'pull_request_target'
 
-      - name: fetch master branch
+      - name: Fetch master branch
         run: git fetch origin master:master
         if: github.event_name == 'pull_request_target'
 
