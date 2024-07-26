@@ -11,7 +11,7 @@ from tardis.transport.montecarlo.packet_source import (
 from tardis.util.base import intensity_black_body
 
 
-class BlackBodyWeightedSource(BasePacketSource):
+class BlackBodyWeightedSource(BlackBodySimpleSource):
     """
     Simple packet source that generates Blackbody packets for the Montecarlo
     part.
