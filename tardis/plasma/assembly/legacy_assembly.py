@@ -22,7 +22,9 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     """
     atomic_numbers = simulation_state.abundance.index
     plasma_solver_factory = PlasmaSolverFactory(
-        config, atom_data, atomic_numbers
+        atom_data,
+        atomic_numbers,
+        config,
     )
 
     dilute_planckian_radiation_field = DilutePlanckianRadiationField(

@@ -89,12 +89,13 @@ class PlasmaSolverFactory:
     kwargs: dict = {}
     property_kwargs: dict = {}
 
-    def __init__(self, config, atom_data, selected_atomic_numbers) -> None:
-        self.parse_plasma_config(config.plasma)
+    def __init__(self, atom_data, selected_atomic_numbers, config=None) -> None:
+        if config is not None:
+            self.parse_plasma_config(config.plasma)
         self.atom_data = atom_data
         self.atom_data.prepare_atom_data(
             selected_atomic_numbers,
-            line_interaction_type=config.plasma.line_interaction_type,
+            line_interaction_type=self.line_interaction_type,
             continuum_interaction_species=self.continuum_interaction_species,
             nlte_species=self.legacy_nlte_species,
         )
