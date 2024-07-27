@@ -19,7 +19,9 @@ def test_generate_rpacket_tracker_list():
 
     assert len(rpacket_tracker_list) == no_of_packets
     assert len(rpacket_tracker_list[random_index].shell_id) == length
-    assert typeof(rpacket_tracker_list[random_index]) == typeof(RPacketTracker(length))
+    assert typeof(rpacket_tracker_list[random_index]) == typeof(
+        RPacketTracker(length)
+    )
 
 
 def test_generate_rpacket_last_interaction_tracker_list():
@@ -31,7 +33,6 @@ def test_generate_rpacket_last_interaction_tracker_list():
     )
 
     assert len(rpacket_last_interaction_tracker_list) == no_of_packets
-    assert (
-        typeof(rpacket_last_interaction_tracker_list[random_index])
-        == typeof(RPacketLastInteractionTracker())
-    )
+    assert typeof(
+        rpacket_last_interaction_tracker_list[random_index]
+    ) == typeof(RPacketLastInteractionTracker())
