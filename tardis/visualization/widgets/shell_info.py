@@ -190,7 +190,7 @@ class SimulationShellInfo(BaseShellInfo):
         super().__init__(
             sim_model.simulation_state.t_radiative,
             sim_model.simulation_state.dilution_factor,
-            sim_model.plasma.abundance,
+            sim_model.simulation_state.abundance,
             sim_model.plasma.number_density,
             sim_model.plasma.ion_number_density,
             sim_model.plasma.level_number_density,
