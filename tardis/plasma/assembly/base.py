@@ -89,71 +89,60 @@ class PlasmaSolverFactory:
     kwargs: dict = {}
     property_kwargs: dict = {}
 
-    def __init__(self, config, atom_data, atomic_numbers) -> None:
-
-        self.set_nlte_species_from_string(config.plasma.nlte.species)
-        self.set_continuum_interaction_species_from_string(
-            config.plasma.continuum_interaction.species
-        )
-        self.line_interaction_type = config.plasma.line_interaction_type
-
+    def __init__(self, config, atom_data, selected_atomic_numbers) -> None:
+        self.parse_plasma_config(config.plasma)
         self.atom_data = atom_data
         self.atom_data.prepare_atom_data(
-            atomic_numbers,
+            selected_atomic_numbers,
             line_interaction_type=config.plasma.line_interaction_type,
             continuum_interaction_species=self.continuum_interaction_species,
             nlte_species=self.legacy_nlte_species,
         )
-
-        #### THIS IS VERY BAD BUT FOR NOW IS CHICKEN/EGG
-        # Check if continuum interaction species are in selected_atoms
-        continuum_atoms = self.continuum_interaction_species.get_level_values(
-            "atomic_number"
-        )
-
-        continuum_atoms_in_selected_atoms = np.all(
-            continuum_atoms.isin(atom_data.selected_atomic_numbers)
-        )
-        if not continuum_atoms_in_selected_atoms:
-            raise PlasmaConfigError(
-                "Not all continuum interaction species "
-                "belong to atoms that have been specified "
-                "in the configuration."
-            )
-        ##### ----------------------------
+        self.check_continuum_interaction_species()
 
         self.plasma_modules = basic_inputs + basic_properties
-        self.link_t_rad_t_electron = config.plasma.link_t_rad_t_electron
 
-        self.setup_analytical_approximations(config.plasma)
-        if "delta_treatment" in config.plasma:
-            self.property_kwargs[RadiationFieldCorrection] = dict(
-                delta_treatment=config.plasma.delta_treatment
-            )
+        self.setup_analytical_approximations()
+        self.property_kwargs[RadiationFieldCorrection] = dict(
+            delta_treatment=self.delta_treatment
+        )
 
         self.setup_legacy_nlte(config.plasma.nlte)
+
         if self.line_interaction_type in ("downbranch", "macroatom") and (
             len(self.continuum_interaction_species) == 0
         ):
-            self.setup_legacy_macro_atom()
-        self.delta_treatment = config.plasma.get("delta_treatment", None)
-        if self.delta_treatment is not None:
-            self.property_kwargs[RadiationFieldCorrection] = dict(
-                delta_treatment=config.plasma.delta_treatment
-            )
+            self.plasma_modules += macro_atom_properties
 
-        self.helium_treatment = config.plasma.helium_treatment
-        self.heating_rate_data_file = config.plasma.heating_rate_data_file
         self.setup_helium_treatment()
 
-        self.nlte_solver = config.plasma.nlte_solver
-        self.nlte_ionization_species = config.plasma.nlte_ionization_species
-        self.nlte_excitation_species = config.plasma.nlte_excitation_species
         if len(config.plasma.continuum_interaction.species) > 0:
             self.setup_continuum_interactions(
                 config.plasma.continuum_interaction
             )
-        self.radiative_rates_type = config.plasma.radiative_rates_type
+
+    def parse_plasma_config(self, plasma_config):
+        self.set_continuum_interaction_species_from_string(
+            plasma_config.continuum_interaction.species
+        )
+        self.set_nlte_species_from_string(plasma_config.nlte.species)
+        self.line_interaction_type = plasma_config.line_interaction_type
+        self.link_t_rad_t_electron = plasma_config.link_t_rad_t_electron
+
+        self.excitation_analytical_approximation = plasma_config.excitation
+        self.ionization_analytical_approximation = plasma_config.ionization
+        self.delta_treatment = plasma_config.get("delta_treatment", None)
+
+        self.helium_treatment = plasma_config.helium_treatment
+        self.heating_rate_data_file = plasma_config.heating_rate_data_file
+
+        self.nlte_ionization_species = plasma_config.nlte_ionization_species
+        self.nlte_excitation_species = plasma_config.nlte_excitation_species
+
+        self.nlte_solver = plasma_config.nlte_solver
+
+        self.radiative_rates_type = plasma_config.radiative_rates_type
+
     def setup_helium_treatment(self):
         """
         Set up the helium treatment for the plasma assembly.
@@ -201,10 +190,10 @@ class PlasmaSolverFactory:
             self.plasma_modules += helium_nlte_properties
         elif self.helium_treatment == "numerical-nlte":
             self.plasma_modules += helium_numerical_nlte_properties
-            if heating_rate_data_file in ["none", None]:
+            if self.heating_rate_data_file in ["none", None]:
                 raise PlasmaConfigError("Heating rate data file not specified")
             self.property_kwargs[HeliumNumericalNLTE] = dict(
-                heating_rate_data_file=heating_rate_data_file
+                heating_rate_data_file=self.heating_rate_data_file
             )
         else:
             # If nlte ionization species are present, we don't want to add the
@@ -217,9 +206,6 @@ class PlasmaSolverFactory:
                 self.plasma_modules.append(LevelNumberDensity)
             else:
                 self.plasma_modules += helium_lte_properties
-
-    def setup_legacy_macro_atom(self):
-        self.plasma_modules += macro_atom_properties
 
     def setup_legacy_nlte(self, nlte_config):
         """
@@ -246,7 +232,7 @@ class PlasmaSolverFactory:
         else:
             self.plasma_modules += non_nlte_properties
 
-    def setup_analytical_approximations(self, plasma_config):
+    def setup_analytical_approximations(self):
         """
         Setup the analytical approximations for excitation and ionization.
 
@@ -254,9 +240,6 @@ class PlasmaSolverFactory:
         -------
         None
         """
-        self.excitation_analytical_approximation = plasma_config.excitation
-        self.ionization_analytical_approximation = plasma_config.ionization
-
         if self.excitation_analytical_approximation == "lte":
             self.plasma_modules += lte_excitation_properties
         elif self.excitation_analytical_approximation == "dilute-lte":
@@ -327,6 +310,23 @@ class PlasmaSolverFactory:
         self.continuum_interaction_species = pd.MultiIndex.from_tuples(
             continuum_interaction_species, names=["atomic_number", "ion_number"]
         )
+
+    def check_continuum_interaction_species(self):
+
+        continuum_atoms = self.continuum_interaction_species.get_level_values(
+            "atomic_number"
+        )
+
+        continuum_atoms_in_selected_atoms = np.all(
+            continuum_atoms.isin(self.atom_data.selected_atomic_numbers)
+        )
+
+        if not continuum_atoms_in_selected_atoms:
+            raise PlasmaConfigError(
+                "Not all continuum interaction species "
+                "belong to atoms that have been specified "
+                "in the configuration."
+            )
 
     def set_nlte_species_from_string(self, nlte_species):
         """
