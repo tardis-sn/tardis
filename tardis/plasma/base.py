@@ -293,7 +293,7 @@ class BasePlasma(PlasmaWriterMixin):
             edge labels into the file.
         """
         try:
-            pass
+            import pygraphviz
         except:
             logger.warning(
                 "pygraphviz missing. Plasma graph will not be " "generated."
