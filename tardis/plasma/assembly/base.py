@@ -64,6 +64,8 @@ class PlasmaSolverFactory:
 
     radiative_rates_type: str = "dilute-blackbody"
 
+    delta_treatment = None
+
     ## Statistical Balance Solver
     legacy_nlte_species: list = []
 
@@ -123,21 +125,34 @@ class PlasmaSolverFactory:
         self.link_t_rad_t_electron = config.plasma.link_t_rad_t_electron
 
         self.setup_analytical_approximations(config.plasma)
+        if "delta_treatment" in config.plasma:
+            self.property_kwargs[RadiationFieldCorrection] = dict(
+                delta_treatment=config.plasma.delta_treatment
+            )
 
         self.setup_legacy_nlte(config.plasma.nlte)
         if self.line_interaction_type in ("downbranch", "macroatom") and (
             len(self.continuum_interaction_species) == 0
         ):
             self.setup_legacy_macro_atom()
+        self.delta_treatment = config.plasma.get("delta_treatment", None)
+        if self.delta_treatment is not None:
+            self.property_kwargs[RadiationFieldCorrection] = dict(
+                delta_treatment=config.plasma.delta_treatment
+            )
 
         self.helium_treatment = config.plasma.helium_treatment
         self.heating_rate_data_file = config.plasma.heating_rate_data_file
         self.setup_helium_treatment()
+
+        self.nlte_solver = config.plasma.nlte_solver
+        self.nlte_ionization_species = config.plasma.nlte_ionization_species
+        self.nlte_excitation_species = config.plasma.nlte_excitation_species
         if len(config.plasma.continuum_interaction.species) > 0:
             self.setup_continuum_interactions(
                 config.plasma.continuum_interaction
             )
-
+        self.radiative_rates_type = config.plasma.radiative_rates_type
     def setup_helium_treatment(self):
         """
         Set up the helium treatment for the plasma assembly.
@@ -254,10 +269,6 @@ class PlasmaSolverFactory:
             self.plasma_modules += lte_ionization_properties
         elif self.ionization_analytical_approximation == "nebular":
             self.plasma_modules += nebular_ionization_properties
-            if "delta_treatment" in plasma_config:
-                self.property_kwargs[RadiationFieldCorrection] = dict(
-                    delta_treatment=plasma_config.delta_treatment
-                )
         else:
             raise PlasmaConfigError(
                 f'Invalid excitation analytical approximation. Configured as {self.ionization_analytical_approximation} but needs to be either "lte" or "nebular"'
@@ -333,11 +344,11 @@ class PlasmaSolverFactory:
         self.legacy_nlte_species = map_species_from_string(nlte_species)
 
     def setup_continuum_interactions(self, config_continuum_interaction):
-        line_interaction_type = self.line_interaction_type
-        if line_interaction_type != "macroatom":
+
+        if self.line_interaction_type != "macroatom":
             raise PlasmaConfigError(
                 "Continuum interactions require line_interaction_type "
-                f"macroatom (instead of {line_interaction_type})."
+                f"macroatom (instead of {self.line_interaction_type})."
             )
 
         self.plasma_modules += continuum_interaction_properties
@@ -364,17 +375,17 @@ class PlasmaSolverFactory:
             "inputs": transition_probabilities_outputs
         }
         if len(self.nlte_ionization_species + self.nlte_excitation_species) > 0:
-            if len(self.nlte_ionization_species) > 0:
+            if self.nlte_ionization_species:
                 nlte_ionization_species = self.nlte_ionization_species
                 for species in nlte_ionization_species:
-                    if species not in self.continuum_interaction_species:
+                    if species not in config_continuum_interaction.species:
                         raise PlasmaConfigError(
                             f"NLTE ionization species {species} not in continuum species."
                         )
-            if len(self.nlte_excitation_species) > 0:
+            if self.nlte_excitation_species:
                 nlte_excitation_species = self.nlte_excitation_species
                 for species in nlte_excitation_species:
-                    if species not in self.continuum_interaction.species:
+                    if species not in config_continuum_interaction.species:
                         raise PlasmaConfigError(
                             f"NLTE excitation species {species} not in continuum species."
                         )
