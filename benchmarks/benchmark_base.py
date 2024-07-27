@@ -28,7 +28,11 @@ from tardis.transport.montecarlo.numba_interface import opacity_state_initialize
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
 )
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
+from tardis.transport.montecarlo.packet_trackers import (
+    RPacketTracker,
+    RPacketLastInteractionTracker,
+    generate_rpacket_last_interaction_tracker,
+)
 
 
 class BenchmarkBase:
@@ -414,3 +418,8 @@ class BenchmarkBase:
             stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
             photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
         )
+
+    @property
+    def rpacket_tracker(self):
+        no_of_packets = len(self.transport_state.packet_collection)
+        return generate_rpacket_last_interaction_tracker_list(no_of_packets)
