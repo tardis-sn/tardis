@@ -127,6 +127,7 @@ class LinkTRadTElectron(Input):
 class HeliumTreatment(Input):
     outputs = ("helium_treatment",)
 
+
 class ContinuumInteractionSpecies(Input):
     """
     Attributes

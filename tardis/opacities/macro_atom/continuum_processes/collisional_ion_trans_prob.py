@@ -10,6 +10,7 @@ from tardis.plasma.properties.continuum_processes.rates import (
 
 H = const.h.cgs.value
 
+
 class RawCollIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     """
     Attributes

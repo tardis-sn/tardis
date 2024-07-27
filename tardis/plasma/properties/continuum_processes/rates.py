@@ -316,6 +316,7 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
             )
         return gamma_corr
 
+
 class StimRecombCoolingRateCoeffEstimator(Input):
     """
     Attributes
