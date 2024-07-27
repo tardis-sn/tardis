@@ -32,5 +32,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     )
 
     return plasma_solver_factory.assemble(
-        dilute_planckian_radiation_field, simulation_state
+        simulation_state.elemental_number_density,
+        dilute_planckian_radiation_field,
+        simulation_state.time_explosion,
     )

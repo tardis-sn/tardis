@@ -79,7 +79,11 @@ class PlasmaSolverFactory:
     heating_rate_data_file: str = "none"
 
     ## Continuum Interaction
-    continuum_interaction_species: pd.MultiIndex
+    continuum_interaction_species: pd.MultiIndex = pd.MultiIndex.from_tuples(
+        [], names=["atomic_number", "ion_number"]
+    )
+    enable_adiabatic_cooling: bool = False
+    enable_two_photon_decay: bool = False
 
     ## Opacities
     line_interaction_type: str = "scatter"
@@ -107,8 +111,8 @@ class PlasmaSolverFactory:
         self.property_kwargs[RadiationFieldCorrection] = dict(
             delta_treatment=self.delta_treatment
         )
-
-        self.setup_legacy_nlte(config.plasma.nlte)
+        if config is not None:
+            self.setup_legacy_nlte(config.plasma.nlte)
 
         if self.line_interaction_type in ("downbranch", "macroatom") and (
             len(self.continuum_interaction_species) == 0
@@ -117,10 +121,8 @@ class PlasmaSolverFactory:
 
         self.setup_helium_treatment()
 
-        if len(config.plasma.continuum_interaction.species) > 0:
-            self.setup_continuum_interactions(
-                config.plasma.continuum_interaction
-            )
+        if len(self.continuum_interaction_species) > 0:
+            self.setup_continuum_interactions()
 
     def parse_plasma_config(self, plasma_config):
         self.set_continuum_interaction_species_from_string(
@@ -143,6 +145,13 @@ class PlasmaSolverFactory:
         self.nlte_solver = plasma_config.nlte_solver
 
         self.radiative_rates_type = plasma_config.radiative_rates_type
+
+        self.enable_adiabatic_cooling = (
+            plasma_config.continuum_interaction.enable_adiabatic_cooling
+        )
+        self.enable_two_photon_decay = (
+            plasma_config.continuum_interaction.enable_two_photon_decay
+        )
 
     def setup_helium_treatment(self):
         """
@@ -345,7 +354,7 @@ class PlasmaSolverFactory:
         """
         self.legacy_nlte_species = map_species_from_string(nlte_species)
 
-    def setup_continuum_interactions(self, config_continuum_interaction):
+    def setup_continuum_interactions(self):
 
         if self.line_interaction_type != "macroatom":
             raise PlasmaConfigError(
@@ -356,10 +365,10 @@ class PlasmaSolverFactory:
         self.plasma_modules += continuum_interaction_properties
         self.plasma_modules += continuum_interaction_inputs
 
-        if config_continuum_interaction.enable_adiabatic_cooling:
+        if self.enable_adiabatic_cooling:
             self.plasma_modules += adiabatic_cooling_properties
 
-        if config_continuum_interaction.enable_two_photon_decay:
+        if self.enable_two_photon_decay:
             self.plasma_modules += two_photon_properties
 
         transition_probabilities_outputs = [
@@ -380,14 +389,14 @@ class PlasmaSolverFactory:
             if self.nlte_ionization_species:
                 nlte_ionization_species = self.nlte_ionization_species
                 for species in nlte_ionization_species:
-                    if species not in config_continuum_interaction.species:
+                    if species not in self.continuum_interaction_species:
                         raise PlasmaConfigError(
                             f"NLTE ionization species {species} not in continuum species."
                         )
             if self.nlte_excitation_species:
                 nlte_excitation_species = self.nlte_excitation_species
                 for species in nlte_excitation_species:
-                    if species not in config_continuum_interaction.species:
+                    if species not in self.continuum_interaction_species:
                         raise PlasmaConfigError(
                             f"NLTE excitation species {species} not in continuum species."
                         )
@@ -453,7 +462,13 @@ class PlasmaSolverFactory:
         )
         return initial_continuum_properties
 
-    def assemble(self, dilute_planckian_radiation_field, simulation_state):
+    def assemble(
+        self,
+        number_densities,
+        dilute_planckian_radiation_field,
+        time_explosion,
+        electron_densities=None,
+    ):
         j_blues = self.initialize_j_blues(
             dilute_planckian_radiation_field, self.atom_data.lines
         )
@@ -462,10 +477,9 @@ class PlasmaSolverFactory:
         )
 
         kwargs = dict(
-            time_explosion=simulation_state.time_explosion,
+            time_explosion=time_explosion,
             dilute_planckian_radiation_field=dilute_planckian_radiation_field,
-            abundance=simulation_state.abundance,
-            number_density=simulation_state.elemental_number_density,
+            number_density=number_densities,
             link_t_rad_t_electron=self.link_t_rad_t_electron,
             atomic_data=self.atom_data,
             j_blues=j_blues,
@@ -485,10 +499,8 @@ class PlasmaSolverFactory:
                 alpha_stim_factor=initial_continuum_properties.stimulated_recombination_rate_factor,
             )
 
-        if simulation_state._electron_densities is not None:
-            electron_densities = pd.Series(
-                simulation_state._electron_densities.cgs.value
-            )
+        if electron_densities is not None:
+            electron_densities = pd.Series(electron_densities.cgs.value)
             self.setup_electron_densities(electron_densities)
         kwargs["helium_treatment"] = self.helium_treatment
         return BasePlasma(
