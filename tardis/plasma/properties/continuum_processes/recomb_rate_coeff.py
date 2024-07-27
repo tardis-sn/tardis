@@ -4,7 +4,6 @@ import pandas as pd
 from tardis.plasma.properties.base import Input, ProcessingPlasmaProperty
 from tardis.plasma.properties.continuum_processes.rates import C, H
 from tardis.transport.montecarlo.estimators.util import (
-    bound_free_estimator_array2frame,
     integrate_array_by_blocks,
 )
 
