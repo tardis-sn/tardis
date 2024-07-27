@@ -27,6 +27,7 @@ class BasePlasma(PlasmaWriterMixin):
         self,
         plasma_properties,
         property_kwargs=None,
+        plasma_solver_settings=None,
         **kwargs,
     ):
         self.outputs_dict = {}
@@ -34,6 +35,7 @@ class BasePlasma(PlasmaWriterMixin):
         self.plasma_properties = self._init_properties(
             plasma_properties, property_kwargs, **kwargs
         )
+        self.plasma_solver_settings = plasma_solver_settings
         self._build_graph()
         self.update(**kwargs)
 

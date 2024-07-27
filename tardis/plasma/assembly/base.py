@@ -5,6 +5,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis.plasma import BasePlasma
+from tardis.plasma.base import PlasmaSolverSettings
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import (
     HeliumNumericalNLTE,
@@ -224,13 +225,13 @@ class PlasmaSolverFactory:
         """
         Set up the non-LTE (NLTE) properties for the legacy species.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         nlte_config : dict
             A dictionary containing the NLTE configuration.
 
-        Notes:
-        ------
+        Notes
+        -----
         This method adds the NLTE properties for the legacy species to the plasma modules.
         If there are no legacy NLTE species, it adds the non-NLTE properties instead.
         """
@@ -455,6 +456,9 @@ class PlasmaSolverFactory:
         j_blues = self.initialize_j_blues(
             dilute_planckian_radiation_field, self.atom_data.lines
         )
+        plasma_solver_settings = PlasmaSolverSettings(
+            RADIATIVE_RATES_TYPE=self.radiative_rates_type
+        )
 
         kwargs = dict(
             time_explosion=simulation_state.time_explosion,
@@ -489,5 +493,6 @@ class PlasmaSolverFactory:
         return BasePlasma(
             plasma_properties=self.plasma_modules,
             property_kwargs=self.property_kwargs,
+            plasma_solver_settings=plasma_solver_settings,
             **kwargs,
         )
