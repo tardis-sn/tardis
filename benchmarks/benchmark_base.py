@@ -30,7 +30,6 @@ from tardis.transport.montecarlo.packet_collections import (
 )
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketTracker,
-    generate_rpacket_last_interaction_tracker_list,
 )
 
 
@@ -420,5 +419,9 @@ class BenchmarkBase:
 
     @property
     def rpacket_tracker_list(self):
+        from tardis.transport.montecarlo.packet_trackers import (
+            generate_rpacket_last_interaction_tracker_list,
+        )
+
         no_of_packets = len(self.transport_state.packet_collection)
         return generate_rpacket_last_interaction_tracker_list(no_of_packets)
