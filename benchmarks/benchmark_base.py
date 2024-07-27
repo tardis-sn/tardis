@@ -30,7 +30,7 @@ from tardis.transport.montecarlo.packet_collections import (
 )
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketTracker,
-    generate_rpacket_last_interaction_tracker,
+    generate_rpacket_last_interaction_tracker_list,
 )
 
 
