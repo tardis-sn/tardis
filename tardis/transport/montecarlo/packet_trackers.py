@@ -6,6 +6,7 @@ import pandas as pd
 
 rpacket_tracker_spec = [
     ("length", int64),
+    ("boundary_interaction_array_length", int64),
     ("seed", int64),
     ("index", int64),
     ("status", int64[:]),
@@ -15,7 +16,7 @@ rpacket_tracker_spec = [
     ("energy", float64[:]),
     ("shell_id", int64[:]),
     ("interaction_type", int64[:]),
-    ("boundary_interaction_shell_transition", int64[:, 2]),
+    ("boundary_shell_transition", int64[:, :]),
     ("num_interactions", int64),
     ("extend_factor", int64),
 ]
@@ -55,6 +56,7 @@ class RPacketTracker(object):
 
     def __init__(self, length):
         self.length = length
+        self.boundary_interaction_array_length = length
         self.seed = np.int64(0)
         self.index = np.int64(0)
         self.status = np.empty(self.length, dtype=np.int64)
@@ -104,15 +106,21 @@ class RPacketTracker(object):
         self.num_interactions += 1
 
     def track_boundary_interaction(self, current_shell_id, next_shell_id):
-        if self.num_boundary_interactions >= self.length:
-            temp_length = self.length * 2
-            temp_interaction_type = np.empty((temp_length, 2), dtype=np.int64)
+        if (
+            self.num_boundary_interactions
+            >= self.boundary_interaction_array_length
+        ):
+            temp_length = self.boundary_interaction_array_length * 2
+            temp_boundary_shell_transition = np.empty(
+                (temp_length, 2), dtype=np.int64
+            )
 
             temp_boundary_shell_transition[
-                : self.length
+                : self.boundary_interaction_array_length
             ] = self.boundary_shell_transition
 
             self.boundary_shell_transition = temp_boundary_shell_transition
+            self.boundary_interaction_array_length = temp_length
 
         self.boundary_shell_transition[self.num_boundary_interactions] = (
             current_shell_id,
@@ -129,7 +137,7 @@ class RPacketTracker(object):
         self.shell_id = self.shell_id[: self.num_interactions]
         self.interaction_type = self.interaction_type[: self.num_interactions]
         self.boundary_shell_transition = self.boundary_shell_transition[
-            self.num_boundary_interactions
+            : self.num_boundary_interactions
         ]
 
 
