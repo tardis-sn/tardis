@@ -420,5 +420,5 @@ class BenchmarkBase:
 
     @property
     def rpacket_tracker_list(self):
-        no_of_packets = len(self.transport_state.packet_collection)
+        no_of_packets = len(self.transport_state.packet_collection.initial_nus)
         return generate_rpacket_last_interaction_tracker_list(no_of_packets)
