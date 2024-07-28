@@ -3,7 +3,18 @@ import re
 from ipywidgets import Output, Tab, Layout
 from IPython.display import display, HTML
 
-def logging_state(log_level, tardis_config, specific_log_level):
+LOGGING_LEVELS = {
+    "NOTSET": logging.NOTSET,
+    "DEBUG": logging.DEBUG,
+    "INFO": logging.INFO,
+    "WARNING": logging.WARNING,
+    "ERROR": logging.ERROR,
+    "CRITICAL": logging.CRITICAL,
+}
+DEFAULT_LOG_LEVEL = "INFO"
+DEFAULT_SPECIFIC_STATE = False
+
+def logging_state(log_level, tardis_config, specific_log_level=None):
     """
     Function to set the logging configuration for the simulation output
     Called from within run_tardis()
@@ -22,48 +33,33 @@ def logging_state(log_level, tardis_config, specific_log_level):
     """
     if "debug" in tardis_config:
         specific_log_level = (
-            tardis_config["debug"]["specific_log_level"]
-            if specific_log_level is None
-            else specific_log_level
+            tardis_config["debug"].get("specific_log_level", specific_log_level)
         )
-
-        logging_level = (
-            log_level if log_level else tardis_config["debug"]["log_level"]
-        )
-
-        if log_level and tardis_config["debug"]["log_level"]:
+        logging_level = log_level or tardis_config["debug"].get("log_level", "INFO")
+        if log_level and tardis_config["debug"].get("log_level"):
             print(
                 "log_level is defined both in Functional Argument & YAML Configuration {debug section}"
             )
             print(
                 f"log_level = {log_level.upper()} will be used for Log Level Determination\n"
             )
-
     else:
         tardis_config["debug"] = {}
-
-        if log_level:
-            logging_level = log_level
-        else:
-            tardis_config["debug"]["log_level"] = "INFO"
-            logging_level = tardis_config["debug"]["log_level"]
-
-        if not specific_log_level:
-            tardis_config["debug"]["specific_log_level"] = False
-            specific_log_level = tardis_config["debug"]["specific_log_level"]
+        logging_level = log_level or DEFAULT_LOG_LEVEL
+        specific_log_level = specific_log_level or DEFAULT_SPECIFIC_STATE
 
     logging_level = logging_level.upper()
-    if not logging_level in ["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "ALL"]:
+    if logging_level not in LOGGING_LEVELS:
         raise ValueError(
-            f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following ['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'ALL']"
+            f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
         )
 
     logger = logging.getLogger("tardis")
     tardis_loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict if name.startswith("tardis")]
 
-    if logging_level in ["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR"]:
+    if logging_level in LOGGING_LEVELS:
         for logger in tardis_loggers:
-            logger.setLevel(getattr(logging, logging_level))
+            logger.setLevel(LOGGING_LEVELS[logging_level])
 
     if logger.filters:
         for filter in logger.filters:
@@ -71,7 +67,7 @@ def logging_state(log_level, tardis_config, specific_log_level):
                 logger.removeFilter(filter)
 
     if specific_log_level:
-        filter_log = FilterLog([getattr(logging, logging_level), logging.INFO, logging.DEBUG])
+        filter_log = FilterLog([LOGGING_LEVELS[logging_level], logging.INFO, logging.DEBUG])
         for logger in tardis_loggers:
             logger.addFilter(filter_log)
     else:
@@ -189,21 +185,19 @@ logging.getLogger("py.warnings").addHandler(widget_handler)
 
 class FilterLog(object):
     """
-    Filter Log Class for Filtering Logging Output
-    to a particular level.
+    Filter Log Class for Filtering Logging Output to a particular level.
 
     Parameters
     ----------
-    log_level : logging object
-        allows to have a filter for the
-        particular log_level
+    log_levels : list
+        List of log levels to be filtered.
     """
     def __init__(self, log_levels):
         self.log_levels = log_levels
 
     def filter(self, log_record):
         """
-         Determine if the specified record is to be logged.
+        Determine if the specified record is to be logged.
 
         Parameters
         ----------
@@ -212,9 +206,7 @@ class FilterLog(object):
 
         Returns
         -------
-        boolean : True, if the current log_record has the
-            level that of the specified log_level,
-            False, if the current log_record doesn't have the
-            same log_level as the specified one.
+        bool
+            True if the log record's level is in the specified log_levels, False otherwise.
         """
         return log_record.levelno in self.log_levels
