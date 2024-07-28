@@ -216,7 +216,7 @@ class HDFShellInfo(BaseShellInfo):
             super().__init__(
                 sim_data["/simulation/simulation_state/t_radiative"],
                 sim_data["/simulation/simulation_state/dilution_factor"],
-                sim_data["/simulation/plasma/abundance"],
+                sim_data["/simulation/simulation_state/abundance"],
                 sim_data["/simulation/plasma/number_density"],
                 sim_data["/simulation/plasma/ion_number_density"],
                 sim_data["/simulation/plasma/level_number_density"],

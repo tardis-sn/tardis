@@ -103,28 +103,21 @@ class PlasmaSolverFactory:
             continuum_interaction_species=self.continuum_interaction_species,
             nlte_species=self.legacy_nlte_species,
         )
-        self.check_continuum_interaction_species()
-
-        self.plasma_modules = basic_inputs + basic_properties
-
-        self.setup_analytical_approximations()
-        self.property_kwargs[RadiationFieldCorrection] = dict(
-            delta_treatment=self.delta_treatment
-        )
-        if config is not None:
-            self.setup_legacy_nlte(config.plasma.nlte)
-
-        if self.line_interaction_type in ("downbranch", "macroatom") and (
-            len(self.continuum_interaction_species) == 0
-        ):
-            self.plasma_modules += macro_atom_properties
-
-        self.setup_helium_treatment()
-
-        if len(self.continuum_interaction_species) > 0:
-            self.setup_continuum_interactions()
 
     def parse_plasma_config(self, plasma_config):
+        """
+        Parse the plasma configuration.
+
+        Parameters
+        ----------
+        plasma_config : PlasmaConfig
+            The plasma configuration object containing the plasma parameters.
+
+        Returns
+        -------
+        None
+
+        """
         self.set_continuum_interaction_species_from_string(
             plasma_config.continuum_interaction.species
         )
@@ -152,6 +145,30 @@ class PlasmaSolverFactory:
         self.enable_two_photon_decay = (
             plasma_config.continuum_interaction.enable_two_photon_decay
         )
+
+    def setup_factory(self, config=None):
+        self.check_continuum_interaction_species()
+
+        self.plasma_modules = basic_inputs + basic_properties
+
+        self.setup_analytical_approximations()
+        self.property_kwargs[RadiationFieldCorrection] = dict(
+            delta_treatment=self.delta_treatment
+        )
+        if (config is not None) and len(self.legacy_nlte_species) > 0:
+            self.setup_legacy_nlte(config.plasma.nlte)
+        else:
+            self.plasma_modules += non_nlte_properties
+
+        if self.line_interaction_type in ("downbranch", "macroatom") and (
+            len(self.continuum_interaction_species) == 0
+        ):
+            self.plasma_modules += macro_atom_properties
+
+        self.setup_helium_treatment()
+
+        if len(self.continuum_interaction_species) > 0:
+            self.setup_continuum_interactions()
 
     def setup_helium_treatment(self):
         """
@@ -231,16 +248,13 @@ class PlasmaSolverFactory:
         This method adds the NLTE properties for the legacy species to the plasma modules.
         If there are no legacy NLTE species, it adds the non-NLTE properties instead.
         """
-        if len(self.legacy_nlte_species) > 0:
-            self.plasma_modules += nlte_properties
-            self.plasma_modules.append(
-                LevelBoltzmannFactorNLTE.from_config(nlte_config)
-            )
-            self.property_kwargs[StimulatedEmissionFactor] = dict(
-                nlte_species=self.legacy_nlte_species
-            )
-        else:
-            self.plasma_modules += non_nlte_properties
+        self.plasma_modules += nlte_properties
+        self.plasma_modules.append(
+            LevelBoltzmannFactorNLTE.from_config(nlte_config)
+        )
+        self.property_kwargs[StimulatedEmissionFactor] = dict(
+            nlte_species=self.legacy_nlte_species
+        )
 
     def setup_analytical_approximations(self):
         """
