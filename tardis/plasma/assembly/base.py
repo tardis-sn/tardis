@@ -152,6 +152,25 @@ class PlasmaSolverFactory:
         )
 
     def setup_factory(self, config=None):
+        """
+        Set up the plasma factory.
+
+        Parameters
+        ----------
+        config : object, optional
+            Configuration object containing plasma settings (default: None).
+
+        Notes
+        -----
+        This method performs the necessary setup steps for the plasma factory.
+        It checks the continuum interaction species, sets up the plasma modules,
+        sets up analytical approximations, sets up radiation field correction,
+        sets up legacy NLTE species if present, sets up macro atom properties if
+        line interaction type is 'downbranch' or 'macroatom' and there are no
+        continuum interaction species, and sets up helium treatment. Finally,
+        it sets up continuum interactions if there are any.
+
+        """
         self.check_continuum_interaction_species()
 
         self.plasma_modules = basic_inputs + basic_properties
@@ -247,11 +266,6 @@ class PlasmaSolverFactory:
         ----------
         nlte_config : dict
             A dictionary containing the NLTE configuration.
-
-        Notes
-        -----
-        This method adds the NLTE properties for the legacy species to the plasma modules.
-        If there are no legacy NLTE species, it adds the non-NLTE properties instead.
         """
         self.plasma_modules += nlte_properties
         self.plasma_modules.append(
@@ -337,7 +351,13 @@ class PlasmaSolverFactory:
         ]
 
     def check_continuum_interaction_species(self):
+        """
+        Check if all continuum interaction species belong to atoms that have been specified in the configuration.
 
+        Raises
+        ------
+            PlasmaConfigError: If not all continuum interaction species belong to specified atoms.
+        """
         continuum_atoms = (
             self.continuum_interaction_species_multi_index.get_level_values(
                 "atomic_number"
@@ -372,7 +392,16 @@ class PlasmaSolverFactory:
         self.legacy_nlte_species = map_species_from_string(nlte_species)
 
     def setup_continuum_interactions(self):
+        """
+        Set up continuum interactions for the plasma assembly.
 
+        Raises
+        ------
+            PlasmaConfigError: If the line_interaction_type is not "macroatom".
+            PlasmaConfigError: If an NLTE ionization species is not in the continuum species.
+            PlasmaConfigError: If an NLTE excitation species is not in the continuum species.
+            PlasmaConfigError: If the NLTE solver type is unknown.
+        """
         if self.line_interaction_type != "macroatom":
             raise PlasmaConfigError(
                 "Continuum interactions require line_interaction_type "
