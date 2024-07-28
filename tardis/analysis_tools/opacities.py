@@ -1,10 +1,13 @@
 """This module provides an opacity calculator class with which the opacities
 and optical depth information may be extracted from Tardis runs."""
+
 import logging
 import numpy as np
+
 import astropy.units as units
+from astropy.modeling.blackbody import blackbody_nu
+
 from tardis import constants as const
-from astropy.modeling.models import Blackbody
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +36,7 @@ class opacity_calculator(object):
 
     Parameters
     ----------
-    mdl : tardis.model.SimulationState
+    mdl : tardis.model.Radial1DModel
         model object of the Tardis run
     nbins : int
         number of bins of the frequency grid (default 300)
@@ -372,13 +375,14 @@ class opacity_calculator(object):
 
         for i in range(self.nshells):
             delta_nu = self.nu_bins[1:] - self.nu_bins[:-1]
-            temperature = self.mdl.plasma.t_rad[i]
-            bb_nu = Blackbody(temperature)
+            T = self.mdl.plasma.t_rad[i]
 
             tmp = (
-                bb_nu(self.nu_bins[:-1]) * delta_nu * self.kappa_tot[:, 0]
+                blackbody_nu(self.nu_bins[:-1], T)
+                * delta_nu
+                * self.kappa_tot[:, 0]
             ).sum()
-            tmp /= (bb_nu(self.nu_bins[:-1], temperature) * delta_nu).sum()
+            tmp /= (blackbody_nu(self.nu_bins[:-1], T) * delta_nu).sum()
 
             kappa_planck_mean[i] = tmp
 
