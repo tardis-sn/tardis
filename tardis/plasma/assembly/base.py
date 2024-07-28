@@ -79,9 +79,7 @@ class PlasmaSolverFactory:
     heating_rate_data_file: str = "none"
 
     ## Continuum Interaction
-    continuum_interaction_species: pd.MultiIndex = pd.MultiIndex.from_tuples(
-        [], names=["atomic_number", "ion_number"]
-    )
+    continuum_interaction_species: list = []
     enable_adiabatic_cooling: bool = False
     enable_two_photon_decay: bool = False
 
@@ -100,8 +98,15 @@ class PlasmaSolverFactory:
         self.atom_data.prepare_atom_data(
             selected_atomic_numbers,
             line_interaction_type=self.line_interaction_type,
-            continuum_interaction_species=self.continuum_interaction_species,
+            continuum_interaction_species=self.continuum_interaction_species_multi_index,
             nlte_species=self.legacy_nlte_species,
+        )
+
+    @property
+    def continuum_interaction_species_multi_index(self):
+        return pd.MultiIndex.from_tuples(
+            map_species_from_string(self.continuum_interaction_species),
+            names=["atomic_number", "ion_number"],
         )
 
     def parse_plasma_config(self, plasma_config):
@@ -118,7 +123,7 @@ class PlasmaSolverFactory:
         None
 
         """
-        self.set_continuum_interaction_species_from_string(
+        self.continuum_interaction_species = (
             plasma_config.continuum_interaction.species
         )
         self.set_nlte_species_from_string(plasma_config.nlte.species)
@@ -326,19 +331,17 @@ class PlasmaSolverFactory:
         -------
         None
         """
-        continuum_interaction_species = [
+        self.continuum_interaction_species = [
             species_string_to_tuple(species)
             for species in continuum_interaction_species
         ]
 
-        self.continuum_interaction_species = pd.MultiIndex.from_tuples(
-            continuum_interaction_species, names=["atomic_number", "ion_number"]
-        )
-
     def check_continuum_interaction_species(self):
 
-        continuum_atoms = self.continuum_interaction_species.get_level_values(
-            "atomic_number"
+        continuum_atoms = (
+            self.continuum_interaction_species_multi_index.get_level_values(
+                "atomic_number"
+            )
         )
 
         continuum_atoms_in_selected_atoms = np.all(
@@ -497,7 +500,7 @@ class PlasmaSolverFactory:
             link_t_rad_t_electron=self.link_t_rad_t_electron,
             atomic_data=self.atom_data,
             j_blues=j_blues,
-            continuum_interaction_species=self.continuum_interaction_species,
+            continuum_interaction_species=self.continuum_interaction_species_multi_index,
             nlte_ionization_species=self.nlte_ionization_species,
             nlte_excitation_species=self.nlte_excitation_species,
         )

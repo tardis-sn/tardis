@@ -35,4 +35,5 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         simulation_state.elemental_number_density,
         dilute_planckian_radiation_field,
         simulation_state.time_explosion,
+        simulation_state._electron_densities,
     )
