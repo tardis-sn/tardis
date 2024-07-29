@@ -146,32 +146,6 @@ class OpacityState(object):
             self.k_packet_idx,
         )
 
-    def slice(self, i, j):
-        return OpacityState(
-            self.electron_density[i:j],
-            self.t_electrons[i:j],
-            self.line_list_nu,
-            self.tau_sobolev[:, i:j],
-            self.transition_probabilities[:, i:j],
-            self.line2macro_level_upper,
-            self.macro_block_references,
-            self.transition_type,
-            self.destination_level_id,
-            self.transition_line_id,
-            self.bf_threshold_list_nu,
-            self.p_fb_deactivation,
-            self.photo_ion_nu_threshold_mins,
-            self.photo_ion_nu_threshold_maxs,
-            self.photo_ion_block_references,
-            self.chi_bf,
-            self.x_sect,
-            self.phot_nus,
-            self.ff_opacity_factor,
-            self.emissivities,
-            self.photo_ion_activation_idx,
-            self.k_packet_idx,
-        )
-
 
 def opacity_state_initialize(
     plasma,
