@@ -28,6 +28,11 @@ class PacketStatus(IntEnum):
     ADIABATIC_COOLING = 4
 
 
+class PacketEjectaStatus(IntEnum):
+    OUT_EJECTA = -1
+    IN_EJECTA = 1
+
+
 rpacket_spec = [
     ("r", float64),
     ("mu", float64),
