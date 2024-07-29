@@ -1,4 +1,4 @@
-name: Stardis Tests
+name: stardis tests
 
 on:
   push:
@@ -53,7 +53,7 @@ jobs:
           use-mamba: true
   
       - name: Cache lockfile
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ matrix.prefix }}
           key: conda-${{ matrix.label }}-${{ hashFiles(format('conda-{0}.lock', matrix.label)) }}-${{ env.CACHE_NUMBER }}
@@ -65,15 +65,15 @@ jobs:
           mamba update -n stardis --file conda-${{ matrix.label }}.lock
         if: steps.cache-conda.outputs.cache-hit != 'true'
         
-      - name: Install TARDIS
+      - name: Install tardis
         id: install-tardis
         run: |
           pip install git+https://github.com/tardis-sn/tardis.git@${{ github.sha }}
           
-      - name: Install STARDIS
+      - name: Install stardis
         id: install-stardis
         run: |
           pip install -e .[test]
 
-      - name: Run Stardis tests  
+      - name: Run stardis tests  
         run: pytest
