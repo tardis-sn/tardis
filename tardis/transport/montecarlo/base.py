@@ -111,9 +111,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.line_interaction_type,
             self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )
-        opacity_state = opacity_state.slice(self.simulation_state.geometry.v_inner_boundary_index, self.simulation_state.geometry.v_outer_boundary_index)
+        opacity_state = opacity_state[simulation_state.geometry.v_inner_boundary_index: simulation_state.geometry.v_outer_boundary_index]
         estimators = initialize_estimator_statistics(
-            opacity_state.tau_sobolevs.shape, gamma_shape
+            opacity_state.tau_sobolev.shape, gamma_shape
         )
         
         transport_state = MonteCarloTransportState(
