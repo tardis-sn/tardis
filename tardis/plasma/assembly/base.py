@@ -121,7 +121,6 @@ class PlasmaSolverFactory:
         Returns
         -------
         None
-
         """
         self.continuum_interaction_species = (
             plasma_config.continuum_interaction.species
@@ -159,17 +158,6 @@ class PlasmaSolverFactory:
         ----------
         config : object, optional
             Configuration object containing plasma settings (default: None).
-
-        Notes
-        -----
-        This method performs the necessary setup steps for the plasma factory.
-        It checks the continuum interaction species, sets up the plasma modules,
-        sets up analytical approximations, sets up radiation field correction,
-        sets up legacy NLTE species if present, sets up macro atom properties if
-        line interaction type is 'downbranch' or 'macroatom' and there are no
-        continuum interaction species, and sets up helium treatment. Finally,
-        it sets up continuum interactions if there are any.
-
         """
         self.check_continuum_interaction_species()
 
