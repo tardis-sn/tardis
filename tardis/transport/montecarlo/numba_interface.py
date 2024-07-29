@@ -121,7 +121,7 @@ class OpacityState(object):
         Returns:
             OpacityState : a shallow copy of the current instance
         """
-        #NOTE: This currently will not work with continuum processes since it does not slice those arrays
+        # NOTE: This currently will not work with continuum processes since it does not slice those arrays
         return OpacityState(
             self.electron_density[i],
             self.t_electrons[i],
@@ -156,7 +156,7 @@ class OpacityState(object):
         Returns:
             OpacityState : a shallow copy of the current instance
         """
-        #NOTE: This currently will not work with continuum processes since it does not slice those arrays
+        # NOTE: This currently will not work with continuum processes since it does not slice those arrays
         return OpacityState(
             self.electron_density[i:j],
             self.t_electrons[i:j],
@@ -181,6 +181,7 @@ class OpacityState(object):
             self.photo_ion_activation_idx,
             self.k_packet_idx,
         )
+
 
 def opacity_state_initialize(
     plasma,
