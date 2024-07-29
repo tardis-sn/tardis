@@ -9,6 +9,11 @@ on:
     branches:
     - '*'
 
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
   workflow_dispatch:
 
 defaults:

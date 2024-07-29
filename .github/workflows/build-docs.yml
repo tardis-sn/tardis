@@ -18,6 +18,7 @@ on:
       - reopened
       - synchronize
       - labeled # requires the `build-docs` label
+      - ready_for_review
 
   workflow_dispatch: # manual trigger
 
