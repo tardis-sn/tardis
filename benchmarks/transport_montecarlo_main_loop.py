@@ -8,7 +8,7 @@ from tardis.transport.montecarlo.montecarlo_main_loop import (
 )
 
 
-class BenchmarkTransportMontecarloMainLoop(BenchmarkBase):
+class BenchmarkTransportMontecarloMontecarloMainLoop(BenchmarkBase):
     """
     class to benchmark montecarlo_main_loop function.
     """
@@ -21,7 +21,7 @@ class BenchmarkTransportMontecarloMainLoop(BenchmarkBase):
             self.transport_state.opacity_state,
             self.montecarlo_configuration,
             self.transport_state.radfield_mc_estimators,
-            self.transport_state.spectrum_frequency_grid.value,
+            self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value,
             self.montecarlo_configuration.NUMBER_OF_VPACKETS,
             iteration=0,
             show_progress_bars=False,

@@ -23,7 +23,7 @@ def load_csvy(fname):
     -------
     yaml_dict : dictionary
                 YAML part of the csvy file
-    data : pandas.dataframe
+    data : pandas.DataFrame
             csv data from csvy file
     """
     with open(fname) as fh:

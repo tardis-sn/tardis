@@ -1,6 +1,7 @@
 from tardis.plasma.properties.base import (
     ArrayInput,
     Input,
+    ProcessingPlasmaProperty,
 )
 
 __all__ = [
@@ -20,11 +21,14 @@ __all__ = [
     "ContinuumInteractionSpecies",
     "NLTEIonizationSpecies",
     "NLTEExcitationSpecies",
+    "DilutePlanckianRadField",
 ]
 
 
-class TRadiative(ArrayInput):
+class TRadiative(ProcessingPlasmaProperty):
     """
+    Radiative temperature property.
+
     Attributes
     ----------
     t_rad : Numpy Array, dtype float
@@ -33,9 +37,14 @@ class TRadiative(ArrayInput):
     outputs = ("t_rad",)
     latex_name = (r"T_{\textrm{rad}}",)
 
+    def calculate(self, dilute_planckian_radiation_field):
+        return dilute_planckian_radiation_field.temperature.cgs.value
 
-class DilutionFactor(ArrayInput):
+
+class DilutionFactor(ProcessingPlasmaProperty):
     """
+    Dilution factor of the radiation field.
+
     Attributes
     ----------
     w : Numpy Array, dtype float between 0 and 1
@@ -45,6 +54,9 @@ class DilutionFactor(ArrayInput):
 
     outputs = ("w",)
     latex_name = ("W",)
+
+    def calculate(self, dilute_planckian_radiation_field):
+        return dilute_planckian_radiation_field.dilution_factor
 
 
 class AtomicData(Input):
@@ -163,3 +175,7 @@ class NumberDensity(Input):
 
     outputs = ("number_density",)
     latex_name = ("N_{i}",)
+
+
+class DilutePlanckianRadField(Input):
+    outputs = ("dilute_planckian_radiation_field",)

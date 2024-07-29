@@ -9,7 +9,7 @@ from tardis.opacities.opacity_state import opacity_state_initialize
 from benchmarks.benchmark_base import BenchmarkBase
 
 
-class BenchmarkMontecarloMontecarloNumbaNumbaInterface(BenchmarkBase):
+class BenchmarkOpacitiesOpacityState(BenchmarkBase):
     """
     Class to benchmark the numba interface function.
     """

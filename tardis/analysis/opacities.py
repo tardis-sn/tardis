@@ -285,11 +285,11 @@ class opacity_calculator(object):
         The expansion opacity formalism, in the particular version of Blinnikov
         et al. 1998, is used. In the supernova ejecta case (assuming perfect
         homologous expansion), the formula for the expansion opacity in the
-        interval $[\nu, \nu+\Delta \nu]$ simplifies to
-        \[
-          \chi_{\mathrm{exp}} = \frac{\nu}{\Delta \nu} \frac{1}{c t} \sum_j
-          \left(1 - \exp(-\tau_{\mathrm{S},j})\right)
-        \]
+        interval $[\nu, \nu+\\Delta \nu]$ simplifies to
+        \\[
+          \\chi_{\\mathrm{exp}} = \frac{\nu}{\\Delta \nu} \frac{1}{c t} \\sum_j
+          \\left(1 - \\exp(-\tau_{\\mathrm{S},j})\right)
+        \\]
         The summation involves all lines in the frequency bin.
 
         Returns
@@ -326,7 +326,7 @@ class opacity_calculator(object):
         return kappa_exp.to("1/cm")
 
     def _calc_thomson_scattering_opacity(self):
-        """Calculate the Thomson scattering opacity for each grid cell
+        r"""Calculate the Thomson scattering opacity for each grid cell
 
         \[
           \chi_{\mathrm{Thomson}} = n_{\mathrm{e}} \sigma_{\mathrm{T}}

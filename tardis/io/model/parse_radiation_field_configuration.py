@@ -1,5 +1,4 @@
 import logging
-import os
 
 import numpy as np
 from astropy import units as u
@@ -8,9 +7,7 @@ from tardis import constants as const
 from tardis.io.model.parse_geometry_configuration import (
     parse_structure_from_config,
 )
-from tardis.model.radiation_field_state import (
-    DiluteBlackBodyRadiationFieldState,
-)
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 logger = logging.getLogger(__name__)
 
@@ -67,9 +64,7 @@ def parse_radiation_field_state_from_config(
 
     assert len(dilution_factor) == geometry.no_of_shells
 
-    return DiluteBlackBodyRadiationFieldState(
-        temperature, dilution_factor, geometry
-    )
+    return DilutePlanckianRadiationField(temperature, dilution_factor, geometry)
 
 
 def parse_radiation_field_state_from_csvy(
@@ -132,9 +127,7 @@ def parse_radiation_field_state_from_csvy(
     else:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
 
-    return DiluteBlackBodyRadiationFieldState(
-        t_radiative, dilution_factor, geometry
-    )
+    return DilutePlanckianRadiationField(t_radiative, dilution_factor, geometry)
 
 
 def calculate_t_radiative_from_t_inner(geometry, packet_source):
