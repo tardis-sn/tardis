@@ -5,6 +5,7 @@ from tempfile import mkstemp
 
 import astropy.units as u
 import numpy as np
+import functools
 from numba import njit
 
 from benchmarks.util.nlte import NLTE
@@ -64,17 +65,17 @@ class BenchmarkBase:
             YAMLLoader,
         )
 
+    #using
     @property
     def tardis_ref_path(self):
-        # TODO: This route is fixed but needs to get from the arguments given in the command line.
-        #       /app/tardis-refdata
         ref_data_path = Path(
             Path(__file__).parent.parent,
-            "tardis-refdata",
+            "benchmarks", # remind me to change it in case i forget
+            "data"
         ).resolve()
         return ref_data_path
 
-    @property
+    @functools.cached_property
     def atomic_dataset(self) -> AtomData:
         atomic_data = AtomData.from_hdf(self.atomic_data_fname)
 
@@ -84,10 +85,11 @@ class BenchmarkBase:
         else:
             return atomic_data
 
+    #using
     @property
     def atomic_data_fname(self):
         atomic_data_fname = (
-            f"{self.tardis_ref_path}/atom_data/kurucz_cd23_chianti_H_He.h5"
+            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He.h5"
         )
 
         if not Path(atomic_data_fname).exists():
@@ -151,7 +153,7 @@ class BenchmarkBase:
     def example_csvy_file_dir(self):
         return self.get_absolute_path("tardis/model/tests/data/")
 
-    @property
+    @functools.cached_property
     def simulation_verysimple(self):
         atomic_data = deepcopy(self.atomic_dataset)
         sim = Simulation.from_config(
@@ -160,7 +162,8 @@ class BenchmarkBase:
         sim.iterate(4000)
         return sim
 
-    @property
+    #using it
+    @functools.cached_property
     def config_verysimple(self):
         return Configuration.from_yaml(
             f"{self.example_configuration_dir}/tardis_configv1_verysimple.yml"
@@ -226,7 +229,7 @@ class BenchmarkBase:
     def regression_data(request: CustomPyTestRequest):
         return RegressionData(request)
 
-    @property
+    @functools.cached_property
     def packet(self):
         return RPacket(
             r=7.5e14,
@@ -241,7 +244,7 @@ class BenchmarkBase:
     def verysimple_packet_collection(self):
         return self.nb_simulation_verysimple.transport.transport_state.packet_collection
 
-    @property
+    @functools.cached_property
     def nb_simulation_verysimple(self):
         atomic_data = deepcopy(self.atomic_dataset)
         sim = Simulation.from_config(
@@ -250,12 +253,12 @@ class BenchmarkBase:
         sim.iterate(10)
         return sim
 
-    @property
+    @functools.cached_property
     def verysimple_time_explosion(self):
         model = self.nb_simulation_verysimple.simulation_state
         return model.time_explosion.cgs.value
 
-    @property
+    @functools.cached_property
     def verysimple_opacity_state(self):
         return opacity_state_initialize(
             self.nb_simulation_verysimple.plasma,
@@ -263,7 +266,7 @@ class BenchmarkBase:
             disable_line_scattering=self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )
 
-    @property
+    @functools.cached_property
     def verysimple_enable_full_relativity(self):
         return self.nb_simulation_verysimple.transport.enable_full_relativity
 
@@ -283,7 +286,7 @@ class BenchmarkBase:
     def verysimple_survival_probability(self):
         return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
 
-    @property
+    @functools.cached_property
     def static_packet(self):
         return RPacket(
             r=7.5e14,
@@ -348,7 +351,7 @@ class BenchmarkBase:
             plasma.tau_sobolevs.shape, plasma.gamma.shape
         )
 
-    @property
+    @functools.cached_property
     def montecarlo_configuration(self):
         return MonteCarloConfiguration()
 
@@ -356,11 +359,11 @@ class BenchmarkBase:
     def rpacket_tracker(self):
         return RPacketTracker(0)
 
-    @property
+    @functools.cached_property
     def transport_state(self):
         return self.nb_simulation_verysimple.transport.transport_state
 
-    @property
+    @functools.cached_property
     def simulation_rpacket_tracking_enabled(self):
         config_verysimple = self.config_verysimple
         config_verysimple.montecarlo.iterations = 3
@@ -378,7 +381,7 @@ class BenchmarkBase:
         )
         return sim
 
-    @property
+    @functools.cached_property
     def geometry(self):
         return NumbaRadial1DGeometry(
             r_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
@@ -387,7 +390,7 @@ class BenchmarkBase:
             v_outer=np.array([-1, -1], dtype=np.float64),
         )
 
-    @property
+    @functools.cached_property
     def estimators(self):
         return radfield_mc_estimators.RadiationFieldMCEstimators(
             j_estimator=np.array([0.0, 0.0], dtype=np.float64),
