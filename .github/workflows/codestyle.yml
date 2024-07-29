@@ -9,13 +9,13 @@ on:
     branches:
       - "*"
 
-  pull_request:
-    branches:
-      - "*"
-
   pull_request_target:
     branches:
       - master
+
+defaults:
+  run:
+    shell: bash -l {0}
 
 jobs:
   black:
