@@ -1,14 +1,8 @@
 import warnings
 
-import numpy as np
 from astropy import units as u
 
 from tardis.io.util import HDFWriterMixin
-from tardis.transport.montecarlo.estimators.dilute_blackbody_properties import (
-    MCRadiationFieldPropertiesSolver,
-)
-from tardis.spectrum.formal_integral import IntegrationError
-from tardis.spectrum.spectrum import TARDISSpectrum
 
 
 class MonteCarloTransportState(HDFWriterMixin):
@@ -63,7 +57,6 @@ class MonteCarloTransportState(HDFWriterMixin):
         rpacket_tracker=None,
         vpacket_tracker=None,
     ):
-        self.time_explosion = time_explosion
         self.packet_collection = packet_collection
         self.radfield_mc_estimators = radfield_mc_estimators
         self.enable_full_relativity = False

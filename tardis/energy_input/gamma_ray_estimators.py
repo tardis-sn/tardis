@@ -7,11 +7,9 @@ from tardis.energy_input.util import (
     angle_aberration_gamma,
     doppler_factor_3d,
 )
-from tardis.opacities.compton_opacity_calculation import (
-    compton_opacity_calculation,
-)
 from tardis.opacities.opacities import (
     SIGMA_T,
+    compton_opacity_calculation,
     kappa_calculation,
     photoabsorption_opacity_calculation,
 )
