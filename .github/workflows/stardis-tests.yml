@@ -1,4 +1,4 @@
-name: stardis tests
+name: stardis-tests
 
 on:
   push:
