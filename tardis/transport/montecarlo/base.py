@@ -103,9 +103,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
         )
-        estimators = initialize_estimator_statistics(
-            plasma.tau_sobolevs.shape, gamma_shape
-        )
+        
 
         geometry_state = simulation_state.geometry.to_numba()
         opacity_state = opacity_state_initialize(
@@ -113,6 +111,11 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.line_interaction_type,
             self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )
+        opacity_state = opacity_state.slice(self.simulation_state.geometry.v_inner_boundary_index, self.simulation_state.geometry.v_outer_boundary_index)
+        estimators = initialize_estimator_statistics(
+            opacity_state.tau_sobolevs.shape, gamma_shape
+        )
+        
         transport_state = MonteCarloTransportState(
             packet_collection,
             estimators,
