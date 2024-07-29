@@ -158,11 +158,11 @@ class OpacityState(object):
         """
         #NOTE: This currently will not work with continuum processes since it does not slice those arrays
         return OpacityState(
-            self.electron_density[i],
-            self.t_electrons[i],
+            self.electron_density[i:j],
+            self.t_electrons[i:j],
             self.line_list_nu,
-            self.tau_sobolev[:, i],
-            self.transition_probabilities[:, i],
+            self.tau_sobolev[:, i:j],
+            self.transition_probabilities[:, i:j],
             self.line2macro_level_upper,
             self.macro_block_references,
             self.transition_type,
