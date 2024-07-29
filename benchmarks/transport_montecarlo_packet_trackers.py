@@ -6,8 +6,9 @@ from tardis.transport.montecarlo.packet_trackers import (
     rpacket_trackers_to_dataframe,
 )
 
-# check
+
 class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
+
     """
     Class to benchmark the numba R packet function.
     """
@@ -17,6 +18,4 @@ class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
         self.TransportState = sim.transport.transport_state
 
     def time_rpacket_trackers_to_dataframe(self):
-        rpacket_trackers_to_dataframe(
-            self.TransportState.rpacket_tracker
-        )
+        rpacket_trackers_to_dataframe(self.TransportState.rpacket_tracker)

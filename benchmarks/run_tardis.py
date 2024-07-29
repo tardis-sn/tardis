@@ -3,8 +3,9 @@ Basic TARDIS Benchmark.
 """
 
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.io.atom_data import AtomData
 from tardis import run_tardis
+from tardis.io.atom_data import AtomData
+
 
 class BenchmarkRunTardis(BenchmarkBase):
     """
@@ -17,7 +18,5 @@ class BenchmarkRunTardis(BenchmarkBase):
 
     def time_run_tardis(self):
         run_tardis(
-            self.config,
-            atom_data=self.atom_data,
-            show_convergence_plots=False
+            self.config, atom_data=self.atom_data, show_convergence_plots=False
         )

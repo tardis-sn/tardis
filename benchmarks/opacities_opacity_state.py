@@ -2,11 +2,15 @@
 Basic TARDIS Benchmark.
 """
 
+import functools
+
 from asv_runner.benchmarks.mark import parameterize
 
-from tardis.opacities.opacity_state import opacity_state_initialize
 from benchmarks.benchmark_base import BenchmarkBase
-import functools
+from tardis.opacities.opacity_state import opacity_state_initialize
+
+from tardis.opacities.opacity_state import opacity_state_initialize
+
 
 @parameterize({"Input params": ["scatter", "macroatom"]})
 class BenchmarkOpacitiesOpacityState(BenchmarkBase):
@@ -21,8 +25,4 @@ class BenchmarkOpacitiesOpacityState(BenchmarkBase):
     def time_opacity_state_initialize(self, input_params):
         line_interaction_type = input_params
         plasma = self.sim.plasma
-        opacity_state_initialize(
-            plasma,
-            line_interaction_type,
-            True
-        )
+        opacity_state_initialize(plasma, line_interaction_type, True)

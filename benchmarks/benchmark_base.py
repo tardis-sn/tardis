@@ -1,3 +1,4 @@
+import functools
 from copy import deepcopy
 from os.path import dirname, join, realpath
 from pathlib import Path
@@ -5,7 +6,6 @@ from tempfile import mkstemp
 
 import astropy.units as u
 import numpy as np
-import functools
 from numba import njit
 
 from benchmarks.util.nlte import NLTE
@@ -26,9 +26,7 @@ from tardis.transport.montecarlo.configuration.base import (
 )
 from tardis.transport.montecarlo.estimators import radfield_mc_estimators
 from tardis.transport.montecarlo.numba_interface import opacity_state_initialize
-from tardis.transport.montecarlo.packet_collections import (
-    VPacketCollection,
-)
+from tardis.transport.montecarlo.packet_collections import VPacketCollection
 from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 
 
@@ -65,13 +63,13 @@ class BenchmarkBase:
             YAMLLoader,
         )
 
-    #using
+    # using
     @property
     def tardis_ref_path(self):
         ref_data_path = Path(
             Path(__file__).parent.parent,
-            "benchmarks", # remind me to change it in case i forget
-            "data"
+            "benchmarks",  # remind me to change it in case i forget
+            "data",
         ).resolve()
         return ref_data_path
 
@@ -85,7 +83,7 @@ class BenchmarkBase:
         else:
             return atomic_data
 
-    #using
+    # using
     @property
     def atomic_data_fname(self):
         atomic_data_fname = (
@@ -162,7 +160,7 @@ class BenchmarkBase:
         sim.iterate(4000)
         return sim
 
-    #using it
+    # using it
     @functools.cached_property
     def config_verysimple(self):
         return Configuration.from_yaml(

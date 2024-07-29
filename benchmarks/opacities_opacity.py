@@ -2,8 +2,6 @@
 Basic TARDIS Benchmark.
 """
 
-from asv_runner.benchmarks.mark import parameterize
-
 import tardis.opacities.opacities as calculate_opacity
 from benchmarks.benchmark_base import BenchmarkBase
 

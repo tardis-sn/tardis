@@ -2,13 +2,16 @@
 Basic TARDIS Benchmark.
 """
 
+import functools
+
 from numba import config
 
-import functools
+
 import tardis.spectrum.formal_integral as formal_integral
 from benchmarks.benchmark_base import BenchmarkBase
 
-config.THREADING_LAYER='workqueue'
+config.THREADING_LAYER = "workqueue"
+
 
 class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
     """
@@ -30,10 +33,11 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
 
     # Benchmark for functions in FormalIntegrator class
     def time_FormalIntegrator_functions(self):
-        self.FormalIntegrator.calculate_spectrum(self.sim.spectrum_solver.spectrum_real_packets.frequency)
+        self.FormalIntegrator.calculate_spectrum(
+            self.sim.spectrum_solver.spectrum_real_packets.frequency
+        )
         self.FormalIntegrator.make_source_function()
         self.FormalIntegrator.generate_numba_objects()
         self.FormalIntegrator.formal_integral(
-            self.sim.spectrum_solver.spectrum_real_packets.frequency,
-            1000
+            self.sim.spectrum_solver.spectrum_real_packets.frequency, 1000
         )

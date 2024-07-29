@@ -20,7 +20,9 @@ class BenchmarkTransportMontecarloMontecarloMainLoop(BenchmarkBase):
         self.geometry_state = self.transport_state.geometry_state
         self.time_explosion = self.verysimple_time_explosion
         self.opacity_state = self.transport_state.opacity_state
-        self.radfield_mc_estimators = self.transport_state.radfield_mc_estimators
+        self.radfield_mc_estimators = (
+            self.transport_state.radfield_mc_estimators
+        )
 
     def time_montecarlo_main_loop(self):
         montecarlo_main_loop(

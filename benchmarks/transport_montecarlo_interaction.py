@@ -5,7 +5,8 @@ Basic TARDIS Benchmark.
 import tardis.transport.montecarlo.interaction as interaction
 from benchmarks.benchmark_base import BenchmarkBase
 
-#check it
+
+# check it
 class BenchmarkTransportMontecarloInteraction(BenchmarkBase):
     """
     Class to benchmark the numba interaction function.

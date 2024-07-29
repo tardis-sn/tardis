@@ -9,9 +9,7 @@ from asv_runner.benchmarks.mark import parameterize
 
 import tardis.transport.montecarlo.vpacket as vpacket
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-)
+from tardis.transport.frame_transformations import get_doppler_factor
 from tardis.transport.montecarlo.r_packet import RPacket
 
 
