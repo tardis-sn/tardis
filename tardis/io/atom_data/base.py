@@ -8,7 +8,10 @@ from astropy.units import Quantity
 from scipy import interpolate
 
 from tardis import constants as const
-from tardis.io.atom_data.util import resolve_atom_data_fname
+from tardis.io.atom_data.util import (
+    resolve_atom_data_fname,
+    set_atom_data_attributes,
+)
 from tardis.plasma.properties.continuum_processes import (
     get_ground_state_multi_index,
 )
@@ -223,35 +226,9 @@ class AtomData:
 
             atom_data = cls(**dataframes)
 
-            try:
-                atom_data.uuid1 = store.root._v_attrs["uuid1"]
-                if hasattr(atom_data.uuid1, "decode"):
-                    atom_data.uuid1 = store.root._v_attrs["uuid1"].decode(
-                        "ascii"
-                    )
-            except KeyError:
-                logger.debug(
-                    "UUID not available for Atom Data. Setting value to None"
-                )
-                atom_data.uuid1 = None
-
-            try:
-                atom_data.md5 = store.root._v_attrs["md5"]
-                if hasattr(atom_data.md5, "decode"):
-                    atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
-            except KeyError:
-                logger.debug(
-                    "MD5 not available for Atom Data. Setting value to None"
-                )
-                atom_data.md5 = None
-
-            try:
-                atom_data.version = store.root._v_attrs["database_version"]
-            except KeyError:
-                logger.debug(
-                    "VERSION not available for Atom Data. Setting value to None"
-                )
-                atom_data.version = None
+            set_atom_data_attributes(atom_data, store, "uuid1")
+            set_atom_data_attributes(atom_data, store, "md5")
+            set_atom_data_attributes(atom_data, store, "database_version")
 
             # TODO: strore data sources as attributes in carsus
 
