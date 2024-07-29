@@ -21,8 +21,7 @@ from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.spectrum.luminosity import (
-    calculate_emitted_luminosity,
-    calculate_reabsorbed_luminosity,
+    calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
@@ -464,13 +463,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = calculate_emitted_luminosity(
+        emitted_luminosity = calculate_filtered_luminosity(
             transport_state.emitted_packet_nu,
             transport_state.emitted_packet_luminosity,
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
-        reabsorbed_luminosity = calculate_reabsorbed_luminosity(
+        reabsorbed_luminosity = calculate_filtered_luminosity(
             transport_state.reabsorbed_packet_nu,
             transport_state.reabsorbed_packet_luminosity,
             self.luminosity_nu_start,
