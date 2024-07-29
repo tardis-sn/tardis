@@ -24,6 +24,8 @@ from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )
 from tardis.transport.montecarlo.packet_trackers import (
+    generate_rpacket_tracker_list,
+    generate_rpacket_last_interaction_tracker_list,
     rpacket_trackers_to_dataframe,
 )
 from tardis.util.base import (
@@ -158,12 +160,24 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         self.transport_state = transport_state
 
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
+        number_of_rpackets = len(transport_state.packet_collection.initial_nus)
+
+        if self.enable_rpacket_tracking:
+            transport_state.rpacket_tracker = generate_rpacket_tracker_list(
+                number_of_rpackets,
+                self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
+            )
+        else:
+            transport_state.rpacket_tracker = (
+                generate_rpacket_last_interaction_tracker_list(
+                    number_of_rpackets
+                )
+            )
 
         (
             v_packets_energy_hist,
             last_interaction_tracker,
             vpacket_tracker,
-            rpacket_trackers,
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
@@ -172,6 +186,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
             self.spectrum_frequency_grid.value,
+            transport_state.rpacket_tracker,
             number_of_vpackets,
             iteration=iteration,
             show_progress_bars=show_progress_bars,
@@ -198,8 +213,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         update_iterations_pbar(1)
         refresh_packet_pbar()
-
-        transport_state.rpacket_tracker = rpacket_trackers
 
         # Need to change the implementation of rpacket_trackers_to_dataframe
         # Such that it also takes of the case of
