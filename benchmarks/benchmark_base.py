@@ -70,7 +70,7 @@ class BenchmarkBase:
     @property
     def config_rpacket_tracking(self):
         config = Configuration.from_yaml(
-            "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml"
+            f"{self.example_configuration_dir}/tardis_configv1_verysimple.yml"
         )
         config.montecarlo.tracking.track_rpacket = True
         return config
