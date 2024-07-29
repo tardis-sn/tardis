@@ -119,8 +119,9 @@ class OpacityState(object):
             i (int, slice): shell index or slice
 
         Returns:
-            OpacityState a shallow copy of the current instance
+            OpacityState : a shallow copy of the current instance
         """
+        #NOTE: This currently will not work with continuum processes since it does not slice those arrays
         return OpacityState(
             self.electron_density[i],
             self.t_electrons[i],
@@ -146,6 +147,40 @@ class OpacityState(object):
             self.k_packet_idx,
         )
 
+    def slice(self, i):
+        """Get a shell or slice of shells of the attributes of the opacity state
+
+        Args:
+            i (int, slice): shell index or slice
+
+        Returns:
+            OpacityState : a shallow copy of the current instance
+        """
+        #NOTE: This currently will not work with continuum processes since it does not slice those arrays
+        return OpacityState(
+            self.electron_density[i],
+            self.t_electrons[i],
+            self.line_list_nu,
+            self.tau_sobolev[:, i],
+            self.transition_probabilities[:, i],
+            self.line2macro_level_upper,
+            self.macro_block_references,
+            self.transition_type,
+            self.destination_level_id,
+            self.transition_line_id,
+            self.bf_threshold_list_nu,
+            self.p_fb_deactivation,
+            self.photo_ion_nu_threshold_mins,
+            self.photo_ion_nu_threshold_maxs,
+            self.photo_ion_block_references,
+            self.chi_bf,
+            self.x_sect,
+            self.phot_nus,
+            self.ff_opacity_factor,
+            self.emissivities,
+            self.photo_ion_activation_idx,
+            self.k_packet_idx,
+        )
 
 def opacity_state_initialize(
     plasma,
