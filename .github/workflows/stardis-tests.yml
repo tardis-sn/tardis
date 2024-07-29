@@ -8,12 +8,7 @@ on:
   pull_request:
     branches:
     - '*'
-    
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - labeled
+
   workflow_dispatch:
 
 defaults:
