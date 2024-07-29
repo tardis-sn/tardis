@@ -17,7 +17,7 @@ def test_opacity_state_initialize(nb_simulation_verysimple, input_params, sliced
     print(dir(actual))
     if sliced:
         index = slice(2, 5)
-        actual = actual.slice(index)
+        actual = actual.slice(2, 5)
     else:
         index = ...
 
