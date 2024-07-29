@@ -17,6 +17,10 @@ on:
     branches:
       - master
 
+defaults:
+  run:
+    shell: bash -l {0}
+
 jobs:
   black:
     runs-on: ubuntu-latest
