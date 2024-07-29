@@ -113,6 +113,14 @@ class OpacityState(object):
         self.k_packet_idx = k_packet_idx
 
     def __getitem__(self, i):
+        """Get a shell or slice of shells of the attributes of the opacity state
+
+        Args:
+            i (int, slice): shell index or slice
+
+        Returns:
+            OpacityState a shallow copy of the current instance
+        """
         return OpacityState(
             self.electron_density[i],
             self.t_electrons[i],
@@ -135,7 +143,8 @@ class OpacityState(object):
             self.ff_opacity_factor,
             self.emissivities,
             self.photo_ion_activation_idx,
-            self.k_packet_idx,)
+            self.k_packet_idx,
+        )
 
     def slice(self, i, j):
         return OpacityState(
@@ -160,7 +169,8 @@ class OpacityState(object):
             self.ff_opacity_factor,
             self.emissivities,
             self.photo_ion_activation_idx,
-            self.k_packet_idx,)
+            self.k_packet_idx,
+        )
 
 
 def opacity_state_initialize(
