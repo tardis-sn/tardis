@@ -7,6 +7,7 @@ from astropy import units as u
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
 from tardis.model import SimulationState
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
@@ -219,9 +220,12 @@ class StandardSimulationSolver:
         self,
         transport_state,
     ):
+        radiation_field = DilutePlanckianRadiationField(
+            temperature=self.simulation_state.t_radiative,
+            dilution_factor=self.simulation_state.dilution_factor,
+        )
         update_properties = dict(
-            t_rad=self.simulation_state.t_radiative,
-            w=self.simulation_state.dilution_factor,
+            dilute_planckian_radiation_field=radiation_field
         )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
@@ -244,7 +248,6 @@ class StandardSimulationSolver:
 
         virtual_packet_energies = self.transport_solver.run(
             transport_state,
-            time_explosion=self.simulation_state.time_explosion,
             iteration=self.completed_iterations,
             total_iterations=self.total_iterations,
             show_progress_bars=False,
