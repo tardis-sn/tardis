@@ -11,7 +11,7 @@ from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
 )
-from tardis.transport.montecarlo.estimators.dilute_blackbody_properties import (
+from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
 )
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (

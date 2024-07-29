@@ -4,9 +4,9 @@ Basic TARDIS Benchmark.
 
 from asv_runner.benchmarks.mark import parameterize
 
-import tardis.opacities.compton_opacity_calculation
 import tardis.opacities.opacities as calculate_opacity
 from benchmarks.benchmark_base import BenchmarkBase
+from tardis.opacities.opacities import compton_opacity_calculation
 
 
 class BenchmarkMontecarloMontecarloNumbaOpacities(BenchmarkBase):
@@ -29,9 +29,7 @@ class BenchmarkMontecarloMontecarloNumbaOpacities(BenchmarkBase):
         }
     )
     def time_compton_opacity_calculation(self, electron_number_density, energy):
-        tardis.opacities.compton_opacity_calculation.compton_opacity_calculation(
-            energy, electron_number_density
-        )
+        compton_opacity_calculation(energy, electron_number_density)
 
     @parameterize(
         {

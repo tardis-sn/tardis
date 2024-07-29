@@ -1,11 +1,13 @@
 import numpy as np
 import pandas as pd
 
+import tardis.constants as const
 from tardis.plasma.properties.base import Input, ProcessingPlasmaProperty
-from tardis.plasma.properties.continuum_processes.rates import C, H
 from tardis.transport.montecarlo.estimators.util import (
     integrate_array_by_blocks,
 )
+
+C = const.c.cgs.value
 
 
 class StimRecombRateFactor(Input):

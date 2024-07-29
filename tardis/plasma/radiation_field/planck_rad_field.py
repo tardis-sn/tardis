@@ -8,7 +8,7 @@ from tardis.util.base import intensity_black_body
 
 class DilutePlanckianRadiationField:
     """
-    Represents the state of a dilute thermal radiation field.
+    Represents the state of a dilute planckian radiation field.
 
 
     Parameters
@@ -79,7 +79,7 @@ class DilutePlanckianRadiationField:
 
 class PlanckianRadiationField:
     """
-    Represents the state of a dilute thermal radiation field.
+    Represents the state of a planckian radiation field.
 
 
     Parameters

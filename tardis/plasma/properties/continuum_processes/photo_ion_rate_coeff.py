@@ -1,5 +1,4 @@
 from tardis.plasma.properties.base import Input
-from tardis.plasma.properties.continuum_processes.rates import H
 
 
 class PhotoIonRateCoeff(Input):

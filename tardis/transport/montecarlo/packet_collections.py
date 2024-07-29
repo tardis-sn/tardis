@@ -13,7 +13,7 @@ packet_collection_spec = [
     ("initial_energies", float64[:]),
     ("packet_seeds", int64[:]),
     ("time_of_simulation", float64),
-    ("radiation_field_luminosity", float64),  #
+    ("radiation_field_luminosity", float64),
     ("output_nus", float64[:]),
     ("output_energies", float64[:]),
 ]
@@ -43,6 +43,10 @@ class PacketCollection:
         self.output_energies = (
             np.ones_like(initial_radii, dtype=np.float64) * -99.0
         )
+
+    @property
+    def number_of_packets(self):
+        return len(self.initial_radii)
 
 
 @njit(**njit_dict_no_parallel)
