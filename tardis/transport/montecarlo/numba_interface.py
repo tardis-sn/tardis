@@ -147,7 +147,7 @@ class OpacityState(object):
             self.k_packet_idx,
         )
 
-    def slice(self, i):
+    def slice(self, i, j):
         """Get a shell or slice of shells of the attributes of the opacity state
 
         Args:
