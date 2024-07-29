@@ -73,8 +73,6 @@ class BenchmarkBase:
             "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml"
         )
         config.montecarlo.tracking.track_rpacket = True
-        config.montecarlo.iterations = 1
-        config.montecarlo.no_of_packets = 4000
         return config
 
     @property
