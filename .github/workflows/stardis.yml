@@ -1,0 +1,66 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: tests
+
+on:
+  push:
+    branches:
+    - '*'
+  pull_request:
+    branches:
+    - '*'
+    
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+defaults:
+  run:
+    shell: bash -l {0}
+ 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+    
+
+jobs:
+  build:
+    if: github.repository_owner == 'tardis-sn'
+    strategy:
+      matrix:
+        label: [osx-arm64, linux-64]
+        include:
+          - label: osx-arm64
+            os: macos-latest
+            prefix: /Users/runner/miniconda3/envs/tardis
+
+          - label: linux-64
+            os: ubuntu-latest
+            prefix: /usr/share/miniconda3/envs/tardis
+    name: ${{ matrix.label }}-Stardis
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
+      
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          os-label: ${{ matrix.label }}
+      
+      - name: Install Stardis package git
+        run: pip install git+https://github.com/tardis-sn/stardis.git
+
+      - name: Run tests
+        run: pytest stardis ${{ env.PYTEST_FLAGS }}
