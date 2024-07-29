@@ -167,7 +167,9 @@ class TestPlasma:
     ):
         config["atom_data"] = str(chianti_he_db_fpath)
         sim = Simulation.from_config(config)
-        data = self.regression_data.sync_hdf_store(sim.plasma, update_fname=False)
+        data = self.regression_data.sync_hdf_store(
+            sim.plasma, update_fname=False
+        )
         yield sim.plasma
         data.close()
 

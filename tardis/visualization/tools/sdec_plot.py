@@ -791,9 +791,11 @@ class SDECPlotter:
             # Need to add a new value to the mask array for the 'other' column just added
             mask = np.insert(mask, 0, True)
             # Then drop all of the individual columns for species included in 'other'
-            self.absorption_luminosities_df = self.absorption_luminosities_df.drop(
-                self.absorption_luminosities_df.keys()[~mask],
-                axis=1,
+            self.absorption_luminosities_df = (
+                self.absorption_luminosities_df.drop(
+                    self.absorption_luminosities_df.keys()[~mask],
+                    axis=1,
+                )
             )
 
             # Get the list of species in the model
@@ -837,8 +839,10 @@ class SDECPlotter:
                 ].sum(axis=1),
             )
             # Then drop all of the individual columns for elements included in 'other'
-            self.absorption_luminosities_df = self.absorption_luminosities_df.drop(
-                sorted_list.keys()[nelements:], axis=1
+            self.absorption_luminosities_df = (
+                self.absorption_luminosities_df.drop(
+                    sorted_list.keys()[nelements:], axis=1
+                )
             )
             # Get the list of species in the model
             # Index from 1: to avoid the 'other' column
