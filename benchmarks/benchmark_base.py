@@ -240,7 +240,7 @@ class BenchmarkBase:
             index=0,
         )
 
-    @property
+    @functools.cached_property
     def verysimple_packet_collection(self):
         return self.nb_simulation_verysimple.transport.transport_state.packet_collection
 
@@ -270,19 +270,19 @@ class BenchmarkBase:
     def verysimple_enable_full_relativity(self):
         return self.nb_simulation_verysimple.transport.enable_full_relativity
 
-    @property
+    @functools.cached_property
     def verysimple_disable_line_scattering(self):
         return self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
 
-    @property
+    @functools.cached_property
     def verysimple_continuum_processes_enabled(self):
         return montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
 
-    @property
+    @functools.cached_property
     def verysimple_tau_russian(self):
         return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
 
-    @property
+    @functools.cached_property
     def verysimple_survival_probability(self):
         return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
 
@@ -304,7 +304,7 @@ class BenchmarkBase:
 
         return njit(set_seed)
 
-    @property
+    @functools.cached_property
     def verysimple_3vpacket_collection(self):
         spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
         return VPacketCollection(
@@ -316,7 +316,7 @@ class BenchmarkBase:
             temporary_v_packet_bins=0,
         )
 
-    @property
+    @functools.cached_property
     def verysimple_numba_radial_1d_geometry(self):
         return (
             self.nb_simulation_verysimple.simulation_state.geometry.to_numba()
@@ -355,7 +355,7 @@ class BenchmarkBase:
     def montecarlo_configuration(self):
         return MonteCarloConfiguration()
 
-    @property
+    @functools.cached_property
     def rpacket_tracker(self):
         return RPacketTracker(0)
 
