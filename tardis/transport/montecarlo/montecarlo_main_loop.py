@@ -179,8 +179,8 @@ def montecarlo_main_loop(
         )
 
     if montecarlo_globals.ENABLE_RPACKET_TRACKING:
-        for rpacket_tracker in rpacket_trackers:
-            rpacket_tracker.finalize_array()
+        for i in prange(no_of_packets):
+            rpacket_trackers[i].finalize_array()
 
     return (
         v_packets_energy_hist,
