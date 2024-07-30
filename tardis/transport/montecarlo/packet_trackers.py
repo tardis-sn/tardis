@@ -14,6 +14,17 @@ boundary_interaction_dtype = np.dtype(
 )
 
 
+line_interaction_dtype = np.dtype(
+    [
+        ("interaction_id", "int64"),
+        ("shell_id", "int64"),
+        ("r", "float64"),
+        ("in_nu", "float64"),
+        ("in_id", "int64"),
+        ("out_id", "int64"),
+    ]
+)
+
 rpacket_tracker_spec = [
     ("seed", int64),
     ("index", int64),
@@ -25,8 +36,10 @@ rpacket_tracker_spec = [
     ("shell_id", int64[:]),
     ("interaction_type", int64[:]),
     ("boundary_interaction", from_dtype(boundary_interaction_dtype)[:]),
+    ("line_interaction", from_dtype(line_interaction_dtype)[:]),
     ("num_interactions", int64),
     ("boundary_interactions_index", int64),
+    ("line_interactions_index", int64),
     ("event_id", int64),
     ("extend_factor", int64),
 ]
@@ -81,8 +94,13 @@ class RPacketTracker(object):
             length,
             dtype=boundary_interaction_dtype,
         )
+        self.line_interaction = np.empty(
+            length,
+            dtype=line_interaction_dtype,
+        )
         self.num_interactions = 0
         self.boundary_interactions_index = 0
+        self.line_interactions_index = 0
         self.event_id = 1
         self.extend_factor = 2
 
@@ -146,6 +164,37 @@ class RPacketTracker(object):
 
         self.boundary_interactions_index += 1
 
+    def track_line_interaction(self, r_packet):
+        """
+        Track line interaction properties
+        """
+        if self.line_interactions_index >= self.line_interaction.size:
+            self.line_interaction = self.extend_array(
+                self.line_interaction,
+                self.line_interaction.size,
+            )
+
+        self.line_interaction[self.line_interactions_index][
+            "event_id"
+        ] = self.event_id
+        self.event_id += 1
+
+        self.line_interaction[self.line_interactions_index][
+            "shell_id"
+        ] = r_packet.current_shell_id
+        self.line_interaction[self.line_interactions_index]["r"] = r_packet.r
+        self.line_interaction[self.line_interactions_index][
+            "in_nu"
+        ] = r_packet.last_interaction_in_nu
+        self.line_interaction[self.line_interactions_index][
+            "in_id"
+        ] = r_packet.last_line_interaction_in_id
+        self.line_interaction[self.line_interactions_index][
+            "out_id"
+        ] = r_packet.last_line_interaction_out_id
+        self.line_interactions_index += 1
+
+
     def finalize_array(self):
         """
         Change the size of the array from length ( or multiple of length ) to
@@ -160,6 +209,9 @@ class RPacketTracker(object):
         self.interaction_type = self.interaction_type[: self.num_interactions]
         self.boundary_interaction = self.boundary_interaction[
             : self.boundary_interactions_index
+        ]
+        self.line_interaction = self.line_interaction[
+            : self.ine_interactions_index
         ]
 
 
