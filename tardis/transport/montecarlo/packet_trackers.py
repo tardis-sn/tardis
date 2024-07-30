@@ -332,15 +332,23 @@ class RPacketLastInteractionTracker(object):
         self.shell_id = r_packet.current_shell_id
         self.interaction_type = r_packet.last_interaction_type
 
-    # To make it compatible with RPacketTracker
     def finalize_array(self):
+        """
+        Added to make RPacketLastInteractionTracker compatible with RPacketTracker
+        """
         pass
 
     # To make it compatible with RPacketTracker
     def track_boundary_interaction(self, current_shell_id, next_shell_id):
+        """
+        Added to make RPacketLastInteractionTracker compatible with RPacketTracker
+        """
         pass
 
     def track_line_interaction(self, r_packet):
+        """
+        Added to make RPacketLastInteractionTracker compatible with RPacketTracker
+        """
         pass
 
 
