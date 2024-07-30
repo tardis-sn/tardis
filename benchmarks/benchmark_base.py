@@ -1,3 +1,4 @@
+import functools
 from copy import deepcopy
 from os.path import dirname, join, realpath
 from pathlib import Path
@@ -67,7 +68,7 @@ class BenchmarkBase:
             YAMLLoader,
         )
 
-    @property
+    @functools.cached_property
     def config_rpacket_tracking(self):
         config = Configuration.from_yaml(
             f"{self.example_configuration_dir}/tardis_configv1_verysimple.yml"
