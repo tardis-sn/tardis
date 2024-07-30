@@ -65,6 +65,7 @@ class RPacketTracker(object):
     def __init__(self, length):
         self.length = length
         self.boundary_interaction_array_length = length
+        self.line_interaction_array_length = length
         self.seed = np.int64(0)
         self.index = np.int64(0)
         self.status = np.empty(self.length, dtype=np.int64)
