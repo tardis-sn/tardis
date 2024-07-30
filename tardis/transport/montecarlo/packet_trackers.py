@@ -99,9 +99,9 @@ class RPacketTracker(object):
             dtype=line_interaction_dtype,
         )
         self.num_interactions = 0
-        self.boundary_interactions_index = 0
-        self.line_interactions_index = 0
-        self.event_id = 1
+        self.num_boundary_interactions = 0
+        self.num_line_interactions = 0
+        self.interaction_id = 1
         self.extend_factor = 2
 
     def extend_array(self, array, array_length):
