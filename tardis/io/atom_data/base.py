@@ -114,8 +114,6 @@ class AtomData:
     collision_data_temperatures : numpy.array
     zeta_data : pandas.DataFrame
     synpp_refs : pandas.DataFrame
-    symbol2atomic_number : OrderedDict
-    atomic_number2symbol : OrderedDict
     photoionization_data : pandas.DataFrame
     two_photon_data : pandas.DataFrame
     decay_radiation_data : pandas.DataFrame
@@ -171,8 +169,8 @@ class AtomData:
             Path to the HDFStore file or name of known atom data file
             (default: None)
         """
-        dataframes = dict()
-        nonavailable = list()
+        dataframes = {}
+        nonavailable = []
 
         fname = resolve_atom_data_fname(fname)
 
@@ -271,14 +269,7 @@ class AtomData:
         # different values for the unit u and the constant.
         # This is changed in later versions of astropy (
         # the value of constants.u is used in all cases)
-        if u.u.cgs == const.u.cgs:
-            atom_data.loc[:, "mass"] = Quantity(
-                atom_data["mass"].values, "u"
-            ).cgs.value
-        else:
-            atom_data.loc[:, "mass"] = (
-                atom_data["mass"].values * const.u.cgs.value
-            )
+        atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs.value
 
         # Convert ionization energies to CGS
         ionization_data = ionization_data.squeeze()
@@ -299,7 +290,7 @@ class AtomData:
         self.atom_data = atom_data
         self.ionization_data = ionization_data
         self.levels = levels
-        # Not sure why this is need - WEK 17 Sep 2023
+        # Cast to float so that Numba can use the values in numpy functions
         self.levels.energy = self.levels.energy.astype(np.float64)
         self.lines = lines
 
@@ -326,13 +317,6 @@ class AtomData:
         if decay_radiation_data is not None:
             self.decay_radiation_data = decay_radiation_data
         self._check_related()
-
-        self.symbol2atomic_number = OrderedDict(
-            zip(self.atom_data["symbol"].values, self.atom_data.index)
-        )
-        self.atomic_number2symbol = OrderedDict(
-            zip(self.atom_data.index, self.atom_data["symbol"])
-        )
 
     def _check_related(self):
         """
