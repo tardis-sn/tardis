@@ -3,7 +3,7 @@ name: stardis-tests
 on:
   push:
     branches:
-    - 'master'
+    - master
 
   pull_request:
     branches:
@@ -27,15 +27,11 @@ jobs:
   build:
     strategy:
       matrix:
-        label: [osx-64, linux-64]
+        label: [linux-64]
         include:
           - os: ubuntu-latest
             label: linux-64
             prefix: /usr/share/miniconda3/envs/stardis
-
-          - os: macos-latest
-            label: osx-64
-            prefix: /Users/runner/miniconda3/envs/stardis
 
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
