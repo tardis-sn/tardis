@@ -27,7 +27,7 @@ def test_opacity_state_initialize(
     print(dir(actual))
     if sliced:
         index = slice(2, 5)
-        actual = actual.slice(2, 5)
+        actual = actual[index]
     else:
         index = ...
 
