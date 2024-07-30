@@ -2,15 +2,23 @@ import logging
 
 import numpy as np
 import pandas as pd
-from astropy import units as u
-from astropy.units import Quantity
 
 from tardis import constants as const
+from tardis.io.atom_data.collision_data import CollisionData
+from tardis.io.atom_data.decay_radiation_data import DecayRadiationData
+from tardis.io.atom_data.ionization_data import (
+    IonizationData,
+    PhotoIonizationData,
+    ZetaData,
+)
+from tardis.io.atom_data.levels_data import LevelsData
+from tardis.io.atom_data.lines_data import LineList, LinesData
+from tardis.io.atom_data.macro_atom_data import MacroAtomData
+from tardis.io.atom_data.nlte_data import NLTEData
 from tardis.io.atom_data.util import (
     resolve_atom_data_fname,
     set_atom_data_attributes,
 )
-from tardis.io.atom_data.nlte_data import NLTEData
 from tardis.plasma.properties.continuum_processes import (
     get_ground_state_multi_index,
 )
@@ -25,6 +33,11 @@ class AtomDataMissingError(Exception):
 
 
 logger = logging.getLogger(__name__)
+
+
+class EnergyData:
+    def active_data(self):
+        pass
 
 
 class AtomData:
@@ -270,51 +283,48 @@ class AtomData:
         # the value of constants.u is used in all cases)
         atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs.value
 
-        # Convert ionization energies to CGS
-        ionization_data = ionization_data.squeeze()
-        ionization_data[:] = Quantity(ionization_data[:], "eV").cgs.value
-
-        # Convert energy to CGS
-        levels.loc[:, "energy"] = Quantity(
-            levels["energy"].values, "eV"
-        ).cgs.value
-
-        # Create a new columns with wavelengths in the CGS units
-        lines["wavelength_cm"] = Quantity(
-            lines["wavelength"], "angstrom"
-        ).cgs.value
-
         # SET ATTRIBUTES
 
         self.atom_data = atom_data
-        self.ionization_data = ionization_data
-        self.levels = levels
-        # Cast to float so that Numba can use the values in numpy functions
-        self.levels.energy = self.levels.energy.astype(np.float64)
-        self.lines = lines
+        self.ionization_data = IonizationData(ionization_data).data
+        self.levels = LevelsData(levels).data
+        self.lines = LinesData(lines).data
+        self.macro_atom_data_class = MacroAtomData(
+            macro_atom_data, macro_atom_references
+        )
+        # replace this along with _check_related refactor
+        self.macro_atom_data_all = (
+            self.macro_atom_data_class.transition_probability_data
+        )
+        self.macro_atom_references_all = (
+            self.macro_atom_data_class.block_reference_data
+        )
 
-        # Rename these (drop "_all") when `prepare_atom_data` is removed!
-        self.macro_atom_data_all = macro_atom_data
-        self.macro_atom_references_all = macro_atom_references
+        self.zeta_data = ZetaData(zeta_data).data
 
-        self.zeta_data = zeta_data
-
-        self.collision_data = collision_data
-        self.collision_data_temperatures = collision_data_temperatures
+        collision_data_class = CollisionData(
+            collision_data, collision_data_temperatures, yg_data
+        )
+        self.collision_data = collision_data_class.data
+        self.collision_data_temperatures = collision_data_class.temperatures
 
         self.synpp_refs = synpp_refs
 
-        self.photoionization_data = photoionization_data
+        self.photoionization_data = PhotoIonizationData(
+            photoionization_data
+        ).data
 
-        self.yg_data = yg_data
+        self.yg_data = collision_data_class.yg
 
         self.two_photon_data = two_photon_data
 
         if linelist is not None:
-            self.linelist = linelist
+            self.linelist = LineList(linelist).data
 
         if decay_radiation_data is not None:
-            self.decay_radiation_data = decay_radiation_data
+            self.decay_radiation_data = DecayRadiationData(
+                decay_radiation_data
+            ).data
         self._check_related()
 
     def _check_related(self):
@@ -329,10 +339,6 @@ class AtomData:
                     f'The following dataframes from the related group [{", ".join(group)}]'
                     f'were not given: {", ".join(check_list)}'
                 )
-
-    @property
-    def atom_data_active(self):
-        return
 
     def prepare_atom_data(
         self,
@@ -467,9 +473,9 @@ class AtomData:
         )
 
         level_idxs2continuum_idx = self.photo_ion_levels_idx.copy()
-        level_idxs2continuum_idx["continuum_idx"] = (
-            self.level2continuum_edge_idx
-        )
+        level_idxs2continuum_idx[
+            "continuum_idx"
+        ] = self.level2continuum_edge_idx
         self.level_idxs2continuum_idx = level_idxs2continuum_idx.set_index(
             ["source_level_idx", "destination_level_idx"]
         )
@@ -481,120 +487,27 @@ class AtomData:
         tmp_lines_upper2level_idx,
     ):
         if (
-            self.macro_atom_data_all is not None
+            self.macro_atom_data_class.transition_probability_data is not None
             and not line_interaction_type == "scatter"
         ):
-            self.macro_atom_data = self.macro_atom_data_all.loc[
-                self.macro_atom_data_all["atomic_number"].isin(
-                    self.selected_atomic_numbers
-                )
-            ].copy()
-
-            self.macro_atom_references = self.macro_atom_references_all[
-                self.macro_atom_references_all.index.isin(
-                    self.selected_atomic_numbers, level="atomic_number"
-                )
-            ].copy()
-
-            if line_interaction_type == "downbranch":
-                self.macro_atom_data = self.macro_atom_data.loc[
-                    self.macro_atom_data["transition_type"] == -1
-                ]
-                self.macro_atom_references = self.macro_atom_references.loc[
-                    self.macro_atom_references["count_down"] > 0
-                ]
-                self.macro_atom_references.loc[:, "count_total"] = (
-                    self.macro_atom_references["count_down"]
-                )
-                self.macro_atom_references.loc[:, "block_references"] = (
-                    np.hstack(
-                        (
-                            0,
-                            np.cumsum(
-                                self.macro_atom_references["count_down"].values[
-                                    :-1
-                                ]
-                            ),
-                        )
-                    )
-                )
-
-            elif line_interaction_type == "macroatom":
-                self.macro_atom_references.loc[:, "block_references"] = (
-                    np.hstack(
-                        (
-                            0,
-                            np.cumsum(
-                                self.macro_atom_references[
-                                    "count_total"
-                                ].values[:-1]
-                            ),
-                        )
-                    )
-                )
-
-            self.macro_atom_references.loc[:, "references_idx"] = np.arange(
-                len(self.macro_atom_references)
+            new_data = self.macro_atom_data_class.active_data(
+                self.selected_atomic_numbers,
+                line_interaction_type,
+                self.lines_index,
+                tmp_lines_lower2level_idx,
+                tmp_lines_upper2level_idx,
             )
 
-            self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.loc[
-                self.macro_atom_data["transition_line_id"]
-            ].values
-
+            self.macro_atom_data = new_data.transition_probability_data
+            self.macro_atom_references = new_data.block_reference_data
+            self.lines_lower2macro_reference_idx = (
+                new_data.lines_lower2macro_reference_idx
+            )
             self.lines_upper2macro_reference_idx = (
-                self.macro_atom_references.loc[
-                    tmp_lines_upper2level_idx, "references_idx"
-                ]
-                .astype(np.int64)
-                .values
+                new_data.lines_upper2macro_reference_idx
             )
 
-            if line_interaction_type == "macroatom":
-                self.lines_lower2macro_reference_idx = (
-                    self.macro_atom_references.loc[
-                        tmp_lines_lower2level_idx, "references_idx"
-                    ]
-                    .astype(np.int64)
-                    .values
-                )
-                # Sets all
-                tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays(
-                    [
-                        self.macro_atom_data["atomic_number"],
-                        self.macro_atom_data["ion_number"],
-                        self.macro_atom_data["destination_level_number"],
-                    ]
-                )
-
-                tmp_macro_source_level_idx = pd.MultiIndex.from_arrays(
-                    [
-                        self.macro_atom_data["atomic_number"],
-                        self.macro_atom_data["ion_number"],
-                        self.macro_atom_data["source_level_number"],
-                    ]
-                )
-
-                self.macro_atom_data.loc[:, "destination_level_idx"] = (
-                    self.macro_atom_references.loc[
-                        tmp_macro_destination_level_idx, "references_idx"
-                    ]
-                    .astype(np.int64)
-                    .values
-                )
-
-                self.macro_atom_data.loc[:, "source_level_idx"] = (
-                    self.macro_atom_references.loc[
-                        tmp_macro_source_level_idx, "references_idx"
-                    ]
-                    .astype(np.int64)
-                    .values
-                )
-
-            elif line_interaction_type == "downbranch":
-                # Sets all the destination levels to -1 to indicate that they
-                # are not used in downbranch calculations
-                self.macro_atom_data.loc[:, "destination_level_idx"] = -1
-
+            # TODO: where does this go?!
             if self.yg_data is not None:
                 self.yg_data = self.yg_data.reindex(
                     self.selected_atomic_numbers, level=0
