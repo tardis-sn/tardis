@@ -278,7 +278,8 @@ def compton_opacity_partial(energy, fraction):
 
 @njit(**njit_dict_no_parallel)
 def compton_opacity_calculation(energy, electron_density):
-    """Calculate the Compton scattering opacity for a given energy
+    """
+    Calculate the Compton scattering opacity for a given energy
     (Rybicki & Lightman, 1979)
 
     $
@@ -364,7 +365,8 @@ def photoabsorption_opacity_calculation(
 def photoabsorption_opacity_calculation_kasen(
     energy, number_density, proton_count
 ):
-    """Calculates photoabsorption opacity for a given energy
+    """
+    Calculates photoabsorption opacity for a given energy
     Approximate treatment from Kasen et al. (2006)
 
     Parameters

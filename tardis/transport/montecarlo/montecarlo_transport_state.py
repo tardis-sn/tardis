@@ -1,14 +1,8 @@
 import warnings
 
-import numpy as np
 from astropy import units as u
 
 from tardis.io.util import HDFWriterMixin
-from tardis.transport.montecarlo.estimators.dilute_blackbody_properties import (
-    MCDiluteBlackBodyRadFieldSolver,
-)
-from tardis.spectrum.formal_integral import IntegrationError
-from tardis.spectrum.spectrum import TARDISSpectrum
 
 
 class MonteCarloTransportState(HDFWriterMixin):
@@ -72,35 +66,6 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.opacity_state = opacity_state
         self.rpacket_tracker = rpacket_tracker
         self.vpacket_tracker = vpacket_tracker
-
-    def calculate_radiationfield_properties(self):
-        """
-        Calculate an updated radiation field from the :math:
-        `\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
-        calculated in the montecarlo simulation.
-        The details of the calculation can be found in the documentation.
-
-        Parameters
-        ----------
-        nubar_estimator : np.ndarray (float)
-        j_estimator : np.ndarray (float)
-
-        Returns
-        -------
-        t_radiative : astropy.units.Quantity (float)
-        dilution_factor : numpy.ndarray (float)
-        """
-        dilute_bb_solver = MCDiluteBlackBodyRadFieldSolver()
-        dilute_bb_radfield = dilute_bb_solver.solve(
-            self.radfield_mc_estimators,
-            self.time_of_simulation,
-            self.geometry_state.volume,
-        )
-
-        return (
-            dilute_bb_radfield.temperature,
-            dilute_bb_radfield.dilution_factor,
-        )
 
     @property
     def output_nu(self):
