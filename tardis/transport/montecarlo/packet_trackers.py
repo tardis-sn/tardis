@@ -1,9 +1,17 @@
-from numba import float64, int64, njit
+from numba import float64, int64, njit, from_dtype
 from numba.experimental import jitclass
 from numba.typed import List
 import numpy as np
 import pandas as pd
 
+
+boundary_interaction_dtype = np.dtype(
+    [
+        ("interaction_id", "int64"),
+        ("current_shell_id", "int64"),
+        ("next_shell_id", "int64"),
+    ]
+)
 rpacket_tracker_spec = [
     ("length", int64),
     ("boundary_interaction_array_length", int64),
@@ -16,7 +24,7 @@ rpacket_tracker_spec = [
     ("energy", float64[:]),
     ("shell_id", int64[:]),
     ("interaction_type", int64[:]),
-    ("boundary_shell_transition", int64[:, :]),
+    ("boundary_interaction", from_dtype(boundary_interaction_dtype)[:]),
     ("num_interactions", int64),
     ("extend_factor", int64),
 ]
@@ -66,8 +74,9 @@ class RPacketTracker(object):
         self.energy = np.empty(self.length, dtype=np.float64)
         self.shell_id = np.empty(self.length, dtype=np.int64)
         self.interaction_type = np.empty(self.length, dtype=np.int64)
-        self.boundary_shell_transition = np.empty(
-            (self.length, 2), dtype=np.int64
+        self.boundary_interaction = np.empty(
+            self.boundary_interaction_array_length,
+            dtype=boundary_interaction_dtype,
         )
         self.num_interactions = 0
         self.extend_factor = 2
@@ -111,21 +120,26 @@ class RPacketTracker(object):
             >= self.boundary_interaction_array_length
         ):
             temp_length = self.boundary_interaction_array_length * 2
-            temp_boundary_shell_transition = np.empty(
-                (temp_length, 2), dtype=np.int64
+
+            temp_boundary_interaction = np.empty(
+                temp_length, dtype=boundary_interaction_dtype
             )
-
-            temp_boundary_shell_transition[
+            temp_boundary_interaction[
                 : self.boundary_interaction_array_length
-            ] = self.boundary_shell_transition
+            ] = self.boundary_interaction
 
-            self.boundary_shell_transition = temp_boundary_shell_transition
+            self.boundary_interaction = temp_boundary_interaction
             self.boundary_interaction_array_length = temp_length
 
-        self.boundary_shell_transition[self.num_boundary_interactions] = (
-            current_shell_id,
-            next_shell_id,
-        )
+        self.boundary_interaction[self.num_boundary_interactions][
+            "interaction_id"
+        ] = (self.num_boundary_interactions + 1)
+        self.boundary_interaction[self.num_boundary_interactions][
+            "current_shell_id"
+        ] = current_shell_id
+        self.boundary_interaction[self.num_boundary_interactions][
+            "next_shell_id"
+        ] = next_shell_id
         self.num_boundary_interactions += 1
 
     def finalize_array(self):
@@ -136,7 +150,7 @@ class RPacketTracker(object):
         self.energy = self.energy[: self.num_interactions]
         self.shell_id = self.shell_id[: self.num_interactions]
         self.interaction_type = self.interaction_type[: self.num_interactions]
-        self.boundary_shell_transition = self.boundary_shell_transition[
+        self.boundary_interaction = self.boundary_interaction[
             : self.num_boundary_interactions
         ]
 
