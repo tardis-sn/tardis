@@ -7,7 +7,7 @@ name: codestyle
 on:
   push:
     branches:
-      - "*"
+      - "master"
 
   pull_request_target:
     branches:
@@ -58,11 +58,21 @@ jobs:
       
       - name: Show statistics
         run: ruff check  --statistics  --show-fixes . | tee ruff_stats.txt
-        id: ruff_stats
       
       - name: Show entire output
-        run: ruff check . --output-format=full | tee ruff_full.txt
-        id: ruff_complete
+        run: ruff check . --output-format=concise | tee ruff_full.txt
+
+      - name: Statistics output read
+        id: ruff_stats
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: ruff_stats.txt
+
+      - name: Entire output read
+        id: ruff_complete 
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: ruff_full.txt
       
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
