@@ -22,7 +22,6 @@ from tardis.transport.montecarlo.interaction import (
 from tardis.transport.montecarlo.r_packet import (
     InteractionType,
     PacketStatus,
-    PacketEjectaStatus,
 )
 from tardis.transport.montecarlo.r_packet_transport import (
     move_packet_across_shell_boundary,
@@ -87,7 +86,7 @@ def single_packet_loop(
 
     rpacket_tracker.track(r_packet)
     rpacket_tracker.track_boundary_interaction(
-        PacketEjectaStatus.OUT_EJECTA, r_packet.current_shell_id
+        PacketStatus.OUTSIDE_EJECTA, r_packet.current_shell_id
     )
 
     # this part of the code is temporary and will be better incorporated
@@ -178,7 +177,7 @@ def single_packet_loop(
             temp_next_shell_id = (
                 r_packet.current_shell_id
                 if r_packet.status == PacketStatus.IN_PROCESS
-                else PacketEjectaStatus.OUT_EJECTA
+                else PacketStatus.OUTSIDE_EJECTA
             )
             rpacket_tracker.track_boundary_interaction(
                 temp_current_shell_id, temp_next_shell_id

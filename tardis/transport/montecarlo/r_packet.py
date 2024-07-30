@@ -26,11 +26,7 @@ class PacketStatus(IntEnum):
     EMITTED = 1
     REABSORBED = 2
     ADIABATIC_COOLING = 4
-
-
-class PacketEjectaStatus(IntEnum):
-    OUT_EJECTA = -1
-    IN_EJECTA = 1
+    OUTSIDE_EJECTA = -1
 
 
 rpacket_spec = [
