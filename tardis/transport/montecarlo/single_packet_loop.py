@@ -201,6 +201,7 @@ def single_packet_loop(
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
                 montecarlo_configuration.SURVIVAL_PROBABILITY,
             )
+            rpacket_tracker.track_line_interaction(r_packet)
 
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
