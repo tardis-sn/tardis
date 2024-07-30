@@ -35,7 +35,6 @@ def test_opacity_state_initialize(
         actual.electron_density, plasma.electron_densities.values[index]
     )
     npt.assert_allclose(actual.line_list_nu, plasma.atomic_data.lines.nu.values)
-    print(actual.tau_sobolev.shape, plasma.tau_sobolevs.values[:, index].shape)
     npt.assert_allclose(
         actual.tau_sobolev, plasma.tau_sobolevs.values[:, index]
     )
