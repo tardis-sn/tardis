@@ -81,6 +81,9 @@ class RPacketTracker(object):
     """
 
     def __init__(self, length):
+        """
+        Initialize the variables with default value
+        """
         self.length = length
         self.boundary_interaction_array_length = length
         self.line_interaction_array_length = length
@@ -115,6 +118,9 @@ class RPacketTracker(object):
         return temp_array
 
     def track(self, r_packet):
+        """
+        Track important properties of RPacket
+        """
         if self.num_interactions >= self.length:
             self.status = self.extend_array(self.status, self.length)
             self.r = self.extend_array(self.r, self.length)
@@ -141,6 +147,9 @@ class RPacketTracker(object):
         self.num_interactions += 1
 
     def track_boundary_interaction(self, current_shell_id, next_shell_id):
+        """
+        Track boundary interaction properties
+        """
         if (
             self.num_boundary_interactions
             >= self.boundary_interaction_array_length
@@ -170,6 +179,9 @@ class RPacketTracker(object):
         self.interaction_id += 1
 
     def track_line_interaction(self, r_packet):
+        """
+        Track Line interaction Properties
+        """
         if self.num_line_interactions >= self.line_interaction_array_length:
             temp_length = self.line_interaction_array_length * 2
 
@@ -203,6 +215,10 @@ class RPacketTracker(object):
         self.interaction_id += 1
 
     def finalize_array(self):
+        """
+        Change the size of the array from length ( or multiple of length ) to
+        the actual number of interactions
+        """
         self.status = self.status[: self.num_interactions]
         self.r = self.r[: self.num_interactions]
         self.nu = self.nu[: self.num_interactions]
@@ -295,6 +311,9 @@ class RPacketLastInteractionTracker(object):
     """
 
     def __init__(self):
+        """
+        Initialize properties with default values
+        """
         self.index = -1
         self.r = -1.0
         self.nu = 0.0
@@ -303,6 +322,9 @@ class RPacketLastInteractionTracker(object):
         self.interaction_type = -1
 
     def track(self, r_packet):
+        """
+        Track properties of RPacket and override the previous values
+        """
         self.index = r_packet.index
         self.r = r_packet.r
         self.nu = r_packet.nu
