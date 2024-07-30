@@ -24,7 +24,7 @@ def test_opacity_state_initialize(
         line_interaction_type,
         disable_line_scattering=False,
     )
-    print(dir(actual))
+
     if sliced:
         index = slice(2, 5)
         actual = actual[index]
