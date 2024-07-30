@@ -112,8 +112,8 @@ The following BibTeX entries are needed for the references:
 
 .. |CITATION| replace:: kerzendorf_2023_10207663
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.592480-blue
-                 :target: https://doi.org/10.5281/zenodo.592480
+.. |DOI_BADGE| .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.10207663.svg
+                    :target: https://doi.org/10.5281/zenodo.10207663
 
 .. code-block:: bibtex
 
