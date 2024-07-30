@@ -195,10 +195,10 @@ class RPacketTracker(object):
         ] = r_packet.last_interaction_in_nu
         self.line_interaction[self.num_line_interactions][
             "in_id"
-        ] = r_packet.last_interaction_in_id
+        ] = r_packet.last_line_interaction_in_id
         self.line_interaction[self.num_line_interactions][
             "out_id"
-        ] = r_packet.last_interaction_out_id
+        ] = r_packet.last_line_interaction_out_id
         self.num_line_interactions += 1
         self.interaction_id += 1
 
