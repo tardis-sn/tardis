@@ -59,6 +59,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         radfield_mc_estimators,
         geometry_state,
         opacity_state,
+        time_explosion,
         rpacket_tracker=None,
         vpacket_tracker=None,
     ):
@@ -66,6 +67,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.radfield_mc_estimators = radfield_mc_estimators
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
+        self.time_explosion = time_explosion
         self.geometry_state = geometry_state
         self.opacity_state = opacity_state
         self.rpacket_tracker = rpacket_tracker

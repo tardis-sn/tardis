@@ -46,7 +46,7 @@ def run_gamma_ray_loop(
     time_steps,
     seed,
     positronium_fraction,
-    path_to_decay_data,
+    atom_data,
     spectrum_bins,
     grey_opacity,
     photoabsorption_opacity="tardis",
@@ -109,7 +109,7 @@ def run_gamma_ray_loop(
     # Calculate decay chain energies
 
     mass_density_time = shell_masses[:, np.newaxis] * inv_volume_time
-    gamma_ray_lines = get_nuclear_lines_database(path_to_decay_data)
+    gamma_ray_lines = atom_data.decay_radiation_data
     isotope_dict = create_isotope_dicts_old(raw_isotope_abundance, shell_masses)
     inventories_dict = create_inventories_dict_old(isotope_dict)
     total_decays = calculate_total_decays_old(

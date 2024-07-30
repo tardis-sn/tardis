@@ -106,7 +106,9 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_packet_collection(self):
-        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        return (
+            self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        )
 
     @functools.cached_property
     def nb_simulation_verysimple(self):
@@ -136,11 +138,15 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_tau_russian(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        )
 
     @functools.cached_property
     def verysimple_survival_probability(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
+        )
 
     @functools.cached_property
     def static_packet(self):
@@ -155,7 +161,9 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_3vpacket_collection(self):
-        spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        spectrum_frequency_grid = (
+            self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        )
         return VPacketCollection(
             source_rpacket_index=0,
             spectrum_frequency_grid=spectrum_frequency_grid,
@@ -227,3 +235,8 @@ class BenchmarkBase:
             stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
             photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
         )
+
+    @property
+    def rpacket_tracker_list(self):
+        no_of_packets = len(self.transport_state.packet_collection.initial_nus)
+        return generate_rpacket_last_interaction_tracker_list(no_of_packets)

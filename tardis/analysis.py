@@ -206,8 +206,8 @@ class LastLineInteraction:
             ]
         ]
         self.last_line_in_table["count"] = last_line_in_count
-        self.last_line_in_table.sort_values(
-            by="count", ascending=False, inplace=True
+        self.last_line_in_table = self.last_line_in_table.sort_values(
+            by="count", ascending=False
         )
         self.last_line_out_table = self.last_line_out.reset_index()[
             [
@@ -219,8 +219,8 @@ class LastLineInteraction:
             ]
         ]
         self.last_line_out_table["count"] = last_line_out_count
-        self.last_line_out_table.sort_values(
-            by="count", ascending=False, inplace=True
+        self.last_line_out_table = self.last_line_out_table.sort_values(
+            by="count", ascending=False
         )
 
     def plot_wave_in_out(self, fig, do_clf=True, plot_resonance=True):

@@ -106,7 +106,7 @@ class IsotopicMassFraction(pd.DataFrame):
             )
         decayed_inventories = [item.decay(t_second) for item in inventories]
         df = IsotopicMassFraction.from_inventories(decayed_inventories)
-        df.sort_index(inplace=True)
+        df = df.sort_index()
         assert (
             df.ge(0.0).all().all()
         ), "Negative abundances detected. Please make sure your input abundances are correct."
