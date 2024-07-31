@@ -1,10 +1,12 @@
 import numpy as np
+import pandas as pd
 import pytest
 from numpy import testing as npt
 from pandas import testing as pdt
 from copy import deepcopy
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
+import plotly.graph_objects as go
 from tardis.base import run_tardis
 from tardis.visualization.tools.liv_plot import LIVPlotter
 from tardis.tests.fixtures.regression_data import RegressionData
