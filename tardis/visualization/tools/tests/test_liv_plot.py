@@ -121,19 +121,18 @@ class TestLIVPlotter:
             packets_mode=packets_mode,
             nelements=nelements,
         )
-        regression_data_fname = (
-            f"livplotter_parse_species_list_{subgroup_name}.h5"
+
+        expected = regression_data.sync_ndarray(np.array(plotter._species_list))
+        npt.assert_allclose(np.array(plotter._species_list), expected)
+
+        expected = regression_data.sync_ndarray(np.array(plotter._keep_colour))
+        npt.assert_allclose(np.array(plotter._keep_colour), expected)
+
+        expected = regression_data.sync_ndarray(
+            convert_to_native_type(np.array(plotter._species_mapped))
         )
-
-        expected = pd.read_hdf(regression_data_fname, "species_list")
-        pdt.assert_frame_equal(plotter._species_list, expected)
-
-        expected = pd.read_hdf(regression_data_fname, "keep_colour")
-        pdt.assert_frame_equal(plotter._keep_colour, expected)
-
-        expected = pd.read_hdf(regression_data_fname, "species_mapped")
-        pdt.assert_frame_equal(
-            convert_to_native_type(plotter._species_mapped), expected
+        npt.assert_allclose(
+            convert_to_native_type(np.array(plotter._species_mapped), expected)
         )
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
@@ -180,18 +179,15 @@ class TestLIVPlotter:
         ]
         flat_list = [item for sublist in plot_data_numeric for item in sublist]
         plot_data_list = np.array(flat_list)
-        regression_data_fname = (
-            f"livplotter_prepare_plot_data_{subgroup_name}.h5"
-        )
 
-        expected = pd.read_hdf(regression_data_fname, "plot_data")
-        pdt.assert_frame_equal(plot_data_list, expected)
+        expected = regression_data.sync_ndarray(plot_data_list)
+        npt.assert_allclose(plot_data_list, expected)
 
-        expected = pd.read_hdf(regression_data_fname, "plot_colors")
-        pdt.assert_frame_equal(plotter.plot_colors, expected)
+        expected = regression_data.sync_ndarray(np.array(plotter.plot_colors))
+        npt.assert_allclose(np.array(plotter.plot_colors), expected)
 
-        expected = pd.read_hdf(regression_data_fname, "new_bin_edges")
-        pdt.assert_frame_equal(plotter.new_bin_edges, expected)
+        expected = regression_data.sync_ndarray(np.array(plotter.new_bin_edges))
+        npt.assert_allclose(np.array(plotter.new_bin_edges), expected)
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
@@ -265,8 +261,8 @@ class TestLIVPlotter:
             f"livplotter_generate_plot_mpl_{subgroup_name}.h5"
         )
 
-        expected = pd.read_hdf(regression_data_fname, "fig_data")
-        pdt.assert_frame_equal(fig_data, expected)
+        expected = regression_data.sync_ndarray(np.array(fig_data))
+        npt.assert_allclose(np.array(fig_data), expected)
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
@@ -336,5 +332,5 @@ class TestLIVPlotter:
             f"livplotter_generate_plot_ply_{subgroup_name}.h5"
         )
 
-        expected = pd.read_hdf(regression_data_fname, "fig_data")
-        pdt.assert_frame_equal(fig_data, expected)
+        expected = regression_data.sync_ndarray(np.array(fig_data))
+        npt.assert_allclose(np.array(fig_data), expected)
