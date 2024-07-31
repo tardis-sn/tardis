@@ -28,7 +28,10 @@ from tardis.transport.montecarlo.numba_interface import opacity_state_initialize
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
 )
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
+from tardis.transport.montecarlo.packet_trackers import (
+    RPacketTracker,
+    generate_rpacket_last_interaction_tracker_list,
+)
 
 
 class BenchmarkBase:
@@ -63,6 +66,14 @@ class BenchmarkBase:
             filename,
             YAMLLoader,
         )
+
+    @property
+    def config_rpacket_tracking(self):
+        config = Configuration.from_yaml(
+            f"{self.example_configuration_dir}/tardis_configv1_verysimple.yml"
+        )
+        config.montecarlo.tracking.track_rpacket = True
+        return config
 
     @property
     def tardis_ref_path(self):
@@ -239,7 +250,9 @@ class BenchmarkBase:
 
     @property
     def verysimple_packet_collection(self):
-        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        return (
+            self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        )
 
     @property
     def nb_simulation_verysimple(self):
@@ -269,7 +282,9 @@ class BenchmarkBase:
 
     @property
     def verysimple_disable_line_scattering(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.DISABLE_LINE_SCATTERING
+        )
 
     @property
     def verysimple_continuum_processes_enabled(self):
@@ -277,11 +292,15 @@ class BenchmarkBase:
 
     @property
     def verysimple_tau_russian(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        )
 
     @property
     def verysimple_survival_probability(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
+        )
 
     @property
     def static_packet(self):
@@ -303,7 +322,9 @@ class BenchmarkBase:
 
     @property
     def verysimple_3vpacket_collection(self):
-        spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        spectrum_frequency_grid = (
+            self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        )
         return VPacketCollection(
             source_rpacket_index=0,
             spectrum_frequency_grid=spectrum_frequency_grid,
@@ -404,3 +425,8 @@ class BenchmarkBase:
             stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
             photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
         )
+
+    @property
+    def rpacket_tracker_list(self):
+        no_of_packets = len(self.transport_state.packet_collection.initial_nus)
+        return generate_rpacket_last_interaction_tracker_list(no_of_packets)

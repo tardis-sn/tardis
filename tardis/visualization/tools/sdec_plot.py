@@ -746,8 +746,8 @@ class SDECPlotter:
                 ),
             )
             # Then drop all of the individual columns for species included in 'other'
-            self.total_luminosities_df.drop(
-                sorted_list.keys()[~mask], inplace=True, axis=1
+            self.total_luminosities_df = self.total_luminosities_df.drop(
+                sorted_list.keys()[~mask], axis=1
             )
             # Repeat this for the emission and absorption dfs
             # This will require creating a temporary list that includes 'noint' and 'escatter'
@@ -770,9 +770,8 @@ class SDECPlotter:
             # Need to add a new value to the mask array for the 'other' column just added
             mask = np.insert(mask, 0, True)
             # Then drop all of the individual columns for species included in 'other'
-            self.emission_luminosities_df.drop(
+            self.emission_luminosities_df = self.emission_luminosities_df.drop(
                 self.emission_luminosities_df.keys()[~mask],
-                inplace=True,
                 axis=1,
             )
 
@@ -792,10 +791,11 @@ class SDECPlotter:
             # Need to add a new value to the mask array for the 'other' column just added
             mask = np.insert(mask, 0, True)
             # Then drop all of the individual columns for species included in 'other'
-            self.absorption_luminosities_df.drop(
-                self.absorption_luminosities_df.keys()[~mask],
-                inplace=True,
-                axis=1,
+            self.absorption_luminosities_df = (
+                self.absorption_luminosities_df.drop(
+                    self.absorption_luminosities_df.keys()[~mask],
+                    axis=1,
+                )
             )
 
             # Get the list of species in the model
@@ -813,8 +813,8 @@ class SDECPlotter:
                 ].sum(axis=1),
             )
             # Then drop all of the individual columns for elements included in 'other'
-            self.total_luminosities_df.drop(
-                sorted_list.keys()[nelements:], inplace=True, axis=1
+            self.total_luminosities_df = self.total_luminosities_df.drop(
+                sorted_list.keys()[nelements:], axis=1
             )
             # If nelements is included then create a new column which is the sum
             # of all other elements, i.e. those that aren't in the top contributing nelements
@@ -826,8 +826,8 @@ class SDECPlotter:
                 ].sum(axis=1),
             )
             # Then drop all of the individual columns for elements included in 'other'
-            self.emission_luminosities_df.drop(
-                sorted_list.keys()[nelements:], inplace=True, axis=1
+            self.emission_luminosities_df = self.emission_luminosities_df.drop(
+                sorted_list.keys()[nelements:], axis=1
             )
             # If nelements is included then create a new column which is the sum
             # of all other elements, i.e. those that aren't in the top contributing nelements
@@ -839,8 +839,10 @@ class SDECPlotter:
                 ].sum(axis=1),
             )
             # Then drop all of the individual columns for elements included in 'other'
-            self.absorption_luminosities_df.drop(
-                sorted_list.keys()[nelements:], inplace=True, axis=1
+            self.absorption_luminosities_df = (
+                self.absorption_luminosities_df.drop(
+                    sorted_list.keys()[nelements:], axis=1
+                )
             )
             # Get the list of species in the model
             # Index from 1: to avoid the 'other' column
