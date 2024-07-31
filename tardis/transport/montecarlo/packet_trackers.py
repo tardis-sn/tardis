@@ -131,7 +131,7 @@ class RPacketTracker(object):
         Track boundary interaction properties
         """
         if (
-            self.num_boundary_interactions
+            self.boundary_interactions_index
             >= self.boundary_interaction_array_length
         ):
             self.boundary_interaction = self.extend_array(
@@ -170,7 +170,7 @@ class RPacketTracker(object):
         self.shell_id = self.shell_id[: self.num_interactions]
         self.interaction_type = self.interaction_type[: self.num_interactions]
         self.boundary_interaction = self.boundary_interaction[
-            : self.num_boundary_interactions
+            : self.boundary_interactions_index
         ]
 
 
