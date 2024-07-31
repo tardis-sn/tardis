@@ -72,11 +72,11 @@ jobs:
       - name: Accept all asv questions
         run: asv machine --yes
 
-      - name: Run benchmarks for last 5 commits if not PR
+      - name: Run benchmarks for last 4 commits if not PR
         if: github.event_name != 'pull_request_target'
         run: |
           git log -n 4  --pretty=format:"%H" >> tag_commits.txt
-          asv run -a repeat=1 -a rounds=1 HASHFILE:tag_commits.txt | tee asv-output.log  
+          asv run HASHFILE:tag_commits.txt | tee asv-output.log  
           if grep -q failed asv-output.log; then 
             echo "Some benchmarks have failed!"
             exit 1
@@ -107,17 +107,17 @@ jobs:
         run: |
           echo $(git rev-parse HEAD) > commit_hashes.txt
           echo $(git rev-parse master) >> commit_hashes.txt
-          asv run -a repeat=2 -a rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
+          asv run HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
             if grep -q failed asv-output-PR.log; then 
               echo "Some benchmarks have failed!"
               exit 1
             fi
 
       - name: Compare Master and PR head
-        run: asv compare origin/master HEAD --config asv.conf.json | tee asv-compare-output.log
+        run: asv compare origin/master HEAD --factor 1.1 --split --sort | tee asv-compare-output.log
 
       - name: Compare Master and PR head but only show changed results
-        run: asv compare origin/master HEAD --only-changed --config asv.conf.json | tee asv-compare-changed-output.log
+        run: asv compare origin/master HEAD --only-changed --factor 1.1 --split --sort | tee asv-compare-changed-output.log
 
       - name: Benchmarks compare output
         id: asv_pr_vs_master
