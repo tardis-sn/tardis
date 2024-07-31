@@ -48,6 +48,8 @@ class RPacketTracker(object):
             Type of interaction the rpacket undergoes
         num_interactions : int
             Internal counter for the interactions that a particular RPacket undergoes
+        extend_factor : int
+            The factor by which to extend the properties array when the size limit is reached
     """
 
     def __init__(self, length):
