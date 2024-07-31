@@ -1,17 +1,12 @@
-"""Tests for LIV Plots."""
-
-import os
-from copy import deepcopy
 import json
-
 import numpy as np
 import pytest
-import tables
+from copy import deepcopy
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
-
 from tardis.base import run_tardis
 from tardis.visualization.tools.liv_plot import LIVPlotter
+from tardis.tests.fixtures.regression_data import RegressionData
 
 
 def make_valid_name(testid):
@@ -72,66 +67,25 @@ def simulation_simple(config_verysimple, atomic_dataset):
     return sim
 
 
-@pytest.fixture(scope="module")
-def liv_ref_data_path(tardis_ref_path):
+@pytest.fixture(scope="class")
+def plotter(simulation_simple):
     """
-    Return the path to the reference data for the LIV plots.
+    Create a LIVPlotter object.
 
     Parameters
     ----------
-    tardis_ref_path : str
-        Path to the reference data directory.
+    simulation_simple : tardis.simulation.base.Simulation
+        Simulation object.
 
     Returns
     -------
-    str
-        Path to LIV reference data.
+    tardis.visualization.tools.liv_plot.LIVPlotter
     """
-    return os.path.abspath(os.path.join(tardis_ref_path, "liv_ref.h5"))
+    return LIVPlotter.from_simulation(simulation_simple)
 
 
 class TestLIVPlotter:
     """Test the LIVPlotter class."""
-
-    @pytest.fixture(scope="class", autouse=True)
-    def create_hdf_file(self, request, liv_ref_data_path):
-        """
-        Create an HDF5 file object.
-
-        Parameters
-        ----------
-        request : _pytest.fixtures.SubRequest
-        liv_ref_data_path : str
-            Path to the reference data for the LIV plots.
-
-        Yields
-        -------
-        h5py._hl.files.File
-            HDF5 file object.
-        """
-        cls = type(self)
-        if request.config.getoption("--generate-reference"):
-            cls.hdf_file = tables.open_file(liv_ref_data_path, "w")
-        else:
-            cls.hdf_file = tables.open_file(liv_ref_data_path, "r")
-        yield cls.hdf_file
-        cls.hdf_file.close()
-
-    @pytest.fixture(scope="class")
-    def plotter(self, simulation_simple):
-        """
-        Create a LIVPlotter object.
-
-        Parameters
-        ----------
-        simulation_simple : tardis.simulation.base.Simulation
-            Simulation object.
-
-        Returns
-        -------
-        tardis.visualization.tools.liv_plot.LIVPlotter
-        """
-        return LIVPlotter.from_simulation(simulation_simple)
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"]]
@@ -139,7 +93,13 @@ class TestLIVPlotter:
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("nelements", [1, None])
     def test_parse_species_list(
-        self, request, plotter, species_list, packets_mode, nelements
+        self,
+        request,
+        plotter,
+        species_list,
+        packets_mode,
+        nelements,
+        regression_data,
     ):
         """
         Test _parse_species_list method.
@@ -158,51 +118,20 @@ class TestLIVPlotter:
             packets_mode=packets_mode,
             nelements=nelements,
         )
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-            self.hdf_file.create_carray(
-                group, name="_species_list", obj=plotter._species_list
-            )
-            self.hdf_file.create_carray(
-                group, name="_keep_colour", obj=plotter._keep_colour
-            )
-            species_mapped_json = json.dumps(
-                convert_to_native_type(plotter._species_mapped)
-            )
-            self.hdf_file.create_array(
-                group,
-                name="_species_mapped",
-                obj=np.array([species_mapped_json], dtype="S"),
-            )
+        regression_data_fname = (
+            f"livplotter_parse_species_list_{subgroup_name}.h5"
+        )
 
-            pytest.skip("Reference data was generated during this run.")
-        else:
-            group = self.hdf_file.get_node("/" + subgroup_name)
-
-            np.testing.assert_allclose(
-                np.asarray(plotter._species_list),
-                self.hdf_file.get_node(group, "_species_list"),
-            )
-            np.testing.assert_allclose(
-                np.asarray(plotter._keep_colour),
-                self.hdf_file.get_node(group, "_keep_colour"),
-            )
-            species_mapped_array = self.hdf_file.get_node(
-                group, "_species_mapped"
-            ).read()
-            species_mapped_json = (
-                species_mapped_array[0].decode()
-                if isinstance(species_mapped_array[0], bytes)
-                else species_mapped_array[0]
-            )
-            species_mapped_dict = json.loads(species_mapped_json)
-            species_mapped_dict = {
-                int(key): value for key, value in species_mapped_dict.items()
-            }
-            assert plotter._species_mapped == species_mapped_dict
+        regression_data.check(
+            {
+                "_species_list": plotter._species_list,
+                "_keep_colour": plotter._keep_colour,
+                "_species_mapped": convert_to_native_type(
+                    plotter._species_mapped
+                ),
+            },
+            fname=regression_data_fname,
+        )
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize(
@@ -220,9 +149,10 @@ class TestLIVPlotter:
         cmapname,
         num_bins,
         nelements,
+        regression_data,
     ):
         """
-        Test _parse_species_list method.
+        Test _prepare_plot_data method.
 
         Parameters
         ----------
@@ -247,39 +177,18 @@ class TestLIVPlotter:
         ]
         flat_list = [item for sublist in plot_data_numeric for item in sublist]
         plot_data_list = np.array(flat_list)
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-            self.hdf_file.create_carray(
-                group, name="plot_data", obj=plot_data_list
-            )
+        regression_data_fname = (
+            f"livplotter_prepare_plot_data_{subgroup_name}.h5"
+        )
 
-            self.hdf_file.create_carray(
-                group, name="plot_colors", obj=plotter.plot_colors
-            )
-            self.hdf_file.create_carray(
-                group, name="new_bin_edges", obj=plotter.new_bin_edges
-            )
-            pytest.skip("Reference data was generated during this run.")
-
-        else:
-            group = self.hdf_file.get_node("/" + subgroup_name)
-
-            np.testing.assert_allclose(
-                np.asarray(plot_data_list),
-                self.hdf_file.get_node(group, "plot_data"),
-            )
-
-            np.testing.assert_allclose(
-                np.asarray(plotter.plot_colors),
-                self.hdf_file.get_node(group, "plot_colors"),
-            )
-            np.testing.assert_allclose(
-                np.asarray(plotter.new_bin_edges),
-                self.hdf_file.get_node(group, "new_bin_edges"),
-            )
+        regression_data.check(
+            {
+                "plot_data": plot_data_list,
+                "plot_colors": plotter.plot_colors,
+                "new_bin_edges": plotter.new_bin_edges,
+            },
+            fname=regression_data_fname,
+        )
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
@@ -301,6 +210,7 @@ class TestLIVPlotter:
         ylog_scale,
         num_bins,
         velocity_range,
+        regression_data,
     ):
         """
         Test generate_plot_mpl method.
@@ -327,112 +237,31 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
+        fig_data = {
+            "_species_name": plotter._species_name,
+            "_color_list": plotter._color_list,
+            "step_x": plotter.step_x,
+            "step_y": plotter.step_y,
+            "fig_data": [],
+        }
 
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-            self.hdf_file.create_carray(
-                group, name="_species_name", obj=plotter._species_name
-            )
-            self.hdf_file.create_carray(
-                group, name="_color_list", obj=plotter._color_list
-            )
-            self.hdf_file.create_carray(
-                group, name="step_x", obj=plotter.step_x
-            )
-            self.hdf_file.create_carray(
-                group, name="step_y", obj=plotter.step_y
-            )
-            fig_subgroup = self.hdf_file.create_group(
-                group,
-                name="fig_data",
-            )
+        for index, data in enumerate(fig.get_children()):
+            trace_data = {}
+            if isinstance(data.get_label(), str):
+                trace_data["label"] = data.get_label()
+            if isinstance(data, PolyCollection):
+                trace_data["paths"] = [
+                    path.vertices for path in data.get_paths()
+                ]
+            if isinstance(data, Line2D):
+                trace_data["xydata"] = data.get_xydata()
+                trace_data["path"] = data.get_path().vertices
+            fig_data["fig_data"].append(trace_data)
 
-            for index, data in enumerate(fig.get_children()):
-                trace_group = self.hdf_file.create_group(
-                    fig_subgroup,
-                    name="_" + str(index),
-                )
-                if isinstance(data.get_label(), str):
-                    self.hdf_file.create_array(
-                        trace_group, name="label", obj=data.get_label().encode()
-                    )
-
-                # save artists which correspond to element contributions
-                if isinstance(data, PolyCollection):
-                    for index, path in enumerate(data.get_paths()):
-                        self.hdf_file.create_carray(
-                            trace_group,
-                            name="path" + str(index),
-                            obj=path.vertices,
-                        )
-                # save line plots
-                if isinstance(data, Line2D):
-                    self.hdf_file.create_carray(
-                        trace_group,
-                        name="data",
-                        obj=data.get_xydata(),
-                    )
-                    self.hdf_file.create_carray(
-                        trace_group, name="path", obj=data.get_path().vertices
-                    )
-            pytest.skip("Reference data was generated during this run.")
-
-        else:
-            group = self.hdf_file.get_node("/" + subgroup_name)
-
-            assert (
-                plotter._species_name
-                == self.hdf_file.get_node(group, "_species_name")
-                .read()
-                .astype(str),
-            )
-            np.testing.assert_allclose(
-                np.asarray(np.asarray(plotter._color_list)),
-                self.hdf_file.get_node(group, "_color_list"),
-            )
-            np.testing.assert_allclose(
-                np.asarray(plotter.step_x),
-                self.hdf_file.get_node(group, "step_x"),
-            )
-            np.testing.assert_allclose(
-                np.asarray(plotter.step_y),
-                self.hdf_file.get_node(group, "step_y"),
-            )
-            fig_subgroup = self.hdf_file.get_node(group, "fig_data")
-            for index, data in enumerate(fig.get_children()):
-                trace_group = self.hdf_file.get_node(
-                    fig_subgroup, "_" + str(index)
-                )
-                if isinstance(data.get_label(), str):
-                    assert (
-                        data.get_label()
-                        == self.hdf_file.get_node(trace_group, "label")
-                        .read()
-                        .decode()
-                    )
-
-                # test element contributions
-                if isinstance(data, PolyCollection):
-                    for index, path in enumerate(data.get_paths()):
-                        np.testing.assert_allclose(
-                            path.vertices,
-                            self.hdf_file.get_node(
-                                trace_group, "path" + str(index)
-                            ),
-                        )
-                # compare line plot data
-                if isinstance(data, Line2D):
-                    np.testing.assert_allclose(
-                        data.get_xydata(),
-                        self.hdf_file.get_node(trace_group, "data"),
-                    )
-                    np.testing.assert_allclose(
-                        data.get_path().vertices,
-                        self.hdf_file.get_node(trace_group, "path"),
-                    )
+        regression_data_fname = (
+            f"livplotter_generate_plot_mpl_{subgroup_name}.h5"
+        )
+        regression_data.check(fig_data, fname=regression_data_fname)
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
@@ -454,6 +283,7 @@ class TestLIVPlotter:
         ylog_scale,
         num_bins,
         velocity_range,
+        regression_data,
     ):
         """
         Test generate_plot_ply method.
@@ -480,101 +310,24 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
+        fig_data = {
+            "_species_name": plotter._species_name,
+            "_color_list": plotter._color_list,
+            "step_x": plotter.step_x,
+            "step_y": plotter.step_y,
+            "fig_data": [],
+        }
 
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-            self.hdf_file.create_carray(
-                group, name="_species_name", obj=plotter._species_name
-            )
-            self.hdf_file.create_carray(
-                group, name="_color_list", obj=plotter._color_list
-            )
-            self.hdf_file.create_carray(
-                group, name="step_x", obj=plotter.step_x
-            )
-            self.hdf_file.create_carray(
-                group, name="step_y", obj=plotter.step_y
-            )
-            fig_subgroup = self.hdf_file.create_group(
-                group,
-                name="fig_data",
-            )
-            for index, data in enumerate(fig.data):
-                trace_group = self.hdf_file.create_group(
-                    fig_subgroup,
-                    name="_" + str(index),
-                )
-                if data.stackgroup:
-                    self.hdf_file.create_array(
-                        trace_group,
-                        name="stackgroup",
-                        obj=data.stackgroup.encode(),
-                    )
-                if data.name:
-                    self.hdf_file.create_array(
-                        trace_group,
-                        name="name",
-                        obj=data.name.encode(),
-                    )
-                self.hdf_file.create_carray(
-                    trace_group,
-                    name="x",
-                    obj=data.x,
-                )
-                self.hdf_file.create_carray(
-                    trace_group,
-                    name="y",
-                    obj=data.y,
-                )
-            pytest.skip("Reference data was generated during this run.")
+        for index, data in enumerate(fig.data):
+            trace_data = {}
+            if isinstance(data.name, str):
+                trace_data["label"] = data.name
+            if isinstance(data, go.Scatter):
+                trace_data["x"] = data.x
+                trace_data["y"] = data.y
+            fig_data["fig_data"].append(trace_data)
 
-        else:
-            group = self.hdf_file.get_node("/", subgroup_name)
-
-            assert (
-                plotter._species_name
-                == self.hdf_file.get_node(group, "_species_name")
-                .read()
-                .astype(str),
-            )
-            # test output of the _make_colorbar_colors function
-            np.testing.assert_allclose(
-                np.asarray(np.asarray(plotter._color_list)),
-                self.hdf_file.get_node(group, "_color_list"),
-            )
-            np.testing.assert_allclose(
-                np.asarray(plotter.step_x),
-                self.hdf_file.get_node(group, "step_x"),
-            )
-            np.testing.assert_allclose(
-                np.asarray(plotter.step_y),
-                self.hdf_file.get_node(group, "step_y"),
-            )
-            fig_subgroup = self.hdf_file.get_node(group, "fig_data")
-            for index, data in enumerate(fig.data):
-                trace_group = self.hdf_file.get_node(
-                    fig_subgroup, "_" + str(index)
-                )
-                if data.stackgroup:
-                    assert (
-                        data.stackgroup
-                        == self.hdf_file.get_node(trace_group, "stackgroup")
-                        .read()
-                        .decode()
-                    )
-                if data.name:
-                    assert (
-                        data.name
-                        == self.hdf_file.get_node(trace_group, "name")
-                        .read()
-                        .decode()
-                    )
-                np.testing.assert_allclose(
-                    self.hdf_file.get_node(trace_group, "x"), data.x
-                )
-                np.testing.assert_allclose(
-                    self.hdf_file.get_node(trace_group, "y"), data.y
-                )
+        regression_data_fname = (
+            f"livplotter_generate_plot_ply_{subgroup_name}.h5"
+        )
+        regression_data.check(fig_data, fname=regression_data_fname)
