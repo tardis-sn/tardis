@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from tardis import constants as const
+from tardis.io.atom_data.atomic_mass_data import AtomicMassData
 from tardis.io.atom_data.collision_data import CollisionData
 from tardis.io.atom_data.decay_radiation_data import DecayRadiationData
 from tardis.io.atom_data.ionization_data import (
@@ -15,6 +15,7 @@ from tardis.io.atom_data.levels_data import LevelsData
 from tardis.io.atom_data.lines_data import LineList, LinesData
 from tardis.io.atom_data.macro_atom_data import MacroAtomData
 from tardis.io.atom_data.nlte_data import NLTEData
+from tardis.io.atom_data.two_photon_data import TwoPhotonData
 from tardis.io.atom_data.util import (
     resolve_atom_data_fname,
     set_atom_data_attributes,
@@ -274,18 +275,9 @@ class AtomData:
     ):
         self.prepared = False
 
-        # CONVERT VALUES TO CGS UNITS
-
-        # Convert atomic masses to CGS
-        # We have to use constants.u because astropy uses
-        # different values for the unit u and the constant.
-        # This is changed in later versions of astropy (
-        # the value of constants.u is used in all cases)
-        atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs.value
-
         # SET ATTRIBUTES
 
-        self.atom_data = atom_data
+        self.atom_data = AtomicMassData(atom_data).data
         self.ionization_data = IonizationData(ionization_data).data
         self.levels = LevelsData(levels).data
         self.lines = LinesData(lines).data
@@ -316,7 +308,7 @@ class AtomData:
 
         self.yg_data = collision_data_class.yg
 
-        self.two_photon_data = two_photon_data
+        self.two_photon_data = TwoPhotonData(two_photon_data).data
 
         if linelist is not None:
             self.linelist = LineList(linelist).data
@@ -473,9 +465,9 @@ class AtomData:
         )
 
         level_idxs2continuum_idx = self.photo_ion_levels_idx.copy()
-        level_idxs2continuum_idx[
-            "continuum_idx"
-        ] = self.level2continuum_edge_idx
+        level_idxs2continuum_idx["continuum_idx"] = (
+            self.level2continuum_edge_idx
+        )
         self.level_idxs2continuum_idx = level_idxs2continuum_idx.set_index(
             ["source_level_idx", "destination_level_idx"]
         )

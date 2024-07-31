@@ -1,4 +1,3 @@
-import numpy as np
 from astropy.units import Quantity
 
 
