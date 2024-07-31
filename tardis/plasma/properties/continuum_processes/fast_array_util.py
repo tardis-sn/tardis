@@ -8,6 +8,36 @@ from numba import njit, prange
 
 
 @njit(**njit_dict)
+def __faster_cumsum(arr):
+    """Faster alternative for numpy's cumsum."""
+    result = np.empty_like(arr)
+    result[0] = arr[0]
+    for i in range(1, len(arr)):
+        result[i] = result[i - 1] + arr[i]
+    return result
+
+
+@njit(**njit_dict)
+def __faster_diff(arr):
+    """Calculates x diffs."""
+    s = arr.shape[0]
+    result = np.empty((s - 1,))
+    for i in prange(0, s - 1):
+        result[i] = arr[i + 1] - arr[i]
+    return result
+
+
+@njit(**njit_dict)
+def __faster_add(arr):
+    """Calculates trapezoid's total parallel length."""
+    s = arr.shape[0]
+    result = np.empty((s - 1,))
+    for i in prange(0, s - 1):
+        result[i] = arr[i + 1] + arr[i]
+    return result
+
+
+@njit(**njit_dict)
 def numba_cumulative_trapezoid(f, x):
     """
     Cumulatively integrate f(x) using the composite trapezoidal rule.
@@ -23,8 +53,8 @@ def numba_cumulative_trapezoid(f, x):
     -------
     numpy.ndarray, dtype float
         The result of cumulative integration of f along x
-    """
-    integ = (np.diff(x) * (f[1:] + f[:-1]) / 2.0).cumsum()
+    """                  
+    integ = __faster_cumsum(__faster_diff(x) * __faster_add(f) / 2.0)
     return integ / integ[-1]
 
 
