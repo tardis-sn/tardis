@@ -16,7 +16,7 @@ boundary_interaction_dtype = np.dtype(
 
 line_interaction_dtype = np.dtype(
     [
-        ("interaction_id", "int64"),
+        ("event_id", "int64"),
         ("shell_id", "int64"),
         ("r", "float64"),
         ("in_nu", "float64"),
@@ -101,7 +101,7 @@ class RPacketTracker(object):
         self.num_interactions = 0
         self.num_boundary_interactions = 0
         self.num_line_interactions = 0
-        self.interaction_id = 1
+        self.event_id = 1
         self.extend_factor = 2
 
     def extend_array(self, array, array_length):
@@ -320,6 +320,12 @@ class RPacketLastInteractionTracker(object):
         pass
 
     def track_boundary_interaction(self, current_shell_id, next_shell_id):
+        """
+        Added to make RPacketLastInteractionTracker compatible with RPacketTracker
+        """
+        pass
+
+    def track_line_interaction(self, r_packet):
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
         """
