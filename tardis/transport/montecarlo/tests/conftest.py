@@ -1,23 +1,39 @@
 from copy import deepcopy
 
-import pytest
 import numpy as np
+import pytest
 from numba import njit
-from tardis.opacities.opacity_state import opacity_state_initialize
-from tardis.transport.montecarlo.packet_collections import (
-    VPacketCollection,
-)
 
+from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-
-
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
 )
+from tardis.transport.montecarlo.packet_collections import (
+    VPacketCollection,
+)
+from tardis.transport.montecarlo.weighted_packet_source import (
+    BlackBodyWeightedSource,
+)
+
+
+@pytest.fixture(scope="function")
+def montecarlo_main_loop_config(
+    config_montecarlo_1e5_verysimple,
+):
+    # Setup model config from verysimple
+
+    config_montecarlo_1e5_verysimple.montecarlo.last_no_of_packets = 1e5
+    config_montecarlo_1e5_verysimple.montecarlo.no_of_virtual_packets = 0
+    config_montecarlo_1e5_verysimple.montecarlo.iterations = 1
+    config_montecarlo_1e5_verysimple.plasma.line_interaction_type = "macroatom"
+
+    del config_montecarlo_1e5_verysimple["config_dirname"]
+    return config_montecarlo_1e5_verysimple
 
 
 @pytest.fixture(scope="package")
@@ -26,6 +42,13 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.iterate(10)
     return sim
+
+
+@pytest.fixture(scope="package")
+def simple_weighted_packet_source():
+    packet_source = BlackBodyWeightedSource(base_seed=1963)
+
+    return packet_source
 
 
 @pytest.fixture(scope="package")

@@ -1,5 +1,6 @@
-from numba import float64, int64
+from numba import float64, int64, njit
 from numba.experimental import jitclass
+from numba.typed import List
 import numpy as np
 import pandas as pd
 
@@ -203,3 +204,42 @@ class RPacketLastInteractionTracker(object):
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
         self.interaction_type = r_packet.last_interaction_type
+
+    # To make it compatible with RPacketTracker
+    def finalize_array(self):
+        pass
+
+
+@njit
+def generate_rpacket_tracker_list(no_of_packets, length):
+    """
+    Parameters
+    ----------
+    no_of_packets : The count of RPackets that are sent in the ejecta
+    length : initial length of the tracking array
+
+    Returns
+    -------
+    A list containing RPacketTracker for each RPacket
+    """
+    rpacket_trackers = List()
+    for i in range(no_of_packets):
+        rpacket_trackers.append(RPacketTracker(length))
+    return rpacket_trackers
+
+
+@njit
+def generate_rpacket_last_interaction_tracker_list(no_of_packets):
+    """
+    Parameters
+    ----------
+    no_of_packets : The count of RPackets that are sent in the ejecta
+
+    Returns
+    -------
+    A list containing RPacketLastInteractionTracker for each RPacket
+    """
+    rpacket_trackers = List()
+    for i in range(no_of_packets):
+        rpacket_trackers.append(RPacketLastInteractionTracker())
+    return rpacket_trackers

@@ -17,7 +17,6 @@ class PlasmaPropertyCollection(list):
 basic_inputs = PlasmaPropertyCollection(
     [
         DilutePlanckianRadField,
-        Abundance,
         NumberDensity,
         TimeExplosion,
         AtomicData,

@@ -93,7 +93,7 @@ def cuda_formal_integral(
     pp : array(float64, 1d, C)
         Impact parameter arrays
     exp_tau : array(float64, 1d, C)
-        $\exp{-tau}$ array to speed up computation
+        $\\exp{-tau}$ array to speed up computation
     I_nu array(floatt64, 2d, C)
         Radiative intensity per unit frequency per impact parameter
     z : array(float64, 2d, C)
