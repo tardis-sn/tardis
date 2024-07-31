@@ -99,8 +99,8 @@ class RPacketTracker(object):
             dtype=line_interaction_dtype,
         )
         self.num_interactions = 0
-        self.num_boundary_interactions = 0
-        self.num_line_interactions = 0
+        self.boundary_interactions_index = 0
+        self.line_interactions_index = 0
         self.event_id = 1
         self.extend_factor = 2
 
@@ -319,6 +319,7 @@ class RPacketLastInteractionTracker(object):
         """
         pass
 
+    # To make it compatible with RPacketTracker
     def track_boundary_interaction(self, current_shell_id, next_shell_id):
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
