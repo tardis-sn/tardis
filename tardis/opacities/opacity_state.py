@@ -106,7 +106,7 @@ class OpacityState:
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: slice):
         """Get a shell or slice of shells of the attributes of the opacity state
 
         Args:
