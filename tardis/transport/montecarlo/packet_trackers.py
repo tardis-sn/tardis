@@ -7,7 +7,7 @@ import pandas as pd
 
 boundary_interaction_dtype = np.dtype(
     [
-        ("interaction_id", "int64"),
+        ("event_id", "int64"),
         ("current_shell_id", "int64"),
         ("next_shell_id", "int64"),
     ]
@@ -16,7 +16,7 @@ boundary_interaction_dtype = np.dtype(
 
 line_interaction_dtype = np.dtype(
     [
-        ("interaction_id", "int64"),
+        ("event_id", "int64"),
         ("shell_id", "int64"),
         ("r", "float64"),
         ("in_nu", "float64"),
@@ -43,7 +43,7 @@ rpacket_tracker_spec = [
     ("num_interactions", int64),
     ("num_boundary_interactions", int64),
     ("num_line_interactions", int64),
-    ("interaction_id", int64),
+    ("event_id", int64),
     ("extend_factor", int64),
 ]
 
@@ -107,7 +107,7 @@ class RPacketTracker(object):
         self.num_interactions = 0
         self.num_boundary_interactions = 0
         self.num_line_interactions = 0
-        self.interaction_id = 1
+        self.event_id = 1
         self.extend_factor = 2
 
     def extend_array(self, array, array_length):
@@ -167,8 +167,8 @@ class RPacketTracker(object):
             self.boundary_interaction_array_length = temp_length
 
         self.boundary_interaction[self.num_boundary_interactions][
-            "interaction_id"
-        ] = self.interaction_id
+            "event_id"
+        ] = self.event_id
         self.boundary_interaction[self.num_boundary_interactions][
             "current_shell_id"
         ] = current_shell_id
@@ -176,7 +176,7 @@ class RPacketTracker(object):
             "next_shell_id"
         ] = next_shell_id
         self.num_boundary_interactions += 1
-        self.interaction_id += 1
+        self.event_id += 1
 
     def track_line_interaction(self, r_packet):
         """
@@ -196,8 +196,8 @@ class RPacketTracker(object):
             self.line_interaction_array_length = temp_length
 
         self.line_interaction[self.num_line_interactions][
-            "interaction_id"
-        ] = self.interaction_id
+            "event_id"
+        ] = self.event_id
         self.line_interaction[self.num_line_interactions][
             "shell_id"
         ] = r_packet.current_shell_id
@@ -212,7 +212,7 @@ class RPacketTracker(object):
             "out_id"
         ] = r_packet.last_line_interaction_out_id
         self.num_line_interactions += 1
-        self.interaction_id += 1
+        self.event_id += 1
 
     def finalize_array(self):
         """
