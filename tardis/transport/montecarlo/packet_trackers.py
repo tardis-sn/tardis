@@ -62,33 +62,22 @@ class RPacketTracker(object):
         self.interaction_type = np.empty(self.length, dtype=np.int64)
         self.num_interactions = 0
 
+    def extend_array(self, array, array_length, dtype):
+        temp_length = array_length * 2
+        temp_array = np.empty(temp_length, dtype=dtype)
+        temp_array[: self.array_length] = self.array
+        array = temp_array
+
     def track(self, r_packet):
         if self.num_interactions >= self.length:
-            temp_length = self.length * 2
-            temp_status = np.empty(temp_length, dtype=np.int64)
-            temp_r = np.empty(temp_length, dtype=np.float64)
-            temp_nu = np.empty(temp_length, dtype=np.float64)
-            temp_mu = np.empty(temp_length, dtype=np.float64)
-            temp_energy = np.empty(temp_length, dtype=np.float64)
-            temp_shell_id = np.empty(temp_length, dtype=np.int64)
-            temp_interaction_type = np.empty(temp_length, dtype=np.int64)
-
-            temp_status[: self.length] = self.status
-            temp_r[: self.length] = self.r
-            temp_nu[: self.length] = self.nu
-            temp_mu[: self.length] = self.mu
-            temp_energy[: self.length] = self.energy
-            temp_shell_id[: self.length] = self.shell_id
-            temp_interaction_type[: self.length] = self.interaction_type
-
-            self.status = temp_status
-            self.r = temp_r
-            self.nu = temp_nu
-            self.mu = temp_mu
-            self.energy = temp_energy
-            self.shell_id = temp_shell_id
-            self.interaction_type = temp_interaction_type
-            self.length = temp_length
+            self.extend_array(self.status, length, np.int64)
+            self.extend_array(self.r, length, np.float64)
+            self.extend_array(self.nu, length, np.int64)
+            self.extend_array(self.mu, length, np.int64)
+            self.extend_array(self.energy, length, np.int64)
+            self.extend_array(self.shell_id, length, np.int64)
+            self.extend_array(self.interaction_type, length, np.int64)
+            self.length = self.length * 2
 
         self.index = r_packet.index
         self.seed = r_packet.seed
