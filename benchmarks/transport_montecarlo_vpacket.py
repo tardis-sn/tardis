@@ -5,7 +5,6 @@ Basic TARDIS Benchmark.
 import functools
 
 import numpy as np
-from asv_runner.benchmarks.mark import parameterize
 
 import tardis.transport.montecarlo.vpacket as vpacket
 from benchmarks.benchmark_base import BenchmarkBase

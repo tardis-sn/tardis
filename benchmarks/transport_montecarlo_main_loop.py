@@ -2,8 +2,6 @@
 Basic TARDIS Benchmark.
 """
 
-import functools
-
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.montecarlo_main_loop import (
     montecarlo_main_loop,

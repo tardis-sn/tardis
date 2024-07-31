@@ -11,7 +11,7 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
-from tardis.transport.montecarlo import RPacket
+from tardis.transport.montecarlo import RPacket, packet_trackers
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
@@ -22,7 +22,6 @@ from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 
 
 class BenchmarkBase:
-    # It allows 10 minutes of runtime for each benchmark and includes
     # the total time for all the repetitions for each benchmark.
     timeout = 600
 
@@ -45,7 +44,8 @@ class BenchmarkBase:
     def tardis_ref_path(self):
         ref_data_path = Path(
             Path(__file__).parent.parent,
-            "tardis-refdata",
+            "benchmarks",
+            "data",  # remind me to change it
         ).resolve()
         return ref_data_path
 
@@ -62,7 +62,7 @@ class BenchmarkBase:
     @property
     def atomic_data_fname(self):
         atomic_data_fname = (
-            f"{self.tardis_ref_path}/atom_data/kurucz_cd23_chianti_H_He.h5"
+            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He.h5"
         )
 
         if not Path(atomic_data_fname).exists():
@@ -106,9 +106,7 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_packet_collection(self):
-        return (
-            self.nb_simulation_verysimple.transport.transport_state.packet_collection
-        )
+        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
 
     @functools.cached_property
     def nb_simulation_verysimple(self):
@@ -138,15 +136,11 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_tau_russian(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
 
     @functools.cached_property
     def verysimple_survival_probability(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
 
     @functools.cached_property
     def static_packet(self):
@@ -161,9 +155,7 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_3vpacket_collection(self):
-        spectrum_frequency_grid = (
-            self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
-        )
+        spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
         return VPacketCollection(
             source_rpacket_index=0,
             spectrum_frequency_grid=spectrum_frequency_grid,
@@ -236,7 +228,9 @@ class BenchmarkBase:
             photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
         )
 
-    @property
+    @functools.cached_property
     def rpacket_tracker_list(self):
         no_of_packets = len(self.transport_state.packet_collection.initial_nus)
-        return generate_rpacket_last_interaction_tracker_list(no_of_packets)
+        return packet_trackers.generate_rpacket_last_interaction_tracker_list(
+            no_of_packets
+        )
