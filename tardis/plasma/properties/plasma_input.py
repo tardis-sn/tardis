@@ -12,12 +12,9 @@ __all__ = [
     "NumberDensity",
     "IsotopeAbundance",
     "TimeExplosion",
-    "JBlueEstimator",
+    "JBlues",
     "LinkTRadTElectron",
     "HeliumTreatment",
-    "RInner",
-    "TInner",
-    "Volume",
     "ContinuumInteractionSpecies",
     "NLTEIonizationSpecies",
     "NLTEExcitationSpecies",
@@ -103,15 +100,15 @@ class TimeExplosion(Input):
     latex_name = (r"t_{\textrm{exp}}",)
 
 
-class JBlueEstimator(ArrayInput):
+class JBlues(Input):
     """
     Attributes
     ----------
     j_blue_estimators : Numpy array
     """
 
-    outputs = ("j_blue_estimators",)
-    latex_name = (r"J_{\textrm{blue-estimator}}",)
+    outputs = ("j_blues",)
+    latex_name = (r"J_{\textrm{blue}}",)
 
 
 class LinkTRadTElectron(Input):
@@ -129,18 +126,6 @@ class LinkTRadTElectron(Input):
 
 class HeliumTreatment(Input):
     outputs = ("helium_treatment",)
-
-
-class RInner(Input):
-    outputs = ("r_inner",)
-
-
-class TInner(Input):
-    outputs = ("t_inner",)
-
-
-class Volume(Input):
-    outputs = ("volume",)
 
 
 class ContinuumInteractionSpecies(Input):

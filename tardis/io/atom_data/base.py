@@ -9,7 +9,7 @@ from scipy import interpolate
 
 from tardis import constants as const
 from tardis.io.atom_data.util import resolve_atom_data_fname
-from tardis.plasma.properties.continuum_processes import (
+from tardis.plasma.properties.continuum_processes.rates import (
     get_ground_state_multi_index,
 )
 

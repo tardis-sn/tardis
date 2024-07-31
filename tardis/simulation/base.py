@@ -22,6 +22,9 @@ from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
+    MCContinuumPropertiesSolver,
+)
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
@@ -266,10 +269,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         -------
             converged : bool
         """
-        (
-            estimated_t_rad,
-            estimated_dilution_factor,
-        ) = self.transport.transport_state.calculate_radiationfield_properties()
+        estimated_radfield_properties = (
+            self.transport.radfield_prop_solver.solve(
+                self.transport.transport_state.radfield_mc_estimators,
+                self.transport.transport_state.time_explosion,
+                self.transport.transport_state.time_of_simulation,
+                self.transport.transport_state.geometry_state.volume,
+                self.transport.transport_state.opacity_state.line_list_nu,
+            )
+        )
+
+        estimated_t_rad = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
+
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
             self.luminosity_requested,
@@ -339,11 +355,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.simulation_state.dilution_factor = next_dilution_factor
         self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
-        # model.calculate_j_blues() equivalent
-        # model.update_plasmas() equivalent
-        # Bad test to see if this is a nlte run
-        if "nlte_data" in self.plasma.outputs_dict:
-            self.plasma.store_previous_properties()
         radiation_field = DilutePlanckianRadiationField(
             temperature=self.simulation_state.t_radiative,
             dilution_factor=self.simulation_state.dilution_factor,
@@ -351,21 +362,72 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         update_properties = dict(
             dilute_planckian_radiation_field=radiation_field
         )
+
+        # model.calculate_j_blues() equivalent
+        # model.update_plasmas() equivalent
+        # Bad test to see if this is a nlte run
+
+        if "nlte_data" in self.plasma.outputs_dict:
+            self.plasma.store_previous_properties()
+
+        # JBlues solver
+        if (
+            self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "blackbody"
+        ):
+            planckian_radiation_field = (
+                radiation_field.to_planckian_radiation_field()
+            )
+            j_blues = planckian_radiation_field.calculate_mean_intensity(
+                self.plasma.atomic_data.lines.nu.values
+            )
+            update_properties["j_blues"] = pd.DataFrame(
+                j_blues, index=self.plasma.atomic_data.lines.index
+            )
+        elif (
+            self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "dilute-blackbody"
+        ):
+            j_blues = radiation_field.calculate_mean_intensity(
+                self.plasma.atomic_data.lines.nu.values
+            )
+            update_properties["j_blues"] = pd.DataFrame(
+                j_blues, index=self.plasma.atomic_data.lines.index
+            )
+        elif (
+            self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "detailed"
+        ):
+            update_properties["j_blues"] = pd.DataFrame(
+                estimated_radfield_properties.j_blues,
+                index=self.plasma.atomic_data.lines.index,
+            )
+        else:
+            raise ValueError(
+                f"radiative_rates_type type unknown - {self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
+            )
+
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
 
-        estimators = self.transport.transport_state.radfield_mc_estimators
-        if "j_blue_estimator" in self.plasma.outputs_dict:
-            update_properties.update(
-                t_inner=next_t_inner,
-                j_blue_estimator=estimators.j_blue_estimator,
+        radfield_mc_estimators = (
+            self.transport.transport_state.radfield_mc_estimators
+        )
+
+        if "gamma" in self.plasma.outputs_dict:
+            continuum_property_solver = MCContinuumPropertiesSolver(
+                self.atom_data
             )
-        if "gamma_estimator" in self.plasma.outputs_dict:
+            estimated_continuum_properties = continuum_property_solver.solve(
+                radfield_mc_estimators,
+                self.transport.transport_state.time_of_simulation,
+                self.transport.transport_state.geometry_state.volume,
+            )
             update_properties.update(
-                gamma_estimator=estimators.photo_ion_estimator,
-                alpha_stim_estimator=estimators.stim_recomb_estimator,
-                bf_heating_coeff_estimator=estimators.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=estimators.stim_recomb_cooling_estimator,
+                gamma=estimated_continuum_properties.photo_ion_coeff,
+                alpha_stim_coeff=estimated_continuum_properties.stim_recomb_estimator,
+                bf_heating_coeff_estimator=radfield_mc_estimators.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=radfield_mc_estimators.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)

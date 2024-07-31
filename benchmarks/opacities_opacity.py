@@ -4,6 +4,7 @@ Basic TARDIS Benchmark.
 
 import tardis.opacities.opacities as calculate_opacity
 from benchmarks.benchmark_base import BenchmarkBase
+from tardis.opacities.opacities import compton_opacity_calculation
 
 
 class BenchmarkMontecarloMontecarloNumbaOpacities(BenchmarkBase):

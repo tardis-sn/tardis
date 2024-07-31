@@ -1,16 +1,21 @@
-import os
-import re
-import logging
-import tempfile
+import dataclasses
 import fileinput
+import logging
+import re
+import tempfile
 
 import networkx as nx
 
-from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
-from tardis.plasma.properties.base import *
 from tardis.io.util import PlasmaWriterMixin
+from tardis.plasma.exceptions import NotInitializedModule, PlasmaMissingModule
+from tardis.plasma.properties.base import *
 
 logger = logging.getLogger(__name__)
+
+
+@dataclasses.dataclass(frozen=True)
+class PlasmaSolverSettings:
+    RADIATIVE_RATES_TYPE: str = "blackbody"
 
 
 class BasePlasma(PlasmaWriterMixin):
@@ -18,7 +23,14 @@ class BasePlasma(PlasmaWriterMixin):
     outputs_dict = {}
     hdf_name = "plasma"
 
-    def __init__(self, plasma_properties, property_kwargs=None, **kwargs):
+    def __init__(
+        self,
+        plasma_properties,
+        plasma_solver_settings,
+        property_kwargs=None,
+        **kwargs,
+    ):
+        self.plasma_solver_settings = plasma_solver_settings
         self.outputs_dict = {}
         self.input_properties = []
         self.plasma_properties = self._init_properties(
@@ -63,7 +75,6 @@ class BasePlasma(PlasmaWriterMixin):
         :param plasma_modules:
         :return:
         """
-
         self.graph = nx.DiGraph()
         # Adding all nodes
         self.graph.add_nodes_from(
@@ -200,8 +211,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    "Trying to freeze property {0}"
-                    " that is unavailable".format(key)
+                    f"Trying to freeze property {key}" " that is unavailable"
                 )
             self.outputs_dict[key].frozen = True
 
@@ -224,8 +234,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    "Trying to thaw property {0}"
-                    " that is unavailable".format(key)
+                    f"Trying to thaw property {key}" " that is unavailable"
                 )
             self.outputs_dict[key].frozen = False
 
@@ -249,7 +258,6 @@ class BasePlasma(PlasmaWriterMixin):
             : list
             all affected modules.
         """
-
         descendants_ob = []
 
         for plasma_property in changed_properties:
@@ -284,11 +292,10 @@ class BasePlasma(PlasmaWriterMixin):
             enables/disables writing LaTeX equations and
             edge labels into the file.
         """
-
         try:
             import pygraphviz
         except:
-            logger.warn(
+            logger.warning(
                 "pygraphviz missing. Plasma graph will not be " "generated."
             )
             return
@@ -303,7 +310,7 @@ class BasePlasma(PlasmaWriterMixin):
                     ] = f"\\\\textrm{{{node}: }}"
                     node_list = self.plasma_properties_dict[node]
                     formulae = node_list.latex_formula
-                    for output in range(0, len(formulae)):
+                    for output in range(len(formulae)):
                         formula = formulae[output]
                         label = formula.replace("\\", "\\\\")
                         print_graph.nodes[str(node)]["label"] += label
@@ -341,7 +348,7 @@ class BasePlasma(PlasmaWriterMixin):
                 )
 
         if args is not None:
-            with open(fname, "r") as file:
+            with open(fname) as file:
                 lines = file.readlines()
 
             for newline in args:
@@ -374,7 +381,7 @@ class BasePlasma(PlasmaWriterMixin):
         try:
             import dot2tex
         except:
-            logger.warn(
+            logger.warning(
                 "dot2tex missing. Plasma graph will not be " "generated."
             )
             return
@@ -383,7 +390,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         self.write_to_dot(temp_fname, args=args, latex_label=latex_label)
 
-        with open(temp_fname, "r") as file:
+        with open(temp_fname) as file:
             dot_string = file.read().replace("\\\\", "\\")
 
         texcode = dot2tex.dot2tex(

@@ -1,6 +1,10 @@
+from tardis.opacities.continuum.bound_free import BoundFreeOpacity
 from tardis.opacities.macro_atom.base import (
     NonMarkovChainTransitionProbabilities,
     TransitionProbabilities,
+)
+from tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob import (
+    RawCollIonTransProbs,
 )
 from tardis.opacities.tau_sobolev import TauSobolev
 from tardis.plasma.properties import *
@@ -17,8 +21,7 @@ basic_inputs = PlasmaPropertyCollection(
         NumberDensity,
         TimeExplosion,
         AtomicData,
-        TRadiative,
-        DilutionFactor,
+        JBlues,
         LinkTRadTElectron,
         HeliumTreatment,
         ContinuumInteractionSpecies,
@@ -28,6 +31,8 @@ basic_inputs = PlasmaPropertyCollection(
 )
 basic_properties = PlasmaPropertyCollection(
     [
+        TRadiative,
+        DilutionFactor,
         BetaRadiation,
         Levels,
         Lines,
@@ -85,19 +90,10 @@ helium_lte_properties = PlasmaPropertyCollection(
 helium_numerical_nlte_properties = PlasmaPropertyCollection(
     [HeliumNumericalNLTE]
 )
-detailed_j_blues_inputs = PlasmaPropertyCollection(
-    [JBluesEstimator, RInner, TInner, Volume]
-)
-detailed_j_blues_properties = PlasmaPropertyCollection(
-    [JBluesDetailed, JBluesNormFactor, LuminosityInner, TimeSimulation]
-)
 continuum_interaction_inputs = PlasmaPropertyCollection(
     [
-        StimRecombRateCoeffEstimator,
-        PhotoIonRateCoeffEstimator,
-        RInner,
-        TInner,
-        Volume,
+        PhotoIonRateCoeff,
+        StimRecombRateFactor,
         BfHeatingRateCoeffEstimator,
         StimRecombCoolingRateCoeffEstimator,
         YgData,
@@ -105,19 +101,15 @@ continuum_interaction_inputs = PlasmaPropertyCollection(
 )
 continuum_interaction_properties = PlasmaPropertyCollection(
     [
+        StimRecombRateCoeff,
         PhotoIonizationData,
         SpontRecombRateCoeff,
-        PhotoIonRateCoeff,
         ThermalLevelBoltzmannFactorLTE,
         ThermalLTEPartitionFunction,
         BetaElectron,
         ThermalGElectron,
         ThermalPhiSahaLTE,
         SahaFactor,
-        TimeSimulation,
-        PhotoIonEstimatorsNormFactor,
-        LuminosityInner,
-        StimRecombRateCoeff,
         CorrPhotoIonRateCoeff,
         SpontRecombCoolingRateCoeff,
         RawRecombTransProbs,
