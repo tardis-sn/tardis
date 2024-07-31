@@ -110,7 +110,7 @@ class OpacityState:
         """Get a shell or slice of shells of the attributes of the opacity state
 
         Args:
-            i (int, slice): shell index or slice
+            i (slice): shell slice.  Will fail if slice is int since class only supports array types
 
         Returns:
             OpacityState : a shallow copy of the current instance

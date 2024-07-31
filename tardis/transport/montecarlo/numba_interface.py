@@ -112,11 +112,11 @@ class OpacityState(object):
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: slice):
         """Get a shell or slice of shells of the attributes of the opacity state
 
         Args:
-            i (int, slice): shell index or slice
+            i (slice): shell slice.  Will fail if slice is int since class only supports array types
 
         Returns:
             OpacityState : a shallow copy of the current instance
