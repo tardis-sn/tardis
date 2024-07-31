@@ -1,6 +1,7 @@
-import json
 import numpy as np
 import pytest
+from numpy import testing as npt
+from pandas import testing as pdt
 from copy import deepcopy
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
@@ -122,15 +123,15 @@ class TestLIVPlotter:
             f"livplotter_parse_species_list_{subgroup_name}.h5"
         )
 
-        regression_data.check(
-            {
-                "_species_list": plotter._species_list,
-                "_keep_colour": plotter._keep_colour,
-                "_species_mapped": convert_to_native_type(
-                    plotter._species_mapped
-                ),
-            },
-            fname=regression_data_fname,
+        expected = pd.read_hdf(regression_data_fname, "species_list")
+        pdt.assert_frame_equal(plotter._species_list, expected)
+
+        expected = pd.read_hdf(regression_data_fname, "keep_colour")
+        pdt.assert_frame_equal(plotter._keep_colour, expected)
+
+        expected = pd.read_hdf(regression_data_fname, "species_mapped")
+        pdt.assert_frame_equal(
+            convert_to_native_type(plotter._species_mapped), expected
         )
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
@@ -181,14 +182,14 @@ class TestLIVPlotter:
             f"livplotter_prepare_plot_data_{subgroup_name}.h5"
         )
 
-        regression_data.check(
-            {
-                "plot_data": plot_data_list,
-                "plot_colors": plotter.plot_colors,
-                "new_bin_edges": plotter.new_bin_edges,
-            },
-            fname=regression_data_fname,
-        )
+        expected = pd.read_hdf(regression_data_fname, "plot_data")
+        pdt.assert_frame_equal(plot_data_list, expected)
+
+        expected = pd.read_hdf(regression_data_fname, "plot_colors")
+        pdt.assert_frame_equal(plotter.plot_colors, expected)
+
+        expected = pd.read_hdf(regression_data_fname, "new_bin_edges")
+        pdt.assert_frame_equal(plotter.new_bin_edges, expected)
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
@@ -261,7 +262,9 @@ class TestLIVPlotter:
         regression_data_fname = (
             f"livplotter_generate_plot_mpl_{subgroup_name}.h5"
         )
-        regression_data.check(fig_data, fname=regression_data_fname)
+
+        expected = pd.read_hdf(regression_data_fname, "fig_data")
+        pdt.assert_frame_equal(fig_data, expected)
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
@@ -330,4 +333,6 @@ class TestLIVPlotter:
         regression_data_fname = (
             f"livplotter_generate_plot_ply_{subgroup_name}.h5"
         )
-        regression_data.check(fig_data, fname=regression_data_fname)
+
+        expected = pd.read_hdf(regression_data_fname, "fig_data")
+        pdt.assert_frame_equal(fig_data, expected)
