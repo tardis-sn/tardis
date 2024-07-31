@@ -8,6 +8,7 @@ import numpy as np
 from tardis import run_tardis
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
+from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
@@ -41,11 +42,28 @@ class BenchmarkBase:
         return self.get_relative_path(partial_path)
 
     @property
+    def tardis_config_verysimple(self):
+        filename = self.get_absolute_path(
+            "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml"
+        )
+        return yaml_load_file(
+            filename,
+            YAMLLoader,
+        )
+
+    @property
+    def config_rpacket_tracking(self):
+        config = Configuration.from_yaml(
+            f"{self.example_configuration_dir}/tardis_configv1_verysimple.yml"
+        )
+        config.montecarlo.tracking.track_rpacket = True
+        return config
+
+    @property
     def tardis_ref_path(self):
         ref_data_path = Path(
             Path(__file__).parent.parent,
-            "benchmarks",
-            "data",  # remind me to change it
+            "tardis-refdata"
         ).resolve()
         return ref_data_path
 
@@ -62,7 +80,7 @@ class BenchmarkBase:
     @property
     def atomic_data_fname(self):
         atomic_data_fname = (
-            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He.h5"
+            f"{self.tardis_ref_path}/atom_data/kurucz_cd23_chianti_H_He.h5"
         )
 
         if not Path(atomic_data_fname).exists():
