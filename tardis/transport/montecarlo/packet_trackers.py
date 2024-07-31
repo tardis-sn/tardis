@@ -28,7 +28,7 @@ rpacket_tracker_spec = [
     ("interaction_type", int64[:]),
     ("boundary_interaction", from_dtype(boundary_interaction_dtype)[:]),
     ("num_interactions", int64),
-    ("num_boundary_interactions", int64),
+    ("boundary_interactions_index", int64),
     ("event_id", int64),
     ("extend_factor", int64),
 ]
@@ -86,7 +86,7 @@ class RPacketTracker(object):
             dtype=boundary_interaction_dtype,
         )
         self.num_interactions = 0
-        self.num_boundary_interactions = 0
+        self.boundary_interactions_index = 0
         self.event_id = 1
         self.extend_factor = 2
 
@@ -134,29 +134,28 @@ class RPacketTracker(object):
             self.num_boundary_interactions
             >= self.boundary_interaction_array_length
         ):
-            temp_length = self.boundary_interaction_array_length * 2
-
-            temp_boundary_interaction = np.empty(
-                temp_length, dtype=boundary_interaction_dtype
+            self.boundary_interaction = self.extend_array(
+                self.boundary_interaction,
+                self.boundary_interaction_array_length,
             )
-            temp_boundary_interaction[
-                : self.boundary_interaction_array_length
-            ] = self.boundary_interaction
+            self.boundary_interaction_array_length = (
+                self.boundary_interaction_array_length * self.extend_factor
+            )
 
-            self.boundary_interaction = temp_boundary_interaction
-            self.boundary_interaction_array_length = temp_length
-
-        self.boundary_interaction[self.num_boundary_interactions][
+        self.boundary_interaction[self.boundary_interactions_index][
             "event_id"
         ] = self.event_id
-        self.boundary_interaction[self.num_boundary_interactions][
+        self.event_id += 1
+
+        self.boundary_interaction[self.boundary_interactions_index][
             "current_shell_id"
         ] = current_shell_id
-        self.boundary_interaction[self.num_boundary_interactions][
+
+        self.boundary_interaction[self.boundary_interactions_index][
             "next_shell_id"
         ] = next_shell_id
-        self.num_boundary_interactions += 1
-        self.event_id += 1
+
+        self.boundary_interactions_index += 1
 
     def finalize_array(self):
         """
