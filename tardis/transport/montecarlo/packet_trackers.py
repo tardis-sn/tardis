@@ -66,20 +66,24 @@ class RPacketTracker(object):
         self.num_interactions = 0
         self.extend_factor = 2
 
-    def extend_array(self, array, array_length, dtype):
-        temp_array = np.empty(array_length * self.extend_factor, dtype=dtype)
+    def extend_array(self, array, array_length):
+        temp_array = np.empty(
+            array_length * self.extend_factor, dtype=array.dtype
+        )
         temp_array[:array_length] = array
-        array = temp_array
+        return temp_array
 
     def track(self, r_packet):
         if self.num_interactions >= self.length:
-            self.extend_array(self.status, self.length, np.int64)
-            self.extend_array(self.r, self.length, np.float64)
-            self.extend_array(self.nu, self.length, np.int64)
-            self.extend_array(self.mu, self.length, np.int64)
-            self.extend_array(self.energy, self.length, np.int64)
-            self.extend_array(self.shell_id, self.length, np.int64)
-            self.extend_array(self.interaction_type, self.length, np.int64)
+            self.status = self.extend_array(self.status, self.length)
+            self.r = self.extend_array(self.r, self.length)
+            self.nu = self.extend_array(self.nu, self.length)
+            self.mu = self.extend_array(self.mu, self.length)
+            self.energy = self.extend_array(self.energy, self.length)
+            self.shell_id = self.extend_array(self.shell_id, self.length)
+            self.interaction_type = self.extend_array(
+                self.interaction_type, self.length
+            )
             self.length = self.length * self.extend_factor
 
         self.index = r_packet.index
