@@ -13,6 +13,8 @@ class BenchmarkTransportMontecarloMontecarloMainLoop(BenchmarkBase):
     class to benchmark montecarlo_main_loop function.
     """
 
+    repeat = 3
+
     def setup(self):
         self.packet_collection = self.transport_state.packet_collection
         self.geometry_state = self.transport_state.geometry_state

@@ -13,6 +13,8 @@ class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
     Class to benchmark the numba R packet function.
     """
 
+    repeat = 2
+
     def setup(self, num_packets, length):
         sim = self.simulation_rpacket_tracking_enabled
         self.TransportState = sim.transport.transport_state

@@ -17,6 +17,7 @@ class BenchmarkOpacitiesOpacityState(BenchmarkBase):
     """
     Class to benchmark the numba interface function.
     """
+    repeat = 2
 
     @functools.cache
     def setup(self, input_params):

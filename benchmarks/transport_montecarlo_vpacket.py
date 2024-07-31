@@ -17,6 +17,8 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
     Class to benchmark the single packet loop function.
     """
 
+    repeat = 5
+
     def setup(self):
         self.vpacket = self.v_packet
         self.numba_radial_1d_geometry = self.verysimple_numba_radial_1d_geometry

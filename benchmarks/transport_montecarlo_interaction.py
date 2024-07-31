@@ -12,6 +12,8 @@ class BenchmarkTransportMontecarloInteraction(BenchmarkBase):
     Class to benchmark the numba interaction function.
     """
 
+    repeat = 3
+
     def setup(self):
         self.Packet = self.packet
         self.time_explosion = self.verysimple_time_explosion

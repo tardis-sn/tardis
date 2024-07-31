@@ -6,8 +6,6 @@ import functools
 
 from numba import config
 
-
-import tardis.spectrum.formal_integral as formal_integral
 from benchmarks.benchmark_base import BenchmarkBase
 
 config.THREADING_LAYER = "workqueue"
@@ -17,6 +15,8 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
     """
     Class to benchmark the numba formal integral function.
     """
+
+    repeat = 2
 
     @functools.cache
     def setup(self):

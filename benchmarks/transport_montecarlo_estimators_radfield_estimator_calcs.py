@@ -15,6 +15,8 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
     Class to benchmark the numba packet function.
     """
 
+    repeat = 4
+
     @functools.cache
     def setup(self):
         self.Estimators = self.estimators

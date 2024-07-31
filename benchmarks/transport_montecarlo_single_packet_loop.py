@@ -13,6 +13,8 @@ class BenchmarkTransportMontecarloSinglePacketLoop(BenchmarkBase):
     Class to benchmark the single packet loop function.
     """
 
+    repeat = 2
+
     def time_single_packet_loop(self):
         single_packet_loop.single_packet_loop(
             self.packet,
