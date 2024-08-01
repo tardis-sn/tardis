@@ -26,12 +26,8 @@ class OpacityStatePython:
         t_electrons : numpy.ndarray
         line_list_nu : numpy.ndarray
         tau_sobolev : numpy.ndarray
-        transition_probabilities : numpy.ndarray
-        macro_block_references : numpy.ndarray
-        transition_type : numpy.ndarray
-        destination_level_id : numpy.ndarray
-        transition_line_id : numpy.ndarray
-        bf_threshold_list_nu : numpy.ndarray
+        macroatom_state: tardis.opacities.macro_atom.macroatom_state.MacroAtomState
+        continuum_state: tardis.opacities.continuum.continuum_state.ContinuumState
         """
         self.electron_density = electron_density
         self.t_electrons = t_electrons
@@ -45,7 +41,15 @@ class OpacityStatePython:
 
     @classmethod
     def from_legacy_plasma(cls, plasma, tau_sobolev):
+        """Generates an OpacityStatePython object from a tardis BasePlasma
 
+        Args:
+            plasma (tarids.plasma.BasePlasma): legacy base plasma
+            tau_sobolev (pd.DataFrame): Expansion Optical Depths
+
+        Returns:
+            OpacityStatePython
+        """
         if hasattr(plasma, "macro_atom_data"):
             macroatom_state = MacroAtomState.from_legacy_plasma(plasma)
         else:
@@ -178,7 +182,7 @@ def opacity_state_to_numba(
 
     Parameters
     ----------
-    plasma : tardis.plasma.BasePlasma
+    opacity_state : tardis.opacities.opacity_state.OpacityStatePython
     line_interaction_type : enum
     """
 
