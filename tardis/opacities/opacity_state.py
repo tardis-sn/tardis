@@ -4,8 +4,8 @@ from numba.experimental import jitclass
 
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.transport.montecarlo.configuration import montecarlo_globals
-from tardis.opacities.continuum_state import ContinuumState
-from tardis.opacities.macroatom_state import MacroAtomState
+from tardis.opacities.continuum.continuum_state import ContinuumState
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
 
 class OpacityStatePython:

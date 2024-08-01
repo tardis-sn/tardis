@@ -1,7 +1,5 @@
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.opacities.opacity_state import (
-    OpacityState,
-    opacity_state_initialize,
     OpacityStatePython,
 )
 import numpy as np
