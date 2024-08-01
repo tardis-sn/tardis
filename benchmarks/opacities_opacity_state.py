@@ -9,8 +9,6 @@ from asv_runner.benchmarks.mark import parameterize
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.opacities.opacity_state import opacity_state_initialize
 
-from tardis.opacities.opacity_state import opacity_state_initialize
-
 
 @parameterize({"Input params": ["scatter", "macroatom"]})
 class BenchmarkOpacitiesOpacityState(BenchmarkBase):

@@ -41,7 +41,7 @@ class BenchmarkBase:
 
         return self.get_relative_path(partial_path)
 
-    @property
+    @functools.cached_property
     def tardis_config_verysimple(self):
         filename = self.get_absolute_path(
             "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml"
@@ -51,7 +51,7 @@ class BenchmarkBase:
             YAMLLoader,
         )
 
-    @property
+    @functools.cached_property
     def config_rpacket_tracking(self):
         config = Configuration.from_yaml(
             f"{self.example_configuration_dir}/tardis_configv1_verysimple.yml"
@@ -59,7 +59,7 @@ class BenchmarkBase:
         config.montecarlo.tracking.track_rpacket = True
         return config
 
-    @property
+    @functools.cached_property
     def tardis_ref_path(self):
         ref_data_path = Path(
             Path(__file__).parent.parent,
@@ -77,7 +77,7 @@ class BenchmarkBase:
         else:
             return atomic_data
 
-    @property
+    @functools.cached_property
     def atomic_data_fname(self):
         atomic_data_fname = (
             f"{self.tardis_ref_path}/atom_data/kurucz_cd23_chianti_H_He.h5"
@@ -132,7 +132,7 @@ class BenchmarkBase:
         sim = Simulation.from_config(
             self.config_verysimple, atom_data=atomic_data
         )
-        sim.iterate(10)
+        sim.iterate(5)
         return sim
 
     @functools.cached_property
