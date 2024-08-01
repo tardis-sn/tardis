@@ -228,7 +228,7 @@ def opacity_state_to_numba(
 
     if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         bf_threshold_list_nu = (
-            opacity_state.continuum_state.bf_threshold_lust_nu.values
+            opacity_state.continuum_state.bf_threshold_list_nu.values
         )
         p_fb_deactivation = np.ascontiguousarray(
             opacity_state.continuum_state.p_fb_deactivation.values.copy(),
