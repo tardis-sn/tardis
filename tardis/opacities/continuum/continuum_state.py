@@ -42,7 +42,7 @@ class ContinuumState:
         """Generates a ContinuumState object from a tardis BasePlasma
 
         Args:
-            plasma (tarids.plasma.BasePlasma(): legacy base plasma
+            plasma (tarids.plasma.BasePlasma: legacy base plasma
 
         Returns:
             ContinuumState
