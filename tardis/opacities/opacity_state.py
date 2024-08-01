@@ -256,7 +256,7 @@ def opacity_state_to_numba(
         ).astype(np.float64)
         emissivities = opacity_state.continuum_state.emissivities.values
         photo_ion_activation_idx = (
-            opacity_state.continuum_state.photon_ion_activation_idx.values
+            opacity_state.continuum_state.photo_ion_activation_idx.values
         )
         k_packet_idx = np.int64(opacity_state.continuum_state.k_packet_idx)
     else:
