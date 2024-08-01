@@ -99,7 +99,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
 
-        opacity_solver_config = {"line_interaction_type":self.line_interaction_type, "disable_line_scattering": self.montecarlo_configuration.DISABLE_LINE_SCATTERING}
+        opacity_solver_config = {
+            "line_interaction_type": self.line_interaction_type,
+            "disable_line_scattering": self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+        }
         self.opacity_solver = OpacitySolver(opacity_solver_config)
 
     def initialize_transport_state(
