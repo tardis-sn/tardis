@@ -1,5 +1,5 @@
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
-from tardis.opacities.opacity_state import OpacityState, opacity_state_initialize
+from tardis.opacities.opacity_state import OpacityState, opacity_state_initialize, OpacityStatePython
 import numpy as np
 
 class OpacitySolver(object):
@@ -10,7 +10,7 @@ class OpacitySolver(object):
         self.line_interaction_type = opacities_config['line_interaction_type']
         self.disable_line_scattering = opacities_config['disable_line_scattering']
 
-    def solve(self, legacy_plasma) -> OpacityState:
+    def solve(self, legacy_plasma) -> OpacityStatePython:
 
         tau_sobolev = calculate_sobolev_line_opacity(
             legacy_plasma.atomic_data.lines,
@@ -22,15 +22,7 @@ class OpacitySolver(object):
         if self.disable_line_scattering:
             tau_sobolev *= 0.0
 
-        if self.line_interaction_type == "scatter":
-            # to adhere to data types, we must have an array of minimum size 1
-            array_size = 1
-            transition_probabilities = np.zeros(
-                (array_size, array_size), dtype=np.float64
-            )  # to adhere to data types
-            line2macro_level_upper = np.zeros(array_size, dtype=np.int64)
-            macro_block_references = np.zeros(array_size, dtype=np.int64)
-            transition_type = np.zeros(array_size, dtype=np.int64)
-            destination_level_id = np.zeros(array_size, dtype=np.int64)
-            transition_line_id = np.zeros(array_size, dtype=np.int64)
+        opacity_state = OpacityStatePython.from_legacy_plasma(legacy_plasma, tau_sobolev)
+
+        return opacity_state
 

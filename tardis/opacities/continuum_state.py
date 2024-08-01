@@ -27,6 +27,7 @@ class ContinuumState:
         self.photo_ion_idx = photo_ion_idx
         self.k_packet_idx = k_packet_idx
 
+
     @classmethod
     def from_legacy_plasma(cls, plasma):
 
