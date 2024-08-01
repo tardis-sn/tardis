@@ -14,7 +14,7 @@ class MacroAtomState(HDFWriterMixin):
         "destination_level_id",
         "transition_line_id",
         "macro_block_references",
-        "lines_upper2macro_reference_idx",
+        "line2macro_level_upper",
     ]
 
     def __init__(
@@ -24,7 +24,7 @@ class MacroAtomState(HDFWriterMixin):
         destination_level_id,
         transition_line_id,
         macro_block_references,
-        lines_upper2macro_reference_idx,
+        line2macro_level_upper,
     ):
 
         self.transition_probabilities = transition_probabilities
@@ -32,6 +32,7 @@ class MacroAtomState(HDFWriterMixin):
         self.destination_level_id = destination_level_id
         self.transition_line_id = transition_line_id
         self.macro_block_references = macro_block_references
+        self.line2macro_level_upper = line2macro_level_upper
 
     @classmethod
     def from_legacy_plasma(cls, plasma):
@@ -40,7 +41,7 @@ class MacroAtomState(HDFWriterMixin):
         transition_type = plasma.macro_atom_data["transition_type"]
         destination_level_id = plasma.macro_atom_data["destination_level_idx"]
         transition_line_id = plasma.macro_atom_data["lines_idx"]
-        lines_upper2macro_reference_idx = plasma.atomic_data.lines_upper2macro_reference_idx
+        line2macro_level_upper = plasma.atomic_data.lines_upper2macro_reference_idx
 
         if (
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
@@ -57,5 +58,5 @@ class MacroAtomState(HDFWriterMixin):
             destination_level_id,
             transition_line_id,
             macro_block_references,
-            lines_upper2macro_reference_idx,
+            line2macro_level_upper,
         )

@@ -168,7 +168,7 @@ class OpacityState:
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
 
-def opacity_state_numba(opacity_state: OpacityStatePython) -> OpacityState:
+def opacity_state_to_numba(opacity_state: OpacityStatePython) -> OpacityState:
     """
     Initialize the OpacityState object and copy over the data over from OpacityStatePython class
 

@@ -25,6 +25,7 @@ from tardis.transport.montecarlo.montecarlo_transport_state import (
 )
 from tardis.transport.montecarlo.numba_interface import (
     opacity_state_initialize,
+    opacity_state_to_numba,
 )
 from tardis.transport.montecarlo.packet_trackers import (
     generate_rpacket_tracker_list,
@@ -36,6 +37,8 @@ from tardis.util.base import (
     refresh_packet_pbar,
     update_iterations_pbar,
 )
+
+from tardis.opacities.opacity_solver import OpacitySolver
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +97,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
 
+        opacity_solver_config = {"line_interaction_type":self.line_interaction_type, "disable_line_scattering": self.montecarlo_configuration.DISABLE_LINE_SCATTERING}
+        self.opacity_solver = OpacitySolver(opacity_solver_config)
+
     def initialize_transport_state(
         self,
         simulation_state,
@@ -115,16 +121,14 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
 
         geometry_state = simulation_state.geometry.to_numba()
-        opacity_state = opacity_state_initialize(
-            plasma,
-            self.line_interaction_type,
-            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-        )
+        opacity_state = self.opacity_solver.solve(plasma)
+        opacity_state_numba = opacity_state_to_numba(opacity_state)
+
         transport_state = MonteCarloTransportState(
             packet_collection,
             estimators,
             geometry_state=geometry_state,
-            opacity_state=opacity_state,
+            opacity_state=opacity_state_numba,
             time_explosion=simulation_state.time_explosion,
         )
 
