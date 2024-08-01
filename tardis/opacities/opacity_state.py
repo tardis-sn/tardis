@@ -170,7 +170,9 @@ class OpacityState:
         self.k_packet_idx = k_packet_idx
 
 
-def opacity_state_to_numba(opacity_state: OpacityStatePython) -> OpacityState:
+def opacity_state_to_numba(
+    opacity_state: OpacityStatePython, line_interaction_type
+) -> OpacityState:
     """
     Initialize the OpacityState object and copy over the data over from OpacityStatePython class
 
@@ -189,7 +191,7 @@ def opacity_state_to_numba(opacity_state: OpacityStatePython) -> OpacityState:
         opacity_state.tau_sobolev, dtype=np.float64
     )
 
-    if opacity_state.line_interaction_type == "scatter":
+    if line_interaction_type == "scatter":
         # to adhere to data types, we must have an array of minimum size 1
         array_size = 1
         transition_probabilities = np.zeros(
