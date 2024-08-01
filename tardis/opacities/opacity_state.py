@@ -63,8 +63,8 @@ class OpacityStatePython:
             plasma.t_electrons,
             atomic_data.lines.nu,
             tau_sobolev,
-            continuum_state,
             macroatom_state,
+            continuum_state,
         )
 
 

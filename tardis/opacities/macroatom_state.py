@@ -37,7 +37,7 @@ class MacroAtomState(HDFWriterMixin):
     @classmethod
     def from_legacy_plasma(cls, plasma):
 
-        transition_probabilities = plasma.macro_atom_data["transition_type"]
+        transition_probabilities = plasma.transition_probabilities
         transition_type = plasma.macro_atom_data["transition_type"]
         destination_level_id = plasma.macro_atom_data["destination_level_idx"]
         transition_line_id = plasma.macro_atom_data["lines_idx"]
