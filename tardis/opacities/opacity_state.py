@@ -212,8 +212,8 @@ def opacity_state_to_numba(
         )
         # TODO: Fix setting of block references for non-continuum mode
 
-        macro_block_references = (
-            opacity_state.macroatom_state.macro_block_references.values
+        macro_block_references = np.asarray(
+            opacity_state.macroatom_state.macro_block_references
         )
 
         transition_type = opacity_state.macroatom_state.transition_type.values
