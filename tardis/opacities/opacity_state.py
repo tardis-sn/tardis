@@ -4,6 +4,80 @@ from numba.experimental import jitclass
 
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.opacities.continuum_state import ContinuumState
+from tardis.opacities.macroatom_state import MacroAtomState
+
+
+class OpacityStatePython:
+
+    def __init__(
+        self,
+        electron_density,
+        t_electrons,
+        line_list_nu,
+        tau_sobolev,
+        line2macro_level_upper,
+        macroatom_state,
+        continuum_state,
+    ):
+        """
+        Opacity State in Python
+        Parameters
+        ----------
+        electron_density : numpy.ndarray
+        t_electrons : numpy.ndarray
+        line_list_nu : numpy.ndarray
+        tau_sobolev : numpy.ndarray
+        transition_probabilities : numpy.ndarray
+        line2macro_level_upper : numpy.ndarray
+        macro_block_references : numpy.ndarray
+        transition_type : numpy.ndarray
+        destination_level_id : numpy.ndarray
+        transition_line_id : numpy.ndarray
+        bf_threshold_list_nu : numpy.ndarray
+        """
+        self.electron_density = electron_density
+        self.t_electrons = t_electrons
+        self.line_list_nu = line_list_nu
+        self.line2macro_level_upper = line2macro_level_upper
+
+        self.tau_sobolev = tau_sobolev
+
+        # Continuum Opacity Data
+        self.continuum_state = continuum_state
+        self.macroatom_state = macroatom_state
+
+    @classmethod
+    def from_legacy_plasma(cls, plasma, tau_sobolev):
+
+        if hasattr(plasma, 'macro_atom_data'):
+            macroatom_state = MacroAtomState.from_legacy_plasma(plasma)
+        else:
+            macroatom_state = None
+
+        if hasattr(plasma, 'photo_ion_cross_sections'):
+            continuum_state =  ContinuumState.from_legacy_plasma(plasma)
+        else:
+            continuum_state = None
+
+        plasma_state = plasma
+        atomic_data = plasma.atomic_data_opactity
+
+        return cls.from_plasma_state(plasma_state, atomic_data, tau_sobolev, macroatom_state, continuum_state)
+
+    @classmethod
+    def from_plasma_state(cls, plasma_state, atomic_data, tau_sobolev, macroatom_state=None, continuum_state=None): 
+        # TODO: Handle Tau Sobolev
+        # TODO: Handle missing continuum/macro_atom states
+
+        return cls(plasma_state.electron_density,
+            plasma_state.electron_temperature,
+            atomic_data.lines.nu,
+            tau_sobolev,
+            atomic_data.lines_upper2macro_reference_idx,
+            continuum_state,
+            macroatom_state
+            )
 
 opacity_state_spec = [
     ("electron_density", float64[:]),

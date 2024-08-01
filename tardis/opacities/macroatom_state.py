@@ -1,30 +1,57 @@
+from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.io.util import HDFWriterMixin
 
 
+class MacroAtomState(HDFWriterMixin):
 
-class MacroAtomState:
+    """Current State of the MacroAtom"""
 
-    def __init__(self,
-                 transition_probabilities,
-                 macro_block_references,
-                 transition_type,
-                 destination_level_id,
-                 transition_line_id,
-                 ):
+    hdf_name = "macro_atom_state"
+
+    hdf_properties = [
+        "transition_probabilities",
+        "transition_type",
+        "destination_level_id",
+        "transition_line_id",
+        "macro_block_references",
+    ]
+
+    def __init__(
+        self,
+        transition_probabilities,
+        transition_type,
+        destination_level_id,
+        transition_line_id,
+        macro_block_references,
+    ):
 
         self.transition_probabilities = transition_probabilities
-        self.macro_block_references = macro_block_references
         self.transition_type = transition_type
         self.destination_level_id = destination_level_id
         self.transition_line_id = transition_line_id
-
+        self.macro_block_references = macro_block_references
 
     @classmethod
-    def from_macro_atom_state(cls, macro_atom_state):
+    def from_legacy_plasma(cls, plasma):
 
-        return cls(    
-            macro_atom_state.transition_probabilities,        
-            macro_atom_state.macro_block_references,
-            macro_atom_state.transition_type,
-            macro_atom_state.destination_level_id,
-            macro_atom_state.transition_line_id,
-            )
+        transition_probabilities = plasma.macro_atom_data["transition_type"]
+        transition_type = plasma.macro_atom_data["transition_type"]
+        destination_level_id = plasma.macro_atom_data["destination_level_idx"]
+        transition_line_id = plasma.macro_atom_data["lines_idx"]
+
+        if (
+            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
+        ):  # TODO: Unify this in the plasma solver
+            macro_block_references = plasma.macro_block_references
+        else:
+            macro_block_references = plasma.atomic_data.macro_atom_references[
+                "block_references"
+            ]
+
+        return cls(
+            transition_probabilities,
+            transition_type,
+            destination_level_id,
+            transition_line_id,
+            macro_block_references,
+        )
