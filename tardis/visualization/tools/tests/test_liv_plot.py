@@ -115,25 +115,38 @@ class TestLIVPlotter:
         packets_mode : str, Packet mode, either 'virtual' or 'real'.
         nelements : int, Number of elements to include in plot.
         """
-        subgroup_name = make_valid_name(request.node.callspec.id)
         plotter._parse_species_list(
             species_list=species_list,
             packets_mode=packets_mode,
             nelements=nelements,
         )
 
-        expected = regression_data.sync_ndarray(np.array(plotter._species_list))
-        npt.assert_allclose(np.array(plotter._species_list), expected)
-
-        expected = regression_data.sync_ndarray(np.array(plotter._keep_colour))
-        npt.assert_allclose(np.array(plotter._keep_colour), expected)
-
-        expected = regression_data.sync_ndarray(
-            convert_to_native_type(np.array(plotter._species_mapped))
+        actual_species_list = np.array(plotter._species_list)
+        expected_species_list = regression_data.sync_ndarray(
+            actual_species_list
         )
-        npt.assert_allclose(
-            convert_to_native_type(np.array(plotter._species_mapped), expected)
+        print(
+            f"actual_species_list: {actual_species_list}, expected_species_list: {expected_species_list}"
         )
+        npt.assert_array_equal(actual_species_list, expected_species_list)
+
+        actual_keep_colour = np.array(plotter._keep_colour)
+        expected_keep_colour = regression_data.sync_ndarray(actual_keep_colour)
+        print(
+            f"actual_keep_colour: {actual_keep_colour}, expected_keep_colour: {expected_keep_colour}"
+        )
+        npt.assert_array_equal(actual_keep_colour, expected_keep_colour)
+
+        actual_species_mapped = convert_to_native_type(
+            np.array(plotter._species_mapped)
+        )
+        expected_species_mapped = regression_data.sync_ndarray(
+            actual_species_mapped
+        )
+        print(
+            f"actual_species_mapped: {actual_species_mapped}, expected_species_mapped: {expected_species_mapped}"
+        )
+        npt.assert_array_equal(actual_species_mapped, expected_species_mapped)
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize(
@@ -166,7 +179,6 @@ class TestLIVPlotter:
         num_bins : int, Number of bins for regrouping within the same range.
         nelements : int, Number of elements to include in plot.
         """
-        subgroup_name = make_valid_name(request.node.callspec.id)
         plotter._prepare_plot_data(
             packets_mode=packets_mode,
             species_list=species_list,
@@ -178,16 +190,22 @@ class TestLIVPlotter:
             [q.value for q in row] for row in plotter.plot_data
         ]
         flat_list = [item for sublist in plot_data_numeric for item in sublist]
-        plot_data_list = np.array(flat_list)
 
-        expected = regression_data.sync_ndarray(plot_data_list)
-        npt.assert_allclose(plot_data_list, expected)
+        actual_plot_data_list = np.array(flat_list)
+        expected_plot_data_list = regression_data.sync_ndarray(
+            actual_plot_data_list
+        )
+        npt.assert_array_equal(actual_plot_data_list, expected_plot_data_list)
 
-        expected = regression_data.sync_ndarray(np.array(plotter.plot_colors))
-        npt.assert_allclose(np.array(plotter.plot_colors), expected)
+        actual_plot_colors = np.array(plotter.plot_colors)
+        expected_plot_colors = regression_data.sync_ndarray(actual_plot_colors)
+        npt.assert_array_equal(actual_plot_colors, expected_plot_colors)
 
-        expected = regression_data.sync_ndarray(np.array(plotter.new_bin_edges))
-        npt.assert_allclose(np.array(plotter.new_bin_edges), expected)
+        actual_new_bin_edges = np.array(plotter.new_bin_edges)
+        expected_new_bin_edges = regression_data.sync_ndarray(
+            actual_new_bin_edges
+        )
+        npt.assert_array_equal(actual_new_bin_edges, expected_new_bin_edges)
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
@@ -257,12 +275,9 @@ class TestLIVPlotter:
                 trace_data["path"] = data.get_path().vertices
             fig_data["fig_data"].append(trace_data)
 
-        regression_data_fname = (
-            f"livplotter_generate_plot_mpl_{subgroup_name}.h5"
-        )
-
-        expected = regression_data.sync_ndarray(np.array(fig_data))
-        npt.assert_allclose(np.array(fig_data), expected)
+        actual = np.array(fig_data)
+        expected = regression_data.sync_ndarray(actual)
+        npt.assert_array_equal(actual, expected)
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
@@ -328,9 +343,6 @@ class TestLIVPlotter:
                 trace_data["y"] = data.y
             fig_data["fig_data"].append(trace_data)
 
-        regression_data_fname = (
-            f"livplotter_generate_plot_ply_{subgroup_name}.h5"
-        )
-
-        expected = regression_data.sync_ndarray(np.array(fig_data))
-        npt.assert_allclose(np.array(fig_data), expected)
+        actual = np.array(fig_data)
+        expected = regression_data.sync_ndarray(actual)
+        npt.assert_array_equal(actual, expected)
