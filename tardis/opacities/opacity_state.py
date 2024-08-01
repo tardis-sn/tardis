@@ -16,7 +16,6 @@ class OpacityStatePython:
         t_electrons,
         line_list_nu,
         tau_sobolev,
-        line2macro_level_upper,
         macroatom_state,
         continuum_state,
     ):
@@ -29,7 +28,6 @@ class OpacityStatePython:
         line_list_nu : numpy.ndarray
         tau_sobolev : numpy.ndarray
         transition_probabilities : numpy.ndarray
-        line2macro_level_upper : numpy.ndarray
         macro_block_references : numpy.ndarray
         transition_type : numpy.ndarray
         destination_level_id : numpy.ndarray
@@ -39,7 +37,6 @@ class OpacityStatePython:
         self.electron_density = electron_density
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
-        self.line2macro_level_upper = line2macro_level_upper
 
         self.tau_sobolev = tau_sobolev
 
@@ -66,7 +63,6 @@ class OpacityStatePython:
             plasma.t_electrons,
             atomic_data.lines.nu,
             tau_sobolev,
-            atomic_data.lines_upper2macro_reference_idx,
             continuum_state,
             macroatom_state,
             )
@@ -186,10 +182,8 @@ def opacity_state_numba(opacity_state: OpacityStatePython) -> OpacityState:
     t_electrons = opacity_state.t_electrons
     line_list_nu = opacity_state.line_list_nu.values
 
+    # NOTE: Disabled line scattering is handled by the opacitystate solver
     tau_sobolev = np.ascontiguousarray(opacity_state.tau_sobolev, dtype=np.float64)
-
-    if opacity_state.disable_line_scattering:
-        tau_sobolev *= 0
 
     if opacity_state.line_interaction_type == "scatter":
         # to adhere to data types, we must have an array of minimum size 1
@@ -207,7 +201,7 @@ def opacity_state_numba(opacity_state: OpacityStatePython) -> OpacityState:
             opacity_state.macroatom_state.transition_probabilities.values.copy(), dtype=np.float64
         )
         line2macro_level_upper = (
-            opacity_state.line2macro_level_upper
+            opacity_state.macroatom_state.lines_upper2macro_reference_idx
         )
         # TODO: Fix setting of block references for non-continuum mode
 
@@ -237,12 +231,8 @@ def opacity_state_numba(opacity_state: OpacityStatePython) -> OpacityState:
         ff_opacity_factor = (
             opacity_state.continuum_state.ff_cooling_factor / np.sqrt(t_electrons)
         ).astype(np.float64)
-        emissivities = opacity_state.continuum_state.fb_emission_cdf.loc[
-            opacity_state.continuum_state.level2continuum_idx.index
-        ].values
-        photo_ion_activation_idx = opacity_state.continuum_state.photo_ion_idx.loc[
-            opacity_state.continuum_state.level2continuum_idx.index, "destination_level_idx"
-        ].values
+        emissivities = opacity_state.continuum_state.emissivities.values
+        photo_ion_activation_idx = opacity_state.continuum_state.photon_ion_activation_idx.values
         k_packet_idx = np.int64(opacity_state.continuum_state.k_packet_idx)
     else:
         bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
