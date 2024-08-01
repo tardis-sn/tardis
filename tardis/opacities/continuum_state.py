@@ -27,7 +27,6 @@ class ContinuumState:
         self.photo_ion_idx = photo_ion_idx
         self.k_packet_idx = k_packet_idx
 
-
     @classmethod
     def from_legacy_plasma(cls, plasma):
 
@@ -56,7 +55,6 @@ class ContinuumState:
     @property
     def bf_threshold_list_nu(self):
         return self.nu_i.loc[self.level2continuum_idx.index]
-
 
     @property
     def phot_nus(self):
@@ -93,7 +91,7 @@ class ContinuumState:
     @property
     def chi_bf(self):
         return self._chi_bf.loc[self.level2continuum_idx.index]
- 
+
     @property
     def emissivities(self):
         return self.fb_emission_cdf.loc[self.level2continuum_idx.index]

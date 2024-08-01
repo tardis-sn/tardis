@@ -41,7 +41,9 @@ class MacroAtomState(HDFWriterMixin):
         transition_type = plasma.macro_atom_data["transition_type"]
         destination_level_id = plasma.macro_atom_data["destination_level_idx"]
         transition_line_id = plasma.macro_atom_data["lines_idx"]
-        line2macro_level_upper = plasma.atomic_data.lines_upper2macro_reference_idx
+        line2macro_level_upper = (
+            plasma.atomic_data.lines_upper2macro_reference_idx
+        )
 
         if (
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
