@@ -24,15 +24,23 @@ class MacroAtomState(HDFWriterMixin):
         macro_block_references,
         line2macro_level_upper,
     ):
-        """Current State of the MacroAtom
+        """
+        Current State of the MacroAtom
 
-        Args:
-            transition_probabilities (pd.DataFrame):Macro Atom Transition probabilities between levels
-            transition_type (pd.DataFrame):Macro Atom transition types
-            destination_level_id (pd.DataFrame): ID of destination levels of the Macro Atom
-            transition_line_id (pd.DataFrame): ID of lines corresponding to Macro Atom transitions
-            macro_block_references (pd.DataFrame or np.ndarray): Index references to the Macro Atom blocks
-            line2macro_level_upper (pd.DataFrame): Mapping from lines to Macro Atom upper levels
+        Parameters
+        ----------
+        transition_probabilities : pd.DataFrame
+            Macro Atom Transition probabilities between levels
+        transition_type : pd.DataFrame)
+            Macro Atom transition types
+        destination_level_id : pd.DataFrame
+            ID of destination levels of the Macro Atom
+        transition_line_id : pd.DataFrame
+            ID of lines corresponding to Macro Atom transitions
+        macro_block_references : pd.DataFrame or np.ndarray
+            Index references to the Macro Atom blocks
+        line2macro_level_upper : pd.DataFrame
+            Mapping from lines to Macro Atom upper levels
         """
         self.transition_probabilities = transition_probabilities
         self.transition_type = transition_type
@@ -43,13 +51,17 @@ class MacroAtomState(HDFWriterMixin):
 
     @classmethod
     def from_legacy_plasma(cls, plasma):
-        """Generates a MacroAtomState object from a tardis BasePlasma
+        """
+        Generates a MacroAtomState object from a tardis BasePlasma
 
-        Args:
-            plasma (tarids.plasma.BasePlasma): legacy base plasma
+        Parameters
+        ----------
+        plasma : tarids.plasma.BasePlasma
+            legacy base plasma
 
-        Returns:
-            MacroAtomState
+        Returns
+        -------
+        MacroAtomState
         """
         transition_probabilities = plasma.transition_probabilities
         transition_type = plasma.macro_atom_data["transition_type"]

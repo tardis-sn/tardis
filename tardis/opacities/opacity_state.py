@@ -20,12 +20,13 @@ class OpacityStatePython:
     ):
         """
         Opacity State in Python
+
         Parameters
         ----------
-        electron_density : numpy.ndarray
+        electron_density : pd.DataFrame
         t_electrons : numpy.ndarray
-        line_list_nu : numpy.ndarray
-        tau_sobolev : numpy.ndarray
+        line_list_nu : pd.DataFrame
+        tau_sobolev : pd.DataFrame
         macroatom_state: tardis.opacities.macro_atom.macroatom_state.MacroAtomState
         continuum_state: tardis.opacities.continuum.continuum_state.ContinuumState
         """
@@ -41,14 +42,19 @@ class OpacityStatePython:
 
     @classmethod
     def from_legacy_plasma(cls, plasma, tau_sobolev):
-        """Generates an OpacityStatePython object from a tardis BasePlasma
+        """
+        Generates an OpacityStatePython object from a tardis BasePlasma
 
-        Args:
-            plasma (tarids.plasma.BasePlasma): legacy base plasma
-            tau_sobolev (pd.DataFrame): Expansion Optical Depths
+        Parameters
+        ----------
+        plasma : tarids.plasma.BasePlasma
+            legacy base plasma
+        tau_sobolev : pd.DataFrame
+            Expansion Optical Depths
 
-        Returns:
-            OpacityStatePython
+        Returns
+        -------
+        OpacityStatePython
         """
         if hasattr(plasma, "macro_atom_data"):
             macroatom_state = MacroAtomState.from_legacy_plasma(plasma)
