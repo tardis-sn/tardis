@@ -23,7 +23,7 @@ from tardis.transport.montecarlo.montecarlo_main_loop import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
-from tardis.opacities.opacity_state import ( 
+from tardis.opacities.opacity_state import (
     opacity_state_initialize,
 )
 from tardis.opacities.opacity_state import (
@@ -128,8 +128,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         opacity_state_numba = opacity_state_to_numba(
             opacity_state, self.opacity_solver.line_interaction_type
         )
-        opacity_state_numba = opacity_state_numba[simulation_state.geometry.v_inner_boundary_index: simulation_state.geometry.v_outer_boundary_index]
-        
+        opacity_state_numba = opacity_state_numba[
+            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+        ]
+
         estimators = initialize_estimator_statistics(
             opacity_state_numba.tau_sobolev.shape, gamma_shape
         )
