@@ -60,10 +60,10 @@ jobs:
           cache-downloads: true
       
       - name: Show statistics
-        run: ruff check  --statistics  --show-fixes $($(git diff --name-only ${{ github.event.pull_request.base.sha }}  ${{ github.event.pull_request.head.sha }} -- '*.py')) | tee ruff_stats.txt
+        run: ruff check  --statistics  --show-fixes $(git diff --name-only ${{ github.event.pull_request.base.sha }}  ${{ github.event.pull_request.head.sha }} --) | tee ruff_stats.txt
       
       - name: Show entire output
-        run: ruff check --output-format=concise $($(git diff --name-only ${{ github.event.pull_request.base.sha }}  ${{ github.event.pull_request.head.sha }} -- '*.py')) | tee ruff_full.txt
+        run: ruff check --output-format=concise $(git diff --name-only ${{ github.event.pull_request.base.sha }}  ${{ github.event.pull_request.head.sha }} --) | tee ruff_full.txt
 
       - name: Statistics output read
         id: ruff_stats
