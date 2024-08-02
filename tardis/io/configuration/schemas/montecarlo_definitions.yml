@@ -110,6 +110,114 @@ definitions:
           type: number
           default: -0.5
           description: L=4*pi*r**2*T^y
+    anderson:
+      title: 'Anderson Convergence Strategy'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+            - anderson
+        memory:
+          type: number
+          default: 5
+          description: "Number of past iterations to use for computing Anderson acceleration."
+          minimum: 1
+        threshold:
+          type: number
+          default: 0.05
+          description: "Specifies the threshold that is taken as convergence (i.e., 0.05 means that the value does not change more than 5%)."
+          minimum: 0
+        damping_constant:
+          type: number
+          default: 1.0
+          description: "Damping constant used to stabilize the acceleration if necessary."
+          minimum: 0
+        hold_iterations:
+          type: number
+          multipleOf: 1.0
+          default: 3
+          description: "The number of iterations that the convergence criteria need to be fulfilled before TARDIS accepts the simulation as converged."
+        stop_if_converged:
+          type: boolean
+          default: false
+          description: "Stop plasma iterations before the number of specified iterations are reached if the simulation is plasma and inner boundary state is converged."
+        fraction:
+          type: number
+          default: 0.8
+          description: the fraction of shells that have to converge to the given  convergence
+            threshold. For example, 0.8 means that 80% of shells have to converge
+            to the threshold that convergence is established
+          minimum: 0
+        t_inner:
+          type: object
+          additionalProperties: false
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+              minimum: 0
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+              minimum: 0
+            type:
+              type: string
+              default: 'damped'
+              description: THIS IS A DUMMY VARIABLE DO NOT USE
+        t_rad:
+          type: object
+          additionalProperties: false
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+              minimum: 0
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+              minimum: 0
+            type:
+              type: string
+              default: 'damped'
+              description: THIS IS A DUMMY VARIABLE DO NOT USE
+          required:
+          - threshold
+        w:
+          type: object
+          additionalProperties: false
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+              minimum: 0
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+              minimum: 0
+            type:
+              type: string
+              default: 'damped'
+              description: THIS IS A DUMMY VARIABLE DO NOT USE
+          required:
+          - threshold
+        lock_t_inner_cycles:
+          type: number
+          multipleOf: 1.0
+          default: 1
+          description: The number of cycles to lock the update of the inner boundary
+            temperature. This process helps with convergence. The default is to switch
+            it off (1 cycle)
+        t_inner_update_exponent:
+          type: number
+          default: -0.5
+          description: L=4*pi*r**2*T^y
     custom:
       $$target: 'montecarlo_definitions.yml#/definitions/convergence_strategy/custom'
       title: 'Custom Convergence Strategy'
