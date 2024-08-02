@@ -145,7 +145,6 @@ def test_boundary_interactions(rpacket_tracker, regression_data):
         [-1, -1, -1],
         dtype=rpacket_tracker[0].boundary_interaction.dtype,
     )
-    print(rpacket_tracker[0].boundary_interaction, (2, 3))
     for i, tracker in enumerate(rpacket_tracker):
         for j in range(tracker.boundary_interaction.size):
             obtained_boundary_interaction[i][j] = tracker.boundary_interaction[
