@@ -8,7 +8,7 @@ from tardis.opacities.continuum.continuum_state import ContinuumState
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
 
-class OpacityStatePython:
+class OpacityState:
     def __init__(
         self,
         electron_density,
@@ -105,7 +105,7 @@ opacity_state_spec = [
 
 
 @jitclass(opacity_state_spec)
-class OpacityState:
+class OpacityStateNumba:
     def __init__(
         self,
         electron_density,
@@ -189,7 +189,7 @@ class OpacityState:
             OpacityState : a shallow copy of the current instance
         """
         # NOTE: This currently will not work with continuum processes since it does not slice those arrays
-        return OpacityState(
+        return OpacityStateNumba(
             self.electron_density[i],
             self.t_electrons[i],
             self.line_list_nu,
@@ -216,14 +216,14 @@ class OpacityState:
 
 
 def opacity_state_to_numba(
-    opacity_state: OpacityStatePython, line_interaction_type
-) -> OpacityState:
+    opacity_state: OpacityState, line_interaction_type
+) -> OpacityStateNumba:
     """
-    Initialize the OpacityState object and copy over the data over from OpacityStatePython class
+    Initialize the OpacityStateNumba object and copy over the data over from OpacityState class
 
     Parameters
     ----------
-    opacity_state : tardis.opacities.opacity_state.OpacityStatePython
+    opacity_state : tardis.opacities.opacity_state.OpacityState
     line_interaction_type : enum
     """
 
@@ -318,7 +318,7 @@ def opacity_state_to_numba(
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
         k_packet_idx = np.int64(-1)
 
-    return OpacityState(
+    return OpacityStateNumba(
         electron_densities,
         t_electrons,
         line_list_nu,
@@ -460,7 +460,7 @@ def opacity_state_initialize(
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
         k_packet_idx = np.int64(-1)
 
-    return OpacityState(
+    return OpacityStateNumba(
         electron_densities,
         t_electrons,
         line_list_nu,

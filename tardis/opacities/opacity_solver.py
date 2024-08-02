@@ -1,6 +1,6 @@
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.opacities.opacity_state import (
-    OpacityStatePython,
+    OpacityState,
 )
 import numpy as np
 
@@ -25,7 +25,7 @@ class OpacitySolver(object):
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
 
-    def solve(self, legacy_plasma) -> OpacityStatePython:
+    def solve(self, legacy_plasma) -> OpacityState:
         """
         Solves the opacity state
 
@@ -36,7 +36,7 @@ class OpacitySolver(object):
 
         Returns
         -------
-        OpacityStatePython
+        OpacityState
         """
         tau_sobolev = calculate_sobolev_line_opacity(
             legacy_plasma.atomic_data.lines,
@@ -48,7 +48,7 @@ class OpacitySolver(object):
         if self.disable_line_scattering:
             tau_sobolev *= 0.0
 
-        opacity_state = OpacityStatePython.from_legacy_plasma(
+        opacity_state = OpacityState.from_legacy_plasma(
             legacy_plasma, tau_sobolev
         )
 

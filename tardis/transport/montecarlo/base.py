@@ -24,9 +24,6 @@ from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
 from tardis.opacities.opacity_state import (
-    opacity_state_initialize,
-)
-from tardis.opacities.opacity_state import (
     opacity_state_to_numba,
 )
 from tardis.transport.montecarlo.packet_trackers import (
