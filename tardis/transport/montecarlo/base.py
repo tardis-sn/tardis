@@ -23,7 +23,7 @@ from tardis.transport.montecarlo.montecarlo_main_loop import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
-from tardis.opacities.opacity_state import ( 
+from tardis.opacities.opacity_state import (
     opacity_state_initialize,
 )
 from tardis.transport.montecarlo.packet_trackers import (
@@ -117,8 +117,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.line_interaction_type,
             self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )
-        opacity_state = opacity_state[simulation_state.geometry.v_inner_boundary_index: simulation_state.geometry.v_outer_boundary_index]
-        
+        opacity_state = opacity_state[
+            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+        ]
+
         estimators = initialize_estimator_statistics(
             opacity_state.tau_sobolev.shape, gamma_shape
         )
