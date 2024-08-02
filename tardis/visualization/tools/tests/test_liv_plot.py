@@ -1,12 +1,8 @@
 import numpy as np
-import pandas as pd
 import pytest
 from numpy import testing as npt
-from pandas import testing as pdt
 from copy import deepcopy
-from matplotlib.collections import PolyCollection
-from matplotlib.lines import Line2D
-import plotly.graph_objects as go
+
 from tardis.base import run_tardis
 from tardis.visualization.tools.liv_plot import LIVPlotter
 from tardis.tests.fixtures.regression_data import RegressionData
@@ -29,15 +25,29 @@ def make_valid_name(testid):
     return "_" + testid.replace("-", "_")
 
 
-def convert_to_native_type(obj):
-    if isinstance(obj, dict):
-        return {k: convert_to_native_type(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [convert_to_native_type(i) for i in obj]
-    elif isinstance(obj, np.int64):
-        return int(obj)
-    else:
-        return obj
+def idfn(val):
+    return "_".join(f"{k}={v}" for k, v in val.items())
+
+
+def pad_list(lst, length, pad_value=None):
+    """
+    Pad a list to a specified length with a given value.
+
+    Parameters
+    ----------
+    lst : list
+        List to pad.
+    length : int
+        Desired length.
+    pad_value : any
+        Value to pad the list with.
+
+    Returns
+    -------
+    list
+        Padded list.
+    """
+    return lst + [pad_value] * (length - len(lst))
 
 
 @pytest.fixture(scope="module")
@@ -97,7 +107,6 @@ class TestLIVPlotter:
     @pytest.mark.parametrize("nelements", [1, None])
     def test_parse_species_list(
         self,
-        request,
         plotter,
         species_list,
         packets_mode,
@@ -121,32 +130,19 @@ class TestLIVPlotter:
             nelements=nelements,
         )
 
-        actual_species_list = np.array(plotter._species_list)
-        expected_species_list = regression_data.sync_ndarray(
-            actual_species_list
+        actual_species_list = plotter._species_list
+        actual_keep_colour = plotter._keep_colour
+        flat_list = [
+            item
+            for sublist in list(plotter._species_mapped.values())
+            for item in sublist
+        ]
+        actual_species_mapped = flat_list
+        actual = (
+            actual_species_list + actual_keep_colour + actual_species_mapped
         )
-        print(
-            f"actual_species_list: {actual_species_list}, expected_species_list: {expected_species_list}"
-        )
-        npt.assert_array_equal(actual_species_list, expected_species_list)
-
-        actual_keep_colour = np.array(plotter._keep_colour)
-        expected_keep_colour = regression_data.sync_ndarray(actual_keep_colour)
-        print(
-            f"actual_keep_colour: {actual_keep_colour}, expected_keep_colour: {expected_keep_colour}"
-        )
-        npt.assert_array_equal(actual_keep_colour, expected_keep_colour)
-
-        actual_species_mapped = convert_to_native_type(
-            np.array(plotter._species_mapped)
-        )
-        expected_species_mapped = regression_data.sync_ndarray(
-            actual_species_mapped
-        )
-        print(
-            f"actual_species_mapped: {actual_species_mapped}, expected_species_mapped: {expected_species_mapped}"
-        )
-        npt.assert_array_equal(actual_species_mapped, expected_species_mapped)
+        expected = regression_data.sync_ndarray(actual)
+        npt.assert_array_equal(actual, expected)
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize(
@@ -157,7 +153,6 @@ class TestLIVPlotter:
     @pytest.mark.parametrize("nelements", [1, None])
     def test_prepare_plot_data(
         self,
-        request,
         plotter,
         packets_mode,
         species_list,
@@ -191,21 +186,17 @@ class TestLIVPlotter:
         ]
         flat_list = [item for sublist in plot_data_numeric for item in sublist]
 
-        actual_plot_data_list = np.array(flat_list)
-        expected_plot_data_list = regression_data.sync_ndarray(
-            actual_plot_data_list
+        actual_plot_data_list = flat_list
+        flat_list = [
+            item for sublist in plotter.plot_colors for item in sublist
+        ]
+        actual_plot_colors = flat_list
+        actual_new_bin_edges = list(plotter.new_bin_edges.value)
+        actual = np.array(
+            actual_plot_data_list + actual_plot_colors + actual_new_bin_edges
         )
-        npt.assert_array_equal(actual_plot_data_list, expected_plot_data_list)
-
-        actual_plot_colors = np.array(plotter.plot_colors)
-        expected_plot_colors = regression_data.sync_ndarray(actual_plot_colors)
-        npt.assert_array_equal(actual_plot_colors, expected_plot_colors)
-
-        actual_new_bin_edges = np.array(plotter.new_bin_edges)
-        expected_new_bin_edges = regression_data.sync_ndarray(
-            actual_new_bin_edges
-        )
-        npt.assert_array_equal(actual_new_bin_edges, expected_new_bin_edges)
+        expected = regression_data.sync_ndarray(actual)
+        npt.assert_array_equal(actual, expected)
 
     @pytest.mark.parametrize(
         "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
@@ -218,7 +209,6 @@ class TestLIVPlotter:
     @pytest.mark.parametrize("velocity_range", [(18000, 25000)])
     def test_generate_plot_mpl(
         self,
-        request,
         plotter,
         species_list,
         nelements,
@@ -244,7 +234,6 @@ class TestLIVPlotter:
         num_bins : int, Number of bins for regrouping within the same range.
         velocity_range : tuple, Limits for the x-axis.
         """
-        subgroup_name = make_valid_name("mpl" + request.node.callspec.id)
         fig = plotter.generate_plot_mpl(
             species_list=species_list,
             nelements=nelements,
@@ -254,28 +243,21 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
-        fig_data = {
-            "_species_name": plotter._species_name,
-            "_color_list": plotter._color_list,
-            "step_x": plotter.step_x,
-            "step_y": plotter.step_y,
-            "fig_data": [],
-        }
 
-        for index, data in enumerate(fig.get_children()):
-            trace_data = {}
-            if isinstance(data.get_label(), str):
-                trace_data["label"] = data.get_label()
-            if isinstance(data, PolyCollection):
-                trace_data["paths"] = [
-                    path.vertices for path in data.get_paths()
-                ]
-            if isinstance(data, Line2D):
-                trace_data["xydata"] = data.get_xydata()
-                trace_data["path"] = data.get_path().vertices
-            fig_data["fig_data"].append(trace_data)
+        actual_species_name = plotter._species_name
+        flat_list = [
+            item for sublist in plotter._color_list for item in sublist
+        ]
+        actual_color_list = flat_list
+        actual_step_x = list(plotter.step_x.value)
+        actual_step_y = plotter.step_y
 
-        actual = np.array(fig_data)
+        actual = np.array(
+            [str(item) for item in actual_species_name]
+            + [str(item) for item in actual_color_list]
+            + [str(item) for item in actual_step_x]
+            + [str(item) for item in actual_step_y]
+        )
         expected = regression_data.sync_ndarray(actual)
         npt.assert_array_equal(actual, expected)
 
@@ -290,7 +272,6 @@ class TestLIVPlotter:
     @pytest.mark.parametrize("velocity_range", [(18000, 25000)])
     def test_generate_plot_ply(
         self,
-        request,
         plotter,
         species_list,
         nelements,
@@ -316,7 +297,6 @@ class TestLIVPlotter:
         num_bins : int, Number of bins for regrouping within the same range.
         velocity_range : tuple, Limits for the x-axis.
         """
-        subgroup_name = make_valid_name("ply" + request.node.callspec.id)
         fig = plotter.generate_plot_ply(
             species_list=species_list,
             nelements=nelements,
@@ -326,23 +306,20 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
-        fig_data = {
-            "_species_name": plotter._species_name,
-            "_color_list": plotter._color_list,
-            "step_x": plotter.step_x,
-            "step_y": plotter.step_y,
-            "fig_data": [],
-        }
 
-        for index, data in enumerate(fig.data):
-            trace_data = {}
-            if isinstance(data.name, str):
-                trace_data["label"] = data.name
-            if isinstance(data, go.Scatter):
-                trace_data["x"] = data.x
-                trace_data["y"] = data.y
-            fig_data["fig_data"].append(trace_data)
+        actual_species_name = plotter._species_name
+        flat_list = [
+            item for sublist in plotter._color_list for item in sublist
+        ]
+        actual_color_list = flat_list
+        actual_step_x = list(plotter.step_x.value)
+        actual_step_y = plotter.step_y
 
-        actual = np.array(fig_data)
+        actual = np.array(
+            [str(item) for item in actual_species_name]
+            + [str(item) for item in actual_color_list]
+            + [str(item) for item in actual_step_x]
+            + [str(item) for item in actual_step_y]
+        )
         expected = regression_data.sync_ndarray(actual)
         npt.assert_array_equal(actual, expected)
