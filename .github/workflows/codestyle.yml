@@ -8,13 +8,9 @@ on:
   push:
     branches:
       - master
-  pull_request:
+  pull_request_target:
     branches:
       - master
-
-  # pull_request_target:
-  #   branches:
-  #     - master
 
 defaults:
   run:
@@ -80,7 +76,7 @@ jobs:
           path: ruff_full.txt
       
       - name: Find Comment
-        # if: always() && github.event_name == 'pull_request_target'
+        if: always() && github.event_name == 'pull_request_target'
         uses: peter-evans/find-comment@v1
         id: fc
         with:
@@ -88,7 +84,7 @@ jobs:
           body-includes: I ran ruff on the latest commit
       
       - name: Post comment
-        # if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request_target'
         uses: peter-evans/create-or-update-comment@v2
         with:
           token: ${{ secrets.BOT_TOKEN }}
