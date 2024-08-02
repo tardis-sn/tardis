@@ -119,6 +119,30 @@ class SpMatrixSeriesConverterMixin:
         return series
 
 
+def calculate_markov_chain_index(atomic_data, continuum_interaction_species):
+
+    ma_ref = atomic_data.macro_atom_references
+    mask = ma_ref.index.droplevel("source_level_number").isin(
+        continuum_interaction_species
+    )
+    mask2 = ma_ref.index.isin(
+        get_ground_state_multi_index(continuum_interaction_species)
+    )
+    mask = np.logical_or(mask, mask2)
+    idx = ma_ref[mask].references_idx.values
+    idx2mkv_idx = pd.Series(np.arange(len(idx)), index=idx)
+    idx2mkv_idx.loc["k"] = idx2mkv_idx.max() + 1
+
+    k_packet_idx = ma_ref.references_idx.max() + 1
+
+    idx2deactivation_idx = idx2mkv_idx + k_packet_idx + 1
+    return {
+        "idx2mkv_idx": idx2mkv_idx,
+        "k_packet_idx": k_packet_idx,
+        "idx2deactivation_idx": idx2deactivation_idx,
+    }
+
+
 class MarkovChainIndex(ProcessingPlasmaProperty):
     """
     Attributes
