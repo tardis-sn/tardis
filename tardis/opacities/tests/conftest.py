@@ -2,6 +2,7 @@ import pytest
 from copy import deepcopy
 from tardis.simulation import Simulation
 
+
 @pytest.fixture(scope="package")
 def nb_simulation_verysimple(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)

@@ -17,24 +17,28 @@ from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
         ("downbranch", True),
     ],
 )
-def test_opacity_solver(nb_simulation_verysimple, line_interaction_type, disable_line_scattering):
+def test_opacity_solver(
+    nb_simulation_verysimple, line_interaction_type, disable_line_scattering
+):
 
     legacy_plasma = nb_simulation_verysimple.plasma
 
-    opacity_solver = OpacitySolver(line_interaction_type=line_interaction_type, disable_line_scattering=disable_line_scattering)
+    opacity_solver = OpacitySolver(
+        line_interaction_type=line_interaction_type,
+        disable_line_scattering=disable_line_scattering,
+    )
     actual = opacity_solver.solve(legacy_plasma)
-
 
     pdt.assert_series_equal(
         actual.electron_density, legacy_plasma.electron_densities
     )
-    pdt.assert_series_equal(actual.line_list_nu, legacy_plasma.atomic_data.lines.nu)
+    pdt.assert_series_equal(
+        actual.line_list_nu, legacy_plasma.atomic_data.lines.nu
+    )
     if not disable_line_scattering:
-        pdt.assert_frame_equal(
-            actual.tau_sobolev, legacy_plasma.tau_sobolevs
-        )
+        pdt.assert_frame_equal(actual.tau_sobolev, legacy_plasma.tau_sobolevs)
     if line_interaction_type == "scatter":
-        pass # TODO: Impliment once solver has proper settings
+        pass  # TODO: Impliment once solver has proper settings
     else:
         macroatom_state = actual.macroatom_state
         pdt.assert_frame_equal(
