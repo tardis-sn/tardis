@@ -1,6 +1,8 @@
 """
 Basic TARDIS Benchmark.
 """
+import functools
+
 from asv_runner.benchmarks.mark import parameterize
 
 from benchmarks.benchmark_base import BenchmarkBase
@@ -15,6 +17,7 @@ class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
 
     repeat = 2
 
+    @functools.cache
     def setup(self, num_packets, length):
         sim = self.simulation_rpacket_tracking_enabled
         self.TransportState = sim.transport.transport_state

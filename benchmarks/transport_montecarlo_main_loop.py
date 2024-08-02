@@ -2,6 +2,8 @@
 Basic TARDIS Benchmark.
 """
 
+import functools
+
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.montecarlo_main_loop import (
     montecarlo_main_loop,
@@ -15,6 +17,7 @@ class BenchmarkTransportMontecarloMontecarloMainLoop(BenchmarkBase):
 
     repeat = 3
 
+    @functools.cache
     def setup(self):
         self.packet_collection = self.transport_state.packet_collection
         self.geometry_state = self.transport_state.geometry_state
