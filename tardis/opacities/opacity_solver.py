@@ -6,19 +6,18 @@ import numpy as np
 
 
 class OpacitySolver(object):
-    def __init__(self, opacities_config):
+    def __init__(self, line_interaction_type="scatter", disable_line_scattering=False):
         """Solver class for opacities
 
         Parameters
         ----------
-        opacities_config : dict
-            configuration options for the opacity solver
+        line_interaction_type: str
+            "scatter", "downbranch", or "macroatom"
+        disable_line_scattering: bool
         """
-        self.config = opacities_config
-        self.line_interaction_type = opacities_config["line_interaction_type"]
-        self.disable_line_scattering = opacities_config[
-            "disable_line_scattering"
-        ]
+
+        self.line_interaction_type = line_interaction_type
+        self.disable_line_scattering = disable_line_scattering
 
     def solve(self, legacy_plasma) -> OpacityStatePython:
         """
