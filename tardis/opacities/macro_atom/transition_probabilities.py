@@ -174,6 +174,20 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
         return idx2mkv_idx, k_packet_idx, idx2deactivation_idx
 
 
+def calculate_non_continuum_trans_probs_mask(atomic_data, continuum_interaction_species):
+
+    # I don't have to remove the ground states of
+    # the next higher ionization states of the continuum species
+    # since they only contain zero probabilities.
+    continuum_trans_probs_mask = atomic_data.macro_atom_data.set_index(
+        ["atomic_number", "ion_number"]
+    ).index.isin(continuum_interaction_species)
+    non_continuum_trans_probs_mask = np.logical_not(
+        continuum_trans_probs_mask
+    )
+    return {"non_continuum_trans_probs_mask":non_continuum_trans_probs_mask}
+
+
 class NonContinuumTransProbsMask(ProcessingPlasmaProperty):
     """
     Attributes
@@ -194,6 +208,12 @@ class NonContinuumTransProbsMask(ProcessingPlasmaProperty):
             continuum_trans_probs_mask
         )
         return non_continuum_trans_probs_mask
+
+def calculate_p_combined(*args):
+        p = pd.concat(args)
+        p = p.groupby(level=[0, 1, 2]).sum()
+        p_combined = normalize_trans_probs(p)
+        return {"p_combined":p_combined}
 
 
 class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
@@ -216,6 +236,37 @@ class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
         p = p.groupby(level=[0, 1, 2]).sum()
         p = normalize_trans_probs(p)
         return p
+
+def calculate_markov_chain_transition_probs(p_combined, idx2mkv_idx):
+    p = p_combined
+    p_internal = p.xs(0, level="transition_type")
+    p_deactivation = normalize_trans_probs(
+        p.xs(-1, level="transition_type")
+    )
+
+    N = pd.DataFrame(columns=p_internal.columns)
+    B = pd.DataFrame(columns=p_internal.columns)
+    R = pd.DataFrame(columns=p_internal.columns, index=idx2mkv_idx.index)
+    R.index.name = "source_level_idx"
+    for column in p_internal:
+        Q = SpMatrixSeriesConverterMixin.series2matrix(p_internal[column], idx2mkv_idx)
+        inv_N = sp.identity(Q.shape[0]) - Q
+        N1 = sp.linalg.inv(inv_N.tocsc())
+        R1 = (1 - np.asarray(Q.sum(axis=1))).flatten()
+        B1 = N1.multiply(R1)
+        N1 = SpMatrixSeriesConverterMixin.matrix2series(
+            N1, idx2mkv_idx, names=p_internal.index.names
+        )
+        B1 = SpMatrixSeriesConverterMixin.matrix2series(
+            B1, idx2mkv_idx, names=p_internal.index.names
+        )
+        N[column] = N1
+        B[column] = B1
+        R[column] = R1
+    N = N.sort_index()
+    B = B.sort_index()
+    
+    return {"N":N, "R":R, "B":B, "p_deactivation":p_deactivation}
 
 
 class MarkovChainTransProbs(
