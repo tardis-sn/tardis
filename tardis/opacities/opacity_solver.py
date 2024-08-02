@@ -6,6 +6,10 @@ import numpy as np
 
 
 class OpacitySolver(object):
+
+    line_interaction_type: str = "scatter"
+    disable_line_scattering: bool = False
+
     def __init__(
         self, line_interaction_type="scatter", disable_line_scattering=False
     ):
