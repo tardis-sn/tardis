@@ -6,7 +6,9 @@ import numpy as np
 
 
 class OpacitySolver(object):
-    def __init__(self, line_interaction_type="scatter", disable_line_scattering=False):
+    def __init__(
+        self, line_interaction_type="scatter", disable_line_scattering=False
+    ):
         """Solver class for opacities
 
         Parameters
