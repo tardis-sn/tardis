@@ -3,6 +3,7 @@ from tardis.opacities.opacity_state import (
     OpacityState,
 )
 import numpy as np
+import pandas as pd
 
 
 class OpacitySolver(object):
@@ -41,7 +42,16 @@ class OpacitySolver(object):
         if (
             self.disable_line_scattering
         ):  # These arrays have the same index and type
-            tau_sobolev = legacy_plasma.atomic_data.lines * 0.0
+            tau_sobolev = pd.DataFrame(
+                np.zeros(
+                    (
+                        legacy_plasma.atomic_data.lines.shape[0],
+                        legacy_plasma.abundance.shape[1],
+                    ),
+                    dtype=np.float64,
+                ),
+                index=legacy_plasma.atomic_data.lines.index,
+            )
         else:
             tau_sobolev = calculate_sobolev_line_opacity(
                 legacy_plasma.atomic_data.lines,
