@@ -388,3 +388,25 @@ def get_index(value, array):
         i += 1
 
     return i
+
+def make_isotope_string_tardis_like(isotope_dict):
+    """Converts isotope string to TARDIS format
+        Ni-56 -> Ni56, Co-56 -> Co56
+    Parameters
+    ----------
+    isotope : str
+        Isotope string
+
+    Returns
+    -------
+    str
+        TARDIS-like isotope string
+    """
+
+    new_isotope_dict = {}
+
+    for key in isotope_dict.keys():
+        new_key = key.replace("-", "")
+        new_isotope_dict[new_key] = isotope_dict[key]
+
+    return new_isotope_dict
