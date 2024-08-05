@@ -39,14 +39,14 @@ class OpacitySolver(object):
         -------
         OpacityState
         """
-        if (
-            self.disable_line_scattering
-        ):  # These arrays have the same index and type
+        if self.disable_line_scattering:
             tau_sobolev = pd.DataFrame(
                 np.zeros(
                     (
-                        legacy_plasma.atomic_data.lines.shape[0],
-                        legacy_plasma.abundance.shape[1],
+                        legacy_plasma.atomic_data.lines.shape[
+                            0
+                        ],  # number of lines
+                        legacy_plasma.abundance.shape[1],  # number of shells
                     ),
                     dtype=np.float64,
                 ),
