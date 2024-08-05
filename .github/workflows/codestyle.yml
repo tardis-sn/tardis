@@ -7,7 +7,8 @@ name: codestyle
 on:
   push:
     branches:
-      - master
+      - "*"
+
   pull_request_target:
     branches:
       - master
@@ -36,7 +37,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request_target'
         with:
+          fetch-depth: 0
+
+      - name: Checkout PR and master branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Download Lock File
@@ -58,10 +66,10 @@ jobs:
           cache-downloads: true
       
       - name: Show statistics
-        run: ruff check  --statistics  --show-fixes $(git --no-pager diff --name-only ${{ github.event.pull_request.base.sha }}  ${{ github.event.pull_request.head.sha }} --) | tee ruff_stats.txt
+        run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt
       
       - name: Show entire output
-        run: ruff check --output-format=concise $(git --no-pager diff --name-only ${{ github.event.pull_request.base.sha }}  ${{ github.event.pull_request.head.sha }} --) | tee ruff_full.txt
+        run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_full.txt
 
       - name: Statistics output read
         id: ruff_stats
