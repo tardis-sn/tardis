@@ -38,15 +38,17 @@ class OpacitySolver(object):
         -------
         OpacityState
         """
-        tau_sobolev = calculate_sobolev_line_opacity(
-            legacy_plasma.atomic_data.lines,
-            legacy_plasma.level_number_density,
-            legacy_plasma.time_explosion,
-            legacy_plasma.stimulated_emission_factor,
-        )
-
-        if self.disable_line_scattering:
-            tau_sobolev *= 0.0
+        if (
+            self.disable_line_scattering
+        ):  # These arrays have the same index and type
+            tau_sobolev = legacy_plasma.atomic_data.lines * 0.0
+        else:
+            tau_sobolev = calculate_sobolev_line_opacity(
+                legacy_plasma.atomic_data.lines,
+                legacy_plasma.level_number_density,
+                legacy_plasma.time_explosion,
+                legacy_plasma.stimulated_emission_factor,
+            )
 
         opacity_state = OpacityState.from_legacy_plasma(
             legacy_plasma, tau_sobolev
