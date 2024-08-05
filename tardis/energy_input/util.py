@@ -72,6 +72,28 @@ def doppler_factor_3d(direction_vector, position_vector, time):
     velocity_vector = position_vector / time
     return 1 - (np.dot(direction_vector, velocity_vector) / C_CGS)
 
+@njit(**njit_dict_no_parallel)
+def doppler_factor_3D_all_packets(direction_vectors, position_vectors, times):
+    """Doppler shift for photons in 3D
+
+    Parameters
+    ----------
+    direction_vectors : array
+    position_vectors : array
+    times : array
+
+    Returns
+    -------
+    array
+        Doppler factors
+    """
+    velocity_vector = position_vectors / times
+    vel_mul_dir = np.multiply(velocity_vector, direction_vectors)
+    doppler_factors = 1 - (np.sum(vel_mul_dir, axis=0) / C_CGS)
+
+    return doppler_factors
+
+
 
 @njit(**njit_dict_no_parallel)
 def angle_aberration_gamma(direction_vector, position_vector, time):
