@@ -1,7 +1,6 @@
 import numpy as np
 from numba import njit
 
-from tardis.energy_input.gamma_ray_estimators import deposition_estimator_kasen
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_packet,
@@ -38,17 +37,15 @@ def gamma_packet_loop(
     pair_creation_opacity_type,
     electron_number_density_time,
     mass_density_time,
-    inv_volume_time,
     iron_group_fraction_per_shell,
     inner_velocities,
     outer_velocities,
-    times,
     dt_array,
     effective_time_array,
     energy_bins,
-    energy_df_rows,
-    energy_plot_df_rows,
     energy_out,
+    energy_deposited,
+    positron_energy,
     packets_info_array,
 ):
     """Propagates packets through the simulation
@@ -103,13 +100,12 @@ def gamma_packet_loop(
     escaped_packets = 0
     scattered_packets = 0
     packet_count = len(packets)
+    # Logging does not work with numba
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
-
-    deposition_estimator = np.zeros_like(energy_df_rows)
 
     for i in range(packet_count):
         packet = packets[i]
-        time_index = get_index(packet.time_current, times)
+        time_index = get_index(packet.time_current, effective_time_array)
 
         if time_index < 0:
             print(packet.time_current, time_index)
@@ -203,7 +199,7 @@ def gamma_packet_loop(
                 outer_velocities,
                 total_opacity,
                 effective_time_array[time_index],
-                times[time_index + 1],
+                effective_time_array[time_index + 1],
             )
 
             distance = min(
@@ -214,16 +210,6 @@ def gamma_packet_loop(
 
             packet = move_packet(packet, distance)
 
-            deposition_estimator[packet.shell, time_index] += (
-                (initial_energy * 1000)
-                * distance
-                * (packet.energy_cmf / initial_energy)
-                * deposition_estimator_kasen(
-                    comoving_energy,
-                    mass_density_time[packet.shell, time_index],
-                    iron_group_fraction_per_shell[packet.shell],
-                )
-            )
 
             if distance == distance_time:
                 time_index += 1
@@ -246,26 +232,8 @@ def gamma_packet_loop(
 
                 packet, ejecta_energy_gained = process_packet_path(packet)
 
-                # Save packets to dataframe rows
-                # convert KeV to eV / s / cm^3
-                energy_df_rows[packet.shell, time_index] += (
-                    ejecta_energy_gained * 1000
-                )
-
-                energy_plot_df_rows[i] = np.array(
-                    [
-                        i,
-                        ejecta_energy_gained * 1000
-                        # * inv_volume_time[packet.shell, time_index]
-                        / dt,
-                        packet.get_location_r(),
-                        packet.time_current,
-                        packet.shell,
-                        compton_opacity,
-                        photoabsorption_opacity,
-                        pair_creation_opacity,
-                    ]
-                )
+                energy_deposited[packet.shell, time_index] += ejecta_energy_gained / dt
+                positron_energy[packet.shell, time_index] += packet.positron_fraction * ejecta_energy_gained / dt
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
@@ -279,14 +247,16 @@ def gamma_packet_loop(
 
                 if packet.shell > len(mass_density_time[:, 0]) - 1:
                     rest_energy = packet.nu_rf * H_CGS_KEV
-                    lum_rf = (packet.energy_rf * 1.6022e-9) / dt
                     bin_index = get_index(rest_energy, energy_bins)
                     bin_width = (
                         energy_bins[bin_index + 1] - energy_bins[bin_index]
                     )
+                    freq_bin_width = bin_width / H_CGS_KEV
                     energy_out[bin_index, time_index] += rest_energy / (
-                        bin_width * dt
+                        bin_width / dt / freq_bin_width
                     )
+
+                    luminosity = packet.energy_rf / dt
                     packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
                     if scattered:
@@ -303,7 +273,7 @@ def gamma_packet_loop(
                     packet.nu_cmf,
                     packet.nu_rf,
                     packet.energy_cmf,
-                    lum_rf,
+                    luminosity,
                     packet.energy_rf,
                     packet.shell,
                 ]
@@ -311,14 +281,13 @@ def gamma_packet_loop(
 
     print("Escaped packets:", escaped_packets)
     print("Scattered packets:", scattered_packets)
+    
 
     return (
-        energy_df_rows,
-        energy_plot_df_rows,
         energy_out,
-        deposition_estimator,
-        bin_width,
         packets_info_array,
+        energy_deposited,
+        positron_energy,
     )
 
 
