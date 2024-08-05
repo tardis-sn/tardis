@@ -21,12 +21,11 @@ from matplotlib.backends.backend_qt5 import (
     NavigationToolbar2QT as NavigationToolbar,
 )
 from matplotlib import colors
-from matplotlib.patches import Circle
 import matplotlib.pylab as plt
 from astropy import units as u
 
 import tardis
-from tardis import analysis, util
+from tardis import analysis
 
 
 class MatplotlibWidget(FigureCanvas):
@@ -441,7 +440,6 @@ class ConfigEditor(QtWidgets.QWidget):
         """Recalculate and display the model from the modified data in
         the ConfigEditor.
         """
-        pass
 
 
 class ModelViewer(QtWidgets.QWidget):

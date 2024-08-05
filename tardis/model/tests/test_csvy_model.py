@@ -1,11 +1,8 @@
-from pathlib import Path
 import numpy as np
 import pandas as pd
 import numpy.testing as npt
 
-from astropy import units as u
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.atom_data.base import AtomData
 from tardis.model import SimulationState
 import pytest
 

@@ -1,7 +1,5 @@
-import sys
 import numpy as np
-from astropy import units as u
-from numba import float64, int64, cuda
+from numba import cuda
 import math
 
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
@@ -430,7 +428,6 @@ class BoundsError(IndexError):
     binary search
     """
 
-    pass
 
 
 @cuda.jit(device=True)

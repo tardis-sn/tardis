@@ -1,9 +1,7 @@
 import math
 import logging
-import pandas as pd
 import numpy as np
 import astropy.units as u
-import plotly.express as px
 import plotly.graph_objects as go
 
 

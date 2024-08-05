@@ -1,6 +1,4 @@
 # tests for the config reader module
-import os
-from attr import validate
 import pytest
 import pandas as pd
 from numpy.testing import assert_almost_equal

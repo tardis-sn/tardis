@@ -1,7 +1,6 @@
 import logging
 
 import numpy as np
-from astropy import units as u
 
 from tardis import constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty

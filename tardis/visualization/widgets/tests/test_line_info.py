@@ -4,7 +4,6 @@ import numpy as np
 from plotly.callbacks import Points, BoxSelector
 from tardis.visualization.widgets.line_info import LineInfoWidget
 from tardis.util.base import species_string_to_tuple
-from tardis.tests.test_util import monkeysession
 
 
 @pytest.fixture(scope="class")

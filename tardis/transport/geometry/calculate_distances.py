@@ -14,9 +14,6 @@ from tardis.transport.montecarlo.configuration.constants import (
 )
 
 from tardis.transport.montecarlo.utils import MonteCarloException
-from tardis.transport.montecarlo.r_packet import (
-    print_r_packet_properties,
-)
 
 
 @njit(**njit_dict_no_parallel)

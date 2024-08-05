@@ -1,8 +1,6 @@
 """Convergence Plots to see the convergence of the simulation in real time."""
 
 from collections import defaultdict
-import matplotlib.cm as cm
-import matplotlib.colors as clr
 import numpy as np
 import plotly.graph_objects as go
 from IPython.display import display

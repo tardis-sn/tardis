@@ -2,7 +2,6 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
-from numpy.testing import assert_allclose
 
 from tardis.plasma.properties.nlte_excitation_data import NLTEExcitationData
 from tardis.plasma.properties.nlte_rate_equation_solver import (

@@ -1,11 +1,9 @@
 """Tests for custom abundance widget."""
 from pathlib import Path
 import pytest
-import tardis
 import numpy as np
 import numpy.testing as npt
 
-from tardis.tests.test_util import monkeysession
 from tardis.visualization.widgets.custom_abundance import (
     CustomAbundanceWidgetData,
     CustomYAML,

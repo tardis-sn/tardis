@@ -9,7 +9,7 @@ import pandas as pd
 import yaml
 from tardis import constants
 from astropy import units as u
-from radioactivedecay import Nuclide, DEFAULTDATA
+from radioactivedecay import DEFAULTDATA
 from radioactivedecay.utils import parse_nuclide, Z_DICT
 
 import tardis
@@ -231,7 +231,6 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
             logger.debug(
                 "Synpp Ref does not have valid KEY for ref_log_tau in Radial1D Model"
             )
-            pass
 
     relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[
         radial1d_mdl.atom_data.synpp_refs["ref_log_tau"] > -50

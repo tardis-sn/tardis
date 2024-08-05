@@ -2,7 +2,6 @@ import pytest
 import numpy as np
 from tardis import constants as c
 
-from copy import deepcopy
 import numpy.testing as ntest
 
 from tardis.util.base import intensity_black_body

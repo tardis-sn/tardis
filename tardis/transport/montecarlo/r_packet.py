@@ -1,7 +1,6 @@
 from enum import IntEnum
 
 import numpy as np
-import pandas as pd
 from numba import int64, float64, njit, objmode
 from numba.experimental import jitclass
 

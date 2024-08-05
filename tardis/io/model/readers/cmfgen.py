@@ -1,7 +1,6 @@
 import re
 import pandas as pd
 from astropy import units as u
-from pathlib import Path
 import dataclasses
 
 
