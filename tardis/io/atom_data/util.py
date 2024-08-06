@@ -51,3 +51,32 @@ def resolve_atom_data_fname(fname):
         f"Atom Data {fname} is not found in current path or in TARDIS data repo. {atom_data_name} "
         "is also not a standard known TARDIS atom dataset."
     )
+
+
+def set_atom_data_attributes(atom_data, store, attribute):
+    """Sets arbitrary atom data attributes, throws error and sets to None
+    if they are not available.
+
+    Parameters
+    ----------
+    atom_data : AtomData
+        The atom data to modify
+    store : pd.HDFStore
+        Data source
+    property : str
+        Property to modify
+    """
+    try:
+        setattr(atom_data, attribute, store.root._v_attrs[attribute])
+        new_attribute = getattr(atom_data, attribute)
+        if hasattr(new_attribute, "decode"):
+            setattr(
+                atom_data,
+                attribute,
+                store.root._v_attrs[attribute].decode("ascii"),
+            )
+    except KeyError:
+        logger.debug(
+            f"{attribute} not available for Atom Data. Setting value to None"
+        )
+        setattr(atom_data, attribute, None)
