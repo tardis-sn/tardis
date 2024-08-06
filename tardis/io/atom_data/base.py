@@ -5,7 +5,10 @@ import pandas as pd
 from astropy.units import Quantity
 
 from tardis import constants as const
+from tardis.io.atom_data.collision_data import CollisionData
+from tardis.io.atom_data.macro_atom_data import MacroAtomData
 from tardis.io.atom_data.nlte_data import NLTEData
+from tardis.io.atom_data.simple_atom_data import SimpleAtomData
 from tardis.io.atom_data.util import (
     resolve_atom_data_fname,
     set_atom_data_attributes,
@@ -287,33 +290,47 @@ class AtomData:
 
         self.atom_data = atom_data
         self.ionization_data = ionization_data
-        self.levels = levels
+        self.levels = SimpleAtomData(levels).data
         # Cast to float so that Numba can use the values in numpy functions
         self.levels.energy = self.levels.energy.astype(np.float64)
-        self.lines = lines
+        self.lines = SimpleAtomData(lines).data
+
+        collected_macro_atom_data = MacroAtomData(
+            macro_atom_data, macro_atom_references
+        )
 
         # Rename these (drop "_all") when `prepare_atom_data` is removed!
-        self.macro_atom_data_all = macro_atom_data
-        self.macro_atom_references_all = macro_atom_references
+        self.macro_atom_data_all = (
+            collected_macro_atom_data.transition_probability_data
+        )
+        self.macro_atom_references_all = (
+            collected_macro_atom_data.block_reference_data
+        )
 
-        self.zeta_data = zeta_data
+        self.zeta_data = SimpleAtomData(zeta_data).data
 
-        self.collision_data = collision_data
-        self.collision_data_temperatures = collision_data_temperatures
+        collected_collision_data = CollisionData(
+            collision_data, collision_data_temperatures, yg_data
+        )
 
-        self.synpp_refs = synpp_refs
+        self.collision_data = collected_collision_data.data
+        self.collision_data_temperatures = collected_collision_data.temperatures
 
-        self.photoionization_data = photoionization_data
+        self.synpp_refs = SimpleAtomData(synpp_refs).data
 
-        self.yg_data = yg_data
+        self.photoionization_data = SimpleAtomData(photoionization_data).data
 
-        self.two_photon_data = two_photon_data
+        self.yg_data = collected_collision_data.yg
+
+        self.two_photon_data = SimpleAtomData(two_photon_data).data
 
         if linelist is not None:
-            self.linelist = linelist
+            self.linelist = SimpleAtomData(linelist).data
 
         if decay_radiation_data is not None:
-            self.decay_radiation_data = decay_radiation_data
+            self.decay_radiation_data = SimpleAtomData(
+                decay_radiation_data
+            ).data
         self._check_related()
 
     def _check_related(self):
