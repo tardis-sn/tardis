@@ -320,7 +320,7 @@ class RPacketLastInteractionTracker(object):
         pass
 
     # To make it compatible with RPacketTracker
-    def boundary_interactions_track(self, current_shell_id, next_shell_id):
+    def get_boundary_interaction(self, current_shell_id, next_shell_id):
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
         """
