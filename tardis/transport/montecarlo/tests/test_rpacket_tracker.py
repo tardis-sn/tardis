@@ -16,7 +16,7 @@ pytestmark = pytest.mark.rpacket_tracking
 def interaction_type_last_interaction_class(
     simulation_rpacket_tracking,
 ):
-    """Last interaction types of rpacket from LastInteractionTracker"""
+    """Last interaction types of rpacket from LastInteractionTracker class"""
     interaction_type = (
         simulation_rpacket_tracking.transport.transport_state.last_interaction_type
     )
@@ -27,7 +27,9 @@ def interaction_type_last_interaction_class(
 def shell_id_last_interaction_class(
     simulation_rpacket_tracking,
 ):
-    """Last Line Interaction Shell Id of rpacket from LastInteractionTracker"""
+    """
+    shell_id when last interaction is line from LastInteractionTracker class
+    """
     interaction_type = (
         simulation_rpacket_tracking.transport.transport_state.last_interaction_type
     )
@@ -62,7 +64,7 @@ def rpacket_tracker(simulation_rpacket_tracking):
 
 @pytest.fixture(scope="module")
 def last_interaction_type_rpacket_tracker(rpacket_tracker):
-    """Last interaction types of rpacket from RPacketTracker"""
+    """Last interaction types of rpacket from RPacketTracker class"""
     no_of_packets = len(rpacket_tracker)
     interaction_type = np.empty(no_of_packets, dtype=np.int64)
 
@@ -78,7 +80,9 @@ def last_interaction_type_rpacket_tracker(rpacket_tracker):
 def shell_id_rpacket_tracker(
     rpacket_tracker, last_interaction_type_rpacket_tracker
 ):
-    """Last line interaction shell id of rpacket from RPacketTracker"""
+    """
+    shell_id when last interaction is line from RPacketTracker class
+    """
     no_of_packets = len(rpacket_tracker)
     shell_id = np.empty(no_of_packets, dtype=np.int64)
 
@@ -93,7 +97,7 @@ def shell_id_rpacket_tracker(
 
 @pytest.fixture()
 def nu_rpacket_tracker(rpacket_tracker):
-    """Output nu of rpacket from RPacketTracker"""
+    """Output nu of rpacket from RPacketTracker class"""
     no_of_packets = len(rpacket_tracker)
     nu = np.empty(no_of_packets, dtype=np.float64)
 
