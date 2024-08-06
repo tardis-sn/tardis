@@ -51,8 +51,6 @@ class RPacketTracker(object):
     Numba JITCLASS for storing the information for each interaction a RPacket instance undergoes.
     Parameters
     ----------
-        length : int
-            Length of the initial array that is instantiated
         seed : int
             Seed for each RPacket
         index : int
