@@ -85,7 +85,7 @@ def single_packet_loop(
     )
 
     rpacket_tracker.track(r_packet)
-    rpacket_tracker.get_boundary_data(
+    rpacket_tracker.get_boundary_interaction(
         PacketStatus.OUTSIDE_EJECTA, r_packet.current_shell_id
     )
 
@@ -179,7 +179,7 @@ def single_packet_loop(
                 if r_packet.status == PacketStatus.IN_PROCESS
                 else PacketStatus.OUTSIDE_EJECTA
             )
-            rpacket_tracker.get_boundary_data(
+            rpacket_tracker.get_boundary_interaction(
                 temp_current_shell_id, temp_next_shell_id
             )
 
