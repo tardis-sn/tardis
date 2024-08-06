@@ -139,7 +139,7 @@ class RPacketTracker(object):
         ] = r_packet.last_interaction_type
         self.num_interactions += 1
 
-    def boundary_interactions_track(self, current_shell_id, next_shell_id):
+    def get_boundary_data(self, current_shell_id, next_shell_id):
         """
         Track boundary interaction properties
         """
