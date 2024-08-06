@@ -204,7 +204,7 @@ class BenchmarkBase:
         # Do not use RPacketTracker or RPacketLastInteraction directly
         # Use it by importing packet_trackers
         # functions with name track_* function is used by ASV
-        return packet_trackers.RPacketTracker(0)
+        return packet_trackers.RPacketLastInteractionTracker()
 
     @functools.cached_property
     def transport_state(self):
