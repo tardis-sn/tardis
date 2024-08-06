@@ -18,6 +18,7 @@ on:
       - reopened
       - synchronize
       - labeled # requires the `build-docs` label
+      - ready_for_review
 
   workflow_dispatch: # manual trigger
 
@@ -37,6 +38,7 @@ defaults:
 jobs:
   check-for-changes:
     runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
     outputs:
       trigger-check-outcome: ${{ steps.trigger_check.outcome }}
       docs-check-outcome: ${{ steps.docs_check.outcome }}

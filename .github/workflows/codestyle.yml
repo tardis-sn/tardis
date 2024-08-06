@@ -7,8 +7,7 @@ name: codestyle
 on:
   push:
     branches:
-      - "*"
-
+      - master
   pull_request_target:
     branches:
       - master
@@ -37,6 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download Lock File
         run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
@@ -57,12 +58,22 @@ jobs:
           cache-downloads: true
       
       - name: Show statistics
-        run: ruff check  --statistics  --show-fixes . | tee ruff_stats.txt
-        id: ruff_stats
+        run: ruff check  --statistics  --show-fixes $(git --no-pager diff --name-only ${{ github.event.pull_request.base.sha }}  ${{ github.event.pull_request.head.sha }} --) | tee ruff_stats.txt
       
       - name: Show entire output
-        run: ruff check . --output-format=full | tee ruff_full.txt
-        id: ruff_complete
+        run: ruff check --output-format=concise $(git --no-pager diff --name-only ${{ github.event.pull_request.base.sha }}  ${{ github.event.pull_request.head.sha }} --) | tee ruff_full.txt
+
+      - name: Statistics output read
+        id: ruff_stats
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: ruff_stats.txt
+
+      - name: Entire output read
+        id: ruff_complete 
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: ruff_full.txt
       
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'

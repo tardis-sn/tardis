@@ -43,9 +43,9 @@ def test_continuum_estimators(
         continuum_simulation.plasma.gamma,
     )
     stimulated_recomb_rate_coeff = (
-        continuum_properties_dilute_bb.stimulated_recomb_rate_factor
+        continuum_properties_dilute_bb.stimulated_recombination_rate_factor
         * continuum_plasma.phi_ik.loc[
-            continuum_properties_dilute_bb.stimulated_recomb_rate_factor.index
+            continuum_properties_dilute_bb.stimulated_recombination_rate_factor.index
         ]
     )
     pdt.assert_frame_equal(
@@ -65,10 +65,10 @@ def test_continuum_estimators(
     )
 
     continuum_plasma.update(
-        gamma_estimator=transport_state.radfield_mc_estimators.photo_ion_estimator,
-        alpha_stim_estimator=transport_state.radfield_mc_estimators.stim_recomb_estimator,
-        bf_heating_coeff_estimator=transport_state.radfield_mc_estimators.bf_heating_estimator,
-        stim_recomb_cooling_coeff_estimator=transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator,
+        gamma=continuum_properties_mc.photo_ionization_rate_coefficient,
+        alpha_stim_factor=continuum_properties_mc.stimulated_recombination_rate_factor,
+        bf_heating_coeff_estimator=None,
+        stim_recomb_cooling_coeff_estimator=None,
     )
 
     pdt.assert_frame_equal(
@@ -76,9 +76,9 @@ def test_continuum_estimators(
         continuum_simulation.plasma.gamma,
     )
     stimulated_recomb_rate_coeff = (
-        continuum_properties_mc.stimulated_recomb_rate_factor
+        continuum_properties_mc.stimulated_recombination_rate_factor
         * continuum_plasma.phi_ik.loc[
-            continuum_properties_dilute_bb.stimulated_recomb_rate_factor.index
+            continuum_properties_dilute_bb.stimulated_recombination_rate_factor.index
         ]
     )
     pdt.assert_frame_equal(

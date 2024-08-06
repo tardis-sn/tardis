@@ -20,7 +20,7 @@ from tardis.io.atom_data.util import (
     resolve_atom_data_fname,
     set_atom_data_attributes,
 )
-from tardis.plasma.properties.continuum_processes import (
+from tardis.plasma.properties.continuum_processes.rates import (
     get_ground_state_multi_index,
 )
 
