@@ -37,11 +37,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name == 'push'
         with:
           fetch-depth: 0
 
       - name: Checkout PR and master branch
+        if: github.event_name == 'pull_request_target'
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -65,11 +66,21 @@ jobs:
           cache-environment: true
           cache-downloads: true
       
-      - name: Show statistics
+      - name: Show statistics pull request
+        if: github.event_name == 'pull_request_target'
         run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt
       
-      - name: Show entire output
+      - name: Show entire output pull request
+        if: github.event_name == 'pull_request_target'
         run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_full.txt
+
+      - name: Show statistics push
+        if: github.event_name == 'push'
+        run: ruff check --statistics  --show-fixes . | tee ruff_stats.txt
+      
+      - name: Show entire output push
+        if: github.event_name == 'push'
+        run: ruff check --output-format=concise . | tee ruff_full.txt
 
       - name: Statistics output read
         id: ruff_stats
