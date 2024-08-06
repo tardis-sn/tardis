@@ -333,6 +333,15 @@ class AtomData:
             ).data
         self._check_related()
 
+        # ADDITIONAL ATTRIBUTES
+
+        self.selected_atomic_numbers = None
+        self.nlte_data = None
+        self.photo_ion_block_references = None
+        self.photo_ion_unique_index = None
+        self.lines_upper2macro_reference_idx = None
+        self.lines_lower2macro_reference_idx = None
+
     def _check_related(self):
         """
         Check that either all or none of the related dataframes are given.
@@ -451,12 +460,9 @@ class AtomData:
             [1, 0],
         )
         self.photo_ion_unique_index = self.photoionization_data.index.unique()
-        self.nu_ion_threshold = (
+        nu_ion_threshold = (
             self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
         )
-        self.energy_photo_ion_lower_level = self.levels.loc[
-            self.photo_ion_unique_index
-        ].energy
 
         source_idx = self.macro_atom_references.loc[
             self.photo_ion_unique_index
@@ -464,7 +470,7 @@ class AtomData:
         destination_idx = self.macro_atom_references.loc[
             get_ground_state_multi_index(self.photo_ion_unique_index)
         ].references_idx
-        self.photo_ion_levels_idx = pd.DataFrame(
+        photo_ion_levels_idx = pd.DataFrame(
             {
                 "source_level_idx": source_idx.values,
                 "destination_level_idx": destination_idx.values,
@@ -473,12 +479,12 @@ class AtomData:
         )
 
         self.level2continuum_edge_idx = pd.Series(
-            np.arange(len(self.nu_ion_threshold)),
-            self.nu_ion_threshold.sort_values(ascending=False).index,
+            np.arange(len(nu_ion_threshold)),
+            nu_ion_threshold.sort_values(ascending=False).index,
             name="continuum_idx",
         )
 
-        level_idxs2continuum_idx = self.photo_ion_levels_idx.copy()
+        level_idxs2continuum_idx = photo_ion_levels_idx.copy()
         level_idxs2continuum_idx[
             "continuum_idx"
         ] = self.level2continuum_edge_idx
