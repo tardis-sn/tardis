@@ -139,7 +139,7 @@ class RPacketTracker(object):
         ] = r_packet.last_interaction_type
         self.num_interactions += 1
 
-    def get_boundary_interaction(self, current_shell_id, next_shell_id):
+    def track_boundary_interaction(self, current_shell_id, next_shell_id):
         """
         Track boundary interaction properties
         """
@@ -320,7 +320,7 @@ class RPacketLastInteractionTracker(object):
         pass
 
     # To make it compatible with RPacketTracker
-    def get_boundary_interaction(self, current_shell_id, next_shell_id):
+    def track_boundary_interaction(self, current_shell_id, next_shell_id):
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
         """
