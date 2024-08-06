@@ -374,45 +374,12 @@ class AtomData:
 
         self._check_selected_atomic_numbers()
 
-        self.nlte_species = nlte_species
-
-        self.levels_index = pd.Series(
-            np.arange(len(self.levels), dtype=int), index=self.levels.index
-        )
-
         # cutting levels_lines
-        self.lines = self.lines[
-            self.lines.index.isin(
-                self.selected_atomic_numbers, level="atomic_number"
-            )
-        ]
-
-        self.lines = self.lines.sort_values(by="wavelength")
-
-        self.lines_index = pd.Series(
-            np.arange(len(self.lines), dtype=int),
-            index=self.lines.set_index("line_id").index,
-        )
-
-        tmp_lines_lower2level_idx = self.lines.index.droplevel(
-            "level_number_upper"
-        )
-
-        self.lines_lower2level_idx = (
-            self.levels_index.loc[tmp_lines_lower2level_idx]
-            .astype(np.int64)
-            .values
-        )
-
-        tmp_lines_upper2level_idx = self.lines.index.droplevel(
-            "level_number_lower"
-        )
-
-        self.lines_upper2level_idx = (
-            self.levels_index.loc[tmp_lines_upper2level_idx]
-            .astype(np.int64)
-            .values
-        )
+        self.prepare_lines()
+        (
+            tmp_lines_lower2level_idx,
+            tmp_lines_upper2level_idx,
+        ) = self.prepare_line_level_indexes()
 
         self.prepare_macro_atom_data(
             line_interaction_type,
@@ -425,6 +392,39 @@ class AtomData:
             )
 
         self.nlte_data = NLTEData(self, nlte_species)
+
+    def prepare_lines(self):
+        """Prepare line data"""
+        self.lines = self.lines[
+            self.lines.index.isin(
+                self.selected_atomic_numbers, level="atomic_number"
+            )
+        ]
+
+        self.lines = self.lines.sort_values(by="wavelength")
+
+    def prepare_line_level_indexes(self):
+        levels_index = pd.Series(
+            np.arange(len(self.levels), dtype=int), index=self.levels.index
+        )
+
+        tmp_lines_lower2level_idx = self.lines.index.droplevel(
+            "level_number_upper"
+        )
+
+        self.lines_lower2level_idx = (
+            levels_index.loc[tmp_lines_lower2level_idx].astype(np.int64).values
+        )
+
+        tmp_lines_upper2level_idx = self.lines.index.droplevel(
+            "level_number_lower"
+        )
+
+        self.lines_upper2level_idx = (
+            levels_index.loc[tmp_lines_upper2level_idx].astype(np.int64).values
+        )
+
+        return tmp_lines_lower2level_idx, tmp_lines_upper2level_idx
 
     def prepare_continuum_interaction_data(self, continuum_interaction_species):
         """
@@ -547,7 +547,12 @@ class AtomData:
                 len(self.macro_atom_references)
             )
 
-            self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.loc[
+            lines_index = pd.Series(
+                np.arange(len(self.lines), dtype=int),
+                index=self.lines.set_index("line_id").index,
+            )
+
+            self.macro_atom_data.loc[:, "lines_idx"] = lines_index.loc[
                 self.macro_atom_data["transition_line_id"]
             ].values
 
