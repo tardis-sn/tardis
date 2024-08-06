@@ -196,7 +196,7 @@ class RPacketTracker(object):
             "out_nu"
         ] = r_packet.nu
 
-        self.boundary_interactions_index += 1
+        self.line_interactions_index += 1
 
     def finalize_array(self):
         """
