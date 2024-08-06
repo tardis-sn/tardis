@@ -4,6 +4,79 @@ from numba.experimental import jitclass
 
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.opacities.continuum.continuum_state import ContinuumState
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+
+
+class OpacityState:
+    def __init__(
+        self,
+        electron_density,
+        t_electrons,
+        line_list_nu,
+        tau_sobolev,
+        macroatom_state,
+        continuum_state,
+    ):
+        """
+        Opacity State in Python
+
+        Parameters
+        ----------
+        electron_density : pd.DataFrame
+        t_electrons : numpy.ndarray
+        line_list_nu : pd.DataFrame
+        tau_sobolev : pd.DataFrame
+        macroatom_state: tardis.opacities.macro_atom.macroatom_state.MacroAtomState
+        continuum_state: tardis.opacities.continuum.continuum_state.ContinuumState
+        """
+        self.electron_density = electron_density
+        self.t_electrons = t_electrons
+        self.line_list_nu = line_list_nu
+
+        self.tau_sobolev = tau_sobolev
+
+        # Continuum Opacity Data
+        self.continuum_state = continuum_state
+        self.macroatom_state = macroatom_state
+
+    @classmethod
+    def from_legacy_plasma(cls, plasma, tau_sobolev):
+        """
+        Generates an OpacityStatePython object from a tardis BasePlasma
+
+        Parameters
+        ----------
+        plasma : tarids.plasma.BasePlasma
+            legacy base plasma
+        tau_sobolev : pd.DataFrame
+            Expansion Optical Depths
+
+        Returns
+        -------
+        OpacityStatePython
+        """
+        if hasattr(plasma, "macro_atom_data"):
+            macroatom_state = MacroAtomState.from_legacy_plasma(plasma)
+        else:
+            macroatom_state = None
+
+        if hasattr(plasma, "photo_ion_cross_sections"):
+            continuum_state = ContinuumState.from_legacy_plasma(plasma)
+        else:
+            continuum_state = None
+
+        atomic_data = plasma.atomic_data
+
+        return cls(
+            plasma.electron_densities,
+            plasma.t_electrons,
+            atomic_data.lines.nu,
+            tau_sobolev,
+            macroatom_state,
+            continuum_state,
+        )
+
 
 opacity_state_spec = [
     ("electron_density", float64[:]),
@@ -32,7 +105,7 @@ opacity_state_spec = [
 
 
 @jitclass(opacity_state_spec)
-class OpacityState:
+class OpacityStateNumba:
     def __init__(
         self,
         electron_density,
@@ -116,7 +189,7 @@ class OpacityState:
             OpacityState : a shallow copy of the current instance
         """
         # NOTE: This currently will not work with continuum processes since it does not slice those arrays
-        return OpacityState(
+        return OpacityStateNumba(
             self.electron_density[i],
             self.t_electrons[i],
             self.line_list_nu,
@@ -140,6 +213,135 @@ class OpacityState:
             self.photo_ion_activation_idx,
             self.k_packet_idx,
         )
+
+
+def opacity_state_to_numba(
+    opacity_state: OpacityState, line_interaction_type
+) -> OpacityStateNumba:
+    """
+    Initialize the OpacityStateNumba object and copy over the data over from OpacityState class
+
+    Parameters
+    ----------
+    opacity_state : tardis.opacities.opacity_state.OpacityState
+    line_interaction_type : enum
+    """
+
+    electron_densities = opacity_state.electron_density.values
+    t_electrons = opacity_state.t_electrons
+    line_list_nu = opacity_state.line_list_nu.values
+
+    # NOTE: Disabled line scattering is handled by the opacitystate solver
+    tau_sobolev = np.ascontiguousarray(
+        opacity_state.tau_sobolev, dtype=np.float64
+    )
+
+    if line_interaction_type == "scatter":
+        # to adhere to data types, we must have an array of minimum size 1
+        array_size = 1
+        transition_probabilities = np.zeros(
+            (array_size, array_size), dtype=np.float64
+        )  # to adhere to data types
+        line2macro_level_upper = np.zeros(array_size, dtype=np.int64)
+        macro_block_references = np.zeros(array_size, dtype=np.int64)
+        transition_type = np.zeros(array_size, dtype=np.int64)
+        destination_level_id = np.zeros(array_size, dtype=np.int64)
+        transition_line_id = np.zeros(array_size, dtype=np.int64)
+    else:
+        transition_probabilities = np.ascontiguousarray(
+            opacity_state.macroatom_state.transition_probabilities.values.copy(),
+            dtype=np.float64,
+        )
+        line2macro_level_upper = (
+            opacity_state.macroatom_state.line2macro_level_upper
+        )
+        # TODO: Fix setting of block references for non-continuum mode
+
+        macro_block_references = np.asarray(
+            opacity_state.macroatom_state.macro_block_references
+        )
+
+        transition_type = opacity_state.macroatom_state.transition_type.values
+
+        # Destination level is not needed and/or generated for downbranch
+        destination_level_id = (
+            opacity_state.macroatom_state.destination_level_id.values
+        )
+        transition_line_id = (
+            opacity_state.macroatom_state.transition_line_id.values
+        )
+
+    if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+        bf_threshold_list_nu = (
+            opacity_state.continuum_state.bf_threshold_list_nu.values
+        )
+        p_fb_deactivation = np.ascontiguousarray(
+            opacity_state.continuum_state.p_fb_deactivation.values.copy(),
+            dtype=np.float64,
+        )
+
+        phot_nus = opacity_state.continuum_state.phot_nus
+        photo_ion_block_references = (
+            opacity_state.continuum_state.photo_ion_block_references
+        )
+        photo_ion_nu_threshold_mins = (
+            opacity_state.continuum_state.photo_ion_nu_threshold_mins.values
+        )
+        photo_ion_nu_threshold_maxs = (
+            opacity_state.continuum_state.photo_ion_nu_threshold_maxs.values
+        )
+
+        chi_bf = opacity_state.continuum_state.chi_bf.values
+        x_sect = opacity_state.continuum_state.x_sect.values
+
+        phot_nus = phot_nus.values
+        ff_opacity_factor = (
+            opacity_state.continuum_state.ff_cooling_factor
+            / np.sqrt(t_electrons)
+        ).astype(np.float64)
+        emissivities = opacity_state.continuum_state.emissivities.values
+        photo_ion_activation_idx = (
+            opacity_state.continuum_state.photo_ion_activation_idx.values
+        )
+        k_packet_idx = np.int64(opacity_state.continuum_state.k_packet_idx)
+    else:
+        bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
+        p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
+        photo_ion_nu_threshold_mins = np.zeros(0, dtype=np.float64)
+        photo_ion_nu_threshold_maxs = np.zeros(0, dtype=np.float64)
+        photo_ion_block_references = np.zeros(0, dtype=np.int64)
+        chi_bf = np.zeros((0, 0), dtype=np.float64)
+        x_sect = np.zeros(0, dtype=np.float64)
+        phot_nus = np.zeros(0, dtype=np.float64)
+        ff_opacity_factor = np.zeros(0, dtype=np.float64)
+        emissivities = np.zeros((0, 0), dtype=np.float64)
+        photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
+        k_packet_idx = np.int64(-1)
+
+    return OpacityStateNumba(
+        electron_densities,
+        t_electrons,
+        line_list_nu,
+        tau_sobolev,
+        transition_probabilities,
+        line2macro_level_upper,
+        macro_block_references,
+        transition_type,
+        destination_level_id,
+        transition_line_id,
+        bf_threshold_list_nu,
+        p_fb_deactivation,
+        photo_ion_nu_threshold_mins,
+        photo_ion_nu_threshold_maxs,
+        photo_ion_block_references,
+        chi_bf,
+        x_sect,
+        phot_nus,
+        ff_opacity_factor,
+        emissivities,
+        photo_ion_activation_idx,
+        k_packet_idx,
+    )
 
 
 def opacity_state_initialize(
@@ -258,7 +460,7 @@ def opacity_state_initialize(
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
         k_packet_idx = np.int64(-1)
 
-    return OpacityState(
+    return OpacityStateNumba(
         electron_densities,
         t_electrons,
         line_list_nu,
