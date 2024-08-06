@@ -3,7 +3,9 @@ import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u
+from pydantic import BaseModel
 
+from tardis.io.atom_data import AtomData
 from tardis.plasma import BasePlasma
 from tardis.plasma.base import PlasmaSolverSettings
 from tardis.plasma.exceptions import PlasmaConfigError
@@ -54,18 +56,23 @@ def map_species_from_string(species):
     return [species_string_to_tuple(spec) for spec in species]
 
 
-class PlasmaSolverFactory:
+class PlasmaSolverFactory(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
+        extra = "allow"
 
     ## Analytical Approximations
     excitation_analytical_approximation: str = "lte"
     ionization_analytical_approximation: str = "lte"
-    nebular_ionization_delta_treatment: tuple  # species to use for the delta_treatment in nebular ionization ML93
+    nebular_ionization_delta_treatment: (
+        tuple
+    ) = ()  # species to use for the delta_treatment in nebular ionization ML93
 
     link_t_rad_t_electron: float = 1.0
 
     radiative_rates_type: str = "dilute-blackbody"
 
-    delta_treatment = None
+    delta_treatment: float | None = None
 
     ## Statistical Balance Solver
     legacy_nlte_species: list = []
@@ -92,6 +99,7 @@ class PlasmaSolverFactory:
     property_kwargs: dict = {}
 
     def __init__(self, atom_data, selected_atomic_numbers, config=None) -> None:
+        super().__init__()
         if config is not None:
             self.parse_plasma_config(config.plasma)
         self.atom_data = atom_data
