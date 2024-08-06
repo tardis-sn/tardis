@@ -3,9 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from pydantic import BaseModel
 
-from tardis.io.atom_data import AtomData
 from tardis.plasma import BasePlasma
 from tardis.plasma.base import PlasmaSolverSettings
 from tardis.plasma.exceptions import PlasmaConfigError
@@ -56,10 +54,7 @@ def map_species_from_string(species):
     return [species_string_to_tuple(spec) for spec in species]
 
 
-class PlasmaSolverFactory(BaseModel):
-    class Config:
-        arbitrary_types_allowed = True
-        extra = "allow"
+class PlasmaSolverFactory:
 
     ## Analytical Approximations
     excitation_analytical_approximation: str = "lte"
@@ -99,7 +94,10 @@ class PlasmaSolverFactory(BaseModel):
     property_kwargs: dict = {}
 
     def __init__(self, atom_data, selected_atomic_numbers, config=None) -> None:
-        super().__init__()
+        self.plasma_modules = []
+        self.kwargs = {}
+        self.property_kwargs = {}
+
         if config is not None:
             self.parse_plasma_config(config.plasma)
         self.atom_data = atom_data
