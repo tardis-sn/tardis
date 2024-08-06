@@ -324,6 +324,9 @@ class RPacketLastInteractionTracker(object):
         """
         pass
 
+    def track_line_interaction(self, r_packet):
+        pass
+
 
 @njit
 def generate_rpacket_tracker_list(no_of_packets, length):
