@@ -12,6 +12,7 @@ from matplotlib.lines import Line2D
 
 from tardis.base import run_tardis
 from tardis.visualization.tools.sdec_plot import SDECPlotter
+from tardis.tests.fixtures.regression_data import RegressionData
 
 
 def make_valid_name(testid):
@@ -87,8 +88,9 @@ def sdec_ref_data_path(tardis_ref_path):
 
 class TestSDECPlotter:
     """Test the SDECPlotter class."""
+    regression_data = None
 
-    @pytest.fixture(scope="class", autouse=True)
+    @pytest.fixture(scope="class", autouse=False)
     def create_hdf_file(self, request, sdec_ref_data_path):
         """
         Create an HDF5 file object.
@@ -104,6 +106,7 @@ class TestSDECPlotter:
         h5py._hl.files.File
             HDF5 file object.
         """
+        # request.cls.regression_data = RegressionData(request)
         cls = type(self)
         if request.config.getoption("--generate-reference"):
             cls.hdf_file = tables.open_file(sdec_ref_data_path, "w")
@@ -114,7 +117,7 @@ class TestSDECPlotter:
         cls.hdf_file.close()
 
     @pytest.fixture(scope="class")
-    def plotter(self, simulation_simple):
+    def plotter(self, simulation_simple, request):
         """
         Create a SDECPlotter object.
 
@@ -127,6 +130,7 @@ class TestSDECPlotter:
         -------
         tardis.visualization.tools.sdec_plot.SDECPlotter
         """
+        # request.cls.regression_data = RegressionData(request)
         return SDECPlotter.from_simulation(simulation_simple)
 
     @pytest.fixture(scope="class")
@@ -149,7 +153,8 @@ class TestSDECPlotter:
         return observed_spectrum_wavelength, observed_spectrum_flux
 
     @pytest.mark.parametrize("species", [["Si II", "Ca II", "C", "Fe I-V"]])
-    def test_parse_species_list(self, request, plotter, species):
+    @pytest.mark.parametrize("attribute", ["_full_species_list", "_species_list", "_keep_colour"])
+    def test_parse_species_list(self, request, plotter, species, attribute):
         """
         Test _parse_species_list method.
 
@@ -161,42 +166,29 @@ class TestSDECPlotter:
         """
         # THIS NEEDS TO BE RUN FIRST. NOT INDEPENDENT TESTS
         plotter._parse_species_list(species)
-        subgroup_name = make_valid_name(request.node.callspec.id)
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-            self.hdf_file.create_carray(
-                group, name="_full_species_list", obj=plotter._full_species_list
-            )
-            self.hdf_file.create_carray(
-                group, name="_species_list", obj=plotter._species_list
-            )
-            self.hdf_file.create_carray(
-                group, name="_keep_colour", obj=plotter._keep_colour
-            )
-            pytest.skip("Reference data was generated during this run.")
-
-        else:
-            group = self.hdf_file.get_node("/" + subgroup_name)
-
-            # because plotter._full_species_list is an array of strings
+        regression_data = RegressionData(request)
+        data = regression_data.sync_ndarray(
+            getattr(plotter, attribute)
+        )
+        if attribute == "_full_species_list":
             np.testing.assert_equal(
-                np.asarray(plotter._full_species_list),
-                self.hdf_file.get_node(group, "_full_species_list")
-                .read()
-                .astype(str),
+                getattr(plotter, attribute),
+                data
             )
-
+        else:
             np.testing.assert_allclose(
-                np.asarray(plotter._species_list),
-                self.hdf_file.get_node(group, "_species_list"),
+                getattr(plotter, attribute),
+                data
             )
-            np.testing.assert_allclose(
-                np.asarray(plotter._keep_colour),
-                self.hdf_file.get_node(group, "_keep_colour"),
-            )
+    
+    @pytest.fixture(scope="class", params=[["virtual", 10 * u.Mpc, 1], ["real", 50 * u.Mpc, 3]])
+    def plotter_calculate_plotting_data(self, request, plotter):
+        packets_mode, distance, nelements = request.params
+        packet_wvl_range = [500, 9000] * u.AA
+        plotter._calculate_plotting_data(
+            packets_mode, packet_wvl_range, distance, nelements
+        )
+        return plotter
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
