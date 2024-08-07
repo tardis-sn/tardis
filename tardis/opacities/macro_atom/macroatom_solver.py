@@ -13,15 +13,21 @@ from tardis.opacities.macro_atom.transition_probabilities import (
     calculate_p_combined,
     calculate_macro_atom_info,
 )
+from tardis.opacities.macro_atom.base import (
+    calculate_non_markov_transition_probabilities,
+)
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
 
 class MacroAtomSolver:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, initialize=True, normalize=True):
 
-        pass
+        self.initialize = initialize
+        self.normalize = normalize
 
-    def solve(self, legacy_plasma, atomic_data, continuum_interaction_species=None):
+    def solve(
+        self, legacy_plasma, atomic_data, continuum_interaction_species=None
+    ):
 
         # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
         # Make the combined transition probabilities something that is configurable in the class
@@ -29,14 +35,23 @@ class MacroAtomSolver:
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         ):  # TODO: Unify this in the plasma solver
             non_markov_transition_probabilities = (
-                legacy_plasma.non_markov_transition_probabilities
+                calculate_non_markov_transition_probabilities(
+                    atomic_data,
+                    legacy_plasma.beta_sobolev,
+                    legacy_plasma.j_blues,
+                    legacy_plasma.stimulated_emission_factor,
+                    legacy_plasma.tau_sobolevs,
+                    initialize=self.initialize,
+                    normalize=self.normalize,
+                )
             )
+            self.initialize = False
         else:
             non_markov_transition_probabilities = (
                 legacy_plasma.transition_probabilities
             )
             continuum_interaction_species = []
-            
+
         level_idxs2transition_idx = legacy_plasma.level_idxs2transition_idx
         cool_rate_fb = legacy_plasma.cool_rate_fb
         cool_rate_fb_tot = legacy_plasma.cool_rate_fb_tot
@@ -48,7 +63,9 @@ class MacroAtomSolver:
             if hasattr(legacy_plasma, item)
         ]  # Maybe do this in the init
         p_combined_args = (legacy_plasma.p_rad_bb,)  # Do this for now
-        p_combined = calculate_p_combined(p_combined_args)
+        p_combined = calculate_p_combined(
+            non_markov_transition_probabilities, *p_combined_args
+        )
 
         markov_chain_indices = calculate_markov_chain_index(
             atomic_data, continuum_interaction_species
