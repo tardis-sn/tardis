@@ -45,7 +45,7 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
         return non_markov_transition_probabilities
 
     def solve(
-        self, legacy_plasma, atomic_data, continuum_interaction_species=None
+        self, legacy_plasma, atomic_data
     ):
 
         # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
@@ -72,6 +72,7 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
 
 
 class MacroAtomContinuumSolver(MacroAtomSolver):
+    
     def solve(
         self, legacy_plasma, atomic_data, continuum_interaction_species=None
     ):
