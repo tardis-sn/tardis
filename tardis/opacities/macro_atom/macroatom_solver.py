@@ -44,7 +44,7 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
                 normalize=self.normalize,
             )
         )
-        self.initialize = False
+        #self.initialize = False  # TODO: Fix this
 
         return non_markov_transition_probabilities
 
