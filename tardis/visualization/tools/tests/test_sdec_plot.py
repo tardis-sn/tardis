@@ -10,6 +10,7 @@ import pytest
 import tables
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
+from itertools import product
 
 from tardis.base import run_tardis
 from tardis.visualization.tools.sdec_plot import SDECPlotter
@@ -90,7 +91,16 @@ def sdec_ref_data_path(tardis_ref_path):
 class TestSDECPlotter:
     """Test the SDECPlotter class."""
     regression_data = None
-    
+    distance = [10 * u.Mpc, None]
+    packet_wvl_range = [[500, 9000] * u.AA]
+    species_list = [["Si II", "Ca II", "C", "Fe I-V"]]
+    packets_mode = ["real", "virtual"]
+    nelements = [1, None]
+    show_modeled_spectrum = [True, False]
+
+    combinations = list(product(distance, packet_wvl_range, species_list, packets_mode, nelements, show_modeled_spectrum))
+    print(combinations)
+
     plotting_data_attributes = {
         "attributes_np":  ["plot_frequency_bins", "plot_wavelength", "plot_frequency", "modeled_spectrum_luminosity", "packet_wvl_range_mask", "emission_species", "absorption_species"],
         "attributes_df":  ["absorption_luminosities_df", "emission_luminosities_df", "total_luminosities_df"]
@@ -159,9 +169,8 @@ class TestSDECPlotter:
         )
         return observed_spectrum_wavelength, observed_spectrum_flux
 
-    @pytest.mark.parametrize("species", [["Si II", "Ca II", "C", "Fe I-V"]])
     @pytest.mark.parametrize("attribute", ["_full_species_list", "_species_list", "_keep_colour"])
-    def test_parse_species_list(self, request, plotter, species, attribute):
+    def test_parse_species_list(self, request, plotter, attribute):
         """
         Test _parse_species_list method.
 
@@ -172,7 +181,7 @@ class TestSDECPlotter:
         species : list
         """
         # THIS NEEDS TO BE RUN FIRST. NOT INDEPENDENT TESTS
-        plotter._parse_species_list(species)
+        plotter._parse_species_list(self.species_list)
         regression_data = RegressionData(request)
         data = regression_data.sync_ndarray(
             getattr(plotter, attribute)
@@ -188,10 +197,10 @@ class TestSDECPlotter:
                 data
             )
     
-    @pytest.fixture(scope="class", params=[["virtual", 10 * u.Mpc, 1], ["real", 50 * u.Mpc, 3]])
+    @pytest.fixture(scope="class", params=[combinations])
     def plotter_calculate_plotting_data(self, request, plotter):
-        packets_mode, distance, nelements = request.param
-        packet_wvl_range = [500, 9000] * u.AA
+        # packets_mode, nelements = request.param
+        distance, packet_wvl_range, species_list, packets_mode, nelements, show_modeled_spectrum = request.param
         plotter._calculate_plotting_data(
             packets_mode, packet_wvl_range, distance, nelements
         )
@@ -219,7 +228,60 @@ class TestSDECPlotter:
             pd.testing.assert_frame_equal(
                 plot_object, data
             )
-            
+
+
+    @pytest.fixture(scope="class", params=[["real", None], ["real", distance], ["virtual", None], ["virtual", distance]])
+    def plotter_generate_plot_mpl(self, request, observed_spectrum, plotter):
+        distance, packet_wvl_range, species_list, packets_mode, nelements, show_modeled_spectrum = request.param
+        if distance is None:
+            observed_spectrum = None
+    
+        fig = plotter.generate_plot_mpl(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+            show_modeled_spectrum=show_modeled_spectrum,
+            observed_spectrum=observed_spectrum,
+            nelements=nelements,
+            species_list=species_list,
+        )
+        return fig
+
+    # @pytest.fixture
+    # def plotter_generate_plot_mpl_children(self, plotter_generate_plot_mpl):
+    #     for index, data in enumerate(plotter_generate_plot_mpl.get_children()):
+    #         yield data
+    
+    # def test_generate_plot_mpl(self, plotter_generate_plot_mpl):
+    #     for index, data in enumerate(plotter_generate_plot_mpl.get_children()):
+    #             trace_group = self.hdf_file.create_group(
+    #                 fig_subgroup,
+    #                 name="_" + str(index),
+    #             )
+    #             if isinstance(data.get_label(), str):
+    #                 self.hdf_file.create_array(
+    #                     trace_group, name="label", obj=data.get_label().encode()
+    #                 )
+
+    #             # save artists which correspond to element contributions
+    #             if isinstance(data, PolyCollection):
+    #                 for index, path in enumerate(data.get_paths()):
+    #                     self.hdf_file.create_carray(
+    #                         trace_group,
+    #                         name="path" + str(index),
+    #                         obj=path.vertices,
+    #                     )
+    #             # save line plots
+    #             if isinstance(data, Line2D):
+    #                 self.hdf_file.create_carray(
+    #                     trace_group,
+    #                     name="data",
+    #                     obj=data.get_xydata(),
+    #                 )
+    #                 self.hdf_file.create_carray(
+    #                     trace_group, name="path", obj=data.get_path().vertices
+    #                 )
+
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
     @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
