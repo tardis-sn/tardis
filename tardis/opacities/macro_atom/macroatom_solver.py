@@ -146,6 +146,7 @@ class MacroAtomContinuumSolver(MacroAtomSolver):
             p_deactivation,
             fb_cooling_probs,
             idx2deactivation_idx,
+            B,
         )
         non_continuum_trans_probs_mask = (
             calculate_non_continuum_trans_probs_mask(
