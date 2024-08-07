@@ -70,7 +70,7 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
         macro_block_references = atomic_data.macro_atom_references[
             "block_references"
         ]
-        macro_atom_info = legacy_plasma.macro_atom_data
+        macro_atom_info = legacy_plasma.atomic_data.macro_atom_data
 
         return MacroAtomState(
             transition_probabilities,
