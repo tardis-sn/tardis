@@ -85,9 +85,6 @@ def single_packet_loop(
     )
 
     rpacket_tracker.track(r_packet)
-    rpacket_tracker.track_boundary_interaction(
-        PacketStatus.OUTSIDE_EJECTA, r_packet.current_shell_id
-    )
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
@@ -161,7 +158,10 @@ def single_packet_loop(
         # If continuum processes: update continuum estimators
 
         if interaction_type == InteractionType.BOUNDARY:
-            temp_current_shell_id = r_packet.current_shell_id
+            rpacket_tracker.track_boundary_interaction(
+                r_packet.current_shell_id,
+                r_packet.current_shell_id + delta_shell,
+            )
             move_r_packet(
                 r_packet,
                 distance,
@@ -173,14 +173,6 @@ def single_packet_loop(
                 r_packet,
                 delta_shell,
                 len(numba_radial_1d_geometry.r_inner),
-            )
-            temp_next_shell_id = (
-                r_packet.current_shell_id
-                if r_packet.status == PacketStatus.IN_PROCESS
-                else PacketStatus.OUTSIDE_EJECTA
-            )
-            rpacket_tracker.track_boundary_interaction(
-                temp_current_shell_id, temp_next_shell_id
             )
 
         elif interaction_type == InteractionType.LINE:
