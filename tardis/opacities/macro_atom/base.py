@@ -9,6 +9,111 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 
+def calculate_non_markov_transition_probabilities(
+    atomic_data,
+    beta_sobolev,
+    j_blues,
+    stimulated_emission_factor,
+    tau_sobolevs,
+    initialize=True,
+    normalize=True,
+):
+    # I wonder why?
+    # Not sure who wrote this but the answer is that when the plasma is
+    # first initialised (before the first iteration, without temperature
+    # values etc.) there are no j_blues values so this just prevents
+    # an error. Aoife.
+    if len(j_blues) == 0:
+        return None
+    macro_atom_data = get_macro_atom_data(atomic_data)
+    if initialize:
+        (
+            transition_up_filter,
+            transition_up_line_filter,
+            block_references,
+        ) = initialize_macro_atom_transition_type_filters(
+            atomic_data, macro_atom_data
+        )
+        transition_probability_coef = get_transition_probability_coefs(
+            macro_atom_data
+        )
+        initialize = False
+    transition_probabilities = calculate_non_markov_transition_probability(
+        macro_atom_data,
+        beta_sobolev,
+        j_blues,
+        stimulated_emission_factor,
+        transition_probability_coef,
+        block_references,
+        normalize,
+    )
+    transition_probabilities = pd.DataFrame(
+        transition_probabilities,
+        index=macro_atom_data.transition_line_id,
+        columns=tau_sobolevs.columns,
+    )
+    return transition_probabilities
+
+
+def calculate_non_markov_transition_probability(
+    macro_atom_data,
+    beta_sobolev,
+    j_blues,
+    stimulated_emission_factor,
+    transition_probability_coef,
+    block_references,
+    normalize,
+):
+    transition_probabilities = np.empty(
+        (transition_probability_coef.shape[0], beta_sobolev.shape[1])
+    )
+    # trans_old = self.calculate_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
+    transition_type = macro_atom_data.transition_type.values
+    lines_idx = macro_atom_data.lines_idx.values
+    tpos = macro_atom_data.transition_probability.values
+    util.fast_calculate_transition_probabilities(
+        tpos,
+        beta_sobolev.values,
+        j_blues.values,
+        stimulated_emission_factor,
+        transition_type,
+        lines_idx,
+        block_references,
+        transition_probabilities,
+        normalize,
+    )
+    return transition_probabilities
+
+
+def initialize_macro_atom_transition_type_filters(atomic_data, macro_atom_data):
+    transition_up_filter = macro_atom_data.transition_type.values == 1
+    transition_up_line_filter = macro_atom_data.lines_idx.values[
+        transition_up_filter
+    ]
+    block_references = np.hstack(
+        (
+            atomic_data.macro_atom_references.block_references,
+            len(macro_atom_data),
+        )
+    )
+
+    return transition_up_filter, transition_up_line_filter, block_references
+
+
+def get_transition_probability_coefs(macro_atom_data):
+    return macro_atom_data.transition_probability.values[np.newaxis].T
+
+
+def get_macro_atom_data(atomic_data):
+    try:
+        return atomic_data.macro_atom_data
+    except:
+        logger.debug(
+            "Macro Atom Data was not found. Instead returning All Macro Atom Data"
+        )
+        return atomic_data.macro_atom_data_all
+
+
 class TransitionProbabilities(
     ProcessingPlasmaProperty
 ):  # Base MacroAtom Property
