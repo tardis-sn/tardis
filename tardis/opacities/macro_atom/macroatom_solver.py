@@ -19,7 +19,7 @@ from tardis.opacities.macro_atom.base import (
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
 
-class MacroAtomSolver:
+class MacroAtomSolver: # Possibly make two classes, one for normal and one for continuum
     def __init__(self, initialize=True, normalize=True):
 
         self.initialize = initialize
@@ -116,18 +116,22 @@ class MacroAtomSolver:
             macro_block_references = calculate_macro_block_references(
                 combined_transition_probs
             )
+            macro_atom_info = calculate_macro_atom_info(combined_transition_probs)
+            transition_probabilities = combined_transition_probs
         else:
             macro_block_references = atomic_data.macro_atom_references[
                 "block_references"
             ]
+            macro_atom_info = legacy_plasma.macro_atom_data
+            transition_probabilities = non_markov_transition_probabilities
+            
 
-        macro_atom_info = calculate_macro_atom_info(combined_transition_probs)
         transition_type = macro_atom_info["transition_type"]
         destination_level_id = macro_atom_info["destination_level_id"]
         transition_line_id = macro_atom_info["lines_idx"]
 
         return MacroAtomState(
-            combined_transition_probs,
+            transition_probabilities,
             transition_type,
             destination_level_id,
             transition_line_id,
