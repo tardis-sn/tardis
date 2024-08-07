@@ -2,9 +2,14 @@ from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.opacities.opacity_state import (
     OpacityState,
 )
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_solver import (
+    MacroAtomSolver,
+    MacroAtomContinuumSolver,
+)
 import numpy as np
 import pandas as pd
+
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 class OpacitySolver(object):
@@ -27,9 +32,12 @@ class OpacitySolver(object):
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
         if (
-            self.line_interaction_type != "scatter" # TODO: Fix this
+            self.line_interaction_type != "scatter"  # TODO: Fix this
         ):  # Need a switch to use the continuum solver
-            self.macro_atom_solver = MacroAtomSolver()
+            if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+                self.macro_atom_solver = MacroAtomContinuumSolver()
+            else:
+                self.macro_atom_solver = MacroAtomSolver()
         else:
             self.macro_atom_solver = None
 
