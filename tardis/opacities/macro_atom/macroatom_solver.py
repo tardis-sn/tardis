@@ -121,7 +121,6 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
 
         else:
 
-            continuum_interaction_species = []
             macro_block_references = atomic_data.macro_atom_references[
                 "block_references"
             ]
