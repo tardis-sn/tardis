@@ -2,6 +2,7 @@ from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.opacities.opacity_state import (
     OpacityState,
 )
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
 import numpy as np
 import pandas as pd
 
@@ -25,6 +26,12 @@ class OpacitySolver(object):
 
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
+        if (
+            self.line_interaction_type == "macroatom"
+        ):  # Need a switch to use the continuum solver
+            self.macro_atom_solver = MacroAtomSolver()
+        else:
+            self.macro_atom_solver = None
 
     def solve(self, legacy_plasma) -> OpacityState:
         """
@@ -39,6 +46,8 @@ class OpacitySolver(object):
         -------
         OpacityState
         """
+        atomic_data = legacy_plasma.atomic_data
+
         if self.disable_line_scattering:
             tau_sobolev = pd.DataFrame(
                 np.zeros(
@@ -60,8 +69,18 @@ class OpacitySolver(object):
                 legacy_plasma.stimulated_emission_factor,
             )
 
+        if self.line_interaction_type == "macroatom":
+            macroatom_state = self.macro_atom_solver.solve(
+                legacy_plasma,
+                atomic_data,
+                tau_sobolev,
+                legacy_plasma.stimulated_emission_factor,
+            )
+        else:
+            macroatom_state = None
+
         opacity_state = OpacityState.from_legacy_plasma(
-            legacy_plasma, tau_sobolev
+            legacy_plasma, tau_sobolev, macroatom_state
         )
 
         return opacity_state

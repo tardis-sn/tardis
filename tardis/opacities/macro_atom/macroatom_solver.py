@@ -26,7 +26,11 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
         self.normalize = normalize
 
     def solve_non_markov_transition_probabilities(
-        self, atomic_data, legacy_plasma
+        self,
+        atomic_data,
+        legacy_plasma,
+        tau_sobolev,
+        stimulated_emission_factor,
     ):
 
         non_markov_transition_probabilities = (
@@ -34,8 +38,8 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
                 atomic_data,
                 legacy_plasma.beta_sobolev,
                 legacy_plasma.j_blues,
-                legacy_plasma.stimulated_emission_factor,
-                legacy_plasma.tau_sobolevs,
+                stimulated_emission_factor,
+                tau_sobolev,
                 initialize=self.initialize,
                 normalize=self.normalize,
             )
@@ -44,13 +48,22 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
 
         return non_markov_transition_probabilities
 
-    def solve(self, legacy_plasma, atomic_data):
+    def solve(
+        self,
+        legacy_plasma,
+        atomic_data,
+        tau_sobolev,
+        stimulated_emission_factor,
+    ):
 
         # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
         # Make the combined transition probabilities something that is configurable in the class
         transition_probabilities = (
             self.solve_non_markov_transition_probabilities(
-                atomic_data, legacy_plasma
+                atomic_data,
+                legacy_plasma,
+                tau_sobolev,
+                stimulated_emission_factor,
             )
         )
 
@@ -71,12 +84,20 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
 
 class MacroAtomContinuumSolver(MacroAtomSolver):
     def solve(
-        self, legacy_plasma, atomic_data, continuum_interaction_species=None
+        self,
+        legacy_plasma,
+        atomic_data,
+        tau_sobolev,
+        stimulated_emission_factor,
+        continuum_interaction_species=None,
     ):
 
         non_markov_transition_probabilities = (
             self.solve_non_markov_transition_probabilities(
-                atomic_data, legacy_plasma
+                atomic_data,
+                legacy_plasma,
+                tau_sobolev,
+                stimulated_emission_factor,
             )
         )
 

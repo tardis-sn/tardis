@@ -41,7 +41,7 @@ class OpacityState:
         self.macroatom_state = macroatom_state
 
     @classmethod
-    def from_legacy_plasma(cls, plasma, tau_sobolev):
+    def from_legacy_plasma(cls, plasma, tau_sobolev, macroatom_state=None):
         """
         Generates an OpacityStatePython object from a tardis BasePlasma
 
@@ -56,7 +56,7 @@ class OpacityState:
         -------
         OpacityStatePython
         """
-        if hasattr(plasma, "macro_atom_data"):
+        if macroatom_state is None and hasattr(plasma, "macro_atom_data"):
             macroatom_state = MacroAtomState.from_legacy_plasma(plasma)
         else:
             macroatom_state = None
