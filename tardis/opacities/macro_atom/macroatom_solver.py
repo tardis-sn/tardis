@@ -21,13 +21,22 @@ class MacroAtomSolver:
 
         pass
 
-    def solve(self, legacy_plasma, atomic_data, continuum_interaction_species):
+    def solve(self, legacy_plasma, atomic_data, continuum_interaction_species=None):
 
         # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
         # Make the combined transition probabilities something that is configurable in the class
-        non_markov_transition_probabilities = (
-            legacy_plasma.non_markov_transition_probabilities
-        )
+        if (
+            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
+        ):  # TODO: Unify this in the plasma solver
+            non_markov_transition_probabilities = (
+                legacy_plasma.non_markov_transition_probabilities
+            )
+        else:
+            non_markov_transition_probabilities = (
+                legacy_plasma.transition_probabilities
+            )
+            continuum_interaction_species = []
+            
         level_idxs2transition_idx = legacy_plasma.level_idxs2transition_idx
         cool_rate_fb = legacy_plasma.cool_rate_fb
         cool_rate_fb_tot = legacy_plasma.cool_rate_fb_tot
