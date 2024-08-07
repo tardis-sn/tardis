@@ -208,8 +208,10 @@ class LIVPlotter:
         plot_colors : list
             List of colors corresponding to each species.
         """
-        groups = self.data[packets_mode].packets_df_line_interaction.groupby(
-            by="last_line_interaction_species"
+        groups = (
+            self.data[packets_mode]
+            .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
+            .groupby(by="last_line_interaction_species")
         )
 
         plot_colors = []
@@ -220,6 +222,15 @@ class LIVPlotter:
             full_v_last = []
             for specie in specie_list:
                 if specie in self.species:
+                    if specie not in groups.groups:
+                        # atomic_number = specie // 100
+                        # ion_number = specie % 100
+                        # ion_numeral = int_to_roman(ion_number + 1)
+                        # label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
+                        # logger.warning(
+                        #     f"Species {label} not found in the wavelength range."
+                        # )
+                        continue
                     g_df = groups.get_group(specie)
                     r_last_interaction = (
                         g_df["last_interaction_in_r"].values * u.cm
@@ -236,7 +247,13 @@ class LIVPlotter:
         return plot_data, plot_colors
 
     def _prepare_plot_data(
-        self, packets_mode, species_list, cmapname, num_bins, nelements
+        self,
+        packets_mode,
+        packet_wvl_range,
+        species_list,
+        cmapname,
+        num_bins,
+        nelements,
     ):
         """
         Prepare data and settings required for generating a plot.
@@ -249,6 +266,11 @@ class LIVPlotter:
         ----------
         packets_mode : str
             Packet mode, either 'virtual' or 'real'.
+        packet_wvl_range : astropy.Quantity
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA
         species_list : list of str
             List of species to plot. Species can be specified as an ion
             (e.g., Si II), an element (e.g., Si), a range of ions (e.g., Si I-V),
@@ -259,6 +281,8 @@ class LIVPlotter:
         num_bins : int, optional
             Number of bins for regrouping within the same range. If None,
             no regrouping is done.
+        nelements : int, optional
+            Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
 
         Raises
         ------
@@ -303,6 +327,25 @@ class LIVPlotter:
         self._make_colorbar_labels()
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
         self._make_colorbar_colors()
+
+        if packet_wvl_range is None:
+            self.packet_nu_line_range_mask = np.ones(
+                self.data[packets_mode].packets_df_line_interaction.shape[0],
+                dtype=bool,
+            )
+        else:
+            packet_nu_range = [
+                value.to("Hz", equivalencies=u.spectral())
+                for value in packet_wvl_range
+            ]
+            self.packet_nu_line_range_mask = (
+                self.data[packets_mode].packets_df_line_interaction["nus"]
+                >= packet_nu_range[1]
+            ) & (
+                self.data[packets_mode].packets_df_line_interaction["nus"]
+                <= packet_nu_range[0]
+            )
+
         plot_data, plot_colors = self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to("km/s")
 
@@ -310,7 +353,7 @@ class LIVPlotter:
             if num_bins < 1:
                 raise ValueError("Number of bins must be positive")
             elif num_bins > len(bin_edges) - 1:
-                logger.warn(
+                logger.warning(
                     "Number of bins must be less than or equal to number of shells. Plotting with number of bins equals to number of shells."
                 )
                 new_bin_edges = bin_edges
@@ -351,6 +394,7 @@ class LIVPlotter:
         species_list=None,
         nelements=None,
         packets_mode="virtual",
+        packet_wvl_range=None,
         ax=None,
         figsize=(11, 5),
         cmapname="jet",
@@ -370,6 +414,11 @@ class LIVPlotter:
             Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
+        packet_wvl_range : astropy.Quantity
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA
         ax : matplotlib.axes.Axes, optional
             Axes object to plot on. If None, creates a new figure.
         figsize : tuple, optional
@@ -398,7 +447,12 @@ class LIVPlotter:
             nelements = None
 
         plot_data, plot_colors, bin_edges = self._prepare_plot_data(
-            packets_mode, species_list, cmapname, num_bins, nelements
+            packets_mode,
+            packet_wvl_range,
+            species_list,
+            cmapname,
+            num_bins,
+            nelements,
         )
 
         if ax is None:
@@ -440,6 +494,7 @@ class LIVPlotter:
         species_list=None,
         nelements=None,
         packets_mode="virtual",
+        packet_wvl_range=None,
         fig=None,
         graph_height=600,
         cmapname="jet",
@@ -459,6 +514,11 @@ class LIVPlotter:
             Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
+        packet_wvl_range : astropy.Quantity
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA
         fig : plotly.graph_objects.Figure, optional
             Plotly figure object to add the plot to. If None, creates a new figure.
         graph_height : int, optional
@@ -487,7 +547,12 @@ class LIVPlotter:
             nelements = None
 
         plot_data, plot_colors, bin_edges = self._prepare_plot_data(
-            packets_mode, species_list, cmapname, num_bins, nelements
+            packets_mode,
+            packet_wvl_range,
+            species_list,
+            cmapname,
+            num_bins,
+            nelements,
         )
 
         if fig is None:
