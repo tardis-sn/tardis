@@ -2,6 +2,7 @@
 import os
 from copy import deepcopy
 
+import astropy
 import astropy.units as u
 import numpy as np
 import pandas as pd
@@ -89,6 +90,12 @@ def sdec_ref_data_path(tardis_ref_path):
 class TestSDECPlotter:
     """Test the SDECPlotter class."""
     regression_data = None
+    
+    plotting_data_attributes = {
+        "attributes_np":  ["plot_frequency_bins", "plot_wavelength", "plot_frequency", "modeled_spectrum_luminosity", "packet_wvl_range_mask", "emission_species", "absorption_species"],
+        "attributes_df":  ["absorption_luminosities_df", "emission_luminosities_df", "total_luminosities_df"]
+    }
+    plotting_data_attributes = [[key, value] for key, values in plotting_data_attributes.items() for value in values]
 
     @pytest.fixture(scope="class", autouse=False)
     def create_hdf_file(self, request, sdec_ref_data_path):
@@ -183,189 +190,36 @@ class TestSDECPlotter:
     
     @pytest.fixture(scope="class", params=[["virtual", 10 * u.Mpc, 1], ["real", 50 * u.Mpc, 3]])
     def plotter_calculate_plotting_data(self, request, plotter):
-        packets_mode, distance, nelements = request.params
+        packets_mode, distance, nelements = request.param
         packet_wvl_range = [500, 9000] * u.AA
         plotter._calculate_plotting_data(
             packets_mode, packet_wvl_range, distance, nelements
         )
         return plotter
 
-    @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
-    @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
-    @pytest.mark.parametrize("distance", [10 * u.Mpc, 50 * u.Mpc])
-    @pytest.mark.parametrize("nelements", [1, 3])
-    def test_calculate_plotting_data(
-        self,
-        request,
-        plotter,
-        packets_mode,
-        packet_wvl_range,
-        distance,
-        nelements,
-    ):
-        """
-        Test _calculate_plotting_data method.
-
-        Parameters
-        ----------
-        request : _pytest.fixtures.SubRequest
-        plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
-        packets_mode : str
-        packet_wvl_range : astropy.units.quantity.Quantity
-        distance : astropy.units.quantity.Quantity
-        nelements : int
-        """
-        plotter._calculate_plotting_data(
-            packets_mode, packet_wvl_range, distance, nelements
-        )
-
-        # each group is a different combination of arguments
-        subgroup_name = make_valid_name(request.node.callspec.id)
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="plot_frequency_bins",
-                obj=plotter.plot_frequency_bins.cgs.value,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="plot_wavelength",
-                obj=plotter.plot_wavelength.cgs.value,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="plot_frequency",
-                obj=plotter.plot_frequency.cgs.value,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="packet_wvl_range_mask",
-                obj=plotter.packet_wvl_range_mask,
-            )
-
-            self.hdf_file.create_carray(
-                group, name="emission_species", obj=plotter.emission_species
-            )
-
-            self.hdf_file.create_carray(
-                group, name="absorption_species", obj=plotter.absorption_species
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="modeled_spectrum_luminosity",
-                obj=plotter.modeled_spectrum_luminosity.cgs.value,
-            )
-
-            if isinstance(plotter.lum_to_flux, u.quantity.Quantity):
-                self.hdf_file.create_array(
-                    group, name="lum_to_flux", obj=plotter.lum_to_flux.cgs.value
-                )
-            else:
-                self.hdf_file.create_array(
-                    group, name="lum_to_flux", obj=plotter.lum_to_flux
-                )
-
-            self.hdf_file.create_carray(
-                group, name="species", obj=plotter.species.astype(np.float64)
-            )
-
-            plotter.absorption_luminosities_df.to_hdf(
-                self.hdf_file.filename,
-                key=f"{subgroup_name}/absorption_luminosities_df",
-            )
-            plotter.emission_luminosities_df.to_hdf(
-                self.hdf_file.filename,
-                key=f"{subgroup_name}/emission_luminosities_df",
-            )
-            plotter.total_luminosities_df.to_hdf(
-                self.hdf_file.filename,
-                key=f"{subgroup_name}/total_luminosities_df",
-            )
-
-            pytest.skip("Reference data was generated during this run.")
-
-        else:
-            # use the subgroup id to iterate over the hdf file
-            group = self.hdf_file.get_node("/" + subgroup_name)
-
-            np.testing.assert_allclose(
-                plotter.plot_frequency_bins.cgs.value,
-                self.hdf_file.get_node(group, "plot_frequency_bins"),
-            )
-
-            np.testing.assert_allclose(
-                plotter.plot_wavelength.cgs.value,
-                self.hdf_file.get_node(group, "plot_wavelength"),
-            )
-
-            np.testing.assert_allclose(
-                plotter.plot_frequency.cgs.value,
-                self.hdf_file.get_node(group, "plot_frequency"),
-            )
-
-            np.testing.assert_allclose(
-                plotter.modeled_spectrum_luminosity.cgs.value,
-                self.hdf_file.get_node(group, "modeled_spectrum_luminosity"),
-            )
-
-            np.testing.assert_allclose(
-                plotter.packet_wvl_range_mask,
-                self.hdf_file.get_node(group, "packet_wvl_range_mask"),
+    @pytest.mark.parametrize("attributes", plotting_data_attributes)
+    def test_calculate_plotting_data(self, plotter_calculate_plotting_data, request, attributes ):
+        regression_data = RegressionData(request)
+        attribute_type, attribute_name = attributes
+        if attribute_type == "attributes_np":
+            plot_object = getattr(plotter_calculate_plotting_data, attribute_name)
+            if isinstance(plot_object, astropy.units.quantity.Quantity):
+                plot_object = plot_object.cgs.value
+            data = regression_data.sync_ndarray(
+                plot_object
             )
             np.testing.assert_allclose(
-                plotter.absorption_species,
-                self.hdf_file.get_node(group, "absorption_species"),
+                plot_object, data
             )
-
-            np.testing.assert_allclose(
-                plotter.emission_species,
-                self.hdf_file.get_node(group, "emission_species"),
-            )
-
-            if isinstance(plotter.lum_to_flux, u.quantity.Quantity):
-                assert (
-                    plotter.lum_to_flux.cgs.value
-                    == self.hdf_file.get_node(group, "lum_to_flux"),
-                )
-            else:
-                assert plotter.lum_to_flux == self.hdf_file.get_node(
-                    group, "lum_to_flux"
-                )
-            np.testing.assert_allclose(
-                plotter.species.astype(np.float64),
-                self.hdf_file.get_node(group, "species"),
+        elif attribute_type == "attributes_np":
+            plot_object = getattr(plotter_calculate_plotting_data, attribute_name)
+            data = regression_data.sync_dataframe(
+                plot_object
             )
             pd.testing.assert_frame_equal(
-                plotter.absorption_luminosities_df,
-                pd.read_hdf(
-                    self.hdf_file.filename,
-                    key=f"{subgroup_name}/absorption_luminosities_df",
-                ),
+                plot_object, data
             )
-            pd.testing.assert_frame_equal(
-                plotter.emission_luminosities_df,
-                pd.read_hdf(
-                    self.hdf_file.filename,
-                    key=f"{subgroup_name}/emission_luminosities_df",
-                ),
-            )
-            pd.testing.assert_frame_equal(
-                plotter.total_luminosities_df,
-                pd.read_hdf(
-                    self.hdf_file.filename,
-                    key=f"{subgroup_name}/total_luminosities_df",
-                ),
-            )
-
+            
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
     @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
