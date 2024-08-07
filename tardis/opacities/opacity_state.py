@@ -58,8 +58,6 @@ class OpacityState:
         """
         if macroatom_state is None and hasattr(plasma.atomic_data, "macro_atom_data"):
             macroatom_state = MacroAtomState.from_legacy_plasma(plasma)
-        else:
-            macroatom_state = None
 
         if hasattr(plasma, "photo_ion_cross_sections"):
             continuum_state = ContinuumState.from_legacy_plasma(plasma)
