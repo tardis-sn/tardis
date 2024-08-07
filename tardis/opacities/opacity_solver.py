@@ -27,7 +27,7 @@ class OpacitySolver(object):
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
         if (
-            self.line_interaction_type == "macroatom"
+            self.line_interaction_type in ("macroatom", "downbranch") # TODO: Fix this
         ):  # Need a switch to use the continuum solver
             self.macro_atom_solver = MacroAtomSolver()
         else:
