@@ -71,7 +71,7 @@ FF_OPAC_CONST = (
 )  # See Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
 
 
-class YGSolver(CollisionalCrossSections):
+class YGSolver:
     """
     Attributes
     ----------
