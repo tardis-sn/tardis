@@ -9,7 +9,9 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 
-class TransitionProbabilities(ProcessingPlasmaProperty):
+class TransitionProbabilities(
+    ProcessingPlasmaProperty
+):  # Base MacroAtom Property
     """
     Attributes
     ----------
@@ -137,5 +139,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             return atomic_data.macro_atom_data_all
 
 
-class NonMarkovChainTransitionProbabilities(TransitionProbabilities):
+class NonMarkovChainTransitionProbabilities(
+    TransitionProbabilities
+):  # Continuum Only
     outputs = ("non_markov_transition_probabilities",)
