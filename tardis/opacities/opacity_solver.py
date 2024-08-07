@@ -77,7 +77,7 @@ class OpacitySolver(object):
                 legacy_plasma.stimulated_emission_factor,
             )
 
-        if self.line_interaction_type != "scatter":
+        if self.line_interaction_type != "scatter" or not montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
             macroatom_state = self.macro_atom_solver.solve(
                 legacy_plasma,
                 atomic_data,
