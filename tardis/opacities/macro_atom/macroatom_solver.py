@@ -106,6 +106,7 @@ class MacroAtomSolver:
             combined_transition_probs,
             transition_type,
             destination_level_id,
+            transition_line_id,
             macro_block_references,
             legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
         )
