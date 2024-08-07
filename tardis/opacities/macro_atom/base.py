@@ -37,7 +37,6 @@ def calculate_non_markov_transition_probabilities(
         transition_probability_coef = get_transition_probability_coefs(
             macro_atom_data
         )
-        initialize = False
     transition_probabilities = calculate_non_markov_transition_probability(
         macro_atom_data,
         beta_sobolev,

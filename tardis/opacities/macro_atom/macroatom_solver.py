@@ -34,17 +34,15 @@ class MacroAtomSolver:
         if (
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         ):  # TODO: Unify this in the plasma solver
-            non_markov_transition_probabilities = (
-                calculate_non_markov_transition_probabilities(
-                    atomic_data,
-                    legacy_plasma.beta_sobolev,
-                    legacy_plasma.j_blues,
-                    legacy_plasma.stimulated_emission_factor,
-                    legacy_plasma.tau_sobolevs,
-                    initialize=self.initialize,
-                    normalize=self.normalize,
-                )
-            )
+            non_markov_transition_probabilities = calculate_non_markov_transition_probabilities(
+                atomic_data,
+                legacy_plasma.beta_sobolev,
+                legacy_plasma.j_blues,
+                legacy_plasma.stimulated_emission_factor,
+                legacy_plasma.tau_sobolevs,
+                initialize=self.initialize,
+                normalize=self.normalize,
+            )  # I don't think we need to combine things when we are not using the continuum
             self.initialize = False
         else:
             non_markov_transition_probabilities = (
