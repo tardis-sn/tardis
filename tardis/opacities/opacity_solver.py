@@ -69,7 +69,7 @@ class OpacitySolver(object):
                 legacy_plasma.stimulated_emission_factor,
             )
 
-        if self.line_interaction_type == "macroatom":
+        if self.line_interaction_type in ("macroatom", "downbranch"):
             macroatom_state = self.macro_atom_solver.solve(
                 legacy_plasma,
                 atomic_data,
