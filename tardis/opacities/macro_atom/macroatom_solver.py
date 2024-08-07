@@ -75,7 +75,7 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
         return MacroAtomState(
             transition_probabilities,
             macro_atom_info["transition_type"],
-            macro_atom_info["destination_level_id"],
+            macro_atom_info["destination_level_idx"],
             macro_atom_info["lines_idx"],
             macro_block_references,
             legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
@@ -172,7 +172,7 @@ class MacroAtomContinuumSolver(MacroAtomSolver):
         return MacroAtomState(
             transition_probabilities,
             macro_atom_info["transition_type"],
-            macro_atom_info["destination_level_id"],
+            macro_atom_info["destination_level_idx"],
             macro_atom_info["lines_idx"],
             macro_block_references,
             legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
