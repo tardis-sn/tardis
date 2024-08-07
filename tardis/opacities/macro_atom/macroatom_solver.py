@@ -25,12 +25,8 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
         self.initialize = initialize
         self.normalize = normalize
 
-    def solve(
-        self, legacy_plasma, atomic_data, continuum_interaction_species=None
-    ):
+    def solve_non_markov_transition_probabilities(self, atomic_data, legacy_plasma):
 
-        # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
-        # Make the combined transition probabilities something that is configurable in the class
         non_markov_transition_probabilities = (
             calculate_non_markov_transition_probabilities(
                 atomic_data,
@@ -43,6 +39,16 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
             )
         )
         self.initialize = False
+
+        return non_markov_transition_probabilities
+
+    def solve(
+        self, legacy_plasma, atomic_data, continuum_interaction_species=None
+    ):
+
+        # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
+        # Make the combined transition probabilities something that is configurable in the class
+        non_markov_transition_probabilities = self.solve_non_markov_transition_probabilities(atomic_data, legacy_plasma)
 
         if (
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
