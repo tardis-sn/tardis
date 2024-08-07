@@ -50,7 +50,7 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
 
         # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
         # Make the combined transition probabilities something that is configurable in the class
-        non_markov_transition_probabilities = (
+        transition_probabilities = (
             self.solve_non_markov_transition_probabilities(
                 atomic_data, legacy_plasma
             )
@@ -60,7 +60,6 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
             "block_references"
         ]
         macro_atom_info = legacy_plasma.macro_atom_data
-        transition_probabilities = non_markov_transition_probabilities
 
         return MacroAtomState(
             transition_probabilities,
