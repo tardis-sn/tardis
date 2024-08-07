@@ -31,12 +31,22 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
 
         # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
         # Make the combined transition probabilities something that is configurable in the class
+        non_markov_transition_probabilities = (
+            calculate_non_markov_transition_probabilities(
+                atomic_data,
+                legacy_plasma.beta_sobolev,
+                legacy_plasma.j_blues,
+                legacy_plasma.stimulated_emission_factor,
+                legacy_plasma.tau_sobolevs,
+                initialize=self.initialize,
+                normalize=self.normalize,
+            )
+        )
+        self.initialize = False
+
         if (
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         ):  # TODO: Unify this in the plasma solver
-            non_markov_transition_probabilities = (
-                legacy_plasma.non_markov_transition_probabilities
-            )
 
             level_idxs2transition_idx = legacy_plasma.level_idxs2transition_idx
             cool_rate_fb = legacy_plasma.cool_rate_fb
@@ -111,16 +121,6 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
 
         else:
 
-            non_markov_transition_probabilities = calculate_non_markov_transition_probabilities(
-                atomic_data,
-                legacy_plasma.beta_sobolev,
-                legacy_plasma.j_blues,
-                legacy_plasma.stimulated_emission_factor,
-                legacy_plasma.tau_sobolevs,
-                initialize=self.initialize,
-                normalize=self.normalize,
-            )  # I don't think we need to combine things when we are not using the continuum
-            self.initialize = False
             continuum_interaction_species = []
             macro_block_references = atomic_data.macro_atom_references[
                 "block_references"
