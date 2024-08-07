@@ -381,6 +381,7 @@ def calculate_deactivation_channel_probs(
     p_deactivation,
     fb_cooling_probs,
     idx2deactivation_idx,
+    B,
 ):
 
     deactivation_channel_probs = p_deactivation.copy()
