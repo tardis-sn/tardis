@@ -2,15 +2,14 @@
 Basic TARDIS Benchmark.
 """
 
+import functools
+
 import numpy as np
-from asv_runner.benchmarks.mark import parameterize
 
 import tardis.transport.montecarlo.vpacket as vpacket
-from tardis.transport.montecarlo.r_packet import RPacket
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-)
+from tardis.transport.frame_transformations import get_doppler_factor
+from tardis.transport.montecarlo.r_packet import RPacket
 
 
 class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
@@ -18,7 +17,18 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
     Class to benchmark the single packet loop function.
     """
 
-    @property
+    repeat = 5
+
+    def setup(self):
+        self.vpacket = self.v_packet
+        self.numba_radial_1d_geometry = self.verysimple_numba_radial_1d_geometry
+        self.time_explosion = self.verysimple_time_explosion
+        self.opacity_state = self.verysimple_opacity_state
+        self.tau_russian = self.verysimple_tau_russian
+        self.survival_probability = self.verysimple_survival_probability
+        self.enable_full_relativity = self.verysimple_enable_full_relativity
+
+    @functools.cached_property
     def v_packet(self):
         return vpacket.VPacket(
             r=7.5e14,
@@ -30,7 +40,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             index=0,
         )
 
-    @property
+    @functools.cached_property
     def r_packet(self):
         return RPacket(
             r=7.5e14,
@@ -41,6 +51,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             index=0,
         )
 
+    @functools.cache
     def v_packet_initialize_line_id(
         self, v_packet, opacity_state, time_explosion, enable_full_relativity
     ):
@@ -55,63 +66,45 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         v_packet.next_line_id = next_line_id
 
     def time_trace_vpacket_within_shell(self):
-        v_packet = self.v_packet
-        verysimple_numba_radial_1d_geometry = (
-            self.verysimple_numba_radial_1d_geometry
-        )
-        verysimple_time_explosion = self.verysimple_time_explosion
-        verysimple_opacity_state = self.verysimple_opacity_state
-        enable_full_relativity = self.verysimple_enable_full_relativity
-
         # Give the vpacket a reasonable line ID
         self.v_packet_initialize_line_id(
-            v_packet,
-            verysimple_opacity_state,
-            verysimple_time_explosion,
-            enable_full_relativity,
+            self.vpacket,
+            self.opacity_state,
+            self.time_explosion,
+            self.enable_full_relativity,
         )
 
         vpacket.trace_vpacket_within_shell(
-            v_packet,
-            verysimple_numba_radial_1d_geometry,
-            verysimple_time_explosion,
-            verysimple_opacity_state,
-            enable_full_relativity,
+            self.vpacket,
+            self.numba_radial_1d_geometry,
+            self.time_explosion,
+            self.opacity_state,
+            self.enable_full_relativity,
         )
 
     def time_trace_vpacket(self):
-        v_packet = self.v_packet
-        verysimple_numba_radial_1d_geometry = (
-            self.verysimple_numba_radial_1d_geometry
-        )
-        verysimple_time_explosion = self.verysimple_time_explosion
-        verysimple_opacity_state = self.verysimple_opacity_state
-        enable_full_relativity = self.verysimple_enable_full_relativity
-        tau_russian = self.verysimple_tau_russian
-        survival_probability = self.verysimple_survival_probability
-
         # Set seed because of RNG in trace_vpacket
         np.random.seed(1)
 
         # Give the vpacket a reasonable line ID
         self.v_packet_initialize_line_id(
-            v_packet,
-            verysimple_opacity_state,
-            verysimple_time_explosion,
-            enable_full_relativity,
+            self.vpacket,
+            self.opacity_state,
+            self.time_explosion,
+            self.enable_full_relativity,
         )
 
         vpacket.trace_vpacket(
-            v_packet,
-            verysimple_numba_radial_1d_geometry,
-            verysimple_time_explosion,
-            verysimple_opacity_state,
-            tau_russian,
-            survival_probability,
-            enable_full_relativity,
+            self.vpacket,
+            self.numba_radial_1d_geometry,
+            self.time_explosion,
+            self.opacity_state,
+            self.tau_russian,
+            self.survival_probability,
+            self.enable_full_relativity,
         )
 
-    @property
+    @functools.cached_property
     def broken_packet(self):
         return vpacket.VPacket(
             r=1286064000000000.0,
@@ -125,41 +118,25 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
 
     def time_trace_bad_vpacket(self):
         broken_packet = self.broken_packet
-        verysimple_numba_radial_1d_geometry = (
-            self.verysimple_numba_radial_1d_geometry
-        )
-        enable_full_relativity = self.verysimple_enable_full_relativity
-        verysimple_time_explosion = self.verysimple_time_explosion
-        verysimple_opacity_state = self.verysimple_opacity_state
-        tau_russian = self.verysimple_tau_russian
-        survival_probability = self.verysimple_survival_probability
 
         vpacket.trace_vpacket(
             broken_packet,
-            verysimple_numba_radial_1d_geometry,
-            verysimple_time_explosion,
-            verysimple_opacity_state,
-            tau_russian,
-            survival_probability,
-            enable_full_relativity,
+            self.numba_radial_1d_geometry,
+            self.time_explosion,
+            self.opacity_state,
+            self.tau_russian,
+            self.survival_probability,
+            self.enable_full_relativity,
         )
 
-    @parameterize(
-        {
-            "Paramters": [
-                {"tau_russian": 10.0, "survival_possibility": 0.0},
-                {"tau_russian": 15.0, "survival_possibility": 0.1},
-            ]
-        }
-    )
-    def time_trace_vpacket_volley(self, parameters):
+    def time_trace_vpacket_volley(self):
         vpacket.trace_vpacket_volley(
             self.r_packet,
             self.verysimple_3vpacket_collection,
-            self.verysimple_numba_radial_1d_geometry,
-            self.verysimple_time_explosion,
-            self.verysimple_opacity_state,
-            False,
-            parameters["tau_russian"],
-            parameters["survival_possibility"]
+            self.numba_radial_1d_geometry,
+            self.time_explosion,
+            self.opacity_state,
+            self.enable_full_relativity,
+            self.tau_russian,
+            self.survival_probability,
         )

@@ -4,6 +4,7 @@ import numpy as np
 
 from tardis.transport.montecarlo.r_packet import InteractionType
 from tardis.transport.montecarlo.packet_trackers import (
+    RPacketTracker,
     rpacket_trackers_to_dataframe,
 )
 
@@ -100,6 +101,17 @@ def nu_rpacket_tracker(rpacket_tracker):
         nu[i] = rpacket_tracker[i].nu[-2]
 
     return nu
+
+
+def test_extend_array():
+    rpacket_tracker = RPacketTracker(10)
+    array = np.array([1, 2, 3, 4, 5], dtype=np.int64)
+
+    new_array = rpacket_tracker.extend_array(array, array.size)
+
+    assert new_array.size == array.size * rpacket_tracker.extend_factor
+    assert new_array.dtype == array.dtype
+    npt.assert_allclose(array, new_array[: array.size])
 
 
 @pytest.mark.parametrize(
