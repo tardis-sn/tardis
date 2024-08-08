@@ -12,6 +12,21 @@ logger = logging.getLogger(__name__)
 def initialize_non_markov_transition_probabilities(
     atomic_data,
 ):
+    """Convienience Function for initializing the transition probabilities
+
+    Parameters
+    ----------
+    atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+
+    Returns
+    -------
+    dict
+        "transition_probability_coef" : np.ndarray
+            Reshaped macro atom transition probabilities
+        "block_references": np.ndarray
+            macro atom block references
+    """
     macro_atom_data = get_macro_atom_data(atomic_data)
     (
         transition_up_filter,
@@ -40,6 +55,32 @@ def calculate_non_markov_transition_probabilities(
     block_references,
     normalize=True,
 ):
+    """Computes non-markov transition probabilities and provides them as a pd.DataFrame
+
+    Parameters
+    ----------
+    atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+    beta_sobolev : pd.DataFrame
+        Beta Sobolevs
+    j_blues : pd.DataFrame
+        mean intensity
+    stimulated_emission_factor : np.ndarray
+        Stimulated Emission Factors
+    tau_sobolev : pd.DataFrame
+            Expansion Optical Depths
+    transition_probability_coef : np.ndarray
+        Reshaped macro atom transition probabilities
+    block_references : np.ndarray
+        macro atom block references
+    normalize : bool
+        Whether or not to normalize the transition probabilities to unity
+
+    Returns
+    -------
+    pd.DataFrame
+        transition probabilities
+    """
     # I wonder why?
     # Not sure who wrote this but the answer is that when the plasma is
     # first initialised (before the first iteration, without temperature
@@ -75,6 +116,29 @@ def calculate_non_markov_transition_probability(
     block_references,
     normalize,
 ):
+    """Calculate the non-markov transition probabilities using optimized functions
+    Parameters
+    ----------
+    macro_atom_data : pd.DataFrame
+        Macro Atom Data
+    beta_sobolev : pd.DataFrame
+        Beta Sobolevs
+    j_blues : pd.DataFrame
+        mean intensity
+    stimulated_emission_factor : np.ndarray
+        Stimulated Emission Factors
+    transition_probability_coef : np.ndarray
+        Reshaped macro atom transition probabilities
+    block_references : np.ndarray
+        macro atom block references
+    normalize : bool
+        Whether or not to normalize the transition probabilities to unity
+
+    Returns
+    -------
+    np.ndarray
+        transition probabilities
+    """
     transition_probabilities = np.empty(
         (transition_probability_coef.shape[0], beta_sobolev.shape[1])
     )
@@ -97,6 +161,24 @@ def calculate_non_markov_transition_probability(
 
 
 def initialize_macro_atom_transition_type_filters(atomic_data, macro_atom_data):
+    """Get the filters and block references from the macro atom
+
+    Parameters
+    ----------
+    atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+    macro_atom_data : pd.DataFrame
+        Macro Atom Data
+
+    Returns
+    -------
+    np.ndarray
+        Mask where the transition type is 1
+    np.ndarray
+        index of lines at these locations
+    pd.ndarray
+        macro atom block references
+    """
     transition_up_filter = macro_atom_data.transition_type.values == 1
     transition_up_line_filter = macro_atom_data.lines_idx.values[
         transition_up_filter
@@ -112,10 +194,34 @@ def initialize_macro_atom_transition_type_filters(atomic_data, macro_atom_data):
 
 
 def get_transition_probability_coefs(macro_atom_data):
+    """Coefficients of the transition probabilities
+
+    Parameters
+    ----------
+    macro_atom_data : pd.DataFrame
+        Macro Atom Data
+
+    Returns
+    -------
+    np.ndarray
+        Reshaped macro atom transition probabilities
+    """
     return macro_atom_data.transition_probability.values[np.newaxis].T
 
 
 def get_macro_atom_data(atomic_data):
+    """Get the macro atom data from the atomic data
+
+    Parameters
+    ----------
+    atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+
+    Returns
+    -------
+    pd.DataFrame
+        The macro atom data in the plasma
+    """
     try:
         return atomic_data.macro_atom_data
     except:
