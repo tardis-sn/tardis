@@ -216,6 +216,7 @@ class LIVPlotter:
 
         plot_colors = []
         plot_data = []
+        species_not_wvl_range = []
         species_counter = 0
 
         for specie_list in self._species_mapped.values():
@@ -223,13 +224,11 @@ class LIVPlotter:
             for specie in specie_list:
                 if specie in self.species:
                     if specie not in groups.groups:
-                        # atomic_number = specie // 100
-                        # ion_number = specie % 100
-                        # ion_numeral = int_to_roman(ion_number + 1)
-                        # label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
-                        # logger.warning(
-                        #     f"Species {label} not found in the wavelength range."
-                        # )
+                        atomic_number = specie // 100
+                        ion_number = specie % 100
+                        ion_numeral = int_to_roman(ion_number + 1)
+                        label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
+                        species_not_wvl_range.append(label)
                         continue
                     g_df = groups.get_group(specie)
                     r_last_interaction = (
@@ -243,7 +242,10 @@ class LIVPlotter:
                 plot_data.append(full_v_last)
                 plot_colors.append(self._color_list[species_counter])
                 species_counter += 1
-
+        if species_not_wvl_range:
+            logger.info(
+                f"{species_not_wvl_range} were not found in the provided wavelength range."
+            )
         return plot_data, plot_colors
 
     def _prepare_plot_data(
