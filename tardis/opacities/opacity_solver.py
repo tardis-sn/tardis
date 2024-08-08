@@ -5,6 +5,7 @@ from tardis.opacities.opacity_state import (
 from tardis.opacities.macro_atom.macroatom_solver import (
     MacroAtomSolver,
 )
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 import numpy as np
 import pandas as pd
 
@@ -79,7 +80,9 @@ class OpacitySolver(object):
             )
 
         if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-            macroatom_state = None  # TODO: Impliment
+            macroatom_state = MacroAtomState.from_legacy_plasma(
+                legacy_plasma
+            )  # TODO: Impliment
 
         elif self.line_interaction_type in (
             "downbranch",
