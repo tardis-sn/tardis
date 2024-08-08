@@ -25,6 +25,7 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
+from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
@@ -103,6 +104,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     model : tardis.model.SimulationState
     plasma : tardis.plasma.BasePlasma
     transport : tardis.transport.montecarlo.MontecarloTransport
+    opacity : tardis.opacities.opacity_solver.OpacitySolver
     no_of_packets : int
     last_no_of_packets : int
     no_of_virtual_packets : int
@@ -130,6 +132,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         simulation_state,
         plasma,
         transport,
+        opacity,
         no_of_packets,
         no_of_virtual_packets,
         luminosity_nu_start,
@@ -152,6 +155,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.simulation_state = simulation_state
         self.plasma = plasma
         self.transport = transport
+        self.opacity = opacity
         self.no_of_packets = no_of_packets
         self.last_no_of_packets = last_no_of_packets
         self.no_of_virtual_packets = no_of_virtual_packets
@@ -439,8 +443,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
 
+        opacity_state = self.opacity.solve(self.plasma)
+
         transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
+            opacity_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
@@ -695,6 +702,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         atom_data=None,
         plasma=None,
         transport=None,
+        opacity=None,
         **kwargs,
     ):
         """
@@ -752,6 +760,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 packet_source=simulation_state.packet_source,
                 enable_virtual_packet_logging=virtual_packet_logging,
             )
+        if opacity is None:
+            opacity = OpacitySolver(
+                config.plasma.line_interaction_type,
+                config.plasma.disable_line_scattering,
+            )
 
         convergence_plots_config_options = [
             "plasma_plot_config",
@@ -791,6 +804,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             simulation_state=simulation_state,
             plasma=plasma,
             transport=transport,
+            opcacity=opacity,
             show_convergence_plots=show_convergence_plots,
             no_of_packets=int(config.montecarlo.no_of_packets),
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),

@@ -37,8 +37,6 @@ from tardis.util.base import (
     update_iterations_pbar,
 )
 
-from tardis.opacities.opacity_solver import OpacitySolver
-
 logger = logging.getLogger(__name__)
 
 
@@ -96,14 +94,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
 
-        self.opacity_solver = OpacitySolver(
-            self.line_interaction_type,
-            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-        )
-
     def initialize_transport_state(
         self,
         simulation_state,
+        opacity_state,
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
@@ -120,7 +114,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         geometry_state = simulation_state.geometry.to_numba()
 
-        opacity_state = self.opacity_solver.solve(plasma)
         opacity_state_numba = opacity_state_to_numba(
             opacity_state, self.opacity_solver.line_interaction_type
         )
