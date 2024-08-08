@@ -15,6 +15,7 @@ from tardis.opacities.macro_atom.transition_probabilities import (
 )
 from tardis.opacities.macro_atom.base import (
     calculate_non_markov_transition_probabilities,
+    initialize_non_markov_transition_probabilities,
 )
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
@@ -25,6 +26,17 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
         self.initialize = initialize
         self.normalize = normalize
 
+    def initialize_non_markov_transition_probabilities(self, atomic_data):
+
+        coef_and_block_ref = initialize_non_markov_transition_probabilities(
+            atomic_data
+        )
+        self.transition_probability_coef = coef_and_block_ref[
+            "transition_probability_coef"
+        ]
+        self.block_references = coef_and_block_ref["block_references"]
+        self.initialize = False
+
     def solve_non_markov_transition_probabilities(
         self,
         atomic_data,
@@ -32,6 +44,8 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
         tau_sobolev,
         stimulated_emission_factor,
     ):
+        if self.initialize:
+            self.initialize_non_markov_transition_probabilities(atomic_data)
 
         non_markov_transition_probabilities = (
             calculate_non_markov_transition_probabilities(
@@ -40,11 +54,11 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
                 legacy_plasma.j_blues,
                 stimulated_emission_factor,
                 tau_sobolev,
-                initialize=self.initialize,
+                self.transition_probability_coef,
+                self.block_references,
                 normalize=self.normalize,
             )
         )
-        #self.initialize = False  # TODO: Fix this
 
         return non_markov_transition_probabilities
 

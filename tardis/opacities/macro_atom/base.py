@@ -9,13 +9,35 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 
+def initialize_non_markov_transition_probabilities(
+    atomic_data,
+):
+    macro_atom_data = get_macro_atom_data(atomic_data)
+    (
+        transition_up_filter,
+        transition_up_line_filter,
+        block_references,
+    ) = initialize_macro_atom_transition_type_filters(
+        atomic_data, macro_atom_data
+    )
+    transition_probability_coef = get_transition_probability_coefs(
+        macro_atom_data
+    )
+
+    return {
+        "transition_probability_coef": transition_probability_coef,
+        "block_references": block_references,
+    }
+
+
 def calculate_non_markov_transition_probabilities(
     atomic_data,
     beta_sobolev,
     j_blues,
     stimulated_emission_factor,
     tau_sobolevs,
-    initialize=True,
+    transition_probability_coef,
+    block_references,
     normalize=True,
 ):
     # I wonder why?
@@ -26,17 +48,7 @@ def calculate_non_markov_transition_probabilities(
     if len(j_blues) == 0:
         return None
     macro_atom_data = get_macro_atom_data(atomic_data)
-    if initialize:
-        (
-            transition_up_filter,
-            transition_up_line_filter,
-            block_references,
-        ) = initialize_macro_atom_transition_type_filters(
-            atomic_data, macro_atom_data
-        )
-        transition_probability_coef = get_transition_probability_coefs(
-            macro_atom_data
-        )
+
     transition_probabilities = calculate_non_markov_transition_probability(
         macro_atom_data,
         beta_sobolev,
