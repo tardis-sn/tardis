@@ -9,10 +9,7 @@ from tardis.io.atom_data.collision_data import CollisionData
 from tardis.io.atom_data.macro_atom_data import MacroAtomData
 from tardis.io.atom_data.nlte_data import NLTEData
 from tardis.io.atom_data.simple_atom_data import SimpleAtomData
-from tardis.io.atom_data.util import (
-    resolve_atom_data_fname,
-    set_atom_data_attributes,
-)
+from tardis.io.atom_data.util import resolve_atom_data_fname
 from tardis.plasma.properties.continuum_processes.rates import (
     get_ground_state_multi_index,
 )
@@ -225,9 +222,11 @@ class AtomData:
 
             atom_data = cls(**dataframes)
 
-            set_atom_data_attributes(atom_data, store, "uuid1")
-            set_atom_data_attributes(atom_data, store, "md5")
-            set_atom_data_attributes(atom_data, store, "database_version")
+            cls.set_attributes_from_store(store, atom_data.uuid1, "uuid1")
+            cls.set_attributes_from_store(store, atom_data.md5, "md5")
+            cls.set_attributes_from_store(
+                store, atom_data.version, "database_version"
+            )
 
             # TODO: strore data sources as attributes in carsus
 
@@ -341,6 +340,12 @@ class AtomData:
         self.photo_ion_unique_index = None
         self.lines_upper2macro_reference_idx = None
         self.lines_lower2macro_reference_idx = None
+
+        # VERSIONING
+
+        self.uuid1 = None
+        self.md5 = None
+        self.version = None
 
     def _check_related(self):
         """
@@ -640,3 +645,26 @@ class AtomData:
 
     def __repr__(self):
         return f"<Atomic Data UUID={self.uuid1} MD5={self.md5} Lines={self.lines.line_id.count():d} Levels={self.levels.energy.count():d}>"
+
+    def set_attributes_from_store(store, attribute, store_key):
+        """Sets arbitrary atom data attributes, throws error and sets to None
+        if they are not available.
+
+        Parameters
+        ----------
+        atom_data : AtomData
+            The atom data to modify
+        store : pd.HDFStore
+            Data source
+        property : str
+            Property to modify
+        """
+        try:
+            attribute = store.root._v_attrs[store_key]
+            if hasattr(attribute, "decode"):
+                attribute = (store.root._v_attrs[attribute].decode("ascii"),)
+        except KeyError:
+            logger.debug(
+                f"{attribute} not available for Atom Data. Setting value to None"
+            )
+            attribute = None
