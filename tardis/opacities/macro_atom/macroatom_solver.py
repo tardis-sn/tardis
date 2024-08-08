@@ -61,7 +61,7 @@ class MacroAtomSolver(
             legacy base plasma
         tau_sobolev : pd.DataFrame
             Expansion Optical Depths
-        stimulated_emission_factor : pd.DataFrame
+        stimulated_emission_factor : np.ndarray
 
         Returns
         -------
