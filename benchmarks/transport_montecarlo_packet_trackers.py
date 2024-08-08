@@ -27,7 +27,7 @@ class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
         )
 
     def time_generate_rpacket_tracker_list(self):
-        packet_trackers.generate_rpacket_tracker_list(10, 50)
+        packet_trackers.generate_rpacket_tracker_list(50, 10)
 
     def time_generate_rpacket_last_interaction_tracker_list(self):
-        packet_trackers.generate_rpacket_last_interaction_tracker_list(10)
+        packet_trackers.generate_rpacket_last_interaction_tracker_list(50)
