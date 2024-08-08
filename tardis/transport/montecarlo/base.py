@@ -115,7 +115,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         geometry_state = simulation_state.geometry.to_numba()
 
         opacity_state_numba = opacity_state_to_numba(
-            opacity_state, self.opacity_solver.line_interaction_type
+            opacity_state, self.line_interaction_type
         )
         opacity_state_numba = opacity_state_numba[
             simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
