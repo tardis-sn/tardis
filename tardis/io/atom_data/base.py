@@ -5,7 +5,10 @@ import pandas as pd
 from astropy.units import Quantity
 
 from tardis import constants as const
-from tardis.io.atom_data.collision_data import CollisionData
+from tardis.io.atom_data.collision_data import (
+    ChiantiCollisionData,
+    CMFGENCollisionData,
+)
 from tardis.io.atom_data.macro_atom_data import MacroAtomData
 from tardis.io.atom_data.nlte_data import NLTEData
 from tardis.io.atom_data.util import resolve_atom_data_fname
@@ -307,18 +310,22 @@ class AtomData:
 
         self.zeta_data = zeta_data
 
-        collected_collision_data = CollisionData(
-            collision_data, collision_data_temperatures, yg_data
+        chianti_collision_data = ChiantiCollisionData(
+            collision_data, collision_data_temperatures
         )
 
-        self.collision_data = collected_collision_data.data
-        self.collision_data_temperatures = collected_collision_data.temperatures
+        cmfgen_collision_data = CMFGENCollisionData(
+            yg_data, collision_data_temperatures
+        )
+
+        self.collision_data = chianti_collision_data.data
+        self.collision_data_temperatures = chianti_collision_data.temperatures
 
         self.synpp_refs = synpp_refs
 
         self.photoionization_data = photoionization_data
 
-        self.yg_data = collected_collision_data.yg
+        self.yg_data = cmfgen_collision_data.data
 
         self.two_photon_data = two_photon_data
 
