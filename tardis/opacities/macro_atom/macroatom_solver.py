@@ -106,6 +106,9 @@ class MacroAtomContinuumSolver(MacroAtomSolver):
         continuum_interaction_species=None,
     ):
 
+        if continuum_interaction_species is None: # TODO: Fix this
+            continuum_interaction_species = legacy_plasma.continuum_interaction_species
+
         non_markov_transition_probabilities = (
             self.solve_non_markov_transition_probabilities(
                 atomic_data,
