@@ -5,13 +5,35 @@ from tardis.opacities.macro_atom.base import (
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
 
-class MacroAtomSolver:  # Possibly make two classes, one for normal and one for continuum
+class MacroAtomSolver(
+    object
+):  # Possibly make two classes, one for normal and one for continuum
+
+    initialize: bool = True
+    normalize: bool = True
+
     def __init__(self, initialize=True, normalize=True):
+        """Solver class for Macro Atom related opacities
+
+        Parameters
+        ----------
+        initialize: bool
+            Whether or not to initialize the transition probabilitiy coefficients and block references when solving the first time (default True)
+        normalize: bool
+            Whether or not to normalize the transition probabilities to unity. Default True
+        """
 
         self.initialize = initialize
         self.normalize = normalize
 
     def initialize_non_markov_transition_probabilities(self, atomic_data):
+        """initialize the transition probabilitiy coefficients and block references when solving the first time
+
+        Parameters
+        ----------
+        atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+        """
 
         coef_and_block_ref = initialize_non_markov_transition_probabilities(
             atomic_data
@@ -29,6 +51,23 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
         tau_sobolev,
         stimulated_emission_factor,
     ):
+        """Solve the basic transition probabilities for the macroatom
+
+        Parameters
+        ----------
+        atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+        legacy_plasma : tarids.plasma.BasePlasma
+            legacy base plasma
+        tau_sobolev : pd.DataFrame
+            Expansion Optical Depths
+        stimulated_emission_factor : pd.DataFrame
+
+        Returns
+        -------
+        pd.DataFrame
+            Transition Probabilities
+        """
         if self.initialize:
             self.initialize_non_markov_transition_probabilities(atomic_data)
 
@@ -54,6 +93,23 @@ class MacroAtomSolver:  # Possibly make two classes, one for normal and one for 
         tau_sobolev,
         stimulated_emission_factor,
     ):
+        """Solved the Macro Atom State
+
+        Parameters
+        ----------
+        legacy_plasma : tarids.plasma.BasePlasma
+            legacy base plasma
+        atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+        tau_sobolev : pd.DataFrame
+            Expansion Optical Depths
+        stimulated_emission_factor : pd.DataFrame
+
+        Returns
+        -------
+        tardis.opacities.macroatom_state.MacroAtomState
+            State of the macro atom ready to be placed into the OpacityState
+        """
 
         # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
         # Make the combined transition probabilities something that is configurable in the class
