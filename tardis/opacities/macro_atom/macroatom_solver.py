@@ -106,8 +106,10 @@ class MacroAtomContinuumSolver(MacroAtomSolver):
         continuum_interaction_species=None,
     ):
 
-        if continuum_interaction_species is None: # TODO: Fix this
-            continuum_interaction_species = legacy_plasma.continuum_interaction_species
+        if continuum_interaction_species is None:  # TODO: Fix this
+            continuum_interaction_species = (
+                legacy_plasma.continuum_interaction_species
+            )
 
         non_markov_transition_probabilities = (
             self.solve_non_markov_transition_probabilities(
@@ -125,7 +127,18 @@ class MacroAtomContinuumSolver(MacroAtomSolver):
 
         p_combined_args = [
             getattr(legacy_plasma, item)
-            for item in ("p_rad_bb",)
+            for item in (
+                "p_rad_bb",
+                "p_recomb",
+                "p_coll",
+                "p_two_photon",
+                "cool_rate_adiabatic",
+                "cool_rate_ff",
+                "cool_rate_fb_tot",
+                "p_coll_ion",
+                "p_coll_recomb",
+                "cool_rate_coll_ion",
+            )
             if hasattr(legacy_plasma, item)
         ]  # Maybe do this in the init
         p_combined_args = (
