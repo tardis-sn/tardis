@@ -804,7 +804,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             simulation_state=simulation_state,
             plasma=plasma,
             transport=transport,
-            opcacity=opacity,
+            opacity=opacity,
             show_convergence_plots=show_convergence_plots,
             no_of_packets=int(config.montecarlo.no_of_packets),
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),
