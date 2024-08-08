@@ -119,30 +119,6 @@ class SpMatrixSeriesConverterMixin:
         return series
 
 
-def calculate_markov_chain_index(atomic_data, continuum_interaction_species):
-
-    ma_ref = atomic_data.macro_atom_references
-    mask = ma_ref.index.droplevel("source_level_number").isin(
-        continuum_interaction_species
-    )
-    mask2 = ma_ref.index.isin(
-        get_ground_state_multi_index(continuum_interaction_species)
-    )
-    mask = np.logical_or(mask, mask2)
-    idx = ma_ref[mask].references_idx.values
-    idx2mkv_idx = pd.Series(np.arange(len(idx)), index=idx)
-    idx2mkv_idx.loc["k"] = idx2mkv_idx.max() + 1
-
-    k_packet_idx = ma_ref.references_idx.max() + 1
-
-    idx2deactivation_idx = idx2mkv_idx + k_packet_idx + 1
-    return {
-        "idx2mkv_idx": idx2mkv_idx,
-        "k_packet_idx": k_packet_idx,
-        "idx2deactivation_idx": idx2deactivation_idx,
-    }
-
-
 class MarkovChainIndex(ProcessingPlasmaProperty):
     """
     Attributes
@@ -174,20 +150,6 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
         return idx2mkv_idx, k_packet_idx, idx2deactivation_idx
 
 
-def calculate_non_continuum_trans_probs_mask(
-    atomic_data, continuum_interaction_species
-):
-
-    # I don't have to remove the ground states of
-    # the next higher ionization states of the continuum species
-    # since they only contain zero probabilities.
-    continuum_trans_probs_mask = atomic_data.macro_atom_data.set_index(
-        ["atomic_number", "ion_number"]
-    ).index.isin(continuum_interaction_species)
-    non_continuum_trans_probs_mask = np.logical_not(continuum_trans_probs_mask)
-    return {"non_continuum_trans_probs_mask": non_continuum_trans_probs_mask}
-
-
 class NonContinuumTransProbsMask(ProcessingPlasmaProperty):
     """
     Attributes
@@ -210,13 +172,6 @@ class NonContinuumTransProbsMask(ProcessingPlasmaProperty):
         return non_continuum_trans_probs_mask
 
 
-def calculate_p_combined(*args):
-    p = pd.concat(args)
-    p = p.groupby(level=[0, 1, 2]).sum()
-    p_combined = normalize_trans_probs(p)
-    return p_combined
-
-
 class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
     """
     Attributes
@@ -237,38 +192,6 @@ class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
         p = p.groupby(level=[0, 1, 2]).sum()
         p = normalize_trans_probs(p)
         return p
-
-
-def calculate_markov_chain_transition_probs(p_combined, idx2mkv_idx):
-    p = p_combined
-    p_internal = p.xs(0, level="transition_type")
-    p_deactivation = normalize_trans_probs(p.xs(-1, level="transition_type"))
-
-    N = pd.DataFrame(columns=p_internal.columns)
-    B = pd.DataFrame(columns=p_internal.columns)
-    R = pd.DataFrame(columns=p_internal.columns, index=idx2mkv_idx.index)
-    R.index.name = "source_level_idx"
-    for column in p_internal:
-        Q = SpMatrixSeriesConverterMixin.series2matrix(
-            p_internal[column], idx2mkv_idx
-        )
-        inv_N = sp.identity(Q.shape[0]) - Q
-        N1 = sp.linalg.inv(inv_N.tocsc())
-        R1 = (1 - np.asarray(Q.sum(axis=1))).flatten()
-        B1 = N1.multiply(R1)
-        N1 = SpMatrixSeriesConverterMixin.matrix2series(
-            N1, idx2mkv_idx, names=p_internal.index.names
-        )
-        B1 = SpMatrixSeriesConverterMixin.matrix2series(
-            B1, idx2mkv_idx, names=p_internal.index.names
-        )
-        N[column] = N1
-        B[column] = B1
-        R[column] = R1
-    N = N.sort_index()
-    B = B.sort_index()
-
-    return {"N": N, "R": R, "B": B, "p_deactivation": p_deactivation}
 
 
 class MarkovChainTransProbs(
@@ -330,159 +253,6 @@ class MarkovChainTransProbs(
         N = N.sort_index()
         B = B.sort_index()
         return N, R, B, p_deactivation
-
-
-def calculate_non_continuum_transitions_probs(
-    atomic_data,
-    non_markov_transition_probabilities,
-    non_continuum_trans_probs_mask,
-):
-
-    macro_atom_data = atomic_data.macro_atom_data
-    transition_info = macro_atom_data[
-        ["lines_idx", "transition_type"]
-    ].set_index(non_markov_transition_probabilities.index)
-    non_continuum_trans_probs = pd.concat(
-        [transition_info, non_markov_transition_probabilities], axis=1
-    )
-    index = macro_atom_data.set_index(
-        ["source_level_idx", "destination_level_idx"]
-    ).index
-    non_continuum_trans_probs = non_continuum_trans_probs.set_index(index)
-    non_continuum_trans_probs = non_continuum_trans_probs[
-        non_continuum_trans_probs_mask
-    ]
-
-    return non_continuum_trans_probs
-
-
-def calculate_level_absorption_probs(B, k_packet_idx, idx2deactivation_idx):
-
-    level_absorption_probs = B.copy()
-    level_absorption_probs.insert(0, "lines_idx", -1)
-    level_absorption_probs.insert(0, "transition_type", 3)
-    destination_level_idx = level_absorption_probs.index.get_level_values(
-        "destination_level_idx"
-    )
-    source_level_idx = level_absorption_probs.rename(
-        index={"k": k_packet_idx}
-    ).index.get_level_values("source_level_idx")
-    destination_level_idx = idx2deactivation_idx.loc[destination_level_idx]
-    absorption_index = pd.MultiIndex.from_arrays(
-        [source_level_idx, destination_level_idx], names=B.index.names
-    )
-    level_absorption_probs.index = absorption_index
-
-    return level_absorption_probs
-
-
-def calculate_deactivation_channel_probs(
-    level_idxs2transition_idx,
-    p_deactivation,
-    fb_cooling_probs,
-    idx2deactivation_idx,
-    B,
-):
-
-    deactivation_channel_probs = p_deactivation.copy()
-    deactivation_channel_probs = pd.concat(
-        [
-            level_idxs2transition_idx.reindex(deactivation_channel_probs.index),
-            deactivation_channel_probs,
-        ],
-        axis=1,
-    ).reindex(deactivation_channel_probs.index)
-
-    deactivation_channel_probs = deactivation_channel_probs.drop(("k", "bf"))
-    deactivation_channel_probs = pd.concat(
-        [deactivation_channel_probs, fb_cooling_probs], sort=False
-    )
-
-    source_level_idx = deactivation_channel_probs.index.get_level_values(
-        "source_level_idx"
-    )
-
-    source_level_idx = idx2deactivation_idx.loc[source_level_idx]
-    destination_level_idx = np.ones_like(source_level_idx) * -1
-    deactivation_index = pd.MultiIndex.from_arrays(
-        [source_level_idx, destination_level_idx], names=B.index.names
-    )
-
-    deactivation_channel_probs.index = deactivation_index
-
-    return deactivation_channel_probs
-
-
-def calculate_fb_cooling_probs(
-    cool_rate_fb,
-    cool_rate_fb_tot,
-    p_deactivation,
-    level2continuum_idx,
-    level_idxs2transition_idx,
-):
-
-    fb_cooling_probs = (
-        cool_rate_fb
-        / cool_rate_fb_tot.values
-        * p_deactivation.loc[("k"), ("bf")]
-    )
-    continuum_idx = level2continuum_idx.loc[fb_cooling_probs.index].values
-    fb_cooling_probs.index = pd.MultiIndex.from_product(
-        [["k"], np.ones(len(fb_cooling_probs), dtype=int) * -1],
-        names=p_deactivation.index.names,
-    )
-    fb_cooling_probs.insert(0, "lines_idx", continuum_idx)
-    fb_cooling_probs.insert(
-        0,
-        "transition_type",
-        level_idxs2transition_idx.at[("k", "bf"), "transition_type"],
-    )
-
-    return fb_cooling_probs
-
-
-def calculate_combined_transition_probabilities(
-    level_absorption_probs,
-    deactivation_channel_probs,
-    non_continuum_trans_probs,
-):
-
-    combined_trans_probs = pd.concat(
-        [
-            level_absorption_probs,
-            deactivation_channel_probs,
-            non_continuum_trans_probs,
-        ]
-    )
-    combined_trans_probs = combined_trans_probs.sort_index()
-    combined_trans_probs = combined_trans_probs.drop(
-        ["lines_idx", "transition_type"], axis="columns"
-    )
-
-    return combined_trans_probs
-
-
-def calculate_macro_block_references(combined_trans_probs):
-
-    block_references = (
-        combined_trans_probs[0].groupby("source_level_idx").count().cumsum()
-    )
-    continous_index = np.arange(block_references.index.max() + 1)
-    block_references = (
-        block_references.reindex(continous_index).ffill().astype(int)
-    )  # This is needed because some macro atom levels have no transitions
-    block_references = np.pad(block_references, (1, 0), constant_values=0.0)
-
-    return block_references
-
-
-def calculate_macro_atom_info(combined_trans_probs):
-
-    macro_atom_info = combined_trans_probs[
-        ["transition_type", "lines_idx"]
-    ].reset_index()
-
-    return macro_atom_info
 
 
 class MonteCarloTransProbs(ProcessingPlasmaProperty):
