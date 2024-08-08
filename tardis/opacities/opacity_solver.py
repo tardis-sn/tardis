@@ -31,9 +31,10 @@ class OpacitySolver(object):
 
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
-        if (
-            self.line_interaction_type != "scatter"  # TODO: Fix this
-        ):  # Need a switch to use the continuum solver
+        if self.line_interaction_type in (
+            "downbranch",
+            "macroatom",
+        ):
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 self.macro_atom_solver = (
                     None  # in the future will be the MacroAtomContinuum solver
@@ -87,7 +88,7 @@ class OpacitySolver(object):
         elif self.line_interaction_type in (
             "downbranch",
             "macroatom",
-        ):  # Need to pass though the continuum species
+        ):
             macroatom_state = self.macro_atom_solver.solve(
                 legacy_plasma,
                 atomic_data,

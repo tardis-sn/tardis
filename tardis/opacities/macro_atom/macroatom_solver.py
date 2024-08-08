@@ -5,9 +5,7 @@ from tardis.opacities.macro_atom.base import (
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
 
-class MacroAtomSolver(
-    object
-):  # Possibly make two classes, one for normal and one for continuum
+class MacroAtomSolver(object):
 
     initialize: bool = True
     normalize: bool = True
@@ -111,8 +109,6 @@ class MacroAtomSolver(
             State of the macro atom ready to be placed into the OpacityState
         """
 
-        # TODO: Figure out how to calculate p_combined, Check TransitionProbabilitiesProperty in assemble_plasma, properties/base.py
-        # Make the combined transition probabilities something that is configurable in the class
         transition_probabilities = (
             self.solve_non_markov_transition_probabilities(
                 atomic_data,
