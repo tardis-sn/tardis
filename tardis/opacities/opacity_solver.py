@@ -4,7 +4,6 @@ from tardis.opacities.opacity_state import (
 )
 from tardis.opacities.macro_atom.macroatom_solver import (
     MacroAtomSolver,
-    MacroAtomContinuumSolver,
 )
 import numpy as np
 import pandas as pd
@@ -35,7 +34,9 @@ class OpacitySolver(object):
             self.line_interaction_type != "scatter"  # TODO: Fix this
         ):  # Need a switch to use the continuum solver
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-                self.macro_atom_solver = MacroAtomContinuumSolver()
+                self.macro_atom_solver = (
+                    None  # in the future will be the MacroAtomContinuum solver
+                )
             else:
                 self.macro_atom_solver = MacroAtomSolver()
         else:
@@ -77,7 +78,13 @@ class OpacitySolver(object):
                 legacy_plasma.stimulated_emission_factor,
             )
 
-        if self.line_interaction_type != "scatter" and (not montecarlo_globals.CONTINUUM_PROCESSES_ENABLED): # Need to pass though the continuum species
+        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+            macroatom_state = None  # TODO: Impliment
+
+        elif self.line_interaction_type in (
+            "downbranch",
+            "macroatom",
+        ):  # Need to pass though the continuum species
             macroatom_state = self.macro_atom_solver.solve(
                 legacy_plasma,
                 atomic_data,
