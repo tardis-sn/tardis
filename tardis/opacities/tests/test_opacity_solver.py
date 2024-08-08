@@ -38,7 +38,7 @@ def test_opacity_solver(
     if not disable_line_scattering:
         pdt.assert_frame_equal(actual.tau_sobolev, legacy_plasma.tau_sobolevs)
     if line_interaction_type == "scatter":
-        pass  # TODO: Impliment once solver has proper settings
+        assert actual.macroatom_state is None
     else:
         macroatom_state = actual.macroatom_state
         pdt.assert_frame_equal(
