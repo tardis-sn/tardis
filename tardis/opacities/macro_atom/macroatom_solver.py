@@ -141,9 +141,6 @@ class MacroAtomContinuumSolver(MacroAtomSolver):
             )
             if hasattr(legacy_plasma, item)
         ]  # Maybe do this in the init
-        p_combined_args = (
-            legacy_plasma.p_rad_bb,
-        )  # Do this for now, need more properties to add
         p_combined = calculate_p_combined(
             non_markov_transition_probabilities, *p_combined_args
         )
