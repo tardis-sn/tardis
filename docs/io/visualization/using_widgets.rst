@@ -37,7 +37,7 @@ You can interact with this GUI in the following ways:
 Edit Abundances
 ---------------
 There are two radio buttons which allow you to edit either single shell or 
-mutiple shells. The new input will be applied to selected shell(s) immediately 
+multiple shells. The new input will be applied to selected shell(s) immediately 
 and the plot is updated at the same time. If you want to edit multiple shells 
 at a time, remember to choose the second radio button and set the range of 
 shell number using int slider. The selected shell(s) is highlighted in the 
