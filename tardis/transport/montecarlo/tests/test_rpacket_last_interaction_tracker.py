@@ -12,7 +12,7 @@ from tardis.transport.montecarlo.packet_trackers import (
 def interaction_type_in_use(
     nb_simulation_verysimple,
 ):
-    """Last interaction types of rpacket from LastInteractionTracker"""
+    """Last interaction types of rpacket from LastInteractionTracker class"""
     transport_state = nb_simulation_verysimple.transport.transport_state
     interaction_type = transport_state.last_interaction_type
     return interaction_type
@@ -23,7 +23,9 @@ def shell_id_in_use(
     nb_simulation_verysimple,
     interaction_type_in_use,
 ):
-    """Last interaction types of rpacket from LastInteractionTracker"""
+    """
+    shell_id when last interaction is line from LastInteractionTracker class
+    """
     transport_state = nb_simulation_verysimple.transport.transport_state
     shell_id = transport_state.last_line_interaction_shell_id
     mask = interaction_type_in_use == InteractionType.LINE
@@ -34,7 +36,9 @@ def shell_id_in_use(
 def interaction_type_to_check(
     nb_simulation_verysimple,
 ):
-    """Last interaction types of rpacket from RPacketLastInteractionTracker"""
+    """
+    Last interaction types of rpacket from RPacketLastInteractionTracker class
+    """
     transport_state = nb_simulation_verysimple.transport.transport_state
     interaction_type = np.empty(
         len(transport_state.rpacket_tracker), dtype=np.int64
@@ -52,7 +56,9 @@ def shell_id_to_check(
     nb_simulation_verysimple,
     interaction_type_to_check,
 ):
-    """Last interaction types of rpacket from RPacketLastInteractionTracker"""
+    """
+    shell_id when last interaction is line from RPacketLastInteractionTracker class
+    """
     transport_state = nb_simulation_verysimple.transport.transport_state
     shell_id = np.empty(len(transport_state.rpacket_tracker), dtype=np.int64)
     for i, last_interaction_tracker in enumerate(
@@ -78,7 +84,9 @@ def nu_packet_collection(
 def nu_to_check(
     nb_simulation_verysimple,
 ):
-    """Last interaction output nus of rpacket from RPacketLastInteractionTracker"""
+    """
+    Last interaction output nus of rpacket from RPacketLastInteractionTracker class
+    """
     transport_state = nb_simulation_verysimple.transport.transport_state
     nu = np.empty(len(transport_state.rpacket_tracker), dtype=np.float64)
     for i, last_interaction_tracker in enumerate(
