@@ -1,6 +1,7 @@
 import pytest
 from tardis.opacities.opacity_state import opacity_state_to_numba
 from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
 import numpy.testing as npt
 import numpy as np
 
@@ -25,7 +26,18 @@ def test_opacity_state_to_numba(
         disable_line_scattering=False,
     )
     opacity_state = opacity_solver.solve(legacy_plasma)
-    actual = opacity_state_to_numba(opacity_state, line_interaction_type)
+    if line_interaction_type in ("downbranch", "macroatom"):
+        macro_atom_state = MacroAtomSolver().solve(
+            legacy_plasma,
+            legacy_plasma.atomic_data,
+            opacity_state.tau_sobolev,
+            legacy_plasma.stimulated_emission_factor,
+        )
+    else:
+        macro_atom_state = None
+    actual = opacity_state_to_numba(
+        opacity_state, macro_atom_state, line_interaction_type
+    )
 
     if sliced:
         index = slice(2, 5)

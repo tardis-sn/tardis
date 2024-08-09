@@ -2,8 +2,14 @@ from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.opacities.opacity_state import (
     OpacityState,
 )
+from tardis.opacities.macro_atom.macroatom_solver import (
+    MacroAtomSolver,
+)
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 import numpy as np
 import pandas as pd
+
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 class OpacitySolver(object):
@@ -39,22 +45,22 @@ class OpacitySolver(object):
         -------
         OpacityState
         """
+        atomic_data = legacy_plasma.atomic_data
+
         if self.disable_line_scattering:
             tau_sobolev = pd.DataFrame(
                 np.zeros(
                     (
-                        legacy_plasma.atomic_data.lines.shape[
-                            0
-                        ],  # number of lines
+                        atomic_data.lines.shape[0],  # number of lines
                         legacy_plasma.abundance.shape[1],  # number of shells
                     ),
                     dtype=np.float64,
                 ),
-                index=legacy_plasma.atomic_data.lines.index,
+                index=atomic_data.lines.index,
             )
         else:
             tau_sobolev = calculate_sobolev_line_opacity(
-                legacy_plasma.atomic_data.lines,
+                atomic_data.lines,
                 legacy_plasma.level_number_density,
                 legacy_plasma.time_explosion,
                 legacy_plasma.stimulated_emission_factor,
