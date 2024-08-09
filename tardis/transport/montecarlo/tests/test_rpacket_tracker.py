@@ -135,6 +135,30 @@ def test_rpacket_tracker_properties(expected, obtained, request):
     npt.assert_allclose(expected, obtained)
 
 
+def test_boundary_interactions(rpacket_tracker, regression_data):
+    no_of_packets = len(rpacket_tracker)
+
+    # Hard coding the number of columns
+    # Based on the largest size of boundary_interaction array (60)
+    obtained_boundary_interaction = np.full(
+        (no_of_packets, 64),
+        [-1],
+        dtype=rpacket_tracker[0].boundary_interaction.dtype,
+    )
+
+    for i, tracker in enumerate(rpacket_tracker):
+        obtained_boundary_interaction[
+            i, : tracker.boundary_interaction.size
+        ] = tracker.boundary_interaction
+
+    expected_boundary_interaction = regression_data.sync_ndarray(
+        obtained_boundary_interaction
+    )
+    npt.assert_array_equal(
+        obtained_boundary_interaction, expected_boundary_interaction
+    )
+
+
 def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking):
     transport_state = simulation_rpacket_tracking.transport.transport_state
     rtracker_df = rpacket_trackers_to_dataframe(transport_state.rpacket_tracker)
