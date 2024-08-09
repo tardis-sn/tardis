@@ -26,16 +26,16 @@ class BasePlasma(PlasmaWriterMixin):
     def __init__(
         self,
         plasma_properties,
-        plasma_solver_settings,
         property_kwargs=None,
+        plasma_solver_settings=None,
         **kwargs,
     ):
-        self.plasma_solver_settings = plasma_solver_settings
         self.outputs_dict = {}
         self.input_properties = []
         self.plasma_properties = self._init_properties(
             plasma_properties, property_kwargs, **kwargs
         )
+        self.plasma_solver_settings = plasma_solver_settings
         self._build_graph()
         self.update(**kwargs)
 

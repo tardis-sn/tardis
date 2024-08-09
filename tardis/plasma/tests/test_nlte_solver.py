@@ -14,7 +14,7 @@ from tardis.plasma.properties.nlte_rate_equation_solver import (
     calculate_jacobian_matrix,
     calculate_rate_matrix,
 )
-from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 
 
 @pytest.fixture
