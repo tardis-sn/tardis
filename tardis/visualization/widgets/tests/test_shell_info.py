@@ -16,7 +16,7 @@ def base_shell_info(simulation_verysimple):
     return BaseShellInfo(
         simulation_verysimple.simulation_state.t_radiative,
         simulation_verysimple.simulation_state.dilution_factor,
-        simulation_verysimple.plasma.abundance,
+        simulation_verysimple.simulation_state.abundance,
         simulation_verysimple.plasma.number_density,
         simulation_verysimple.plasma.ion_number_density,
         simulation_verysimple.plasma.level_number_density,
@@ -58,12 +58,14 @@ class TestBaseShellInfo:
     ):
         element_count_data = base_shell_info.element_count(1)
         assert element_count_data.shape == (
-            len(simulation_verysimple.plasma.abundance[shell_num - 1]),
+            len(
+                simulation_verysimple.simulation_state.abundance[shell_num - 1]
+            ),
             2,
         )
         assert np.allclose(
             element_count_data.iloc[:, -1].map(np.float64),
-            simulation_verysimple.plasma.abundance[shell_num - 1],
+            simulation_verysimple.simulation_state.abundance[shell_num - 1],
         )
 
     @pytest.mark.parametrize(("atomic_num", "shell_num"), [(12, 1), (20, 20)])

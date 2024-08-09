@@ -95,6 +95,7 @@ class SimulationState(HDFWriterMixin):
         "density",
         "r_inner",
         "time_explosion",
+        "abundance",
     ]
     hdf_name = "simulation_state"
 
