@@ -1,6 +1,6 @@
 import functools
+import os
 from copy import deepcopy
-from os.path import dirname, join, realpath
 from pathlib import Path
 
 import numpy as np
@@ -27,14 +27,13 @@ class BenchmarkBase:
     timeout = 600
 
     @staticmethod
-    def get_relative_path(partial_path: str):
-        path = dirname(realpath(__file__))
-        targets = Path(partial_path).parts
+    def get_relative_path(partial_path: str) -> str:
+        path = Path(__file__).resolve().parent
 
-        for target in targets:
-            path = join(path, target)
+        for target in Path(partial_path).parts:
+            path = path / target
 
-        return path
+        return str(path)
 
     def get_absolute_path(self, partial_path):
         partial_path = "../" + partial_path
@@ -63,7 +62,7 @@ class BenchmarkBase:
     def tardis_ref_path(self):
         ref_data_path = Path(
             Path(__file__).parent.parent,
-            "tardis-refdata"
+            os.environ.get("TARDIS_REF_PATH")
         ).resolve()
         return ref_data_path
 
@@ -80,7 +79,7 @@ class BenchmarkBase:
     @functools.cached_property
     def atomic_data_fname(self):
         atomic_data_fname = (
-            f"{self.tardis_ref_path}/atom_data/kurucz_cd23_chianti_H_He.h5"
+            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He.h5"
         )
 
         if not Path(atomic_data_fname).exists():
