@@ -31,18 +31,6 @@ class OpacitySolver(object):
 
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
-        if self.line_interaction_type in (
-            "downbranch",
-            "macroatom",
-        ):
-            if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-                self.macro_atom_solver = (
-                    None  # in the future will be the MacroAtomContinuum solver
-                )
-            else:
-                self.macro_atom_solver = MacroAtomSolver()
-        else:
-            self.macro_atom_solver = None
 
     def solve(self, legacy_plasma) -> OpacityState:
         """
@@ -63,43 +51,23 @@ class OpacitySolver(object):
             tau_sobolev = pd.DataFrame(
                 np.zeros(
                     (
-                        legacy_plasma.atomic_data.lines.shape[
-                            0
-                        ],  # number of lines
+                        atomic_data.lines.shape[0],  # number of lines
                         legacy_plasma.abundance.shape[1],  # number of shells
                     ),
                     dtype=np.float64,
                 ),
-                index=legacy_plasma.atomic_data.lines.index,
+                index=atomic_data.lines.index,
             )
         else:
             tau_sobolev = calculate_sobolev_line_opacity(
-                legacy_plasma.atomic_data.lines,
+                atomic_data.lines,
                 legacy_plasma.level_number_density,
                 legacy_plasma.time_explosion,
                 legacy_plasma.stimulated_emission_factor,
             )
 
-        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-            macroatom_state = MacroAtomState.from_legacy_plasma(
-                legacy_plasma
-            )  # TODO: Impliment
-
-        elif self.line_interaction_type in (
-            "downbranch",
-            "macroatom",
-        ):
-            macroatom_state = self.macro_atom_solver.solve(
-                legacy_plasma,
-                atomic_data,
-                tau_sobolev,
-                legacy_plasma.stimulated_emission_factor,
-            )
-        else:
-            macroatom_state = None
-
         opacity_state = OpacityState.from_legacy_plasma(
-            legacy_plasma, tau_sobolev, macroatom_state
+            legacy_plasma, tau_sobolev
         )
 
         return opacity_state

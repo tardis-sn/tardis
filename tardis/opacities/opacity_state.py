@@ -15,7 +15,6 @@ class OpacityState:
         t_electrons,
         line_list_nu,
         tau_sobolev,
-        macroatom_state,
         continuum_state,
     ):
         """
@@ -27,7 +26,6 @@ class OpacityState:
         t_electrons : numpy.ndarray
         line_list_nu : pd.DataFrame
         tau_sobolev : pd.DataFrame
-        macroatom_state: tardis.opacities.macro_atom.macroatom_state.MacroAtomState
         continuum_state: tardis.opacities.continuum.continuum_state.ContinuumState
         """
         self.electron_density = electron_density
@@ -38,10 +36,9 @@ class OpacityState:
 
         # Continuum Opacity Data
         self.continuum_state = continuum_state
-        self.macroatom_state = macroatom_state
 
     @classmethod
-    def from_legacy_plasma(cls, plasma, tau_sobolev, macroatom_state=None):
+    def from_legacy_plasma(cls, plasma, tau_sobolev):
         """
         Generates an OpacityStatePython object from a tardis BasePlasma
 
@@ -69,7 +66,6 @@ class OpacityState:
             plasma.t_electrons,
             atomic_data.lines.nu,
             tau_sobolev,
-            macroatom_state,
             continuum_state,
         )
 
@@ -212,7 +208,9 @@ class OpacityStateNumba:
 
 
 def opacity_state_to_numba(
-    opacity_state: OpacityState, line_interaction_type
+    opacity_state: OpacityState,
+    macro_atom_state: MacroAtomState,
+    line_interaction_type,
 ) -> OpacityStateNumba:
     """
     Initialize the OpacityStateNumba object and copy over the data over from OpacityState class
@@ -245,27 +243,21 @@ def opacity_state_to_numba(
         transition_line_id = np.zeros(array_size, dtype=np.int64)
     else:
         transition_probabilities = np.ascontiguousarray(
-            opacity_state.macroatom_state.transition_probabilities.values.copy(),
+            macro_atom_state.transition_probabilities.values.copy(),
             dtype=np.float64,
         )
-        line2macro_level_upper = (
-            opacity_state.macroatom_state.line2macro_level_upper
-        )
+        line2macro_level_upper = macro_atom_state.line2macro_level_upper
         # TODO: Fix setting of block references for non-continuum mode
 
         macro_block_references = np.asarray(
-            opacity_state.macroatom_state.macro_block_references
+            macro_atom_state.macro_block_references
         )
 
-        transition_type = opacity_state.macroatom_state.transition_type.values
+        transition_type = macro_atom_state.transition_type.values
 
         # Destination level is not needed and/or generated for downbranch
-        destination_level_id = (
-            opacity_state.macroatom_state.destination_level_id.values
-        )
-        transition_line_id = (
-            opacity_state.macroatom_state.transition_line_id.values
-        )
+        destination_level_id = macro_atom_state.destination_level_id.values
+        transition_line_id = macro_atom_state.transition_line_id.values
 
     if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         bf_threshold_list_nu = (

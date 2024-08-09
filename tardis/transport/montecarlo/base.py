@@ -98,6 +98,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         self,
         simulation_state,
         opacity_state,
+        macro_atom_state,
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
@@ -115,7 +116,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         geometry_state = simulation_state.geometry.to_numba()
 
         opacity_state_numba = opacity_state_to_numba(
-            opacity_state, self.line_interaction_type
+            opacity_state, macro_atom_state, self.line_interaction_type
         )
         opacity_state_numba = opacity_state_numba[
             simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
