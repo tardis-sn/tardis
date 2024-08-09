@@ -162,7 +162,7 @@ class RPacketTracker(object):
 
         self.boundary_interactions_index += 1
 
-    def get_line_interaction(self, r_packet):
+    def track_line_interaction(self, r_packet):
         """
         Track line interaction properties
         """
@@ -329,7 +329,7 @@ class RPacketLastInteractionTracker(object):
         """
         pass
 
-    def get_line_interaction(self, r_packet):
+    def track_line_interaction(self, r_packet):
         pass
 
 

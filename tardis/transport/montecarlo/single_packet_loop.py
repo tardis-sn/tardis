@@ -191,7 +191,7 @@ def single_packet_loop(
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
-            rpacket_tracker.get_line_interaction(r_packet)
+            rpacket_tracker.track_line_interaction(r_packet)
             trace_vpacket_volley(
                 r_packet,
                 vpacket_collection,
