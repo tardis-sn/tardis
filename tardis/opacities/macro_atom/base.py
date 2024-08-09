@@ -9,7 +9,7 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 
-def initialize_non_markov_transition_probabilities(
+def initialize_transition_probabilities(
     atomic_data,
 ):
     """Convienience Function for initializing the transition probabilities
@@ -45,7 +45,7 @@ def initialize_non_markov_transition_probabilities(
     }
 
 
-def calculate_non_markov_transition_probabilities(
+def calculate_transition_probabilities(
     atomic_data,
     beta_sobolev,
     j_blues,
@@ -90,7 +90,7 @@ def calculate_non_markov_transition_probabilities(
         return None
     macro_atom_data = get_macro_atom_data(atomic_data)
 
-    transition_probabilities = calculate_non_markov_transition_probability(
+    transition_probabilities = calculate_transition_probability(
         macro_atom_data,
         beta_sobolev,
         j_blues,
@@ -107,7 +107,7 @@ def calculate_non_markov_transition_probabilities(
     return transition_probabilities
 
 
-def calculate_non_markov_transition_probability(
+def calculate_transition_probability(
     macro_atom_data,
     beta_sobolev,
     j_blues,

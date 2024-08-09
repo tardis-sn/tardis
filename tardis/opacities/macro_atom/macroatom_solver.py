@@ -1,6 +1,6 @@
 from tardis.opacities.macro_atom.base import (
-    calculate_non_markov_transition_probabilities,
-    initialize_non_markov_transition_probabilities,
+    calculate_transition_probabilities,
+    initialize_transition_probabilities,
 )
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
@@ -24,8 +24,8 @@ class MacroAtomSolver(object):
         self.initialize = initialize
         self.normalize = normalize
 
-    def initialize_non_markov_transition_probabilities(self, atomic_data):
-        """initialize the transition probabilitiy coefficients and block references when solving the first time
+    def initialize_transition_probabilities(self, atomic_data):
+        """initialize the transition probability coefficients and block references when solving the first time
 
         Parameters
         ----------
@@ -33,7 +33,7 @@ class MacroAtomSolver(object):
             Atomic Data
         """
 
-        coef_and_block_ref = initialize_non_markov_transition_probabilities(
+        coef_and_block_ref = initialize_transition_probabilities(
             atomic_data
         )
         self.transition_probability_coef = coef_and_block_ref[
@@ -42,7 +42,7 @@ class MacroAtomSolver(object):
         self.block_references = coef_and_block_ref["block_references"]
         self.initialize = False
 
-    def solve_non_markov_transition_probabilities(
+    def solve_transition_probabilities(
         self,
         atomic_data,
         legacy_plasma,
@@ -67,10 +67,10 @@ class MacroAtomSolver(object):
             Transition Probabilities
         """
         if self.initialize:
-            self.initialize_non_markov_transition_probabilities(atomic_data)
+            self.initialize_transition_probabilities(atomic_data)
 
-        non_markov_transition_probabilities = (
-            calculate_non_markov_transition_probabilities(
+        transition_probabilities = (
+            calculate_transition_probabilities(
                 atomic_data,
                 legacy_plasma.beta_sobolev,
                 legacy_plasma.j_blues,
@@ -82,7 +82,7 @@ class MacroAtomSolver(object):
             )
         )
 
-        return non_markov_transition_probabilities
+        return transition_probabilities
 
     def solve(
         self,
@@ -110,7 +110,7 @@ class MacroAtomSolver(object):
         """
 
         transition_probabilities = (
-            self.solve_non_markov_transition_probabilities(
+            self.solve_transition_probabilities(
                 atomic_data,
                 legacy_plasma,
                 tau_sobolev,
