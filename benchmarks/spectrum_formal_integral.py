@@ -35,10 +35,10 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
     # Benchmark for functions in FormalIntegrator class
     def time_FormalIntegrator_functions(self):
         self.FormalIntegrator.calculate_spectrum(
-            self.sim.spectrum_solver.spectrum_real_packets.frequency
+            self.sim.spectrum_solver.spectrum_frequency_grid
         )
         self.FormalIntegrator.make_source_function()
         self.FormalIntegrator.generate_numba_objects()
         self.FormalIntegrator.formal_integral(
-            self.sim.spectrum_solver.spectrum_real_packets.frequency, 1000
+            self.sim.spectrum_solver.spectrum_frequency_grid, 1000
         )
