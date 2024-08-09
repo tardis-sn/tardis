@@ -2,6 +2,7 @@
 import os
 from copy import deepcopy
 
+import astropy
 import astropy.units as u
 import numpy as np
 import pandas as pd
@@ -9,9 +10,19 @@ import pytest
 import tables
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
+from itertools import product
 
 from tardis.base import run_tardis
 from tardis.visualization.tools.sdec_plot import SDECPlotter
+from tardis.tests.fixtures.regression_data import RegressionData
+from tardis.io.util import HDFWriterMixin
+
+class PlotDataHDF(HDFWriterMixin):
+    hdf_properties = []
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+            self.hdf_properties.append(key)
 
 
 def make_valid_name(testid):
@@ -63,6 +74,7 @@ def simulation_simple(config_verysimple, atomic_dataset):
         config_verysimple,
         atom_data=atomic_data,
         show_convergence_plots=False,
+        log_level="CRITICAl"
     )
     return sim
 
@@ -87,8 +99,24 @@ def sdec_ref_data_path(tardis_ref_path):
 
 class TestSDECPlotter:
     """Test the SDECPlotter class."""
+    regression_data = None
+    distance = [10 * u.Mpc, None]
+    packet_wvl_range = [[500, 9000] * u.AA]
+    species_list = [["Si II", "Ca II", "C", "Fe I-V"]]
+    packets_mode = ["real", "virtual"]
+    nelements = [1, None]
+    show_modeled_spectrum = [True, False]
 
-    @pytest.fixture(scope="class", autouse=True)
+    combinations = list(product(distance, packet_wvl_range, species_list, packets_mode, nelements, show_modeled_spectrum))
+    print(combinations)
+
+    plotting_data_attributes = {
+        "attributes_np":  ["plot_frequency_bins", "plot_wavelength", "plot_frequency", "modeled_spectrum_luminosity", "packet_wvl_range_mask", "emission_species", "absorption_species"],
+        "attributes_df":  ["absorption_luminosities_df", "emission_luminosities_df", "total_luminosities_df"]
+    }
+    plotting_data_attributes = [[key, value] for key, values in plotting_data_attributes.items() for value in values]
+
+    @pytest.fixture(scope="class", autouse=False)
     def create_hdf_file(self, request, sdec_ref_data_path):
         """
         Create an HDF5 file object.
@@ -104,6 +132,7 @@ class TestSDECPlotter:
         h5py._hl.files.File
             HDF5 file object.
         """
+        # request.cls.regression_data = RegressionData(request)
         cls = type(self)
         if request.config.getoption("--generate-reference"):
             cls.hdf_file = tables.open_file(sdec_ref_data_path, "w")
@@ -114,7 +143,7 @@ class TestSDECPlotter:
         cls.hdf_file.close()
 
     @pytest.fixture(scope="class")
-    def plotter(self, simulation_simple):
+    def plotter(self, simulation_simple, request):
         """
         Create a SDECPlotter object.
 
@@ -127,6 +156,7 @@ class TestSDECPlotter:
         -------
         tardis.visualization.tools.sdec_plot.SDECPlotter
         """
+        # request.cls.regression_data = RegressionData(request)
         return SDECPlotter.from_simulation(simulation_simple)
 
     @pytest.fixture(scope="class")
@@ -148,8 +178,8 @@ class TestSDECPlotter:
         )
         return observed_spectrum_wavelength, observed_spectrum_flux
 
-    @pytest.mark.parametrize("species", [["Si II", "Ca II", "C", "Fe I-V"]])
-    def test_parse_species_list(self, request, plotter, species):
+    @pytest.mark.parametrize("attribute", ["_full_species_list", "_species_list", "_keep_colour"])
+    def test_parse_species_list(self, request, plotter, attribute):
         """
         Test _parse_species_list method.
 
@@ -160,495 +190,399 @@ class TestSDECPlotter:
         species : list
         """
         # THIS NEEDS TO BE RUN FIRST. NOT INDEPENDENT TESTS
-        plotter._parse_species_list(species)
-        subgroup_name = make_valid_name(request.node.callspec.id)
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-            self.hdf_file.create_carray(
-                group, name="_full_species_list", obj=plotter._full_species_list
-            )
-            self.hdf_file.create_carray(
-                group, name="_species_list", obj=plotter._species_list
-            )
-            self.hdf_file.create_carray(
-                group, name="_keep_colour", obj=plotter._keep_colour
-            )
-            pytest.skip("Reference data was generated during this run.")
-
-        else:
-            group = self.hdf_file.get_node("/" + subgroup_name)
-
-            # because plotter._full_species_list is an array of strings
+        plotter._parse_species_list(self.species_list[0])
+        regression_data = RegressionData(request)
+        data = regression_data.sync_ndarray(
+            getattr(plotter, attribute)
+        )
+        if attribute == "_full_species_list":
             np.testing.assert_equal(
-                np.asarray(plotter._full_species_list),
-                self.hdf_file.get_node(group, "_full_species_list")
-                .read()
-                .astype(str),
+                getattr(plotter, attribute),
+                data
             )
-
+        else:
             np.testing.assert_allclose(
-                np.asarray(plotter._species_list),
-                self.hdf_file.get_node(group, "_species_list"),
+                getattr(plotter, attribute),
+                data
             )
-            np.testing.assert_allclose(
-                np.asarray(plotter._keep_colour),
-                self.hdf_file.get_node(group, "_keep_colour"),
-            )
-
-    @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
-    @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
-    @pytest.mark.parametrize("distance", [10 * u.Mpc, 50 * u.Mpc])
-    @pytest.mark.parametrize("nelements", [1, 3])
-    def test_calculate_plotting_data(
-        self,
-        request,
-        plotter,
-        packets_mode,
-        packet_wvl_range,
-        distance,
-        nelements,
-    ):
-        """
-        Test _calculate_plotting_data method.
-
-        Parameters
-        ----------
-        request : _pytest.fixtures.SubRequest
-        plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
-        packets_mode : str
-        packet_wvl_range : astropy.units.quantity.Quantity
-        distance : astropy.units.quantity.Quantity
-        nelements : int
-        """
+    
+    @pytest.fixture(scope="class", params=combinations)
+    def plotter_calculate_plotting_data(self, request, plotter):
+        distance, packet_wvl_range, _, packets_mode, nelements, _ = request.param
         plotter._calculate_plotting_data(
             packets_mode, packet_wvl_range, distance, nelements
         )
+        return plotter
 
-        # each group is a different combination of arguments
-        subgroup_name = make_valid_name(request.node.callspec.id)
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="plot_frequency_bins",
-                obj=plotter.plot_frequency_bins.cgs.value,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="plot_wavelength",
-                obj=plotter.plot_wavelength.cgs.value,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="plot_frequency",
-                obj=plotter.plot_frequency.cgs.value,
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="packet_wvl_range_mask",
-                obj=plotter.packet_wvl_range_mask,
-            )
-
-            self.hdf_file.create_carray(
-                group, name="emission_species", obj=plotter.emission_species
-            )
-
-            self.hdf_file.create_carray(
-                group, name="absorption_species", obj=plotter.absorption_species
-            )
-
-            self.hdf_file.create_carray(
-                group,
-                name="modeled_spectrum_luminosity",
-                obj=plotter.modeled_spectrum_luminosity.cgs.value,
-            )
-
-            if isinstance(plotter.lum_to_flux, u.quantity.Quantity):
-                self.hdf_file.create_array(
-                    group, name="lum_to_flux", obj=plotter.lum_to_flux.cgs.value
-                )
-            else:
-                self.hdf_file.create_array(
-                    group, name="lum_to_flux", obj=plotter.lum_to_flux
-                )
-
-            self.hdf_file.create_carray(
-                group, name="species", obj=plotter.species.astype(np.float64)
-            )
-
-            plotter.absorption_luminosities_df.to_hdf(
-                self.hdf_file.filename,
-                key=f"{subgroup_name}/absorption_luminosities_df",
-            )
-            plotter.emission_luminosities_df.to_hdf(
-                self.hdf_file.filename,
-                key=f"{subgroup_name}/emission_luminosities_df",
-            )
-            plotter.total_luminosities_df.to_hdf(
-                self.hdf_file.filename,
-                key=f"{subgroup_name}/total_luminosities_df",
-            )
-
-            pytest.skip("Reference data was generated during this run.")
-
-        else:
-            # use the subgroup id to iterate over the hdf file
-            group = self.hdf_file.get_node("/" + subgroup_name)
-
-            np.testing.assert_allclose(
-                plotter.plot_frequency_bins.cgs.value,
-                self.hdf_file.get_node(group, "plot_frequency_bins"),
-            )
-
-            np.testing.assert_allclose(
-                plotter.plot_wavelength.cgs.value,
-                self.hdf_file.get_node(group, "plot_wavelength"),
-            )
-
-            np.testing.assert_allclose(
-                plotter.plot_frequency.cgs.value,
-                self.hdf_file.get_node(group, "plot_frequency"),
-            )
-
-            np.testing.assert_allclose(
-                plotter.modeled_spectrum_luminosity.cgs.value,
-                self.hdf_file.get_node(group, "modeled_spectrum_luminosity"),
-            )
-
-            np.testing.assert_allclose(
-                plotter.packet_wvl_range_mask,
-                self.hdf_file.get_node(group, "packet_wvl_range_mask"),
+    @pytest.mark.parametrize("attributes", plotting_data_attributes)
+    def test_calculate_plotting_data(self, plotter_calculate_plotting_data, request, attributes ):
+        regression_data = RegressionData(request)
+        attribute_type, attribute_name = attributes
+        if attribute_type == "attributes_np":
+            plot_object = getattr(plotter_calculate_plotting_data, attribute_name)
+            if isinstance(plot_object, astropy.units.quantity.Quantity):
+                plot_object = plot_object.cgs.value
+            data = regression_data.sync_ndarray(
+                plot_object
             )
             np.testing.assert_allclose(
-                plotter.absorption_species,
-                self.hdf_file.get_node(group, "absorption_species"),
+                plot_object, data
             )
-
-            np.testing.assert_allclose(
-                plotter.emission_species,
-                self.hdf_file.get_node(group, "emission_species"),
-            )
-
-            if isinstance(plotter.lum_to_flux, u.quantity.Quantity):
-                assert (
-                    plotter.lum_to_flux.cgs.value
-                    == self.hdf_file.get_node(group, "lum_to_flux"),
-                )
-            else:
-                assert plotter.lum_to_flux == self.hdf_file.get_node(
-                    group, "lum_to_flux"
-                )
-            np.testing.assert_allclose(
-                plotter.species.astype(np.float64),
-                self.hdf_file.get_node(group, "species"),
+        elif attribute_type == "attributes_np":
+            plot_object = getattr(plotter_calculate_plotting_data, attribute_name)
+            data = regression_data.sync_dataframe(
+                plot_object
             )
             pd.testing.assert_frame_equal(
-                plotter.absorption_luminosities_df,
-                pd.read_hdf(
-                    self.hdf_file.filename,
-                    key=f"{subgroup_name}/absorption_luminosities_df",
-                ),
-            )
-            pd.testing.assert_frame_equal(
-                plotter.emission_luminosities_df,
-                pd.read_hdf(
-                    self.hdf_file.filename,
-                    key=f"{subgroup_name}/emission_luminosities_df",
-                ),
-            )
-            pd.testing.assert_frame_equal(
-                plotter.total_luminosities_df,
-                pd.read_hdf(
-                    self.hdf_file.filename,
-                    key=f"{subgroup_name}/total_luminosities_df",
-                ),
+                plot_object, data
             )
 
-    @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
-    @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
-    @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
-    @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
-    @pytest.mark.parametrize("nelements", [1, None])
-    @pytest.mark.parametrize(
-        "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
-    )
-    def test_generate_plot_mpl(
-        self,
-        request,
-        plotter,
-        packets_mode,
-        packet_wvl_range,
-        distance,
-        show_modeled_spectrum,
-        observed_spectrum,
-        nelements,
-        species_list,
-    ):
-        """
-        Test generate_plot_mpl method.
 
-        Parameters
-        ----------
-        request : _pytest.fixtures.SubRequest
-        plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
-        packets_mode : str
-        packet_wvl_range : astropy.units.quantity.Quantity
-        distance : astropy.units.quantity.Quantity
-        show_modeled_spectrum : bool
-        observed_spectrum : tuple of two astropy.units.quantity.Quantity values
-        nelements : int
-        species_list : list of str
-        """
-        subgroup_name = make_valid_name("mpl" + request.node.callspec.id)
+    @pytest.fixture(scope="class", params=combinations)
+    def plotter_generate_plot_mpl(self, request, observed_spectrum, plotter):
+        distance, packet_wvl_range, species_list, packets_mode, nelements, show_modeled_spectrum = request.param
         if distance is None:
             observed_spectrum = None
+    
         fig = plotter.generate_plot_mpl(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
             show_modeled_spectrum=show_modeled_spectrum,
             observed_spectrum=observed_spectrum,
-            nelements=nelements,
+            nelements=nelements,        
             species_list=species_list,
         )
+        return fig, plotter
 
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-            self.hdf_file.create_carray(
-                group, name="_species_name", obj=plotter._species_name
-            )
-            self.hdf_file.create_carray(
-                group, name="_color_list", obj=plotter._color_list
-            )
+    @pytest.fixture(scope="class")
+    def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl, request):
+        fig, plotter = plotter_generate_plot_mpl
+        property_group = {
+            "_species_name": plotter._species_name,
+            "_color_list": plotter._color_list
+        }
+        for index1, data in enumerate(fig.get_children()):
+            if isinstance(data.get_label(), str):
+                property_group["label"+str(index1)] = data.get_label().encode()
+            # save line plots
+            if isinstance(data, Line2D):
+                property_group["data"+str(index1)] = data.get_xydata()
+                property_group["path"+str(index1)] = data.get_path().vertices
+                
+            # save artists which correspond to element contributions
+            if isinstance(data, PolyCollection):
+                for index2, path in enumerate(data.get_paths()):
+                    property_group["path" + str(index2)] = path.vertices
 
-            fig_subgroup = self.hdf_file.create_group(
-                group,
-                name="fig_data",
-            )
+        plot_data = PlotDataHDF(**property_group)
+        return plot_data
 
-            for index, data in enumerate(fig.get_children()):
-                trace_group = self.hdf_file.create_group(
-                    fig_subgroup,
-                    name="_" + str(index),
-                )
-                if isinstance(data.get_label(), str):
-                    self.hdf_file.create_array(
-                        trace_group, name="label", obj=data.get_label().encode()
-                    )
-
-                # save artists which correspond to element contributions
-                if isinstance(data, PolyCollection):
-                    for index, path in enumerate(data.get_paths()):
-                        self.hdf_file.create_carray(
-                            trace_group,
-                            name="path" + str(index),
-                            obj=path.vertices,
-                        )
-                # save line plots
-                if isinstance(data, Line2D):
-                    self.hdf_file.create_carray(
-                        trace_group,
-                        name="data",
-                        obj=data.get_xydata(),
-                    )
-                    self.hdf_file.create_carray(
-                        trace_group, name="path", obj=data.get_path().vertices
-                    )
-            pytest.skip("Reference data was generated during this run.")
-
-        else:
-            group = self.hdf_file.get_node("/" + subgroup_name)
-            # test output of the _make_colorbar_labels function
-            assert (
-                plotter._species_name
-                == self.hdf_file.get_node(group, "_species_name")
-                .read()
-                .astype(str),
-            )
-            # test output of the _make_colorbar_colors function
+    def test_generate_plot_mpl(self, generate_plot_mpl_hdf, plotter_generate_plot_mpl, request):
+        fig, plotter = plotter_generate_plot_mpl
+        regression_data = RegressionData(request)
+        expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)["plot_data_hdf/property"]
+        for item in ["_species_name", "_color_list"]:
             np.testing.assert_allclose(
-                np.asarray(np.asarray(plotter._color_list)),
-                self.hdf_file.get_node(group, "_color_list"),
+                getattr(expected, item),
+                getattr(generate_plot_mpl_hdf, item)
             )
-
-            fig_subgroup = self.hdf_file.get_node(group, "fig_data")
-            for index, data in enumerate(fig.get_children()):
-                trace_group = self.hdf_file.get_node(
-                    fig_subgroup, "_" + str(index)
-                )
-                if isinstance(data.get_label(), str):
-                    assert (
-                        data.get_label()
-                        == self.hdf_file.get_node(trace_group, "label")
-                        .read()
-                        .decode()
-                    )
-
-                # test element contributions
-                if isinstance(data, PolyCollection):
-                    for index, path in enumerate(data.get_paths()):
-                        np.testing.assert_allclose(
-                            path.vertices,
-                            self.hdf_file.get_node(
-                                trace_group, "path" + str(index)
-                            ),
-                        )
-                # compare line plot data
-                if isinstance(data, Line2D):
-                    np.testing.assert_allclose(
-                        data.get_xydata(),
-                        self.hdf_file.get_node(trace_group, "data"),
-                    )
-                    np.testing.assert_allclose(
-                        data.get_path().vertices,
-                        self.hdf_file.get_node(trace_group, "path"),
-                    )
-
-    @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
-    @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
-    @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
-    @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
-    @pytest.mark.parametrize("nelements", [1, None])
-    @pytest.mark.parametrize(
-        "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
-    )
-    def test_generate_plot_ply(
-        self,
-        request,
-        plotter,
-        packets_mode,
-        packet_wvl_range,
-        distance,
-        show_modeled_spectrum,
-        observed_spectrum,
-        nelements,
-        species_list,
-    ):
-        """
-        Test generate_plot_mpl method.
-
-        Parameters
-        ----------
-        request : _pytest.fixtures.SubRequest
-        plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
-        packets_mode : str
-        packet_wvl_range : astropy.units.quantity.Quantity
-        distance : astropy.units.quantity.Quantity
-        show_modeled_spectrum : bool
-        observed_spectrum : tuple of two astropy.units.quantity.Quantity values
-        nelements : int
-        species_list : list of str
-        """
-        subgroup_name = make_valid_name("ply" + request.node.callspec.id)
-        if distance is not None:
-            observed_spectrum = observed_spectrum
-        else:
-            observed_spectrum = None
-        fig = plotter.generate_plot_ply(
-            packets_mode=packets_mode,
-            packet_wvl_range=packet_wvl_range,
-            distance=distance,
-            show_modeled_spectrum=show_modeled_spectrum,
-            observed_spectrum=observed_spectrum,
-            nelements=nelements,
-            species_list=species_list,
-        )
-
-        if request.config.getoption("--generate-reference"):
-            group = self.hdf_file.create_group(
-                self.hdf_file.root,
-                name=subgroup_name,
-            )
-            self.hdf_file.create_carray(
-                group, name="_species_name", obj=plotter._species_name
-            )
-            self.hdf_file.create_carray(
-                group, name="_color_list", obj=plotter._color_list
-            )
-
-            fig_subgroup = self.hdf_file.create_group(
-                group,
-                name="fig_data",
-            )
-            for index, data in enumerate(fig.data):
-                trace_group = self.hdf_file.create_group(
-                    fig_subgroup,
-                    name="_" + str(index),
-                )
-                if data.stackgroup:
-                    self.hdf_file.create_array(
-                        trace_group,
-                        name="stackgroup",
-                        obj=data.stackgroup.encode(),
-                    )
-                if data.name:
-                    self.hdf_file.create_array(
-                        trace_group,
-                        name="name",
-                        obj=data.name.encode(),
-                    )
-                self.hdf_file.create_carray(
-                    trace_group,
-                    name="x",
-                    obj=data.x,
-                )
-                self.hdf_file.create_carray(
-                    trace_group,
-                    name="y",
-                    obj=data.y,
-                )
-            pytest.skip("Reference data was generated during this run.")
-
-        else:
-            group = self.hdf_file.get_node("/", subgroup_name)
-            # test output of the _make_colorbar_labels function
-            assert (
-                plotter._species_name
-                == self.hdf_file.get_node(group, "_species_name")
-                .read()
-                .astype(str),
-            )
-            # test output of the _make_colorbar_colors function
-            np.testing.assert_allclose(
-                np.asarray(np.asarray(plotter._color_list)),
-                self.hdf_file.get_node(group, "_color_list"),
-            )
-
-            fig_subgroup = self.hdf_file.get_node(group, "fig_data")
-            for index, data in enumerate(fig.data):
-                trace_group = self.hdf_file.get_node(
-                    fig_subgroup, "_" + str(index)
-                )
-                if data.stackgroup:
-                    assert (
-                        data.stackgroup
-                        == self.hdf_file.get_node(trace_group, "stackgroup")
-                        .read()
-                        .decode()
-                    )
-                if data.name:
-                    assert (
-                        data.name
-                        == self.hdf_file.get_node(trace_group, "name")
-                        .read()
-                        .decode()
-                    )
+        for index1, data in enumerate(fig.get_children()):
+            if isinstance(data.get_label(), str):
+                assert getattr(expected, "label"+str(index1)) == data.get_label()
+            # save line plots
+            if isinstance(data, Line2D):
                 np.testing.assert_allclose(
-                    self.hdf_file.get_node(trace_group, "x"), data.x
+                    data.get_xydata(),
+                    "data"+str(index1)
                 )
                 np.testing.assert_allclose(
-                    self.hdf_file.get_node(trace_group, "y"), data.y
+                    data.get_path().vertices,
+                    "path"+str(index1)
                 )
+            # save artists which correspond to element contributions
+            if isinstance(data, PolyCollection):
+                for index2, path in enumerate(data.get_paths()):
+                    np.testing.assert_allclose(
+                        path.vertices,
+                        getattr(expected, "path" + str(index2))
+                    )
+
+    # @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
+    # @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
+    # @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
+    # @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
+    # @pytest.mark.parametrize("nelements", [1, None])
+    # @pytest.mark.parametrize(
+    #     "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
+    # )
+    # def test_generate_plot_mpl(
+    #     self,
+    #     request,
+    #     plotter,
+    #     packets_mode,
+    #     packet_wvl_range,
+    #     distance,
+    #     show_modeled_spectrum,
+    #     observed_spectrum,
+    #     nelements,
+    #     species_list,
+    # ):
+    #     """
+    #     Test generate_plot_mpl method.
+
+    #     Parameters
+    #     ----------
+    #     request : _pytest.fixtures.SubRequest
+    #     plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
+    #     packets_mode : str
+    #     packet_wvl_range : astropy.units.quantity.Quantity
+    #     distance : astropy.units.quantity.Quantity
+    #     show_modeled_spectrum : bool
+    #     observed_spectrum : tuple of two astropy.units.quantity.Quantity values
+    #     nelements : int
+    #     species_list : list of str
+    #     """
+    #     subgroup_name = make_valid_name("mpl" + request.node.callspec.id)
+    #     if distance is None:
+    #         observed_spectrum = None
+    #     fig = plotter.generate_plot_mpl(
+    #         packets_mode=packets_mode,
+    #         packet_wvl_range=packet_wvl_range,
+    #         distance=distance,
+    #         show_modeled_spectrum=show_modeled_spectrum,
+    #         observed_spectrum=observed_spectrum,
+    #         nelements=nelements,
+    #         species_list=species_list,
+    #     )
+
+    #     if request.config.getoption("--generate-reference"):
+    #         group = self.hdf_file.create_group(
+    #             self.hdf_file.root,
+    #             name=subgroup_name,
+    #         )
+    #         self.hdf_file.create_carray(
+    #             group, name="_species_name", obj=plotter._species_name
+    #         )
+    #         self.hdf_file.create_carray(
+    #             group, name="_color_list", obj=plotter._color_list
+    #         )
+
+    #         fig_subgroup = self.hdf_file.create_group(
+    #             group,
+    #             name="fig_data",
+    #         )
+
+    #         for index, data in enumerate(fig.get_children()):
+    #             trace_group = self.hdf_file.create_group(
+    #                 fig_subgroup,
+    #                 name="_" + str(index),
+    #             )
+    #             if isinstance(data.get_label(), str):
+    #                 self.hdf_file.create_array(
+    #                     trace_group, name="label", obj=data.get_label().encode()
+    #                 )
+
+    #             # save artists which correspond to element contributions
+    #             if isinstance(data, PolyCollection):
+    #                 for index, path in enumerate(data.get_paths()):
+    #                     self.hdf_file.create_carray(
+    #                         trace_group,
+    #                         name="path" + str(index),
+    #                         obj=path.vertices,
+    #                     )
+    #             # save line plots
+    #             if isinstance(data, Line2D):
+    #                 self.hdf_file.create_carray(
+    #                     trace_group,
+    #                     name="data",
+    #                     obj=data.get_xydata(),
+    #                 )
+    #                 self.hdf_file.create_carray(
+    #                     trace_group, name="path", obj=data.get_path().vertices
+    #                 )
+    #         pytest.skip("Reference data was generated during this run.")
+
+    #     else:
+    #         group = self.hdf_file.get_node("/" + subgroup_name)
+    #         # test output of the _make_colorbar_labels function
+    #         assert (
+    #             plotter._species_name
+    #             == self.hdf_file.get_node(group, "_species_name")
+    #             .read()
+    #             .astype(str),
+    #         )
+    #         # test output of the _make_colorbar_colors function
+    #         np.testing.assert_allclose(
+    #             np.asarray(np.asarray(plotter._color_list)),
+    #             self.hdf_file.get_node(group, "_color_list"),
+    #         )
+
+    #         fig_subgroup = self.hdf_file.get_node(group, "fig_data")
+    #         for index, data in enumerate(fig.get_children()):
+    #             trace_group = self.hdf_file.get_node(
+    #                 fig_subgroup, "_" + str(index)
+    #             )
+    #             if isinstance(data.get_label(), str):
+    #                 assert (
+    #                     data.get_label()
+    #                     == self.hdf_file.get_node(trace_group, "label")
+    #                     .read()
+    #                     .decode()
+    #                 )
+
+    #             # test element contributions
+    #             if isinstance(data, PolyCollection):
+    #                 for index, path in enumerate(data.get_paths()):
+    #                     np.testing.assert_allclose(
+    #                         path.vertices,
+    #                         self.hdf_file.get_node(
+    #                             trace_group, "path" + str(index)
+    #                         ),
+    #                     )
+    #             # compare line plot data
+    #             if isinstance(data, Line2D):
+    #                 np.testing.assert_allclose(
+    #                     data.get_xydata(),
+    #                     self.hdf_file.get_node(trace_group, "data"),
+    #                 )
+    #                 np.testing.assert_allclose(
+    #                     data.get_path().vertices,
+    #                     self.hdf_file.get_node(trace_group, "path"),
+    #                 )
+
+    # @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
+    # @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
+    # @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
+    # @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
+    # @pytest.mark.parametrize("nelements", [1, None])
+    # @pytest.mark.parametrize(
+    #     "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
+    # )
+    # def test_generate_plot_ply(
+    #     self,
+    #     request,
+    #     plotter,
+    #     packets_mode,
+    #     packet_wvl_range,
+    #     distance,
+    #     show_modeled_spectrum,
+    #     observed_spectrum,
+    #     nelements,
+    #     species_list,
+    # ):
+    #     """
+    #     Test generate_plot_mpl method.
+
+    #     Parameters
+    #     ----------
+    #     request : _pytest.fixtures.SubRequest
+    #     plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
+    #     packets_mode : str
+    #     packet_wvl_range : astropy.units.quantity.Quantity
+    #     distance : astropy.units.quantity.Quantity
+    #     show_modeled_spectrum : bool
+    #     observed_spectrum : tuple of two astropy.units.quantity.Quantity values
+    #     nelements : int
+    #     species_list : list of str
+    #     """
+    #     subgroup_name = make_valid_name("ply" + request.node.callspec.id)
+    #     if distance is not None:
+    #         observed_spectrum = observed_spectrum
+    #     else:
+    #         observed_spectrum = None
+    #     fig = plotter.generate_plot_ply(
+    #         packets_mode=packets_mode,
+    #         packet_wvl_range=packet_wvl_range,
+    #         distance=distance,
+    #         show_modeled_spectrum=show_modeled_spectrum,
+    #         observed_spectrum=observed_spectrum,
+    #         nelements=nelements,
+    #         species_list=species_list,
+    #     )
+
+    #     if request.config.getoption("--generate-reference"):
+    #         group = self.hdf_file.create_group(
+    #             self.hdf_file.root,
+    #             name=subgroup_name,
+    #         )
+    #         self.hdf_file.create_carray(
+    #             group, name="_species_name", obj=plotter._species_name
+    #         )
+    #         self.hdf_file.create_carray(
+    #             group, name="_color_list", obj=plotter._color_list
+    #         )
+
+    #         fig_subgroup = self.hdf_file.create_group(
+    #             group,
+    #             name="fig_data",
+    #         )
+    #         for index, data in enumerate(fig.data):
+    #             trace_group = self.hdf_file.create_group(
+    #                 fig_subgroup,
+    #                 name="_" + str(index),
+    #             )
+    #             if data.stackgroup:
+    #                 self.hdf_file.create_array(
+    #                     trace_group,
+    #                     name="stackgroup",
+    #                     obj=data.stackgroup.encode(),
+    #                 )
+    #             if data.name:
+    #                 self.hdf_file.create_array(
+    #                     trace_group,
+    #                     name="name",
+    #                     obj=data.name.encode(),
+    #                 )
+    #             self.hdf_file.create_carray(
+    #                 trace_group,
+    #                 name="x",
+    #                 obj=data.x,
+    #             )
+    #             self.hdf_file.create_carray(
+    #                 trace_group,
+    #                 name="y",
+    #                 obj=data.y,
+    #             )
+    #         pytest.skip("Reference data was generated during this run.")
+
+    #     else:
+    #         group = self.hdf_file.get_node("/", subgroup_name)
+    #         # test output of the _make_colorbar_labels function
+    #         assert (
+    #             plotter._species_name
+    #             == self.hdf_file.get_node(group, "_species_name")
+    #             .read()
+    #             .astype(str),
+    #         )
+    #         # test output of the _make_colorbar_colors function
+    #         np.testing.assert_allclose(
+    #             np.asarray(np.asarray(plotter._color_list)),
+    #             self.hdf_file.get_node(group, "_color_list"),
+    #         )
+
+    #         fig_subgroup = self.hdf_file.get_node(group, "fig_data")
+    #         for index, data in enumerate(fig.data):
+    #             trace_group = self.hdf_file.get_node(
+    #                 fig_subgroup, "_" + str(index)
+    #             )
+    #             if data.stackgroup:
+    #                 assert (
+    #                     data.stackgroup
+    #                     == self.hdf_file.get_node(trace_group, "stackgroup")
+    #                     .read()
+    #                     .decode()
+    #                 )
+    #             if data.name:
+    #                 assert (
+    #                     data.name
+    #                     == self.hdf_file.get_node(trace_group, "name")
+    #                     .read()
+    #                     .decode()
+    #                 )
+    #             np.testing.assert_allclose(
+    #                 self.hdf_file.get_node(trace_group, "x"), data.x
+    #             )
+    #             np.testing.assert_allclose(
+    #                 self.hdf_file.get_node(trace_group, "y"), data.y
+    #             )
