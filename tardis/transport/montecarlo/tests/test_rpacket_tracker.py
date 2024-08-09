@@ -159,6 +159,27 @@ def test_boundary_interactions(rpacket_tracker, regression_data):
     )
 
 
+def test_line_interactions(
+    rpacket_tracker,
+    last_interaction_type_rpacket_tracker,
+    shell_id_last_interaction_class,
+):
+    """Last line interaction shell id of rpacket from RPacketTracker"""
+    no_of_packets = len(rpacket_tracker)
+    shell_id = np.empty(no_of_packets, dtype=np.int64)
+
+    for i in range(no_of_packets):
+        if rpacket_tracker[i].line_interaction.size != 0:
+            shell_id[i] = rpacket_tracker[i].line_interaction["shell_id"][-1]
+
+    mask = last_interaction_type_rpacket_tracker == InteractionType.LINE
+    last_line_interaction_shell_id = shell_id[mask]
+
+    npt.assert_array_equal(
+        last_line_interaction_shell_id, shell_id_last_interaction_class
+    )
+
+
 def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking):
     transport_state = simulation_rpacket_tracking.transport.transport_state
     rtracker_df = rpacket_trackers_to_dataframe(transport_state.rpacket_tracker)
