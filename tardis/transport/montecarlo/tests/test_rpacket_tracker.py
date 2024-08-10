@@ -164,7 +164,7 @@ def test_line_interactions(
     last_interaction_type_rpacket_tracker,
     shell_id_last_interaction_class,
 ):
-    """Last line interaction shell id of rpacket from RPacketTracker"""
+    """test Line interaction data of RPacketTracker"""
     no_of_packets = len(rpacket_tracker)
     shell_id = np.empty(no_of_packets, dtype=np.int64)
 
