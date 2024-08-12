@@ -84,8 +84,8 @@ class SelectedAtoms(ProcessingPlasmaProperty):
 
     outputs = ("selected_atoms",)
 
-    def calculate(self, abundance):
-        return abundance.index
+    def calculate(self, number_density):
+        return number_density.index
 
 
 class ElectronTemperature(ProcessingPlasmaProperty):
