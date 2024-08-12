@@ -184,6 +184,7 @@ def single_packet_loop(
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+            rpacket_tracker.track_line_interaction(r_packet, is_in_line=True)
             line_scatter(
                 r_packet,
                 time_explosion,
@@ -191,7 +192,7 @@ def single_packet_loop(
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
-            rpacket_tracker.track_line_interaction(r_packet)
+            rpacket_tracker.track_line_interaction(r_packet, is_in_line=False)
             trace_vpacket_volley(
                 r_packet,
                 vpacket_collection,

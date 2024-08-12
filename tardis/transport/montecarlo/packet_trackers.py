@@ -19,9 +19,12 @@ line_interaction_dtype = np.dtype(
         ("event_id", "int64"),
         ("shell_id", "int64"),
         ("r", "float64"),
-        ("in_nu", "float64"),
         ("in_id", "int64"),
+        ("in_nu", "float64"),
+        ("in_mu", "float64"),
         ("out_id", "int64"),
+        ("out_nu", "float64"),
+        ("out_mu", "float64"),
     ]
 )
 
@@ -162,7 +165,7 @@ class RPacketTracker(object):
 
         self.boundary_interactions_index += 1
 
-    def track_line_interaction(self, r_packet):
+    def track_line_interaction(self, r_packet, is_in_line):
         """
         Track line interaction properties
         """
@@ -172,26 +175,43 @@ class RPacketTracker(object):
                 self.line_interaction.size,
             )
 
-        self.line_interaction[self.line_interactions_index][
-            "event_id"
-        ] = self.event_id
-        self.event_id += 1
-
+        # shell_id and r are properties of where the interaction heppened
+        # Can't put it in `is_in_line` or `is_out_line`
         self.line_interaction[self.line_interactions_index][
             "shell_id"
         ] = r_packet.current_shell_id
         self.line_interaction[self.line_interactions_index]["r"] = r_packet.r
-        self.line_interaction[self.line_interactions_index][
-            "in_nu"
-        ] = r_packet.last_interaction_in_nu
-        self.line_interaction[self.line_interactions_index][
-            "in_id"
-        ] = r_packet.last_line_interaction_in_id
-        self.line_interaction[self.line_interactions_index][
-            "out_id"
-        ] = r_packet.last_line_interaction_out_id
-        self.line_interactions_index += 1
 
+        if is_in_line:
+            # The interaction starts now
+            self.line_interaction[self.line_interactions_index][
+                "event_id"
+            ] = self.event_id
+
+            self.line_interaction[self.line_interactions_index][
+                "in_id"
+            ] = r_packet.last_line_interaction_in_id
+            self.line_interaction[self.line_interactions_index][
+                "in_nu"
+            ] = r_packet.last_interaction_in_nu
+            self.line_interaction[self.line_interactions_index][
+                "in_mu"
+            ] = r_packet.mu
+        else:
+            self.line_interaction[self.line_interactions_index][
+                "out_id"
+            ] = r_packet.last_line_interaction_out_id
+            self.line_interaction[self.line_interactions_index][
+                "out_nu"
+            ] = r_packet.nu
+            self.line_interaction[self.line_interactions_index][
+                "out_mu"
+            ] = r_packet.mu
+
+            # The interaction completes now.
+            self.event_id += 1
+
+            self.line_interactions_index += 1
 
     def finalize_array(self):
         """
@@ -209,7 +229,7 @@ class RPacketTracker(object):
             : self.boundary_interactions_index
         ]
         self.line_interaction = self.line_interaction[
-            : self.ine_interactions_index
+            : self.line_interactions_index
         ]
 
 
