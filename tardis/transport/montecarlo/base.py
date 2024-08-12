@@ -7,23 +7,28 @@ import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
-from tardis.transport.montecarlo.montecarlo_main_loop import (
-    montecarlo_main_loop,
-)
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
 )
+from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
+    MCRadiationFieldPropertiesSolver,
+)
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
+)
+from tardis.transport.montecarlo.montecarlo_main_loop import (
+    montecarlo_main_loop,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
-from tardis.transport.montecarlo.numba_interface import (
-    opacity_state_initialize,
+from tardis.opacities.opacity_state import (
+    opacity_state_to_numba,
 )
 from tardis.transport.montecarlo.packet_trackers import (
+    generate_rpacket_tracker_list,
+    generate_rpacket_last_interaction_tracker_list,
     rpacket_trackers_to_dataframe,
 )
 from tardis.util.base import (
@@ -31,6 +36,8 @@ from tardis.util.base import (
     refresh_packet_pbar,
     update_iterations_pbar,
 )
+
+from tardis.opacities.opacity_solver import OpacitySolver
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +55,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
     def __init__(
         self,
+        radfield_prop_solver,
         spectrum_frequency_grid,
         virtual_spectrum_spawn_range,
         enable_full_relativity,
@@ -62,6 +70,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         use_gpu=False,
         montecarlo_configuration=None,
     ):
+        self.radfield_prop_solver = radfield_prop_solver
         # inject different packets
         self.spectrum_frequency_grid = spectrum_frequency_grid
         self.virtual_spectrum_spawn_range = virtual_spectrum_spawn_range
@@ -87,6 +96,11 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
 
+        self.opacity_solver = OpacitySolver(
+            self.line_interaction_type,
+            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+        )
+
     def initialize_transport_state(
         self,
         simulation_state,
@@ -103,21 +117,26 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
         )
-        estimators = initialize_estimator_statistics(
-            plasma.tau_sobolevs.shape, gamma_shape
-        )
 
         geometry_state = simulation_state.geometry.to_numba()
-        opacity_state = opacity_state_initialize(
-            plasma,
-            self.line_interaction_type,
-            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+
+        opacity_state = self.opacity_solver.solve(plasma)
+        opacity_state_numba = opacity_state_to_numba(
+            opacity_state, self.opacity_solver.line_interaction_type
         )
+        opacity_state_numba = opacity_state_numba[
+            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+        ]
+
+        estimators = initialize_estimator_statistics(
+            opacity_state_numba.tau_sobolev.shape, gamma_shape
+        )
+
         transport_state = MonteCarloTransportState(
             packet_collection,
             estimators,
             geometry_state=geometry_state,
-            opacity_state=opacity_state,
+            opacity_state=opacity_state_numba,
             time_explosion=simulation_state.time_explosion,
         )
 
@@ -158,12 +177,24 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         self.transport_state = transport_state
 
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
+        number_of_rpackets = len(transport_state.packet_collection.initial_nus)
+
+        if self.enable_rpacket_tracking:
+            transport_state.rpacket_tracker = generate_rpacket_tracker_list(
+                number_of_rpackets,
+                self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
+            )
+        else:
+            transport_state.rpacket_tracker = (
+                generate_rpacket_last_interaction_tracker_list(
+                    number_of_rpackets
+                )
+            )
 
         (
             v_packets_energy_hist,
             last_interaction_tracker,
             vpacket_tracker,
-            rpacket_trackers,
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
@@ -172,6 +203,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
             self.spectrum_frequency_grid.value,
+            transport_state.rpacket_tracker,
             number_of_vpackets,
             iteration=iteration,
             show_progress_bars=show_progress_bars,
@@ -198,8 +230,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         update_iterations_pbar(1)
         refresh_packet_pbar()
-
-        transport_state.rpacket_tracker = rpacket_trackers
 
         # Need to change the implementation of rpacket_trackers_to_dataframe
         # Such that it also takes of the case of
@@ -282,7 +312,12 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             config.montecarlo.tracking.initial_array_length
         )
 
+        radfield_prop_solver = MCRadiationFieldPropertiesSolver(
+            config.plasma.w_epsilon
+        )
+
         return cls(
+            radfield_prop_solver=radfield_prop_solver,
             spectrum_frequency_grid=spectrum_frequency_grid,
             virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_full_relativity=config.montecarlo.enable_full_relativity,

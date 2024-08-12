@@ -11,7 +11,6 @@ from tardis.plasma.properties.continuum_processes import *
 from tardis.plasma.properties.general import *
 from tardis.plasma.properties.helium_nlte import *
 from tardis.plasma.properties.ion_population import *
-from tardis.plasma.properties.j_blues import *
 from tardis.plasma.properties.level_population import *
 from tardis.plasma.properties.nlte import *
 from tardis.plasma.properties.nlte_rate_equation_solver import *

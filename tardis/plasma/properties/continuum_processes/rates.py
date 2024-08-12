@@ -2,29 +2,24 @@ import logging
 
 import numpy as np
 import pandas as pd
-from numba import njit, prange
+from numba import njit
 
 from tardis import constants as const
-from tardis.transport.montecarlo.estimators.util import (
-    bound_free_estimator_array2frame,
-    integrate_array_by_blocks,
-)
-from tardis.transport.montecarlo import njit_dict
 from tardis.plasma.exceptions import PlasmaException
 from tardis.plasma.properties.base import (
     Input,
     ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
 )
-from tardis.plasma.properties.j_blues import JBluesDiluteBlackBody
+from tardis.plasma.properties.continuum_processes.fast_array_util import (
+    cumulative_integrate_array_by_blocks,
+    numba_cumulative_trapezoid,
+)
+from tardis.transport.montecarlo.estimators.util import (
+    integrate_array_by_blocks,
+)
 
 __all__ = [
-    "SpontRecombRateCoeff",
-    "StimRecombRateCoeff",
-    "PhotoIonRateCoeff",
-    "PhotoIonEstimatorsNormFactor",
-    "PhotoIonRateCoeffEstimator",
-    "StimRecombRateCoeffEstimator",
     "CorrPhotoIonRateCoeff",
     "BfHeatingRateCoeffEstimator",
     "StimRecombCoolingRateCoeffEstimator",
@@ -33,11 +28,11 @@ __all__ = [
     "RawPhotoIonTransProbs",
     "CollDeexcRateCoeff",
     "CollExcRateCoeff",
+    "CollRecombRateCoeff",
     "RawCollisionTransProbs",
     "AdiabaticCoolingRate",
     "FreeFreeCoolingRate",
     "FreeBoundCoolingRate",
-    "BoundFreeOpacity",
     "LevelNumberDensityLTE",
     "PhotoIonBoltzmannFactor",
     "FreeBoundEmissionCDF",
@@ -45,8 +40,6 @@ __all__ = [
     "TwoPhotonEmissionCDF",
     "TwoPhotonFrequencySampler",
     "CollIonRateCoeffSeaton",
-    "CollRecombRateCoeff",
-    "RawCollIonTransProbs",
 ]
 
 N_A = const.N_A.cgs.value
@@ -68,67 +61,6 @@ FF_OPAC_CONST = (
 )  # See Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
 
 logger = logging.getLogger(__name__)
-
-
-# It is currently not possible to use scipy.integrate.cumulative_trapezoid in
-# numba. So here is my own implementation.
-@njit(**njit_dict)
-def numba_cumulative_trapezoid(f, x):
-    """
-    Cumulatively integrate f(x) using the composite trapezoidal rule.
-
-    Parameters
-    ----------
-    f : numpy.ndarray, dtype float
-        Input array to integrate.
-    x : numpy.ndarray, dtype float
-        The coordinate to integrate along.
-
-    Returns
-    -------
-    numpy.ndarray, dtype float
-        The result of cumulative integration of f along x
-    """
-    integ = (np.diff(x) * (f[1:] + f[:-1]) / 2.0).cumsum()
-    return integ / integ[-1]
-
-
-@njit(**njit_dict)
-def cumulative_integrate_array_by_blocks(f, x, block_references):
-    """
-    Cumulatively integrate a function over blocks.
-
-    This function cumulatively integrates a function `f` defined at
-    locations `x` over blocks given in `block_references`.
-
-    Parameters
-    ----------
-    f : numpy.ndarray, dtype float
-        Input array to integrate. Shape is (N_freq, N_shells), where
-        N_freq is the number of frequency values and N_shells is the number
-        of computational shells.
-    x : numpy.ndarray, dtype float
-        The sample points corresponding to the `f` values. Shape is (N_freq,).
-    block_references : numpy.ndarray, dtype int
-        The start indices of the blocks to be integrated. Shape is (N_blocks,).
-
-    Returns
-    -------
-    numpy.ndarray, dtype float
-        Array with cumulatively integrated values. Shape is (N_freq, N_shells)
-        same as f.
-    """
-    n_rows = len(block_references) - 1
-    integrated = np.zeros_like(f)
-    for i in prange(f.shape[1]):  # columns
-        # TODO: Avoid this loop through vectorization of cumulative_trapezoid
-        for j in prange(n_rows):  # rows
-            start = block_references[j]
-            stop = block_references[j + 1]
-            integrated[start + 1 : stop, i] = numba_cumulative_trapezoid(
-                f[start:stop, i], x[start:stop]
-            )
-    return integrated
 
 
 def get_ion_multi_index(multi_index_full, next_higher=True):
@@ -230,39 +162,6 @@ class IndexSetterMixin:
         return p
 
 
-class SpontRecombRateCoeff(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    alpha_sp : pandas.DataFrame, dtype float
-        The rate coefficient for spontaneous recombination.
-    """
-
-    outputs = ("alpha_sp",)
-    latex_name = (r"\alpha^{\textrm{sp}}",)
-
-    def calculate(
-        self,
-        photo_ion_cross_sections,
-        t_electrons,
-        photo_ion_block_references,
-        photo_ion_index,
-        phi_ik,
-        boltzmann_factor_photo_ion,
-    ):
-        x_sect = photo_ion_cross_sections["x_sect"].values
-        nu = photo_ion_cross_sections["nu"].values
-
-        alpha_sp = 8 * np.pi * x_sect * nu**2 / C**2
-        alpha_sp = alpha_sp[:, np.newaxis]
-        alpha_sp = alpha_sp * boltzmann_factor_photo_ion
-        alpha_sp = integrate_array_by_blocks(
-            alpha_sp, nu, photo_ion_block_references
-        )
-        alpha_sp = pd.DataFrame(alpha_sp, index=photo_ion_index)
-        return alpha_sp * phi_ik.loc[alpha_sp.index]
-
-
 class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
@@ -336,134 +235,6 @@ class FreeBoundEmissionCDF(ProcessingPlasmaProperty):
             alpha_sp_E, index=photo_ion_cross_sections.index
         )
         return fb_emission_cdf
-
-
-class PhotoIonRateCoeff(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    gamma : pandas.DataFrame, dtype float
-        The rate coefficient for radiative ionization.
-    """
-
-    outputs = ("gamma",)
-    latex_name = (r"\gamma",)
-
-    def calculate(
-        self,
-        photo_ion_cross_sections,
-        gamma_estimator,
-        photo_ion_norm_factor,
-        photo_ion_block_references,
-        photo_ion_index,
-        t_rad,
-        w,
-        level2continuum_idx,
-    ):
-        # Used for initialization
-        if gamma_estimator is None:
-            gamma = self.calculate_from_dilute_bb(
-                photo_ion_cross_sections,
-                photo_ion_block_references,
-                photo_ion_index,
-                t_rad,
-                w,
-            )
-        else:
-            gamma_estimator = bound_free_estimator_array2frame(
-                gamma_estimator, level2continuum_idx
-            )
-            gamma = gamma_estimator * photo_ion_norm_factor.value
-
-        return gamma
-
-    @staticmethod
-    def calculate_from_dilute_bb(
-        photo_ion_cross_sections,
-        photo_ion_block_references,
-        photo_ion_index,
-        t_rad,
-        w,
-    ):
-        nu = photo_ion_cross_sections["nu"]
-        x_sect = photo_ion_cross_sections["x_sect"]
-        j_nus = JBluesDiluteBlackBody.calculate(
-            photo_ion_cross_sections, nu, t_rad, w
-        )
-        gamma = j_nus.multiply(4.0 * np.pi * x_sect / nu / H, axis=0)
-        gamma = integrate_array_by_blocks(
-            gamma.values, nu.values, photo_ion_block_references
-        )
-        gamma = pd.DataFrame(gamma, index=photo_ion_index)
-        return gamma
-
-
-class StimRecombRateCoeff(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    alpha_stim : pandas.DataFrame, dtype float
-        The rate coefficient for stimulated recombination.
-    """
-
-    outputs = ("alpha_stim",)
-    latex_name = (r"\alpha^{\textrm{stim}}",)
-
-    def calculate(
-        self,
-        photo_ion_cross_sections,
-        alpha_stim_estimator,
-        photo_ion_norm_factor,
-        photo_ion_block_references,
-        photo_ion_index,
-        t_rad,
-        w,
-        phi_ik,
-        t_electrons,
-        boltzmann_factor_photo_ion,
-        level2continuum_idx,
-    ):
-        # Used for initialization
-        if alpha_stim_estimator is None:
-            alpha_stim = self.calculate_from_dilute_bb(
-                photo_ion_cross_sections,
-                photo_ion_block_references,
-                photo_ion_index,
-                t_rad,
-                w,
-                t_electrons,
-                boltzmann_factor_photo_ion,
-            )
-        else:
-            alpha_stim_estimator = bound_free_estimator_array2frame(
-                alpha_stim_estimator, level2continuum_idx
-            )
-            alpha_stim = alpha_stim_estimator * photo_ion_norm_factor
-        alpha_stim *= phi_ik.loc[alpha_stim.index]
-        return alpha_stim
-
-    @staticmethod
-    def calculate_from_dilute_bb(
-        photo_ion_cross_sections,
-        photo_ion_block_references,
-        photo_ion_index,
-        t_rad,
-        w,
-        t_electrons,
-        boltzmann_factor_photo_ion,
-    ):
-        nu = photo_ion_cross_sections["nu"]
-        x_sect = photo_ion_cross_sections["x_sect"]
-        j_nus = JBluesDiluteBlackBody.calculate(
-            photo_ion_cross_sections, nu, t_rad, w
-        )
-        j_nus *= boltzmann_factor_photo_ion
-        alpha_stim = j_nus.multiply(4.0 * np.pi * x_sect / nu / H, axis=0)
-        alpha_stim = integrate_array_by_blocks(
-            alpha_stim.values, nu.values, photo_ion_block_references
-        )
-        alpha_stim = pd.DataFrame(alpha_stim, index=photo_ion_index)
-        return alpha_stim
 
 
 class RawRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
@@ -544,41 +315,6 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
                 "Negative values in CorrPhotoIonRateCoeff.  Try raising the number of montecarlo packets."
             )
         return gamma_corr
-
-
-class PhotoIonEstimatorsNormFactor(ProcessingPlasmaProperty):
-    outputs = ("photo_ion_norm_factor",)
-    latex_name = (r"\frac{1}{t_\textrm{simulation volume h}}",)
-
-    @staticmethod
-    def calculate(time_simulation, volume):
-        return (time_simulation * volume * H) ** -1
-
-
-class PhotoIonRateCoeffEstimator(Input):
-    """
-    Attributes
-    ----------
-    gamma_estimator : pandas.DataFrame, dtype float
-        Unnormalized MC estimator for the rate coefficient for radiative
-        ionization.
-    """
-
-    outputs = ("gamma_estimator",)
-    latex_name = (r"\gamma_\textrm{estim}",)
-
-
-class StimRecombRateCoeffEstimator(Input):
-    """
-    Attributes
-    ----------
-    alpha_stim_estimator : pandas.DataFrame, dtype float
-        Unnormalized MC estimator for the rate coefficient for stimulated
-        recombination.
-    """
-
-    outputs = ("alpha_stim_estimator",)
-    latex_name = (r"\alpha^{\textrm{stim}}_\textrm{estim}",)
 
 
 class StimRecombCoolingRateCoeffEstimator(Input):
@@ -952,40 +688,6 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
         return cool_rate_fb_tot, cool_rate_fb, p_fb_deactivation
 
 
-class BoundFreeOpacity(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    chi_bf : pandas.DataFrame, dtype float
-        Bound-free opacity corrected for stimulated emission.
-    """
-
-    outputs = ("chi_bf",)
-    latex_name = (r"\chi^{\textrm{bf}}",)
-
-    def calculate(
-        self,
-        photo_ion_cross_sections,
-        t_electrons,
-        phi_ik,
-        level_number_density,
-        lte_level_number_density,
-        boltzmann_factor_photo_ion,
-    ):
-        x_sect = photo_ion_cross_sections["x_sect"].values
-
-        n_i = level_number_density.loc[photo_ion_cross_sections.index]
-        lte_n_i = lte_level_number_density.loc[photo_ion_cross_sections.index]
-        chi_bf = (n_i - lte_n_i * boltzmann_factor_photo_ion).multiply(
-            x_sect, axis=0
-        )
-
-        num_neg_elements = (chi_bf < 0).sum().sum()
-        if num_neg_elements:
-            raise PlasmaException("Negative values in bound-free opacity.")
-        return chi_bf
-
-
 class LevelNumberDensityLTE(ProcessingPlasmaProperty):
     """
     Attributes
@@ -1096,86 +798,3 @@ class CollRecombRateCoeff(ProcessingPlasmaProperty):
 
     def calculate(self, phi_ik, coll_ion_coeff):
         return coll_ion_coeff.multiply(phi_ik.loc[coll_ion_coeff.index])
-
-
-class RawCollIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
-    """
-    Attributes
-    ----------
-    p_coll_ion : pandas.DataFrame, dtype float
-        The unnormalized transition probabilities for
-        collisional ionization.
-    p_coll_recomb : pandas.DataFrame, dtype float
-        The unnormalized transition probabilities for
-        collisional recombination.
-    cool_rate_coll_ion : pandas.DataFrame, dtype float
-        The collisional ionization cooling rates of the electron gas.
-    """
-
-    outputs = ("p_coll_ion", "p_coll_recomb", "cool_rate_coll_ion")
-    transition_probabilities_outputs = (
-        "p_coll_ion",
-        "p_coll_recomb",
-        "cool_rate_coll_ion",
-    )
-    latex_name = (
-        r"p^{\textrm{coll ion}}",
-        r"p^{\textrm{coll recomb}}",
-        r"C^{\textrm{ion}}",
-    )
-
-    def calculate(
-        self,
-        coll_ion_coeff,
-        coll_recomb_coeff,
-        nu_i,
-        photo_ion_idx,
-        electron_densities,
-        energy_i,
-        level_number_density,
-    ):
-        p_coll_ion = coll_ion_coeff.multiply(energy_i, axis=0)
-        p_coll_ion = p_coll_ion.multiply(electron_densities, axis=1)
-        p_coll_ion = self.set_index(p_coll_ion, photo_ion_idx, reverse=False)
-
-        coll_recomb_rate = coll_recomb_coeff.multiply(
-            electron_densities, axis=1
-        )  # The full rate is obtained from this by multiplying by the
-        # electron density and ion number density.
-        p_recomb_deactivation = coll_recomb_rate.multiply(nu_i, axis=0) * H
-        p_recomb_deactivation = self.set_index(
-            p_recomb_deactivation, photo_ion_idx, transition_type=-1
-        )
-        p_recomb_deactivation = p_recomb_deactivation.groupby(level=[0]).sum()
-        index_dd = pd.MultiIndex.from_product(
-            [p_recomb_deactivation.index.values, ["k"], [0]],
-            names=list(photo_ion_idx.columns) + ["transition_type"],
-        )
-        p_recomb_deactivation = p_recomb_deactivation.set_index(index_dd)
-
-        p_recomb_internal = coll_recomb_rate.multiply(energy_i, axis=0)
-        p_recomb_internal = self.set_index(
-            p_recomb_internal, photo_ion_idx, transition_type=0
-        )
-        p_coll_recomb = pd.concat([p_recomb_deactivation, p_recomb_internal])
-
-        cool_rate_coll_ion = (coll_ion_coeff * electron_densities).multiply(
-            nu_i * H, axis=0
-        )
-        level_lower_index = coll_ion_coeff.index
-        cool_rate_coll_ion = (
-            cool_rate_coll_ion
-            * level_number_density.loc[level_lower_index].values
-        )
-        cool_rate_coll_ion = self.set_index(
-            cool_rate_coll_ion, photo_ion_idx, reverse=False
-        )
-        cool_rate_coll_ion = cool_rate_coll_ion.groupby(
-            level="destination_level_idx"
-        ).sum()
-        ion_cool_index = pd.MultiIndex.from_product(
-            [["k"], cool_rate_coll_ion.index.values, [0]],
-            names=list(photo_ion_idx.columns) + ["transition_type"],
-        )
-        cool_rate_coll_ion = cool_rate_coll_ion.set_index(ion_cool_index)
-        return p_coll_ion, p_coll_recomb, cool_rate_coll_ion

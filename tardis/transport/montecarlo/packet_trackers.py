@@ -1,10 +1,20 @@
-from numba import float64, int64
+from numba import float64, int64, njit, from_dtype
 from numba.experimental import jitclass
+from numba.typed import List
 import numpy as np
 import pandas as pd
 
+
+boundary_interaction_dtype = np.dtype(
+    [
+        ("event_id", "int64"),
+        ("current_shell_id", "int64"),
+        ("next_shell_id", "int64"),
+    ]
+)
+
+
 rpacket_tracker_spec = [
-    ("length", int64),
     ("seed", int64),
     ("index", int64),
     ("status", int64[:]),
@@ -14,7 +24,11 @@ rpacket_tracker_spec = [
     ("energy", float64[:]),
     ("shell_id", int64[:]),
     ("interaction_type", int64[:]),
+    ("boundary_interaction", from_dtype(boundary_interaction_dtype)[:]),
     ("num_interactions", int64),
+    ("boundary_interactions_index", int64),
+    ("event_id", int64),
+    ("extend_factor", int64),
 ]
 
 
@@ -46,48 +60,53 @@ class RPacketTracker(object):
             Type of interaction the rpacket undergoes
         num_interactions : int
             Internal counter for the interactions that a particular RPacket undergoes
+        extend_factor : int
+            The factor by which to extend the properties array when the size limit is reached
     """
 
     def __init__(self, length):
-        self.length = length
+        """
+        Initialize the variables with default value
+        """
         self.seed = np.int64(0)
         self.index = np.int64(0)
-        self.status = np.empty(self.length, dtype=np.int64)
-        self.r = np.empty(self.length, dtype=np.float64)
-        self.nu = np.empty(self.length, dtype=np.float64)
-        self.mu = np.empty(self.length, dtype=np.float64)
-        self.energy = np.empty(self.length, dtype=np.float64)
-        self.shell_id = np.empty(self.length, dtype=np.int64)
-        self.interaction_type = np.empty(self.length, dtype=np.int64)
+        self.status = np.empty(length, dtype=np.int64)
+        self.r = np.empty(length, dtype=np.float64)
+        self.nu = np.empty(length, dtype=np.float64)
+        self.mu = np.empty(length, dtype=np.float64)
+        self.energy = np.empty(length, dtype=np.float64)
+        self.shell_id = np.empty(length, dtype=np.int64)
+        self.interaction_type = np.empty(length, dtype=np.int64)
+        self.boundary_interaction = np.empty(
+            length,
+            dtype=boundary_interaction_dtype,
+        )
         self.num_interactions = 0
+        self.boundary_interactions_index = 0
+        self.event_id = 1
+        self.extend_factor = 2
+
+    def extend_array(self, array, array_length):
+        temp_array = np.empty(
+            array_length * self.extend_factor, dtype=array.dtype
+        )
+        temp_array[:array_length] = array
+        return temp_array
 
     def track(self, r_packet):
-        if self.num_interactions >= self.length:
-            temp_length = self.length * 2
-            temp_status = np.empty(temp_length, dtype=np.int64)
-            temp_r = np.empty(temp_length, dtype=np.float64)
-            temp_nu = np.empty(temp_length, dtype=np.float64)
-            temp_mu = np.empty(temp_length, dtype=np.float64)
-            temp_energy = np.empty(temp_length, dtype=np.float64)
-            temp_shell_id = np.empty(temp_length, dtype=np.int64)
-            temp_interaction_type = np.empty(temp_length, dtype=np.int64)
-
-            temp_status[: self.length] = self.status
-            temp_r[: self.length] = self.r
-            temp_nu[: self.length] = self.nu
-            temp_mu[: self.length] = self.mu
-            temp_energy[: self.length] = self.energy
-            temp_shell_id[: self.length] = self.shell_id
-            temp_interaction_type[: self.length] = self.interaction_type
-
-            self.status = temp_status
-            self.r = temp_r
-            self.nu = temp_nu
-            self.mu = temp_mu
-            self.energy = temp_energy
-            self.shell_id = temp_shell_id
-            self.interaction_type = temp_interaction_type
-            self.length = temp_length
+        """
+        Track important properties of RPacket
+        """
+        if self.num_interactions >= self.status.size:
+            self.status = self.extend_array(self.status, self.status.size)
+            self.r = self.extend_array(self.r, self.r.size)
+            self.nu = self.extend_array(self.nu, self.nu.size)
+            self.mu = self.extend_array(self.mu, self.mu.size)
+            self.energy = self.extend_array(self.energy, self.energy.size)
+            self.shell_id = self.extend_array(self.shell_id, self.shell_id.size)
+            self.interaction_type = self.extend_array(
+                self.interaction_type, self.interaction_type.size
+            )
 
         self.index = r_packet.index
         self.seed = r_packet.seed
@@ -102,7 +121,36 @@ class RPacketTracker(object):
         ] = r_packet.last_interaction_type
         self.num_interactions += 1
 
+    def track_boundary_interaction(self, current_shell_id, next_shell_id):
+        """
+        Track boundary interaction properties
+        """
+        if self.boundary_interactions_index >= self.boundary_interaction.size:
+            self.boundary_interaction = self.extend_array(
+                self.boundary_interaction,
+                self.boundary_interaction.size,
+            )
+
+        self.boundary_interaction[self.boundary_interactions_index][
+            "event_id"
+        ] = self.event_id
+        self.event_id += 1
+
+        self.boundary_interaction[self.boundary_interactions_index][
+            "current_shell_id"
+        ] = current_shell_id
+
+        self.boundary_interaction[self.boundary_interactions_index][
+            "next_shell_id"
+        ] = next_shell_id
+
+        self.boundary_interactions_index += 1
+
     def finalize_array(self):
+        """
+        Change the size of the array from length ( or multiple of length ) to
+        the actual number of interactions
+        """
         self.status = self.status[: self.num_interactions]
         self.r = self.r[: self.num_interactions]
         self.nu = self.nu[: self.num_interactions]
@@ -110,6 +158,9 @@ class RPacketTracker(object):
         self.energy = self.energy[: self.num_interactions]
         self.shell_id = self.shell_id[: self.num_interactions]
         self.interaction_type = self.interaction_type[: self.num_interactions]
+        self.boundary_interaction = self.boundary_interaction[
+            : self.boundary_interactions_index
+        ]
 
 
 def rpacket_trackers_to_dataframe(rpacket_trackers):
@@ -189,6 +240,9 @@ class RPacketLastInteractionTracker(object):
     """
 
     def __init__(self):
+        """
+        Initialize properties with default values
+        """
         self.index = -1
         self.r = -1.0
         self.nu = 0.0
@@ -197,9 +251,60 @@ class RPacketLastInteractionTracker(object):
         self.interaction_type = -1
 
     def track(self, r_packet):
+        """
+        Track properties of RPacket and override the previous values
+        """
         self.index = r_packet.index
         self.r = r_packet.r
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
         self.interaction_type = r_packet.last_interaction_type
+
+    def finalize_array(self):
+        """
+        Added to make RPacketLastInteractionTracker compatible with RPacketTracker
+        """
+        pass
+
+    # To make it compatible with RPacketTracker
+    def track_boundary_interaction(self, current_shell_id, next_shell_id):
+        """
+        Added to make RPacketLastInteractionTracker compatible with RPacketTracker
+        """
+        pass
+
+
+@njit
+def generate_rpacket_tracker_list(no_of_packets, length):
+    """
+    Parameters
+    ----------
+    no_of_packets : The count of RPackets that are sent in the ejecta
+    length : initial length of the tracking array
+
+    Returns
+    -------
+    A list containing RPacketTracker for each RPacket
+    """
+    rpacket_trackers = List()
+    for i in range(no_of_packets):
+        rpacket_trackers.append(RPacketTracker(length))
+    return rpacket_trackers
+
+
+@njit
+def generate_rpacket_last_interaction_tracker_list(no_of_packets):
+    """
+    Parameters
+    ----------
+    no_of_packets : The count of RPackets that are sent in the ejecta
+
+    Returns
+    -------
+    A list containing RPacketLastInteractionTracker for each RPacket
+    """
+    rpacket_trackers = List()
+    for i in range(no_of_packets):
+        rpacket_trackers.append(RPacketLastInteractionTracker())
+    return rpacket_trackers

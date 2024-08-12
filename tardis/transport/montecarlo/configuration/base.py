@@ -81,6 +81,3 @@ def configuration_initialize(config, transport, number_of_vpackets):
     montecarlo_globals.ENABLE_RPACKET_TRACKING = (
         transport.enable_rpacket_tracking
     )
-    montecarlo_main_loop.ENABLE_RPACKET_TRACKING = (
-        transport.enable_rpacket_tracking
-    )
