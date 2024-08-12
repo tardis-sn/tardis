@@ -246,9 +246,16 @@ class StandardSimulationSolver:
         )
 
         if self.convergence_plots is not None:
-            self.update_convergence_plot_data(
-                emitted_luminosity, absorbed_luminosity
-            )
+            plot_data = {
+                "t_inner": [self.simulation_state.t_inner.value, "value"],
+                "t_rad": [self.simulation_state.t_radiative, "iterable"],
+                "w": [self.simulation_state.dilution_factor, "iterable"],
+                "velocity": [self.simulation_state.velocity, "iterable"],
+                "Emitted": [emitted_luminosity.value, "value"],
+                "Absorbed": [absorbed_luminosity.value, "value"],
+                "Requested": [self.luminosity_requested.value, "value"],
+            }
+            self.update_convergence_plot_data(plot_data)
 
         self.log_iteration_results(emitted_luminosity, absorbed_luminosity)
 
@@ -319,53 +326,20 @@ class StandardSimulationSolver:
         self.consecutive_converges_count = 0
         return False
 
-    def update_convergence_plot_data(
-        self, emitted_luminosity, absorbed_luminosity
-    ):
+    def update_convergence_plot_data(self, plot_data_dict):
         """Updates convergence plotting data
 
         Parameters
         ----------
-        emitted_luminosity : Quantity
-            Current iteration emitted luminosity
-        absorbed_luminosity : Quantity
-            Current iteration absorbed luminosity
+        plot_data_dict : dict
+            Dictionary of data to update of the form {"name": [value, item_type]}
         """
-        self.convergence_plots.fetch_data(
-            name="t_inner",
-            value=self.simulation_state.t_inner.value,
-            item_type="value",
-        )
-        self.convergence_plots.fetch_data(
-            name="t_rad",
-            value=self.simulation_state.t_radiative,
-            item_type="iterable",
-        )
-        self.convergence_plots.fetch_data(
-            name="w",
-            value=self.simulation_state.dilution_factor,
-            item_type="iterable",
-        )
-        self.convergence_plots.fetch_data(
-            name="velocity",
-            value=self.simulation_state.velocity,
-            item_type="iterable",
-        )
-        self.convergence_plots.fetch_data(
-            name="Emitted",
-            value=emitted_luminosity.value,
-            item_type="value",
-        )
-        self.convergence_plots.fetch_data(
-            name="Absorbed",
-            value=absorbed_luminosity.value,
-            item_type="value",
-        )
-        self.convergence_plots.fetch_data(
-            name="Requested",
-            value=self.luminosity_requested.value,
-            item_type="value",
-        )
+        for name, (value, item_type) in plot_data_dict.items():
+            self.convergence_plots.fetch_data(
+                name=name,
+                value=value,
+                item_type=item_type,
+            )
 
     def log_iteration_results(self, emitted_luminosity, absorbed_luminosity):
         """Print current iteration information to log at INFO level
