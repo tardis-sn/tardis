@@ -2,31 +2,43 @@ import logging
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 from astropy import units as u
+from IPython.display import display
 
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
+from tardis.io.logger.logger import logging_state
 from tardis.model import SimulationState
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
+from tardis.spectrum.luminosity import (
+    calculate_filtered_luminosity,
+)
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.util.base import is_notebook
+from tardis.visualization import ConvergencePlots
 
 # logging support
 logger = logging.getLogger(__name__)
 
 
 class StandardSimulationSolver:
-    def __init__(self, configuration):
-        # Convergence
-        self.consecutive_converges_count = 0
-        self.converged = False
-        self.completed_iterations = 0
-        self.luminosity_requested = (
-            configuration.supernova.luminosity_requested.cgs
-        )
+    def __init__(
+        self,
+        configuration,
+        log_level=None,
+        specific_log_level=None,
+        show_progress_bars=False,
+        show_convergence_plots=False,
+        convergence_plots_kwargs={},
+    ):
+        # Logging
+        logging_state(log_level, configuration, specific_log_level)
+        self.show_progress_bars = show_progress_bars
 
         atom_data = self._get_atom_data(configuration)
 
@@ -88,6 +100,14 @@ class StandardSimulationSolver:
         self.integrated_spectrum_settings = configuration.spectrum.integrated
         self.spectrum_solver = SpectrumSolver.from_config(configuration)
 
+        # Convergence settings
+        self.consecutive_converges_count = 0
+        self.converged = False
+        self.completed_iterations = 0
+        self.luminosity_requested = (
+            configuration.supernova.luminosity_requested.cgs
+        )
+
         # Convergence solvers
         self.convergence_strategy = (
             configuration.montecarlo.convergence_strategy
@@ -104,7 +124,52 @@ class StandardSimulationSolver:
             self.convergence_strategy.t_inner
         )
 
+        # Convergence plots
+        if show_convergence_plots:
+            if not is_notebook():
+                raise RuntimeError(
+                    "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
+                    "to False."
+                )
+
+            self.convergence_plots = ConvergencePlots(
+                iterations=self.total_iterations, **convergence_plots_kwargs
+            )
+        else:
+            self.convergence_plots = None
+
+        if "export_convergence_plots" in convergence_plots_kwargs:
+            if not isinstance(
+                convergence_plots_kwargs["export_convergence_plots"],
+                bool,
+            ):
+                raise TypeError(
+                    "Expected bool in export_convergence_plots argument"
+                )
+            self.export_convergence_plots = convergence_plots_kwargs[
+                "export_convergence_plots"
+            ]
+        else:
+            self.export_convergence_plots = False
+
     def _get_atom_data(self, configuration):
+        """Process atomic data from the configuration
+
+        Parameters
+        ----------
+        configuration : Configuration
+            TARDIS configuration object
+
+        Returns
+        -------
+        AtomData
+            Atomic data object
+
+        Raises
+        ------
+        ValueError
+            If atom data is missing from the configuration
+        """
         if "atom_data" in configuration:
             if Path(configuration.atom_data).is_absolute():
                 atom_data_fname = Path(configuration.atom_data)
@@ -131,19 +196,56 @@ class StandardSimulationSolver:
         return atom_data
 
     def get_convergence_estimates(self, transport_state):
-        (
-            estimated_t_radiative,
-            estimated_dilution_factor,
-        ) = self.transport_solver.transport_state.calculate_radiationfield_properties()
+        """Compute convergence estimates from the transport state
 
+        Parameters
+        ----------
+        transport_state : MonteCarloTransportState
+            Transport state object to compute estimates
+
+        Returns
+        -------
+        dict
+            Convergence estimates
+        EstimatedRadiationFieldProperties
+            Dilute radiation file and j_blues dataclass
+        """
+        estimated_radfield_properties = (
+            self.transport_solver.radfield_prop_solver.solve(
+                transport_state.radfield_mc_estimators,
+                transport_state.time_explosion,
+                transport_state.time_of_simulation,
+                transport_state.geometry_state.volume,
+                transport_state.opacity_state.line_list_nu,
+            )
+        )
+
+        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
         self.initialize_spectrum_solver(
             transport_state,
             None,
         )
 
-        emitted_luminosity = self.spectrum_solver.calculate_emitted_luminosity(
-            self.luminosity_nu_start, self.luminosity_nu_end
+        emitted_luminosity = calculate_filtered_luminosity(
+            transport_state.emitted_packet_nu,
+            transport_state.emitted_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
         )
+        absorbed_luminosity = calculate_filtered_luminosity(
+            transport_state.reabsorbed_packet_nu,
+            transport_state.reabsorbed_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
+        )
+
+        if self.convergence_plots is not None:
+            self.update_convergence_plots(
+                emitted_luminosity, absorbed_luminosity
+            )
+
+        self.log_iteration_results(emitted_luminosity, absorbed_luminosity)
 
         luminosity_ratios = (
             (emitted_luminosity / self.luminosity_requested).to(1).value
@@ -155,16 +257,37 @@ class StandardSimulationSolver:
             ** self.convergence_strategy.t_inner_update_exponent
         )
 
+        self.log_plasma_state(
+            self.simulation_state.t_radiative,
+            self.simulation_state.dilution_factor,
+            self.simulation_state.t_inner,
+            estimated_t_radiative,
+            estimated_dilution_factor,
+            estimated_t_inner,
+        )
+
         return {
             "t_radiative": estimated_t_radiative,
             "dilution_factor": estimated_dilution_factor,
             "t_inner": estimated_t_inner,
-        }
+        }, estimated_radfield_properties
 
     def check_convergence(
         self,
         estimated_values,
     ):
+        """Check convergence status for a dict of estimated values
+
+        Parameters
+        ----------
+        estimated_values : dict
+            Estimates to check convergence
+
+        Returns
+        -------
+        bool
+            If convergence has occurred
+        """
         convergence_statuses = []
 
         for key, solver in self.convergence_solvers.items():
@@ -191,10 +314,151 @@ class StandardSimulationSolver:
         self.consecutive_converges_count = 0
         return False
 
+    def update_convergence_plots(self, emitted_luminosity, absorbed_luminosity):
+        """Updates convergence plotting data
+
+        Parameters
+        ----------
+        emitted_luminosity : Quantity
+            Current iteration emitted luminosity
+        absorbed_luminosity : Quantity
+            Current iteration absorbed luminosity
+        """
+        self.convergence_plots.fetch_data(
+            name="t_inner",
+            value=self.simulation_state.t_inner.value,
+            item_type="value",
+        )
+        self.convergence_plots.fetch_data(
+            name="t_rad",
+            value=self.simulation_state.t_radiative,
+            item_type="iterable",
+        )
+        self.convergence_plots.fetch_data(
+            name="w",
+            value=self.simulation_state.dilution_factor,
+            item_type="iterable",
+        )
+        self.convergence_plots.fetch_data(
+            name="velocity",
+            value=self.simulation_state.velocity,
+            item_type="iterable",
+        )
+        self.convergence_plots.fetch_data(
+            name="Emitted",
+            value=emitted_luminosity.value,
+            item_type="value",
+        )
+        self.convergence_plots.fetch_data(
+            name="Absorbed",
+            value=absorbed_luminosity.value,
+            item_type="value",
+        )
+        self.convergence_plots.fetch_data(
+            name="Requested",
+            value=self.luminosity_requested.value,
+            item_type="value",
+        )
+
+    def log_iteration_results(self, emitted_luminosity, absorbed_luminosity):
+        """Print current iteration information to log at INFO level
+
+        Parameters
+        ----------
+        emitted_luminosity : Quantity
+            Current iteration emitted luminosity
+        absorbed_luminosity : Quantity
+            Current iteration absorbed luminosity
+        """
+        logger.info(
+            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
+            f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
+        )
+
+    def log_plasma_state(
+        self,
+        t_rad,
+        dilution_factor,
+        t_inner,
+        next_t_rad,
+        next_dilution_factor,
+        next_t_inner,
+        log_sampling=5,
+    ):
+        """
+        Logging the change of the plasma state
+
+        Parameters
+        ----------
+        t_rad : astropy.units.Quanity
+            current t_rad
+        dilution_factor : np.ndarray
+            current dilution_factor
+        next_t_rad : astropy.units.Quanity
+            next t_rad
+        next_dilution_factor : np.ndarray
+            next dilution_factor
+        log_sampling : int
+            the n-th shells to be plotted
+
+        Returns
+        -------
+        """
+        plasma_state_log = pd.DataFrame(
+            index=np.arange(len(t_rad)),
+            columns=["t_rad", "next_t_rad", "w", "next_w"],
+        )
+        plasma_state_log["t_rad"] = t_rad
+        plasma_state_log["next_t_rad"] = next_t_rad
+        plasma_state_log["w"] = dilution_factor
+        plasma_state_log["next_w"] = next_dilution_factor
+        plasma_state_log.columns.name = "Shell No."
+
+        if is_notebook():
+            logger.info("\n\tPlasma stratification:")
+
+            # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
+            if logger.level <= logging.INFO:
+                if not logger.filters:
+                    display(
+                        plasma_state_log.iloc[::log_sampling].style.format(
+                            "{:.3g}"
+                        )
+                    )
+                elif logger.filters[0].log_level == 20:
+                    display(
+                        plasma_state_log.iloc[::log_sampling].style.format(
+                            "{:.3g}"
+                        )
+                    )
+        else:
+            output_df = ""
+            plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
+                float_format=lambda x: f"{x:.3g}",
+                justify="center",
+            )
+            for value in plasma_output.split("\n"):
+                output_df = output_df + f"\t{value}\n"
+            logger.info("\n\tPlasma stratification:")
+            logger.info(f"\n{output_df}")
+
+        logger.info(
+            f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
+        )
+
     def solve_simulation_state(
         self,
         estimated_values,
     ):
+        """Update the simulation state with new inputs computed from previous
+        iteration estimates.
+
+        Parameters
+        ----------
+        estimated_values : dict
+            Estimated from the previous iterations
+        """
         next_values = {}
 
         for key, solver in self.convergence_solvers.items():
@@ -216,10 +480,19 @@ class StandardSimulationSolver:
             "t_inner"
         ]
 
-    def solve_plasma(
-        self,
-        transport_state,
-    ):
+    def solve_plasma(self, estimated_radfield_properties):
+        """Update the plasma solution with the new radiation field estimates
+
+        Parameters
+        ----------
+        estimated_radfield_properties : EstimatedRadiationFieldProperties
+            The radiation field properties to use for updating the plasma
+
+        Raises
+        ------
+        ValueError
+            If the plasma solver radiative rates type is unknown
+        """
         radiation_field = DilutePlanckianRadiationField(
             temperature=self.simulation_state.t_radiative,
             dilution_factor=self.simulation_state.dilution_factor,
@@ -229,15 +502,61 @@ class StandardSimulationSolver:
         )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
-        if "j_blue_estimator" in self.plasma_solver.outputs_dict:
-            update_properties.update(
-                t_inner=self.simulation_state.blackbody_packet_source.temperature,
-                j_blue_estimator=transport_state.radfield_mc_estimators.j_blue_estimator,
+        if (
+            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "blackbody"
+        ):
+            planckian_radiation_field = (
+                radiation_field.to_planckian_radiation_field()
+            )
+            j_blues = planckian_radiation_field.calculate_mean_intensity(
+                self.plasma_solver.atomic_data.lines.nu.values
+            )
+            update_properties["j_blues"] = pd.DataFrame(
+                j_blues, index=self.plasma_solver.atomic_data.lines.index
+            )
+        elif (
+            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "dilute-blackbody"
+        ):
+            j_blues = radiation_field.calculate_mean_intensity(
+                self.plasma_solver.atomic_data.lines.nu.values
+            )
+            update_properties["j_blues"] = pd.DataFrame(
+                j_blues, index=self.plasma_solver.atomic_data.lines.index
+            )
+        elif (
+            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "detailed"
+        ):
+            update_properties["j_blues"] = pd.DataFrame(
+                estimated_radfield_properties.j_blues,
+                index=self.plasma_solver.atomic_data.lines.index,
+            )
+        else:
+            raise ValueError(
+                f"radiative_rates_type type unknown - {self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
             )
 
         self.plasma_solver.update(**update_properties)
 
     def solve_montecarlo(self, no_of_real_packets, no_of_virtual_packets=0):
+        """Solve the MonteCarlo process
+
+        Parameters
+        ----------
+        no_of_real_packets : int
+            Number of real packets to simulate
+        no_of_virtual_packets : int, optional
+            Number of virtual packets to simulate per interaction, by default 0
+
+        Returns
+        -------
+        MonteCarloTransportState
+            The new transport state after simulation
+        ndarray
+            Array of unnormalized virtual packet energies in each frequency bin
+        """
         transport_state = self.transport_solver.initialize_transport_state(
             self.simulation_state,
             self.plasma_solver,
@@ -250,7 +569,7 @@ class StandardSimulationSolver:
             transport_state,
             iteration=self.completed_iterations,
             total_iterations=self.total_iterations,
-            show_progress_bars=False,
+            show_progress_bars=self.show_progress_bars,
         )
 
         output_energy = transport_state.packet_collection.output_energies
@@ -264,6 +583,15 @@ class StandardSimulationSolver:
         transport_state,
         virtual_packet_energies=None,
     ):
+        """Set up the spectrum solver
+
+        Parameters
+        ----------
+        transport_state : MonteCarloTransportState
+            The transport state to init with
+        virtual_packet_energies : ndarray, optional
+            Array of virtual packet energies binned by frequency, by default None
+        """
         # Set up spectrum solver
         self.spectrum_solver.transport_state = transport_state
 
@@ -282,17 +610,20 @@ class StandardSimulationSolver:
             )
 
     def solve(self):
+        """Solve the TARDIS simulation until convergence is reached"""
         converged = False
         while self.completed_iterations < self.total_iterations - 1:
             transport_state, virtual_packet_energies = self.solve_montecarlo(
                 self.real_packet_count
             )
 
-            estimated_values = self.get_convergence_estimates(transport_state)
+            estimated_values, estimated_radfield_properties = (
+                self.get_convergence_estimates(transport_state)
+            )
 
             self.solve_simulation_state(estimated_values)
 
-            self.solve_plasma(transport_state)
+            self.solve_plasma(estimated_radfield_properties)
 
             converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
