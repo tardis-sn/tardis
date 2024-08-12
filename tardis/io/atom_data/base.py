@@ -224,10 +224,10 @@ class AtomData:
 
             atom_data = cls(**dataframes)
 
-            cls.set_attributes_from_store(store, atom_data.uuid1, "uuid1")
-            cls.set_attributes_from_store(store, atom_data.md5, "md5")
-            cls.set_attributes_from_store(
-                store, atom_data.version, "database_version"
+            atom_data.uuid1 = cls.get_attributes_from_store(store, "uuid1")
+            atom_data.md5 = cls.get_attributes_from_store(store, "md5")
+            atom_data.version = cls.get_attributes_from_store(
+                store, "database_version"
             )
 
             # TODO: strore data sources as attributes in carsus
@@ -650,18 +650,16 @@ class AtomData:
     def __repr__(self):
         return f"<Atomic Data UUID={self.uuid1} MD5={self.md5} Lines={self.lines.line_id.count():d} Levels={self.levels.energy.count():d}>"
 
-    def set_attributes_from_store(store, attribute, store_key):
-        """Sets arbitrary atom data attributes, throws error and sets to None
+    def get_attributes_from_store(store, store_key):
+        """Gets atom_data attributes, throws error and sets to None
         if they are not available.
 
         Parameters
         ----------
-        atom_data : AtomData
-            The atom data to modify
         store : pd.HDFStore
             Data source
-        property : str
-            Property to modify
+        store_key : str
+            HDFStore value to check
         """
         try:
             attribute = store.root._v_attrs[store_key]
@@ -669,6 +667,8 @@ class AtomData:
                 attribute = (store.root._v_attrs[attribute].decode("ascii"),)
         except KeyError:
             logger.debug(
-                f"{attribute} not available for Atom Data. Setting value to None"
+                f"{store_key} not available for Atom Data. Setting value to None"
             )
             attribute = None
+
+        return attribute
