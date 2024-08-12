@@ -664,7 +664,7 @@ class AtomData:
         try:
             attribute = store.root._v_attrs[store_key]
             if hasattr(attribute, "decode"):
-                attribute = (store.root._v_attrs[attribute].decode("ascii"),)
+                attribute = (attribute.decode("ascii"),)
         except KeyError:
             logger.debug(
                 f"{store_key} not available for Atom Data. Setting value to None"
