@@ -145,6 +145,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
     hdf_properties = ["radius", "temperature", "base_seed"]
     hdf_name = "black_body_simple_source"
+    l_coef = np.pi**4 / 90.0
 
     @classmethod
     def from_simulation_state(cls, simulation_state, *args, **kwargs):
@@ -210,7 +211,6 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
             numpy.ndarray
         """
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
-        l_coef = np.pi**4 / 90.0
 
         # For testing purposes
         if self.legacy_mode_enabled:
@@ -218,7 +218,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         else:
             xis = self.rng.random((5, no_of_packets))
 
-        l = l_array.searchsorted(xis[0] * l_coef) + 1.0
+        l = l_array.searchsorted(xis[0] *  self.l_coef) + 1.0
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate("-log(xis_prod)/l")
 

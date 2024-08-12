@@ -68,13 +68,14 @@ class RPacketTracker(object):
 
     def extend_array(self, array, array_length):
         temp_array = np.empty(
-            array_length * self.extend_factor, dtype=array.dtype
+            array_length, dtype=array.dtype
         )
         temp_array[:array_length] = array
         return temp_array
 
     def track(self, r_packet):
         if self.num_interactions >= self.length:
+            self.length = self.length * self.extend_factor
             self.status = self.extend_array(self.status, self.length)
             self.r = self.extend_array(self.r, self.length)
             self.nu = self.extend_array(self.nu, self.length)
@@ -84,7 +85,6 @@ class RPacketTracker(object):
             self.interaction_type = self.extend_array(
                 self.interaction_type, self.length
             )
-            self.length = self.length * self.extend_factor
 
         self.index = r_packet.index
         self.seed = r_packet.seed
@@ -123,31 +123,34 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
         Dataframe containing properties of RPackets as columns like status, seed, r, nu, mu, energy, shell_id, interaction_type
 
     """
-    len_df = sum([len(tracker.r) for tracker in rpacket_trackers])
-    index_array = np.empty([2, len_df], dtype="int")
-    df_dtypes = np.dtype(
-        [
-            ("status", np.int64),
-            ("seed", np.int64),
-            ("r", np.float64),
-            ("nu", np.float64),
-            ("mu", np.float64),
-            ("energy", np.float64),
-            ("shell_id", np.int64),
-            ("interaction_type", np.int64),
-        ]
-    )
+    len_df = sum(len(tracker.r) for tracker in rpacket_trackers)
+
+    index_array = np.empty((2, len_df), dtype="int")
+    df_dtypes = np.dtype([
+        ("status", np.int64),
+        ("seed", np.int64),
+        ("r", np.float64),
+        ("nu", np.float64),
+        ("mu", np.float64),
+        ("energy", np.float64),
+        ("shell_id", np.int64),
+        ("interaction_type", np.int64),
+    ])
     rpacket_tracker_ndarray = np.empty(len_df, df_dtypes)
+
     cur_index = 0
     for rpacket_tracker in rpacket_trackers:
-        prev_index = cur_index
-        cur_index = prev_index + len(rpacket_tracker.r)
-        for j, column_name in enumerate(df_dtypes.fields.keys()):
-            rpacket_tracker_ndarray[column_name][
-                prev_index:cur_index
-            ] = getattr(rpacket_tracker, column_name)
-        index_array[0][prev_index:cur_index] = getattr(rpacket_tracker, "index")
-        index_array[1][prev_index:cur_index] = range(cur_index - prev_index)
+        length = len(rpacket_tracker.r)
+        next_index = cur_index + length
+
+        for column_name in df_dtypes.names:
+            rpacket_tracker_ndarray[column_name][cur_index:next_index] = getattr(rpacket_tracker, column_name)
+
+        index_array[0][cur_index:next_index] = rpacket_tracker.index
+        index_array[1][cur_index:next_index] = np.arange(length)
+
+        cur_index = next_index
+
     return pd.DataFrame(
         rpacket_tracker_ndarray,
         index=pd.MultiIndex.from_arrays(index_array, names=["index", "step"]),
@@ -218,9 +221,7 @@ def generate_rpacket_tracker_list(no_of_packets, length):
     -------
     A list containing RPacketTracker for each RPacket
     """
-    rpacket_trackers = List()
-    for i in range(no_of_packets):
-        rpacket_trackers.append(RPacketTracker(length))
+    rpacket_trackers = List([RPacketTracker(length) for _ in range(no_of_packets)])
     return rpacket_trackers
 
 
@@ -235,7 +236,5 @@ def generate_rpacket_last_interaction_tracker_list(no_of_packets):
     -------
     A list containing RPacketLastInteractionTracker for each RPacket
     """
-    rpacket_trackers = List()
-    for i in range(no_of_packets):
-        rpacket_trackers.append(RPacketLastInteractionTracker())
+    rpacket_trackers = List([RPacketLastInteractionTracker() for _ in range(no_of_packets)])
     return rpacket_trackers
