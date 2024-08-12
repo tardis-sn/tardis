@@ -281,8 +281,10 @@ class StandardSimulationSolver(
             }
             self.update_convergence_plot_data(plot_data)
 
-        self.log_iteration_results(
-            emitted_luminosity, absorbed_luminosity, self.luminosity_requested
+        logger.info(
+            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
+            f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
 
         luminosity_ratios = (
