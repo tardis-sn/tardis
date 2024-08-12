@@ -7,9 +7,11 @@ from astropy import units as u
 
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
+from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.simulation.base import PlasmaStateStorerMixin
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
@@ -25,7 +27,20 @@ from tardis.workflows.workflow_logging import WorkflowLogging
 logger = logging.getLogger(__name__)
 
 
-class StandardSimulationSolver(WorkflowLogging):
+class StandardSimulationSolver(
+    WorkflowLogging, PlasmaStateStorerMixin, HDFWriterMixin
+):
+    hdf_properties = [
+        "simulation_state",
+        "plasma_solver",
+        "transport_solver",
+        "iterations_w",
+        "iterations_t_rad",
+        "iterations_electron_densities",
+        "iterations_t_inner",
+        "spectrum_solver",
+    ]
+
     def __init__(
         self,
         configuration,
@@ -37,11 +52,13 @@ class StandardSimulationSolver(WorkflowLogging):
         convergence_plots_kwargs={},
     ):
         # set up logging
-        super().__init__(
-            configuration,
+        WorkflowLogging.__init__(
+            self,
+            configuration=configuration,
             log_level=log_level,
             specific_log_level=specific_log_level,
         )
+
         self.show_progress_bars = show_progress_bars
 
         atom_data = self._get_atom_data(configuration)
@@ -99,6 +116,13 @@ class StandardSimulationSolver(WorkflowLogging):
 
         self.virtual_packet_count = int(
             configuration.montecarlo.no_of_virtual_packets
+        )
+
+        # set up plasma storage
+        PlasmaStateStorerMixin.__init__(
+            self,
+            iterations=self.total_iterations,
+            no_of_shells=self.simulation_state.no_of_shells,
         )
 
         # spectrum settings
@@ -512,6 +536,13 @@ class StandardSimulationSolver(WorkflowLogging):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
+            self.store_plasma_state(
+                self.completed_iterations,
+                self.simulation_state.dilution_factor,
+                self.simulation_state.t_radiative,
+                self.plasma_solver.electron_densities,
+                self.simulation_state.t_inner,
+            )
             transport_state, virtual_packet_energies = self.solve_montecarlo(
                 self.real_packet_count
             )
@@ -538,6 +569,14 @@ class StandardSimulationSolver(WorkflowLogging):
         transport_state, virtual_packet_energies = self.solve_montecarlo(
             self.final_iteration_packet_count, self.virtual_packet_count
         )
+        self.store_plasma_state(
+            self.completed_iterations,
+            self.simulation_state.dilution_factor,
+            self.simulation_state.t_radiative,
+            self.plasma_solver.electron_densities,
+            self.simulation_state.t_inner,
+        )
+        self.reshape_plasma_state_store(self.completed_iterations)
         if self.convergence_plots is not None:
             self.get_convergence_estimates(transport_state)
             self.convergence_plots.update(
