@@ -1,5 +1,13 @@
 ## Changelog
 
+### release-2024.08.12 (2024/08/12 08:57)
+- [2789](https://github.com/tardis-sn/tardis/pull/2789) Pre-release 2024.08.11 (2789) (@tardis-bot)
+- [2759](https://github.com/tardis-sn/tardis/pull/2759) Minor refactor of the spectrum solver (2759) (@andrewfullard)
+- [2787](https://github.com/tardis-sn/tardis/pull/2787) some spelling fixes in the docs (2787) (@zingale)
+- [2778](https://github.com/tardis-sn/tardis/pull/2778) Ruff Fix 2 (2778) (@atharva-2001)
+- [2781](https://github.com/tardis-sn/tardis/pull/2781) Update docstrings of Tracker tests (2781) (@Sumit112192)
+- [2773](https://github.com/tardis-sn/tardis/pull/2773) Opacity state restructure (2773) (@Rodot-)
+- [2776](https://github.com/tardis-sn/tardis/pull/2776) Post-release 2024.08.04 (2776) (@tardis-bot)
 ### release-2024.08.04 (2024/08/03 20:49)
 - [2775](https://github.com/tardis-sn/tardis/pull/2775) Pre-release 2024.08.04 (2775) (@tardis-bot)
 - [2749](https://github.com/tardis-sn/tardis/pull/2749) Cache benchmark functions (2749) (@officialasishkumar)
