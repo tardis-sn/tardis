@@ -55,7 +55,7 @@ def calculate_transition_probabilities(
     block_references,
     normalize=True,
 ):
-    """Computes non-markov transition probabilities and provides them as a pd.DataFrame
+    """Computes transition probabilities and provides them as a pd.DataFrame
 
     Parameters
     ----------
@@ -116,7 +116,7 @@ def calculate_transition_probability(
     block_references,
     normalize,
 ):
-    """Calculate the non-markov transition probabilities using optimized functions
+    """Calculate the transition probabilities using optimized functions
     Parameters
     ----------
     macro_atom_data : pd.DataFrame

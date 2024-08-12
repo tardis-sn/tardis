@@ -2,14 +2,10 @@ from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.opacities.opacity_state import (
     OpacityState,
 )
-from tardis.opacities.macro_atom.macroatom_solver import (
-    MacroAtomSolver,
-)
-from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 import numpy as np
 import pandas as pd
 
-from tardis.transport.montecarlo.configuration import montecarlo_globals
+
 
 
 class OpacitySolver(object):
