@@ -193,7 +193,7 @@ class RPacketTracker(object):
             ] = r_packet.last_line_interaction_in_id
             self.line_interaction[self.line_interactions_index][
                 "in_nu"
-            ] = r_packet.last_interaction_in_nu
+            ] = r_packet.nu
             self.line_interaction[self.line_interactions_index][
                 "in_mu"
             ] = r_packet.mu
