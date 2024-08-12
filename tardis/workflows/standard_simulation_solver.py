@@ -30,6 +30,7 @@ class StandardSimulationSolver:
     def __init__(
         self,
         configuration,
+        enable_virtual_packet_logging=False,
         log_level=None,
         specific_log_level=None,
         show_progress_bars=False,
@@ -57,7 +58,7 @@ class StandardSimulationSolver:
         self.transport_solver = MonteCarloTransportSolver.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
-            enable_virtual_packet_logging=False,
+            enable_virtual_packet_logging=enable_virtual_packet_logging,
         )
 
         self.luminosity_nu_start = (
@@ -241,7 +242,7 @@ class StandardSimulationSolver:
         )
 
         if self.convergence_plots is not None:
-            self.update_convergence_plots(
+            self.update_convergence_plot_data(
                 emitted_luminosity, absorbed_luminosity
             )
 
@@ -314,7 +315,9 @@ class StandardSimulationSolver:
         self.consecutive_converges_count = 0
         return False
 
-    def update_convergence_plots(self, emitted_luminosity, absorbed_luminosity):
+    def update_convergence_plot_data(
+        self, emitted_luminosity, absorbed_luminosity
+    ):
         """Updates convergence plotting data
 
         Parameters
@@ -359,7 +362,6 @@ class StandardSimulationSolver:
             value=self.luminosity_requested.value,
             item_type="value",
         )
-        self.convergence_plots.update()
 
     def log_iteration_results(self, emitted_luminosity, absorbed_luminosity):
         """Print current iteration information to log at INFO level
@@ -625,6 +627,9 @@ class StandardSimulationSolver:
                 self.get_convergence_estimates(transport_state)
             )
 
+            if self.convergence_plots is not None:
+                self.convergence_plots.update()
+
             self.solve_simulation_state(estimated_values)
 
             self.solve_plasma(estimated_radfield_properties)
@@ -639,6 +644,12 @@ class StandardSimulationSolver:
         transport_state, virtual_packet_energies = self.solve_montecarlo(
             self.final_iteration_packet_count, self.virtual_packet_count
         )
+        if self.convergence_plots is not None:
+            self.get_convergence_estimates(transport_state)
+            self.convergence_plots.update(
+                export_convergence_plots=self.export_convergence_plots,
+                last=True,
+            )
         self.initialize_spectrum_solver(
             transport_state,
             virtual_packet_energies,
