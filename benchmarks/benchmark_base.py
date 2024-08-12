@@ -1,5 +1,5 @@
 import functools
-import os.environ as env
+from os import environ as env
 from copy import deepcopy
 from pathlib import Path
 
