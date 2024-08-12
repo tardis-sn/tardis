@@ -4,11 +4,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from IPython.display import display
 
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
-from tardis.io.logger.logger import logging_state
 from tardis.model import SimulationState
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.standard_plasmas import assemble_plasma
@@ -21,12 +19,13 @@ from tardis.spectrum.luminosity import (
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
+from tardis.workflows.workflow_logging import WorkflowLogging
 
 # logging support
 logger = logging.getLogger(__name__)
 
 
-class StandardSimulationSolver:
+class StandardSimulationSolver(WorkflowLogging):
     def __init__(
         self,
         configuration,
@@ -37,8 +36,12 @@ class StandardSimulationSolver:
         show_convergence_plots=False,
         convergence_plots_kwargs={},
     ):
-        # Logging
-        logging_state(log_level, configuration, specific_log_level)
+        # set up logging
+        super().__init__(
+            configuration,
+            log_level=log_level,
+            specific_log_level=specific_log_level,
+        )
         self.show_progress_bars = show_progress_bars
 
         atom_data = self._get_atom_data(configuration)
@@ -61,6 +64,7 @@ class StandardSimulationSolver:
             enable_virtual_packet_logging=enable_virtual_packet_logging,
         )
 
+        # Luminosity filter frequencies
         self.luminosity_nu_start = (
             configuration.supernova.luminosity_wavelength_end.to(
                 u.Hz, u.spectral()
@@ -227,10 +231,6 @@ class StandardSimulationSolver:
         estimated_dilution_factor = (
             estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
         )
-        self.initialize_spectrum_solver(
-            transport_state,
-            None,
-        )
 
         emitted_luminosity = calculate_filtered_luminosity(
             transport_state.emitted_packet_nu,
@@ -257,7 +257,9 @@ class StandardSimulationSolver:
             }
             self.update_convergence_plot_data(plot_data)
 
-        self.log_iteration_results(emitted_luminosity, absorbed_luminosity)
+        self.log_iteration_results(
+            emitted_luminosity, absorbed_luminosity, self.luminosity_requested
+        )
 
         luminosity_ratios = (
             (emitted_luminosity / self.luminosity_requested).to(1).value
@@ -340,93 +342,6 @@ class StandardSimulationSolver:
                 value=value,
                 item_type=item_type,
             )
-
-    def log_iteration_results(self, emitted_luminosity, absorbed_luminosity):
-        """Print current iteration information to log at INFO level
-
-        Parameters
-        ----------
-        emitted_luminosity : Quantity
-            Current iteration emitted luminosity
-        absorbed_luminosity : Quantity
-            Current iteration absorbed luminosity
-        """
-        logger.info(
-            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
-            f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
-            f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
-        )
-
-    def log_plasma_state(
-        self,
-        t_rad,
-        dilution_factor,
-        t_inner,
-        next_t_rad,
-        next_dilution_factor,
-        next_t_inner,
-        log_sampling=5,
-    ):
-        """
-        Logging the change of the plasma state
-
-        Parameters
-        ----------
-        t_rad : astropy.units.Quanity
-            current t_rad
-        dilution_factor : np.ndarray
-            current dilution_factor
-        next_t_rad : astropy.units.Quanity
-            next t_rad
-        next_dilution_factor : np.ndarray
-            next dilution_factor
-        log_sampling : int
-            the n-th shells to be plotted
-
-        Returns
-        -------
-        """
-        plasma_state_log = pd.DataFrame(
-            index=np.arange(len(t_rad)),
-            columns=["t_rad", "next_t_rad", "w", "next_w"],
-        )
-        plasma_state_log["t_rad"] = t_rad
-        plasma_state_log["next_t_rad"] = next_t_rad
-        plasma_state_log["w"] = dilution_factor
-        plasma_state_log["next_w"] = next_dilution_factor
-        plasma_state_log.columns.name = "Shell No."
-
-        if is_notebook():
-            logger.info("\n\tPlasma stratification:")
-
-            # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
-            if logger.level <= logging.INFO:
-                if not logger.filters:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            "{:.3g}"
-                        )
-                    )
-                elif logger.filters[0].log_level == 20:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            "{:.3g}"
-                        )
-                    )
-        else:
-            output_df = ""
-            plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
-                float_format=lambda x: f"{x:.3g}",
-                justify="center",
-            )
-            for value in plasma_output.split("\n"):
-                output_df = output_df + f"\t{value}\n"
-            logger.info("\n\tPlasma stratification:")
-            logger.info(f"\n{output_df}")
-
-        logger.info(
-            f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
-        )
 
     def solve_simulation_state(
         self,
