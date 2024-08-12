@@ -74,12 +74,29 @@ def test_legacy_cmfgen_collisional_strengths(
     collision_strengths_regemorter_solver = UpsilonRegemorterSolver(
         radiative_transitions.loc[approximated_cmfgen_yg_data.index]
     )
-    collision_strengths_cmfgen_solver = UpsilonCMFGENSolver
+
     new_regemorter_collision_strengths = (
         collision_strengths_regemorter_solver.solve(
             t_electrons=legacy_cmfgen_yg_data.columns.values * u.K
         )
     )
+
+    collision_strengths_cmfgen_solver = UpsilonCMFGENSolver(
+        nlte_atomic_dataset.yg_data.columns, nlte_atomic_dataset.yg_data
+    )
+    new_cmfgen_collision_strengths = collision_strengths_cmfgen_solver.solve(
+        legacy_cmfgen_yg_data.columns.values * u.K
+    )
+
     npt.assert_allclose(
-        new_regemorter_collision_strengths.values, approximated_cmfgen_yg_data
+        new_regemorter_collision_strengths.values,
+        approximated_cmfgen_yg_data,
+        rtol=1e-7,
+        atol=1e-5,
+    )  # residuals are ~1e-8 not sure if that is good enough
+    npt.assert_allclose(
+        new_cmfgen_collision_strengths.values,
+        legacy_cmfgen_yg_data.values,
+        rtol=1e-7,
+        atol=1e-5,
     )  # residuals are ~1e-8 not sure if that is good enough
