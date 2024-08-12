@@ -359,6 +359,7 @@ class StandardSimulationSolver:
             value=self.luminosity_requested.value,
             item_type="value",
         )
+        self.convergence_plots.update()
 
     def log_iteration_results(self, emitted_luminosity, absorbed_luminosity):
         """Print current iteration information to log at INFO level
@@ -613,6 +614,9 @@ class StandardSimulationSolver:
         """Solve the TARDIS simulation until convergence is reached"""
         converged = False
         while self.completed_iterations < self.total_iterations - 1:
+            logger.info(
+                f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
+            )
             transport_state, virtual_packet_energies = self.solve_montecarlo(
                 self.real_packet_count
             )
@@ -631,6 +635,7 @@ class StandardSimulationSolver:
             if converged and self.convergence_strategy.stop_if_converged:
                 break
 
+        logger.info(f"\n\tStarting final iteration")
         transport_state, virtual_packet_energies = self.solve_montecarlo(
             self.final_iteration_packet_count, self.virtual_packet_count
         )
