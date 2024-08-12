@@ -47,8 +47,12 @@ class OpacitySolver(object):
             tau_sobolev = pd.DataFrame(
                 np.zeros(
                     (
-                        atomic_data.lines.shape[0],  # number of lines
-                        legacy_plasma.abundance.shape[1],  # number of shells
+                        legacy_plasma.atomic_data.lines.shape[
+                            0
+                        ],  # number of lines
+                        legacy_plasma.number_density.shape[
+                            1
+                        ],  # number of shells
                     ),
                     dtype=np.float64,
                 ),
