@@ -55,6 +55,67 @@ def map_species_from_string(species):
 
 
 class PlasmaSolverFactory:
+    """Factory class for creating plasma solvers.
+
+    atom_data : object
+        Object containing atomic data.
+    selected_atomic_numbers : list
+        List of selected atomic numbers.
+
+    Attributes
+    ----------
+    excitation_analytical_approximation : str
+        Analytical approximation for excitation (default: "lte").
+    ionization_analytical_approximation : str
+        Analytical approximation for ionization (default: "lte").
+    nebular_ionization_delta_treatment : tuple
+        Species to use for the delta_treatment in nebular ionization ML93 (default: ()).
+    link_t_rad_t_electron : float
+        Link between t_rad and t_electron (default: 1.0).
+    radiative_rates_type : str
+        Type of radiative rates (default: "dilute-blackbody").
+    delta_treatment : float or None
+        Delta treatment (default: None).
+    legacy_nlte_species : list
+        List of legacy non-LTE species (default: []).
+    nlte_excitation_species : list
+        List of non-LTE excitation species (default: []).
+    nlte_ionization_species : list
+        List of non-LTE ionization species (default: []).
+    nlte_solver : str
+        Non-LTE solver (default: "lu").
+        Helium treatment options (default: "none").
+    heating_rate_data_file : str
+        Heating rate data file (default: "none").
+    continuum_interaction_species : list
+        List of continuum interaction species (default: []).
+    enable_adiabatic_cooling : bool
+        Flag for enabling adiabatic cooling (default: False).
+    enable_two_photon_decay : bool
+        Flag for enabling two-photon decay (default: False).
+    line_interaction_type : str
+        Type of line interaction (default: "scatter").
+    plasma_modules : list
+        List of plasma modules (default: []).
+    kwargs : dict
+        Additional keyword arguments (default: {}).
+    property_kwargs : dict
+        Additional keyword arguments for properties (default: {}).
+
+    Methods
+    -------
+    parse_plasma_config(plasma_config)
+    continuum_interaction_species_multi_index()
+        Get the continuum interaction species as a multi-index.
+    setup_factory(config)
+    setup_helium_treatment()
+    setup_legacy_nlte(nlte_config)
+        Set up the non-LTE properties for the legacy species.
+    setup_analytical_approximations()
+        Set up the analytical approximations for excitation and ionization.
+    initialize_j_blues(dilute_planckian_radiation_field, lines_df)
+        Initialize j_blues.
+    """
 
     ## Analytical Approximations
     excitation_analytical_approximation: str = "lte"
