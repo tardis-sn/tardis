@@ -567,7 +567,12 @@ class StandardSimulationSolver(
             if converged and self.convergence_strategy.stop_if_converged:
                 break
 
-        logger.info(f"\n\tStarting final iteration")
+        if converged:
+            logger.info("\n\tStarting final iteration")
+        else:
+            logger.error(
+                "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
+            )
         transport_state, virtual_packet_energies = self.solve_montecarlo(
             self.final_iteration_packet_count, self.virtual_packet_count
         )
