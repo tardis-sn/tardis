@@ -1,5 +1,5 @@
 import functools
-import os
+import os.environ as env
 from copy import deepcopy
 from pathlib import Path
 
@@ -62,7 +62,7 @@ class BenchmarkBase:
     def tardis_ref_path(self):
         ref_data_path = Path(
             Path(__file__).parent.parent,
-            os.environ.get("TARDIS_REF_PATH")
+            env.get("TARDIS_REF_PATH")
         ).resolve()
         return ref_data_path
 
