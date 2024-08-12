@@ -344,7 +344,7 @@ class RPacketLastInteractionTracker(object):
         """
         pass
 
-    def track_line_interaction(self, r_packet):
+    def track_line_interaction(self, r_packet, is_in_line):
         pass
 
 
