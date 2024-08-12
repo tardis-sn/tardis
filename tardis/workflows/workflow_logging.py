@@ -19,26 +19,6 @@ class WorkflowLogging:
     ):
         logging_state(log_level, configuration, specific_log_level)
 
-    def log_iteration_results(
-        self, emitted_luminosity, absorbed_luminosity, luminosity_requested
-    ):
-        """Print current iteration information to log at INFO level
-
-        Parameters
-        ----------
-        emitted_luminosity : Quantity
-            Current iteration emitted luminosity
-        absorbed_luminosity : Quantity
-            Current iteration absorbed luminosity
-        luminosity_requested : Quantity
-            The requested luminosity for the simulation
-        """
-        logger.info(
-            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
-            f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
-            f"\tLuminosity requested = {luminosity_requested:.3e}\n"
-        )
-
     def log_plasma_state(
         self,
         t_rad,
