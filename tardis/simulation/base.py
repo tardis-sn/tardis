@@ -18,6 +18,9 @@ from tardis.io.util import HDFWriterMixin
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
+from tardis.simulation.radiation_field_convergence import (
+    RadiationFieldConvergenceSolver,
+)
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.spectrum.luminosity import (
@@ -180,11 +183,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.consecutive_converges_count = 0
 
         # Convergence solvers
-        self.t_rad_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.t_rad
-        )
-        self.w_convergence_solver = ConvergenceSolver(
-            self.convergence_strategy.w
+        self.radiation_field_convergence_solver = (
+            RadiationFieldConvergenceSolver(self.convergence_strategy)
         )
         self.t_inner_convergence_solver = ConvergenceSolver(
             self.convergence_strategy.t_inner
@@ -236,16 +236,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         return input_t_inner * luminosity_ratios**t_inner_update_exponent
 
     def _get_convergence_status(
-        self, t_rad, w, t_inner, estimated_t_rad, estimated_w, estimated_t_inner
+        self,
+        radiation_field,
+        t_inner,
+        estimated_radiation_field,
+        estimated_t_inner,
     ):
-        t_rad_converged = self.t_rad_convergence_solver.get_convergence_status(
-            t_rad.value,
-            estimated_t_rad.value,
-            self.simulation_state.no_of_shells,
-        )
-
-        w_converged = self.w_convergence_solver.get_convergence_status(
-            w, estimated_w, self.simulation_state.no_of_shells
+        t_rad_converged, w_converged = (
+            self.radiation_field_convergence_solver.get_convergence_status(
+                radiation_field,
+                estimated_radiation_field,
+                self.simulation_state.no_of_shells,
+            )
         )
 
         t_inner_converged = (
@@ -281,6 +283,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         -------
             converged : bool
         """
+        current_radiation_field_state = DilutePlanckianRadiationField(
+            self.simulation_state.t_radiative,
+            self.simulation_state.dilution_factor,
+        )
+
         estimated_radfield_properties = (
             self.transport.radfield_prop_solver.solve(
                 self.transport.transport_state.radfield_mc_estimators,
@@ -291,12 +298,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
         )
 
-        estimated_t_rad = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        )
-        estimated_dilution_factor = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
-        )
+        estimated_t_rad = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
@@ -306,23 +309,19 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         converged = self._get_convergence_status(
-            self.simulation_state.t_radiative,
-            self.simulation_state.dilution_factor,
+            current_radiation_field_state,
             self.simulation_state.t_inner,
-            estimated_t_rad,
-            estimated_dilution_factor,
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state,
             estimated_t_inner,
         )
 
         # calculate_next_plasma_state equivalent
-        next_t_radiative = self.t_rad_convergence_solver.converge(
-            self.simulation_state.t_radiative,
-            estimated_t_rad,
+        next_radiation_field_state = self.radiation_field_convergence_solver.converge(
+            current_radiation_field_state,
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state,
         )
-        next_dilution_factor = self.w_convergence_solver.converge(
-            self.simulation_state.dilution_factor,
-            estimated_dilution_factor,
-        )
+        next_t_radiative = next_radiation_field_state.temperature
+        next_dilution_factor = next_radiation_field_state.dilution_factor
         if (
             self.iterations_executed + 1
         ) % self.convergence_strategy.lock_t_inner_cycles == 0:
@@ -367,12 +366,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.simulation_state.dilution_factor = next_dilution_factor
         self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
-        radiation_field = DilutePlanckianRadiationField(
-            temperature=self.simulation_state.t_radiative,
-            dilution_factor=self.simulation_state.dilution_factor,
-        )
         update_properties = dict(
-            dilute_planckian_radiation_field=radiation_field
+            dilute_planckian_radiation_field=next_radiation_field_state
         )
 
         # model.calculate_j_blues() equivalent
@@ -388,7 +383,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             == "blackbody"
         ):
             planckian_radiation_field = (
-                radiation_field.to_planckian_radiation_field()
+                next_radiation_field_state.to_planckian_radiation_field()
             )
             j_blues = planckian_radiation_field.calculate_mean_intensity(
                 self.plasma.atomic_data.lines.nu.values
@@ -400,7 +395,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
             == "dilute-blackbody"
         ):
-            j_blues = radiation_field.calculate_mean_intensity(
+            j_blues = next_radiation_field_state.calculate_mean_intensity(
                 self.plasma.atomic_data.lines.nu.values
             )
             update_properties["j_blues"] = pd.DataFrame(
