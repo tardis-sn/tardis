@@ -54,6 +54,13 @@ def map_species_from_string(species):
     return [species_string_to_tuple(spec) for spec in species]
 
 
+def convert_species_to_multi_index(species_strs):
+    return pd.MultiIndex.from_tuples(
+        map_species_from_string(species_strs),
+        names=["atomic_number", "ion_number"],
+    )
+
+
 class PlasmaSolverFactory:
 
     ## Analytical Approximations
@@ -91,22 +98,19 @@ class PlasmaSolverFactory:
     kwargs: dict = {}
     property_kwargs: dict = {}
 
-    def __init__(self, atom_data, selected_atomic_numbers, config=None) -> None:
+    def __init__(
+        self,
+        atom_data,
+        config=None,
+    ) -> None:
         if config is not None:
             self.parse_plasma_config(config.plasma)
         self.atom_data = atom_data
-        self.atom_data.prepare_atom_data(
-            selected_atomic_numbers,
-            line_interaction_type=self.line_interaction_type,
-            continuum_interaction_species=self.continuum_interaction_species_multi_index,
-            nlte_species=self.legacy_nlte_species,
-        )
 
     @property
     def continuum_interaction_species_multi_index(self):
-        return pd.MultiIndex.from_tuples(
-            map_species_from_string(self.continuum_interaction_species),
-            names=["atomic_number", "ion_number"],
+        return convert_species_to_multi_index(
+            self.continuum_interaction_species
         )
 
     def parse_plasma_config(self, plasma_config):
@@ -150,7 +154,7 @@ class PlasmaSolverFactory:
             plasma_config.continuum_interaction.enable_two_photon_decay
         )
 
-    def setup_factory(self, config=None):
+    def prepare_factory(self, selected_atomic_numbers, config=None):
         """
         Set up the plasma factory.
 
@@ -159,6 +163,13 @@ class PlasmaSolverFactory:
         config : object, optional
             Configuration object containing plasma settings (default: None).
         """
+        self.atom_data.prepare_atom_data(
+            selected_atomic_numbers,
+            line_interaction_type=self.line_interaction_type,
+            continuum_interaction_species=self.continuum_interaction_species_multi_index,
+            nlte_species=self.legacy_nlte_species,
+        )
+
         self.check_continuum_interaction_species()
 
         self.plasma_modules = basic_inputs + basic_properties
@@ -502,6 +513,7 @@ class PlasmaSolverFactory:
         dilute_planckian_radiation_field,
         time_explosion,
         electron_densities=None,
+        **kwargs,
     ):
         j_blues = self.initialize_j_blues(
             dilute_planckian_radiation_field, self.atom_data.lines
@@ -510,7 +522,7 @@ class PlasmaSolverFactory:
             RADIATIVE_RATES_TYPE=self.radiative_rates_type
         )
 
-        kwargs = dict(
+        plasma_assemble_kwargs = dict(
             time_explosion=time_explosion,
             dilute_planckian_radiation_field=dilute_planckian_radiation_field,
             number_density=number_densities,
@@ -521,12 +533,11 @@ class PlasmaSolverFactory:
             nlte_ionization_species=self.nlte_ionization_species,
             nlte_excitation_species=self.nlte_excitation_species,
         )
-
         if len(self.continuum_interaction_species) > 0:
             initial_continuum_properties = self.initialize_continuum_properties(
                 dilute_planckian_radiation_field
             )
-            kwargs.update(
+            plasma_assemble_kwargs.update(
                 gamma=initial_continuum_properties.photo_ionization_rate_coefficient,
                 bf_heating_coeff_estimator=None,
                 stim_recomb_cooling_coeff_estimator=None,
@@ -536,10 +547,11 @@ class PlasmaSolverFactory:
         if electron_densities is not None:
             electron_densities = pd.Series(electron_densities.cgs.value)
             self.setup_electron_densities(electron_densities)
-        kwargs["helium_treatment"] = self.helium_treatment
+        plasma_assemble_kwargs["helium_treatment"] = self.helium_treatment
+        plasma_assemble_kwargs.update(kwargs)
         return BasePlasma(
             plasma_properties=self.plasma_modules,
             property_kwargs=self.property_kwargs,
             plasma_solver_settings=plasma_solver_settings,
-            **kwargs,
+            **plasma_assemble_kwargs,
         )
