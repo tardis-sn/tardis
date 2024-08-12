@@ -221,8 +221,12 @@ class StandardSimulationSolver:
             )
         )
 
-        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        estimated_t_radiative = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
         self.initialize_spectrum_solver(
             transport_state,
             None,
@@ -599,9 +603,9 @@ class StandardSimulationSolver:
         self.spectrum_solver.transport_state = transport_state
 
         if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
-                virtual_packet_energies
-            )
+            self.spectrum_solver._montecarlo_virtual_luminosity.value[
+                :
+            ] = virtual_packet_energies
 
         if self.integrated_spectrum_settings is not None:
             # Set up spectrum solver integrator
@@ -623,9 +627,10 @@ class StandardSimulationSolver:
                 self.real_packet_count
             )
 
-            estimated_values, estimated_radfield_properties = (
-                self.get_convergence_estimates(transport_state)
-            )
+            (
+                estimated_values,
+                estimated_radfield_properties,
+            ) = self.get_convergence_estimates(transport_state)
 
             if self.convergence_plots is not None:
                 self.convergence_plots.update()
