@@ -357,6 +357,26 @@ class PlasmaSolverFactory:
             )
 
     def initialize_j_blues(self, dilute_planckian_radiation_field, lines_df):
+        """
+        Initialize the j_blues DataFrame based on the radiative_rates_type and the dilute_planckian_radiation_field.
+
+        Parameters
+        ----------
+        dilute_planckian_radiation_field : object
+            The dilute Planckian radiation field object.
+        lines_df : pandas.DataFrame
+            The DataFrame containing lines information.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The DataFrame with calculated mean intensity values.
+
+        Raises
+        ------
+        ValueError
+            If the radiative_rates_type is unknown.
+        """
         if (self.radiative_rates_type == "dilute-blackbody") or (
             self.radiative_rates_type == "detailed"
         ):
@@ -570,6 +590,30 @@ class PlasmaSolverFactory:
         time_explosion,
         electron_densities=None,
     ):
+        """
+        Assemble the plasma based on the provided parameters and settings.
+
+        Parameters
+        ----------
+        number_densities : dict
+            Dictionary of number densities for different species.
+        dilute_planckian_radiation_field : object
+            The dilute Planckian radiation field object.
+        time_explosion : float
+            The time of explosion.
+        electron_densities : array-like, optional
+            Optional electron densities.
+
+        Returns
+        -------
+        BasePlasma
+            The assembled plasma object.
+
+        Raises
+        ------
+        ValueError
+            If an error occurs during assembly.
+        """
         j_blues = self.initialize_j_blues(
             dilute_planckian_radiation_field, self.atom_data.lines
         )
