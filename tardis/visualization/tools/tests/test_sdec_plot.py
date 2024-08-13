@@ -108,38 +108,13 @@ class TestSDECPlotter:
     show_modeled_spectrum = [True, False]
 
     combinations = list(product(distance, packet_wvl_range, species_list, packets_mode, nelements, show_modeled_spectrum))
+    print(combinations)
 
     plotting_data_attributes = {
         "attributes_np":  ["plot_frequency_bins", "plot_wavelength", "plot_frequency", "modeled_spectrum_luminosity", "packet_wvl_range_mask", "emission_species", "absorption_species"],
         "attributes_df":  ["absorption_luminosities_df", "emission_luminosities_df", "total_luminosities_df"]
     }
     plotting_data_attributes = [[key, value] for key, values in plotting_data_attributes.items() for value in values]
-
-    @pytest.fixture(scope="class", autouse=False)
-    def create_hdf_file(self, request, sdec_ref_data_path):
-        """
-        Create an HDF5 file object.
-
-        Parameters
-        ----------
-        request : _pytest.fixtures.SubRequest
-        sdec_ref_data_path : str
-            Path to the reference data for the SDEC plots.
-
-        Yields
-        -------
-        h5py._hl.files.File
-            HDF5 file object.
-        """
-        # request.cls.regression_data = RegressionData(request)
-        cls = type(self)
-        if request.config.getoption("--generate-reference"):
-            cls.hdf_file = tables.open_file(sdec_ref_data_path, "w")
-
-        else:
-            cls.hdf_file = tables.open_file(sdec_ref_data_path, "r")
-        yield cls.hdf_file
-        cls.hdf_file.close()
 
     @pytest.fixture(scope="class")
     def plotter(self, simulation_simple, request):
@@ -269,12 +244,12 @@ class TestSDECPlotter:
             # save line plots
             if isinstance(data, Line2D):
                 property_group["data"+str(index1)] = data.get_xydata()
-                property_group["path"+str(index1)] = data.get_path().vertices
+                property_group["linepath"+str(index1)] = data.get_path().vertices
                 
             # save artists which correspond to element contributions
             if isinstance(data, PolyCollection):
                 for index2, path in enumerate(data.get_paths()):
-                    property_group["path" + str(index2)] = path.vertices
+                    property_group["polypath" + "ind_" + str(index1) + "ind_" + str(index2)] = path.vertices
 
         plot_data = PlotDataHDF(**property_group)
         return plot_data
@@ -300,14 +275,14 @@ class TestSDECPlotter:
                 )
                 np.testing.assert_allclose(
                     data.get_path().vertices,
-                    expected.get("plot_data_hdf/" + "path"+str(index1))
+                    expected.get("plot_data_hdf/" + "linepath"+str(index1))
                 )
             # save artists which correspond to element contributions
             if isinstance(data, PolyCollection):
                 for index2, path in enumerate(data.get_paths()):
                     np.testing.assert_almost_equal(
                         path.vertices,
-                        expected.get("plot_data_hdf/" + "path" + str(index2))
+                        expected.get("plot_data_hdf/" + "polypath" + "ind_" + str(index1) + "ind_" + str(index2))
                     )
 
     # @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
