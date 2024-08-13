@@ -16,10 +16,13 @@ from tardis.io.model.parse_simulation_state import (
 )
 from tardis.io.util import HDFWriterMixin
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
+from tardis.spectrum.luminosity import (
+    calculate_filtered_luminosity,
+)
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
@@ -454,25 +457,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             show_progress_bars=self.show_progress_bars,
         )
 
-        # Set up spectrum solver
-        self.spectrum_solver.transport_state = transport_state
-        self.spectrum_solver._montecarlo_virtual_luminosity.value[
-            :
-        ] = v_packets_energy_hist
-
         output_energy = (
             self.transport.transport_state.packet_collection.output_energies
         )
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = self.spectrum_solver.calculate_emitted_luminosity(
-            self.luminosity_nu_start, self.luminosity_nu_end
+        emitted_luminosity = calculate_filtered_luminosity(
+            transport_state.emitted_packet_nu,
+            transport_state.emitted_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
         )
-        reabsorbed_luminosity = (
-            self.spectrum_solver.calculate_reabsorbed_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end
-            )
+        reabsorbed_luminosity = calculate_filtered_luminosity(
+            transport_state.reabsorbed_packet_nu,
+            transport_state.reabsorbed_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
         )
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
@@ -493,7 +494,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
-        return emitted_luminosity
+        return emitted_luminosity, v_packets_energy_hist
 
     def run_convergence(self):
         """
@@ -508,7 +509,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.plasma.electron_densities,
                 self.simulation_state.t_inner,
             )
-            emitted_luminosity = self.iterate(self.no_of_packets)
+            emitted_luminosity, v_packets_energy_hist = self.iterate(
+                self.no_of_packets
+            )
             self.converged = self.advance_state(emitted_luminosity)
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
@@ -533,11 +536,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.electron_densities,
             self.simulation_state.t_inner,
         )
-        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets)
+        emitted_luminosity, v_packets_energy_hist = self.iterate(
+            self.last_no_of_packets, self.no_of_virtual_packets
+        )
 
-        # Set up spectrum solver integrator
-        self.spectrum_solver._integrator = FormalIntegrator(
-            self.simulation_state, self.plasma, self.transport
+        # Set up spectrum solver integrator and virtual spectrum
+        self.spectrum_solver.setup_optional_spectra(
+            self.transport.transport_state,
+            v_packets_energy_hist,
+            FormalIntegrator(
+                self.simulation_state, self.plasma, self.transport
+            ),
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)
