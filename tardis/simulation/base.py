@@ -242,12 +242,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         estimated_radiation_field,
         estimated_t_inner,
     ):
-        t_rad_converged, w_converged = (
-            self.radiation_field_convergence_solver.get_convergence_status(
-                radiation_field,
-                estimated_radiation_field,
-                self.simulation_state.no_of_shells,
-            )
+        (
+            t_rad_converged,
+            w_converged,
+        ) = self.radiation_field_convergence_solver.get_convergence_status(
+            radiation_field,
+            estimated_radiation_field,
+            self.simulation_state.no_of_shells,
         )
 
         t_inner_converged = (
@@ -297,9 +298,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.transport.transport_state.opacity_state.line_list_nu,
             )
         )
-
-        estimated_t_rad = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
