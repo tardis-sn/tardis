@@ -50,6 +50,7 @@ from tardis.util.base import species_string_to_tuple
 
 logger = logging.getLogger(__name__)
 
+
 def map_species_from_string(species):
     return [species_string_to_tuple(spec) for spec in species]
 
