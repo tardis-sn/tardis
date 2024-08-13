@@ -54,7 +54,6 @@ def get_effective_time_array(time_start, time_end, time_space, time_steps):
 
 def run_gamma_ray_loop(
     model,
-    plasma,
     isotope_decay_df,
     cumulative_decays_df,
     num_decays,
@@ -121,7 +120,7 @@ def run_gamma_ray_loop(
     ejecta_volume = model.volume.to("cm^3").value
     shell_masses = model.volume * model.density
     number_of_shells = len(shell_masses)
-    raw_isotope_abundance = model.composition.raw_isotope_abundance.sort_values(
+    raw_isotope_abundance = model.composition.isotopic_mass_fraction.sort_values(
         by=["atomic_number", "mass_number"], ascending=False
     )
 
@@ -140,15 +139,15 @@ def run_gamma_ray_loop(
             atom_number
         ].values
         if values.shape[0] > 1:
-            plasma.number_density.loc[atom_number].update = np.sum(
+            model.elemental_number_density.loc[atom_number].update = np.sum(
                 values, axis=0
             )
         else:
-            plasma.number_density.loc[atom_number].update = values
+            model.elemental_number_density.loc[atom_number].update = values
 
     # Electron number density
-    electron_number_density = plasma.number_density.mul(
-        plasma.number_density.index,
+    electron_number_density = model.elemental_number_density.mul(
+        model.elemental_number_density.index,
         axis=0,
     ).sum()
     electron_number = np.array(electron_number_density * ejecta_volume)
@@ -163,11 +162,13 @@ def run_gamma_ray_loop(
     # Need to get the strings for the isotopes without the dashes
     taus = make_isotope_string_tardis_like(taus)
 
-    total_energy = isotope_decay_df['decay_energy_erg'].sum()
+    gamma_df = isotope_decay_df[isotope_decay_df["radiation"] == "g"]
+    total_energy_gamma = gamma_df["decay_energy_erg"].sum()
 
-    energy_per_packet = total_energy / num_decays
 
-    logger.info(f"Total energy in gamma-rays is {total_energy}")
+    energy_per_packet = total_energy_gamma / num_decays
+
+    logger.info(f"Total energy in gamma-rays is {total_energy_gamma}")
     logger.info(f"Energy per packet is {energy_per_packet}")
 
     packet_source = GammaRayPacketSource(
@@ -229,8 +230,8 @@ def run_gamma_ray_loop(
     (
         energy_out,
         packets_array,
-        energy_deposited,
-        positron_energy,
+        energy_deposited_gamma,
+        energy_deposited_positron,
     ) = gamma_packet_loop(
         packets,
         grey_opacity,
@@ -268,13 +269,15 @@ def run_gamma_ray_loop(
         data=energy_out, columns=effective_time_array, index=energy_bins
     )
 
-    # deposited energy in ergs/s
+    # deposited energy in ergs
     deposited_energy = pd.DataFrame(
-        data=energy_deposited, columns=times[:-1]
-    )
-    # positron energy in ergs/s
+        data=energy_deposited_gamma, columns=times[:-1]
+    ) 
+    # positron energy in ergs
     positron_energy = pd.DataFrame(
-        data=positron_energy, columns=times[:-1]
-    )
+        data=energy_deposited_positron, columns=times[:-1]
+    ) 
 
-    return escape_energy, packets_df_escaped, deposited_energy, positron_energy
+    total_deposited_energy = (positron_energy + deposited_energy) / dt_array
+
+    return escape_energy, packets_df_escaped, total_deposited_energy

@@ -44,8 +44,8 @@ def gamma_packet_loop(
     effective_time_array,
     energy_bins,
     energy_out,
-    energy_deposited,
-    positron_energy,
+    energy_deposited_gamma,
+    energy_deposited_positron,
     packets_info_array,
 ):
     """Propagates packets through the simulation
@@ -232,8 +232,8 @@ def gamma_packet_loop(
 
                 packet, ejecta_energy_gained = process_packet_path(packet)
 
-                energy_deposited[packet.shell, time_index] += ejecta_energy_gained / dt
-                positron_energy[packet.shell, time_index] += packet.positron_fraction * ejecta_energy_gained / dt
+                energy_deposited_positron[packet.shell, time_index] += packet.positron_fraction * packet.energy_cmf
+                energy_deposited_gamma[packet.shell, time_index] += ejecta_energy_gained
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
@@ -252,8 +252,8 @@ def gamma_packet_loop(
                         energy_bins[bin_index + 1] - energy_bins[bin_index]
                     )
                     freq_bin_width = bin_width / H_CGS_KEV
-                    energy_out[bin_index, time_index] += rest_energy / (
-                        bin_width / dt / freq_bin_width
+                    energy_out[bin_index, time_index] += (
+                        packet.energy_rf / dt / freq_bin_width
                     )
 
                     luminosity = packet.energy_rf / dt
@@ -286,8 +286,8 @@ def gamma_packet_loop(
     return (
         energy_out,
         packets_info_array,
-        energy_deposited,
-        positron_energy,
+        energy_deposited_gamma,
+        energy_deposited_positron,
     )
 
 

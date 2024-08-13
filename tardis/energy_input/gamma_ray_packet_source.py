@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as 
+import pandas as pd
 
 import astropy.units as u
 
