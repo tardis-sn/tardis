@@ -1,21 +1,19 @@
 """Tests for SDEC Plots."""
-import os
 from copy import deepcopy
+from itertools import product
 
 import astropy
 import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
-import tables
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
-from itertools import product
 
 from tardis.base import run_tardis
-from tardis.visualization.tools.sdec_plot import SDECPlotter
-from tardis.tests.fixtures.regression_data import RegressionData
 from tardis.io.util import HDFWriterMixin
+from tardis.tests.fixtures.regression_data import RegressionData
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 
 
 class PlotDataHDF(HDFWriterMixin):
@@ -79,25 +77,6 @@ def simulation_simple(config_verysimple, atomic_dataset):
     )
     return sim
 
-
-@pytest.fixture(scope="module")
-def sdec_ref_data_path(tardis_ref_path):
-    """
-    Return the path to the reference data for the SDEC plots.
-
-    Parameters
-    ----------
-    tardis_ref_path : str
-        Path to the reference data directory.
-
-    Returns
-    -------
-    str
-        Path to SDEC reference data.
-    """
-    return os.path.abspath(os.path.join(tardis_ref_path, "sdec_ref.h5"))
-
-
 class TestSDECPlotter:
     """Test the SDECPlotter class."""
 
@@ -119,7 +98,6 @@ class TestSDECPlotter:
             show_modeled_spectrum,
         )
     )
-    print(combinations)
 
     plotting_data_attributes = {
         "attributes_np": [
@@ -157,7 +135,6 @@ class TestSDECPlotter:
         -------
         tardis.visualization.tools.sdec_plot.SDECPlotter
         """
-        # request.cls.regression_data = RegressionData(request)
         return SDECPlotter.from_simulation(simulation_simple)
 
     @pytest.fixture(scope="class")
@@ -297,7 +274,7 @@ class TestSDECPlotter:
     def test_generate_plot_mpl(
         self, generate_plot_mpl_hdf, plotter_generate_plot_mpl, request
     ):
-        fig, plotter = plotter_generate_plot_mpl
+        fig, _ = plotter_generate_plot_mpl
         regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
         for item in ["_species_name", "_color_list"]:
@@ -386,7 +363,7 @@ class TestSDECPlotter:
     def test_generate_plot_mpl(
         self, generate_plot_plotly_hdf, plotter_generate_plot_ply, request
     ):
-        fig, plotter = plotter_generate_plot_ply
+        fig, _ = plotter_generate_plot_ply
         regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
 
