@@ -30,6 +30,10 @@ class ThermalCollisionalRateSolver:
                 thermal_collisional_strengths_temperatures,
                 thermal_collisional_strengths,
             )
+        else:
+            raise ValueError(
+                f"collision_strengths_type {collision_strengths_type} not supported"
+            )
         self.radiative_transitions = radiative_transitions
         # find the transitions that have radiative rate data but no collisional data
         missing_collision_strengths_index = (
@@ -54,6 +58,15 @@ class ThermalCollisionalRateSolver:
                 )
             ].energy.values
         ) * u.erg
+
+        self.g_l = self.levels.loc[
+            self.all_collisional_strengths_index.droplevel("level_number_lower")
+        ].energy.values
+
+        self.g_u = self.levels.loc[
+            self.all_collisional_strengths_index.droplevel("level_number_upper")
+        ].energy.values
+
         if collisional_strength_approximation == "regemorter":
             self.thermal_collision_strength_approximator = (
                 UpsilonRegemorterSolver(
@@ -62,6 +75,57 @@ class ThermalCollisionalRateSolver:
             )
 
     def solve(self, temperatures_electron):
+        thermal_all_collision_strengths = self.calculate_collision_strengths(
+            temperatures_electron
+        )
+
+        boltzmann_factor = np.exp(
+            self.delta_energies[np.newaxis].T
+            / (temperatures_electron * const.k_B),
+        ).value
+        collision_rates_coeff_lu = (
+            BETA_COLL / np.sqrt(temperatures_electron) * boltzmann_factor
+        ).to(
+            "cm3 / s"
+        ).value * thermal_all_collision_strengths  # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
+
+        collision_rates_coeff_ul = (
+            (self.g_u / self.g_l)[np.newaxis].T
+            * boltzmann_factor
+            * collision_rates_coeff_lu
+        )
+
+        collision_rates_coeff_ul.index = (
+            collision_rates_coeff_lu.index.swaplevel(
+                "level_number_lower", "level_number_upper"
+            )
+        )
+
+        collision_rates_coeff_df = pd.concat(
+            [collision_rates_coeff_lu, collision_rates_coeff_ul]
+        )
+        collision_rates_coeff_df.index.names = [
+            "atomic_number",
+            "ion_number",
+            "level_number_source",
+            "level_number_destination",
+        ]
+        return collision_rates_coeff_df
+
+    def calculate_collision_strengths(self, temperatures_electron):
+        """
+        Calculate collision strengths based on the provided electron temperatures.
+
+        Parameters
+        ----------
+        temperatures_electron : array-like
+            Array-like of electron temperatures.
+
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame containing the calculated collision strengths.
+        """
         thermal_collision_strengths = (
             self.thermal_collision_strength_solver.solve(temperatures_electron)
         )
@@ -71,21 +135,9 @@ class ThermalCollisionalRateSolver:
             )
         )
 
-        thermal_all_collision_strengths = pd.concat(
+        return pd.concat(
             [
                 thermal_collision_strengths,
                 thermal_collision_strength_approximated,
             ]
         ).sort_index()
-
-        boltzmann_factor = np.exp(
-            self.delta_energies[np.newaxis].T
-            / (temperatures_electron * const.k_B),
-        ).value
-        q_ij = (
-            BETA_COLL / np.sqrt(temperatures_electron) * boltzmann_factor
-        ).to(
-            "cm3 / s"
-        ).value * thermal_all_collision_strengths  # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
-
-        return q_ij

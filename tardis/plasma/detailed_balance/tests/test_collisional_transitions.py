@@ -18,7 +18,14 @@ from tardis.plasma.detailed_balance.rates import (
     UpsilonRegemorterSolver,
 )
 from tardis.plasma.properties.atomic import YgData, YgInterpolator
-from tardis.plasma.properties.continuum_processes import CollExcRateCoeff
+from tardis.plasma.properties.continuum_processes import (
+    CollDeexcRateCoeff,
+    CollExcRateCoeff,
+)
+from tardis.plasma.properties.general import BetaElectron
+from tardis.plasma.properties.partition_function import (
+    ThermalLevelBoltzmannFactorLTE,
+)
 from tardis.plasma.properties.plasma_input import ContinuumInteractionSpecies
 from tardis.plasma.radiation_field import planck_rad_field
 
@@ -43,7 +50,10 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
         YgData,
         ContinuumInteractionSpecies,
         CollExcRateCoeff,
+        CollDeexcRateCoeff,
         YgInterpolator,
+        ThermalLevelBoltzmannFactorLTE,
+        BetaElectron,
     ]
     species_mindex = convert_species_to_multi_index(["He I"])
     return plasma_solver_factory.assemble(
@@ -114,5 +124,12 @@ def test_thermal_collision_rates(
         collision_strengths_type="cmfgen",
         collisional_strength_approximation="regemorter",
     )
-    coll_rates = therm_coll_rate_solver.solve([10000, 20000] * u.K)
-    print("hello")
+    coll_rates_coeff = therm_coll_rate_solver.solve([10000, 20000] * u.K)
+    pdt.assert_frame_equal(
+        coll_rates_coeff.iloc[:3681],
+        legacy_cmfgen_collision_rate_plasma_solver.coll_exc_rate_coeff,
+    )
+    pdt.assert_frame_equal(
+        coll_rates_coeff.iloc[3681:],
+        legacy_cmfgen_collision_rate_plasma_solver.coll_deexc_coeff,
+    )
