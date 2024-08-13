@@ -18,8 +18,8 @@ from tardis.tests.fixtures.regression_data import RegressionData
 from tardis.io.util import HDFWriterMixin
 
 class PlotDataHDF(HDFWriterMixin):
-    hdf_properties = []
     def __init__(self, **kwargs):
+        self.hdf_properties = []
         for key, value in kwargs.items():
             setattr(self, key, value)
             self.hdf_properties.append(key)
@@ -108,7 +108,6 @@ class TestSDECPlotter:
     show_modeled_spectrum = [True, False]
 
     combinations = list(product(distance, packet_wvl_range, species_list, packets_mode, nelements, show_modeled_spectrum))
-    print(combinations)
 
     plotting_data_attributes = {
         "attributes_np":  ["plot_frequency_bins", "plot_wavelength", "plot_frequency", "modeled_spectrum_luminosity", "packet_wvl_range_mask", "emission_species", "absorption_species"],
@@ -238,7 +237,7 @@ class TestSDECPlotter:
             )
 
 
-    @pytest.fixture(scope="class", params=combinations)
+    @pytest.fixture(scope="function", params=combinations)
     def plotter_generate_plot_mpl(self, request, observed_spectrum, plotter):
         distance, packet_wvl_range, species_list, packets_mode, nelements, show_modeled_spectrum = request.param
         if distance is None:
@@ -255,12 +254,14 @@ class TestSDECPlotter:
         )
         return fig, plotter
 
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="function")
     def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl, request):
         fig, plotter = plotter_generate_plot_mpl
+        
+        color_list = [item for subitem in plotter._color_list for item in subitem]
         property_group = {
             "_species_name": plotter._species_name,
-            "_color_list": plotter._color_list
+            "_color_list": color_list
         }
         for index1, data in enumerate(fig.get_children()):
             if isinstance(data.get_label(), str):
@@ -281,31 +282,32 @@ class TestSDECPlotter:
     def test_generate_plot_mpl(self, generate_plot_mpl_hdf, plotter_generate_plot_mpl, request):
         fig, plotter = plotter_generate_plot_mpl
         regression_data = RegressionData(request)
-        expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)["plot_data_hdf/property"]
+        expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
         for item in ["_species_name", "_color_list"]:
-            np.testing.assert_allclose(
-                getattr(expected, item),
+            np.testing.assert_array_equal(
+                expected.get("plot_data_hdf/" + item).values.flatten(),
                 getattr(generate_plot_mpl_hdf, item)
             )
+        labels = expected["plot_data_hdf/scalars"] 
         for index1, data in enumerate(fig.get_children()):
             if isinstance(data.get_label(), str):
-                assert getattr(expected, "label"+str(index1)) == data.get_label()
+                assert getattr(labels,"label"+str(index1)).decode() == data.get_label()
             # save line plots
             if isinstance(data, Line2D):
                 np.testing.assert_allclose(
                     data.get_xydata(),
-                    "data"+str(index1)
+                    expected.get("plot_data_hdf/" + "data"+str(index1))
                 )
                 np.testing.assert_allclose(
                     data.get_path().vertices,
-                    "path"+str(index1)
+                    expected.get("plot_data_hdf/" + "path"+str(index1))
                 )
             # save artists which correspond to element contributions
             if isinstance(data, PolyCollection):
                 for index2, path in enumerate(data.get_paths()):
-                    np.testing.assert_allclose(
+                    np.testing.assert_almost_equal(
                         path.vertices,
-                        getattr(expected, "path" + str(index2))
+                        expected.get("plot_data_hdf/" + "path" + str(index2))
                     )
 
     # @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
