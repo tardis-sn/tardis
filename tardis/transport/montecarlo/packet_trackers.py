@@ -290,7 +290,8 @@ def generate_rpacket_tracker_list(no_of_packets, length):
     -------
     A list containing RPacketTracker for each RPacket
     """
-    rpacket_trackers = List([RPacketTracker(length) for _ in range(no_of_packets)])
+    rPacketTracker = RPacketTracker(length)
+    rpacket_trackers = List([rPacketTracker for _ in range(no_of_packets)])
     return rpacket_trackers
 
 
@@ -305,5 +306,6 @@ def generate_rpacket_last_interaction_tracker_list(no_of_packets):
     -------
     A list containing RPacketLastInteractionTracker for each RPacket
     """
-    rpacket_trackers = List([RPacketLastInteractionTracker() for _ in range(no_of_packets)])
+    rPacketLastInteractionTracker = RPacketLastInteractionTracker()
+    rpacket_trackers = List([rPacketLastInteractionTracker for _ in range(no_of_packets)])
     return rpacket_trackers
