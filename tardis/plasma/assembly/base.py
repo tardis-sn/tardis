@@ -615,6 +615,9 @@ class PlasmaSolverFactory:
         ValueError
             If an error occurs during assembly.
         """
+        assert len(dilute_lte_excitation_properties.temperature) == len(
+            number_densities.columns
+        )
         j_blues = self.initialize_j_blues(
             dilute_planckian_radiation_field, self.atom_data.lines
         )
