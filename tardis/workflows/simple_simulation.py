@@ -7,11 +7,9 @@ from astropy import units as u
 
 from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
-from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.simulation.base import PlasmaStateStorerMixin
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
@@ -20,47 +18,20 @@ from tardis.spectrum.luminosity import (
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.util.base import is_notebook
-from tardis.visualization import ConvergencePlots
 from tardis.workflows.workflow_logging import WorkflowLogging
 
 # logging support
 logger = logging.getLogger(__name__)
 
 
-class StandardSimulationSolver(
-    WorkflowLogging, PlasmaStateStorerMixin, HDFWriterMixin
-):
-    hdf_properties = [
-        "simulation_state",
-        "plasma_solver",
-        "transport_solver",
-        "iterations_w",
-        "iterations_t_rad",
-        "iterations_electron_densities",
-        "iterations_t_inner",
-        "spectrum_solver",
-    ]
+class SimpleSimulation(WorkflowLogging):
+    show_progress_bars = is_notebook()
+    enable_virtual_packet_logging = False
+    log_level = None
+    specific_log_level = None
 
-    def __init__(
-        self,
-        configuration,
-        enable_virtual_packet_logging=False,
-        log_level=None,
-        specific_log_level=None,
-        show_progress_bars=False,
-        show_convergence_plots=False,
-        convergence_plots_kwargs={},
-    ):
-        # set up logging
-        WorkflowLogging.__init__(
-            self,
-            configuration=configuration,
-            log_level=log_level,
-            specific_log_level=specific_log_level,
-        )
-
-        self.show_progress_bars = show_progress_bars
-
+    def __init__(self, configuration):
+        super().__init__(configuration, self.log_level, self.specific_log_level)
         atom_data = self._get_atom_data(configuration)
 
         # set up states and solvers
@@ -78,7 +49,7 @@ class StandardSimulationSolver(
         self.transport_solver = MonteCarloTransportSolver.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
-            enable_virtual_packet_logging=enable_virtual_packet_logging,
+            enable_virtual_packet_logging=self.enable_virtual_packet_logging,
         )
 
         # Luminosity filter frequencies
@@ -118,13 +89,6 @@ class StandardSimulationSolver(
             configuration.montecarlo.no_of_virtual_packets
         )
 
-        # set up plasma storage
-        PlasmaStateStorerMixin.__init__(
-            self,
-            iterations=self.total_iterations,
-            no_of_shells=self.simulation_state.no_of_shells,
-        )
-
         # spectrum settings
         self.integrated_spectrum_settings = configuration.spectrum.integrated
         self.spectrum_solver = SpectrumSolver.from_config(configuration)
@@ -152,34 +116,6 @@ class StandardSimulationSolver(
         self.convergence_solvers["t_inner"] = ConvergenceSolver(
             self.convergence_strategy.t_inner
         )
-
-        # Convergence plots
-        if show_convergence_plots:
-            if not is_notebook():
-                raise RuntimeError(
-                    "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
-                    "to False."
-                )
-
-            self.convergence_plots = ConvergencePlots(
-                iterations=self.total_iterations, **convergence_plots_kwargs
-            )
-        else:
-            self.convergence_plots = None
-
-        if "export_convergence_plots" in convergence_plots_kwargs:
-            if not isinstance(
-                convergence_plots_kwargs["export_convergence_plots"],
-                bool,
-            ):
-                raise TypeError(
-                    "Expected bool in export_convergence_plots argument"
-                )
-            self.export_convergence_plots = convergence_plots_kwargs[
-                "export_convergence_plots"
-            ]
-        else:
-            self.export_convergence_plots = False
 
     def _get_atom_data(self, configuration):
         """Process atomic data from the configuration
@@ -249,42 +185,14 @@ class StandardSimulationSolver(
             )
         )
 
-        estimated_t_radiative = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        )
-        estimated_dilution_factor = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
-        )
+        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         emitted_luminosity = calculate_filtered_luminosity(
             transport_state.emitted_packet_nu,
             transport_state.emitted_packet_luminosity,
             self.luminosity_nu_start,
             self.luminosity_nu_end,
-        )
-        absorbed_luminosity = calculate_filtered_luminosity(
-            transport_state.reabsorbed_packet_nu,
-            transport_state.reabsorbed_packet_luminosity,
-            self.luminosity_nu_start,
-            self.luminosity_nu_end,
-        )
-
-        if self.convergence_plots is not None:
-            plot_data = {
-                "t_inner": [self.simulation_state.t_inner.value, "value"],
-                "t_rad": [self.simulation_state.t_radiative, "iterable"],
-                "w": [self.simulation_state.dilution_factor, "iterable"],
-                "velocity": [self.simulation_state.velocity, "iterable"],
-                "Emitted": [emitted_luminosity.value, "value"],
-                "Absorbed": [absorbed_luminosity.value, "value"],
-                "Requested": [self.luminosity_requested.value, "value"],
-            }
-            self.update_convergence_plot_data(plot_data)
-
-        logger.info(
-            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
-            f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
-            f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
 
         luminosity_ratios = (
@@ -295,15 +203,6 @@ class StandardSimulationSolver(
             self.simulation_state.t_inner
             * luminosity_ratios
             ** self.convergence_strategy.t_inner_update_exponent
-        )
-
-        self.log_plasma_state(
-            self.simulation_state.t_radiative,
-            self.simulation_state.dilution_factor,
-            self.simulation_state.t_inner,
-            estimated_t_radiative,
-            estimated_dilution_factor,
-            estimated_t_inner,
         )
 
         return {
@@ -349,25 +248,10 @@ class StandardSimulationSolver(
                 f"Iteration converged {self.consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
                 f"times."
             )
-            return self.consecutive_converges_count == hold_iterations + 1
+            return self.consecutive_converges_count >= hold_iterations + 1
 
         self.consecutive_converges_count = 0
         return False
-
-    def update_convergence_plot_data(self, plot_data_dict):
-        """Updates convergence plotting data
-
-        Parameters
-        ----------
-        plot_data_dict : dict
-            Dictionary of data to update of the form {"name": [value, item_type]}
-        """
-        for name, (value, item_type) in plot_data_dict.items():
-            self.convergence_plots.fetch_data(
-                name=name,
-                value=value,
-                item_type=item_type,
-            )
 
     def solve_simulation_state(
         self,
@@ -518,9 +402,9 @@ class StandardSimulationSolver(
         self.spectrum_solver.transport_state = transport_state
 
         if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[
-                :
-            ] = virtual_packet_energies
+            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
+                virtual_packet_energies
+            )
 
         if self.integrated_spectrum_settings is not None:
             # Set up spectrum solver integrator
@@ -531,19 +415,12 @@ class StandardSimulationSolver(
                 self.simulation_state, self.plasma_solver, self.transport_solver
             )
 
-    def solve(self):
-        """Solve the TARDIS simulation until convergence is reached"""
+    def run(self):
+        """Run the TARDIS simulation until convergence is reached"""
         converged = False
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
-            )
-            self.store_plasma_state(
-                self.completed_iterations,
-                self.simulation_state.dilution_factor,
-                self.simulation_state.t_radiative,
-                self.plasma_solver.electron_densities,
-                self.simulation_state.t_inner,
             )
             transport_state, virtual_packet_energies = self.solve_montecarlo(
                 self.real_packet_count
@@ -553,9 +430,6 @@ class StandardSimulationSolver(
                 estimated_values,
                 estimated_radfield_properties,
             ) = self.get_convergence_estimates(transport_state)
-
-            if self.convergence_plots is not None:
-                self.convergence_plots.update()
 
             self.solve_simulation_state(estimated_values)
 
@@ -576,20 +450,7 @@ class StandardSimulationSolver(
         transport_state, virtual_packet_energies = self.solve_montecarlo(
             self.final_iteration_packet_count, self.virtual_packet_count
         )
-        self.store_plasma_state(
-            self.completed_iterations,
-            self.simulation_state.dilution_factor,
-            self.simulation_state.t_radiative,
-            self.plasma_solver.electron_densities,
-            self.simulation_state.t_inner,
-        )
-        self.reshape_plasma_state_store(self.completed_iterations)
-        if self.convergence_plots is not None:
-            self.get_convergence_estimates(transport_state)
-            self.convergence_plots.update(
-                export_convergence_plots=self.export_convergence_plots,
-                last=True,
-            )
+
         self.initialize_spectrum_solver(
             transport_state,
             virtual_packet_energies,
