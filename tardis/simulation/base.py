@@ -28,6 +28,9 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
+from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
@@ -106,6 +109,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     model : tardis.model.SimulationState
     plasma : tardis.plasma.BasePlasma
     transport : tardis.transport.montecarlo.MontecarloTransport
+    opacity : tardis.opacities.opacity_solver.OpacitySolver
+    macro_atom : tardis.opacities.macro_atom.macroatom_solver.MacroAtomSolver
     no_of_packets : int
     last_no_of_packets : int
     no_of_virtual_packets : int
@@ -133,6 +138,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         simulation_state,
         plasma,
         transport,
+        opacity,
+        macro_atom,
         no_of_packets,
         no_of_virtual_packets,
         luminosity_nu_start,
@@ -155,6 +162,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.simulation_state = simulation_state
         self.plasma = plasma
         self.transport = transport
+        self.opacity = opacity
+        self.macro_atom = macro_atom
         self.no_of_packets = no_of_packets
         self.last_no_of_packets = last_no_of_packets
         self.no_of_virtual_packets = no_of_virtual_packets
@@ -442,8 +451,24 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
 
+        opacity_state = self.opacity.solve(self.plasma)
+        if self.macro_atom is not None:
+            if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+                macro_atom_state = MacroAtomState.from_legacy_plasma(
+                    self.plasma
+                )  # TODO: Impliment
+            else:
+                macro_atom_state = self.macro_atom.solve(
+                    self.plasma,
+                    self.plasma.atomic_data,
+                    opacity_state.tau_sobolev,
+                    self.plasma.stimulated_emission_factor,
+                )
+
         transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
+            opacity_state,
+            macro_atom_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
@@ -704,6 +729,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         atom_data=None,
         plasma=None,
         transport=None,
+        opacity=None,
+        macro_atom=None,
         **kwargs,
     ):
         """
@@ -761,6 +788,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 packet_source=simulation_state.packet_source,
                 enable_virtual_packet_logging=virtual_packet_logging,
             )
+        if opacity is None:
+            opacity = OpacitySolver(
+                config.plasma.line_interaction_type,
+                config.plasma.disable_line_scattering,
+            )
+        if macro_atom is None:
+            if config.plasma.line_interaction_type in (
+                "downbranch",
+                "macroatom",
+            ):
+                macro_atom = MacroAtomSolver()
 
         convergence_plots_config_options = [
             "plasma_plot_config",
@@ -800,6 +838,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             simulation_state=simulation_state,
             plasma=plasma,
             transport=transport,
+            opacity=opacity,
+            macro_atom=macro_atom,
             show_convergence_plots=show_convergence_plots,
             no_of_packets=int(config.montecarlo.no_of_packets),
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),

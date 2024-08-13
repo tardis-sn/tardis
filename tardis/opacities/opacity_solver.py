@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 
 
+
+
 class OpacitySolver(object):
 
     line_interaction_type: str = "scatter"
@@ -39,6 +41,8 @@ class OpacitySolver(object):
         -------
         OpacityState
         """
+        atomic_data = legacy_plasma.atomic_data
+
         if self.disable_line_scattering:
             tau_sobolev = pd.DataFrame(
                 np.zeros(
@@ -52,11 +56,11 @@ class OpacitySolver(object):
                     ),
                     dtype=np.float64,
                 ),
-                index=legacy_plasma.atomic_data.lines.index,
+                index=atomic_data.lines.index,
             )
         else:
             tau_sobolev = calculate_sobolev_line_opacity(
-                legacy_plasma.atomic_data.lines,
+                atomic_data.lines,
                 legacy_plasma.level_number_density,
                 legacy_plasma.time_explosion,
                 legacy_plasma.stimulated_emission_factor,
