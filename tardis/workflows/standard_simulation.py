@@ -42,7 +42,7 @@ class StandardSimulation(
         self.specific_log_level = specific_log_level
         self.enable_virtual_packet_logging = enable_virtual_packet_logging
 
-        SimpleSimulationWorkflow.__init__(self, configuration)
+        SimpleSimulation.__init__(self, configuration)
 
         # set up plasma storage
         PlasmaStateStorerMixin.__init__(
