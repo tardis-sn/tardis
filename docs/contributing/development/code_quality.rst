@@ -18,7 +18,7 @@ TARDIS follows the `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_ style gu
 
 Black
 -----
-`Black <https://black.readthedocs.io/en/stable/index.html>`_ is a PEP 8 compliant opinionated code formatter. At TARDIS. we use Black to automatically conform to PEP 8. It is already installed in the TARDIS conda environment, so all you have to do is to run Black before commiting your changes: ::
+`Black <https://black.readthedocs.io/en/stable/index.html>`_ is a PEP 8 compliant opinionated code formatter. At TARDIS. we use Black to automatically conform to PEP 8. It is already installed in the TARDIS conda environment, so all you have to do is to run Black before committing your changes: ::
 
     black {source_file_or_directory}
 
@@ -37,7 +37,7 @@ To run Ruff, use the following command: ::
     ruff check <source_file_or_directory> # Lints the code
     ruff check <source_file_or_directory> --fix # Lints and fixes any fixable errors
 
-Currently, Ruff is not integrated with the TARDIS CI and is not a requirement for merging a PR. However, it is recommended to run Ruff on your code before commiting it to ensure that new code already follows these rules.
+Currently, Ruff is not integrated with the TARDIS CI and is not a requirement for merging a PR. However, it is recommended to run Ruff on your code before committing it to ensure that new code already follows these rules.
 
 .. note :: We adopt the linting rules utilized by astropy. Permanent rules are defined in the ``pyproject.toml``, non-permanent rules are defined in the ``.ruff.toml`` file. If you want to add a new rule, please add it to the ``.ruff.toml`` file. If you want to add a permanent rule, please open a PR to the ``pyproject.toml``.
 

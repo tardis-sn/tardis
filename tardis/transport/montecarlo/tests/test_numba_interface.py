@@ -4,8 +4,19 @@ import numpy.testing as npt
 import numpy as np
 
 
-@pytest.mark.parametrize("input_params", ["scatter", "macroatom", "downbranch"])
-def test_opacity_state_initialize(nb_simulation_verysimple, input_params):
+@pytest.mark.parametrize(
+    "input_params,sliced",
+    [
+        ("scatter", False),
+        ("macroatom", False),
+        ("macroatom", True),
+        ("downbranch", False),
+        ("downbranch", True),
+    ],
+)
+def test_opacity_state_initialize(
+    nb_simulation_verysimple, input_params, sliced
+):
     line_interaction_type = input_params
     plasma = nb_simulation_verysimple.plasma
     actual = numba_interface.opacity_state_initialize(
@@ -14,11 +25,19 @@ def test_opacity_state_initialize(nb_simulation_verysimple, input_params):
         disable_line_scattering=False,
     )
 
+    if sliced:
+        index = slice(2, 5)
+        actual = actual[index]
+    else:
+        index = ...
+
     npt.assert_allclose(
-        actual.electron_density, plasma.electron_densities.values
+        actual.electron_density, plasma.electron_densities.values[index]
     )
     npt.assert_allclose(actual.line_list_nu, plasma.atomic_data.lines.nu.values)
-    npt.assert_allclose(actual.tau_sobolev, plasma.tau_sobolevs.values)
+    npt.assert_allclose(
+        actual.tau_sobolev, plasma.tau_sobolevs.values[:, index]
+    )
     if line_interaction_type == "scatter":
         empty = np.zeros(1, dtype=np.int64)
         npt.assert_allclose(
@@ -32,7 +51,7 @@ def test_opacity_state_initialize(nb_simulation_verysimple, input_params):
     else:
         npt.assert_allclose(
             actual.transition_probabilities,
-            plasma.transition_probabilities.values,
+            plasma.transition_probabilities.values[:, index],
         )
         npt.assert_allclose(
             actual.line2macro_level_upper,
