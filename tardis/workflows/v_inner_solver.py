@@ -36,6 +36,13 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         if tau is not None:
             self.TAU_TARGET = np.log(tau)
 
+        initial_v_inner = self.estimate_v_inner()
+
+        self.simulation_state.geometry.v_inner_boundary = initial_v_inner
+        self.simulation_state.blackbody_packet_source.radius = (
+            self.simulation_state.r_inner[0]
+        )
+
     def estimate_v_inner(self):
         """Compute the Rossland Mean Optical Depth,
         Estimate location where v_inner makes t=2/3 (or target)
