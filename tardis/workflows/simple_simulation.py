@@ -369,7 +369,16 @@ class SimpleSimulation(WorkflowLogging):
         self.plasma_solver.update(**update_properties)
 
     def solve_opacity(self):
+        """Solves the opacity state and any associated objects
 
+        Returns
+        -------
+        dict
+            opacity_state : tardis.opacities.opacity_state.OpacityState
+                State of the line opacities
+            macro_atom_state : tardis.opacities.macro_atom.macro_atom_state.MacroAtomState or None
+                State of the macro atom
+        """
         opacity_state = self.opacity_solver.solve(self.plasma_solver)
 
         if self.macro_atom_solver is None:
