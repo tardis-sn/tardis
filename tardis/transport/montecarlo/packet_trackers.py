@@ -230,7 +230,7 @@ class RPacketLastInteractionTracker(object):
         index : int
             Index position of each RPacket
         status : INT_ENUM
-            status of the RPacket whether it has been Reabsorbed or emiited.
+            status of the RPacket whether it has been reabsorbed or emitted.
         r : float
             Radius of the shell where the RPacket is present
         nu : float
