@@ -224,20 +224,10 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
 
         return next_values
 
-    def solve_radiation_field(self):
-
-        radiation_field = DilutePlanckianRadiationField(
-            temperature=self.simulation_state.radiation_field_state.temperature,
-            dilution_factor=self.simulation_state.radiation_field_state.dilution_factor,
-        )
-
-        return radiation_field
-
     def solve_plasma(
         self,
         estimated_radfield_properties,
         mask,
-        radiation_field,
     ):
         """Update the plasma solution with the new radiation field estimates
 
@@ -317,12 +307,9 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
 
             self.solve_simulation_state(estimated_values)
 
-            radiation_field = self.solve_radiation_field()
-
             self.solve_plasma(
                 estimated_radfield_properties,
                 estimated_values["mask"],
-                radiation_field,
             )
 
             converged = self.check_convergence(estimated_values)
