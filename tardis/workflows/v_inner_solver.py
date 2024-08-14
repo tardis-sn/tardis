@@ -31,13 +31,7 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
     TAU_TARGET = np.log(2.0 / 3)
 
     def __init__(self, configuration, mean_optical_depth="rossland", tau=None):
-        """
-        Args:
-            convergence_strategy (_type_): _description_
-            atom_data_path (_type_): _description_
-            mean_optical_depth (str): 'rossland' or 'planck'
-                Method of estimating the mean optical depth
-        """
+
         super().__init__(configuration)
         self.mean_optical_depth = mean_optical_depth
 
@@ -97,6 +91,20 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         return mask
 
     def get_convergence_estimates(self, transport_state):
+        """Compute convergence estimates from the transport state
+
+        Parameters
+        ----------
+        transport_state : MonteCarloTransportState
+            Transport state object to compute estimates
+
+        Returns
+        -------
+        dict
+            Convergence estimates
+        EstimatedRadiationFieldProperties
+            Dilute radiation file and j_blues dataclass
+        """
 
         estimates = super().get_convergence_estimates(transport_state)
 
@@ -109,6 +117,26 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         return estimates
 
     def reproject(self, a1, m1, a2, m2):
+        """Reprojects two sub_arrays defined by a set of masks onto an array where the masks of both objects are true
+
+        Parameters
+        ----------
+        a1 : np.ndarray
+            A sub array of an array with the shape of a geometry property
+        m1 : np.ndarray(bool)
+            Mask such that the parrent array accessed at this mask gives a1
+        a2 : np.ndarray
+            A sub array of an array with the shape of a geometry property
+        m2 : np.ndarray(bool)
+            Mask such that the parrent array accessed at this mask gives a2
+
+        Returns
+        -------
+        a1_joint
+            reprojection of a1 onto m1 & m2
+        a2_joint
+        reprojection of a2 onto m1 & m2
+        """
 
         a1_expanded = np.empty_like(
             a1,
@@ -127,6 +155,18 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         self,
         estimated_values,
     ):
+        """Check convergence status for a dict of estimated values
+
+        Parameters
+        ----------
+        estimated_values : dict
+            Estimates to check convergence
+
+        Returns
+        -------
+        bool
+            If convergence has occurred
+        """
         convergence_statuses = []
 
         mask = estimated_values["mask"]
@@ -169,7 +209,19 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         return False
 
     def solve_simulation_state(self, estimated_values):
+        """Update the simulation state with new inputs computed from previous
+        iteration estimates.
 
+        Parameters
+        ----------
+        estimated_values : dict
+            Estimated from the previous iterations
+
+        Returns
+        -------
+        next_values : dict
+            The next values assigned to the simulation state
+        """
         next_values = super().solve_simulation_state(estimated_values)
         self.simulation_state.geometry.v_inner_boundary = next_values[
             "v_inner_boundary"
@@ -194,6 +246,20 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         estimated_radfield_properties,
         radiation_field,
     ):
+        """Update the plasma solution with the new radiation field estimates
+
+        Parameters
+        ----------
+        estimated_radfield_properties : EstimatedRadiationFieldProperties
+            The radiation field properties to use for updating the plasma
+        radiation_field: tardis.plasma.radiation_field.RadiationField
+            Current radiation field object from the last iteration
+
+        Raises
+        ------
+        ValueError
+            If the plasma solver radiative rates type is unknown
+        """
 
         update_properties = dict(
             dilute_planckian_radiation_field=radiation_field
@@ -239,6 +305,7 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         self.plasma_solver.update(**update_properties)
 
     def run(self):
+        """Run the TARDIS simulation until convergence is reached"""
         converged = False
         while self.completed_iterations < self.total_iterations - 1:
 

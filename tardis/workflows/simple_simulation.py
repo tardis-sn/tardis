@@ -279,6 +279,11 @@ class SimpleSimulation(WorkflowLogging):
         ----------
         estimated_values : dict
             Estimated from the previous iterations
+
+        Returns
+        -------
+        next_values : dict
+            The next values assigned to the simulation state
         """
         next_values = {}
 
