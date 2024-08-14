@@ -113,5 +113,5 @@ jobs:
                     -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
                     -H "Accept: application/vnd.github+json" \
                     -H "Content-Type: application/json" \
-                    -d '{ "event_type": "repo-push" }' \
+                    -d '{ "event_type": "fetch-papers" }' \
                     https://api.github.com/repos/tardis-sn/tardis-org-data/dispatches
