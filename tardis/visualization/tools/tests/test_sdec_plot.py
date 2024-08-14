@@ -193,28 +193,37 @@ class TestSDECPlotter:
         )
         return plotter
 
-    @pytest.mark.parametrize("attributes", plotting_data_attributes)
-    def test_calculate_plotting_data(
-        self, plotter_calculate_plotting_data, request, attributes
-    ):
+    @pytest.fixture(scope="class")
+    def calculate_plotting_data_hdf(self, request, plotter_calculate_plotting_data):
+        property_group = {}
+        for _, attribute_name in self.plotting_data_attributes:
+            plot_object = getattr(
+                plotter_calculate_plotting_data, attribute_name
+            )
+            property_group[attribute_name] = plot_object
+        plot_data = PlotDataHDF(**property_group)
+        return plot_data
+    
+    def test_calculate_plotting_data(self, plotter_calculate_plotting_data, calculate_plotting_data_hdf, request):
         regression_data = RegressionData(request)
-        attribute_type, attribute_name = attributes
-        if attribute_type == "attributes_np":
-            plot_object = getattr(
-                plotter_calculate_plotting_data, attribute_name
-            )
-            if isinstance(plot_object, astropy.units.quantity.Quantity):
-                plot_object = plot_object.cgs.value
-            data = regression_data.sync_ndarray(plot_object)
-            np.testing.assert_allclose(plot_object, data)
-        elif attribute_type == "attributes_np":
-            plot_object = getattr(
-                plotter_calculate_plotting_data, attribute_name
-            )
-            data = regression_data.sync_dataframe(plot_object)
-            pd.testing.assert_frame_equal(plot_object, data)
+        expected = regression_data.sync_hdf_store(calculate_plotting_data_hdf)
+        group = "plot_data_hdf/"
+        for attribute_type, attribute_name in self.plotting_data_attributes:
+            plot_object = getattr(plotter_calculate_plotting_data, attribute_name)
+            if attribute_type == "attributes_np":
+                if isinstance(plot_object, astropy.units.quantity.Quantity):
+                    plot_object = plot_object.cgs.value
+                np.testing.assert_allclose(
+                    plot_object,
+                    expected.get(group + attribute_name)
+                )
+            if attribute_type == "attributes_pd":
+                pd.testing.assert_frame_equal(
+                    plot_object,
+                    expected.get(group + attribute_name)
+                )
 
-    @pytest.fixture(scope="function", params=combinations)
+    @pytest.fixture(scope="class", params=combinations)
     def plotter_generate_plot_mpl(self, request, observed_spectrum, plotter):
         (
             distance,
@@ -238,7 +247,7 @@ class TestSDECPlotter:
         )
         return fig, plotter
 
-    @pytest.fixture(scope="function")
+    @pytest.fixture(scope="class")
     def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl, request):
         fig, plotter = plotter_generate_plot_mpl
 
@@ -314,7 +323,7 @@ class TestSDECPlotter:
                         ),
                     )
 
-    @pytest.fixture(scope="function", params=combinations)
+    @pytest.fixture(scope="class", params=combinations)
     def plotter_generate_plot_ply(self, request, observed_spectrum, plotter):
         (
             distance,
@@ -338,7 +347,7 @@ class TestSDECPlotter:
         )
         return fig, plotter
 
-    @pytest.fixture(scope="function")
+    @pytest.fixture(scope="class")
     def generate_plot_plotly_hdf(self, plotter_generate_plot_ply, request):
         fig, plotter = plotter_generate_plot_ply
 
