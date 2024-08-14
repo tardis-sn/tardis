@@ -10,9 +10,6 @@ on:
 
   workflow_dispatch: # manual trigger
 
-env:
-  NASA_ADS_TOKEN: ${{ secrets.NASA_ADS_TOKEN }}
-
 jobs:
   changelog:
     runs-on: ubuntu-latest
