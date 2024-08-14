@@ -33,8 +33,6 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
             self.convergence_strategy.v_inner_boundary
         )
 
-        self.property_mask_ = self.property_mask
-
         if tau is not None:
             self.TAU_TARGET = np.log(tau)
 
