@@ -149,6 +149,10 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
 
         return a1[m2[m1]], a2[m1[m2]]
 
+    def print_mask(self, mask):
+
+        return "".join([{True: "-", False: "X"}[m] for m in mask]).join("[]")
+
     def check_convergence(
         self,
         estimated_values,
@@ -172,7 +176,11 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         if not np.all(mask == self.property_mask):
             convergence_statuses.append(False)
             # Need to set status to False if change in mask size
-            logger.info(f"Resized Geometry, Convergence Suppressed")
+            logger.info(
+                f"Resized Geometry, Convergence Suppressed\n"
+                f"\t  Old Geometry: {self.print_mask(mask)}\n"
+                f"\t  New Geometry: {self.print_mask(self.property_mask)}"
+            )
 
         for key, solver in self.convergence_solvers.items():
 
