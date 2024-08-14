@@ -238,6 +238,7 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
     def solve_plasma(
         self,
         estimated_radfield_properties,
+        mask,
         radiation_field,
     ):
         """Update the plasma solution with the new radiation field estimates
@@ -287,8 +288,12 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
             self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
             == "detailed"
         ):
+            j_blues = radiation_field.calculate_mean_intensity(
+                self.plasma_solver.atomic_data.lines.nu.values
+            )
+            j_blues[:, mask] = estimated_radfield_properties.j_blues
             update_properties["j_blues"] = pd.DataFrame(
-                estimated_radfield_properties.j_blues,
+                j_blues,
                 index=self.plasma_solver.atomic_data.lines.index,
             )
         else:
@@ -316,7 +321,11 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
 
             radiation_field = self.solve_radiation_field()
 
-            self.solve_plasma(estimated_radfield_properties, radiation_field)
+            self.solve_plasma(
+                estimated_radfield_properties,
+                estimated_values["mask"],
+                radiation_field,
+            )
 
             converged = self.check_convergence(estimated_values)
 
