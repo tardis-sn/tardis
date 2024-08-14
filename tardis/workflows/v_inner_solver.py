@@ -3,17 +3,11 @@ import logging
 import numpy as np
 from astropy import units as u
 
-from tardis.io.atom_data.base import AtomData
 from tardis.simulation.convergence import ConvergenceSolver
-from tardis.spectrum.formal_integral import FormalIntegrator
 from tardis.workflows.simple_simulation import SimpleSimulation
 from tardis.workflows.util import get_tau_integ
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from scipy.interpolate import interp1d
-import copy
-from tardis.spectrum.luminosity import (
-    calculate_filtered_luminosity,
-)
 import pandas as pd
 
 # logging support
