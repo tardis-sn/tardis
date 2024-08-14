@@ -27,7 +27,7 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
     def __init__(self, configuration, mean_optical_depth="rossland", tau=None):
 
         super().__init__(configuration)
-        self.mean_optical_depth = mean_optical_depth
+        self.mean_optical_depth = mean_optical_depth.lower()
 
         self.convergence_solvers["v_inner_boundary"] = ConvergenceSolver(
             self.convergence_strategy.v_inner_boundary
