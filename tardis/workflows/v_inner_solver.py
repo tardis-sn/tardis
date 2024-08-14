@@ -58,7 +58,7 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
             self.simulation_state.geometry.v_inner,  # Only use the active values as we only need a numerical estimate, not an index
             fill_value="extrapolate",
         )
-        # TODO: Make sure eastimed_v_inner is within the bounds of the simulation!
+
         estimated_v_inner = interpolator(self.TAU_TARGET) * u.cm / u.s
 
         if estimated_v_inner < self.simulation_state.geometry.v_inner[0]:
