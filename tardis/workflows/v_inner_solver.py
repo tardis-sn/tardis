@@ -38,6 +38,7 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         self,
         configuration,
         mean_optical_depth="rossland",
+        tau=None
     ):
         """
         Args:
@@ -60,6 +61,8 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
             self.macro_atom_solver = None
         else:
             self.macro_atom_solver = MacroAtomSolver()
+        if tau is not None:
+            self.TAU_TARGET = np.log(tau)
 
     def estimate_v_inner(self):
         """Compute the Rossland Mean Optical Depth,
@@ -167,6 +170,22 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
             "t_inner": estimated_t_inner,
             "v_inner_boundary": estimated_v_inner,
         }
+    
+    def reproject(self, a1, a2, m1, m2):
+
+        a1_expanded = np.empty(
+        len(self.simulation_state.geometry.r_inner),
+            dtype=a1.dtype,
+        )
+        a2_expanded = np.empty_like(a1_expanded)
+
+        a1_expanded[m1] = a1
+        a2_expanded[m2] = a2
+        
+        joint_mask = m1 & m2
+
+        return a1_expanded[joint_mask], a2_expanded[joint_mask]
+
 
     def check_convergence(
         self,
