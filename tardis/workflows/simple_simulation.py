@@ -508,8 +508,11 @@ class SimpleSimulation(WorkflowLogging):
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
+        opacity = self.solve_opacity()
         transport_state, virtual_packet_energies = self.solve_montecarlo(
-            self.final_iteration_packet_count, self.virtual_packet_count
+            opacity,
+            self.final_iteration_packet_count,
+            self.virtual_packet_count,
         )
 
         self.initialize_spectrum_solver(
