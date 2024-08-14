@@ -68,7 +68,7 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
             )
         elif estimated_v_inner > self.simulation_state.geometry.v_inner[-1]:
             estimated_v_inner = self.simulation_state.geometry.v_inner[-1]
-            logger.wraning(
+            logger.warning(
                 "WARNING: v_inner_boundary outside of simulation, setting to last shell"
             )
 
