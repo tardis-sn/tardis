@@ -9,7 +9,7 @@ from tardis import constants as const
 from tardis.io.atom_data.base import AtomData
 from tardis.model import SimulationState
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
