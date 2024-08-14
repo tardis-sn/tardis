@@ -368,7 +368,28 @@ class SimpleSimulation(WorkflowLogging):
 
         self.plasma_solver.update(**update_properties)
 
-    def solve_montecarlo(self, no_of_real_packets, no_of_virtual_packets=0):
+    def solve_opacity(self):
+
+        opacity_state = self.opacity_solver.solve(self.plasma_solver)
+
+        if self.macro_atom_solver is None:
+            macro_atom_state = None
+        else:
+            macro_atom_state = self.macro_atom_solver.solve(
+                self.plasma_solver,
+                self.plasma_solver.atomic_data,
+                opacity_state.tau_sobolev,
+                self.plasma_solver.stimulated_emission_factor,
+            )
+
+        return {
+            "opacity_state": opacity_state,
+            "macro_atom_state": macro_atom_state,
+        }
+
+    def solve_montecarlo(
+        self, opacity, no_of_real_packets, no_of_virtual_packets=0
+    ):
         """Solve the MonteCarlo process
 
         Parameters
@@ -386,17 +407,9 @@ class SimpleSimulation(WorkflowLogging):
             Array of unnormalized virtual packet energies in each frequency bin
         """
 
-        opacity_state = self.opacity_solver.solve(self.plasma_solver)
+        opacity_state = opacity["opacity_state"]
+        macro_atom_state = opacity["macro_atom_state"]
 
-        if self.macro_atom_solver is None:
-            macro_atom_state = None
-        else:
-            macro_atom_state = self.macro_atom_solver.solve(
-                self.plasma_solver,
-                self.plasma_solver.atomic_data,
-                opacity_state.tau_sobolev,
-                self.plasma_solver.stimulated_emission_factor,
-            )
         transport_state = self.transport_solver.initialize_transport_state(
             self.simulation_state,
             opacity_state,
@@ -458,8 +471,11 @@ class SimpleSimulation(WorkflowLogging):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
+
+            opacity = self.solve_opacity()
+
             transport_state, virtual_packet_energies = self.solve_montecarlo(
-                self.real_packet_count
+                opacity, self.real_packet_count
             )
 
             (

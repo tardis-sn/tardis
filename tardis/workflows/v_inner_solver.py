@@ -299,8 +299,10 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         converged = False
         while self.completed_iterations < self.total_iterations - 1:
 
+            opacity = self.solve_opacity()
+
             transport_state, virtual_packet_energies = self.solve_montecarlo(
-                self.real_packet_count
+                opacity, self.real_packet_count
             )
 
             (
