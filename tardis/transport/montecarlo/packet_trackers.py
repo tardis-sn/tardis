@@ -4,6 +4,7 @@ from numba.typed import List
 import numpy as np
 import pandas as pd
 
+from tardis.transport.montecarlo.r_packet import PacketStatus
 
 boundary_interaction_dtype = np.dtype(
     [
@@ -211,6 +212,7 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
 
 rpacket_last_interaction_tracker_spec = [
     ("index", int64),
+    ("status", int64),
     ("r", float64),
     ("nu", float64),
     ("energy", float64),
@@ -227,6 +229,8 @@ class RPacketLastInteractionTracker(object):
     ----------
         index : int
             Index position of each RPacket
+        status : INT_ENUM
+            status of the RPacket whether it has been Reabsorbed or emiited.
         r : float
             Radius of the shell where the RPacket is present
         nu : float
@@ -244,6 +248,7 @@ class RPacketLastInteractionTracker(object):
         Initialize properties with default values
         """
         self.index = -1
+        self.status = PacketStatus.IN_PROCESS
         self.r = -1.0
         self.nu = 0.0
         self.energy = 0.0
@@ -255,6 +260,7 @@ class RPacketLastInteractionTracker(object):
         Track properties of RPacket and override the previous values
         """
         self.index = r_packet.index
+        self.status = r_packet.status
         self.r = r_packet.r
         self.nu = r_packet.nu
         self.energy = r_packet.energy
