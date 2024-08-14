@@ -243,7 +243,10 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         ValueError
             If the plasma solver radiative rates type is unknown
         """
-
+        radiation_field = DilutePlanckianRadiationField(
+            temperature=self.simulation_state.radiation_field_state.temperature,
+            dilution_factor=self.simulation_state.radiation_field_state.dilution_factor,
+        )
         update_properties = dict(
             dilute_planckian_radiation_field=radiation_field
         )
