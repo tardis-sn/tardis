@@ -1,0 +1,41 @@
+name: tardis-research-papers
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+    research-using-tardis:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.x"
+    
+            - name: Install dependencies
+              run: |
+                python -m pip install --upgrade pip
+                pip install jupyter nbconvert
+            
+            - name: Shift to research_done_using_tardis directory
+              run: |
+                cd docs/resources/research_done_using_TARDIS/
+            
+            - name: Run the ADS notebook
+              run: |
+                jupyter nbconvert --to python ads.ipynb
+                python3 ads.py
+            
+            - uses: actions/upload-artifact@v4
+              with:
+                name: research_papers
+                path: |
+                    docs/resources/research_done_using_TARDIS/resource_papers.rst
