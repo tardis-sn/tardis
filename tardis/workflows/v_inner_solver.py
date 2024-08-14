@@ -31,7 +31,7 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
 
         self.convergence_solvers["v_inner_boundary"] = ConvergenceSolver(
             self.convergence_strategy.v_inner_boundary
-        )  # WARNING: ORDERING MATTERS
+        )
 
         self.property_mask_ = self.property_mask
 
