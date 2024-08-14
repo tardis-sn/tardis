@@ -144,7 +144,7 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         a1*
             reprojection of a1 onto m1 & m2
         a2*
-        reprojection of a2 onto m1 & m2
+            reprojection of a2 onto m1 & m2
         """
 
         return a1[m2[m1]], a2[m1[m2]]
