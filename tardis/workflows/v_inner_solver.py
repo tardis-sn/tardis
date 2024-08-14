@@ -118,6 +118,16 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
     def reproject(self, a1, m1, a2, m2):
         """Reprojects two sub_arrays defined by a set of masks onto an array where the masks of both objects are true
 
+        let A1, A2 be arrays of size gemetry.no_of_shells and
+            a1 = A1[m1],
+            a2 = A2[m2]
+        find a1*, a2* s.t.
+            a1* = A1[m1 & m2],
+            a2* = A2[m1 & m2]
+        this is equivalent to
+            a1* = A1[m1][m2[m1]] = a1[m2[m1]],
+            a2* = A2[m2][m1[m2]] = a2[m1[m2]]
+
         Parameters
         ----------
         a1 : np.ndarray
@@ -131,9 +141,9 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
 
         Returns
         -------
-        a1_joint
+        a1*
             reprojection of a1 onto m1 & m2
-        a2_joint
+        a2*
         reprojection of a2 onto m1 & m2
         """
 
