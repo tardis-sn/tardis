@@ -19,6 +19,8 @@ from tardis.spectrum.luminosity import (
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.util.base import is_notebook
 from tardis.workflows.workflow_logging import WorkflowLogging
+from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
 
 # logging support
 logger = logging.getLogger(__name__)
@@ -117,6 +119,15 @@ class SimpleSimulation(WorkflowLogging):
             self.convergence_strategy.t_inner
         )
 
+        self.opacity_solver = OpacitySolver(
+            line_interaction_type=configuration.plasma.line_interaction_type,
+            disable_line_scattering=False,
+        )
+        if configuration.plasma.line_interaction_type == "scatter":
+            self.macro_atom_solver = None
+        else:
+            self.macro_atom_solver = MacroAtomSolver()
+
     def _get_atom_data(self, configuration):
         """Process atomic data from the configuration
 
@@ -185,8 +196,12 @@ class SimpleSimulation(WorkflowLogging):
             )
         )
 
-        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        estimated_t_radiative = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
 
         emitted_luminosity = calculate_filtered_luminosity(
             transport_state.emitted_packet_nu,
@@ -286,6 +301,8 @@ class SimpleSimulation(WorkflowLogging):
             "t_inner"
         ]
 
+        return next_values
+
     def solve_plasma(self, estimated_radfield_properties):
         """Update the plasma solution with the new radiation field estimates
 
@@ -363,8 +380,22 @@ class SimpleSimulation(WorkflowLogging):
         ndarray
             Array of unnormalized virtual packet energies in each frequency bin
         """
+
+        opacity_state = self.opacity_solver.solve(self.plasma_solver)
+
+        if self.macro_atom_solver is None:
+            macro_atom_state = None
+        else:
+            macro_atom_state = self.macro_atom_solver.solve(
+                self.plasma_solver,
+                self.plasma_solver.atomic_data,
+                opacity_state.tau_sobolev,
+                self.plasma_solver.stimulated_emission_factor,
+            )
         transport_state = self.transport_solver.initialize_transport_state(
             self.simulation_state,
+            opacity_state,
+            macro_atom_state,
             self.plasma_solver,
             no_of_real_packets,
             no_of_virtual_packets=no_of_virtual_packets,
@@ -402,9 +433,9 @@ class SimpleSimulation(WorkflowLogging):
         self.spectrum_solver.transport_state = transport_state
 
         if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
-                virtual_packet_energies
-            )
+            self.spectrum_solver._montecarlo_virtual_luminosity.value[
+                :
+            ] = virtual_packet_energies
 
         if self.integrated_spectrum_settings is not None:
             # Set up spectrum solver integrator
