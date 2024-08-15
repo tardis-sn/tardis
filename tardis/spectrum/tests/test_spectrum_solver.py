@@ -92,7 +92,7 @@ class TestSpectrumSolver:
         transport_state = simulation.transport.transport_state
         spectrum_frequency_grid = simulation.transport.spectrum_frequency_grid
 
-        solver = SpectrumSolver(transport_state, spectrum_frequency_grid)
+        solver = SpectrumSolver(transport_state, spectrum_frequency_grid, None)
         result_real, result_virtual, result_integrated = solver.solve(
             transport_state
         )
