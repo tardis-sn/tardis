@@ -33,9 +33,7 @@ class MacroAtomSolver(object):
             Atomic Data
         """
 
-        coef_and_block_ref = initialize_transition_probabilities(
-            atomic_data
-        )
+        coef_and_block_ref = initialize_transition_probabilities(atomic_data)
         self.transition_probability_coef = coef_and_block_ref[
             "transition_probability_coef"
         ]
@@ -69,17 +67,15 @@ class MacroAtomSolver(object):
         if self.initialize:
             self.initialize_transition_probabilities(atomic_data)
 
-        transition_probabilities = (
-            calculate_transition_probabilities(
-                atomic_data,
-                legacy_plasma.beta_sobolev,
-                legacy_plasma.j_blues,
-                stimulated_emission_factor,
-                tau_sobolev,
-                self.transition_probability_coef,
-                self.block_references,
-                normalize=self.normalize,
-            )
+        transition_probabilities = calculate_transition_probabilities(
+            atomic_data,
+            legacy_plasma.beta_sobolev,
+            legacy_plasma.j_blues,
+            stimulated_emission_factor,
+            tau_sobolev,
+            self.transition_probability_coef,
+            self.block_references,
+            normalize=self.normalize,
         )
 
         return transition_probabilities
@@ -109,13 +105,11 @@ class MacroAtomSolver(object):
             State of the macro atom ready to be placed into the OpacityState
         """
 
-        transition_probabilities = (
-            self.solve_transition_probabilities(
-                atomic_data,
-                legacy_plasma,
-                tau_sobolev,
-                stimulated_emission_factor,
-            )
+        transition_probabilities = self.solve_transition_probabilities(
+            atomic_data,
+            legacy_plasma,
+            tau_sobolev,
+            stimulated_emission_factor,
         )
 
         macro_block_references = atomic_data.macro_atom_references[
