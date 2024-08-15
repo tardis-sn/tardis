@@ -7,6 +7,7 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
+from matplotlib.testing.compare import compare_images
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 
@@ -405,4 +406,20 @@ class TestSDECPlotter:
             )
             np.testing.assert_allclose(
                 data.y, expected.get(group + "y").values.flatten()
+            )
+
+    def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, request):
+        regression_data = RegressionData(request)
+        fig, _ = plotter_generate_plot_mpl
+        regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
+        fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}.png")
+
+        if regression_data.enable_generate_reference:
+            fig.figure.savefig(regression_data.absolute_regression_data_dir / f"{regression_data.fname_prefix}.png")
+            pytest.skip("Skipping test to generate reference data")
+        else:
+            expected = str(regression_data.absolute_regression_data_dir / f"{regression_data.fname_prefix}.png")
+            actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
+            compare_images(
+                expected, actual, tol=0.001
             )
