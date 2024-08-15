@@ -128,7 +128,3 @@ linkcheck:
 	@echo
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in $(BUILDDIR)/linkcheck/output.txt."
-
-doctest:
-	@echo "Run 'python setup.py test' in the root directory to run doctests " \
-	@echo "in the documentation."
