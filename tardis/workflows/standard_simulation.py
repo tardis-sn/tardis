@@ -104,8 +104,12 @@ class StandardSimulation(
             )
         )
 
-        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        estimated_t_radiative = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
 
         emitted_luminosity = calculate_filtered_luminosity(
             transport_state.emitted_packet_nu,
@@ -192,8 +196,11 @@ class StandardSimulation(
                 self.plasma_solver.electron_densities,
                 self.simulation_state.t_inner,
             )
+
+            opacity = self.solve_opacity()
+
             transport_state, virtual_packet_energies = self.solve_montecarlo(
-                self.real_packet_count
+                opacity, self.real_packet_count
             )
 
             (
@@ -220,8 +227,11 @@ class StandardSimulation(
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
+        opacity = self.solve_opacity()
         transport_state, virtual_packet_energies = self.solve_montecarlo(
-            self.final_iteration_packet_count, self.virtual_packet_count
+            opacity,
+            self.final_iteration_packet_count,
+            self.virtual_packet_count,
         )
         self.store_plasma_state(
             self.completed_iterations,
