@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 
 
-
-
 class OpacitySolver(object):
 
     line_interaction_type: str = "scatter"
