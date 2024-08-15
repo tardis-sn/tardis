@@ -284,9 +284,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         -------
             converged : bool
         """
-        current_radiation_field_state = DilutePlanckianRadiationField(
-            self.simulation_state.t_radiative,
-            self.simulation_state.dilution_factor,
+        current_radiation_field_state = (
+            self.simulation_state.radiation_field_state
         )
 
         estimated_radfield_properties = (
@@ -360,8 +359,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             next_dilution_factor,
             next_t_inner,
         )
-        self.simulation_state.t_radiative = next_t_radiative
-        self.simulation_state.dilution_factor = next_dilution_factor
+        self.simulation_state.radiation_field_state = next_radiation_field_state
         self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
         update_properties = dict(
