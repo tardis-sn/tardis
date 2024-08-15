@@ -48,7 +48,6 @@ exclude = '''
     | build
     | dist
   )/
-  | setup.py
   | docs/conf.py
   | _astropy_init.py
 )
@@ -56,7 +55,7 @@ exclude = '''
 
 [tool.interrogate]
 color = true
-#exclude = ["setup.py", "docs", "build"]
+#exclude = ["docs", "build"]
 #fail-under = 90
 ignore-init-method = true
 ignore-init-module = true
