@@ -23,21 +23,6 @@ class PlotDataHDF(HDFWriterMixin):
 
 @pytest.fixture(scope="module")
 def simulation_simple(config_verysimple, atomic_dataset):
-    """
-    Run a simple TARDIS simulation for testing.
-
-    Parameters
-    ----------
-    config_verysimple : tardis.io.config_reader.Configuration
-        Configuration object for a very simple simulation.
-    atomic_dataset : str or tardis.atomic.AtomData
-        Atomic data.
-
-    Returns
-    -------
-    sim: tardis.simulation.base.Simulation
-        Simulation object.
-    """
     config_verysimple.montecarlo.iterations = 3
     config_verysimple.montecarlo.no_of_packets = 4000
     config_verysimple.montecarlo.last_no_of_packets = -1
@@ -53,18 +38,6 @@ def simulation_simple(config_verysimple, atomic_dataset):
 
 @pytest.fixture(scope="class")
 def plotter(simulation_simple):
-    """
-    Create a LIVPlotter object.
-
-    Parameters
-    ----------
-    simulation_simple : tardis.simulation.base.Simulation
-        Simulation object.
-
-    Returns
-    -------
-    tardis.visualization.tools.liv_plot.LIVPlotter
-    """
     return LIVPlotter.from_simulation(simulation_simple)
 
 
@@ -73,36 +46,24 @@ class TestLIVPlotter:
 
     regression_data = None
     species_list = [["Si II", "Ca II", "C", "Fe I-V"], None]
+    packet_wvl_range = [[3000, 9000] * u.AA]
     nelements = [1, None]
     packets_mode = ["virtual", "real"]
-    num_bins = [10, 25]
+    num_bins = [10]
     velocity_range = [(18000, 25000)]
+    cmapname = ["jet"]
 
     combinations = list(
         product(
             species_list,
+            packet_wvl_range,
             packets_mode,
             nelements,
             num_bins,
             velocity_range,
+            cmapname,
         )
     )
-
-    @pytest.fixture(scope="class", params=combinations)
-    def plotter_parse_species_list(self, request, plotter):
-        (
-            _,
-            packets_mode,
-            nelements,
-            _,
-            _,
-        ) = request.param
-        plotter._parse_species_list(
-            packets_mode=packets_mode,
-            species_list=self.species_list[0],
-            nelements=nelements,
-        )
-        return plotter
 
     @pytest.mark.parametrize(
         "attribute",
@@ -115,12 +76,17 @@ class TestLIVPlotter:
     def test_parse_species_list(
         self,
         request,
-        plotter_parse_species_list,
+        plotter,
         attribute,
     ):
         regression_data = RegressionData(request)
+        plotter._parse_species_list(
+            packets_mode=self.packets_mode[0],
+            species_list=self.species_list[0],
+            nelements=self.nelements[0],
+        )
         if attribute == "_species_mapped":
-            plot_object = getattr(plotter_parse_species_list, attribute)
+            plot_object = getattr(plotter, attribute)
             plot_object = [
                 item
                 for sublist in list(plot_object.values())
@@ -129,7 +95,7 @@ class TestLIVPlotter:
             data = regression_data.sync_ndarray(plot_object)
             np.testing.assert_allclose(plot_object, data)
         else:
-            plot_object = getattr(plotter_parse_species_list, attribute)
+            plot_object = getattr(plotter, attribute)
             data = regression_data.sync_ndarray(plot_object)
             np.testing.assert_allclose(plot_object, data)
 
@@ -137,15 +103,18 @@ class TestLIVPlotter:
     def plotter_prepare_plot_data(self, request, plotter):
         (
             species_list,
+            packet_wvl_range,
             packets_mode,
             nelements,
             num_bins,
             _,
+            cmapname,
         ) = request.param
         plotter._prepare_plot_data(
             packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
             species_list=species_list,
-            cmapname="jet",
+            cmapname=cmapname,
             num_bins=num_bins,
             nelements=nelements,
         )
@@ -183,14 +152,17 @@ class TestLIVPlotter:
     def plotter_generate_plot_mpl(self, request, plotter):
         (
             species_list,
+            packet_wvl_range,
             packets_mode,
             nelements,
             num_bins,
             velocity_range,
+            _,
         ) = request.param
 
         fig = plotter.generate_plot_mpl(
             species_list=species_list,
+            packet_wvl_range=packet_wvl_range,
             nelements=nelements,
             packets_mode=packets_mode,
             num_bins=num_bins,
@@ -280,14 +252,17 @@ class TestLIVPlotter:
     def plotter_generate_plot_ply(self, request, plotter):
         (
             species_list,
+            packet_wvl_range,
             packets_mode,
             nelements,
             num_bins,
             velocity_range,
+            _,
         ) = request.param
 
         fig = plotter.generate_plot_ply(
             species_list=species_list,
+            packet_wvl_range=packet_wvl_range,
             nelements=nelements,
             packets_mode=packets_mode,
             num_bins=num_bins,

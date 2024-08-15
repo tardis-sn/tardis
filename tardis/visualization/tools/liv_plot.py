@@ -208,6 +208,7 @@ class LIVPlotter:
 
         self.plot_colors = []
         self.plot_data = []
+        species_not_wvl_range = []
         species_counter = 0
 
         for specie_list in self._species_mapped.values():
@@ -233,6 +234,12 @@ class LIVPlotter:
                 self.plot_data.append(full_v_last)
                 self.plot_colors.append(self._color_list[species_counter])
                 species_counter += 1
+
+        if species_not_wvl_range:
+            logger.info(
+                "%s were not found in the provided wavelength range.",
+                species_not_wvl_range,
+            )
 
     def _prepare_plot_data(
         self,
