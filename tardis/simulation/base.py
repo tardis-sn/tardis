@@ -291,8 +291,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
         )
 
-        estimated_t_rad = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        estimated_t_rad = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
 
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,

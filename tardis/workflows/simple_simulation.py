@@ -185,8 +185,12 @@ class SimpleSimulation(WorkflowLogging):
             )
         )
 
-        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        estimated_t_radiative = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
 
         emitted_luminosity = calculate_filtered_luminosity(
             transport_state.emitted_packet_nu,
@@ -402,9 +406,9 @@ class SimpleSimulation(WorkflowLogging):
         self.spectrum_solver.transport_state = transport_state
 
         if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
-                virtual_packet_energies
-            )
+            self.spectrum_solver._montecarlo_virtual_luminosity.value[
+                :
+            ] = virtual_packet_energies
 
         if self.integrated_spectrum_settings is not None:
             # Set up spectrum solver integrator
