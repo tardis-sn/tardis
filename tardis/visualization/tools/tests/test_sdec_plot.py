@@ -78,6 +78,7 @@ def simulation_simple(config_verysimple, atomic_dataset):
     )
     return sim
 
+
 class TestSDECPlotter:
     """Test the SDECPlotter class."""
 
@@ -195,7 +196,9 @@ class TestSDECPlotter:
         return plotter
 
     @pytest.fixture(scope="class")
-    def calculate_plotting_data_hdf(self, request, plotter_calculate_plotting_data):
+    def calculate_plotting_data_hdf(
+        self, request, plotter_calculate_plotting_data
+    ):
         property_group = {}
         for _, attribute_name in self.plotting_data_attributes:
             plot_object = getattr(
@@ -204,24 +207,29 @@ class TestSDECPlotter:
             property_group[attribute_name] = plot_object
         plot_data = PlotDataHDF(**property_group)
         return plot_data
-    
-    def test_calculate_plotting_data(self, plotter_calculate_plotting_data, calculate_plotting_data_hdf, request):
+
+    def test_calculate_plotting_data(
+        self,
+        plotter_calculate_plotting_data,
+        calculate_plotting_data_hdf,
+        request,
+    ):
         regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(calculate_plotting_data_hdf)
         group = "plot_data_hdf/"
         for attribute_type, attribute_name in self.plotting_data_attributes:
-            plot_object = getattr(plotter_calculate_plotting_data, attribute_name)
+            plot_object = getattr(
+                plotter_calculate_plotting_data, attribute_name
+            )
             if attribute_type == "attributes_np":
                 if isinstance(plot_object, astropy.units.quantity.Quantity):
                     plot_object = plot_object.cgs.value
                 np.testing.assert_allclose(
-                    plot_object,
-                    expected.get(group + attribute_name)
+                    plot_object, expected.get(group + attribute_name)
                 )
             if attribute_type == "attributes_pd":
                 pd.testing.assert_frame_equal(
-                    plot_object,
-                    expected.get(group + attribute_name)
+                    plot_object, expected.get(group + attribute_name)
                 )
 
     @pytest.fixture(scope="class", params=combinations)
@@ -415,11 +423,15 @@ class TestSDECPlotter:
         fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}.png")
 
         if regression_data.enable_generate_reference:
-            fig.figure.savefig(regression_data.absolute_regression_data_dir / f"{regression_data.fname_prefix}.png")
+            fig.figure.savefig(
+                regression_data.absolute_regression_data_dir
+                / f"{regression_data.fname_prefix}.png"
+            )
             pytest.skip("Skipping test to generate reference data")
         else:
-            expected = str(regression_data.absolute_regression_data_dir / f"{regression_data.fname_prefix}.png")
-            actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
-            compare_images(
-                expected, actual, tol=0.001
+            expected = str(
+                regression_data.absolute_regression_data_dir
+                / f"{regression_data.fname_prefix}.png"
             )
+            actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
+            compare_images(expected, actual, tol=0.001)
