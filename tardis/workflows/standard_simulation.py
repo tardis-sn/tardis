@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 class StandardSimulation(
     SimpleSimulation, PlasmaStateStorerMixin, HDFWriterMixin
 ):
+    convergence_plots = None
+    export_convergence_plots = False
+
     hdf_properties = [
         "simulation_state",
         "plasma_solver",
@@ -41,6 +44,7 @@ class StandardSimulation(
         self.log_level = log_level
         self.specific_log_level = specific_log_level
         self.enable_virtual_packet_logging = enable_virtual_packet_logging
+        self.convergence_plots_kwargs = convergence_plots_kwargs
 
         SimpleSimulation.__init__(self, configuration)
 
@@ -53,31 +57,53 @@ class StandardSimulation(
 
         # Convergence plots
         if show_convergence_plots:
-            if not is_notebook():
-                raise RuntimeError(
-                    "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
-                    "to False."
-                )
+            (
+                self.convergence_plots,
+                self.export_convergence_plots,
+            ) = self.initialize_convergence_plots()
 
-            self.convergence_plots = ConvergencePlots(
-                iterations=self.total_iterations, **convergence_plots_kwargs
+    def initialize_convergence_plots(self):
+        """Initialize the convergence plot attributes
+
+        Returns
+        -------
+        ConvergencePlots
+            The convergence plot instance
+        bool
+            If convergence plots are to be exported
+
+        Raises
+        ------
+        RuntimeError
+            Raised if run outside a notebook
+        TypeError
+            Raised if export_convergence_plots is not a bool
+        """
+        if not is_notebook():
+            raise RuntimeError(
+                "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
+                "to False."
             )
-        else:
-            self.convergence_plots = None
 
-        if "export_convergence_plots" in convergence_plots_kwargs:
+        convergence_plots = ConvergencePlots(
+            iterations=self.total_iterations, **self.convergence_plots_kwargs
+        )
+
+        if "export_convergence_plots" in self.convergence_plots_kwargs:
             if not isinstance(
-                convergence_plots_kwargs["export_convergence_plots"],
+                self.convergence_plots_kwargs["export_convergence_plots"],
                 bool,
             ):
                 raise TypeError(
                     "Expected bool in export_convergence_plots argument"
                 )
-            self.export_convergence_plots = convergence_plots_kwargs[
+            export_convergence_plots = self.convergence_plots_kwargs[
                 "export_convergence_plots"
             ]
         else:
-            self.export_convergence_plots = False
+            export_convergence_plots = False
+
+        return convergence_plots, export_convergence_plots
 
     def get_convergence_estimates(self, transport_state):
         """Compute convergence estimates from the transport state
@@ -124,6 +150,16 @@ class StandardSimulation(
             self.luminosity_nu_end,
         )
 
+        luminosity_ratios = (
+            (emitted_luminosity / self.luminosity_requested).to(1).value
+        )
+
+        estimated_t_inner = (
+            self.simulation_state.t_inner
+            * luminosity_ratios
+            ** self.convergence_strategy.t_inner_update_exponent
+        )
+
         if self.convergence_plots is not None:
             plot_data = {
                 "t_inner": [self.simulation_state.t_inner.value, "value"],
@@ -134,22 +170,12 @@ class StandardSimulation(
                 "Absorbed": [absorbed_luminosity.value, "value"],
                 "Requested": [self.luminosity_requested.value, "value"],
             }
-            self.update_convergence_plot_data(plot_data)
+        self.update_convergence_plot_data(plot_data)
 
         logger.info(
             f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
-        )
-
-        luminosity_ratios = (
-            (emitted_luminosity / self.luminosity_requested).to(1).value
-        )
-
-        estimated_t_inner = (
-            self.simulation_state.t_inner
-            * luminosity_ratios
-            ** self.convergence_strategy.t_inner_update_exponent
         )
 
         self.log_plasma_state(
