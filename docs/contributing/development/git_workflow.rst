@@ -281,7 +281,7 @@ In more detail
    If you have `Sphinx <https://www.sphinx-doc.org/en/master/>`_ installed, you can also check that the documentation
    builds and looks correct::
 
-     make html
+     cd docs && make html
 
    The last line should just state ``build succeeded``, and should not mention
    any warnings.  (For more details, see the Astropy
