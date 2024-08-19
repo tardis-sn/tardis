@@ -6,6 +6,8 @@ from tardis.simulation.convergence import ConvergenceSolver
 
 class RadiationFieldConvergenceSolver:
     converge_separately = True
+    temperature_strategy = {"damping_constant": 0, "threshold": 0, "type": "damped"}
+    dilution_factor_strategy = {"damping_constant": 0, "threshold": 0, "type": "damped"}
 
     def __init__(self, strategy):
         """Create a RadiationFieldConvergenceSolver instance
