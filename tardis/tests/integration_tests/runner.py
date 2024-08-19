@@ -22,6 +22,7 @@ parser.add_argument(
     help="Run integration tests with less packets.",
 )
 
+
 def run_tests():
     args = parser.parse_args()
     less_packets = "--less-packets" if args.less_packets else ""
@@ -35,4 +36,3 @@ def run_tests():
         f"{less_packets}",
     ]
     subprocess.call(test_command)
-
