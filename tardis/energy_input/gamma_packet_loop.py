@@ -114,8 +114,8 @@ def gamma_packet_loop(
             raise ValueError("Packet time index less than 0!")
 
         scattered = False
-
-        initial_energy = packet.energy_cmf
+        # Not used now. Useful for the deposition estimator.
+        #initial_energy = packet.energy_cmf
 
         while packet.status == GXPacketStatus.IN_PROCESS:
             # Get delta-time value for this step
@@ -255,10 +255,10 @@ def gamma_packet_loop(
                     )
                     freq_bin_width = bin_width / H_CGS_KEV
                     energy_out[bin_index, time_index] += (
-                        packet.energy_rf / dt / freq_bin_width
+                        packet.energy_rf / dt / freq_bin_width # Take light crossing time into account
                     )
 
-                    luminosity = packet.energy_rf / dt
+                    luminosity = packet.energy_rf / dt 
                     packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
                     if scattered:

@@ -761,7 +761,7 @@ class GammaRayPacketSource(BasePacketSource):
         sampled_times = (
             sampled_packets_df.index.get_level_values("time") * (u.d).to(u.s)
         )
-
+        # TODO: Rewrite this without for loop. This is expensive
         decay_time_indices = []
         for i in range(number_of_packets):
             decay_time_indices.append(
@@ -823,7 +823,9 @@ class GammaRayPacketSource(BasePacketSource):
         Parameters
         ----------
         isotopes : array
-            Array of isotope names as strings
+            Array of isotope names as strings. Here each isotope is associated with a packet.
+        number_of_packets : int
+            Number of gamma-ray packets
 
         Returns
         -------
@@ -845,7 +847,7 @@ class GammaRayPacketSource(BasePacketSource):
         total_energy_per_isotope = shell_number_0.groupby("isotope")[
             "energy_per_channel_keV"
         ].sum()
-
+        # TODO: Possibly move this for loop
         for i, isotope in enumerate(isotopes):
             isotope_positron_fraction[i] = (
                 positron_energy_per_isotope[isotope]
