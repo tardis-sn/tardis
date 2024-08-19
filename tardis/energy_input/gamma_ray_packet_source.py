@@ -765,9 +765,9 @@ class GammaRayPacketSource(BasePacketSource):
         decay_time_indices = []
         for i in range(number_of_packets):
             decay_time_indices.append(
-                get_index(sampled_times[i], self.effective_times)
+                get_index(sampled_times[i], self.times)
             )
-
+        
         locations = (
             initial_radii.values
             * self.effective_times[decay_time_indices]
@@ -777,6 +777,8 @@ class GammaRayPacketSource(BasePacketSource):
         # sample directions (valid at all times), non-relativistic
         directions = self.create_packet_directions(number_of_packets)
 
+        # the individual gamma-ray energy that makes up a packet
+         # co-moving frame, including positronium formation
         nu_energies_cmf = self.create_packet_nus(
             sampled_packets_df,
             self.positronium_fraction,
@@ -788,6 +790,7 @@ class GammaRayPacketSource(BasePacketSource):
         packet_energies_cmf = self.create_packet_energies(
             number_of_packets, self.packet_energy
         )
+        positron_energy = isotope_positron_fraction * self.packet_energy
 
         packet_energies_rf = np.zeros(number_of_packets)
         nus_rf = np.zeros(number_of_packets)
@@ -810,7 +813,7 @@ class GammaRayPacketSource(BasePacketSource):
             statuses,
             shells,
             sampled_times.values,
-            isotope_positron_fraction
+            positron_energy
         )
 
     def calculate_positron_fraction(self, isotopes, number_of_packets):
@@ -836,11 +839,11 @@ class GammaRayPacketSource(BasePacketSource):
 
         positrons_decay_df = shell_number_0[shell_number_0["radiation"] == "bp"]
         positron_energy_per_isotope = positrons_decay_df.groupby("isotope")[
-            "radiation_energy_keV"
+            "energy_per_channel_keV"
         ].sum()
         # Find the total energy released per isotope from the dataframe
         total_energy_per_isotope = shell_number_0.groupby("isotope")[
-            "radiation_energy_keV"
+            "energy_per_channel_keV"
         ].sum()
 
         for i, isotope in enumerate(isotopes):

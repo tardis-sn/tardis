@@ -120,7 +120,7 @@ def run_gamma_ray_loop(
     ejecta_volume = model.volume.to("cm^3").value
     shell_masses = model.volume * model.density
     number_of_shells = len(shell_masses)
-    raw_isotope_abundance = model.composition.isotopic_mass_fraction.sort_values(
+    raw_isotope_abundance = model.composition.raw_isotope_abundance.sort_values(
         by=["atomic_number", "mass_number"], ascending=False
     )
 
@@ -203,10 +203,12 @@ def run_gamma_ray_loop(
             packet_collection.status[i],
             packet_collection.shell[i],
             packet_collection.time_current[i],
-            packet_collection.positron_fraction[i],
+            packet_collection.positron_energy[i],
         )
         for i in range(num_decays)
     ]
+
+    #return packets
 
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
@@ -243,6 +245,7 @@ def run_gamma_ray_loop(
         inner_velocities,
         outer_velocities,
         dt_array,
+        times,
         effective_time_array,
         energy_bins,
         energy_out,
@@ -277,7 +280,8 @@ def run_gamma_ray_loop(
     positron_energy = pd.DataFrame(
         data=energy_deposited_positron, columns=times[:-1]
     ) 
+    print (positron_energy.sum().sum())
 
-    total_deposited_energy = (positron_energy + deposited_energy) / dt_array
+    total_deposited_energy =  (positron_energy + deposited_energy) / dt_array
 
     return escape_energy, packets_df_escaped, total_deposited_energy

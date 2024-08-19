@@ -41,6 +41,7 @@ def gamma_packet_loop(
     inner_velocities,
     outer_velocities,
     dt_array,
+    times,
     effective_time_array,
     energy_bins,
     energy_out,
@@ -105,7 +106,8 @@ def gamma_packet_loop(
 
     for i in range(packet_count):
         packet = packets[i]
-        time_index = get_index(packet.time_current, effective_time_array)
+        time_index = get_index(packet.time_current, times)
+        energy_deposited_positron[packet.shell, time_index] += packet.positron_energy
 
         if time_index < 0:
             print(packet.time_current, time_index)
@@ -199,7 +201,7 @@ def gamma_packet_loop(
                 outer_velocities,
                 total_opacity,
                 effective_time_array[time_index],
-                effective_time_array[time_index + 1],
+                times[time_index + 1],
             )
 
             distance = min(
@@ -232,7 +234,7 @@ def gamma_packet_loop(
 
                 packet, ejecta_energy_gained = process_packet_path(packet)
 
-                energy_deposited_positron[packet.shell, time_index] += packet.positron_fraction * packet.energy_cmf
+                
                 energy_deposited_gamma[packet.shell, time_index] += ejecta_energy_gained
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
