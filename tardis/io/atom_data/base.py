@@ -221,6 +221,17 @@ class AtomData:
             if "linelist" in store:
                 dataframes["linelist"] = store["linelist"]
 
+            if "molecules" in store:
+                dataframes["molecular_equilibrium_constants"] = store[
+                    "molecules/equilibrium_constants"
+                ]
+                dataframes["molecular_partition_functions"] = store[
+                    "molecules/partition_functions"
+                ]
+                dataframes["molecular_dissociation_energies"] = store[
+                    "molecules/dissociation_energies"
+                ]
+
             atom_data = cls(**dataframes)
 
             try:
@@ -284,6 +295,9 @@ class AtomData:
         two_photon_data=None,
         linelist=None,
         decay_radiation_data=None,
+        molecular_equilibrium_constants=None,
+        molecular_partition_functions=None,
+        molecular_dissociation_energies=None,
     ):
         self.prepared = False
 
@@ -345,6 +359,17 @@ class AtomData:
 
         if linelist is not None:
             self.linelist = linelist
+
+        if molecular_equilibrium_constants is not None:
+            self.molecular_equilibrium_constants = (
+                molecular_equilibrium_constants
+            )
+        if molecular_partition_functions is not None:
+            self.molecular_partition_functions = molecular_partition_functions
+        if molecular_dissociation_energies is not None:
+            self.molecular_dissociation_energies = (
+                molecular_dissociation_energies
+            )
 
         if decay_radiation_data is not None:
             self.decay_radiation_data = decay_radiation_data
