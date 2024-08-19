@@ -14,104 +14,104 @@ env:
 
 jobs:
     research-using-tardis:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
 
-            - name: Setup Python
-              uses: actions/setup-python@v5
-              with:
-                python-version: "3.x"
-    
-            - name: Install dependencies
-              run: |
-                python -m pip install --upgrade pip
-                pip install jupyter nbconvert
-                        
-            - name: Run the ADS notebook
-              run: |
-                jupyter nbconvert --to python  docs/resources/research_done_using_TARDIS/ads.ipynb
-                python3 docs/resources/research_done_using_TARDIS/ads.py
-            
-            - uses: actions/upload-artifact@v4
-              with:
-                name: research_papers
-                path: |
-                    resource_papers.rst
+        - name: Setup Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.x"
+
+        - name: Install dependencies
+          run: |
+            python -m pip install --upgrade pip
+            pip install jupyter nbconvert
+                    
+        - name: Run the ADS notebook
+          run: |
+            jupyter nbconvert --to python  docs/resources/research_done_using_TARDIS/ads.ipynb
+            python3 docs/resources/research_done_using_TARDIS/ads.py
+        
+        - uses: actions/upload-artifact@v4
+          with:
+            name: research_papers
+            path: |
+                resource_papers.rst
             
     pull_request:
-        needs: [research-using-tardis]
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+      needs: [research-using-tardis]
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
 
-            - uses: actions/download-artifact@v4
-              with:
-                path: /tmp
+        - uses: actions/download-artifact@v4
+          with:
+            path: /tmp
+
+        - name: Copy files to repository
+          run: |
+            cp -r /tmp/resource_papers/* docs/resources/research_done_using_TARDIS/
+
+        - name: Get current date
+          run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
+  
+        - uses: peter-evans/create-pull-request@v4
+          with:
+            token: ${{ secrets.BOT_TOKEN }}
+            committer: TARDIS Bot <tardis.sn.bot@gmail.com>
+            author: TARDIS Bot <tardis.sn.bot@gmail.com>
+            branch: TARDIS-research-papers-${{ env.DATE }}
+            base: master
+            push-to-fork: tardis-bot/tardis
+            commit-message: Automated changes for TARDIS-research-papers ${{ env.DATE }}
+            title: TARDIS-research-papers ${{ env.DATE }}
+            body: |
+                *\*beep\* \*bop\**
     
-            - name: Copy files to repository
-              run: |
-                cp -r /tmp/resource_papers/* docs/resources/research_done_using_TARDIS/
+                Hi, human.
     
-            - name: Get current date
-              run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
+                > This pull request contains the latest updates to the research papers that utilize the TARDIS.
     
-            - uses: peter-evans/create-pull-request@v4
-              with:
-                token: ${{ secrets.BOT_TOKEN }}
-                committer: TARDIS Bot <tardis.sn.bot@gmail.com>
-                author: TARDIS Bot <tardis.sn.bot@gmail.com>
-                branch: TARDIS-research-papers-${{ env.DATE }}
-                base: master
-                push-to-fork: tardis-bot/tardis
-                commit-message: Automated changes for TARDIS-research-papers ${{ env.DATE }}
-                title: TARDIS-research-papers ${{ env.DATE }}
-                body: |
-                    *\*beep\* \*bop\**
-        
-                    Hi, human.
-        
-                    > This pull request contains the latest updates to the research papers that utilize the TARDIS.
-        
-                    > This pull request should be auto-merged.
-                    labels: automated, build-docs
-                    team-reviewers: tardis-infrastructure
-              id: create-pr
-    
-            - name: Wait for pull request
-              run: sleep 30
-    
-            - name: Approve pull request (I)
-              run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
-              env:
-                GITHUB_TOKEN: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
-                if: steps.create-pr.outputs.pull-request-operation == 'created'
-    
-            - name: Approve pull request (II)
-              run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
-              env:
-                GITHUB_TOKEN: ${{ secrets.CORE_COORDINATOR_TOKEN }}
-                if: steps.create-pr.outputs.pull-request-operation == 'created'
-    
-            - name: Enable automerge
-              uses: peter-evans/enable-pull-request-automerge@v2
-              with:
-                token: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
-                pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
-                merge-method: squash
-              if: steps.create-pr.outputs.pull-request-operation == 'created'
+                > This pull request should be auto-merged.
+                labels: automated, build-docs
+                team-reviewers: tardis-infrastructure
+          id: create-pr
+
+        - name: Wait for pull request
+          run: sleep 30
+
+        - name: Approve pull request (I)
+          run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
+          env:
+            GITHUB_TOKEN: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
+            if: steps.create-pr.outputs.pull-request-operation == 'created'
+  
+        - name: Approve pull request (II)
+          run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
+          env:
+            GITHUB_TOKEN: ${{ secrets.CORE_COORDINATOR_TOKEN }}
+            if: steps.create-pr.outputs.pull-request-operation == 'created'
+
+        - name: Enable automerge
+          uses: peter-evans/enable-pull-request-automerge@v2
+          with:
+            token: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
+            pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
+            merge-method: squash
+          if: steps.create-pr.outputs.pull-request-operation == 'created'
 
     dispatch-to-tardis-website:
-        name: Dispatch to Tardis Website
-        runs-on: ubuntu-latest
-        needs: [research-using-tardis]
-        if: github.repository_owner == 'tardis-sn'
-        steps:
-            - name: Dispatch to Tardis-org-data
-              run: |
-                    curl -X POST \
-                    -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
-                    -H "Accept: application/vnd.github+json" \
-                    -H "Content-Type: application/json" \
-                    -d '{ "event_type": "fetch-papers" }' \
-                    https://api.github.com/repos/tardis-sn/tardis-org-data/dispatches
+      name: Dispatch to Tardis Website
+      runs-on: ubuntu-latest
+      needs: [research-using-tardis]
+      if: github.repository_owner == 'tardis-sn'
+      steps:
+        - name: Dispatch to Tardis-org-data
+          run: |
+                curl -X POST \
+                -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
+                -H "Accept: application/vnd.github+json" \
+                -H "Content-Type: application/json" \
+                -d '{ "event_type": "fetch-papers" }' \
+                https://api.github.com/repos/tardis-sn/tardis-org-data/dispatches
