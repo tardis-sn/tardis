@@ -3,11 +3,11 @@ name: codespell
 on:
   push:
     branches:
-      - development
-      - main
-  pull_request:
+      - "*"
+
+  pull_request_target:
     branches:
-      - development
+      - master
 
 jobs:
   codespell:
@@ -15,17 +15,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v1
         with:
-          python-version: '3.10'
-          cache: "pip"
+          environment-name: fetch-env
+          create-args: >-
+            python
 
-      - name: Install dependencies
-        run: pip install -r ./requirements.txt
+      - name: Install Codespell
+        run: pip install codespell==1.10.0
 
       - name: Run codespell
         run: |
