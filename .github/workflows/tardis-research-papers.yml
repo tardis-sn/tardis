@@ -18,15 +18,19 @@ jobs:
       steps:
         - uses: actions/checkout@v4
 
-        - name: Setup Python
-          uses: actions/setup-python@v5
+        - name: Setup micromamba
+          uses: mamba-org/setup-micromamba@v1
           with:
-            python-version: "3.x"
+            environment-name: fetch-env
+            create-args: >-
+              python=3.10
 
-        - name: Install dependencies
+        - name: Activate environment
+          run: micromamba activate fetch-env
+
+        - name: Install additional dependencies
           run: |
-            python -m pip install --upgrade pip
-            pip install jupyter nbconvert
+            micromamba install -y jupyter 
                     
         - name: Run the ADS notebook
           run: |
