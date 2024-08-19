@@ -18,13 +18,13 @@ jobs:
       steps:
         - uses: actions/checkout@v4
 
-        - name: Setup micromamba and install dependencies
+        - name: Setup micromamba
           uses: mamba-org/setup-micromamba@v1
           with:
             environment-name: fetch-env
             create-args: >-
               python=3.10
-              jupyter 
+              jupyter
                     
         - name: Run the ADS notebook
           run: |
@@ -49,7 +49,8 @@ jobs:
 
         - name: Copy files to repository
           run: |
-            cp -r /tmp/resource_papers/* docs/resources/research_done_using_TARDIS/
+            ls -l /tmp
+            cp -r /tmp/research_papers/* docs/resources/research_done_using_TARDIS/
 
         - name: Get current date
           run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
