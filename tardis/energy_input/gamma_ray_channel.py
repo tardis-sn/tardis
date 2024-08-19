@@ -234,7 +234,7 @@ def time_evolve_cumulative_decay(
     initial_isotope_mass_fraction = raw_isotope_mass_fraction
 
     dt = np.diff(time_array)
-
+    # Do not append dataframes to empty lists
     for time in dt:
         #
         isotope_dict = create_isotope_dicts(
