@@ -1,27 +1,19 @@
-import os
-
-from pathlib import Path
-
-import pytest
-import logging
-
-from tardis.io.configuration.config_reader import Configuration
-from tardis.simulation import Simulation
-from tardis import run_tardis
-import pandas.testing as pdt
-
+import astropy.units as u
 import numpy as np
 import pandas as pd
+import pytest
 
-import astropy.units as u
 import tardis
-from tardis.tests.fixtures.regression_data import RegressionData
+from tardis.io.configuration.config_reader import Configuration
+from tardis.simulation import Simulation
+
 
 @pytest.fixture(scope="module")
 def config(example_configuration_dir):
     return Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_verysimple.yml"
     )
+
 
 @pytest.fixture(scope="module")
 def simulation_one_loop(config, atomic_data_fname):
@@ -34,6 +26,7 @@ def simulation_one_loop(config, atomic_data_fname):
     sim.run_convergence()
     sim.run_final()
     return sim
+
 
 @pytest.mark.parametrize(
     "attr",
@@ -52,6 +45,7 @@ def test_plasma_state_iterations(simulation_one_loop, attr, regression_data):
     expected = regression_data.sync_dataframe(actual)
     pd.testing.assert_frame_equal(actual, expected, rtol=1e-5, atol=1e-8)
 
+
 @pytest.mark.parametrize(
     "attr",
     [
@@ -65,14 +59,20 @@ def test_plasma_state_iterations(simulation_one_loop, attr, regression_data):
 )
 def test_plasma_estimates(simulation_one_loop, attr, regression_data):
     if attr in ["nu_bar_estimator", "j_estimator"]:
-        actual = getattr(simulation_one_loop.transport.transport_state.radfield_mc_estimators, attr)
+        actual = getattr(
+            simulation_one_loop.transport.transport_state.radfield_mc_estimators,
+            attr,
+        )
     elif attr in ["t_radiative", "dilution_factor"]:
         actual = getattr(simulation_one_loop.simulation_state, attr)
     elif attr in ["output_nus", "output_energies"]:
-        actual = getattr(simulation_one_loop.transport.transport_state.packet_collection, attr)
+        actual = getattr(
+            simulation_one_loop.transport.transport_state.packet_collection,
+            attr,
+        )
     else:
         actual = getattr(simulation_one_loop.transport, attr)
-    
+
     if hasattr(actual, "value"):
         actual = actual.value
     actual = pd.Series(actual)
