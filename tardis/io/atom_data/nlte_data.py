@@ -39,9 +39,9 @@ class NLTEData:
                 species
             ] = self.lines.level_number_upper.values[lines_idx].astype(int)
 
-            self.A_uls[species] = self.atom_data.lines.A_ul.values[lines_idx]
-            self.B_uls[species] = self.atom_data.lines.B_ul.values[lines_idx]
-            self.B_lus[species] = self.atom_data.lines.B_lu.values[lines_idx]
+            self.A_uls[species] = self.lines.A_ul.values[lines_idx]
+            self.B_uls[species] = self.lines.B_ul.values[lines_idx]
+            self.B_lus[species] = self.lines.B_lu.values[lines_idx]
 
     def _create_collision_coefficient_matrix(self):
         self.C_ul_interpolator = {}
@@ -113,11 +113,3 @@ class NLTEData:
             )
         )
         return c_ul_matrix + c_lu_matrix.transpose(1, 0, 2)
-
-
-class NLTEMatrixFactory:
-    def __init__(self, nlte_species):
-        pass
-
-    def generate_indices(self):
-        pass
