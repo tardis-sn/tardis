@@ -321,7 +321,10 @@ def test_total_energy_production(gamma_ray_test_composition, atomic_dataset):
 
 def test_cumulative_decays(gamma_ray_test_composition, atomic_dataset):
     """
-    Function to test the cumulative decay of isotopes.
+    Function to test that the total energy calculated from summing all the decays
+    from the entire time range of simulation is the same as decay energy from individual
+    time steps considering that after each time step the composition (mass fractions) changes.
+    Tested for Ni56, Cr48, Fe52.
     Parameters
     ----------
     gamma_ray_simulation_state: Tardis simulation state
@@ -330,7 +333,7 @@ def test_cumulative_decays(gamma_ray_test_composition, atomic_dataset):
 
     time_start = 0.1 * u.d
     time_end = 100 * u.d
-    time_steps = 2
+    time_steps = 3
     time_space = "linear"
     time_delta = (time_end - time_start).value
 
@@ -353,4 +356,7 @@ def test_cumulative_decays(gamma_ray_test_composition, atomic_dataset):
     )
     expected = evolve_decays_with_time["decay_energy_erg"].sum()
 
-    npt.assert_allclose(actual, expected)
+    # This rtol is set since the decay energy is calculated with Fe52 (which has Mn-52m as a daughter)
+    # The data is not available for Mn-52m in the decay_radiation_data
+    # If we use any other isotope without a metastable state, the total decay energy matches exactly.
+    npt.assert_allclose(actual, expected, rtol=1e-4)
