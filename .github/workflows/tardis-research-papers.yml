@@ -18,19 +18,13 @@ jobs:
       steps:
         - uses: actions/checkout@v4
 
-        - name: Setup micromamba
+        - name: Setup micromamba and install dependencies
           uses: mamba-org/setup-micromamba@v1
           with:
             environment-name: fetch-env
             create-args: >-
               python=3.10
-
-        - name: Activate environment
-          run: micromamba activate fetch-env
-
-        - name: Install additional dependencies
-          run: |
-            micromamba install -y jupyter 
+              jupyter 
                     
         - name: Run the ADS notebook
           run: |
