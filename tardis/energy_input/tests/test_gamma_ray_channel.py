@@ -25,7 +25,6 @@ from tardis.energy_input.util import KEV2ERG
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
 
 
-
 @pytest.fixture(scope="module")
 def gamma_ray_config(example_configuration_dir: Path):
     """
@@ -240,6 +239,7 @@ def test_activity(gamma_ray_test_composition, nuclide_name):
     expected = number_of_atoms * (1 - np.exp(-decay_constant * time_delta))
 
     npt.assert_allclose(actual, expected)
+
 
 def test_total_energy_production(gamma_ray_test_composition, atomic_dataset):
     """

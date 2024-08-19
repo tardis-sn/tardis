@@ -17,6 +17,7 @@ from tardis.energy_input.util import make_isotope_string_tardis_like
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
 def get_effective_time_array(time_start, time_end, time_space, time_steps):
     """
     Function to get the effective time array for the gamma-ray loop.
@@ -49,7 +50,6 @@ def get_effective_time_array(time_start, time_end, time_space, time_steps):
         effective_time_array = 0.5 * (times[:-1] + times[1:])
 
     return times, effective_time_array
-
 
 
 def run_gamma_ray_loop(
@@ -165,7 +165,6 @@ def run_gamma_ray_loop(
     gamma_df = isotope_decay_df[isotope_decay_df["radiation"] == "g"]
     total_energy_gamma = gamma_df["decay_energy_erg"].sum()
 
-
     energy_per_packet = total_energy_gamma / num_decays
 
     logger.info(f"Total energy in gamma-rays is {total_energy_gamma}")
@@ -208,7 +207,7 @@ def run_gamma_ray_loop(
         for i in range(num_decays)
     ]
 
-    #return packets
+    # return packets
 
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
@@ -275,13 +274,13 @@ def run_gamma_ray_loop(
     # deposited energy in ergs
     deposited_energy = pd.DataFrame(
         data=energy_deposited_gamma, columns=times[:-1]
-    ) 
+    )
     # positron energy in ergs
     positron_energy = pd.DataFrame(
         data=energy_deposited_positron, columns=times[:-1]
-    ) 
-    print (positron_energy.sum().sum())
+    )
+    print(positron_energy.sum().sum())
 
-    total_deposited_energy =  (positron_energy + deposited_energy) / dt_array
+    total_deposited_energy = (positron_energy + deposited_energy) / dt_array
 
     return escape_energy, packets_df_escaped, total_deposited_energy

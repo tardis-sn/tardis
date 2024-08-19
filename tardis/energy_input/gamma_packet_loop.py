@@ -107,7 +107,9 @@ def gamma_packet_loop(
     for i in range(packet_count):
         packet = packets[i]
         time_index = get_index(packet.time_current, times)
-        energy_deposited_positron[packet.shell, time_index] += packet.positron_energy
+        energy_deposited_positron[
+            packet.shell, time_index
+        ] += packet.positron_energy
 
         if time_index < 0:
             print(packet.time_current, time_index)
@@ -115,7 +117,7 @@ def gamma_packet_loop(
 
         scattered = False
         # Not used now. Useful for the deposition estimator.
-        #initial_energy = packet.energy_cmf
+        # initial_energy = packet.energy_cmf
 
         while packet.status == GXPacketStatus.IN_PROCESS:
             # Get delta-time value for this step
@@ -212,7 +214,6 @@ def gamma_packet_loop(
 
             packet = move_packet(packet, distance)
 
-
             if distance == distance_time:
                 time_index += 1
 
@@ -234,8 +235,9 @@ def gamma_packet_loop(
 
                 packet, ejecta_energy_gained = process_packet_path(packet)
 
-                
-                energy_deposited_gamma[packet.shell, time_index] += ejecta_energy_gained
+                energy_deposited_gamma[
+                    packet.shell, time_index
+                ] += ejecta_energy_gained
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
@@ -255,10 +257,12 @@ def gamma_packet_loop(
                     )
                     freq_bin_width = bin_width / H_CGS_KEV
                     energy_out[bin_index, time_index] += (
-                        packet.energy_rf / dt / freq_bin_width # Take light crossing time into account
+                        packet.energy_rf
+                        / dt
+                        / freq_bin_width  # Take light crossing time into account
                     )
 
-                    luminosity = packet.energy_rf / dt 
+                    luminosity = packet.energy_rf / dt
                     packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
                     if scattered:
@@ -283,7 +287,6 @@ def gamma_packet_loop(
 
     print("Escaped packets:", escaped_packets)
     print("Scattered packets:", scattered_packets)
-    
 
     return (
         energy_out,

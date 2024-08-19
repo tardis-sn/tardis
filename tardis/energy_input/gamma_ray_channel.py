@@ -235,9 +235,8 @@ def time_evolve_cumulative_decay(
 
     dt = np.diff(time_array)
 
-    
     for time in dt:
-        # 
+        #
         isotope_dict = create_isotope_dicts(
             initial_isotope_mass_fraction, shell_masses
         )
