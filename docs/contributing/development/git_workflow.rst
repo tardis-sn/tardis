@@ -143,7 +143,7 @@ TARDIS repository clone.
 
 #. Install TARDIS_ in develop mode::
 
-       $ python setup.py develop
+       $ pip install -e .
 
    This semi-permanently installs TARDIS on your path in such a way that
    ``tardis`` is always imported from your repository clone regardless of your
@@ -281,7 +281,7 @@ In more detail
    If you have `Sphinx <https://www.sphinx-doc.org/en/master/>`_ installed, you can also check that the documentation
    builds and looks correct::
 
-     python setup.py build_sphinx
+     cd docs && make html
 
    The last line should just state ``build succeeded``, and should not mention
    any warnings.  (For more details, see the Astropy

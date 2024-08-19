@@ -27,12 +27,12 @@ def run_tests():
     args = parser.parse_args()
     less_packets = "--less-packets" if args.less_packets else ""
     test_command = [
-        "python",
-        "setup.py",
-        "test",
+        "pytest",
         "--test-path=tardis/tests/integration_tests/test_integration.py",
-        "--args",
-        f"--capture=no --integration-tests={args.yaml_filepath} --tardis-refdata={args.tardis_refdata} --remote-data "
+        "--capture=no",
+        f"--integration-tests={args.yaml_filepath}",
+        f"--tardis-refdata={args.tardis_refdata}",
+        "--remote-data",
         f"{less_packets}",
     ]
     subprocess.call(test_command)
