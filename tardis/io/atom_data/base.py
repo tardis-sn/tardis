@@ -691,7 +691,7 @@ class AtomData:
             )
             attribute = None
 
-        return attribute            
+        return attribute
 
 
 @dataclass
@@ -718,4 +718,3 @@ class MoleculeData:
     equilibrium_constants: pd.DataFrame
     partition_functions: pd.DataFrame
     dissociation_energies: pd.DataFrame
-      
