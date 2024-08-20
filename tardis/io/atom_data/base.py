@@ -6,6 +6,7 @@ import pandas as pd
 from astropy import units as u
 from astropy.units import Quantity
 from scipy import interpolate
+from dataclasses import dataclass
 
 from tardis import constants as const
 from tardis.io.atom_data.util import resolve_atom_data_fname
@@ -100,19 +101,9 @@ class AtomData:
         columns: atomic_number, element, Rad energy, Rad intensity decay mode.
         Curated from nndc
 
-    molecular_equilibrium_constants : pandas.DataFrame
-    A DataFrame containing the *molecular equilibrium constants* with:
-        index: molecule
-        columns: temperatures
-
-    molecular_partition_functions : pandas.DataFrame
-    A DataFrame containing the *molecular partition functions* with:
-        index: molecule
-        columns: temperatures
-
-    molecular_dissociation_energies : pandas.DataFrame
-    A DataFrame containing the *molecular dissociation energies* with:
-        index: molecule
+    molecule_data : MolecularData
+    A class containing the *molecular data* with:
+        equilibrium_constants, partition_functions, dissociation_energies
 
 
     Attributes
@@ -131,9 +122,7 @@ class AtomData:
     photoionization_data : pandas.DataFrame
     two_photon_data : pandas.DataFrame
     decay_radiation_data : pandas.DataFrame
-    molecular_equilibrium_constants : pandas.DataFrame
-    molecular_partition_functions : pandas.DataFrame
-    molecular_dissociation_energies : pandas.DataFrame
+    molecule_data : MolecularData
 
     Methods
     -------
@@ -240,17 +229,13 @@ class AtomData:
                 dataframes["linelist"] = store["linelist"]
 
             if "molecules" in store:
-                dataframes["molecular_equilibrium_constants"] = store[
-                    "molecules/equilibrium_constants"
-                ]
-                dataframes["molecular_partition_functions"] = store[
-                    "molecules/partition_functions"
-                ]
-                dataframes["molecular_dissociation_energies"] = store[
-                    "molecules/dissociation_energies"
-                ]
+                molecule_data = MoleculeData(
+                    store["molecules/equilibrium_constants"],
+                    store["molecules/partition_functions"],
+                    store["molecules/dissociation_energies"],
+                )
 
-            atom_data = cls(**dataframes)
+            atom_data = cls(**dataframes, molecule_data=molecule_data)
 
             try:
                 atom_data.uuid1 = store.root._v_attrs["uuid1"]
@@ -313,9 +298,7 @@ class AtomData:
         two_photon_data=None,
         linelist=None,
         decay_radiation_data=None,
-        molecular_equilibrium_constants=None,
-        molecular_partition_functions=None,
-        molecular_dissociation_energies=None,
+        molecule_data=None,
     ):
         self.prepared = False
 
@@ -378,16 +361,8 @@ class AtomData:
         if linelist is not None:
             self.linelist = linelist
 
-        if molecular_equilibrium_constants is not None:
-            self.molecular_equilibrium_constants = (
-                molecular_equilibrium_constants
-            )
-        if molecular_partition_functions is not None:
-            self.molecular_partition_functions = molecular_partition_functions
-        if molecular_dissociation_energies is not None:
-            self.molecular_dissociation_energies = (
-                molecular_dissociation_energies
-            )
+        if molecule_data is not None:
+            self.molecule_data = molecule_data
 
         if decay_radiation_data is not None:
             self.decay_radiation_data = decay_radiation_data
@@ -805,3 +780,29 @@ class NLTEData:
             )
         )
         return c_ul_matrix + c_lu_matrix.transpose(1, 0, 2)
+
+
+@dataclass
+class MoleculeData(object):
+    """
+    Class to hold molecular data. Held by the AtomData object.
+
+    equilibrium_constants : pandas.DataFrame
+    A DataFrame containing the *molecular equilibrium constants* with:
+        index: molecule
+        columns: temperatures
+
+    partition_functions : pandas.DataFrame
+    A DataFrame containing the *molecular partition functions* with:
+        index: molecule
+        columns: temperatures
+
+    dissociation_energies : pandas.DataFrame
+    A DataFrame containing the *molecular dissociation energies* with:
+        index: molecule
+
+    """
+
+    equilibrium_constants: pd.DataFrame
+    partition_functions: pd.DataFrame
+    dissociation_energies: pd.DataFrame
