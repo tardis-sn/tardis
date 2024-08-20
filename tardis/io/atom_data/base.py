@@ -1,14 +1,17 @@
 import logging
-from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-from astropy import units as u
 from astropy.units import Quantity
-from scipy import interpolate
 from dataclasses import dataclass
 
 from tardis import constants as const
+from tardis.io.atom_data.collision_data import (
+    ChiantiCollisionData,
+    CMFGENCollisionData,
+)
+from tardis.io.atom_data.macro_atom_data import MacroAtomData
+from tardis.io.atom_data.nlte_data import NLTEData
 from tardis.io.atom_data.util import resolve_atom_data_fname
 from tardis.plasma.properties.continuum_processes.rates import (
     get_ground_state_multi_index,
@@ -117,8 +120,6 @@ class AtomData:
     collision_data_temperatures : numpy.array
     zeta_data : pandas.DataFrame
     synpp_refs : pandas.DataFrame
-    symbol2atomic_number : OrderedDict
-    atomic_number2symbol : OrderedDict
     photoionization_data : pandas.DataFrame
     two_photon_data : pandas.DataFrame
     decay_radiation_data : pandas.DataFrame
@@ -175,8 +176,8 @@ class AtomData:
             Path to the HDFStore file or name of known atom data file
             (default: None)
         """
-        dataframes = dict()
-        nonavailable = list()
+        dataframes = {}
+        nonavailable = []
 
         fname = resolve_atom_data_fname(fname)
 
@@ -239,35 +240,11 @@ class AtomData:
 
             atom_data = cls(**dataframes, molecule_data=molecule_data)
 
-            try:
-                atom_data.uuid1 = store.root._v_attrs["uuid1"]
-                if hasattr(atom_data.uuid1, "decode"):
-                    atom_data.uuid1 = store.root._v_attrs["uuid1"].decode(
-                        "ascii"
-                    )
-            except KeyError:
-                logger.debug(
-                    "UUID not available for Atom Data. Setting value to None"
-                )
-                atom_data.uuid1 = None
-
-            try:
-                atom_data.md5 = store.root._v_attrs["md5"]
-                if hasattr(atom_data.md5, "decode"):
-                    atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
-            except KeyError:
-                logger.debug(
-                    "MD5 not available for Atom Data. Setting value to None"
-                )
-                atom_data.md5 = None
-
-            try:
-                atom_data.version = store.root._v_attrs["database_version"]
-            except KeyError:
-                logger.debug(
-                    "VERSION not available for Atom Data. Setting value to None"
-                )
-                atom_data.version = None
+            atom_data.uuid1 = cls.get_attributes_from_store(store, "uuid1")
+            atom_data.md5 = cls.get_attributes_from_store(store, "md5")
+            atom_data.version = cls.get_attributes_from_store(
+                store, "database_version"
+            )
 
             # TODO: strore data sources as attributes in carsus
 
@@ -311,14 +288,7 @@ class AtomData:
         # different values for the unit u and the constant.
         # This is changed in later versions of astropy (
         # the value of constants.u is used in all cases)
-        if u.u.cgs == const.u.cgs:
-            atom_data.loc[:, "mass"] = Quantity(
-                atom_data["mass"].values, "u"
-            ).cgs.value
-        else:
-            atom_data.loc[:, "mass"] = (
-                atom_data["mass"].values * const.u.cgs.value
-            )
+        atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs.value
 
         # Convert ionization energies to CGS
         ionization_data = ionization_data.squeeze()
@@ -339,24 +309,40 @@ class AtomData:
         self.atom_data = atom_data
         self.ionization_data = ionization_data
         self.levels = levels
-        # Not sure why this is need - WEK 17 Sep 2023
+        # Cast to float so that Numba can use the values in numpy functions
         self.levels.energy = self.levels.energy.astype(np.float64)
         self.lines = lines
 
+        collected_macro_atom_data = MacroAtomData(
+            macro_atom_data, macro_atom_references
+        )
+
         # Rename these (drop "_all") when `prepare_atom_data` is removed!
-        self.macro_atom_data_all = macro_atom_data
-        self.macro_atom_references_all = macro_atom_references
+        self.macro_atom_data_all = (
+            collected_macro_atom_data.transition_probability_data
+        )
+        self.macro_atom_references_all = (
+            collected_macro_atom_data.block_reference_data
+        )
 
         self.zeta_data = zeta_data
 
-        self.collision_data = collision_data
-        self.collision_data_temperatures = collision_data_temperatures
+        chianti_collision_data = ChiantiCollisionData(
+            collision_data, collision_data_temperatures
+        )
+
+        cmfgen_collision_data = CMFGENCollisionData(
+            yg_data, collision_data_temperatures
+        )
+
+        self.collision_data = chianti_collision_data.data
+        self.collision_data_temperatures = chianti_collision_data.temperatures
 
         self.synpp_refs = synpp_refs
 
         self.photoionization_data = photoionization_data
 
-        self.yg_data = yg_data
+        self.yg_data = cmfgen_collision_data.data
 
         self.two_photon_data = two_photon_data
 
@@ -370,12 +356,20 @@ class AtomData:
             self.decay_radiation_data = decay_radiation_data
         self._check_related()
 
-        self.symbol2atomic_number = OrderedDict(
-            zip(self.atom_data["symbol"].values, self.atom_data.index)
-        )
-        self.atomic_number2symbol = OrderedDict(
-            zip(self.atom_data.index, self.atom_data["symbol"])
-        )
+        # ADDITIONAL ATTRIBUTES
+
+        self.selected_atomic_numbers = None
+        self.nlte_data = None
+        self.photo_ion_block_references = None
+        self.photo_ion_unique_index = None
+        self.lines_upper2macro_reference_idx = None
+        self.lines_lower2macro_reference_idx = None
+
+        # VERSIONING
+
+        self.uuid1 = None
+        self.md5 = None
+        self.version = None
 
     def _check_related(self):
         """
@@ -418,45 +412,12 @@ class AtomData:
 
         self._check_selected_atomic_numbers()
 
-        self.nlte_species = nlte_species
-
-        self.levels_index = pd.Series(
-            np.arange(len(self.levels), dtype=int), index=self.levels.index
-        )
-
         # cutting levels_lines
-        self.lines = self.lines[
-            self.lines.index.isin(
-                self.selected_atomic_numbers, level="atomic_number"
-            )
-        ]
-
-        self.lines = self.lines.sort_values(by="wavelength")
-
-        self.lines_index = pd.Series(
-            np.arange(len(self.lines), dtype=int),
-            index=self.lines.set_index("line_id").index,
-        )
-
-        tmp_lines_lower2level_idx = self.lines.index.droplevel(
-            "level_number_upper"
-        )
-
-        self.lines_lower2level_idx = (
-            self.levels_index.loc[tmp_lines_lower2level_idx]
-            .astype(np.int64)
-            .values
-        )
-
-        tmp_lines_upper2level_idx = self.lines.index.droplevel(
-            "level_number_lower"
-        )
-
-        self.lines_upper2level_idx = (
-            self.levels_index.loc[tmp_lines_upper2level_idx]
-            .astype(np.int64)
-            .values
-        )
+        self.prepare_lines()
+        (
+            tmp_lines_lower2level_idx,
+            tmp_lines_upper2level_idx,
+        ) = self.prepare_line_level_indexes()
 
         self.prepare_macro_atom_data(
             line_interaction_type,
@@ -469,6 +430,39 @@ class AtomData:
             )
 
         self.nlte_data = NLTEData(self, nlte_species)
+
+    def prepare_lines(self):
+        """Prepare line data"""
+        self.lines = self.lines[
+            self.lines.index.isin(
+                self.selected_atomic_numbers, level="atomic_number"
+            )
+        ]
+
+        self.lines = self.lines.sort_values(by="wavelength")
+
+    def prepare_line_level_indexes(self):
+        levels_index = pd.Series(
+            np.arange(len(self.levels), dtype=int), index=self.levels.index
+        )
+
+        tmp_lines_lower2level_idx = self.lines.index.droplevel(
+            "level_number_upper"
+        )
+
+        self.lines_lower2level_idx = (
+            levels_index.loc[tmp_lines_lower2level_idx].astype(np.int64).values
+        )
+
+        tmp_lines_upper2level_idx = self.lines.index.droplevel(
+            "level_number_lower"
+        )
+
+        self.lines_upper2level_idx = (
+            levels_index.loc[tmp_lines_upper2level_idx].astype(np.int64).values
+        )
+
+        return tmp_lines_lower2level_idx, tmp_lines_upper2level_idx
 
     def prepare_continuum_interaction_data(self, continuum_interaction_species):
         """
@@ -495,12 +489,9 @@ class AtomData:
             [1, 0],
         )
         self.photo_ion_unique_index = self.photoionization_data.index.unique()
-        self.nu_ion_threshold = (
+        nu_ion_threshold = (
             self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
         )
-        self.energy_photo_ion_lower_level = self.levels.loc[
-            self.photo_ion_unique_index
-        ].energy
 
         source_idx = self.macro_atom_references.loc[
             self.photo_ion_unique_index
@@ -508,7 +499,7 @@ class AtomData:
         destination_idx = self.macro_atom_references.loc[
             get_ground_state_multi_index(self.photo_ion_unique_index)
         ].references_idx
-        self.photo_ion_levels_idx = pd.DataFrame(
+        photo_ion_levels_idx = pd.DataFrame(
             {
                 "source_level_idx": source_idx.values,
                 "destination_level_idx": destination_idx.values,
@@ -517,12 +508,12 @@ class AtomData:
         )
 
         self.level2continuum_edge_idx = pd.Series(
-            np.arange(len(self.nu_ion_threshold)),
-            self.nu_ion_threshold.sort_values(ascending=False).index,
+            np.arange(len(nu_ion_threshold)),
+            nu_ion_threshold.sort_values(ascending=False).index,
             name="continuum_idx",
         )
 
-        level_idxs2continuum_idx = self.photo_ion_levels_idx.copy()
+        level_idxs2continuum_idx = photo_ion_levels_idx.copy()
         level_idxs2continuum_idx[
             "continuum_idx"
         ] = self.level2continuum_edge_idx
@@ -591,7 +582,12 @@ class AtomData:
                 len(self.macro_atom_references)
             )
 
-            self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.loc[
+            lines_index = pd.Series(
+                np.arange(len(self.lines), dtype=int),
+                index=self.lines.set_index("line_id").index,
+            )
+
+            self.macro_atom_data.loc[:, "lines_idx"] = lines_index.loc[
                 self.macro_atom_data["transition_line_id"]
             ].values
 
@@ -674,114 +670,28 @@ class AtomData:
     def __repr__(self):
         return f"<Atomic Data UUID={self.uuid1} MD5={self.md5} Lines={self.lines.line_id.count():d} Levels={self.levels.energy.count():d}>"
 
+    def get_attributes_from_store(store, store_key):
+        """Gets atom_data attributes, throws error and sets to None
+        if they are not available.
 
-class NLTEData:
-    def __init__(self, atom_data, nlte_species):
-        self.atom_data = atom_data
-        self.lines = atom_data.lines.reset_index()
-        self.nlte_species = nlte_species
-
-        if nlte_species:
-            logger.info("Preparing the NLTE data")
-            self._init_indices()
-            if atom_data.collision_data is not None:
-                self._create_collision_coefficient_matrix()
-
-    def _init_indices(self):
-        self.lines_idx = {}
-        self.lines_level_number_lower = {}
-        self.lines_level_number_upper = {}
-        self.A_uls = {}
-        self.B_uls = {}
-        self.B_lus = {}
-
-        for species in self.nlte_species:
-            lines_idx = np.where(
-                (self.lines.atomic_number == species[0])
-                & (self.lines.ion_number == species[1])
-            )
-            self.lines_idx[species] = lines_idx
-            self.lines_level_number_lower[
-                species
-            ] = self.lines.level_number_lower.values[lines_idx].astype(int)
-            self.lines_level_number_upper[
-                species
-            ] = self.lines.level_number_upper.values[lines_idx].astype(int)
-
-            self.A_uls[species] = self.atom_data.lines.A_ul.values[lines_idx]
-            self.B_uls[species] = self.atom_data.lines.B_ul.values[lines_idx]
-            self.B_lus[species] = self.atom_data.lines.B_lu.values[lines_idx]
-
-    def _create_collision_coefficient_matrix(self):
-        self.C_ul_interpolator = {}
-        self.delta_E_matrices = {}
-        self.g_ratio_matrices = {}
-        collision_group = self.atom_data.collision_data.groupby(
-            level=["atomic_number", "ion_number"]
-        )
-        for species in self.nlte_species:
-            no_of_levels = self.atom_data.levels.loc[species].energy.count()
-            C_ul_matrix = np.zeros(
-                (
-                    no_of_levels,
-                    no_of_levels,
-                    len(self.atom_data.collision_data_temperatures),
-                )
-            )
-            delta_E_matrix = np.zeros((no_of_levels, no_of_levels))
-            g_ratio_matrix = np.zeros((no_of_levels, no_of_levels))
-
-            for (
-                (
-                    atomic_number,
-                    ion_number,
-                    level_number_lower,
-                    level_number_upper,
-                ),
-                line,
-            ) in collision_group.get_group(species).iterrows():
-                # line.columns : delta_e, g_ratio, temperatures ...
-                C_ul_matrix[
-                    level_number_lower, level_number_upper, :
-                ] = line.values[2:]
-                delta_E_matrix[level_number_lower, level_number_upper] = line[
-                    "delta_e"
-                ]
-                # TODO TARDISATOMIC fix change the g_ratio to be the otherway round - I flip them now here.
-                g_ratio_matrix[level_number_lower, level_number_upper] = (
-                    1 / line["g_ratio"]
-                )
-            self.C_ul_interpolator[species] = interpolate.interp1d(
-                self.atom_data.collision_data_temperatures, C_ul_matrix
-            )
-            self.delta_E_matrices[species] = delta_E_matrix
-
-            self.g_ratio_matrices[species] = g_ratio_matrix
-
-    def get_collision_matrix(self, species, t_electrons):
+        Parameters
+        ----------
+        store : pd.HDFStore
+            Data source
+        store_key : str
+            HDFStore value to check
         """
-        Creat collision matrix by interpolating the C_ul values for
-        the desired temperatures.
-        """
-        c_ul_matrix = self.C_ul_interpolator[species](t_electrons)
-        no_of_levels = c_ul_matrix.shape[0]
-        c_ul_matrix[np.isnan(c_ul_matrix)] = 0.0
-
-        # TODO in tardisatomic the g_ratio is the other way round - here I'll flip it in prepare_collision matrix
-
-        c_lu_matrix = (
-            c_ul_matrix
-            * np.exp(
-                -self.delta_E_matrices[species].reshape(
-                    (no_of_levels, no_of_levels, 1)
-                )
-                / t_electrons.reshape((1, 1, t_electrons.shape[0]))
+        try:
+            attribute = store.root._v_attrs[store_key]
+            if hasattr(attribute, "decode"):
+                attribute = attribute.decode("ascii")
+        except KeyError:
+            logger.debug(
+                f"{store_key} not available for Atom Data. Setting value to None"
             )
-            * self.g_ratio_matrices[species].reshape(
-                (no_of_levels, no_of_levels, 1)
-            )
-        )
-        return c_ul_matrix + c_lu_matrix.transpose(1, 0, 2)
+            attribute = None
+
+        return attribute            
 
 
 @dataclass
@@ -808,3 +718,4 @@ class MoleculeData:
     equilibrium_constants: pd.DataFrame
     partition_functions: pd.DataFrame
     dissociation_energies: pd.DataFrame
+      
