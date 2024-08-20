@@ -783,7 +783,7 @@ class NLTEData:
 
 
 @dataclass
-class MoleculeData(object):
+class MoleculeData():
     """
     Class to hold molecular data. Held by the AtomData object.
 
