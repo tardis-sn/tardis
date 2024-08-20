@@ -19,12 +19,12 @@ jobs:
       - name: Setup micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-name: fetch-env
+          environment-name: codespell-env
           create-args: >-
             python
 
       - name: Install Codespell
-        run: pip install codespell==1.10.0
+        run: pip install codespell
 
       - name: Run codespell
         run: |
