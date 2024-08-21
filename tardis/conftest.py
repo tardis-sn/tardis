@@ -165,17 +165,6 @@ def tardis_snapshot_path(request):
             os.path.expandvars(os.path.expanduser(tardis_snapshot_path))
         )
 
-
-@pytest.yield_fixture(scope="session")
-def tardis_ref_data(tardis_ref_path, generate_reference):
-    if generate_reference:
-        mode = "w"
-    else:
-        mode = "r"
-    with pd.HDFStore(tardis_ref_path / "unit_test_data.h5", mode=mode) as store:
-        yield store
-
-
 @pytest.fixture(scope="function")
 def tardis_config_verysimple():
     return yaml_load_file(
