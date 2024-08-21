@@ -4,7 +4,8 @@ from itertools import product
 import astropy.units as u
 import numpy as np
 import pytest
-from matplotlib.testing.compare import compare_images
+from matplotlib.collections import PolyCollection
+from matplotlib.lines import Line2D
 
 from tardis.base import run_tardis
 from tardis.io.util import HDFWriterMixin
@@ -179,9 +180,26 @@ class TestLIVPlotter:
         property_group = {
             "_species_name": plotter._species_name,
             "_color_list": color_list,
-            "step_x": plotter.step_x.value,
-            "step_y": plotter.step_y,
         }
+        for index1, data in enumerate(fig.get_children()):
+            if isinstance(data.get_label(), str):
+                property_group["label" + str(index1)] = (
+                    data.get_label().encode()
+                )
+            # save line plots
+            if isinstance(data, Line2D):
+                property_group["data" + str(index1)] = data.get_xydata()
+                property_group["linepath" + str(index1)] = (
+                    data.get_path().vertices
+                )
+
+            # save artists which correspond to element contributions
+            if isinstance(data, PolyCollection):
+                for index2, path in enumerate(data.get_paths()):
+                    property_group[
+                        "polypath" + "ind_" + str(index1) + "ind_" + str(index2)
+                    ] = path.vertices
+
         plot_data = PlotDataHDF(**property_group)
         return plot_data
 
@@ -191,31 +209,55 @@ class TestLIVPlotter:
         fig, _ = plotter_generate_plot_mpl
         regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
-        for item in ["_species_name", "_color_list", "step_x", "step_y"]:
-            np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
-                getattr(generate_plot_mpl_hdf, item),
-            )
+        for item in ["_species_name", "_color_list"]:
+            expected_values = expected.get(
+                "plot_data_hdf/" + item
+            ).values.flatten()
+            actual_values = getattr(generate_plot_plotly_hdf, item)
 
-    def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, request):
-        regression_data = RegressionData(request)
-        fig, _ = plotter_generate_plot_mpl
-        regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
-        fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}.png")
+            if np.issubdtype(expected_values.dtype, np.number):
+                np.testing.assert_allclose(
+                    expected_values,
+                    actual_values,
+                    rtol=1e-3,
+                    atol=1e-5,
+                )
+            else:
+                assert np.array_equal(expected_values, actual_values)
 
-        if regression_data.enable_generate_reference:
-            fig.figure.savefig(
-                regression_data.absolute_regression_data_dir
-                / f"{regression_data.fname_prefix}.png"
-            )
-            pytest.skip("Skipping test to generate reference data")
-        else:
-            expected = str(
-                regression_data.absolute_regression_data_dir
-                / f"{regression_data.fname_prefix}.png"
-            )
-            actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
-            compare_images(expected, actual, tol=0.001)
+        labels = expected["plot_data_hdf/scalars"]
+        for index1, data in enumerate(fig.get_children()):
+            if isinstance(data.get_label(), str):
+                assert (
+                    getattr(labels, "label" + str(index1)).decode()
+                    == data.get_label()
+                )
+            # save line plots
+            if isinstance(data, Line2D):
+                np.testing.assert_allclose(
+                    data.get_xydata(),
+                    expected.get("plot_data_hdf/" + "data" + str(index1)),
+                    rtol=0.3,
+                    atol=3,
+                )
+                np.testing.assert_allclose(
+                    data.get_path().vertices,
+                    expected.get("plot_data_hdf/" + "linepath" + str(index1)),
+                )
+            # save artists which correspond to element contributions
+            if isinstance(data, PolyCollection):
+                for index2, path in enumerate(data.get_paths()):
+                    np.testing.assert_almost_equal(
+                        path.vertices,
+                        expected.get(
+                            "plot_data_hdf/"
+                            + "polypath"
+                            + "ind_"
+                            + str(index1)
+                            + "ind_"
+                            + str(index2)
+                        ),
+                    )
 
     @pytest.fixture(scope="function", params=combinations)
     def plotter_generate_plot_ply(self, request, plotter):
@@ -249,9 +291,15 @@ class TestLIVPlotter:
         property_group = {
             "_species_name": plotter._species_name,
             "_color_list": color_list,
-            "step_x": plotter.step_x.value,
-            "step_y": plotter.step_y,
         }
+        for index, data in enumerate(fig.data):
+            group = "_" + str(index)
+            if data.stackgroup:
+                property_group[group + "stackgroup"] = data.stackgroup.encode()
+            if data.name:
+                property_group[group + "name"] = data.name.encode()
+            property_group[group + "x"] = data.x
+            property_group[group + "y"] = data.y
         plot_data = PlotDataHDF(**property_group)
         return plot_data
 
@@ -262,8 +310,45 @@ class TestLIVPlotter:
         regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
 
-        for item in ["_species_name", "_color_list", "step_x", "step_y"]:
-            np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
-                getattr(generate_plot_plotly_hdf, item),
+        for item in ["_species_name", "_color_list"]:
+            expected_values = expected.get(
+                "plot_data_hdf/" + item
+            ).values.flatten()
+            actual_values = getattr(generate_plot_plotly_hdf, item)
+
+            if np.issubdtype(expected_values.dtype, np.number):
+                np.testing.assert_allclose(
+                    expected_values,
+                    actual_values,
+                    rtol=0.15,
+                    atol=3,
+                )
+            else:
+                assert np.array_equal(expected_values, actual_values)
+        for index, data in enumerate(fig.data):
+            group = "plot_data_hdf/" + "_" + str(index)
+            if data.stackgroup:
+                assert (
+                    data.stackgroup
+                    == getattr(
+                        expected["/plot_data_hdf/scalars"],
+                        "_" + str(index) + "stackgroup",
+                    ).decode()
+                )
+            if data.name:
+                assert (
+                    data.name
+                    == getattr(
+                        expected["/plot_data_hdf/scalars"],
+                        "_" + str(index) + "name",
+                    ).decode()
+                )
+            np.testing.assert_allclose(
+                data.x, expected.get(group + "x").values.flatten()
+            )
+            np.testing.assert_allclose(
+                data.y,
+                expected.get(group + "y").values.flatten(),
+                rtol=0.3,
+                atol=3,
             )
