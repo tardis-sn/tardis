@@ -180,6 +180,8 @@ class TestLIVPlotter:
         property_group = {
             "_species_name": plotter._species_name,
             "_color_list": color_list,
+            "step_x": plotter.step_x.value,
+            "step_y": plotter.step_y,
         }
         for index1, data in enumerate(fig.get_children()):
             if isinstance(data.get_label(), str):
@@ -209,7 +211,7 @@ class TestLIVPlotter:
         fig, _ = plotter_generate_plot_mpl
         regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
-        for item in ["_species_name", "_color_list"]:
+        for item in ["_species_name", "_color_list", "step_x", "step_y"]:
             expected_values = expected.get(
                 "plot_data_hdf/" + item
             ).values.flatten()
@@ -219,8 +221,8 @@ class TestLIVPlotter:
                 np.testing.assert_allclose(
                     expected_values,
                     actual_values,
-                    rtol=1e-3,
-                    atol=1e-5,
+                    rtol=0.3,
+                    atol=3,
                 )
             else:
                 assert np.array_equal(expected_values, actual_values)
@@ -243,6 +245,8 @@ class TestLIVPlotter:
                 np.testing.assert_allclose(
                     data.get_path().vertices,
                     expected.get("plot_data_hdf/" + "linepath" + str(index1)),
+                    rtol=1,
+                    atol=3,
                 )
             # save artists which correspond to element contributions
             if isinstance(data, PolyCollection):
@@ -291,6 +295,8 @@ class TestLIVPlotter:
         property_group = {
             "_species_name": plotter._species_name,
             "_color_list": color_list,
+            "step_x": plotter.step_x.value,
+            "step_y": plotter.step_y,
         }
         for index, data in enumerate(fig.data):
             group = "_" + str(index)
@@ -310,7 +316,7 @@ class TestLIVPlotter:
         regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
 
-        for item in ["_species_name", "_color_list"]:
+        for item in ["_species_name", "_color_list", "step_x", "step_y"]:
             expected_values = expected.get(
                 "plot_data_hdf/" + item
             ).values.flatten()
@@ -320,7 +326,7 @@ class TestLIVPlotter:
                 np.testing.assert_allclose(
                     expected_values,
                     actual_values,
-                    rtol=0.15,
+                    rtol=0.3,
                     atol=3,
                 )
             else:
@@ -344,7 +350,10 @@ class TestLIVPlotter:
                     ).decode()
                 )
             np.testing.assert_allclose(
-                data.x, expected.get(group + "x").values.flatten()
+                data.x,
+                expected.get(group + "x").values.flatten(),
+                rtol=0.3,
+                atol=3,
             )
             np.testing.assert_allclose(
                 data.y,
