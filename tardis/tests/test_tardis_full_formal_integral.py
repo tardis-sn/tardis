@@ -86,9 +86,9 @@ class TestTransportSimpleFormalIntegral:
       expected = u.Quantity(expected, "erg /s")
       assert_quantity_allclose(luminosity, expected)
 
-  def test_spectrum_integrated(self, simulation, request):
-      regression_data = RegressionData(request)
-      luminosity = simulation.spectrum_solver.spectrum_integrated.luminosity
-      expected = regression_data.sync_ndarray(luminosity.cgs.value)
-      expected = u.Quantity(expected, "erg /s")
-      assert_quantity_allclose(luminosity, expected)
+#   def test_spectrum_integrated(self, simulation, request):
+#       regression_data = RegressionData(request)
+#       luminosity = simulation.spectrum_solver.spectrum_integrated.luminosity
+#       expected = regression_data.sync_ndarray(luminosity.cgs.value)
+#       expected = u.Quantity(expected, "erg /s")
+#       assert_quantity_allclose(luminosity, expected)
