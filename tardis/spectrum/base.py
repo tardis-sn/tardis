@@ -104,7 +104,7 @@ class SpectrumSolver(HDFWriterMixin):
                     np.array([np.nan]) * u.erg / u.s,
                 )
         return self._spectrum_integrated
-    
+
     @property
     def integrator(self):
         if self._integrator is None:
