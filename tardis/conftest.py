@@ -1,16 +1,15 @@
 import os
 from pathlib import Path
 
-import pandas as pd
 import pytest
 from astropy.version import version as astropy_version
 
+from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
 from tardis.tests.fixtures.regression_data import regression_data
-from tardis import run_tardis
 
 # ensuring that regression_data is not removed by ruff
 assert regression_data is not None
@@ -164,6 +163,7 @@ def tardis_snapshot_path(request):
         return Path(
             os.path.expandvars(os.path.expanduser(tardis_snapshot_path))
         )
+
 
 @pytest.fixture(scope="function")
 def tardis_config_verysimple():
