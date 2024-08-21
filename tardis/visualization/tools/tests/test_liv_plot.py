@@ -213,7 +213,7 @@ class TestLIVPlotter:
             expected_values = expected.get(
                 "plot_data_hdf/" + item
             ).values.flatten()
-            actual_values = getattr(generate_plot_plotly_hdf, item)
+            actual_values = getattr(generate_plot_mpl_hdf, item)
 
             if np.issubdtype(expected_values.dtype, np.number):
                 np.testing.assert_allclose(
