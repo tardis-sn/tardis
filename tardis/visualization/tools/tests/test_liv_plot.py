@@ -186,14 +186,14 @@ class TestLIVPlotter:
         }
         for index1, data in enumerate(fig.get_children()):
             if isinstance(data.get_label(), str):
-                property_group["label" + str(index1)] = (
-                    data.get_label().encode()
-                )
+                property_group[
+                    "label" + str(index1)
+                ] = data.get_label().encode()
             if isinstance(data, Line2D):
                 property_group["data" + str(index1)] = data.get_xydata()
-                property_group["linepath" + str(index1)] = (
-                    data.get_path().vertices
-                )
+                property_group[
+                    "linepath" + str(index1)
+                ] = data.get_path().vertices
             if isinstance(data, PolyCollection):
                 for index2, path in enumerate(data.get_paths()):
                     property_group[
