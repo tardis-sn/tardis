@@ -15,7 +15,19 @@ from tardis.tests.fixtures.regression_data import RegressionData
 
 
 class PlotDataHDF(HDFWriterMixin):
+    """
+    A class that writes plot data to HDF5 format using the HDFWriterMixin.
+    """
+
     def __init__(self, **kwargs):
+        """
+        Initializes PlotDataHDF with arbitrary keyword arguments,
+        storing them as attributes and adding their names to hdf_properties.
+
+        Parameters:
+        -----------
+        **kwargs: Arbitrary keyword arguments representing properties to save.
+        """
         self.hdf_properties = []
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -24,6 +36,18 @@ class PlotDataHDF(HDFWriterMixin):
 
 @pytest.fixture(scope="module")
 def simulation_simple(config_verysimple, atomic_dataset):
+    """
+    Fixture to create a simple TARDIS simulation.
+
+    Parameters:
+    -----------
+    config_verysimple: A basic TARDIS configuration object.
+    atomic_dataset: An atomic dataset to use in the simulation.
+
+    Returns:
+    --------
+    A TARDIS simulation object.
+    """
     config_verysimple.montecarlo.iterations = 3
     config_verysimple.montecarlo.no_of_packets = 4000
     config_verysimple.montecarlo.last_no_of_packets = -1
@@ -39,6 +63,17 @@ def simulation_simple(config_verysimple, atomic_dataset):
 
 @pytest.fixture(scope="class")
 def plotter(simulation_simple):
+    """
+    Fixture to create an LIVPlotter instance from a simulation.
+
+    Parameters:
+    -----------
+    simulation_simple: A TARDIS simulation object.
+
+    Returns:
+    --------
+    An LIVPlotter instance.
+    """
     return LIVPlotter.from_simulation(simulation_simple)
 
 
@@ -80,6 +115,15 @@ class TestLIVPlotter:
         plotter,
         attribute,
     ):
+        """
+        Test for the _parse_species_list method in LIVPlotter.
+
+        Parameters:
+        -----------
+        request: Pytest's request fixture.
+        plotter: The LIVPlotter instance.
+        attribute: The attribute to test after parsing the species list.
+        """
         regression_data = RegressionData(request)
         plotter._parse_species_list(
             packets_mode=self.packets_mode[0],
@@ -102,6 +146,18 @@ class TestLIVPlotter:
 
     @pytest.fixture(scope="class", params=combinations)
     def plotter_prepare_plot_data(self, request, plotter):
+        """
+        Fixture to prepare plot data for a specific combination of parameters.
+
+        Parameters:
+        -----------
+        request: Pytest's request fixture.
+        plotter: The LIVPlotter instance.
+
+        Returns:
+        --------
+        The plotter instance after preparing the plot data.
+        """
         (
             species_list,
             packet_wvl_range,
@@ -135,6 +191,15 @@ class TestLIVPlotter:
         request,
         attribute,
     ):
+        """
+        Test for the _prepare_plot_data method in LIVPlotter.
+
+        Parameters:
+        -----------
+        plotter_prepare_plot_data: The plotter instance with prepared data.
+        request: Pytest's request fixture.
+        attribute: The attribute to test after preparing the plot data.
+        """
         regression_data = RegressionData(request)
         if attribute == "plot_data" or attribute == "plot_colors":
             plot_object = getattr(plotter_prepare_plot_data, attribute)
@@ -151,6 +216,18 @@ class TestLIVPlotter:
 
     @pytest.fixture(scope="function", params=combinations)
     def plotter_generate_plot_mpl(self, request, plotter):
+        """
+        Fixture to generate a Matplotlib plot using the LIVPlotter.
+
+        Parameters:
+        -----------
+        request: Pytest's request fixture.
+        plotter: The LIVPlotter instance.
+
+        Returns:
+        --------
+        A tuple containing the Matplotlib figure and the plotter instance.
+        """
         (
             species_list,
             packet_wvl_range,
@@ -173,6 +250,17 @@ class TestLIVPlotter:
 
     @pytest.fixture(scope="function")
     def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl):
+        """
+        Fixture to generate and store plot data for Matplotlib in HDF5 format.
+
+        Parameters:
+        -----------
+        plotter_generate_plot_mpl: The Matplotlib plotter fixture.
+
+        Returns:
+        --------
+        A PlotDataHDF instance containing the plot data.
+        """
         fig, plotter = plotter_generate_plot_mpl
 
         color_list = [
@@ -206,6 +294,17 @@ class TestLIVPlotter:
     def test_generate_plot_mpl(
         self, generate_plot_mpl_hdf, plotter_generate_plot_mpl, request
     ):
+        """
+        Test for the generate_plot_mpl method in LIVPlotter.
+
+        Compares generated plot data with regression data.
+
+        Parameters:
+        -----------
+        generate_plot_mpl_hdf: The PlotDataHDF fixture for Matplotlib.
+        plotter_generate_plot_mpl: The Matplotlib plotter fixture.
+        request: Pytest's request fixture.
+        """
         fig, _ = plotter_generate_plot_mpl
         regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
@@ -260,6 +359,16 @@ class TestLIVPlotter:
                     )
 
     def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, request):
+        """
+        Test to compare the generated Matplotlib images with the expected ones.
+
+        Parameters:
+        -----------
+        plotter_generate_plot_mpl: The Matplotlib plotter fixture.
+        request: Pytest's request fixture.
+        recwarn: Pytest's warning recording fixture.
+        pytestconfig: Pytest's configuration fixture.
+        """
         regression_data = RegressionData(request)
         fig, _ = plotter_generate_plot_mpl
         regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
@@ -281,6 +390,18 @@ class TestLIVPlotter:
 
     @pytest.fixture(scope="function", params=combinations)
     def plotter_generate_plot_ply(self, request, plotter):
+        """
+        Fixture to generate a Plotly plot using the LIVPlotter.
+
+        Parameters:
+        -----------
+        request: Pytest's request fixture.
+        plotter: The LIVPlotter instance.
+
+        Returns:
+        --------
+        A tuple containing the Plotly figure and the plotter instance.
+        """
         (
             species_list,
             packet_wvl_range,
@@ -302,7 +423,18 @@ class TestLIVPlotter:
         return fig, plotter
 
     @pytest.fixture(scope="function")
-    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply, request):
+    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply):
+        """
+        Fixture to generate and store plot data for Matplotlib in HDF5 format.
+
+        Parameters:
+        -----------
+        plotter_generate_plot_ply: The Plotly plotter fixture.
+
+        Returns:
+        --------
+        A PlotDataHDF instance containing the plot data.
+        """
         fig, plotter = plotter_generate_plot_ply
 
         color_list = [
@@ -328,6 +460,17 @@ class TestLIVPlotter:
     def test_generate_plot_ply(
         self, generate_plot_plotly_hdf, plotter_generate_plot_ply, request
     ):
+        """
+        Test for the generate_plot_mpl method in LIVPlotter.
+
+        Compares generated plot data with regression data.
+
+        Parameters:
+        ----------
+        generate_plot_plotly_hdf: The PlotDataHDF fixture for Plotly.
+        plotter_generate_plot_mpl: The Plotly plotter fixture.
+        request: Pytest's request fixture.
+        """
         fig, _ = plotter_generate_plot_ply
         regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
