@@ -99,14 +99,12 @@ class SpectrumSolver(HDFWriterMixin):
                     "This RETURNS AN EMPTY SPECTRUM!",
                     UserWarning,
                 )
-                return TARDISSpectrum(
+                self._spectrum_integrated = TARDISSpectrum(
                     np.array([np.nan, np.nan]) * u.Hz,
                     np.array([np.nan]) * u.erg / u.s,
                 )
-        else:
-            self._spectrum_integrated = None
         return self._spectrum_integrated
-
+    
     @property
     def integrator(self):
         if self._integrator is None:
