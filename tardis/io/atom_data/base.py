@@ -104,6 +104,12 @@ class AtomData:
         columns: atomic_number, element, Rad energy, Rad intensity decay mode.
         Curated from nndc
 
+    linelist_atoms : pandas.DataFrame
+    A DataFrame containing a linelist of input atoms
+
+    linelist_molecules : pandas.DataFrame
+    A DataFrame containing a linelist of input molecules
+
     molecule_data : MolecularData
     A class containing the *molecular data* with:
         equilibrium_constants, partition_functions, dissociation_energies
@@ -123,6 +129,8 @@ class AtomData:
     photoionization_data : pandas.DataFrame
     two_photon_data : pandas.DataFrame
     decay_radiation_data : pandas.DataFrame
+    linelist_atoms : pandas.DataFrame
+    linelist_molecules : pandas.DataFrame
     molecule_data : MolecularData
 
     Methods
@@ -520,9 +528,9 @@ class AtomData:
         )
 
         level_idxs2continuum_idx = photo_ion_levels_idx.copy()
-        level_idxs2continuum_idx[
-            "continuum_idx"
-        ] = self.level2continuum_edge_idx
+        level_idxs2continuum_idx["continuum_idx"] = (
+            self.level2continuum_edge_idx
+        )
         self.level_idxs2continuum_idx = level_idxs2continuum_idx.set_index(
             ["source_level_idx", "destination_level_idx"]
         )
@@ -556,31 +564,33 @@ class AtomData:
                 self.macro_atom_references = self.macro_atom_references.loc[
                     self.macro_atom_references["count_down"] > 0
                 ]
-                self.macro_atom_references.loc[
-                    :, "count_total"
-                ] = self.macro_atom_references["count_down"]
-                self.macro_atom_references.loc[
-                    :, "block_references"
-                ] = np.hstack(
-                    (
-                        0,
-                        np.cumsum(
-                            self.macro_atom_references["count_down"].values[:-1]
-                        ),
+                self.macro_atom_references.loc[:, "count_total"] = (
+                    self.macro_atom_references["count_down"]
+                )
+                self.macro_atom_references.loc[:, "block_references"] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references["count_down"].values[
+                                    :-1
+                                ]
+                            ),
+                        )
                     )
                 )
 
             elif line_interaction_type == "macroatom":
-                self.macro_atom_references.loc[
-                    :, "block_references"
-                ] = np.hstack(
-                    (
-                        0,
-                        np.cumsum(
-                            self.macro_atom_references["count_total"].values[
-                                :-1
-                            ]
-                        ),
+                self.macro_atom_references.loc[:, "block_references"] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references[
+                                    "count_total"
+                                ].values[:-1]
+                            ),
+                        )
                     )
                 )
 
