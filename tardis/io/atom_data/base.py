@@ -154,7 +154,8 @@ class AtomData:
         "photoionization_data",
         "yg_data",
         "two_photon_data",
-        "linelist",
+        "linelist_atoms",
+        "linelist_molecules",
         "decay_radiation_data",
     ]
 
@@ -226,8 +227,10 @@ class AtomData:
                     raise ValueError(
                         f"Current carsus version, {carsus_version}, is not supported."
                     )
-            if "linelist" in store:
-                dataframes["linelist"] = store["linelist"]
+            if "linelist_atoms" in store:
+                dataframes["linelist_atoms"] = store["linelist_atoms"]
+            if "linelist_molecules" in store:
+                dataframes["linelist_molecules"] = store["linelist_molecules"]
 
             if "molecules" in store:
                 molecule_data = MoleculeData(
@@ -275,7 +278,8 @@ class AtomData:
         photoionization_data=None,
         yg_data=None,
         two_photon_data=None,
-        linelist=None,
+        linelist_atoms=None,
+        linelist_molecules=None,
         decay_radiation_data=None,
         molecule_data=None,
     ):
@@ -346,8 +350,10 @@ class AtomData:
 
         self.two_photon_data = two_photon_data
 
-        if linelist is not None:
-            self.linelist = linelist
+        if linelist_atoms is not None:
+            self.linelist_atoms = linelist_atoms
+        if linelist_molecules is not None:
+            self.linelist_molecules = linelist_molecules
 
         if molecule_data is not None:
             self.molecule_data = molecule_data
