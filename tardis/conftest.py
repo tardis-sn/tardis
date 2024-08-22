@@ -1,16 +1,15 @@
 import os
 from pathlib import Path
 
-import pandas as pd
 import pytest
 from astropy.version import version as astropy_version
 
+from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
 from tardis.tests.fixtures.regression_data import regression_data
-from tardis import run_tardis
 
 # ensuring that regression_data is not removed by ruff
 assert regression_data is not None
@@ -164,16 +163,6 @@ def tardis_snapshot_path(request):
         return Path(
             os.path.expandvars(os.path.expanduser(tardis_snapshot_path))
         )
-
-
-@pytest.yield_fixture(scope="session")
-def tardis_ref_data(tardis_ref_path, generate_reference):
-    if generate_reference:
-        mode = "w"
-    else:
-        mode = "r"
-    with pd.HDFStore(tardis_ref_path / "unit_test_data.h5", mode=mode) as store:
-        yield store
 
 
 @pytest.fixture(scope="function")
