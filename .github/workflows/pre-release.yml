@@ -138,9 +138,6 @@ jobs:
           merge-method: squash
         if: steps.create-pr.outputs.pull-request-operation == 'created'
 
-  compare_refdata:
-    uses: tardis-sn/tardis-refdata/.github/workflows/compare-refdata.yml@master
-  
   pip_tests:
     uses: ./.github/workflows/tests.yml
     secrets: inherit
