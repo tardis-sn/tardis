@@ -92,10 +92,10 @@ jobs:
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
-      
+
       - name: Setup environment
         uses: ./.github/actions/setup_env
-        with: 
+        with:
           os-label: linux-64
 
       - name: Copy atom_data
