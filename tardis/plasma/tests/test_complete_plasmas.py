@@ -137,7 +137,9 @@ class TestPlasma:
 
     @pytest.fixture(scope="class")
     def chianti_he_db_fpath(self, tardis_regression_path):
-        return (tardis_regression_path / "atom_data" / "chianti_He.h5").absolute()
+        return (
+            tardis_regression_path / "atom_data" / "chianti_He.h5"
+        ).absolute()
 
     @pytest.fixture(scope="class", params=CONFIG_LIST, ids=idfn)
     def config(self, request):

@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -138,16 +139,21 @@ def generate_reference(request):
     option = request.config.getoption("--generate-reference")
     if option is None:
         return False
-    else:
-        return option
+    return option
+
 
 @pytest.fixture(scope="session")
 def tardis_regression_path(request):
-    tardis_regression_path = request.config.getoption("--tardis-regression-data")
+    tardis_regression_path = request.config.getoption(
+        "--tardis-regression-data"
+    )
     if tardis_regression_path is None:
         pytest.skip("--tardis-regression-data was not specified")
     else:
-        return Path(os.path.expandvars(os.path.expanduser(tardis_regression_path)))
+        return Path(
+            os.path.expandvars(os.path.expanduser(tardis_regression_path))
+        )
+
 
 @pytest.fixture(scope="session")
 def tardis_snapshot_path(request):

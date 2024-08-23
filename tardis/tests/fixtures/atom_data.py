@@ -48,7 +48,12 @@ def nlte_atomic_data_fname(tardis_regression_path):
     """
     File name for the atomic data file used in NTLE ionization solver tests.
     """
-    atomic_data_fname = tardis_regression_path / "atom_data" / "nlte_atom_data" / "TestNLTE_He_Ti.h5"
+    atomic_data_fname = (
+        tardis_regression_path
+        / "atom_data"
+        / "nlte_atom_data"
+        / "TestNLTE_He_Ti.h5"
+    )
 
     atom_data_missing_str = (
         f"{atomic_data_fname} atomic datafiles " f"does not seem to exist"
