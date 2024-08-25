@@ -1,5 +1,16 @@
 ## Changelog
 
+### release-2024.08.25 (2024/08/24 20:44)
+- [2809](https://github.com/tardis-sn/tardis/pull/2809) Pre-release 2024.08.25 (2809) (@tardis-bot)
+- [2795](https://github.com/tardis-sn/tardis/pull/2795) Doc changes for RPacketTracker (2795) (@Sumit112192)
+- [2806](https://github.com/tardis-sn/tardis/pull/2806) Add molecular data exposure to tardis atom data (2806) (@jvshields)
+- [2805](https://github.com/tardis-sn/tardis/pull/2805) TARDIS Full Formal Integral Regression Tests (2805) (@atharva-2001)
+- [2723](https://github.com/tardis-sn/tardis/pull/2723) LIV Plot Tests (2723) (@sarthak-dv)
+- [2804](https://github.com/tardis-sn/tardis/pull/2804) Simulation Regression Tests (2804) (@atharva-2001)
+- [2783](https://github.com/tardis-sn/tardis/pull/2783) Simple Atom data refactor (2783) (@andrewfullard)
+- [2794](https://github.com/tardis-sn/tardis/pull/2794) Update research papers notebook and update the docs (2794) (@KasukabeDefenceForce)
+- [2798](https://github.com/tardis-sn/tardis/pull/2798) Remove deprecated setup.py (2798) (@KasukabeDefenceForce)
+- [2803](https://github.com/tardis-sn/tardis/pull/2803) Post-release 2024.08.18 (2803) (@tardis-bot)
 ### release-2024.08.18 (2024/08/17 20:45)
 - [2802](https://github.com/tardis-sn/tardis/pull/2802) Pre-release 2024.08.18 (2802) (@tardis-bot)
 - [2788](https://github.com/tardis-sn/tardis/pull/2788) Update benchmark base (2788) (@officialasishkumar)
