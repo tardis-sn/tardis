@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2024_13336971
+.. |CITATION| replace:: kerzendorf_2024_13370472
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.13336971-blue
-                 :target: https://doi.org/10.5281/zenodo.13336971
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.13370472-blue
+                 :target: https://doi.org/10.5281/zenodo.13370472
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2024_13336971,
+    @software{kerzendorf_2024_13370472,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -116,17 +116,17 @@ The following BibTeX entries are needed for the references:
                       Sondhi, Dhruv and
                       Yu, Jenny and
                       Patel, Maryam and
-                      Rathi, Shikha and
+                      Shields, Josh and
                       Varanasi, Kaushik and
+                      Rathi, Shikha and
                       Chitchyan, Sona and
                       Gillanders, James and
-                      Shields, Josh and
                       Singh, Shreyas and
                       Savel, Arjun and
+                      Gupta, Sumit and
                       Reinecke, Martin and
                       Holas, Alexander and
                       Eweis, Youssef and
-                      Gupta, Sumit and
                       Bylund, Tomas and
                       Black, William and
                       Bentil, Laud and
@@ -137,8 +137,8 @@ The following BibTeX entries are needed for the references:
                       Alam, Arib and
                       Magee, Mark and
                       Dutta, Anirban and
-                      Varma Buddaraju, Rohith and
                       Srivastava, Sarthak and
+                      Varma Buddaraju, Rohith and
                       Visser, Erin and
                       Daksh, Ayushi and
                       Lu, Jing and
@@ -189,12 +189,12 @@ The following BibTeX entries are needed for the references:
                       Nayak U, Ashwin and
                       Kumar, Atul and
                       Kharkar, Atharwa},
-      title        = {tardis-sn/tardis: TARDIS v2024.08.18},
+      title        = {tardis-sn/tardis: TARDIS v2024.08.25},
       month        = aug,
       year         = 2024,
       publisher    = {Zenodo},
-      version      = {release-2024.08.18},
-      doi          = {10.5281/zenodo.13336971},
-      url          = {https://doi.org/10.5281/zenodo.13336971}
+      version      = {release-2024.08.25},
+      doi          = {10.5281/zenodo.13370472},
+      url          = {https://doi.org/10.5281/zenodo.13370472}
     }
 
