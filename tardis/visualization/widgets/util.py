@@ -1,7 +1,7 @@
 """Utility classes and functions for widgets."""
 
 import logging
-import qgrid
+import qgridnext as qgrid
 import ipywidgets as ipw
 import asyncio
 
@@ -180,12 +180,12 @@ class TableSummaryLabel:
             table_width -= 12  # 12px is space consumed by scroll bar of qgrid
 
         # Distribute the table width in proportions of column width to label components
-        self.widget.children[
-            0
-        ].layout.width = f"{(table_width) * self.table_col_widths[0]/100}px"
-        self.widget.children[
-            1
-        ].layout.width = f"{(table_width) * self.table_col_widths[1]/100}px"
+        self.widget.children[0].layout.width = (
+            f"{(table_width) * self.table_col_widths[0]/100}px"
+        )
+        self.widget.children[1].layout.width = (
+            f"{(table_width) * self.table_col_widths[1]/100}px"
+        )
 
     def _create(self, key, value):
         """
