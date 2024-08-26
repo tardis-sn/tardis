@@ -839,7 +839,7 @@ class GammaRayPacketSource(BasePacketSource):
 
     def calculate_positron_fraction(self, isotopes, number_of_packets):
         """Calculate the fraction of energy that an isotope
-        releases as positron kinetic energy
+        releases as positron kinetic energy vs the gamma-ray energy
 
         Parameters
         ----------
