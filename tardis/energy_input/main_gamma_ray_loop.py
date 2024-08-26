@@ -221,8 +221,8 @@ def run_gamma_ray_loop(
     total_rf_energy = 0
 
     for p in packets:
-       total_cmf_energy += p.energy_cmf
-       total_rf_energy += p.energy_rf
+        total_cmf_energy += p.energy_cmf
+        total_rf_energy += p.energy_rf
 
     logger.info(f"Total CMF energy is {total_cmf_energy}")
     logger.info(f"Total RF energy is {total_rf_energy}")
@@ -281,8 +281,12 @@ def run_gamma_ray_loop(
 
     total_deposited_energy = (positron_energy + deposited_energy) / dt_array
 
-    return escape_energy, packets_df_escaped, deposited_energy, total_deposited_energy,
-
+    return (
+        escape_energy,
+        packets_df_escaped,
+        deposited_energy,
+        total_deposited_energy,
+    )
 
 
 def get_packet_properties(number_of_shells, times, time_steps, packets):
@@ -294,7 +298,7 @@ def get_packet_properties(number_of_shells, times, time_steps, packets):
     ----------
     packets : list
         List of packets.
-    
+
     Returns
     -------
     packets_nu_cmf_array : np.ndarray
@@ -309,11 +313,11 @@ def get_packet_properties(number_of_shells, times, time_steps, packets):
         Array of packets positron energy.
     """
 
-    #collect the properties of the packets
+    # collect the properties of the packets
     shell_number = []
     time_current = []
 
-     # Bin the frequency of the packets in shell and time
+    # Bin the frequency of the packets in shell and time
 
     packets_nu_cmf_array = np.zeros((number_of_shells, time_steps))
     packets_nu_rf_array = np.zeros((number_of_shells, time_steps))
@@ -321,7 +325,6 @@ def get_packet_properties(number_of_shells, times, time_steps, packets):
     packets_energy_rf_array = np.zeros((number_of_shells, time_steps))
     packets_positron_energy_array = np.zeros((number_of_shells, time_steps))
 
-    
     for p in packets:
         time_index = get_index(p.time_current, times)
         shell_number.append(p.shell)
@@ -332,8 +335,10 @@ def get_packet_properties(number_of_shells, times, time_steps, packets):
         packets_energy_rf_array[p.shell, time_index] += p.energy_rf
         packets_positron_energy_array[p.shell, time_index] += p.positron_energy
 
-        
-    return packets_nu_cmf_array, packets_nu_rf_array, packets_energy_cmf_array, packets_energy_rf_array, packets_positron_energy_array
-
-
-
+    return (
+        packets_nu_cmf_array,
+        packets_nu_rf_array,
+        packets_energy_cmf_array,
+        packets_energy_rf_array,
+        packets_positron_energy_array,
+    )
