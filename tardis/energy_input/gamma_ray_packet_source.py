@@ -781,6 +781,7 @@ class GammaRayPacketSource(BasePacketSource):
         sampled_times = sampled_packets_df.index.get_level_values("time") * (
             u.d
         ).to(u.s)
+
         # TODO: Rewrite this without for loop. This is expensive
         # get the time step index of the packets
         decay_time_indices = []
@@ -868,6 +869,7 @@ class GammaRayPacketSource(BasePacketSource):
             "energy_per_channel_keV"
         ].sum()
         # Find the total energy released from gamma-ray per isotope from the dataframe
+        # TODO: Can be tested with total energy released from all radiation types
         gamma_energy_per_isotope = gamma_decay_df.groupby("isotope")[
             "energy_per_channel_keV"
         ].sum()

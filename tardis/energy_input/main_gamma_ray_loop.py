@@ -63,7 +63,6 @@ def run_gamma_ray_loop(
     seed,
     positronium_fraction,
     spectrum_bins,
-    time_steps,
     grey_opacity,
     photoabsorption_opacity="tardis",
     pair_creation_opacity="tardis",
@@ -93,8 +92,6 @@ def run_gamma_ray_loop(
             Fraction of positronium.
     spectrum_bins : int
             Number of spectrum bins.
-    time_steps : int
-            Number of time steps.
     grey_opacity : float
             Grey opacity.
     photoabsorption_opacity : str
@@ -121,6 +118,7 @@ def run_gamma_ray_loop(
     ejecta_volume = model.volume.to("cm^3").value
     shell_masses = model.volume * model.density
     number_of_shells = len(shell_masses)
+    # TODO: decaying upto times[0]. raw_isotope_abundance is possibly not the best name
     raw_isotope_abundance = model.composition.raw_isotope_abundance.sort_values(
         by=["atomic_number", "mass_number"], ascending=False
     )
@@ -209,9 +207,9 @@ def run_gamma_ray_loop(
     ]
 
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
-    energy_out = np.zeros((len(energy_bins - 1), time_steps))
-    energy_deposited = np.zeros((number_of_shells, time_steps))
-    positron_energy = np.zeros((number_of_shells, time_steps))
+    energy_out = np.zeros((len(energy_bins - 1), len(times) - 1))
+    energy_deposited = np.zeros((number_of_shells, len(times) - 1))
+    positron_energy = np.zeros((number_of_shells, len(times) - 1))
     packets_info_array = np.zeros((int(num_decays), 8))
     iron_group_fraction = iron_group_fraction_per_shell(model)
 
@@ -270,11 +268,11 @@ def run_gamma_ray_loop(
         data=energy_out, columns=effective_time_array, index=energy_bins
     )
 
-    # deposited energy in ergs
+    # deposited energy by gamma-rays in ergs
     deposited_energy = pd.DataFrame(
         data=energy_deposited_gamma, columns=times[:-1]
     )
-    # positron energy in ergs
+    # deposited energy by positrons in ergs
     positron_energy = pd.DataFrame(
         data=energy_deposited_positron, columns=times[:-1]
     )
