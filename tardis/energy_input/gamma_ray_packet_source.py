@@ -740,12 +740,22 @@ class GammaRayPacketSource(BasePacketSource):
         nus_cmf = np.zeros(number_of_packets)
         statuses = np.ones(number_of_packets, dtype=np.int64) * 3
 
-        # sample packets from the gamma-ray lines
+        # sample packets from the gamma-ray lines only (include X-rays!)
         sampled_packets_df_gamma = decays_per_isotope[
             decays_per_isotope["radiation"] == "g"
         ]
-        # sample packets from dataframe, returning a dataframe where each row is
-        # a sampled packet
+        
+        # sample packets from the gamma-ray lines at time = t0 : which is the start of the gamma-ray simulation
+        #sampled_packets_df_t0 = sampled_packets_df_gamma[sampled_packets_df_gamma.index.get_level_values("time") == self.times[0] * (u.s).to(u.d)]
+        # sample same number of packets as the gamma-ray lines at time = 0
+        # sampled_packets_df_gamma_t0 = sampled_packets_df_t0.sample(
+        #     n=number_of_packets,
+        #     weights="decay_energy_erg",
+        #     replace=True,
+        #     random_state=np.random.RandomState(self.base_seed),
+        # )
+
+        # sample packets from the time evolving dataframe
         sampled_packets_df = sampled_packets_df_gamma.sample(
             n=number_of_packets,
             weights="decay_energy_erg",
@@ -765,17 +775,21 @@ class GammaRayPacketSource(BasePacketSource):
         sampled_packets_df["inner_velocity"] = self.inner_velocities[shells]
         sampled_packets_df["outer_velocity"] = self.outer_velocities[shells]
 
-        # sample radii at time = 0
+        # sample radii at time = 0 
         initial_radii = self.create_packet_radii(sampled_packets_df)
         # sample decay times
         sampled_times = sampled_packets_df.index.get_level_values("time") * (
             u.d
         ).to(u.s)
         # TODO: Rewrite this without for loop. This is expensive
+        # get the time step index of the packets
         decay_time_indices = []
         for i in range(number_of_packets):
             decay_time_indices.append(get_index(sampled_times[i], self.times))
 
+        # scale radius by packet decay time. This could be replaced with
+        # Geometry object calculations. Note that this also adds a random
+        # unit vector multiplication for 3D. May not be needed.
         locations = (
             initial_radii.values
             * self.effective_times[decay_time_indices]
@@ -843,21 +857,24 @@ class GammaRayPacketSource(BasePacketSource):
 
         # Find the positron fraction from the zeroth shell of the dataframe
         shell_number_0 = self.isotope_decay_df[
-            self.isotope_decay_df.index.get_level_values("shell_number") == 0
+           self.isotope_decay_df.index.get_level_values("shell_number") == 0
         ]
 
+        gamma_decay_df = shell_number_0[shell_number_0["radiation"] == "g"]
+
         positrons_decay_df = shell_number_0[shell_number_0["radiation"] == "bp"]
+        # Find the total energy released from positrons per isotope from the dataframe
         positron_energy_per_isotope = positrons_decay_df.groupby("isotope")[
             "energy_per_channel_keV"
         ].sum()
-        # Find the total energy released per isotope from the dataframe
-        total_energy_per_isotope = shell_number_0.groupby("isotope")[
+        # Find the total energy released from gamma-ray per isotope from the dataframe
+        gamma_energy_per_isotope = gamma_decay_df.groupby("isotope")[
             "energy_per_channel_keV"
         ].sum()
         # TODO: Possibly move this for loop
         for i, isotope in enumerate(isotopes):
             isotope_positron_fraction[i] = (
                 positron_energy_per_isotope[isotope]
-                / total_energy_per_isotope[isotope]
+                / gamma_energy_per_isotope[isotope]
             )
         return isotope_positron_fraction

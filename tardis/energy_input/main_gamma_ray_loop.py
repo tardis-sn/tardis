@@ -12,6 +12,7 @@ from tardis.energy_input.gamma_ray_transport import (
     iron_group_fraction_per_shell,
 )
 from tardis.energy_input.GXPacket import GXPacket
+from tardis.energy_input.util import get_index
 from tardis.energy_input.util import make_isotope_string_tardis_like
 
 logger = logging.getLogger(__name__)
@@ -207,8 +208,6 @@ def run_gamma_ray_loop(
         for i in range(num_decays)
     ]
 
-    # return packets
-
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
     energy_deposited = np.zeros((number_of_shells, time_steps))
@@ -222,8 +221,8 @@ def run_gamma_ray_loop(
     total_rf_energy = 0
 
     for p in packets:
-        total_cmf_energy += p.energy_cmf
-        total_rf_energy += p.energy_rf
+       total_cmf_energy += p.energy_cmf
+       total_rf_energy += p.energy_rf
 
     logger.info(f"Total CMF energy is {total_cmf_energy}")
     logger.info(f"Total RF energy is {total_rf_energy}")
@@ -279,8 +278,62 @@ def run_gamma_ray_loop(
     positron_energy = pd.DataFrame(
         data=energy_deposited_positron, columns=times[:-1]
     )
-    print(positron_energy.sum().sum())
 
     total_deposited_energy = (positron_energy + deposited_energy) / dt_array
 
-    return escape_energy, packets_df_escaped, total_deposited_energy
+    return escape_energy, packets_df_escaped, deposited_energy, total_deposited_energy,
+
+
+
+def get_packet_properties(number_of_shells, times, time_steps, packets):
+
+    """
+    Function to get the properties of the packets.
+
+    Parameters
+    ----------
+    packets : list
+        List of packets.
+    
+    Returns
+    -------
+    packets_nu_cmf_array : np.ndarray
+        Array of packets in cmf.
+    packets_nu_rf_array : np.ndarray
+        Array of packets in rf.
+    packets_energy_cmf_array : np.ndarray
+        Array of packets energy in cmf.
+    packets_energy_rf_array : np.ndarray
+        Array of packets energy in rf.
+    packets_positron_energy_array : np.ndarray
+        Array of packets positron energy.
+    """
+
+    #collect the properties of the packets
+    shell_number = []
+    time_current = []
+
+     # Bin the frequency of the packets in shell and time
+
+    packets_nu_cmf_array = np.zeros((number_of_shells, time_steps))
+    packets_nu_rf_array = np.zeros((number_of_shells, time_steps))
+    packets_energy_cmf_array = np.zeros((number_of_shells, time_steps))
+    packets_energy_rf_array = np.zeros((number_of_shells, time_steps))
+    packets_positron_energy_array = np.zeros((number_of_shells, time_steps))
+
+    
+    for p in packets:
+        time_index = get_index(p.time_current, times)
+        shell_number.append(p.shell)
+        time_current.append(p.time_current)
+        packets_nu_cmf_array[p.shell, time_index] += p.nu_cmf
+        packets_nu_rf_array[p.shell, time_index] += p.nu_rf
+        packets_energy_cmf_array[p.shell, time_index] += p.energy_cmf
+        packets_energy_rf_array[p.shell, time_index] += p.energy_rf
+        packets_positron_energy_array[p.shell, time_index] += p.positron_energy
+
+        
+    return packets_nu_cmf_array, packets_nu_rf_array, packets_energy_cmf_array, packets_energy_rf_array, packets_positron_energy_array
+
+
+
