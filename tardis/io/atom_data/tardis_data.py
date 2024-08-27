@@ -29,7 +29,7 @@ class TARDISData:
     # MacroAtomData
     transition_probability_data: pd.DataFrame
     block_reference_data: pd.DataFrame
-    #STARDIS
+    # STARDIS
     linelist_atoms: pd.DataFrame
     linelist_molecules: pd.DataFrame
     molecule_data: MoleculeData
