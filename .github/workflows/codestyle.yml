@@ -9,15 +9,29 @@ on:
     branches:
       - "*"
 
-  pull_request:
+  pull_request_target:
     branches:
-      - "*"
+      - master
+
+defaults:
+  run:
+    shell: bash -l {0}
 
 jobs:
   black:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 0
+
+      - name: Checkout PR and master branch
+        if: github.event_name == 'pull_request_target'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -29,3 +43,115 @@ jobs:
 
       - name: Run Black
         run: black --check tardis
+  ruff: 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 0
+
+      - name: Checkout PR and master branch
+        if: github.event_name == 'pull_request_target'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Download Lock File
+        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
+      
+      - name: Generate Cache Key
+        run: | 
+          file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
+        id: cache-environment-key
+        
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: conda-linux-64.lock
+          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          environment-name: tardis
+          cache-environment: true
+          cache-downloads: true
+      
+      - name: Show statistics pull request
+        if: github.event_name == 'pull_request_target'
+        run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt
+      
+      - name: Show entire output pull request
+        if: github.event_name == 'pull_request_target'
+        run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_full.txt
+
+      - name: Show statistics push
+        if: github.event_name == 'push'
+        run: ruff check --statistics  --show-fixes . | tee ruff_stats.txt
+      
+      - name: Show entire output push
+        if: github.event_name == 'push'
+        run: ruff check --output-format=concise . | tee ruff_full.txt
+
+      - name: Statistics output read
+        id: ruff_stats
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: ruff_stats.txt
+
+      - name: Entire output read
+        id: ruff_complete 
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: ruff_full.txt
+      
+      - name: Find Comment
+        if: always() && github.event_name == 'pull_request_target'
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.number }}
+          body-includes: I ran ruff on the latest commit
+      
+      - name: Post comment
+        if: github.event_name == 'pull_request_target'
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+            Hi human, 
+            I ran ruff on the latest commit (${{ github.event.pull_request.head.sha }}). 
+            Here are the outputs produced.
+            Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
+            Summarised output:
+            <details>
+
+              ```diff
+              ${{ steps.ruff_stats.outputs.content }}
+              ```
+
+            </details>
+
+            Complete output(might be large):
+            <details>
+
+              ```diff
+              ${{ steps.ruff_complete.outputs.content }}
+              ```
+              
+            </details>
+        env:
+          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+          
+      - name: Save results artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ruff-results
+          path: |
+            ruff_full.txt
+            ruff_stats.txt
+

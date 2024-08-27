@@ -5,14 +5,12 @@ import pandas as pd
 from astropy import units as u
 
 from tardis.plasma import BasePlasma
+from tardis.plasma.base import PlasmaSolverSettings
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import (
     HeliumNumericalNLTE,
     IonNumberDensity,
     IonNumberDensityHeNLTE,
-    JBluesBlackBody,
-    JBluesDetailed,
-    JBluesDiluteBlackBody,
     LevelBoltzmannFactorNLTE,
     MarkovChainTransProbsCollector,
     RadiationFieldCorrection,
@@ -30,8 +28,6 @@ from tardis.plasma.properties.property_collections import (
     basic_properties,
     continuum_interaction_inputs,
     continuum_interaction_properties,
-    detailed_j_blues_inputs,
-    detailed_j_blues_properties,
     dilute_lte_excitation_properties,
     helium_lte_properties,
     helium_nlte_properties,
@@ -47,6 +43,10 @@ from tardis.plasma.properties.property_collections import (
     two_photon_properties,
 )
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
+    DiluteBlackBodyContinuumPropertiesSolver,
+)
 from tardis.util.base import species_string_to_tuple
 
 logger = logging.getLogger(__name__)
@@ -72,13 +72,14 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     """
     # Convert the nlte species list to a proper format.
     nlte_species = [
-        species_string_to_tuple(s) for s in config.plasma.nlte.species
+        species_string_to_tuple(species)
+        for species in config.plasma.nlte.species
     ]
 
     # Convert the continuum interaction species list to a proper format.
     continuum_interaction_species = [
-        species_string_to_tuple(s)
-        for s in config.plasma.continuum_interaction.species
+        species_string_to_tuple(species)
+        for species in config.plasma.continuum_interaction.species
     ]
     continuum_interaction_species = pd.MultiIndex.from_tuples(
         continuum_interaction_species, names=["atomic_number", "ion_number"]
@@ -106,21 +107,23 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         )
 
     nlte_ionization_species = [
-        species_string_to_tuple(s)
-        for s in config.plasma.nlte_ionization_species
+        species_string_to_tuple(species)
+        for species in config.plasma.nlte_ionization_species
     ]
     nlte_excitation_species = [
-        species_string_to_tuple(s)
-        for s in config.plasma.nlte_excitation_species
+        species_string_to_tuple(species)
+        for species in config.plasma.nlte_excitation_species
     ]
 
+    dilute_planckian_radiation_field = DilutePlanckianRadiationField(
+        simulation_state.t_radiative, simulation_state.dilution_factor
+    )
     kwargs = dict(
-        t_rad=simulation_state.t_radiative,
+        dilute_planckian_radiation_field=dilute_planckian_radiation_field,
         abundance=simulation_state.abundance,
         number_density=simulation_state.elemental_number_density,
         atomic_data=atom_data,
         time_explosion=simulation_state.time_explosion,
-        w=simulation_state.dilution_factor,
         link_t_rad_t_electron=config.plasma.link_t_rad_t_electron,
         continuum_interaction_species=continuum_interaction_species,
         nlte_ionization_species=nlte_ionization_species,
@@ -129,6 +132,9 @@ def assemble_plasma(config, simulation_state, atom_data=None):
 
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
+
+    ########### SETTING UP CONTINUUM INTERACTIONS
+
     if len(config.plasma.continuum_interaction.species) > 0:
         line_interaction_type = config.plasma.line_interaction_type
         if line_interaction_type != "macroatom":
@@ -200,31 +206,55 @@ def assemble_plasma(config, simulation_state, atom_data=None):
                     f"NLTE solver type unknown - {config.plasma.nlte_solver}"
                 )
 
+        # initializing rates
+        t_electrons = (
+            config.plasma.link_t_rad_t_electron
+            * dilute_planckian_radiation_field.temperature.to(u.K).value
+        )
+        initial_continuum_solver = DiluteBlackBodyContinuumPropertiesSolver(
+            atom_data
+        )
+        initial_continuum_properties = initial_continuum_solver.solve(
+            dilute_planckian_radiation_field, t_electrons
+        )
+
         kwargs.update(
-            gamma_estimator=None,
+            gamma=initial_continuum_properties.photo_ionization_rate_coefficient,
             bf_heating_coeff_estimator=None,
             stim_recomb_cooling_coeff_estimator=None,
-            alpha_stim_estimator=None,
-            volume=simulation_state.volume,
-            r_inner=simulation_state.r_inner.to(u.cm),
-            t_inner=simulation_state.t_inner,
+            alpha_stim_factor=initial_continuum_properties.stimulated_recombination_rate_factor,
         )
-    if config.plasma.radiative_rates_type == "blackbody":
-        plasma_modules.append(JBluesBlackBody)
-    elif config.plasma.radiative_rates_type == "dilute-blackbody":
-        plasma_modules.append(JBluesDiluteBlackBody)
-    elif config.plasma.radiative_rates_type == "detailed":
-        plasma_modules += detailed_j_blues_properties + detailed_j_blues_inputs
-        kwargs.update(
-            r_inner=simulation_state.r_inner.to(u.cm),
-            t_inner=simulation_state.t_inner,
-            volume=simulation_state.volume,
-            j_blue_estimator=None,
+
+    ##### RADIATIVE RATES SETUP
+
+    plasma_solver_settings = PlasmaSolverSettings(
+        RADIATIVE_RATES_TYPE=config.plasma.radiative_rates_type
+    )
+
+    if (plasma_solver_settings.RADIATIVE_RATES_TYPE == "dilute-blackbody") or (
+        plasma_solver_settings.RADIATIVE_RATES_TYPE == "detailed"
+    ):
+        kwargs["j_blues"] = pd.DataFrame(
+            dilute_planckian_radiation_field.calculate_mean_intensity(
+                atom_data.lines["nu"].values
+            ),
+            index=atom_data.lines.index,
         )
-        property_kwargs[JBluesDetailed] = {"w_epsilon": config.plasma.w_epsilon}
+
+    elif plasma_solver_settings.RADIATIVE_RATES_TYPE == "blackbody":
+        planckian_rad_field = (
+            dilute_planckian_radiation_field.to_planckian_radiation_field()
+        )
+        kwargs["j_blues"] = pd.DataFrame(
+            planckian_rad_field.calculate_mean_intensity(
+                atom_data.lines["nu"].values
+            ),
+            index=atom_data.lines.index,
+        )
+
     else:
         raise ValueError(
-            f"radiative_rates_type type unknown - {config.plasma.radiative_rates_type}"
+            f"radiative_rates_type type unknown - {plasma_solver_settings.RADIATIVE_RATES_TYPE}"
         )
 
     if config.plasma.excitation == "lte":
@@ -331,6 +361,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     plasma = BasePlasma(
         plasma_properties=plasma_modules,
         property_kwargs=property_kwargs,
+        plasma_solver_settings=plasma_solver_settings,
         **kwargs,
     )
 

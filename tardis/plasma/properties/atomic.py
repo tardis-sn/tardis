@@ -15,7 +15,7 @@ from tardis.plasma.properties.base import (
     HiddenPlasmaProperty,
     ProcessingPlasmaProperty,
 )
-from tardis.plasma.properties.continuum_processes import (
+from tardis.plasma.properties.continuum_processes.rates import (
     A0,
     BETA_COLL,
     K_B,
@@ -620,7 +620,7 @@ class ZetaData(BaseAtomicDataProperty):
             updated_index = pd.DataFrame(updated_index)
             updated_dataframe["atomic_number"] = np.array(updated_index[0])
             updated_dataframe["ion_number"] = np.array(updated_index[1])
-            updated_dataframe.fillna(1.0, inplace=True)
+            updated_dataframe = updated_dataframe.fillna(1.0)
             return updated_dataframe
 
     def _set_index(self, zeta_data):

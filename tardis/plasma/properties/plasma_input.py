@@ -1,6 +1,7 @@
 from tardis.plasma.properties.base import (
     ArrayInput,
     Input,
+    ProcessingPlasmaProperty,
 )
 
 __all__ = [
@@ -11,20 +12,20 @@ __all__ = [
     "NumberDensity",
     "IsotopeAbundance",
     "TimeExplosion",
-    "JBlueEstimator",
+    "JBlues",
     "LinkTRadTElectron",
     "HeliumTreatment",
-    "RInner",
-    "TInner",
-    "Volume",
     "ContinuumInteractionSpecies",
     "NLTEIonizationSpecies",
     "NLTEExcitationSpecies",
+    "DilutePlanckianRadField",
 ]
 
 
-class TRadiative(ArrayInput):
+class TRadiative(ProcessingPlasmaProperty):
     """
+    Radiative temperature property.
+
     Attributes
     ----------
     t_rad : Numpy Array, dtype float
@@ -33,9 +34,14 @@ class TRadiative(ArrayInput):
     outputs = ("t_rad",)
     latex_name = (r"T_{\textrm{rad}}",)
 
+    def calculate(self, dilute_planckian_radiation_field):
+        return dilute_planckian_radiation_field.temperature.cgs.value
 
-class DilutionFactor(ArrayInput):
+
+class DilutionFactor(ProcessingPlasmaProperty):
     """
+    Dilution factor of the radiation field.
+
     Attributes
     ----------
     w : Numpy Array, dtype float between 0 and 1
@@ -45,6 +51,9 @@ class DilutionFactor(ArrayInput):
 
     outputs = ("w",)
     latex_name = ("W",)
+
+    def calculate(self, dilute_planckian_radiation_field):
+        return dilute_planckian_radiation_field.dilution_factor
 
 
 class AtomicData(Input):
@@ -91,15 +100,15 @@ class TimeExplosion(Input):
     latex_name = (r"t_{\textrm{exp}}",)
 
 
-class JBlueEstimator(ArrayInput):
+class JBlues(Input):
     """
     Attributes
     ----------
     j_blue_estimators : Numpy array
     """
 
-    outputs = ("j_blue_estimators",)
-    latex_name = (r"J_{\textrm{blue-estimator}}",)
+    outputs = ("j_blues",)
+    latex_name = (r"J_{\textrm{blue}}",)
 
 
 class LinkTRadTElectron(Input):
@@ -117,18 +126,6 @@ class LinkTRadTElectron(Input):
 
 class HeliumTreatment(Input):
     outputs = ("helium_treatment",)
-
-
-class RInner(Input):
-    outputs = ("r_inner",)
-
-
-class TInner(Input):
-    outputs = ("t_inner",)
-
-
-class Volume(Input):
-    outputs = ("volume",)
 
 
 class ContinuumInteractionSpecies(Input):
@@ -163,3 +160,7 @@ class NumberDensity(Input):
 
     outputs = ("number_density",)
     latex_name = ("N_{i}",)
+
+
+class DilutePlanckianRadField(Input):
+    outputs = ("dilute_planckian_radiation_field",)

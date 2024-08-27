@@ -1,7 +1,6 @@
 import logging
 import time
 from collections import OrderedDict
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -10,21 +9,31 @@ from IPython.display import display
 
 import tardis
 from tardis import constants as const
-from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import ConfigurationError
-from tardis.io.model.parse_packet_source_configuration import (
-    initialize_packet_source,
+from tardis.io.model.parse_atom_data import parse_atom_data
+from tardis.io.model.parse_simulation_state import (
+    parse_simulation_state,
 )
 from tardis.io.util import HDFWriterMixin
-from tardis.model import SimulationState
-from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
+from tardis.spectrum.base import SpectrumSolver
+from tardis.spectrum.formal_integral import FormalIntegrator
+from tardis.spectrum.luminosity import (
+    calculate_filtered_luminosity,
+)
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
+    MCContinuumPropertiesSolver,
+)
+from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
-# Adding logging support
 logger = logging.getLogger(__name__)
 
 
@@ -100,6 +109,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     model : tardis.model.SimulationState
     plasma : tardis.plasma.BasePlasma
     transport : tardis.transport.montecarlo.MontecarloTransport
+    opacity : tardis.opacities.opacity_solver.OpacitySolver
+    macro_atom : tardis.opacities.macro_atom.macroatom_solver.MacroAtomSolver
     no_of_packets : int
     last_no_of_packets : int
     no_of_virtual_packets : int
@@ -117,6 +128,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         "iterations_t_rad",
         "iterations_electron_densities",
         "iterations_t_inner",
+        "spectrum_solver",
     ]
     hdf_name = "simulation"
 
@@ -126,6 +138,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         simulation_state,
         plasma,
         transport,
+        opacity,
+        macro_atom,
         no_of_packets,
         no_of_virtual_packets,
         luminosity_nu_start,
@@ -136,6 +150,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         show_convergence_plots,
         convergence_plots_kwargs,
         show_progress_bars,
+        spectrum_solver,
     ):
         super(Simulation, self).__init__(
             iterations, simulation_state.no_of_shells
@@ -147,12 +162,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.simulation_state = simulation_state
         self.plasma = plasma
         self.transport = transport
+        self.opacity = opacity
+        self.macro_atom = macro_atom
         self.no_of_packets = no_of_packets
         self.last_no_of_packets = last_no_of_packets
         self.no_of_virtual_packets = no_of_virtual_packets
         self.luminosity_nu_start = luminosity_nu_start
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
+        self.spectrum_solver = spectrum_solver
         self.show_progress_bars = show_progress_bars
         self.version = tardis.__version__
 
@@ -205,14 +223,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
     def estimate_t_inner(
-        self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
+        self,
+        input_t_inner,
+        luminosity_requested,
+        emitted_luminosity,
+        t_inner_update_exponent=-0.5,
     ):
-        emitted_luminosity = (
-            self.transport.transport_state.calculate_emitted_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end
-            )
-        )
-
         luminosity_ratios = (
             (emitted_luminosity / luminosity_requested).to(1).value
         )
@@ -255,7 +271,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.consecutive_converges_count = 0
             return False
 
-    def advance_state(self):
+    def advance_state(self, emitted_luminosity):
         """
         Advances the state of the model and the plasma for the next
         iteration of the simulation. Returns True if the convergence criteria
@@ -265,13 +281,27 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         -------
             converged : bool
         """
-        (
-            estimated_t_rad,
-            estimated_dilution_factor,
-        ) = self.transport.transport_state.calculate_radiationfield_properties()
+        estimated_radfield_properties = (
+            self.transport.radfield_prop_solver.solve(
+                self.transport.transport_state.radfield_mc_estimators,
+                self.transport.transport_state.time_explosion,
+                self.transport.transport_state.time_of_simulation,
+                self.transport.transport_state.geometry_state.volume,
+                self.transport.transport_state.opacity_state.line_list_nu,
+            )
+        )
+
+        estimated_t_rad = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
+
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
             self.luminosity_requested,
+            emitted_luminosity,
             t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
 
@@ -337,31 +367,79 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.simulation_state.dilution_factor = next_dilution_factor
         self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
+        radiation_field = DilutePlanckianRadiationField(
+            temperature=self.simulation_state.t_radiative,
+            dilution_factor=self.simulation_state.dilution_factor,
+        )
+        update_properties = dict(
+            dilute_planckian_radiation_field=radiation_field
+        )
+
         # model.calculate_j_blues() equivalent
         # model.update_plasmas() equivalent
         # Bad test to see if this is a nlte run
+
         if "nlte_data" in self.plasma.outputs_dict:
             self.plasma.store_previous_properties()
 
-        update_properties = dict(
-            t_rad=self.simulation_state.t_radiative,
-            w=self.simulation_state.dilution_factor,
-        )
+        # JBlues solver
+        if (
+            self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "blackbody"
+        ):
+            planckian_radiation_field = (
+                radiation_field.to_planckian_radiation_field()
+            )
+            j_blues = planckian_radiation_field.calculate_mean_intensity(
+                self.plasma.atomic_data.lines.nu.values
+            )
+            update_properties["j_blues"] = pd.DataFrame(
+                j_blues, index=self.plasma.atomic_data.lines.index
+            )
+        elif (
+            self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "dilute-blackbody"
+        ):
+            j_blues = radiation_field.calculate_mean_intensity(
+                self.plasma.atomic_data.lines.nu.values
+            )
+            update_properties["j_blues"] = pd.DataFrame(
+                j_blues, index=self.plasma.atomic_data.lines.index
+            )
+        elif (
+            self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE
+            == "detailed"
+        ):
+            update_properties["j_blues"] = pd.DataFrame(
+                estimated_radfield_properties.j_blues,
+                index=self.plasma.atomic_data.lines.index,
+            )
+        else:
+            raise ValueError(
+                f"radiative_rates_type type unknown - {self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
+            )
+
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
 
-        estimators = self.transport.transport_state.radfield_mc_estimators
-        if "j_blue_estimator" in self.plasma.outputs_dict:
-            update_properties.update(
-                t_inner=next_t_inner,
-                j_blue_estimator=estimators.j_blue_estimator,
+        radfield_mc_estimators = (
+            self.transport.transport_state.radfield_mc_estimators
+        )
+
+        if "gamma" in self.plasma.outputs_dict:
+            continuum_property_solver = MCContinuumPropertiesSolver(
+                self.atom_data
             )
-        if "gamma_estimator" in self.plasma.outputs_dict:
+            estimated_continuum_properties = continuum_property_solver.solve(
+                radfield_mc_estimators,
+                self.transport.transport_state.time_of_simulation,
+                self.transport.transport_state.geometry_state.volume,
+            )
             update_properties.update(
-                gamma_estimator=estimators.photo_ion_estimator,
-                alpha_stim_estimator=estimators.stim_recomb_estimator,
-                bf_heating_coeff_estimator=estimators.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=estimators.stim_recomb_cooling_estimator,
+                gamma=estimated_continuum_properties.photo_ion_coeff,
+                alpha_stim_coeff=estimated_continuum_properties.stim_recomb_estimator,
+                bf_heating_coeff_estimator=radfield_mc_estimators.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=radfield_mc_estimators.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)
@@ -373,17 +451,32 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
 
+        opacity_state = self.opacity.solve(self.plasma)
+        if self.macro_atom is not None:
+            if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+                macro_atom_state = MacroAtomState.from_legacy_plasma(
+                    self.plasma
+                )  # TODO: Impliment
+            else:
+                macro_atom_state = self.macro_atom.solve(
+                    self.plasma,
+                    self.plasma.atomic_data,
+                    opacity_state.tau_sobolev,
+                    self.plasma.stimulated_emission_factor,
+                )
+
         transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
+            opacity_state,
+            macro_atom_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.iterations_executed,
         )
 
-        self.transport.run(
+        v_packets_energy_hist = self.transport.run(
             transport_state,
-            time_explosion=self.simulation_state.time_explosion,
             iteration=self.iterations_executed,
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
@@ -395,15 +488,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = (
-            self.transport.transport_state.calculate_emitted_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end
-            )
+        emitted_luminosity = calculate_filtered_luminosity(
+            transport_state.emitted_packet_nu,
+            transport_state.emitted_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
         )
-        reabsorbed_luminosity = (
-            self.transport.transport_state.calculate_reabsorbed_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end
-            )
+        reabsorbed_luminosity = calculate_filtered_luminosity(
+            transport_state.reabsorbed_packet_nu,
+            transport_state.reabsorbed_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
         )
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
@@ -424,6 +519,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
+        return emitted_luminosity, v_packets_energy_hist
 
     def run_convergence(self):
         """
@@ -438,8 +534,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.plasma.electron_densities,
                 self.simulation_state.t_inner,
             )
-            self.iterate(self.no_of_packets)
-            self.converged = self.advance_state()
+            emitted_luminosity, v_packets_energy_hist = self.iterate(
+                self.no_of_packets
+            )
+            self.converged = self.advance_state(emitted_luminosity)
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
             self._call_back()
@@ -463,7 +561,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.electron_densities,
             self.simulation_state.t_inner,
         )
-        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets)
+        emitted_luminosity, v_packets_energy_hist = self.iterate(
+            self.last_no_of_packets, self.no_of_virtual_packets
+        )
+
+        # Set up spectrum solver integrator and virtual spectrum
+        self.spectrum_solver.setup_optional_spectra(
+            self.transport.transport_state,
+            v_packets_energy_hist,
+            FormalIntegrator(
+                self.simulation_state, self.plasma, self.transport
+            ),
+        )
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "convergence_plots"):
@@ -496,12 +605,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         ----------
         t_rad : astropy.units.Quanity
             current t_rad
-        w : astropy.units.Quanity
-            current w
+        dilution_factor : np.ndarray
+            current dilution_factor
         next_t_rad : astropy.units.Quanity
             next t_rad
-        next_w : astropy.units.Quanity
-            next_w
+        next_dilution_factor : np.ndarray
+            next dilution_factor
         log_sampling : int
             the n-th shells to be plotted
 
@@ -617,94 +726,79 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         show_convergence_plots=False,
         show_progress_bars=True,
         legacy_mode_enabled=False,
+        atom_data=None,
+        plasma=None,
+        transport=None,
+        opacity=None,
+        macro_atom=None,
         **kwargs,
     ):
         """
-        Create a new Simulation instance from a Configuration object.
+        Create a simulation instance from the provided configuration.
 
         Parameters
         ----------
-        config : tardis.io.config_reader.Configuration
-
+        config : object
+            The configuration object for the simulation.
+        packet_source : object, optional
+            The packet source for the simulation.
+        virtual_packet_logging : bool, optional
+            Flag indicating virtual packet logging.
+        show_convergence_plots : bool, optional
+            Flag indicating whether to show convergence plots.
+        show_progress_bars : bool, optional
+            Flag indicating whether to show progress bars.
+        legacy_mode_enabled : bool, optional
+            Flag indicating if legacy mode is enabled.
+        atom_data : object, optional
+            The atom data for the simulation.
+        plasma : object, optional
+            The plasma object for the simulation.
+        transport : object, optional
+            The transport solver for the simulation.
         **kwargs
-            Allow overriding some structures, such as model, plasma, atomic data
-            and the transport, instead of creating them from the configuration
-            object.
+            Additional keyword arguments.
 
         Returns
         -------
-        Simulation
+        object
+            The created simulation instance.
         """
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
 
-        atom_data = kwargs.get("atom_data", None)
-        if atom_data is None:
-            if "atom_data" in config:
-                if Path(config.atom_data).is_absolute():
-                    atom_data_fname = Path(config.atom_data)
-                else:
-                    atom_data_fname = (
-                        Path(config.config_dirname) / config.atom_data
-                    )
-
-            else:
-                raise ValueError(
-                    "No atom_data option found in the configuration."
-                )
-
-            logger.info(f"\n\tReading Atomic Data from {atom_data_fname}")
-
-            try:
-                atom_data = AtomData.from_hdf(atom_data_fname)
-            except TypeError as e:
-                print(
-                    e,
-                    "Error might be from the use of an old-format of the atomic database, \n"
-                    "please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data"
-                    " for the most recent version.",
-                )
-                raise
-        if "model" in kwargs:
-            simulation_state = kwargs["model"]
-        else:
-            if hasattr(config, "csvy_model"):
-                simulation_state = SimulationState.from_csvy(
-                    config,
-                    atom_data=atom_data,
-                    legacy_mode_enabled=legacy_mode_enabled,
-                )
-            else:
-                simulation_state = SimulationState.from_config(
-                    config,
-                    atom_data=atom_data,
-                    legacy_mode_enabled=legacy_mode_enabled,
-                )
-            # Override with custom packet source from function argument if present
-            if packet_source is not None:
-                simulation_state.packet_source = initialize_packet_source(
-                    packet_source, config, simulation_state.geometry
-                )
-        if "plasma" in kwargs:
-            plasma = kwargs["plasma"]
-        else:
+        atom_data = parse_atom_data(config, atom_data=atom_data)
+        simulation_state = parse_simulation_state(
+            config, packet_source, legacy_mode_enabled, kwargs, atom_data
+        )
+        if plasma is None:
             plasma = assemble_plasma(
                 config,
                 simulation_state,
                 atom_data=atom_data,
             )
-        if "transport" in kwargs:
-            if packet_source is not None:
-                raise ConfigurationError(
-                    "Cannot specify packet_source and transport at the same time."
-                )
-            transport = kwargs["transport"]
-        else:
+
+        if (transport is not None) and (packet_source is not None):
+            raise ConfigurationError(
+                "Cannot specify packet_source and transport at the same time."
+            )
+        if transport is None:
             transport = MonteCarloTransportSolver.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
                 enable_virtual_packet_logging=virtual_packet_logging,
             )
+        if opacity is None:
+            opacity = OpacitySolver(
+                config.plasma.line_interaction_type,
+                config.plasma.disable_line_scattering,
+            )
+        if macro_atom is None:
+            if config.plasma.line_interaction_type in (
+                "downbranch",
+                "macroatom",
+            ):
+                macro_atom = MacroAtomSolver()
 
         convergence_plots_config_options = [
             "plasma_plot_config",
@@ -737,11 +831,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             last_no_of_packets = config.montecarlo.no_of_packets
         last_no_of_packets = int(last_no_of_packets)
 
+        spectrum_solver = SpectrumSolver.from_config(config)
+
         return cls(
             iterations=config.montecarlo.iterations,
             simulation_state=simulation_state,
             plasma=plasma,
             transport=transport,
+            opacity=opacity,
+            macro_atom=macro_atom,
             show_convergence_plots=show_convergence_plots,
             no_of_packets=int(config.montecarlo.no_of_packets),
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),
@@ -752,4 +850,5 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             convergence_strategy=config.montecarlo.convergence_strategy,
             convergence_plots_kwargs=convergence_plots_kwargs,
             show_progress_bars=show_progress_bars,
+            spectrum_solver=spectrum_solver,
         )

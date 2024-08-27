@@ -93,7 +93,7 @@ class BaseShellInfo:
         """
         element_count_data = self.abundance[shell_num - 1].copy()
         element_count_data.index.name = "Z"
-        element_count_data.fillna(0, inplace=True)
+        element_count_data = element_count_data.fillna(0)
         return pd.DataFrame(
             {
                 "Element": element_count_data.index.map(
@@ -128,7 +128,7 @@ class BaseShellInfo:
         element_num_density = self.number_density.loc[atomic_num, shell_num - 1]
         ion_count_data = ion_num_density / element_num_density  # Normalization
         ion_count_data.index.name = "Ion"
-        ion_count_data.fillna(0, inplace=True)
+        ion_count_data = ion_count_data.fillna(0)
         return pd.DataFrame(
             {
                 "Species": ion_count_data.index.map(
@@ -170,7 +170,7 @@ class BaseShellInfo:
         level_count_data = level_num_density / ion_num_density  # Normalization
         level_count_data.index.name = "Level"
         level_count_data.name = f"Frac. Ab. (Ion={ion})"
-        level_count_data.fillna(0, inplace=True)
+        level_count_data = level_count_data.fillna(0)
         return level_count_data.map("{:.6e}".format).to_frame()
 
 
@@ -190,7 +190,7 @@ class SimulationShellInfo(BaseShellInfo):
         super().__init__(
             sim_model.simulation_state.t_radiative,
             sim_model.simulation_state.dilution_factor,
-            sim_model.plasma.abundance,
+            sim_model.simulation_state.abundance,
             sim_model.plasma.number_density,
             sim_model.plasma.ion_number_density,
             sim_model.plasma.level_number_density,
@@ -216,7 +216,7 @@ class HDFShellInfo(BaseShellInfo):
             super().__init__(
                 sim_data["/simulation/simulation_state/t_radiative"],
                 sim_data["/simulation/simulation_state/dilution_factor"],
-                sim_data["/simulation/plasma/abundance"],
+                sim_data["/simulation/simulation_state/abundance"],
                 sim_data["/simulation/plasma/number_density"],
                 sim_data["/simulation/plasma/ion_number_density"],
                 sim_data["/simulation/plasma/level_number_density"],

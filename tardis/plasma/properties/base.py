@@ -1,9 +1,8 @@
 import logging
+from abc import ABCMeta, abstractmethod
 
-from abc import ABCMeta, abstractmethod, abstractproperty
 import numpy as np
 import pandas as pd
-
 
 __all__ = [
     "BasePlasmaProperty",
@@ -19,7 +18,7 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-class BasePlasmaProperty(object, metaclass=ABCMeta):
+class BasePlasmaProperty(metaclass=ABCMeta):
     """
     Attributes
     ----------
@@ -31,7 +30,8 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
                  Used to label nodes when plotting graphs
     """
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def outputs(self):
         pass
 
@@ -114,7 +114,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
                 for i, output in enumerate(self.outputs):
                     setattr(self, output, new_values[i])
         else:
-            logger.info("{} has been frozen!".format(self.name))
+            logger.info(f"{self.name} has been frozen!")
 
     @abstractmethod
     def calculate(self, *args, **kwargs):
@@ -144,7 +144,8 @@ class TransitionProbabilitiesProperty(
     track all transition probabilities and to later combine them.
     """
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def transition_probabilities_outputs(self):
         pass
 

@@ -4,6 +4,7 @@ from numba.experimental import jitclass
 import numpy as np
 
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo import montecarlo_main_loop
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,
 )

@@ -191,10 +191,10 @@ class SDECData:
                     transport_state.vpacket_tracker.energies, "erg"
                 ),
                 r_inner=r_inner,
-                spectrum_delta_frequency=transport_state.spectrum_virtual.delta_frequency,
-                spectrum_frequency_bins=transport_state.spectrum_virtual._frequency,
-                spectrum_luminosity_density_lambda=transport_state.spectrum_virtual.luminosity_density_lambda,
-                spectrum_wavelength=transport_state.spectrum_virtual.wavelength,
+                spectrum_delta_frequency=sim.spectrum_solver.spectrum_virtual_packets.delta_frequency,
+                spectrum_frequency_bins=sim.spectrum_solver.spectrum_virtual_packets._frequency,
+                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
+                spectrum_wavelength=sim.spectrum_solver.spectrum_virtual_packets.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -227,10 +227,10 @@ class SDECData:
                     transport_state.emitted_packet_mask
                 ],
                 r_inner=r_inner,
-                spectrum_delta_frequency=transport_state.spectrum.delta_frequency,
-                spectrum_frequency_bins=transport_state.spectrum._frequency,
-                spectrum_luminosity_density_lambda=transport_state.spectrum.luminosity_density_lambda,
-                spectrum_wavelength=transport_state.spectrum.wavelength,
+                spectrum_delta_frequency=sim.spectrum_solver.spectrum_real_packets.delta_frequency,
+                spectrum_frequency_bins=sim.spectrum_solver.spectrum_real_packets._frequency,
+                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
+                spectrum_wavelength=sim.spectrum_solver.spectrum_real_packets.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -314,25 +314,25 @@ class SDECData:
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/scalars"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/_frequency"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/luminosity_density_lambda"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",  # luminosity_density_lambda is saved in hdf in CGS
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum_virtual/wavelength"
+                            "/simulation/spectrum_solver/spectrum_virtual_packets/wavelength"
                         ].to_numpy(),
                         "cm",  # wavelength is saved in hdf in CGS
                     ).to("AA"),
@@ -384,25 +384,25 @@ class SDECData:
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/scalars"
+                            "/simulation/spectrum_solver/spectrum_real_packets/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/_frequency"
+                            "/simulation/spectrum_solver/spectrum_real_packets/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/luminosity_density_lambda"
+                            "/simulation/spectrum_solver/spectrum_real_packets/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/transport/transport_state/spectrum/wavelength"
+                            "/simulation/spectrum_solver/spectrum_real_packets/wavelength"
                         ].to_numpy(),
                         "cm",
                     ).to("AA"),
@@ -746,8 +746,8 @@ class SDECPlotter:
                 ),
             )
             # Then drop all of the individual columns for species included in 'other'
-            self.total_luminosities_df.drop(
-                sorted_list.keys()[~mask], inplace=True, axis=1
+            self.total_luminosities_df = self.total_luminosities_df.drop(
+                sorted_list.keys()[~mask], axis=1
             )
             # Repeat this for the emission and absorption dfs
             # This will require creating a temporary list that includes 'noint' and 'escatter'
@@ -770,9 +770,8 @@ class SDECPlotter:
             # Need to add a new value to the mask array for the 'other' column just added
             mask = np.insert(mask, 0, True)
             # Then drop all of the individual columns for species included in 'other'
-            self.emission_luminosities_df.drop(
+            self.emission_luminosities_df = self.emission_luminosities_df.drop(
                 self.emission_luminosities_df.keys()[~mask],
-                inplace=True,
                 axis=1,
             )
 
@@ -792,10 +791,11 @@ class SDECPlotter:
             # Need to add a new value to the mask array for the 'other' column just added
             mask = np.insert(mask, 0, True)
             # Then drop all of the individual columns for species included in 'other'
-            self.absorption_luminosities_df.drop(
-                self.absorption_luminosities_df.keys()[~mask],
-                inplace=True,
-                axis=1,
+            self.absorption_luminosities_df = (
+                self.absorption_luminosities_df.drop(
+                    self.absorption_luminosities_df.keys()[~mask],
+                    axis=1,
+                )
             )
 
             # Get the list of species in the model
@@ -813,8 +813,8 @@ class SDECPlotter:
                 ].sum(axis=1),
             )
             # Then drop all of the individual columns for elements included in 'other'
-            self.total_luminosities_df.drop(
-                sorted_list.keys()[nelements:], inplace=True, axis=1
+            self.total_luminosities_df = self.total_luminosities_df.drop(
+                sorted_list.keys()[nelements:], axis=1
             )
             # If nelements is included then create a new column which is the sum
             # of all other elements, i.e. those that aren't in the top contributing nelements
@@ -826,8 +826,8 @@ class SDECPlotter:
                 ].sum(axis=1),
             )
             # Then drop all of the individual columns for elements included in 'other'
-            self.emission_luminosities_df.drop(
-                sorted_list.keys()[nelements:], inplace=True, axis=1
+            self.emission_luminosities_df = self.emission_luminosities_df.drop(
+                sorted_list.keys()[nelements:], axis=1
             )
             # If nelements is included then create a new column which is the sum
             # of all other elements, i.e. those that aren't in the top contributing nelements
@@ -839,8 +839,10 @@ class SDECPlotter:
                 ].sum(axis=1),
             )
             # Then drop all of the individual columns for elements included in 'other'
-            self.absorption_luminosities_df.drop(
-                sorted_list.keys()[nelements:], inplace=True, axis=1
+            self.absorption_luminosities_df = (
+                self.absorption_luminosities_df.drop(
+                    sorted_list.keys()[nelements:], axis=1
+                )
             )
             # Get the list of species in the model
             # Index from 1: to avoid the 'other' column

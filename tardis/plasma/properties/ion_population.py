@@ -8,7 +8,9 @@ from scipy import interpolate
 
 from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
-from tardis.plasma.properties.continuum_processes import get_ion_multi_index
+from tardis.plasma.properties.continuum_processes.rates import (
+    get_ion_multi_index,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -219,7 +221,9 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
             self._set_chi_0(ionization_data)
         if self.delta_treatment is None:
             if self.departure_coefficient is None:
-                departure_coefficient = 1.0 / w
+                departure_coefficient = (
+                    1.0 / w
+                )  # see Equation 13 and explanations on page 451 lower right in ML 93
             else:
                 departure_coefficient = self.departure_coefficient
             radiation_field_correction = -np.ones(

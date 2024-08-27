@@ -6,8 +6,11 @@ from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.model.radiation_field_state import (
-    DiluteBlackBodyRadiationFieldState,
+from tardis.plasma.properties.continuum_processes.rates import (
+    PhotoIonBoltzmannFactor,
+)
+from tardis.plasma.radiation_field.planck_rad_field import (
+    DilutePlanckianRadiationField,
 )
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
@@ -16,7 +19,6 @@ from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
     integrate_array_by_blocks,
 )
-from tardis.plasma.properties.continuum_processes import PhotoIonBoltzmannFactor
 
 H = const.h.cgs.value
 
@@ -76,7 +78,7 @@ class DiluteBlackBodyContinuumPropertiesSolver:
 
     def solve(
         self,
-        dilute_blackbody_radiationfield_state: DiluteBlackBodyRadiationFieldState,
+        dilute_blackbody_radiationfield_state: DilutePlanckianRadiationField,
         t_electrons: u.Quantity,
     ):
         """
@@ -107,7 +109,7 @@ class DiluteBlackBodyContinuumPropertiesSolver:
         photo_ion_rate_coeff = self.calculate_photo_ionization_rate_coefficient(
             mean_intensity_photo_ion_df
         )
-        stimulated_recomb_rate_coeff = (
+        stimulated_recomb_rate_factor = (
             self.calculate_stimulated_recomb_rate_factor(
                 mean_intensity_photo_ion_df,
                 photo_ion_boltzmann_factor,
@@ -115,7 +117,7 @@ class DiluteBlackBodyContinuumPropertiesSolver:
         )
 
         return ContinuumProperties(
-            stimulated_recomb_rate_coeff, photo_ion_rate_coeff
+            stimulated_recomb_rate_factor, photo_ion_rate_coeff
         )
 
     def calculate_photo_ionization_rate_coefficient(
@@ -139,20 +141,23 @@ class DiluteBlackBodyContinuumPropertiesSolver:
         -----
         Equation 16 in Lucy 2003.
         """
-        gamma = mean_intensity_photo_ion_df.multiply(
+        photo_ion_rate_coefficient = mean_intensity_photo_ion_df.multiply(
             4.0
             * np.pi
             * self.atom_data.photoionization_data.x_sect
             / (self.atom_data.photoionization_data.nu * H),
             axis=0,
         )
-        gamma = integrate_array_by_blocks(
-            gamma.values,
+        photo_ion_rate_coefficient = integrate_array_by_blocks(
+            photo_ion_rate_coefficient.values,
             self.atom_data.photoionization_data.nu.values,
             self.atom_data.photo_ion_block_references,
         )
-        gamma = pd.DataFrame(gamma, index=self.atom_data.photo_ion_unique_index)
-        return gamma
+        photo_ion_rate_coefficient = pd.DataFrame(
+            photo_ion_rate_coefficient,
+            index=self.atom_data.photo_ion_unique_index,
+        )
+        return photo_ion_rate_coefficient
 
     def calculate_stimulated_recomb_rate_factor(
         self,
@@ -202,24 +207,24 @@ class DiluteBlackBodyContinuumPropertiesSolver:
 
     def calculate_mean_intensity_photo_ion_table(
         self,
-        dilute_blackbody_radiationfield_state: DiluteBlackBodyRadiationFieldState,
+        dilute_blackbody_radiationfield_state: DilutePlanckianRadiationField,
     ):
         mean_intensity = (
             dilute_blackbody_radiationfield_state.calculate_mean_intensity(
                 self.atom_data.photoionization_data.nu.values
             )
         )
-        mean_intensity_df = pd.DataFrame(
+        return pd.DataFrame(
             mean_intensity,
             index=self.atom_data.photoionization_data.index,
             columns=np.arange(
-                len(dilute_blackbody_radiationfield_state.t_radiative)
+                len(dilute_blackbody_radiationfield_state.temperature)
             ),
         )
-        return mean_intensity_df
 
 
 @dataclass
 class ContinuumProperties:
-    stimulated_recomb_rate_factor: pd.DataFrame
+    # this is not the rate coefficient but misses Phi I_K
+    stimulated_recombination_rate_factor: pd.DataFrame
     photo_ionization_rate_coefficient: pd.DataFrame

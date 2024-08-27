@@ -51,7 +51,7 @@ this method by following the steps described below.
         $ git remote add upstream git@github.com:tardis-sn/tardis.git
         $ git fetch upstream
         $ git checkout upstream/master
-        $ python setup.py develop
+        $ pip install -e .
 
       .. note::
 
@@ -124,7 +124,8 @@ We highly recommend deleting your existing environment and creating a new one us
 Use the following ``conda`` command to remove your current ``tardis`` environment:
 
 ::
-  $ conda remove --name tardis --all
+
+    $ conda remove --name tardis --all
 
 Now, you can create a new environment by following the steps given `here <https://tardis-sn.github.io/tardis/installation.html#install-with-lockfiles>`_.
 

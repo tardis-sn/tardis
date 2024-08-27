@@ -167,8 +167,11 @@ class TestPlasma:
     ):
         config["atom_data"] = str(chianti_he_db_fpath)
         sim = Simulation.from_config(config)
-        self.regression_data.sync_hdf_store(sim.plasma, update_fname=False)
-        return sim.plasma
+        data = self.regression_data.sync_hdf_store(
+            sim.plasma, update_fname=False
+        )
+        yield sim.plasma
+        data.close()
 
     @pytest.mark.parametrize("attr", combined_properties)
     def test_plasma_properties(self, plasma, attr):

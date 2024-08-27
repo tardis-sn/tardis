@@ -14,6 +14,7 @@ on:
       - reopened
       - synchronize
       - labeled # benchmarks label required
+      - ready_for_review
   workflow_dispatch:
 
 env: 
@@ -31,6 +32,7 @@ jobs:
   build:
     if: github.repository_owner == 'tardis-sn' &&
       (github.event_name == 'push' ||
+      (!github.event.pull_request.draft) ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request_target' &&
       contains(github.event.pull_request.labels.*.name, 'benchmarks')))
@@ -41,11 +43,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Checkout pull/${{ github.event.number }}
+      - name: Checkout PR and master branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+        if: github.event_name == 'pull_request_target'
+
+      - name: Fetch master branch
+        run: git fetch origin master:master
         if: github.event_name == 'pull_request_target'
 
       - name: Setup LFS
@@ -68,11 +74,11 @@ jobs:
       - name: Accept all asv questions
         run: asv machine --yes
 
-      - name: Run benchmarks for last 5 commits if not PR
+      - name: Run benchmarks for last 4 commits if not PR
         if: github.event_name != 'pull_request_target'
         run: |
-          git log -n 5  --pretty=format:"%H" >> tag_commits.txt
-          asv run HASHFILE:tag_commits.txt | tee asv-output.log  
+          git log -n 4  --pretty=format:"%H" >> tag_commits.txt
+          asv run -a rounds=1 HASHFILE:tag_commits.txt | tee asv-output.log
           if grep -q failed asv-output.log; then 
             echo "Some benchmarks have failed!"
             exit 1
@@ -98,15 +104,22 @@ jobs:
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
 
-      - name: Run benchmarks
+      - name: Run benchmarks for base and head commits of PR
         if: github.event_name == 'pull_request_target'
-        run: asv run --config asv.conf.json
+        run: |
+          echo $(git rev-parse HEAD) > commit_hashes.txt
+          echo $(git rev-parse master) >> commit_hashes.txt
+          asv run -a rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
+            if grep -q failed asv-output-PR.log; then 
+              echo "Some benchmarks have failed!"
+              exit 1
+            fi
 
       - name: Compare Master and PR head
-        run: asv compare origin/master HEAD --config asv.conf.json | tee asv-compare-output.log
+        run: asv compare origin/master HEAD --factor 1.1 --split --sort ratio | tee asv-compare-output.log
 
       - name: Compare Master and PR head but only show changed results
-        run: asv compare origin/master HEAD --only-changed --config asv.conf.json | tee asv-compare-changed-output.log
+        run: asv compare origin/master HEAD --only-changed --factor 1.1 --split --sort ratio | tee asv-compare-changed-output.log
 
       - name: Benchmarks compare output
         id: asv_pr_vs_master
@@ -119,18 +132,6 @@ jobs:
         uses: juliangruber/read-file-action@v1.0.0
         with:
           path: asv-compare-changed-output.log
-
-      - name: Run benchmarks for base to head commits of PR
-        if: github.event_name == 'pull_request_target'
-        run: |
-          echo $(git rev-parse HEAD) > commit_hashes.txt
-          echo $(git merge-base HEAD upstream/master) >> commit_hashes.txt
-
-          asv run HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
-            if grep -q failed asv-output-PR.log; then 
-              echo "Some benchmarks have failed!"
-              exit 1
-            fi
 
       - name: Generate Graphs and HTML of PR
         if: github.event_name == 'pull_request_target'

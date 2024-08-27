@@ -199,27 +199,29 @@ class LIVPlotter:
         ----------
         packets_mode : str
             Packet mode, either 'virtual' or 'real'.
-
-        Returns
-        -------
-        plot_data : list
-            List of velocity data for each species.
-
-        plot_colors : list
-            List of colors corresponding to each species.
         """
-        groups = self.data[packets_mode].packets_df_line_interaction.groupby(
-            by="last_line_interaction_species"
+        groups = (
+            self.data[packets_mode]
+            .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
+            .groupby(by="last_line_interaction_species")
         )
 
-        plot_colors = []
-        plot_data = []
+        self.plot_colors = []
+        self.plot_data = []
+        species_not_wvl_range = []
         species_counter = 0
 
         for specie_list in self._species_mapped.values():
             full_v_last = []
             for specie in specie_list:
                 if specie in self.species:
+                    if specie not in groups.groups:
+                        atomic_number = specie // 100
+                        ion_number = specie % 100
+                        ion_numeral = int_to_roman(ion_number + 1)
+                        label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
+                        species_not_wvl_range.append(label)
+                        continue
                     g_df = groups.get_group(specie)
                     r_last_interaction = (
                         g_df["last_interaction_in_r"].values * u.cm
@@ -229,14 +231,24 @@ class LIVPlotter:
                     ).to("km/s")
                     full_v_last.extend(v_last_interaction)
             if full_v_last:
-                plot_data.append(full_v_last)
-                plot_colors.append(self._color_list[species_counter])
+                self.plot_data.append(full_v_last)
+                self.plot_colors.append(self._color_list[species_counter])
                 species_counter += 1
 
-        return plot_data, plot_colors
+        if species_not_wvl_range:
+            logger.info(
+                "%s were not found in the provided wavelength range.",
+                species_not_wvl_range,
+            )
 
     def _prepare_plot_data(
-        self, packets_mode, species_list, cmapname, num_bins, nelements
+        self,
+        packets_mode,
+        packet_wvl_range,
+        species_list,
+        cmapname,
+        num_bins,
+        nelements,
     ):
         """
         Prepare data and settings required for generating a plot.
@@ -249,6 +261,11 @@ class LIVPlotter:
         ----------
         packets_mode : str
             Packet mode, either 'virtual' or 'real'.
+        packet_wvl_range : astropy.Quantity
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA
         species_list : list of str
             List of species to plot. Species can be specified as an ion
             (e.g., Si II), an element (e.g., Si), a range of ions (e.g., Si I-V),
@@ -259,21 +276,14 @@ class LIVPlotter:
         num_bins : int, optional
             Number of bins for regrouping within the same range. If None,
             no regrouping is done.
+        nelements : int, optional
+            Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
 
         Raises
         ------
         ValueError
             If no species are provided for plotting, or if no valid species are
             found in the model.
-
-        Returns
-        -------
-        plot_data : list
-            List of velocity data for each species.
-        plot_colors : list
-            List of colors corresponding to each species.
-        new_bin_edges : np.ndarray
-            Array of bin edges for the velocity data.
         """
         if species_list is None:
             # Extract all unique elements from the packets data
@@ -303,25 +313,42 @@ class LIVPlotter:
         self._make_colorbar_labels()
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
         self._make_colorbar_colors()
-        plot_data, plot_colors = self._generate_plot_data(packets_mode)
+
+        if packet_wvl_range is None:
+            self.packet_nu_line_range_mask = np.ones(
+                self.data[packets_mode].packets_df_line_interaction.shape[0],
+                dtype=bool,
+            )
+        else:
+            packet_nu_range = [
+                value.to("Hz", equivalencies=u.spectral())
+                for value in packet_wvl_range
+            ]
+            self.packet_nu_line_range_mask = (
+                self.data[packets_mode].packets_df_line_interaction["nus"]
+                >= packet_nu_range[1]
+            ) & (
+                self.data[packets_mode].packets_df_line_interaction["nus"]
+                <= packet_nu_range[0]
+            )
+
+        self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to("km/s")
 
         if num_bins:
             if num_bins < 1:
                 raise ValueError("Number of bins must be positive")
             elif num_bins > len(bin_edges) - 1:
-                logger.warn(
+                logger.warning(
                     "Number of bins must be less than or equal to number of shells. Plotting with number of bins equals to number of shells."
                 )
-                new_bin_edges = bin_edges
+                self.new_bin_edges = bin_edges
             else:
-                new_bin_edges = np.linspace(
+                self.new_bin_edges = np.linspace(
                     bin_edges[0], bin_edges[-1], num_bins + 1
                 )
         else:
-            new_bin_edges = bin_edges
-
-        return plot_data, plot_colors, new_bin_edges
+            self.new_bin_edges = bin_edges
 
     def _get_step_plot_data(self, data, bin_edges):
         """
@@ -333,24 +360,17 @@ class LIVPlotter:
             Data to be binned into a histogram.
         bin_edges : array-like
             Edges of the bins for the histogram.
-
-        Returns
-        -------
-        step_x : np.ndarray
-            x-coordinates for the step plot.
-        step_y : np.ndarray
-            y-coordinates for the step plot.
         """
         hist, _ = np.histogram(data, bins=bin_edges)
-        step_x = np.repeat(bin_edges, 2)[1:-1]
-        step_y = np.repeat(hist, 2)
-        return step_x, step_y
+        self.step_x = np.repeat(bin_edges, 2)[1:-1]
+        self.step_y = np.repeat(hist, 2)
 
     def generate_plot_mpl(
         self,
         species_list=None,
         nelements=None,
         packets_mode="virtual",
+        packet_wvl_range=None,
         ax=None,
         figsize=(11, 5),
         cmapname="jet",
@@ -370,6 +390,11 @@ class LIVPlotter:
             Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
+        packet_wvl_range : astropy.Quantity
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA
         ax : matplotlib.axes.Axes, optional
             Axes object to plot on. If None, creates a new figure.
         figsize : tuple, optional
@@ -397,9 +422,16 @@ class LIVPlotter:
             )
             nelements = None
 
-        plot_data, plot_colors, bin_edges = self._prepare_plot_data(
-            packets_mode, species_list, cmapname, num_bins, nelements
+        self._prepare_plot_data(
+            packets_mode,
+            packet_wvl_range,
+            species_list,
+            cmapname,
+            num_bins,
+            nelements,
         )
+
+        bin_edges = self.new_bin_edges
 
         if ax is None:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
@@ -407,12 +439,12 @@ class LIVPlotter:
             self.ax = ax
 
         for data, color, name in zip(
-            plot_data, plot_colors, self._species_name
+            self.plot_data, self.plot_colors, self._species_name
         ):
-            step_x, step_y = self._get_step_plot_data(data, bin_edges)
+            self._get_step_plot_data(data, bin_edges)
             self.ax.plot(
-                step_x,
-                step_y,
+                self.step_x,
+                self.step_y,
                 label=name,
                 color=color,
                 linewidth=2.5,
@@ -440,6 +472,7 @@ class LIVPlotter:
         species_list=None,
         nelements=None,
         packets_mode="virtual",
+        packet_wvl_range=None,
         fig=None,
         graph_height=600,
         cmapname="jet",
@@ -459,6 +492,11 @@ class LIVPlotter:
             Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
         packets_mode : str, optional
             Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
+        packet_wvl_range : astropy.Quantity
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA
         fig : plotly.graph_objects.Figure, optional
             Plotly figure object to add the plot to. If None, creates a new figure.
         graph_height : int, optional
@@ -486,9 +524,16 @@ class LIVPlotter:
             )
             nelements = None
 
-        plot_data, plot_colors, bin_edges = self._prepare_plot_data(
-            packets_mode, species_list, cmapname, num_bins, nelements
+        self._prepare_plot_data(
+            packets_mode,
+            packet_wvl_range,
+            species_list,
+            cmapname,
+            num_bins,
+            nelements,
         )
+
+        bin_edges = self.new_bin_edges
 
         if fig is None:
             self.fig = go.Figure()
@@ -496,13 +541,13 @@ class LIVPlotter:
             self.fig = fig
 
         for data, color, name in zip(
-            plot_data, plot_colors, self._species_name
+            self.plot_data, self.plot_colors, self._species_name
         ):
-            step_x, step_y = self._get_step_plot_data(data, bin_edges)
+            self._get_step_plot_data(data, bin_edges)
             self.fig.add_trace(
                 go.Scatter(
-                    x=step_x,
-                    y=step_y,
+                    x=self.step_x,
+                    y=self.step_y,
                     mode="lines",
                     line=dict(
                         color=pu.to_rgb255_string(color),

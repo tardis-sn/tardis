@@ -25,7 +25,7 @@ def generate_zenodo():
             f"https://zenodo.org/api/records/{CONCEPT_DOI}", headers=headers
         )
         response.encoding = "utf-8"
-        citation = re.findall("@software{(.*)\,", response.text)
+        citation = re.findall(r"@software{(.*)\,", response.text)
         specific_doi = citation[0].lstrip(f"kerzendorf_wolfgang_{year}_")
         doi_org_url = f"https://doi.org/10.5281/zenodo.{specific_doi}"
         doi_badge = f"https://img.shields.io/badge/DOI-10.5281/zenodo.{specific_doi}-blue"
