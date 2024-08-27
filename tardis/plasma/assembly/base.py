@@ -162,13 +162,13 @@ class PlasmaSolverFactory:
 
         if config is not None:
             self.parse_plasma_config(config.plasma)
-        self.atom_data = atom_data
-        self.atom_data.prepare_atom_data(
+        atom_data.prepare_atom_data(
             selected_atomic_numbers,
             line_interaction_type=self.line_interaction_type,
             continuum_interaction_species=self.continuum_interaction_species_multi_index,
             nlte_species=self.legacy_nlte_species,
         )
+        self.atom_data = atom_data.tardis_data
 
     @property
     def continuum_interaction_species_multi_index(self):
