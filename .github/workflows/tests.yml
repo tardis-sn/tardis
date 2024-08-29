@@ -81,6 +81,7 @@ jobs:
           pip install git+https://github.com/tardis-sn/tardis.git@master
 
       - name: Install qgridnext
+        if: ${{ !inputs.pip_git }}
         run: |
           pip install qgridnext
 
