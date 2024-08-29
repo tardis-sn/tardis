@@ -5,7 +5,6 @@ import re
 from astropy import units as u
 import numpy as np
 import pandas as pd
-import qgrid
 from plotly import graph_objects as go
 from plotly.callbacks import BoxSelector
 import ipywidgets as ipw
@@ -325,9 +324,9 @@ class LineInfoWidget:
 
             if group_mode == "both":
                 # Group by both exc. line ids and de-exc. line ids
-                current_last_lines_in[
-                    "line_id_out"
-                ] = current_last_lines_out.line_id
+                current_last_lines_in["line_id_out"] = (
+                    current_last_lines_out.line_id
+                )
                 grouped_line_interactions = current_last_lines_in.groupby(
                     ["line_id", "line_id_out"]
                 )
