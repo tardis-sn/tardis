@@ -218,3 +218,4 @@ repo = "tardis"
 
 [tool.codespell]
 skip = "*.png,*.ggb,*.jpg,*.gif,*.ico,docs/contributing/CHANGELOG.md,docs/tardis.bib"
+quiet-level = 3
