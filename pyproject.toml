@@ -215,3 +215,7 @@ sort_commits = "newest"
 [tool.git-cliff.remote.github]
 owner = "tardis-sn"
 repo = "tardis"
+
+[tool.codespell]
+skip = "*.png,*.ggb,*.jpg,*.gif,*.ico,docs/contributing/CHANGELOG.md,docs/tardis.bib"
+quiet-level = 3
