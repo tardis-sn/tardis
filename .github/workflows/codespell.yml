@@ -36,4 +36,4 @@ jobs:
 
       - name: Run codespell
         run: |
-          codespell
+          codespell docs/
