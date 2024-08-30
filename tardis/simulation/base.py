@@ -428,7 +428,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         if "gamma" in self.plasma.outputs_dict:
             continuum_property_solver = MCContinuumPropertiesSolver(
-                self.atom_data
+                self.plasma.atomic_data
             )
             estimated_continuum_properties = continuum_property_solver.solve(
                 radfield_mc_estimators,
@@ -436,7 +436,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.transport.transport_state.geometry_state.volume,
             )
             update_properties.update(
-                gamma=estimated_continuum_properties.photo_ion_coeff,
+                gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
                 alpha_stim_coeff=estimated_continuum_properties.stim_recomb_estimator,
                 bf_heating_coeff_estimator=radfield_mc_estimators.bf_heating_estimator,
                 stim_recomb_cooling_coeff_estimator=radfield_mc_estimators.stim_recomb_cooling_estimator,
