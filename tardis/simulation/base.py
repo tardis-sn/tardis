@@ -437,7 +437,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
             update_properties.update(
                 gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
-                alpha_stim_coeff=estimated_continuum_properties.stim_recomb_estimator,
+                alpha_stim_coeff=estimated_continuum_properties.stimulated_recombination_rate_factor,
                 bf_heating_coeff_estimator=radfield_mc_estimators.bf_heating_estimator,
                 stim_recomb_cooling_coeff_estimator=radfield_mc_estimators.stim_recomb_cooling_estimator,
             )
