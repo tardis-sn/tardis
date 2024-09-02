@@ -50,6 +50,7 @@ jobs:
 
             A complete list of changes for this release is available at [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).
           files: |
+            conda-osx-arm64.lock
             conda-linux-64.lock
             conda-osx-64.lock
             conda-lock.yml
