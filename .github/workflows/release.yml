@@ -13,8 +13,8 @@ on:
 
 jobs:
   create:
-    # if: github.event_name == 'workflow_dispatch' ||
-    #   (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
+    if: github.event_name == 'workflow_dispatch' ||
+      (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
 
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +28,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install setuptools_scm
-        run: pip install setuptools_scm<7 git-cliff
+        run: pip install "setuptools_scm<7" git-cliff
 
       - name: Show current version
         run: python .ci-helpers/get_current_version.py
@@ -44,13 +44,11 @@ jobs:
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           echo "$CHANGELOG" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-        
-      - run: echo $CHANGELOG
 
       - name: Create new release
         uses: softprops/action-gh-release@v1
         with:
-          # token: ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.BOT_TOKEN }}
           name: TARDIS v${{ env.NEW_TAG}}
           tag_name: release-${{ env.NEW_TAG }}
           prerelease: false
