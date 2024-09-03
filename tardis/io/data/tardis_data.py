@@ -37,6 +37,7 @@ class TARDISData:
     selected_atomic_numbers: list = None
     lines_upper2macro_reference_idx: list = None
     lines_lower2macro_reference_idx: list = None
+    level2continuum_edge_idx: pd.Series = None
 
     # versioning
     uuid1: str = None

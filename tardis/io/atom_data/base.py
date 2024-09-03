@@ -458,6 +458,7 @@ class AtomData:
         self.tardis_data.lines_upper2macro_reference_idx = self.lines_upper2macro_reference_idx
         self.tardis_data.photo_ion_block_references = self.photo_ion_block_references
         self.tardis_data.photo_ion_unique_index = self.photo_ion_unique_index
+        self.tardis_data.level2continuum_edge_idx = self. level2continuum_edge_idx
 
         self.tardis_data.nlte_data = self.nlte_data
 
