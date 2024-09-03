@@ -306,7 +306,7 @@ class AtomData:
         # Convert ionization energies to CGS
         ionization_data = ionization_data.squeeze()
         ionization_data[:] = Quantity(ionization_data[:], "eV").cgs.value
-        
+
         # init dataclass
         self.tardis_data = TARDISData(atom_data, ionization_data)
 
@@ -455,11 +455,19 @@ class AtomData:
                 setattr(self.tardis_data, entry, getattr(self, entry))
 
         self.tardis_data.selected_atomic_numbers = self.selected_atomic_numbers
-        self.tardis_data.lines_lower2macro_reference_idx = self.lines_lower2macro_reference_idx
-        self.tardis_data.lines_upper2macro_reference_idx = self.lines_upper2macro_reference_idx
-        self.tardis_data.photo_ion_block_references = self.photo_ion_block_references
+        self.tardis_data.lines_lower2macro_reference_idx = (
+            self.lines_lower2macro_reference_idx
+        )
+        self.tardis_data.lines_upper2macro_reference_idx = (
+            self.lines_upper2macro_reference_idx
+        )
+        self.tardis_data.photo_ion_block_references = (
+            self.photo_ion_block_references
+        )
         self.tardis_data.photo_ion_unique_index = self.photo_ion_unique_index
-        self.tardis_data.level2continuum_edge_idx = self.level2continuum_edge_idx
+        self.tardis_data.level2continuum_edge_idx = (
+            self.level2continuum_edge_idx
+        )
 
         self.tardis_data.nlte_data = self.nlte_data
 
