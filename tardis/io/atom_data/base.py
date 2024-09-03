@@ -294,8 +294,6 @@ class AtomData:
     ):
         self.prepared = False
 
-        self.tardis_data = TARDISData
-
         # CONVERT VALUES TO CGS UNITS
 
         # Convert atomic masses to CGS
@@ -308,6 +306,9 @@ class AtomData:
         # Convert ionization energies to CGS
         ionization_data = ionization_data.squeeze()
         ionization_data[:] = Quantity(ionization_data[:], "eV").cgs.value
+        
+        # init dataclass
+        self.tardis_data = TARDISData(atom_data, ionization_data)
 
         # Convert energy to CGS
         levels.loc[:, "energy"] = Quantity(
