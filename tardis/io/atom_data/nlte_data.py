@@ -6,6 +6,7 @@ from scipy import interpolate
 logger = logging.getLogger(__name__)
 
 
+#TODO: rename- this is Chianti-based collisional and radiative rates only
 class NLTEData:
     def __init__(self, atom_data, nlte_species):
         self.atom_data = atom_data
@@ -82,6 +83,7 @@ class NLTEData:
                 g_ratio_matrix[level_number_lower, level_number_upper] = (
                     1 / line["g_ratio"]
                 )
+            #TODO: replace with Chianti interpolation formula
             self.C_ul_interpolator[species] = interpolate.interp1d(
                 self.atom_data.collision_data_temperatures, C_ul_matrix
             )
