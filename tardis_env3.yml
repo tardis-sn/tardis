@@ -37,7 +37,8 @@ dependencies:
   - matplotlib-base
   - ipywidgets
   - plotly
-  - qgridnext
+  - pip:
+      - qgridnext
 
   # --- Packages not required for conda-forge recipe ---
 
