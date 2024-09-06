@@ -26,7 +26,7 @@
     "html_dir": ".asv/html",
     "matrix": {
         "env": {
-            "TARDIS_REF_PATH": "tardis-refdata/atom_data"
+            "TARDIS_REF_PATH": "tardis-regression-data/atom_data"
         }
     }
 }
