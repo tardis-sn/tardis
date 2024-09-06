@@ -93,6 +93,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.rpacket_tracking }}-rpacket_tracking-${{ matrix.os }}
+          include-hidden-files: true
           path: |
             .coverage*
             !.coveragerc
