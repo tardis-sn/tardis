@@ -5,7 +5,6 @@ import re
 from astropy import units as u
 import numpy as np
 import pandas as pd
-import qgrid
 from plotly import graph_objects as go
 from plotly.callbacks import BoxSelector
 import ipywidgets as ipw
