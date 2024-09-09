@@ -7,10 +7,10 @@ name: tests
 on:
   push:
     branches:
-      - '*'
+      - "*"
   pull_request:
     branches:
-      - '*'
+      - "*"
     types:
       - opened
       - reopened
@@ -37,7 +37,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
-
 jobs:
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.rpacket_tracking }} rpacket_tracking ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
@@ -47,11 +46,11 @@ jobs:
       fail-fast: false
       matrix:
         label: [osx-arm64, linux-64]
-        continuum: ['not', '']
-        rpacket_tracking: ['not', '']
+        continuum: ["not", ""]
+        rpacket_tracking: ["not", ""]
         exclude:
-          - continuum: ''
-            rpacket_tracking: ''
+          - continuum: ""
+            rpacket_tracking: ""
         include:
           - label: osx-arm64
             os: macos-latest
@@ -80,6 +79,11 @@ jobs:
         if: ${{ inputs.pip_git }}
         run: |
           pip install git+https://github.com/tardis-sn/tardis.git@master
+
+      - name: Install qgridnext
+        if: ${{ !inputs.pip_git }}
+        run: |
+          pip install qgridnext
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking"
