@@ -13,9 +13,9 @@
 version: 1
 metadata:
   content_hash:
-    osx-64: e1ea358ba3316c8c54c83e1941177bcdb8deb690d8335d7aa85667acef3fb1ae
-    linux-64: 8fcc534b53b8c17a5feb01982449320cd85a95dc80cc95322211a61183f587ff
-    osx-arm64: 73c2fcb7c51dd67d5c2173c871cc3e01043b16aec6a0ffecd5b228afa1d7cfbe
+    osx-64: 17634cd9013c21a3f0df684fa876229a042571134cf8ca74793e4a2d12576fbb
+    linux-64: 0c92650145d524a9f0d24eca94cadffa15b1e93e362d9d237685724d8a6c04c3
+    osx-arm64: 429fd160add59d8368ffaa1ec87876b7acf8631bf3310850942b71a5c37b428e
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -3715,94 +3715,55 @@ package:
     sha256: 4eaa22b1afdbd0076ab1cc8da99d9c62f5c5f14cd0a30ff99c133e22f2db5a58
   category: main
   optional: false
-- name: ipython_genutils
-  version: 0.2.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    python: '>=2.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/ipython_genutils-0.2.0-pyhd8ed1ab_1.conda
-  hash:
-    md5: f8ed9f18dce81e4ee55c858cc2f8548a
-    sha256: 72fbbe8bc511f20268d347c1a06e279128237e096c4c174b2f9164a661c6b13e
-  category: main
-  optional: false
-- name: ipython_genutils
-  version: 0.2.0
-  manager: conda
-  platform: osx-64
-  dependencies:
-    python: '>=2.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/ipython_genutils-0.2.0-pyhd8ed1ab_1.conda
-  hash:
-    md5: f8ed9f18dce81e4ee55c858cc2f8548a
-    sha256: 72fbbe8bc511f20268d347c1a06e279128237e096c4c174b2f9164a661c6b13e
-  category: main
-  optional: false
-- name: ipython_genutils
-  version: 0.2.0
-  manager: conda
-  platform: osx-arm64
-  dependencies:
-    python: '>=2.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/ipython_genutils-0.2.0-pyhd8ed1ab_1.conda
-  hash:
-    md5: f8ed9f18dce81e4ee55c858cc2f8548a
-    sha256: 72fbbe8bc511f20268d347c1a06e279128237e096c4c174b2f9164a661c6b13e
-  category: main
-  optional: false
 - name: ipywidgets
-  version: 7.8.4
+  version: 8.1.5
   manager: conda
   platform: linux-64
   dependencies:
     comm: '>=0.1.3'
-    ipython: '>=4.0.0'
-    ipython_genutils: '>=0.2.0,<0.3.0'
-    jupyterlab_widgets: '>=1.0.0,<3'
-    python: '>=3.3'
+    ipython: '>=6.1.0'
+    jupyterlab_widgets: '>=3.0.13,<3.1.0'
+    python: '>=3.7'
     traitlets: '>=4.3.1'
-    widgetsnbextension: '>=3.6.9,<3.7.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.8.4-pyhd8ed1ab_0.conda
+    widgetsnbextension: '>=4.0.13,<4.1.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-8.1.5-pyhd8ed1ab_0.conda
   hash:
-    md5: c47caff12aa8b8fecb4b8b9b1884d8a5
-    sha256: a811aa22f1234ec2f53ccaeec657b15bacb5176bc5feeee5cbc8ddf570627668
+    md5: a022d34163147d16b27de86dc53e93fc
+    sha256: ae27447f300c85a184d5d4fa08674eaa93931c12275daca981eb986f5d7795b3
   category: main
   optional: false
 - name: ipywidgets
-  version: 7.8.4
+  version: 8.1.5
   manager: conda
   platform: osx-64
   dependencies:
-    python: '>=3.3'
-    ipython: '>=4.0.0'
+    python: '>=3.7'
     traitlets: '>=4.3.1'
-    ipython_genutils: '>=0.2.0,<0.3.0'
+    ipython: '>=6.1.0'
     comm: '>=0.1.3'
-    jupyterlab_widgets: '>=1.0.0,<3'
-    widgetsnbextension: '>=3.6.9,<3.7.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.8.4-pyhd8ed1ab_0.conda
+    jupyterlab_widgets: '>=3.0.13,<3.1.0'
+    widgetsnbextension: '>=4.0.13,<4.1.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-8.1.5-pyhd8ed1ab_0.conda
   hash:
-    md5: c47caff12aa8b8fecb4b8b9b1884d8a5
-    sha256: a811aa22f1234ec2f53ccaeec657b15bacb5176bc5feeee5cbc8ddf570627668
+    md5: a022d34163147d16b27de86dc53e93fc
+    sha256: ae27447f300c85a184d5d4fa08674eaa93931c12275daca981eb986f5d7795b3
   category: main
   optional: false
 - name: ipywidgets
-  version: 7.8.4
+  version: 8.1.5
   manager: conda
   platform: osx-arm64
   dependencies:
-    python: '>=3.3'
-    ipython: '>=4.0.0'
+    python: '>=3.7'
     traitlets: '>=4.3.1'
-    ipython_genutils: '>=0.2.0,<0.3.0'
+    ipython: '>=6.1.0'
     comm: '>=0.1.3'
-    jupyterlab_widgets: '>=1.0.0,<3'
-    widgetsnbextension: '>=3.6.9,<3.7.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.8.4-pyhd8ed1ab_0.conda
+    jupyterlab_widgets: '>=3.0.13,<3.1.0'
+    widgetsnbextension: '>=4.0.13,<4.1.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-8.1.5-pyhd8ed1ab_0.conda
   hash:
-    md5: c47caff12aa8b8fecb4b8b9b1884d8a5
-    sha256: a811aa22f1234ec2f53ccaeec657b15bacb5176bc5feeee5cbc8ddf570627668
+    md5: a022d34163147d16b27de86dc53e93fc
+    sha256: ae27447f300c85a184d5d4fa08674eaa93931c12275daca981eb986f5d7795b3
   category: main
   optional: false
 - name: isoduration
@@ -4664,39 +4625,39 @@ package:
   category: main
   optional: false
 - name: jupyterlab_widgets
-  version: 1.1.10
+  version: 3.0.13
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-1.1.10-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-3.0.13-pyhd8ed1ab_0.conda
   hash:
-    md5: e22fb9edd9f5819f6e0ed3acd250ee77
-    sha256: 03d75edecf19cf5f1f301952f7348265848b3d2857a42a41348921e90e9fa814
+    md5: ccea946e6dce9f330fbf7fca97fe8de7
+    sha256: 0e7ec7936d766f39d5a0a8eafc63f5543f488883ad3645246bc22db6d632566e
   category: main
   optional: false
 - name: jupyterlab_widgets
-  version: 1.1.10
+  version: 3.0.13
   manager: conda
   platform: osx-64
   dependencies:
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-1.1.10-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-3.0.13-pyhd8ed1ab_0.conda
   hash:
-    md5: e22fb9edd9f5819f6e0ed3acd250ee77
-    sha256: 03d75edecf19cf5f1f301952f7348265848b3d2857a42a41348921e90e9fa814
+    md5: ccea946e6dce9f330fbf7fca97fe8de7
+    sha256: 0e7ec7936d766f39d5a0a8eafc63f5543f488883ad3645246bc22db6d632566e
   category: main
   optional: false
 - name: jupyterlab_widgets
-  version: 1.1.10
+  version: 3.0.13
   manager: conda
   platform: osx-arm64
   dependencies:
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-1.1.10-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-3.0.13-pyhd8ed1ab_0.conda
   hash:
-    md5: e22fb9edd9f5819f6e0ed3acd250ee77
-    sha256: 03d75edecf19cf5f1f301952f7348265848b3d2857a42a41348921e90e9fa814
+    md5: ccea946e6dce9f330fbf7fca97fe8de7
+    sha256: 0e7ec7936d766f39d5a0a8eafc63f5543f488883ad3645246bc22db6d632566e
   category: main
   optional: false
 - name: keyutils
@@ -7003,54 +6964,6 @@ package:
   hash:
     md5: 4eccaeba205f0aed9ac3a9ea58568ca3
     sha256: f240217476e148e825420c6bc3a0c0efb08c0718b7042fae960400c02af858a3
-  category: main
-  optional: false
-- name: nbclassic
-  version: 1.1.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    ipykernel: ''
-    ipython_genutils: ''
-    nest-asyncio: '>=1.5'
-    notebook-shim: '>=0.2.3'
-    python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/nbclassic-1.1.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: 6275b55edf34cfa1f01ba40b699dd915
-    sha256: da3330a8ffff1f5b15b558543fbec69e05a48750ed50b53369b93da788abedc5
-  category: main
-  optional: false
-- name: nbclassic
-  version: 1.1.0
-  manager: conda
-  platform: osx-64
-  dependencies:
-    ipykernel: ''
-    ipython_genutils: ''
-    python: '>=3.7'
-    nest-asyncio: '>=1.5'
-    notebook-shim: '>=0.2.3'
-  url: https://conda.anaconda.org/conda-forge/noarch/nbclassic-1.1.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: 6275b55edf34cfa1f01ba40b699dd915
-    sha256: da3330a8ffff1f5b15b558543fbec69e05a48750ed50b53369b93da788abedc5
-  category: main
-  optional: false
-- name: nbclassic
-  version: 1.1.0
-  manager: conda
-  platform: osx-arm64
-  dependencies:
-    ipykernel: ''
-    ipython_genutils: ''
-    python: '>=3.7'
-    nest-asyncio: '>=1.5'
-    notebook-shim: '>=0.2.3'
-  url: https://conda.anaconda.org/conda-forge/noarch/nbclassic-1.1.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: 6275b55edf34cfa1f01ba40b699dd915
-    sha256: da3330a8ffff1f5b15b558543fbec69e05a48750ed50b53369b93da788abedc5
   category: main
   optional: false
 - name: nbclient
@@ -10006,54 +9919,6 @@ package:
     sha256: 8d46c0f1af50989f308b9da68e6123bc3560f3a3a741b4e7cb8867c603b5a9f1
   category: main
   optional: false
-- name: qgrid
-  version: 1.3.1
-  manager: conda
-  platform: linux-64
-  dependencies:
-    ipywidgets: '>=7.0.0,<8'
-    nbclassic: '>=0.4.4'
-    notebook: '>=4.0.0'
-    pandas: '>=0.17.0'
-    python: '>=2.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/qgrid-1.3.1-pyhd8ed1ab_4.tar.bz2
-  hash:
-    md5: fff68c7404813a1eb2678425f00e9917
-    sha256: 23cac7cd8eb2f573bb8cf301483ec9ca35f4d45c4f2ceed591431302f0ebe652
-  category: main
-  optional: false
-- name: qgrid
-  version: 1.3.1
-  manager: conda
-  platform: osx-64
-  dependencies:
-    python: '>=2.7'
-    pandas: '>=0.17.0'
-    ipywidgets: '>=7.0.0,<8'
-    notebook: '>=4.0.0'
-    nbclassic: '>=0.4.4'
-  url: https://conda.anaconda.org/conda-forge/noarch/qgrid-1.3.1-pyhd8ed1ab_4.tar.bz2
-  hash:
-    md5: fff68c7404813a1eb2678425f00e9917
-    sha256: 23cac7cd8eb2f573bb8cf301483ec9ca35f4d45c4f2ceed591431302f0ebe652
-  category: main
-  optional: false
-- name: qgrid
-  version: 1.3.1
-  manager: conda
-  platform: osx-arm64
-  dependencies:
-    python: '>=2.7'
-    pandas: '>=0.17.0'
-    ipywidgets: '>=7.0.0,<8'
-    notebook: '>=4.0.0'
-    nbclassic: '>=0.4.4'
-  url: https://conda.anaconda.org/conda-forge/noarch/qgrid-1.3.1-pyhd8ed1ab_4.tar.bz2
-  hash:
-    md5: fff68c7404813a1eb2678425f00e9917
-    sha256: 23cac7cd8eb2f573bb8cf301483ec9ca35f4d45c4f2ceed591431302f0ebe652
-  category: main
-  optional: false
 - name: qhull
   version: '2020.2'
   manager: conda
@@ -12621,42 +12486,39 @@ package:
   category: main
   optional: false
 - name: widgetsnbextension
-  version: 3.6.9
+  version: 4.0.13
   manager: conda
   platform: linux-64
   dependencies:
-    notebook: '>=4.4.1'
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-3.6.9-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-4.0.13-pyhd8ed1ab_0.conda
   hash:
-    md5: a296fc31edd9b04a157a7b97ac1c5ab8
-    sha256: ba1bd841aca3abe6bf21b8bcb84721de5ce8c48894c1c80edaf27db06f0e04e0
+    md5: 6372cd99502721bd7499f8d16b56268d
+    sha256: d155adc10f8c96f76d4468dbe37b33b4334dadf5cd4a95841aa009ca9bced5fa
   category: main
   optional: false
 - name: widgetsnbextension
-  version: 3.6.9
+  version: 4.0.13
   manager: conda
   platform: osx-64
   dependencies:
     python: '>=3.7'
-    notebook: '>=4.4.1'
-  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-3.6.9-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-4.0.13-pyhd8ed1ab_0.conda
   hash:
-    md5: a296fc31edd9b04a157a7b97ac1c5ab8
-    sha256: ba1bd841aca3abe6bf21b8bcb84721de5ce8c48894c1c80edaf27db06f0e04e0
+    md5: 6372cd99502721bd7499f8d16b56268d
+    sha256: d155adc10f8c96f76d4468dbe37b33b4334dadf5cd4a95841aa009ca9bced5fa
   category: main
   optional: false
 - name: widgetsnbextension
-  version: 3.6.9
+  version: 4.0.13
   manager: conda
   platform: osx-arm64
   dependencies:
     python: '>=3.7'
-    notebook: '>=4.4.1'
-  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-3.6.9-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-4.0.13-pyhd8ed1ab_0.conda
   hash:
-    md5: a296fc31edd9b04a157a7b97ac1c5ab8
-    sha256: ba1bd841aca3abe6bf21b8bcb84721de5ce8c48894c1c80edaf27db06f0e04e0
+    md5: 6372cd99502721bd7499f8d16b56268d
+    sha256: d155adc10f8c96f76d4468dbe37b33b4334dadf5cd4a95841aa009ca9bced5fa
   category: main
   optional: false
 - name: xorg-kbproto
@@ -13161,5 +13023,77 @@ package:
   hash:
     md5: d96942c06c3e84bfcc5efb038724a7fd
     sha256: 2d4fd1ff7ee79cd954ca8e81abf11d9d49954dd1fef80f27289e2402ae9c2e09
+  category: main
+  optional: false
+- name: numpy
+  version: 1.26.4
+  manager: pip
+  platform: linux-64
+  dependencies: {}
+  url: https://files.pythonhosted.org/packages/0f/50/de23fde84e45f5c4fda2488c759b69990fd4512387a8632860f3ac9cd225/numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  hash:
+    sha256: 675d61ffbfa78604709862923189bad94014bef562cc35cf61d3a07bba02a7ed
+  category: main
+  optional: false
+- name: numpy
+  version: 1.26.4
+  manager: pip
+  platform: osx-64
+  dependencies: {}
+  url: https://files.pythonhosted.org/packages/95/12/8f2020a8e8b8383ac0177dc9570aad031a3beb12e38847f7129bacd96228/numpy-1.26.4-cp312-cp312-macosx_10_9_x86_64.whl
+  hash:
+    sha256: b3ce300f3644fb06443ee2222c2201dd3a89ea6040541412b8fa189341847218
+  category: main
+  optional: false
+- name: numpy
+  version: 1.26.4
+  manager: pip
+  platform: osx-arm64
+  dependencies: {}
+  url: https://files.pythonhosted.org/packages/75/5b/ca6c8bd14007e5ca171c7c03102d17b4f4e0ceb53957e8c44343a9546dcc/numpy-1.26.4-cp312-cp312-macosx_11_0_arm64.whl
+  hash:
+    sha256: 03a8c78d01d9781b28a6989f6fa1bb2c4f2d51201cf99d3dd875df6fbd96b23b
+  category: main
+  optional: false
+- name: qgridnext
+  version: 2.0.1
+  manager: pip
+  platform: linux-64
+  dependencies:
+    pandas: '>=0.20.0'
+    ipywidgets: '>=7.0.0'
+    numpy: <2
+    traitlets: <6
+  url: https://files.pythonhosted.org/packages/eb/92/fd490e0abdc3fae90b3ae0ec7186d72f502fb2e4734afe8c6963613b63fb/qgridnext-2.0.1-py3-none-any.whl
+  hash:
+    sha256: 1f61741257d6489caf38051701f0ba5401cfa282515a552f51b26901b0c2103c
+  category: main
+  optional: false
+- name: qgridnext
+  version: 2.0.1
+  manager: pip
+  platform: osx-64
+  dependencies:
+    pandas: '>=0.20.0'
+    ipywidgets: '>=7.0.0'
+    numpy: <2
+    traitlets: <6
+  url: https://files.pythonhosted.org/packages/eb/92/fd490e0abdc3fae90b3ae0ec7186d72f502fb2e4734afe8c6963613b63fb/qgridnext-2.0.1-py3-none-any.whl
+  hash:
+    sha256: 1f61741257d6489caf38051701f0ba5401cfa282515a552f51b26901b0c2103c
+  category: main
+  optional: false
+- name: qgridnext
+  version: 2.0.1
+  manager: pip
+  platform: osx-arm64
+  dependencies:
+    pandas: '>=0.20.0'
+    ipywidgets: '>=7.0.0'
+    numpy: <2
+    traitlets: <6
+  url: https://files.pythonhosted.org/packages/eb/92/fd490e0abdc3fae90b3ae0ec7186d72f502fb2e4734afe8c6963613b63fb/qgridnext-2.0.1-py3-none-any.whl
+  hash:
+    sha256: 1f61741257d6489caf38051701f0ba5401cfa282515a552f51b26901b0c2103c
   category: main
   optional: false
