@@ -4,6 +4,7 @@ channels:
   - conda-forge
 
 dependencies:
+
   # WARNING: any change to this section must be applied to the conda-forge
   # package recipe at https://github.com/conda-forge/tardis-sn-feedstock
 
@@ -37,8 +38,7 @@ dependencies:
   - matplotlib-base
   - ipywidgets
   - plotly
-  - pip:
-      - qgridnext
+  - qgrid
 
   # --- Packages not required for conda-forge recipe ---
 
@@ -74,3 +74,4 @@ dependencies:
 
   # Other
   - git-lfs
+

@@ -1,7 +1,7 @@
 """Utility classes and functions for widgets."""
 
 import logging
-import qgridnext
+import qgrid
 import ipywidgets as ipw
 import asyncio
 
@@ -95,7 +95,7 @@ def create_table_widget(
             )
 
     # Create the table widget using qgrid
-    return qgridnext.show_grid(
+    return qgrid.show_grid(
         data,
         grid_options=grid_options,
         column_options=column_options,
