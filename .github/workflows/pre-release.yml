@@ -30,14 +30,14 @@ jobs:
       - name: Download Lock File
         run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
         shell: bash
-        
+
       - name: Generate Cache Key
-        run: | 
+        run: |
           file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
           echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
         id: cache-environment-key
         shell: bash
-          
+
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: conda-linux-64.lock
@@ -95,7 +95,7 @@ jobs:
 
             <br>
 
-            > :warning: **WARNING:** 
+            > :warning: **WARNING:**
             >
             > This pull request should be auto-merged. **Do not merge manually if any check fails**.
             >
@@ -138,9 +138,6 @@ jobs:
           merge-method: squash
         if: steps.create-pr.outputs.pull-request-operation == 'created'
 
-  compare_refdata:
-    uses: tardis-sn/tardis-refdata/.github/workflows/compare-refdata.yml@master
-  
   pip_tests:
     uses: ./.github/workflows/tests.yml
     secrets: inherit

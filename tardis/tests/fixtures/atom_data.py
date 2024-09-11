@@ -10,9 +10,9 @@ DEFAULT_ATOM_DATA_UUID = "864f1753714343c41f99cb065710cace"
 
 
 @pytest.fixture(scope="session")
-def atomic_data_fname(tardis_ref_path):
+def atomic_data_fname(tardis_regression_path):
     atomic_data_fname = (
-        tardis_ref_path / "atom_data" / "kurucz_cd23_chianti_H_He.h5"
+        tardis_regression_path / "atom_data" / "kurucz_cd23_chianti_H_He.h5"
     )
 
     atom_data_missing_str = (
@@ -44,11 +44,16 @@ def kurucz_atomic_data(atomic_dataset):
 
 
 @pytest.fixture  # (scope="session")
-def nlte_atomic_data_fname(tardis_ref_path):
+def nlte_atomic_data_fname(tardis_regression_path):
     """
     File name for the atomic data file used in NTLE ionization solver tests.
     """
-    atomic_data_fname = tardis_ref_path / "nlte_atom_data" / "TestNLTE_He_Ti.h5"
+    atomic_data_fname = (
+        tardis_regression_path
+        / "atom_data"
+        / "nlte_atom_data"
+        / "TestNLTE_He_Ti.h5"
+    )
 
     atom_data_missing_str = (
         f"{atomic_data_fname} atomic datafiles " f"does not seem to exist"

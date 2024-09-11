@@ -7,8 +7,8 @@ import json
 
 
 @pytest.fixture()
-def arepo_snapshot_fname(tardis_ref_path):
-    return Path(tardis_ref_path) / "arepo_data" / "arepo_snapshot.json"
+def arepo_snapshot_fname(tardis_regression_path):
+    return Path(tardis_regression_path) / "arepo_data" / "arepo_snapshot.json"
 
 
 @pytest.fixture

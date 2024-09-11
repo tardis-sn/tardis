@@ -92,15 +92,15 @@ jobs:
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
-      
+
       - name: Setup environment
         uses: ./.github/actions/setup_env
-        with: 
+        with:
           os-label: linux-64
 
       - name: Copy atom_data
         run: |
-          mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-refdata/atom_data/. ~/Downloads/tardis-data
+          mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-regression-data/atom_data/. ~/Downloads/tardis-data
 
       - name: Install package
         run: pip install -e .

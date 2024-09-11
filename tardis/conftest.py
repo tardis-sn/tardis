@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -92,9 +93,6 @@ def pytest_configure(config):
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--tardis-refdata", default=None, help="Path to Tardis Reference Folder"
-    )
-    parser.addoption(
         "--tardis-regression-data",
         default=None,
         help="Path to the TARDIS regression data directory",
@@ -141,17 +139,20 @@ def generate_reference(request):
     option = request.config.getoption("--generate-reference")
     if option is None:
         return False
-    else:
-        return option
+    return option
 
 
 @pytest.fixture(scope="session")
-def tardis_ref_path(request):
-    tardis_ref_path = request.config.getoption("--tardis-refdata")
-    if tardis_ref_path is None:
-        pytest.skip("--tardis-refdata was not specified")
+def tardis_regression_path(request):
+    tardis_regression_path = request.config.getoption(
+        "--tardis-regression-data"
+    )
+    if tardis_regression_path is None:
+        pytest.skip("--tardis-regression-data was not specified")
     else:
-        return Path(os.path.expandvars(os.path.expanduser(tardis_ref_path)))
+        return Path(
+            os.path.expandvars(os.path.expanduser(tardis_regression_path))
+        )
 
 
 @pytest.fixture(scope="session")
