@@ -140,9 +140,7 @@ def trace_packet(
         if tau_trace_combined > tau_event and not disable_line_scattering:
             interaction_type = InteractionType.LINE  # Line
             r_packet.last_interaction_in_nu = r_packet.nu
-            r_packet.last_interaction_in_r = r_packet.r
             r_packet.last_line_interaction_in_id = cur_line_id
-            r_packet.last_line_interaction_shell_id = r_packet.current_shell_id
             r_packet.next_line_id = cur_line_id
             distance = distance_trace
             break

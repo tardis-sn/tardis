@@ -492,6 +492,7 @@ def line_emission(
     """
     r_packet.last_line_interaction_out_id = emission_line_id
     r_packet.last_line_interaction_shell_id = r_packet.current_shell_id
+    r_packet.last_interaction_in_r = r_packet.r
 
     if emission_line_id != r_packet.next_line_id:
         pass
