@@ -1,9 +1,9 @@
 """Utility classes and functions for widgets."""
 
-import logging
-import qgridnext
-import ipywidgets as ipw
 import asyncio
+import logging
+
+import ipywidgets as ipw
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,13 @@ def create_table_widget(
     qgrid.QgridWidget
         Table widget object
     """
+    try:
+        import qgridnext
+    except ModuleNotFoundError as e:
+        logger.exception("qgridnext must be installed via pip for widgets to work.\n \
+                         Run 'pip install qgridnext' inside your tardis environment")
+        raise e
+
     # Setting the options to be used for creating table widgets
     grid_options = {
         "sortable": False,
