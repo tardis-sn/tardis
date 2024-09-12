@@ -11,6 +11,16 @@ LOGGING_LEVELS = {
     "ERROR": logging.ERROR,
     "CRITICAL": logging.CRITICAL,
 }
+
+LOG_LEVEL_COLORS = {
+    logging.INFO: '#D3D3D3',     
+    logging.WARNING: 'orange',
+    logging.ERROR: 'red', 
+    logging.CRITICAL: 'orange',
+    logging.DEBUG: 'blue', 
+    'default': 'black'  
+}
+
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_SPECIFIC_STATE = False
 
@@ -75,20 +85,45 @@ def logging_state(log_level, tardis_config, specific_log_level=None):
             for logger in tardis_loggers:
                 logger.removeFilter(filter)
 
+def create_output_widget(height='300px'):
+    """
+    Creates an Output widget with the specified layout.
+
+    Parameters
+    ----------
+    height : str, optional
+        Height of the widget in pixels, by default '300px'.
+
+    Returns
+    -------
+    ipywidgets.Output
+        Configured Output widget.
+    """
+    return Output(layout=Layout(height=height, overflow_y='auto'))
+
 log_outputs = {
-    "WARNING/ERROR": Output(layout=Layout(height='300px', overflow_y='auto')),
-    "INFO": Output(layout=Layout(height='300px', overflow_y='auto')),
-    "DEBUG": Output(layout=Layout(height='300px', overflow_y='auto')),
-    "ALL": Output(layout=Layout(height='300px', overflow_y='auto'))
+    "WARNING/ERROR": create_output_widget(),
+    "INFO": create_output_widget(),
+    "DEBUG": create_output_widget(),
+    "ALL": create_output_widget()
 }
 
-tab = Tab(children=[log_outputs["WARNING/ERROR"], log_outputs["INFO"], log_outputs["DEBUG"], log_outputs["ALL"]])
-tab.set_title(0, "WARNING/ERROR")
-tab.set_title(1, "INFO")
-tab.set_title(2, "DEBUG")
-tab.set_title(3, "ALL")
+def create_and_display_log_tab(log_outputs):
+    """
+    Creates a Tab widget for logging outputs and displays it.
 
-display(tab)
+    Parameters
+    ----------
+    log_outputs : dict
+        Dictionary containing Output widgets for different log levels.
+    """
+    tab = Tab(children=[log_outputs["WARNING/ERROR"], log_outputs["INFO"], log_outputs["DEBUG"], log_outputs["ALL"]])
+    tab.set_title(0, "WARNING/ERROR")
+    tab.set_title(1, "INFO")
+    tab.set_title(2, "DEBUG")
+    tab.set_title(3, "ALL")
+    
+    display(tab)
 
 def remove_ansi_escape_sequences(text):
     """
@@ -131,18 +166,7 @@ class WidgetHandler(logging.Handler):
         log_entry = self.format(record)
         clean_log_entry = remove_ansi_escape_sequences(log_entry)
 
-        if record.levelno == logging.INFO:
-            color = '#D3D3D3'
-        elif record.levelno == logging.WARNING:
-            color = 'orange'
-        elif record.levelno == logging.ERROR:
-            color = 'red'
-        elif record.levelno == logging.CRITICAL:
-            color = 'orange'
-        elif record.levelno == logging.DEBUG:
-            color = 'blue'
-        else:
-            color = 'black'
+        color = LOG_LEVEL_COLORS.get(record.levelno, LOG_LEVEL_COLORS['default'])
 
         parts = clean_log_entry.split(' ', 2)
         if len(parts) > 2:
@@ -182,6 +206,7 @@ for handler in root_logger.handlers[:]:
 
 logger.addHandler(widget_handler)
 logging.getLogger("py.warnings").addHandler(widget_handler)
+create_and_display_log_tab(log_outputs)
 
 class FilterLog(object):
     """
@@ -210,3 +235,4 @@ class FilterLog(object):
             True if the log record's level is in the specified log_levels, False otherwise.
         """
         return log_record.levelno in self.log_levels
+    

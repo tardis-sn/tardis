@@ -626,34 +626,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log["w"] = dilution_factor
         plasma_state_log["next_w"] = next_dilution_factor
         plasma_state_log.columns.name = "Shell No."
-
-        if False and is_notebook(): #TODO: remove it with something better
-            logger.info("\n\tPlasma stratification:")
-
-            # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
-            if logger.level <= logging.INFO:
-                if not logger.filters:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            "{:.3g}"
-                        )
-                    )
-                elif logger.filters[0].log_level == 20:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            "{:.3g}"
-                        )
-                    )
-        else:
-            output_df = ""
-            plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
-                float_format=lambda x: f"{x:.3g}",
-                justify="center",
-            )
-            for value in plasma_output.split("\n"):
-                output_df = output_df + f"\t{value}\n"
-            logger.info("\n\tPlasma stratification:")
-            logger.info(f"\n{output_df}")
+        
+        output_df = ""
+        plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
+            float_format=lambda x: f"{x:.3g}",
+            justify="center",
+        )
+        for value in plasma_output.split("\n"):
+            output_df = output_df + f"\t{value}\n"
+        logger.info("\n\tPlasma stratification:")
+        logger.info(f"\n{output_df}")
 
         logger.info(
             f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
