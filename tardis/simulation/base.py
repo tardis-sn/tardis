@@ -626,7 +626,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log["w"] = dilution_factor
         plasma_state_log["next_w"] = next_dilution_factor
         plasma_state_log.columns.name = "Shell No."
-        
+
         output_df = ""
         plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
             float_format=lambda x: f"{x:.3g}",
