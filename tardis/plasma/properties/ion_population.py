@@ -465,7 +465,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                 helium_population_updated = self.update_he_population(
                     helium_population, n_electron, number_density
                 )
-                ion_number_density.loc[2, 0] = ion_number_density.loc[2, 0].add(
+                ion_number_density.loc[2, 0] = ion_number_density.loc[2, 0].update(
                         helium_population_updated.loc[0].sum(axis=0),
                         fill_value=0
                     )
