@@ -411,13 +411,19 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
             ] = Configuration.parse_convergence_section(
                 montecarlo_section["convergence_strategy"]
             )
+        elif montecarlo_section["convergence_strategy"]["type"] == "anderson":
+            montecarlo_section[
+                "convergence_strategy"
+            ] = Configuration.parse_convergence_section(
+                montecarlo_section["convergence_strategy"]
+            )
         elif montecarlo_section["convergence_strategy"]["type"] == "custom":
             raise NotImplementedError(
                 'convergence_strategy is set to "custom"; '
                 "you need to implement your specific convergence treatment"
             )
         else:
-            raise ValueError('convergence_strategy is not "damped" or "custom"')
+            raise ValueError('convergence_strategy is not "damped", "anderson", or "custom"')
 
     @staticmethod
     def parse_convergence_section(convergence_section_dict):

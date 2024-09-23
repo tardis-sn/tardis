@@ -627,7 +627,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log["next_w"] = next_dilution_factor
         plasma_state_log.columns.name = "Shell No."
 
-        if is_notebook():
+        if False and is_notebook(): #TODO: remove it with something better
             logger.info("\n\tPlasma stratification:")
 
             # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
