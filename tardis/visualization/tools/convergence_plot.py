@@ -28,14 +28,12 @@ def transition_colors(length, name="jet"):
     -------
     colors: list
     """
-    cmap = mpl.cm.get_cmap(name, length)
+    cmap = mpl.pyplot.get_cmap(name, length)
     colors = []
     for i in range(cmap.N):
         rgb = cmap(i)[:3]
         colors.append(mpl.colors.rgb2hex(rgb))
     return colors
-
-
 class ConvergencePlots(object):
     """
     Create and update convergence plots for visualizing convergence of the simulation.
