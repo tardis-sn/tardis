@@ -1,6 +1,6 @@
 import pytest
+
 import tardis.transport.montecarlo.macro_atom as macro_atom
-import numpy as np
 
 
 @pytest.mark.parametrize(

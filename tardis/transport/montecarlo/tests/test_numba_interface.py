@@ -1,7 +1,8 @@
-import pytest
-import tardis.opacities.opacity_state as numba_interface
-import numpy.testing as npt
 import numpy as np
+import numpy.testing as npt
+import pytest
+
+import tardis.opacities.opacity_state as numba_interface
 
 
 @pytest.mark.parametrize(
