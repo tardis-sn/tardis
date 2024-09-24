@@ -127,9 +127,11 @@ def test_thermal_collision_rates(
     coll_rates_coeff = therm_coll_rate_solver.solve([10000, 20000] * u.K)
     pdt.assert_frame_equal(
         coll_rates_coeff.iloc[:3681],
-        legacy_cmfgen_collision_rate_plasma_solver.coll_exc_rate_coeff,
+        legacy_cmfgen_collision_rate_plasma_solver.coll_exc_coeff,
+        check_names=False,
     )
     pdt.assert_frame_equal(
         coll_rates_coeff.iloc[3681:],
         legacy_cmfgen_collision_rate_plasma_solver.coll_deexc_coeff,
+        check_names=False,
     )
