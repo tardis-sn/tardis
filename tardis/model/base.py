@@ -350,22 +350,22 @@ class SimulationState(HDFWriterMixin):
         )
 
         if hasattr(csvy_model_data, "columns"):
-            abund_names = set(
-                [
+            abund_names = {
+
                     name
                     for name in csvy_model_data.columns
                     if is_valid_nuclide_or_elem(name)
-                ]
-            )
+
+            }
             unsupported_columns = (
                 set(csvy_model_data.columns)
                 - abund_names
                 - CSVY_SUPPORTED_COLUMNS
             )
 
-            field_names = set(
-                [field["name"] for field in csvy_model_config.datatype.fields]
-            )
+            field_names = {
+                field["name"] for field in csvy_model_config.datatype.fields
+            }
             assert (
                 set(csvy_model_data.columns) - field_names == set()
             ), "CSVY columns exist without field descriptions"
