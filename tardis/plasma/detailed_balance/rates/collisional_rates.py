@@ -61,11 +61,11 @@ class ThermalCollisionalRateSolver:
 
         self.g_l = self.levels.loc[
             self.all_collisional_strengths_index.droplevel("level_number_lower")
-        ].energy.values
+        ].g.values
 
         self.g_u = self.levels.loc[
             self.all_collisional_strengths_index.droplevel("level_number_upper")
-        ].energy.values
+        ].g.values
 
         if collisional_strength_approximation == "regemorter":
             self.thermal_collision_strength_approximator = (
@@ -91,7 +91,7 @@ class ThermalCollisionalRateSolver:
 
         collision_rates_coeff_ul = (
             (self.g_u / self.g_l)[np.newaxis].T
-            * boltzmann_factor
+            / boltzmann_factor
             * collision_rates_coeff_lu
         )
 
