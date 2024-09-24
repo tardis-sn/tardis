@@ -264,7 +264,7 @@ class AtomData:
             )
             if nonavailable:
                 logger.info(
-                    "Non provided Atomic Data: {0}".format(
+                    "Non provided Atomic Data: {}".format(
                         ", ".join(nonavailable)
                     )
                 )

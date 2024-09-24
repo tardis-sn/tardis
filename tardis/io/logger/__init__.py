@@ -1,3 +1,3 @@
 """
-Managing the logging output. 
+Managing the logging output.
 """
