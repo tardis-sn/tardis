@@ -1,12 +1,10 @@
-from tardis.io.model.readers.util import read_csv_isotope_mass_fractions
-from tardis.util.base import parse_quantity
-
+import warnings
 
 import pandas as pd
 from astropy import units as u
 
-
-import warnings
+from tardis.io.model.readers.util import read_csv_isotope_mass_fractions
+from tardis.util.base import parse_quantity
 
 
 def read_cmfgen_density(fname: str):
@@ -81,7 +79,6 @@ def read_cmfgen_composition(fname, delimiter=r"\s+"):
     fname : str
         filename of the csv file
     """
-
     warnings.warn(
         "The current CMFGEN model parser is deprecated", DeprecationWarning
     )

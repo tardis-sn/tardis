@@ -1,8 +1,8 @@
+import dataclasses
 import re
+
 import pandas as pd
 from astropy import units as u
-from pathlib import Path
-import dataclasses
 
 
 @dataclasses.dataclass
@@ -26,7 +26,6 @@ def read_cmfgen_model(fname):
 
     Parameters
     ----------
-
     fname : str
 
     Returns

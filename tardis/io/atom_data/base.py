@@ -1,9 +1,9 @@
 import logging
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
 from astropy.units import Quantity
-from dataclasses import dataclass
 
 from tardis import constants as const
 from tardis.io.atom_data.collision_data import (
