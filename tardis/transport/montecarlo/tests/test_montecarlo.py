@@ -589,7 +589,6 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
         (-0.7, 7.5e14, 1 / 5.2e5),
         (0.3, 7.5e14, 1 / 2.2e5),
         (0.0, 7.5e14, 1 / 2.2e5),
-        (-0.7, 7.5e14, 1 / 5.2e5),
     ],
 )
 def test_angle_transformation_invariance(mu, r, inv_t_exp):
