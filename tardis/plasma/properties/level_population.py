@@ -98,5 +98,7 @@ class LevelNumberDensityHeNLTE(LevelNumberDensity):
             partition_function,
         )
         if helium_population_updated is not None:
-            level_number_density.loc[2, helium_population_updated.columns] = helium_population_updated.values
+            level_number_density.loc[
+                2, helium_population_updated.columns
+            ] = helium_population_updated.values
         return level_number_density

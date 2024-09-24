@@ -79,8 +79,9 @@ def test_flux_nu(spectrum):
     else:
         with pytest.raises(AttributeError):
             spectrum.luminosity_to_flux(
-                    spectrum.luminosity_density_nu, spectrum.distance
-                )
+                spectrum.luminosity_density_nu, spectrum.distance
+            )
+
 
 def test_flux_lambda(spectrum):
     if getattr(spectrum, "distance", None) is not None:
@@ -95,8 +96,8 @@ def test_flux_lambda(spectrum):
     else:
         with pytest.raises(AttributeError):
             spectrum.luminosity_to_flux(
-                    spectrum.luminosity_density_nu, spectrum.distance
-                )
+                spectrum.luminosity_density_nu, spectrum.distance
+            )
 
 
 ###

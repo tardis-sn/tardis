@@ -266,14 +266,18 @@ class HDFWriterMixin(object):
                 if value.ndim == 1:
                     # This try,except block is only for model.plasma.levels
                     try:
-                        pd.Series(value).to_hdf(buf, key = os.path.join(path, key))
+                        pd.Series(value).to_hdf(
+                            buf, key=os.path.join(path, key)
+                        )
                     except NotImplementedError:
                         logger.debug(
                             "Could not convert SERIES to HDF. Converting DATAFRAME to HDF"
                         )
-                        pd.DataFrame(value).to_hdf(buf, key = os.path.join(path, key))
+                        pd.DataFrame(value).to_hdf(
+                            buf, key=os.path.join(path, key)
+                        )
                 else:
-                    pd.DataFrame(value).to_hdf(buf, key = os.path.join(path, key))
+                    pd.DataFrame(value).to_hdf(buf, key=os.path.join(path, key))
             else:  # value is a TARDIS object like model, transport or plasma
                 try:
                     value.to_hdf(buf, path, name=key, overwrite=overwrite)
@@ -282,10 +286,10 @@ class HDFWriterMixin(object):
                         "Could not convert VALUE to HDF. Converting DATA (Dataframe) to HDF"
                     )
                     data = pd.DataFrame([value])
-                    data.to_hdf(buf, key = os.path.join(path, key))
+                    data.to_hdf(buf, key=os.path.join(path, key))
 
         if scalars:
-            pd.Series(scalars).to_hdf(buf, key = os.path.join(path, "scalars"))
+            pd.Series(scalars).to_hdf(buf, key=os.path.join(path, "scalars"))
 
         if buf.is_open:
             buf.close()
