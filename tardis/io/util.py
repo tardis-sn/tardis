@@ -382,9 +382,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
             If the HDF file path already exists, whether to overwrite it or not
         """
         self.collection = collection
-        super().to_hdf(
-            file_path_or_buf, path, name, overwrite
-        )
+        super().to_hdf(file_path_or_buf, path, name, overwrite)
 
 
 @lru_cache(maxsize=None)
