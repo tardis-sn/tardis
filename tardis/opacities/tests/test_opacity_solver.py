@@ -3,6 +3,7 @@ import numpy as np
 import numpy.testing as npt
 import pandas.testing as pdt
 from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
 from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 
@@ -38,9 +39,14 @@ def test_opacity_solver(
     if not disable_line_scattering:
         pdt.assert_frame_equal(actual.tau_sobolev, legacy_plasma.tau_sobolevs)
     if line_interaction_type == "scatter":
-        pass  # TODO: Impliment once solver has proper settings
+        pass
     else:
-        macroatom_state = actual.macroatom_state
+        macroatom_state = MacroAtomSolver().solve(
+            legacy_plasma,
+            legacy_plasma.atomic_data,
+            actual.tau_sobolev,
+            legacy_plasma.stimulated_emission_factor,
+        )
         pdt.assert_frame_equal(
             macroatom_state.transition_probabilities,
             legacy_plasma.transition_probabilities,

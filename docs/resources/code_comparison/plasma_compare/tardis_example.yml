@@ -6,7 +6,7 @@ supernova:
   time_explosion: 13 day
   #distance: 24.2 Mpc
 
-# standard atomic data base; get it from the tardis-refdata repository
+# standard atomic data base; get it from the tardis-regression-data repository
 atom_data: kurucz_cd23_chianti_H_He.h5
 
 model:

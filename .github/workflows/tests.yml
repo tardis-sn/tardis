@@ -7,16 +7,16 @@ name: tests
 on:
   push:
     branches:
-    - '*'
+      - "*"
   pull_request:
     branches:
-    - '*'
+      - "*"
     types:
       - opened
       - reopened
       - synchronize
       - labeled
-  workflow_call: # to be called by the pre release workflow
+  workflow_call:
     inputs:
       pip_git:
         description: "Whether or not to install tardis using git"
@@ -26,17 +26,16 @@ on:
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
-  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append 
+  PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 defaults:
   run:
     shell: bash -l {0}
- 
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
-    
 
 jobs:
   tests:
@@ -47,11 +46,11 @@ jobs:
       fail-fast: false
       matrix:
         label: [osx-arm64, linux-64]
-        continuum: ['not', '']
-        rpacket_tracking: ['not', '']
+        continuum: ["not", ""]
+        rpacket_tracking: ["not", ""]
         exclude:
-          - continuum: ''
-            rpacket_tracking: ''
+          - continuum: ""
+            rpacket_tracking: ""
         include:
           - label: osx-arm64
             os: macos-latest
@@ -65,38 +64,44 @@ jobs:
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
-      
+
       - name: Setup environment
         uses: ./.github/actions/setup_env
         with:
           os-label: ${{ matrix.label }}
-      
+
       - name: Install package editable
         if: ${{ !inputs.pip_git }}
         run: |
           pip install -e . --user
-      
+
       - name: Install package git
         if: ${{ inputs.pip_git }}
         run: |
           pip install git+https://github.com/tardis-sn/tardis.git@master
 
+      - name: Install qgridnext
+        if: ${{ !inputs.pip_git }}
+        run: |
+          pip install qgridnext
+
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking" 
-      
-      - name: Refdata Generation tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking" 
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking"
+
+      - name: Regression Data Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum and ${{ matrix.rpacket_tracking }} rpacket_tracking"
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
-      
+
       - run: mv .coverage .coverage.${{ strategy.job-index }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.rpacket_tracking }}-rpacket_tracking-${{ matrix.os }}
+          include-hidden-files: true
           path: |
             .coverage*
             !.coveragerc
-    
+
   combine_coverage_reports:
     needs: [tests]
     if: github.repository_owner == 'tardis-sn'
@@ -110,16 +115,16 @@ jobs:
 
       # will download all artifacts(in this case all are coverage reports)
       - uses: actions/download-artifact@v4
-        with: 
+        with:
           path: .
           merge-multiple: true
-      
+
       - name: Combine coverage reports
         run: |
           coverage combine
           coverage xml
           coverage html
-      
+
       - name: Print report
         run: coverage report
 

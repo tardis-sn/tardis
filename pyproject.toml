@@ -48,7 +48,6 @@ exclude = '''
     | build
     | dist
   )/
-  | setup.py
   | docs/conf.py
   | _astropy_init.py
 )
@@ -56,7 +55,7 @@ exclude = '''
 
 [tool.interrogate]
 color = true
-#exclude = ["setup.py", "docs", "build"]
+#exclude = ["docs", "build"]
 #fail-under = 90
 ignore-init-method = true
 ignore-init-module = true
@@ -134,7 +133,6 @@ lint.ignore = [  # NOTE: non-permanent exclusions should be added to `.ruff.toml
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]
-"setup.py" = ["INP001"]  # Part of configuration, not a package.
 ".github/workflows/*.py" = ["INP001"]
 "test_*.py" = [
     "B018",  # UselessExpression
@@ -217,3 +215,7 @@ sort_commits = "newest"
 [tool.git-cliff.remote.github]
 owner = "tardis-sn"
 repo = "tardis"
+
+[tool.codespell]
+skip = "*.png,*.ggb,*.jpg,*.gif,*.ico,docs/contributing/CHANGELOG.md,docs/tardis.bib"
+quiet-level = 3

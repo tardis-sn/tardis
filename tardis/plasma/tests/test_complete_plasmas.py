@@ -136,8 +136,10 @@ class TestPlasma:
     scalars_properties = ["time_explosion", "link_t_rad_t_electron"]
 
     @pytest.fixture(scope="class")
-    def chianti_he_db_fpath(self, tardis_ref_path):
-        return (tardis_ref_path / "atom_data" / "chianti_He.h5").absolute()
+    def chianti_he_db_fpath(self, tardis_regression_path):
+        return (
+            tardis_regression_path / "atom_data" / "chianti_He.h5"
+        ).absolute()
 
     @pytest.fixture(scope="class", params=CONFIG_LIST, ids=idfn)
     def config(self, request):

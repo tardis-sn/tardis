@@ -3,18 +3,30 @@
     "project": "tardis",
     "project_url": "https://tardis-sn.github.io/tardis",
     "repo": ".",
-    "install_command": ["in-dir={env_dir} python -mpip install {wheel_file}"],
-    "uninstall_command": ["return-code=any python -mpip uninstall -y {project}"],
+    "install_command": [
+        "in-dir={env_dir} python -mpip install {wheel_file}"
+    ],
+    "uninstall_command": [
+        "return-code=any python -mpip uninstall -y {project}"
+    ],
     "build_command": [
-        "python setup.py build",
+        "pip install -e .",
         "PIP_NO_BUILD_ISOLATION=false python -mpip wheel --no-deps --no-index -w {build_cache_dir} {build_dir}"
     ],
-    "branches": ["origin/master", "HEAD"],
+    "branches": [
+        "origin/master",
+        "HEAD"
+    ],
     "environment_type": "mamba",
     "show_commit_url": "https://github.com/tardis-sn/tardis/commit/",
     "conda_environment_file": "tardis_env3.yml",
     "benchmark_dir": "benchmarks",
     "env_dir": ".asv/env",
     "results_dir": ".asv/results",
-    "html_dir": ".asv/html"
+    "html_dir": ".asv/html",
+    "matrix": {
+        "env": {
+            "TARDIS_REF_PATH": "tardis-regression-data/atom_data"
+        }
+    }
 }

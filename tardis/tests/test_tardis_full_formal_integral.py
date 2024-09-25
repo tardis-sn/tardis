@@ -6,7 +6,9 @@ from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.io.configuration.config_reader import Configuration
+from tardis.io.util import HDFWriterMixin
 from tardis.simulation.base import Simulation
+from tardis.tests.fixtures.regression_data import RegressionData
 
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]
@@ -17,7 +19,6 @@ def base_config(request, example_configuration_dir: Path):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_verysimple.yml"
     )
-
     config["plasma"]["line_interaction_type"] = request.param
     config["montecarlo"]["no_of_packets"] = 4.0e4
     config["montecarlo"]["last_no_of_packets"] = 1.0e5
@@ -35,6 +36,14 @@ def config(base_config, request):
     return base_config
 
 
+class SimulationContainer(HDFWriterMixin):
+    hdf_properties = ["spectrum_solver", "transport"]
+
+    def __init__(self, simulation):
+        self.spectrum_solver = simulation.spectrum_solver
+        self.transport = simulation.transport
+
+
 class TestTransportSimpleFormalIntegral:
     """
     Very simple run with the formal integral spectral synthesis method
@@ -43,9 +52,7 @@ class TestTransportSimpleFormalIntegral:
     _name = "test_transport_simple_integral"
 
     @pytest.fixture(scope="class")
-    def simulation(
-        self, config, atomic_data_fname, tardis_ref_data, generate_reference
-    ):
+    def simulation(self, config, atomic_data_fname):
         config.atom_data = atomic_data_fname
 
         self.name = self._name + f"_{config.plasma.line_interaction_type:s}"
@@ -55,54 +62,37 @@ class TestTransportSimpleFormalIntegral:
         simulation = Simulation.from_config(config)
         simulation.run_convergence()
         simulation.run_final()
+        simulation.spectrum_solver.hdf_properties = [
+            "spectrum_real_packets",
+            "spectrum_integrated",
+        ]
+        simulation.transport.hdf_properties = ["transport_state"]
 
-        if not generate_reference:
-            return simulation
-        else:
-            simulation.spectrum_solver.hdf_properties = [
-                "spectrum_real_packets",
-                "spectrum_integrated",
-            ]
-            simulation.spectrum_solver.to_hdf(
-                tardis_ref_data, "", self.name, overwrite=True
-            )
-            simulation.transport.hdf_properties = ["transport_state"]
-            simulation.transport.to_hdf(
-                tardis_ref_data, "", self.name, overwrite=True
-            )
-            pytest.skip("Reference data was generated during this run.")
+        return simulation
 
-    @pytest.fixture(scope="class")
-    def refdata(self, tardis_ref_data):
-        def get_ref_data(key):
-            return tardis_ref_data[f"{self.name}/{key}"]
+    def test_simulation(self, simulation, request):
+        regression_data = RegressionData(request)
+        container = SimulationContainer(simulation)
+        regression_data.sync_hdf_store(container)
 
-        return get_ref_data
-
-    def test_j_blue_estimators(self, simulation, refdata):
-        j_blue_estimator = refdata("transport_state/j_blue_estimator").values
-
-        npt.assert_allclose(
-            simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator,
-            j_blue_estimator,
+    def test_j_blue_estimators(self, simulation, request):
+        regression_data = RegressionData(request)
+        j_blue_estimator = (
+            simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator
         )
+        expected = regression_data.sync_ndarray(j_blue_estimator)
+        npt.assert_allclose(j_blue_estimator, expected)
 
-    def test_spectrum(self, simulation, refdata):
-        luminosity = u.Quantity(
-            refdata("spectrum_real_packets/luminosity"), "erg /s"
-        )
+    def test_spectrum(self, simulation, request):
+        regression_data = RegressionData(request)
+        luminosity = simulation.spectrum_solver.spectrum_real_packets.luminosity
+        expected = regression_data.sync_ndarray(luminosity.cgs.value)
+        expected = u.Quantity(expected, "erg /s")
+        assert_quantity_allclose(luminosity, expected)
 
-        assert_quantity_allclose(
-            simulation.spectrum_solver.spectrum_real_packets.luminosity,
-            luminosity,
-        )
-
-    def test_spectrum_integrated(self, simulation, refdata):
-        luminosity = u.Quantity(
-            refdata("spectrum_integrated/luminosity"), "erg /s"
-        )
-
-        assert_quantity_allclose(
-            simulation.spectrum_solver.spectrum_integrated.luminosity,
-            luminosity,
-        )
+    def test_spectrum_integrated(self, simulation, request):
+        regression_data = RegressionData(request)
+        luminosity = simulation.spectrum_solver.spectrum_integrated.luminosity
+        expected = regression_data.sync_ndarray(luminosity.cgs.value)
+        expected = u.Quantity(expected, "erg /s")
+        assert_quantity_allclose(luminosity, expected)

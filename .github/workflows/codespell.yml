@@ -1,0 +1,39 @@
+name: codespell
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  pull_request_target:
+    branches:
+      - master
+
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request_target'
+
+      - name: Checkout pull/${{ github.event.number }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+        if: github.event_name == 'pull_request_target'
+
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: fetch-env
+          create-args: >-
+            python
+
+      - name: Install Codespell
+        run: pip install codespell
+
+      - name: Run codespell
+        run: |
+          codespell docs/

@@ -1,6 +1,6 @@
 import numpy as np
-from astropy import units as u
 import pandas as pd
+from astropy import units as u
 
 
 def read_artis_density(fname):
@@ -24,7 +24,6 @@ def read_artis_density(fname):
     data : pandas.DataFrame
         data frame containing index, velocity (in km/s) and density
     """
-
     with open(fname) as fh:
         for i, line in enumerate(open(fname)):
             if i == 0:
