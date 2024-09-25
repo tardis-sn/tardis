@@ -7,6 +7,9 @@ import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
+from tardis.opacities.opacity_state import (
+    opacity_state_to_numba,
+)
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
@@ -23,12 +26,9 @@ from tardis.transport.montecarlo.montecarlo_main_loop import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
-from tardis.opacities.opacity_state import (
-    opacity_state_to_numba,
-)
 from tardis.transport.montecarlo.packet_trackers import (
-    generate_rpacket_tracker_list,
     generate_rpacket_last_interaction_tracker_list,
+    generate_rpacket_tracker_list,
     rpacket_trackers_to_dataframe,
 )
 from tardis.util.base import (

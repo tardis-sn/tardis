@@ -6,18 +6,18 @@ import pytest
 
 import tardis.spectrum.formal_integral as formal_integral
 import tardis.transport.montecarlo.r_packet as r_packet
-import tardis.transport.montecarlo.utils as utils
 import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
+import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
-)
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
     angle_aberration_LF_to_CMF,
     get_doppler_factor,
 )
+from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+    RadiationFieldMCEstimators,
+)
+from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -589,7 +589,6 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
         (-0.7, 7.5e14, 1 / 5.2e5),
         (0.3, 7.5e14, 1 / 2.2e5),
         (0.0, 7.5e14, 1 / 2.2e5),
-        (-0.7, 7.5e14, 1 / 5.2e5),
     ],
 )
 def test_angle_transformation_invariance(mu, r, inv_t_exp):
