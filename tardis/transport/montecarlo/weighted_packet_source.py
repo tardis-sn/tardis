@@ -1,11 +1,6 @@
-import numexpr as ne
-import numpy as np
-from astropy import constants as const
 from astropy import units as u
 
 from tardis.transport.montecarlo.packet_source import (
-    BasePacketSource,
-    HDFWriterMixin,
     BlackBodySimpleSource,
 )
 from tardis.util.base import intensity_black_body
