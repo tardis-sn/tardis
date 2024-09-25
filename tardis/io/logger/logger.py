@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from tardis.io.logger.colored_logger import ColoredFormatter, formatter_message
+from tardis.io.logger.colored_logger import ColoredFormatter
 
 logging.captureWarnings(True)
 logger = logging.getLogger("tardis")
@@ -25,7 +25,7 @@ DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_SPECIFIC_STATE = False
 
 
-class FilterLog(object):
+class FilterLog:
     """
     Filter Log Class for Filtering Logging Output
     to a particular level
@@ -77,7 +77,6 @@ def logging_state(log_level, tardis_config, specific_log_level):
     specific_log_level: boolean
         Allows to set specific logging levels. Logs of the `log_level` level would be output.
     """
-
     if "debug" in tardis_config:
         specific_log_level = (
             tardis_config["debug"]["specific_log_level"]
@@ -115,7 +114,7 @@ def logging_state(log_level, tardis_config, specific_log_level):
             specific_log_level = tardis_config["debug"]["specific_log_level"]
 
     logging_level = logging_level.upper()
-    if not logging_level in LOGGING_LEVELS:
+    if logging_level not in LOGGING_LEVELS:
         raise ValueError(
             f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
         )
