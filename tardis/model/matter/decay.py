@@ -17,7 +17,7 @@ class IsotopicMassFraction(pd.DataFrame):
             kwargs.pop("time_0")
         else:
             time_0 = 0 * u.d
-        super(IsotopicMassFraction, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.time_0 = time_0
 
     @property
@@ -25,7 +25,7 @@ class IsotopicMassFraction(pd.DataFrame):
         return IsotopicMassFraction
 
     def _update_inventory(self):
-        self.comp_dicts = [dict() for i in range(len(self.columns))]
+        self.comp_dicts = [{} for i in range(len(self.columns))]
         for (atomic_number, mass_number), mass_fractions in self.iterrows():
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
             for i in range(len(self.columns)):
@@ -33,7 +33,7 @@ class IsotopicMassFraction(pd.DataFrame):
 
     @classmethod
     def from_inventories(cls, inventories):
-        multi_index_tuples = set([])
+        multi_index_tuples = set()
         for inventory in inventories:
             multi_index_tuples.update(
                 [cls.id_to_tuple(key) for key in inventory.contents.keys()]
@@ -68,7 +68,7 @@ class IsotopicMassFraction(pd.DataFrame):
         list
             list of radioactivedecay Inventories
         """
-        comp_dicts = [dict() for i in range(len(self.columns))]
+        comp_dicts = [{} for i in range(len(self.columns))]
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
             for i in range(len(self.columns)):
