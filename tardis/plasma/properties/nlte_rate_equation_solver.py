@@ -552,7 +552,7 @@ def calculate_first_guess(
     """
     first_guess = pd.Series(0.0, index=rate_matrix_index)
     for atomic_number in atomic_numbers:
-        first_guess.loc[(atomic_number, 1)].iloc[0] = number_density.loc[
+        first_guess.at[(atomic_number, 1)] = number_density.loc[
             atomic_number
         ]
     # TODO: After the first iteration, the new guess can be the old solution.
@@ -935,7 +935,7 @@ def ion_matrix(ion_coefficients, atomic_number, ion_number):
     offdiag = np.zeros(atomic_number)
     index = ion_coefficients.index
     for i in index:
-        offdiag[i] = ion_coefficients.loc[i]
+        offdiag[i] = float(ion_coefficients.loc[i].iloc[0])
     diag = np.hstack([-offdiag, np.zeros(1)])
     return (np.diag(diag) + np.diag(offdiag, k=-1))[ion_number, :]
 
@@ -959,7 +959,7 @@ def recomb_matrix(recomb_coefficients, atomic_number, ion_number):
     offdiag = np.zeros(atomic_number)
     index = recomb_coefficients.index
     for i in index:
-        offdiag[i] = recomb_coefficients.loc[i]
+        offdiag[i] = float(recomb_coefficients.loc[i].values[0])
     diag = np.hstack([np.zeros(1), -offdiag])
     return (np.diag(diag) + np.diag(offdiag, k=1))[ion_number, :]
 
