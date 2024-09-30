@@ -8,13 +8,16 @@ on:
   pull_request_target:
     branches: [master]
     types: [closed]
+  pull_request:
+    branches:
+    - '*'
 
   workflow_dispatch: # manual trigger
 
 jobs:
   create:
-    if: github.event_name == 'workflow_dispatch' ||
-      (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
+    # if: github.event_name == 'workflow_dispatch' ||
+    #   (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
 
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +31,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install setuptools_scm
-        run: pip install "setuptools_scm<7" git-cliff
+        run: pip install "setuptools_scm<7" git-cliff==2.6.1
 
       - name: Show current version
         run: python .ci-helpers/get_current_version.py
