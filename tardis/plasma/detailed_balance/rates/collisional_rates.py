@@ -5,6 +5,7 @@ from astropy import units as u
 from tardis import constants as const
 from tardis.plasma.detailed_balance.rates.collision_strengths import (
     UpsilonCMFGENSolver,
+    UpsilonChiantiSolver,
     UpsilonRegemorterSolver,
 )
 
@@ -14,7 +15,6 @@ BETA_COLL = (
 
 
 class ThermalCollisionalRateSolver:
-
     def __init__(
         self,
         levels,
@@ -25,9 +25,14 @@ class ThermalCollisionalRateSolver:
         collisional_strength_approximation="regemorter",
     ):
         self.levels = levels
-        if collision_strengths_type == "cmfgen":
+        self.collision_strengths_type = collision_strengths_type
+        if self.collision_strengths_type == "cmfgen":
             self.thermal_collision_strength_solver = UpsilonCMFGENSolver(
                 thermal_collisional_strengths_temperatures,
+                thermal_collisional_strengths,
+            )
+        elif self.collision_strengths_type == "chianti":
+            self.thermal_collision_strength_solver = UpsilonChiantiSolver(
                 thermal_collisional_strengths,
             )
         else:

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 from scipy.special import exp1
-from scipy.interpolate import PchipInterpolator
+from scipy.interpolate import PchipInterpolator, splrep, splev
 
 from tardis import constants as const
 
@@ -52,6 +52,7 @@ class CollisionalCrossSections:
 
 N_A = const.N_A.cgs.value
 K_B = const.k_B.cgs.value
+K_B_EV = const.k_B.cgs.to("eV / K").value
 C = const.c.cgs.value
 H = const.h.cgs.value
 A0 = const.a0.cgs.value
@@ -106,8 +107,9 @@ class UpsilonCMFGENSolver:
         upsilon_temperatures,
         upsilon_g_data,
     ):
-        # upsilon_g_data.columns = upsilon_temperatures
         self.upsilon_lu_data = upsilon_g_data
+
+        # can produce upsilon/g or not, depending on how easy it is
         self.upsilon_g_lu_interpolator = PchipInterpolator(
             upsilon_temperatures,
             self.upsilon_lu_data.values,
@@ -118,6 +120,66 @@ class UpsilonCMFGENSolver:
     def solve(self, t_electrons):
         return pd.DataFrame(
             self.upsilon_g_lu_interpolator(t_electrons),
+            index=self.upsilon_lu_data.index,
+        )
+
+
+class UpsilonChiantiSolver:
+    def __init__(
+        self,
+        upsilon_data,
+    ):
+        self.upsilon_lu_data = upsilon_data
+
+    def upsilon_scaling(self, row, t_electrons):
+        c = row["cups"]
+        x_knots = np.linspace(0, 1, len(row["btemp"]))
+        y_knots = row["bscups"]
+        delta_e = row["delta_e"]
+        g_l = row["g_l"]
+
+        ttype = row["ttype"]
+        if ttype > 5:
+            ttype -= 5
+
+        kt = K_B_EV * t_electrons
+
+        spline_tck = splrep(x_knots, y_knots)
+
+        if ttype == 1:
+            x = 1 - np.log(c) / np.log(kt / delta_e + c)
+            y_func = splev(x, spline_tck)
+            upsilon = y_func * np.log(kt / delta_e + np.exp(1))
+
+        elif ttype == 2:
+            x = (kt / delta_e) / (kt / delta_e + c)
+            y_func = splev(x, spline_tck)
+            upsilon = y_func
+
+        elif ttype == 3:
+            x = (kt / delta_e) / (kt / delta_e + c)
+            y_func = splev(x, spline_tck)
+            upsilon = y_func / (kt / delta_e + 1)
+
+        elif ttype == 4:
+            x = 1 - np.log(c) / np.log(kt / delta_e + c)
+            y_func = splev(x, spline_tck)
+            upsilon = y_func * np.log(kt / delta_e + c)
+
+        elif ttype == 5:
+            raise ValueError("Not sure what to do with ttype=5")
+
+        upsilon_g_lu = upsilon / g_l
+        return pd.Series(data=upsilon_g_lu, name="upsilon_g")
+
+    def solve(self, t_electrons):
+        upsilon_g_lu = self.upsilon_lu_data.apply(
+            self.upsilon_scaling,
+            axis=1,
+            args=(t_electrons.value,),
+        )
+        return pd.DataFrame(
+            upsilon_g_lu,
             index=self.upsilon_lu_data.index,
         )
 
