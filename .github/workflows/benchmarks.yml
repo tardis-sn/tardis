@@ -68,9 +68,6 @@ jobs:
             asv
             mamba
 
-      - name: Install asv
-        run: pip install asv
-
       - name: Accept all asv questions
         run: asv machine --yes
 
