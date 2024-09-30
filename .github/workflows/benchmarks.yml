@@ -65,11 +65,10 @@ jobs:
             bash
           create-args: >-
             python
-            asv
+            asv=0.6.4
             mamba
-
-      - name: Install asv
-        run: pip install asv
+            conda-build
+            conda
 
       - name: Accept all asv questions
         run: asv machine --yes
