@@ -68,6 +68,7 @@ jobs:
             asv
             mamba
             conda-build
+            conda
 
       - name: Accept all asv questions
         run: asv machine --yes
