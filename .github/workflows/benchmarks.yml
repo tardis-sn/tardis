@@ -65,7 +65,7 @@ jobs:
             bash
           create-args: >-
             python
-            asv
+            asv=0.6.4
             mamba
             conda-build
             conda
