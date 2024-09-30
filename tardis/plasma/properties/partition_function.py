@@ -251,7 +251,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                         )
                     else:
                         raise e
-                general_level_boltzmann_factor[i].loc[species] = (
+                general_level_boltzmann_factor.loc[species, i] = (
                     level_boltzmann_factor
                     * g.loc[species][0]
                     / level_boltzmann_factor[0]

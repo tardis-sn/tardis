@@ -28,7 +28,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install setuptools_scm
-        run: pip install 'setuptools_scm<7'
+        run: pip install "setuptools_scm<7" git-cliff==2.6.1
 
       - name: Show current version
         run: python .ci-helpers/get_current_version.py
@@ -37,6 +37,13 @@ jobs:
         run: |
           python .ci-helpers/get_next_version.py
           echo "NEW_TAG=$(python .ci-helpers/get_next_version.py)" >> $GITHUB_ENV
+
+      - name: Generate and process changelog
+        run: |
+          CHANGELOG=$(git cliff --config pyproject.toml --unreleased | sed -n '/^## Changelog/,$p' | grep -vE '^(ERROR|WARN)')
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create new release
         uses: softprops/action-gh-release@v1
@@ -47,9 +54,12 @@ jobs:
           prerelease: false
           body: |
             This release has been created automatically by the TARDIS continuous delivery pipeline.
-
+            
+            ${{ env.CHANGELOG }}
+            
             A complete list of changes for this release is available at [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).
           files: |
+            conda-osx-arm64.lock
             conda-linux-64.lock
             conda-osx-64.lock
             conda-lock.yml
