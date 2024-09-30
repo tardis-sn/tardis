@@ -72,7 +72,8 @@ jobs:
       - name: Copy zenodo.json to repository
         run: |
           cp /tmp/zenodo_json/.zenodo.json .
-
+        continue-on-error: true
+        
       - name: Get current date
         run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
 
