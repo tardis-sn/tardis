@@ -125,6 +125,8 @@ class UpsilonCMFGENSolver:
 
 
 class UpsilonChiantiSolver:
+    """Solver for Upsilon / g_i for Chianti data."""
+
     def __init__(
         self,
         upsilon_data,
@@ -132,47 +134,85 @@ class UpsilonChiantiSolver:
         self.upsilon_lu_data = upsilon_data
 
     def upsilon_scaling(self, row, t_electrons):
-        c = row["cups"]
+        """Scales Upsilon from Chianti data using equations
+        23-38 from Burgess & Tully 1992 - A&A 254, 436B.
+
+        Parameters
+        ----------
+        row : pd.Series
+            DataFrame row of Chianti collisional data
+        t_electrons : np.ndarray
+            1D array of electron temperatures to interpolate over
+
+        Returns
+        -------
+        pd.Series
+            Scaled Upsilon / g_lower
+
+        Raises
+        ------
+        ValueError
+            Incorrect scaling type provided
+        """
+        scaling_constant = row["cups"]
         x_knots = np.linspace(0, 1, len(row["btemp"]))
         y_knots = row["bscups"]
-        delta_e = row["delta_e"]
-        g_l = row["g_l"]
+        delta_energy = row["delta_energy"]
+        g_lower = row["g_l"]
 
-        ttype = row["ttype"]
-        if ttype > 5:
-            ttype -= 5
+        scaling_type = row["ttype"]
+        if scaling_type > 5:
+            scaling_type -= 5
 
         kt = K_B_EV * t_electrons
 
         spline_tck = splrep(x_knots, y_knots)
 
-        if ttype == 1:
-            x = 1 - np.log(c) / np.log(kt / delta_e + c)
+        if scaling_type == 1:
+            x = 1 - np.log(scaling_constant) / np.log(
+                kt / delta_energy + scaling_constant
+            )
             y_func = splev(x, spline_tck)
-            upsilon = y_func * np.log(kt / delta_e + np.exp(1))
+            upsilon = y_func * np.log(kt / delta_energy + np.exp(1))
 
-        elif ttype == 2:
-            x = (kt / delta_e) / (kt / delta_e + c)
+        elif scaling_type == 2:
+            x = (kt / delta_energy) / (kt / delta_energy + scaling_constant)
             y_func = splev(x, spline_tck)
             upsilon = y_func
 
-        elif ttype == 3:
-            x = (kt / delta_e) / (kt / delta_e + c)
+        elif scaling_type == 3:
+            x = (kt / delta_energy) / (kt / delta_energy + scaling_constant)
             y_func = splev(x, spline_tck)
-            upsilon = y_func / (kt / delta_e + 1)
+            upsilon = y_func / (kt / delta_energy + 1)
 
-        elif ttype == 4:
-            x = 1 - np.log(c) / np.log(kt / delta_e + c)
+        elif scaling_type == 4:
+            x = 1 - np.log(scaling_constant) / np.log(
+                kt / delta_energy + scaling_constant
+            )
             y_func = splev(x, spline_tck)
-            upsilon = y_func * np.log(kt / delta_e + c)
+            upsilon = y_func * np.log(kt / delta_energy + scaling_constant)
 
-        elif ttype == 5:
-            raise ValueError("Not sure what to do with ttype=5")
+        elif scaling_type > 4:
+            raise ValueError(
+                "Not sure what to do with scaling type greater than 4"
+            )
 
-        upsilon_g_lu = upsilon / g_l
+        upsilon_g_lu = upsilon / g_lower
         return pd.Series(data=upsilon_g_lu, name="upsilon_g")
 
     def solve(self, t_electrons):
+        """Solve the Upsilon / g_lower collisional values for arbitrary temperatures.
+
+        Parameters
+        ----------
+        t_electrons : np.ndarray
+            1D array of electron temperatures to interpolate over
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame with columns of Upsilon / g_lower per transition and temperature.
+        """
         upsilon_g_lu = self.upsilon_lu_data.apply(
             self.upsilon_scaling,
             axis=1,
