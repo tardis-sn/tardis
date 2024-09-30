@@ -47,9 +47,10 @@ def create_table_widget(
     except ModuleNotFoundError as e:
         logger.exception(
             "qgridnext must be installed via pip for widgets to work.\n \
-                         Run 'pip install qgridnext' inside your tardis environment"
+            Run 'pip install qgridnext' inside your tardis environment.\n \
+            Falling back to qgrid"
         )
-        raise e
+        import qgrid as qgridnext
 
     # Setting the options to be used for creating table widgets
     grid_options = {
