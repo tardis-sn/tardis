@@ -1229,7 +1229,7 @@ class SDECPlotter:
         # Get the labels in the color bar. This determines the number of unique colors
         self._make_colorbar_labels()
         # Set colormap to be used in elements of emission and absorption plots
-        self.cmap = cm.get_cmap(cmapname, len(self._species_name))
+        self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unqie colors
         self._make_colorbar_colors()
         self._show_colorbar_mpl()
@@ -1629,7 +1629,7 @@ class SDECPlotter:
         # Get the labels in the color bar. This determines the number of unique colors
         self._make_colorbar_labels()
         # Set colormap to be used in elements of emission and absorption plots
-        self.cmap = cm.get_cmap(cmapname, len(self._species_name))
+        self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unique colors
         self._make_colorbar_colors()
 
