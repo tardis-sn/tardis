@@ -130,8 +130,12 @@ class StandardTARDISWorkflow(
             )
         )
 
-        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        estimated_t_radiative = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
 
         emitted_luminosity = calculate_filtered_luminosity(
             transport_state.emitted_packet_nu,
