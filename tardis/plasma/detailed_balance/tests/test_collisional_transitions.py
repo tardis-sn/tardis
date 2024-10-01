@@ -7,6 +7,7 @@ import pandas.testing as pdt
 import pytest
 from astropy import units as u
 
+from tardis.io.atom_data import AtomData
 from tardis.plasma.assembly.base import (
     PlasmaSolverFactory,
     convert_species_to_multi_index,
@@ -64,6 +65,22 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
     )
 
 
+@pytest.fixture
+def chianti_atomic_dataset(tardis_regression_path):
+    atomic_data_fname = (
+        tardis_regression_path / "atom_data" / "kurucz_atom_chianti_many.h5"
+    )
+    return AtomData.from_hdf(atomic_data_fname)
+
+
+@pytest.fixture
+def legacy_chianti_collision_rate_plasma_solver(chianti_atomic_dataset):
+    chianti_atomic_dataset.prepare_atom_data([1], "macroatom", [(1, 0)], [])
+    return chianti_atomic_dataset.nlte_data.get_collision_matrix(
+        (1, 0), np.array([10000, 20000])
+    )
+
+
 def test_legacy_cmfgen_collisional_strengths(
     legacy_cmfgen_collision_rate_plasma_solver,
     nlte_atomic_dataset,
@@ -96,8 +113,6 @@ def test_legacy_cmfgen_collisional_strengths(
     npt.assert_allclose(
         new_regemorter_collision_strengths.values,
         approximated_cmfgen_yg_data,
-        rtol=1e-7,
-        atol=0,
     )  # residuals are ~1e-8 not sure if that is good enough
     # Not comparing to the yg_data as they are saved differently
 
@@ -134,4 +149,35 @@ def test_thermal_collision_rates(
         coll_rates_coeff.iloc[3681:],
         legacy_cmfgen_collision_rate_plasma_solver.coll_deexc_coeff,
         check_names=False,
+    )
+
+
+# Add chianti tests
+def test_legacy_chianti_collisional_strengths(
+    legacy_chianti_collision_rate_plasma_solver,
+    chianti_atomic_dataset,
+    regression_data,
+):
+    collision_strengths = legacy_chianti_collision_rate_plasma_solver
+    atom_data = copy.deepcopy(chianti_atomic_dataset)
+
+    temperature = np.array([10000, 20000]) * u.K
+
+    col_strengths = atom_data.collision_data.loc[
+        (1, 0, slice(None), slice(None)), :
+    ]
+    radiative_transitions = chianti_atomic_dataset.lines.loc[
+        (1, 0, slice(None), slice(None)), :
+    ]
+    collisional_rate_solver = ThermalCollisionalRateSolver(
+        atom_data.levels,
+        radiative_transitions,
+        temperature,
+        col_strengths,
+        "chianti",
+    )
+    chianti_collisional_rates = collisional_rate_solver.solve(temperature)
+
+    npt.assert_allclose(
+        collision_strengths[0, 1, :], chianti_collisional_rates.loc[1, 0, 1, 0]
     )
