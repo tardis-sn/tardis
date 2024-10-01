@@ -157,7 +157,7 @@ class UpsilonChiantiSolver:
         scaling_constant = row["cups"]
         x_knots = np.linspace(0, 1, len(row["btemp"]))
         y_knots = row["bscups"]
-        delta_energy = row["delta_energy"]
+        delta_energy = row["delta_e"]
         g_lower = row["g_l"]
 
         scaling_type = row["ttype"]
