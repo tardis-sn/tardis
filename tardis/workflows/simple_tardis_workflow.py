@@ -6,10 +6,12 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
-from tardis.io.atom_data.base import AtomData
+from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
@@ -24,7 +26,7 @@ from tardis.workflows.workflow_logging import WorkflowLogging
 logger = logging.getLogger(__name__)
 
 
-class SimpleSimulation(WorkflowLogging):
+class SimpleTARDISWorkflow(WorkflowLogging):
     show_progress_bars = is_notebook()
     enable_virtual_packet_logging = False
     log_level = None
@@ -32,13 +34,30 @@ class SimpleSimulation(WorkflowLogging):
 
     def __init__(self, configuration):
         super().__init__(configuration, self.log_level, self.specific_log_level)
-        atom_data = self._get_atom_data(configuration)
+        atom_data = parse_atom_data(configuration)
+
+        self.line_interaction_type = configuration.plasma.line_interaction_type
 
         # set up states and solvers
         self.simulation_state = SimulationState.from_config(
             configuration,
             atom_data=atom_data,
         )
+
+        self.opacity_state = None
+        self.opacity_solver = OpacitySolver(
+            self.line_interaction_type,
+            configuration.plasma.disable_line_scattering,
+        )
+
+        self.macro_atom_state = None
+        if self.line_interaction_type in (
+            "downbranch",
+            "macroatom",
+        ):
+            self.macro_atom_solver = MacroAtomSolver()
+        else:
+            self.macro_atom_solver = None
 
         self.plasma_solver = assemble_plasma(
             configuration,
@@ -117,49 +136,6 @@ class SimpleSimulation(WorkflowLogging):
             self.convergence_strategy.t_inner
         )
 
-    def _get_atom_data(self, configuration):
-        """Process atomic data from the configuration
-
-        Parameters
-        ----------
-        configuration : Configuration
-            TARDIS configuration object
-
-        Returns
-        -------
-        AtomData
-            Atomic data object
-
-        Raises
-        ------
-        ValueError
-            If atom data is missing from the configuration
-        """
-        if "atom_data" in configuration:
-            if Path(configuration.atom_data).is_absolute():
-                atom_data_fname = Path(configuration.atom_data)
-            else:
-                atom_data_fname = (
-                    Path(configuration.config_dirname) / configuration.atom_data
-                )
-
-        else:
-            raise ValueError("No atom_data option found in the configuration.")
-
-        logger.info(f"\n\tReading Atomic Data from {atom_data_fname}")
-
-        try:
-            atom_data = AtomData.from_hdf(atom_data_fname)
-        except TypeError:
-            logger.exception(
-                "TypeError might be from the use of an old-format of the atomic database, \n"
-                "please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data"
-                " for the most recent version.",
-            )
-            raise
-
-        return atom_data
-
     def get_convergence_estimates(self, transport_state):
         """Compute convergence estimates from the transport state
 
@@ -185,12 +161,8 @@ class SimpleSimulation(WorkflowLogging):
             )
         )
 
-        estimated_t_radiative = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        )
-        estimated_dilution_factor = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
-        )
+        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         emitted_luminosity = calculate_filtered_luminosity(
             transport_state.emitted_packet_nu,
@@ -369,6 +341,8 @@ class SimpleSimulation(WorkflowLogging):
         """
         transport_state = self.transport_solver.initialize_transport_state(
             self.simulation_state,
+            self.opacity_state,
+            self.macro_atom_state,
             self.plasma_solver,
             no_of_real_packets,
             no_of_virtual_packets=no_of_virtual_packets,
@@ -406,9 +380,9 @@ class SimpleSimulation(WorkflowLogging):
         self.spectrum_solver.transport_state = transport_state
 
         if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[
-                :
-            ] = virtual_packet_energies
+            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
+                virtual_packet_energies
+            )
 
         if self.integrated_spectrum_settings is not None:
             # Set up spectrum solver integrator
@@ -426,6 +400,17 @@ class SimpleSimulation(WorkflowLogging):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
+
+            self.opacity_state = self.opacity_solver.solve(self.plasma_solver)
+
+            if self.macro_atom_solver is not None:
+                self.macro_atom_state = self.macro_atom_solver.solve(
+                    self.plasma_solver,
+                    self.plasma_solver.atomic_data,
+                    self.opacity_state.tau_sobolev,
+                    self.plasma_solver.stimulated_emission_factor,
+                )
+
             transport_state, virtual_packet_energies = self.solve_montecarlo(
                 self.real_packet_count
             )

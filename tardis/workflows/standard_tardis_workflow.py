@@ -7,14 +7,14 @@ from tardis.spectrum.luminosity import (
 )
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
-from tardis.workflows.simple_simulation import SimpleSimulation
+from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 
 # logging support
 logger = logging.getLogger(__name__)
 
 
-class StandardSimulation(
-    SimpleSimulation, PlasmaStateStorerMixin, HDFWriterMixin
+class StandardTARDISWorkflow(
+    SimpleTARDISWorkflow, PlasmaStateStorerMixin, HDFWriterMixin
 ):
     convergence_plots = None
     export_convergence_plots = False
@@ -46,7 +46,7 @@ class StandardSimulation(
         self.enable_virtual_packet_logging = enable_virtual_packet_logging
         self.convergence_plots_kwargs = convergence_plots_kwargs
 
-        SimpleSimulation.__init__(self, configuration)
+        SimpleTARDISWorkflow.__init__(self, configuration)
 
         # set up plasma storage
         PlasmaStateStorerMixin.__init__(
@@ -130,12 +130,8 @@ class StandardSimulation(
             )
         )
 
-        estimated_t_radiative = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        )
-        estimated_dilution_factor = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
-        )
+        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         emitted_luminosity = calculate_filtered_luminosity(
             transport_state.emitted_packet_nu,
@@ -222,6 +218,17 @@ class StandardSimulation(
                 self.plasma_solver.electron_densities,
                 self.simulation_state.t_inner,
             )
+
+            self.opacity_state = self.opacity_solver.solve(self.plasma_solver)
+
+            if self.macro_atom_solver is not None:
+                self.macro_atom_state = self.macro_atom_solver.solve(
+                    self.plasma_solver,
+                    self.plasma_solver.atomic_data,
+                    self.opacity_state.tau_sobolev,
+                    self.plasma_solver.stimulated_emission_factor,
+                )
+
             transport_state, virtual_packet_energies = self.solve_montecarlo(
                 self.real_packet_count
             )
