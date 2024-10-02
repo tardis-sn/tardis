@@ -138,7 +138,7 @@ def yaml_load_file(filename, loader=yaml.Loader):
         return yaml.load(stream, Loader=loader)
 
 
-def _parse_species_list(self, species_list, packets_mode, nelements=None):
+def parse_species_list(self, species_list, packets_mode, nelements=None):
         """
         Parse user requested species list and create list of species ids to be used.
 
@@ -159,7 +159,6 @@ def _parse_species_list(self, species_list, packets_mode, nelements=None):
             If species list contains invalid entries.
 
         """
-        from tardis.util.base import atomic_number2element_symbol  
         self.sdec_plotter._parse_species_list(species_list)
         self._species_list = self.sdec_plotter._species_list
         self._species_mapped = self.sdec_plotter._species_mapped
