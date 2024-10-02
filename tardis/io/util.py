@@ -159,7 +159,7 @@ def parse_species_list(self, species_list, packets_mode, nelements=None):
             If species list contains invalid entries.
 
         """
-        self.sdec_plotter._parse_species_list(species_list)
+        self.sdec_plotter.parse_species_list(species_list)
         self._species_list = self.sdec_plotter._species_list
         self._species_mapped = self.sdec_plotter._species_mapped
         self._keep_colour = self.sdec_plotter._keep_colour
@@ -179,7 +179,7 @@ def parse_species_list(self, species_list, packets_mode, nelements=None):
                 atomic_number2element_symbol(element)
                 for element in top_elements
             ]
-            self._parse_species_list(top_species_list, packets_mode)
+            self.parse_species_list(top_species_list, packets_mode)
             
             
 def traverse_configs(base, other, func, *args):
