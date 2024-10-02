@@ -99,49 +99,6 @@ class LIVPlotter:
                 velocity,
             )
 
-    def _parse_species_list(self, species_list, packets_mode, nelements=None):
-        """
-        Parse user requested species list and create list of species ids to be used.
-
-        Parameters
-        ----------
-        species_list : list of species to plot
-            List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
-            Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
-            (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
-        packets_mode : str, optional
-            Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
-        nelements : int, optional
-            Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
-
-        Raises
-        ------
-        ValueError
-            If species list contains invalid entries.
-
-        """
-        self.sdec_plotter._parse_species_list(species_list)
-        self._species_list = self.sdec_plotter._species_list
-        self._species_mapped = self.sdec_plotter._species_mapped
-        self._keep_colour = self.sdec_plotter._keep_colour
-
-        if nelements:
-            interaction_counts = (
-                self.data[packets_mode]
-                .packets_df_line_interaction["last_line_interaction_species"]
-                .value_counts()
-            )
-            interaction_counts.index = interaction_counts.index // 100
-            element_counts = interaction_counts.groupby(
-                interaction_counts.index
-            ).sum()
-            top_elements = element_counts.nlargest(nelements).index
-            top_species_list = [
-                atomic_number2element_symbol(element)
-                for element in top_elements
-            ]
-            self._parse_species_list(top_species_list, packets_mode)
-
     def _make_colorbar_labels(self):
         """
         Generate labels for the colorbar based on species.
