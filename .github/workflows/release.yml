@@ -90,4 +90,5 @@ jobs:
             conda-linux-64.lock
             conda-osx-64.lock
             conda-lock.yml
+          fail_on_unmatched_files: false
           draft: false
