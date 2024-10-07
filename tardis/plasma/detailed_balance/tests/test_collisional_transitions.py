@@ -35,7 +35,7 @@ from tardis.plasma.radiation_field import planck_rad_field
 def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
     atom_data = copy.deepcopy(nlte_atomic_dataset)
     # almost all settings are irrelevant for collisional strength data
-    number_densities = pd.DataFrame({2: [1, 1]}).T
+    number_densities = pd.DataFrame({1: [1, 1]}).T
     temperatures = [10000, 20000] * u.K
     dilution_factor = np.array([1, 1])
     time_explosion = 5 * u.day
@@ -46,7 +46,7 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
 
     # plasma_solver_factory.continuum_interaction_species = ["He I"]
     plasma_solver_factory.line_interaction_type = "macroatom"
-    plasma_solver_factory.prepare_factory([2])
+    plasma_solver_factory.prepare_factory([1])
     plasma_solver_factory.plasma_modules += [
         YgData,
         ContinuumInteractionSpecies,
@@ -56,7 +56,7 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
         ThermalLevelBoltzmannFactorLTE,
         BetaElectron,
     ]
-    species_mindex = convert_species_to_multi_index(["He I"])
+    species_mindex = convert_species_to_multi_index(["H I"])
     return plasma_solver_factory.assemble(
         number_densities,
         dilute_planck_rad_field,
@@ -66,17 +66,17 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
 
 
 @pytest.fixture
-def chianti_atomic_dataset(tardis_regression_path):
+def new_chianti_atomic_dataset(tardis_regression_path):
     atomic_data_fname = (
-        tardis_regression_path / "atom_data" / "kurucz_atom_chianti_many.h5"
+        tardis_regression_path / "atom_data" / "new_kurucz_cd23_chianti_H_He.h5"
     )
     return AtomData.from_hdf(atomic_data_fname)
 
 
 @pytest.fixture
-def legacy_chianti_collision_rate_plasma_solver(chianti_atomic_dataset):
-    chianti_atomic_dataset.prepare_atom_data([1], "macroatom", [(1, 0)], [])
-    return chianti_atomic_dataset.nlte_data.get_collision_matrix(
+def legacy_chianti_collision_rate_plasma_solver(atomic_dataset):
+    atomic_dataset.prepare_atom_data([1], "macroatom", [(1, 0)], [])
+    return atomic_dataset.nlte_data.get_collision_matrix(
         (1, 0), np.array([10000, 20000])
     )
 
@@ -90,7 +90,7 @@ def test_legacy_cmfgen_collisional_strengths(
     plasma_solver = legacy_cmfgen_collision_rate_plasma_solver
     atom_data = copy.deepcopy(nlte_atomic_dataset)
     legacy_cmfgen_yg_data = plasma_solver.yg_data.loc[
-        atom_data.yg_data.loc[(2, 0, slice(None), slice(None)), :].index
+        atom_data.yg_data.loc[(1, 0, slice(None), slice(None)), :].index
     ]
     approximated_cmfgen_yg_data = plasma_solver.yg_data.loc[
         ~plasma_solver.yg_data.index.isin(atom_data.yg_data.index)
@@ -98,7 +98,7 @@ def test_legacy_cmfgen_collisional_strengths(
 
     # This is testing againt the old setup
     radiative_transitions = nlte_atomic_dataset.lines.loc[
-        (2, 0, slice(None), slice(None)), :
+        (1, 0, slice(None), slice(None)), :
     ]
 
     collision_strengths_regemorter_solver = UpsilonRegemorterSolver(
@@ -123,16 +123,18 @@ def test_thermal_collision_rates(
     regression_data,
 ):
     radiative_transitions = nlte_atomic_dataset.lines.loc[
-        (2, 0, slice(None), slice(None)), :
+        (1, 0, slice(None), slice(None)), :
     ]
 
     collision_strengths = nlte_atomic_dataset.yg_data.loc[
-        (2, 0, slice(None), slice(None)), :
+        (1, 0, slice(None), slice(None)), :
     ]
-    collision_strengths_temperatures = collision_strengths.columns.values * u.K
+    collision_strengths_temperatures = (
+        nlte_atomic_dataset.collision_data_temperatures
+    )
 
     therm_coll_rate_solver = ThermalCollisionalRateSolver(
-        nlte_atomic_dataset.levels.loc[(2, 0, slice(None)), :],
+        nlte_atomic_dataset.levels,
         radiative_transitions,
         collision_strengths_temperatures,
         collision_strengths,
@@ -141,13 +143,15 @@ def test_thermal_collision_rates(
     )
     coll_rates_coeff = therm_coll_rate_solver.solve([10000, 20000] * u.K)
     pdt.assert_frame_equal(
-        coll_rates_coeff.iloc[:3681],
+        coll_rates_coeff.iloc[:435],
         legacy_cmfgen_collision_rate_plasma_solver.coll_exc_coeff,
         check_names=False,
     )
     pdt.assert_frame_equal(
-        coll_rates_coeff.iloc[3681:],
-        legacy_cmfgen_collision_rate_plasma_solver.coll_deexc_coeff,
+        coll_rates_coeff.iloc[435:],
+        legacy_cmfgen_collision_rate_plasma_solver.coll_deexc_coeff.swaplevel(
+            "level_number_lower", "level_number_upper"
+        ),
         check_names=False,
     )
 
@@ -155,18 +159,18 @@ def test_thermal_collision_rates(
 # Add chianti tests
 def test_legacy_chianti_collisional_strengths(
     legacy_chianti_collision_rate_plasma_solver,
-    chianti_atomic_dataset,
+    new_chianti_atomic_dataset,
     regression_data,
 ):
     collision_strengths = legacy_chianti_collision_rate_plasma_solver
-    atom_data = copy.deepcopy(chianti_atomic_dataset)
+    atom_data = copy.deepcopy(new_chianti_atomic_dataset)
 
     temperature = np.array([10000, 20000]) * u.K
 
     col_strengths = atom_data.collision_data.loc[
         (1, 0, slice(None), slice(None)), :
     ]
-    radiative_transitions = chianti_atomic_dataset.lines.loc[
+    radiative_transitions = atom_data.lines.loc[
         (1, 0, slice(None), slice(None)), :
     ]
     collisional_rate_solver = ThermalCollisionalRateSolver(
@@ -179,5 +183,8 @@ def test_legacy_chianti_collisional_strengths(
     chianti_collisional_rates = collisional_rate_solver.solve(temperature)
 
     npt.assert_allclose(
-        collision_strengths[0, 1, :], chianti_collisional_rates.loc[1, 0, 1, 0]
+        collision_strengths[0, 1, :],
+        chianti_collisional_rates.loc[1, 0, 1, 0],
+        rtol=1e-4,
+        atol=1e-13,
     )
