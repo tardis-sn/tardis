@@ -552,9 +552,7 @@ def calculate_first_guess(
     """
     first_guess = pd.Series(0.0, index=rate_matrix_index)
     for atomic_number in atomic_numbers:
-        first_guess.at[(atomic_number, 1)] = number_density.loc[
-            atomic_number
-        ]
+        first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
     # TODO: After the first iteration, the new guess can be the old solution.
     first_guess = first_guess.values
     first_guess[-1] = electron_density

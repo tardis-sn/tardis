@@ -72,7 +72,9 @@ def doppler_factor_3d(direction_vector, position_vector, time):
     velocity_vector = position_vector / time
     direction_vector_contiguous = np.ascontiguousarray(direction_vector)
     velocity_vector_contiguous = np.ascontiguousarray(velocity_vector)
-    return 1 - (np.dot(direction_vector_contiguous, velocity_vector_contiguous) / C_CGS)
+    return 1 - (
+        np.dot(direction_vector_contiguous, velocity_vector_contiguous) / C_CGS
+    )
 
 
 @njit(**njit_dict_no_parallel)
