@@ -62,7 +62,7 @@ jobs:
             echo "Extracted DOI: ${doi}"
             echo "Extracted URL: ${url}"
             # Create DOI badge using the full DOI value
-            doi_badge="[![DOI Badge](https://img.shields.io/badge/DOI-${doi}-blue)](${doi_url})"
+            doi_badge="[![DOI Badge](https://img.shields.io/badge/DOI-${doi}-blue)](${url})"
         
             # Store results in GitHub environment variables
             echo "doi_badge=${doi_badge}" >> $GITHUB_ENV
