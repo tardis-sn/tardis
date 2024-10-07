@@ -69,9 +69,14 @@ jobs:
         with:
           path: /tmp
 
-      - name: Copy zenodo.json to repository
+      - name: Check for generated Zenodo JSON and copy if exists
         run: |
-          cp /tmp/zenodo_json/.zenodo.json .
+          if [ -f "/tmp/zenodo/.zenodo.json" ]; then
+            cp /tmp/zenodo_json/.zenodo.json .
+            echo "Using generated zenodo file"
+          else
+            echo "No zenodo file found, defaulting to one in TARDIS master"
+          fi
 
       - name: Get current date
         run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
