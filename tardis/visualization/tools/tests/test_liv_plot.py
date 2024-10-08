@@ -116,7 +116,7 @@ class TestLIVPlotter:
         attribute,
     ):
         """
-        Test for the _parse_species_list method in LIVPlotter.
+        Test for the parse_species_list method in LIVPlotter.
 
         Parameters:
         -----------
@@ -125,7 +125,7 @@ class TestLIVPlotter:
         attribute: The attribute to test after parsing the species list.
         """
         regression_data = RegressionData(request)
-        plotter._parse_species_list(
+        plotter.parse_species_list(
             packets_mode=self.packets_mode[0],
             species_list=self.species_list[0],
             nelements=self.nelements[0],

@@ -253,7 +253,7 @@ class LIVPlotter:
                 f"{atomic_number2element_symbol(specie // 100)}"
                 for specie in species_in_model
             ]
-        self._parse_species_list(species_list, packets_mode, nelements)
+        self.parse_species_list(species_list, packets_mode, nelements)
         species_in_model = np.unique(
             self.data[packets_mode]
             .packets_df_line_interaction["last_line_interaction_species"]
