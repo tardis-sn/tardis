@@ -590,7 +590,8 @@ class PlasmaSolverFactory:
 
         if electron_densities is not None:
             electron_densities = pd.Series(electron_densities.cgs.value)
-            self.setup_electron_densities(electron_densities)
+
+        self.setup_electron_densities(electron_densities)
         plasma_assemble_kwargs["helium_treatment"] = self.helium_treatment
         plasma_assemble_kwargs.update(kwargs)
         return BasePlasma(
