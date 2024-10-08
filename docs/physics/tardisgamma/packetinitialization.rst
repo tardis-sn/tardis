@@ -1,11 +1,11 @@
 Packet Initialization
 =====================
 
-The gamma ray portion of tardis also uses the idea of packets of photons from :cite:`AbbottLucy85` and :cite:`Lucy99` (see :doc:`../montecarlo/initialization`)
+The gamma ray portion of TARDIS also uses the idea of packets of photons from :cite:`Abbott1985` and :cite:`Lucy1999` (see :doc:`../montecarlo/initialization`)
 These packets are given an energy equal to the total energy divided by the number of packets and a frequency that is equal to the packet energy divided by Planck's constant, h.
 
 The packets are also given a direction made up of two angles, :math:`\theta` and :math:`\phi`, where  :math:`\theta` is a polar angle between 0 and :math:`\pi` and :math:`\phi` is an azimuth angle between 0 and :math:`2\pi`.
-We sample these angles using the following equations :cite:`CarterCashwell75`:
+We sample these angles using the following equations :cite:`Carter1975`:
 
 .. math::
 
@@ -27,5 +27,5 @@ Finally, to get the Cartesian coordinates we use the equations:
     x = r\sin{\theta}\cos{\phi}
 
     y = r\sin{\theta}\cos{\phi}
-    
+
     z = r\cos{\theta}
