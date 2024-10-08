@@ -9,13 +9,6 @@ from tardis.simulation import Simulation
 
 
 @pytest.fixture(scope="module")
-def config(example_configuration_dir):
-    return Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_verysimple.yml"
-    )
-
-
-@pytest.fixture(scope="module")
 def simulation_one_loop(config, atomic_data_fname):
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
