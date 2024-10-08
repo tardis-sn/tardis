@@ -13,6 +13,7 @@ from tardis.io.atom_data.collision_data import (
 from tardis.io.atom_data.macro_atom_data import MacroAtomData
 from tardis.io.atom_data.nlte_data import NLTEData
 from tardis.io.atom_data.util import resolve_atom_data_fname
+from tardis.io.data.tardis_data import TARDISData
 from tardis.plasma.properties.continuum_processes.rates import (
     get_ground_state_multi_index,
 )
@@ -306,6 +307,9 @@ class AtomData:
         ionization_data = ionization_data.squeeze()
         ionization_data[:] = Quantity(ionization_data[:], "eV").cgs.value
 
+        # init dataclass
+        self.tardis_data = TARDISData(atom_data, ionization_data)
+
         # Convert energy to CGS
         levels.loc[:, "energy"] = Quantity(
             levels["energy"].values, "eV"
@@ -378,6 +382,7 @@ class AtomData:
         self.photo_ion_unique_index = None
         self.lines_upper2macro_reference_idx = None
         self.lines_lower2macro_reference_idx = None
+        self.level2continuum_edge_idx = None
 
         # VERSIONING
 
@@ -444,6 +449,31 @@ class AtomData:
             )
 
         self.nlte_data = NLTEData(self, nlte_species)
+
+        for entry in self.hdf_names:
+            if hasattr(self, entry):
+                setattr(self.tardis_data, entry, getattr(self, entry))
+
+        self.tardis_data.selected_atomic_numbers = self.selected_atomic_numbers
+        self.tardis_data.lines_lower2macro_reference_idx = (
+            self.lines_lower2macro_reference_idx
+        )
+        self.tardis_data.lines_upper2macro_reference_idx = (
+            self.lines_upper2macro_reference_idx
+        )
+        self.tardis_data.photo_ion_block_references = (
+            self.photo_ion_block_references
+        )
+        self.tardis_data.photo_ion_unique_index = self.photo_ion_unique_index
+        self.tardis_data.level2continuum_edge_idx = (
+            self.level2continuum_edge_idx
+        )
+
+        self.tardis_data.nlte_data = self.nlte_data
+
+        self.tardis_data.uuid1 = self.uuid1
+        self.tardis_data.md5 = self.md5
+        self.tardis_data.version = self.version
 
     def prepare_lines(self):
         """Prepare line data"""
