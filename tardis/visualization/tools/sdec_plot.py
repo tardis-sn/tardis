@@ -508,7 +508,7 @@ class SDECPlotter:
                 }
             )
 
-    def _parse_species_list(self, species_list):
+    def parse_species_list(self, species_list):
         """
         Parse user requested species list and create list of species ids to be used.
 
@@ -1210,7 +1210,7 @@ class SDECPlotter:
             )
 
         # Parse the requested species list
-        self._parse_species_list(species_list=species_list)
+        self.parse_species_list(species_list=species_list)
 
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -1610,7 +1610,7 @@ class SDECPlotter:
             )
 
         # Parse the requested species list
-        self._parse_species_list(species_list=species_list)
+        self.parse_species_list(species_list=species_list)
 
         # Calculate data attributes required for plotting
         # and save them in instance itself
