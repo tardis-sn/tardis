@@ -30,6 +30,6 @@ the core team (active maintainers) of TARDIS.
     :maxdepth: 2
 
     continuous_integration
-    update_refdata
+    update_regression_data
     matterbridge
     debug_numba
