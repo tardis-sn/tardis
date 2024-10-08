@@ -171,5 +171,5 @@ class RegressionData:
 def regression_data(request):
     regression_data_instance = RegressionData(request)
     yield regression_data_instance
-    if regression_data_instance.hdf_store_object:
+    if regression_data_instance.hdf_store_object.is_open:
         regression_data_instance.hdf_store_object.close()
