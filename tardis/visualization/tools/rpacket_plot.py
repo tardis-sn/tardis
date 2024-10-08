@@ -106,7 +106,7 @@ class RPacketPlotter:
                 return cls(sim, sim.last_no_of_packets)
         else:
             raise AttributeError(
-                """ There is no attribute named rpacket_tracker in the simulation object passed. Try enabling the 
+                """ There is no attribute named rpacket_tracker in the simulation object passed. Try enabling the
                 rpacket tracking in the configuration. To enable rpacket tracking see: https://tardis-sn.github.io/tardis/io/output/rpacket_tracking.html#How-to-Setup-the-Tracking-for-the-RPackets?"""
             )
 

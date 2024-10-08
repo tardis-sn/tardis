@@ -4,7 +4,7 @@ Grotrian Diagram Widget for TARDIS simulation models.
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
 import ipywidgets as ipw
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -745,7 +745,7 @@ class GrotrianPlot:
 
             # Get the end arrow color (proportional to log wavelength)
             color_coef = line_info.color_coefficient
-            color = matplotlib.colors.rgb2hex(self._cmap(color_coef)[:3])
+            color = mpl.colors.rgb2hex(self._cmap(color_coef)[:3])
 
             # Draw arrow
             self.fig.add_trace(
@@ -924,7 +924,7 @@ class GrotrianPlot:
             autosize=False,
             width=1000,
             height=700,
-            margin=dict(),
+            margin={},
             showlegend=False,
         )
 

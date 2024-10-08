@@ -735,12 +735,7 @@ class CustomAbundanceWidget:
             else position_1
         )
 
-        if (index_1 - index_0 > 1) or (
-            index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0)
-        ):
-            return True
-        else:
-            return False
+        return bool(index_1 - index_0 > 1 or index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
 
     def on_btn_add_shell(self, obj):
         """Add new shell with given boundary velocities. Triggered if
@@ -915,7 +910,7 @@ class CustomAbundanceWidget:
         """
         item_index = obj.owner.index
 
-        if obj.new == True:
+        if obj.new is True:
             self.bound_locked_sum_to_1(item_index)
 
     def dpd_shell_no_eventhandler(self, obj):
@@ -1471,7 +1466,7 @@ class CustomAbundanceWidget:
             data = data.sort_index()
 
             formatted_v = pd.Series(self.data.velocity.value).apply(
-                lambda x: "%.3e" % x
+                lambda x: f"{x:.3e}"
             )
             # Make sure velocity is within the boundary.
             formatted_v[0] = self.data.velocity.value[0]

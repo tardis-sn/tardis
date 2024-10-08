@@ -301,8 +301,7 @@ class LineInfoWidget:
                 )
 
                 assert (
-                    current_last_lines_in.empty & current_last_lines_out.empty
-                    == False
+                    current_last_lines_in.empty & current_last_lines_out.empty is False
                 )
 
             except (KeyError, AssertionError):  # selected_species is invalid
