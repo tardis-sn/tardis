@@ -1,9 +1,8 @@
-import math
 import logging
-import pandas as pd
-import numpy as np
+import math
+
 import astropy.units as u
-import plotly.express as px
+import numpy as np
 import plotly.graph_objects as go
 
 
@@ -125,7 +124,6 @@ class RPacketPlotter:
         plotly.graph_objs._figure.Figure
             plot containing the packets, photosphere and the shells.
         """
-
         self.fig = go.Figure()
 
         # getting velocity of different shells
@@ -491,7 +489,6 @@ class RPacketPlotter:
         numpy.ndarray
             array of array containing x coordinates, y coordinates and the interactions for multiple packets
         """
-
         # for plotting packets at equal intervals throught the circle, we choose thetas distributed uniformly
         thetas = np.linspace(0, 2 * math.pi, self.no_of_packets + 1)
         rpackets_x = []
@@ -656,7 +653,6 @@ class RPacketPlotter:
         list
             list of dictionaries of different steps for different frames.
         """
-
         slider_steps = []
         for step_no in range(rpacket_max_array_size):
             slider_steps.append(
