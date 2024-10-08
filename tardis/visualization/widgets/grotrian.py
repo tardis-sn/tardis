@@ -3,17 +3,21 @@ Grotrian Diagram Widget for TARDIS simulation models.
 
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
-from tardis.analysis import LastLineInteraction
-from tardis.util.base import species_tuple_to_string, species_string_to_tuple
-from tardis.util.base import int_to_roman
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import ipywidgets as ipw
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from astropy import units as u
-import ipywidgets as ipw
+from plotly.subplots import make_subplots
+
+from tardis.analysis import LastLineInteraction
+from tardis.util.base import (
+    int_to_roman,
+    species_string_to_tuple,
+    species_tuple_to_string,
+)
 
 ANGSTROM_SYMBOL = "\u212B"
 
@@ -741,7 +745,7 @@ class GrotrianPlot:
 
             # Get the end arrow color (proportional to log wavelength)
             color_coef = line_info.color_coefficient
-            color = matplotlib.colors.rgb2hex(self._cmap(color_coef)[:3])
+            color = mpl.colors.rgb2hex(self._cmap(color_coef)[:3])
 
             # Draw arrow
             self.fig.add_trace(
@@ -920,7 +924,7 @@ class GrotrianPlot:
             autosize=False,
             width=1000,
             height=700,
-            margin=dict(),
+            margin={},
             showlegend=False,
         )
 
@@ -1154,8 +1158,8 @@ class GrotrianWidget:
         """
         min_wavelength, max_wavelength = change["new"]
         index = self.fig.children.index(self.plot.fig)
-        setattr(self.plot, "min_wavelength", min_wavelength)
-        setattr(self.plot, "max_wavelength", max_wavelength + 1)
+        self.plot.min_wavelength = min_wavelength
+        self.plot.max_wavelength = max_wavelength + 1
 
         # Set the updated plot in the figure
         children_list = list(self.fig.children)
