@@ -158,7 +158,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         Selects appropriate 'calculate' function based on NLTE config
         options selected.
         """
-        super(LevelBoltzmannFactorNLTE, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
 
         self._update_inputs()
 
@@ -392,6 +392,6 @@ class ThermalLTEPartitionFunction(PartitionFunction):
     latex_name = (r"Z_{i,j}(T_\mathrm{e}",)
 
     def calculate(self, thermal_lte_level_boltzmann_factor):
-        return super(ThermalLTEPartitionFunction, self).calculate(
+        return super().calculate(
             thermal_lte_level_boltzmann_factor
         )

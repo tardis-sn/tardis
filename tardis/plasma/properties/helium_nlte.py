@@ -127,7 +127,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
     outputs = ("helium_population",)
 
     def __init__(self, plasma_parent, heating_rate_data_file):
-        super(HeliumNumericalNLTE, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self._g_upper = None
         self._g_lower = None
         self.heating_rate_data = np.loadtxt(heating_rate_data_file, unpack=True)
