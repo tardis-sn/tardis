@@ -15,8 +15,11 @@ from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
 from tardis.io.util import HDFWriterMixin
-from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
@@ -28,9 +31,6 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
-from tardis.opacities.opacity_solver import OpacitySolver
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
-from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
@@ -152,7 +152,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         show_progress_bars,
         spectrum_solver,
     ):
-        super(Simulation, self).__init__(
+        super().__init__(
             iterations, simulation_state.no_of_shells
         )
 
