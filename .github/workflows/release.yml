@@ -47,7 +47,7 @@ jobs:
           draft: false
       
       - name: Wait for Zenodo to update the latest release
-        run: sleep 30
+        run: sleep 120
       
       - name: Fetch Latest DOI from Zenodo
         id: fetch-doi
