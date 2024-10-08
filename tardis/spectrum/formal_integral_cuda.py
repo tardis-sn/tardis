@@ -428,7 +428,6 @@ class BoundsError(IndexError):
     """
 
 
-
 @cuda.jit(device=True)
 def line_search_cuda(nu, nu_insert, number_of_lines):
     """
