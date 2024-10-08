@@ -1,11 +1,11 @@
 import logging
 
 import numpy as np
-from numpy.linalg.linalg import LinAlgError
 import pandas as pd
+from numpy.linalg.linalg import LinAlgError
 
-from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaConfigError
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +158,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         Selects appropriate 'calculate' function based on NLTE config
         options selected.
         """
-        super(LevelBoltzmannFactorNLTE, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
 
         self._update_inputs()
 
@@ -392,6 +392,4 @@ class ThermalLTEPartitionFunction(PartitionFunction):
     latex_name = (r"Z_{i,j}(T_\mathrm{e}",)
 
     def calculate(self, thermal_lte_level_boltzmann_factor):
-        return super(ThermalLTEPartitionFunction, self).calculate(
-            thermal_lte_level_boltzmann_factor
-        )
+        return super().calculate(thermal_lte_level_boltzmann_factor)
