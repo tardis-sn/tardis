@@ -152,9 +152,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         show_progress_bars,
         spectrum_solver,
     ):
-        super().__init__(
-            iterations, simulation_state.no_of_shells
-        )
+        super().__init__(iterations, simulation_state.no_of_shells)
 
         self.converged = False
         self.iterations = iterations
