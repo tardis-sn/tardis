@@ -4,7 +4,6 @@ Functions that are important for the general usage of TARDIS.
 
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -70,9 +69,9 @@ def run_tardis(
     -----
     Please see the `logging tutorial <https://tardis-sn.github.io/tardis/io/optional/logging_configuration.html>`_ to know more about `log_level` and `specific` options.
     """
-    from tardis.io.logger.logger import logging_state
-    from tardis.io.configuration.config_reader import Configuration
     from tardis.io.atom_data.base import AtomData
+    from tardis.io.configuration.config_reader import Configuration
+    from tardis.io.logger.logger import logging_state
     from tardis.simulation import Simulation
 
     if isinstance(config, Configuration):
