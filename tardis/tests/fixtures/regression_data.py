@@ -24,6 +24,7 @@ class RegressionData:
             "--generate-reference"
         )
         self.fname = f"{self.fname_prefix}.UNKNOWN_FORMAT"
+        self.hdf_store_object = None
 
     @property
     def module_name(self):
@@ -161,9 +162,14 @@ class RegressionData:
                 f"Skipping test to generate regression data: {self.fpath}"
             )
         else:
-            return pd.HDFStore(self.fpath, mode="r")
-
+            # since each test function has its own regression data instance
+            # each test function will only have one HDFStore object
+            self.hdf_store_object = pd.HDFStore(self.fpath, mode="r")
+            return self.hdf_store_object
 
 @pytest.fixture(scope="function")
 def regression_data(request):
-    return RegressionData(request)
+    regression_data_instance = RegressionData(request)
+    yield regression_data_instance
+    if regression_data_instance.hdf_store_object:
+        regression_data_instance.hdf_store_object.close()
