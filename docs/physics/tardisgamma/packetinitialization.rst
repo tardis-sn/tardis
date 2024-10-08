@@ -10,6 +10,7 @@ We sample these angles using the following equations :cite:`Carter1975`:
 .. math::
 
     \cos{\theta} = 1-2 z_1
+
     \phi = 2\pi z_2
 
 The packets are also given a time and location where they start propagating the ejecta. We use the following equations to give the starting location:
