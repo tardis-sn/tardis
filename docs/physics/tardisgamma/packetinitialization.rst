@@ -25,5 +25,7 @@ Finally, to get the Cartesian coordinates we use the equations:
 
 .. math::
     x = r\sin{\theta}\cos{\phi}
+
     y = r\sin{\theta}\cos{\phi}
+    
     z = r\cos{\theta}
