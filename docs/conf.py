@@ -86,6 +86,7 @@ extensions = [
     "sphinxcontrib.apidoc",
     "sphinxcontrib.bibtex",
     "matplotlib.sphinxext.plot_directive",
+    "sphinxcontrib.jquery",
     "nbsphinx",
     "numpydoc",
     "recommonmark",
