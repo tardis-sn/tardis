@@ -1,5 +1,5 @@
 *********************
-Tardis :math:`\gamma`
+TARDIS gamma (:math:`\gamma`)
 *********************
 
 
