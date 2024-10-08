@@ -208,6 +208,10 @@ class SimulationState(HDFWriterMixin):
     @property
     def v_boundary_inner(self):
         return self.geometry.v_inner_boundary
+    
+    @property
+    def v_inner_boundary(self):
+        return self.v_boundary_inner
 
     @property
     def v_boundary_outer(self):
