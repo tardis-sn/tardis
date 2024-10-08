@@ -5,7 +5,7 @@ import pytest
 from tardis.io.configuration.config_reader import Configuration
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def config(example_configuration_dir: Path):
     return Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_verysimple.yml"
@@ -13,10 +13,17 @@ def config(example_configuration_dir: Path):
 
 
 @pytest.fixture(scope="function")
-def t_rad_strategy(config):
-    return config.montecarlo.convergence_strategy.t_rad
+def convergence_config(example_configuration_dir: Path):
+    return Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
 
 
 @pytest.fixture(scope="function")
-def strategy(config):
-    return config.montecarlo.convergence_strategy
+def t_rad_strategy(convergence_config):
+    return convergence_config.montecarlo.convergence_strategy.t_rad
+
+
+@pytest.fixture(scope="function")
+def strategy(convergence_config):
+    return convergence_config.montecarlo.convergence_strategy

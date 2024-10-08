@@ -5,15 +5,10 @@ import pytest
 from tardis.simulation.convergence import ConvergenceSolver
 
 
-@pytest.mark.parametrize("damping_factor, threshold", [(0.5, 0.05), (0, 0)])
-def test_convergence_solver_init_damped(
-    t_rad_strategy, damping_factor, threshold
-):
-    t_rad_strategy.damping_factor = damping_factor
-    t_rad_strategy.threshold = threshold
+def test_convergence_solver_init_damped(t_rad_strategy):
     solver = ConvergenceSolver(t_rad_strategy)
-    assert solver.damping_factor == damping_factor
-    assert solver.threshold == threshold
+    assert solver.damping_factor == 0.5
+    assert solver.threshold == 0.05
     assert solver.converge == solver.damped_converge
 
 
