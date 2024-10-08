@@ -5,6 +5,7 @@ class ConvergenceSolver:
     convergence_type = "damped"
     damping_factor = 0
     threshold = 0
+
     def __init__(self, strategy):
         """Convergence solver. Sets convergence strategy and assigns a method
         to the converge property.
