@@ -5,14 +5,12 @@ import pandas as pd
 from astropy import units as u
 from numba import jit, prange
 
-
 from tardis import constants as const
 from tardis.opacities.macro_atom.base import TransitionProbabilities
 from tardis.plasma.properties.base import (
     ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
 )
-
 
 logger = logging.getLogger(__name__)
 

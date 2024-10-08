@@ -299,9 +299,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
                     < NLTE_POPULATION_SOLVER_TOLERANCE
                 ):
                     logger.debug(
-                        "NLTE ionization solver converged after {} iterations for shell {}".format(
-                            iteration, shell
-                        )
+                        f"NLTE ionization solver converged after {iteration} iterations for shell {shell}"
                     )
                     break
 

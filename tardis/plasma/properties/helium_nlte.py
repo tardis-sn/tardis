@@ -50,7 +50,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         helium_population.loc[0, 0] = 0.0
         # He II excited states
         he_two_population = level_boltzmann_factor.loc[2, 1].mul(
-            (float(g.loc[2, 1, 0]) ** (-1.0))
+            float(g.loc[2, 1, 0]) ** (-1.0)
         )
         helium_population.loc[
             1, helium_population.columns
@@ -233,9 +233,9 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         helium_population = level_boltzmann_factor.loc[2].copy()
         for zone, _ in enumerate(electron_densities):
             with open(
-                f"He_NLTE_Files/discradfield{zone}.txt", "r"
+                f"He_NLTE_Files/discradfield{zone}.txt"
             ) as read_file:
-                for level in range(0, 35):
+                for level in range(35):
                     level_population = read_file.readline()
                     level_population = float(level_population)
                     helium_population[zone].loc[0, level] = level_population
