@@ -10,8 +10,9 @@ TARDIS stores regression data in the `tardis-regression-data <https://github.com
 
 Imagine you are working on a new feature (or fix) for TARDIS, and you have opened a pull request. If the regression data tests are failing, this could happen for various reasons:
 
-A. There's a problem in your code.  
-B. Your code is OK, but the regression data is outdated.  
+A. There's a problem in your code.
+B. Your code is OK, but the regression data is outdated.
+C. The pipeline is broken.
 
 If you suspect scenario B, please follow the `Manual Procedure <#manual-procedure>`_ to make a pull request to update the regression data. If any issues arise during this process, please tag a `TARDIS team member <https://tardis-sn.github.io/team/community_roles/>`_ responsible for CI/CD.
 
