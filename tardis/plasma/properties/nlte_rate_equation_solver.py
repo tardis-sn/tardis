@@ -24,6 +24,14 @@ NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE = 1e-6  # Arbitrary toleran
 class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
     outputs = ("ion_number_density", "electron_densities")
 
+    def __init__(
+        self,
+        plasma_parent,
+        electron_densities=None,
+    ):
+        super().__init__(plasma_parent)
+        self._electron_densities = electron_densities
+
     def calculate(
         self,
         gamma,
@@ -168,6 +176,14 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
 
 class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
     outputs = ("ion_number_density", "electron_densities")
+
+    def __init__(
+        self,
+        plasma_parent,
+        electron_densities=None,
+    ):
+        super().__init__(plasma_parent)
+        self._electron_densities = electron_densities
 
     def calculate(
         self,
