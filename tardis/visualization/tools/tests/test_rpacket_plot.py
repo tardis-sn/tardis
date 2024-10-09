@@ -8,7 +8,6 @@ import numpy.testing as npt
 from tardis.visualization import RPacketPlotter
 
 
-@pytest.mark.rpacket_tracking
 class TestRPacketPlotter:
     """Test the RPacketPlotter class."""
 
