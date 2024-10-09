@@ -19,7 +19,7 @@ run commands or tasks when they are triggered by some event, like a
 commit being pushed to a certain branch.
 
 Currently, we use GitHub Actions to run all of our pipelines. Making changes to an existing 
-pipeline is as easy as making a pull request. To create a new workflow on GitHub, 
+pipeline is as easy as making a pull request. To create a new GitHub Action workflow, 
 just create a new YAML file in ``.github/workflows``.
 
 TARDIS Pipelines
@@ -66,4 +66,23 @@ In the near future we want to auto-update the citation guidelines in the
 Release pipeline
 ================
 
-Publishes a new release of TARDIS every sunday at 00:00 UTC. 
+Publishes a new release of TARDIS every sunday at 00:00 UTC.
+
+
+TARDIS Carsus Compatibility Check
+=================================
+The TARDIS Carsus Compatibility Check or the "Bridge" compares reference data 
+generated with different versions of Carsus. It consists of two jobs- a "carsus-build" job to 
+generate an atomic file with the latest version of Carsus and a "tardis-build" job 
+to generate a new reference data with it. These two reference data files are compared using the 
+`this notebook <https://github.com/tardis-sn/tardis-refdata/blob/master/notebooks/ref_data_compare_from_paths.ipynb>`_.
+The workflow has a ``workflow_dispatch`` event so that it can be triggered manually, but is also 
+triggered every week due to the "save-atomic-files" workflow. 
+
+
+The Save Atomic Files Workflow
+==============================
+The Save Atomic Files workflow runs every week but can also be triggered manually.
+It runs the "Bridge" and sends an artifact containing the generated atomic data file
+and the comparison notebook to Moria. This workflow has a separate job to indicate if the 
+bridge has failed.
