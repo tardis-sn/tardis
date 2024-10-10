@@ -48,6 +48,7 @@ def test_atom_data_levels(levels):
 
 
 def test_atom_data_lines(lines):
+    lines = lines.sort_index()
     assert_quantity_allclose(
         lines.loc[(2, 0, 0, 6), "wavelength_cm"].values[0] * u.Unit("cm"),
         584.335 * u.Unit("Angstrom"),

@@ -783,9 +783,10 @@ class YgData(ProcessingPlasmaProperty):
         array_like
             Output array.
         """
-        f = exp1(x) * np.exp(x)
-        # Use Laurent series for large values to avoid infinite exponential
+        x = np.asarray(x)
         mask = x > 500
+        f = exp1(x) * np.exp(x * (~mask))
+        # Use Laurent series for large values to avoid infinite exponential
         f[mask] = (x**-1 - x**-2 + 2 * x**-3 - 6 * x**-4)[mask]
         return f
 

@@ -73,7 +73,7 @@ class BaseShellInfo:
         )  # Overwrite index
         shells_temp_w.index.name = "Shell No."
         # Format to string to make qgrid show values in scientific notations
-        return shells_temp_w.applymap(lambda x: f"{x:.6e}")
+        return shells_temp_w.map(lambda x: f"{x:.6e}")
 
     def element_count(self, shell_num):
         """Generates fractional abundance of elements present in a specific
