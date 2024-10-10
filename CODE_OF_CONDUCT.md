@@ -15,4 +15,4 @@ As members of the community,
 
 This code of conduct has been adapted from the Astropy Code of Conduct, which in turn uses parts of the PSF code of conduct.
 
-**To report any violations of the code of conduct, please contact a member of the [TARDIS core team](https://tardis-sn.github.io/team/community_roles/index.html) (the email tardis.supernova.code@gmail.com is monitored by the core team) or the Ombudsperson (see the [team page](https://tardis-sn.github.io/team/community_roles/index.html); who is outside of the TARDIS collaboration and will treat reports confidentially).**
+**To report any violations of the code of conduct, please contact a member of the [TARDIS core team](https://tardis-sn.github.io/people/core/) (the email tardis.supernova.code@gmail.com is monitored by the core team) or the Ombudsperson (see the [team page](https://tardis-sn.github.io/people/core/); who is outside of the TARDIS collaboration and will treat reports confidentially).**

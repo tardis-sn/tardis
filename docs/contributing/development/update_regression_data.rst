@@ -14,7 +14,7 @@ A. There's a problem in your code.
 B. Your code is OK, but the regression data is outdated.
 C. The pipeline is broken.
 
-If you suspect scenario B, please follow the `Manual Procedure <#manual-procedure>`_ to make a pull request to update the regression data. If any issues arise during this process, please tag a `TARDIS team member <https://tardis-sn.github.io/team/community_roles/>`_ responsible for CI/CD.
+If you suspect scenario B, please follow the `Manual Procedure <#manual-procedure>`_ to make a pull request to update the regression data. If any issues arise during this process, please tag a `TARDIS team member <https://tardis-sn.github.io/people/collaboration/>`_ responsible for CI/CD.
 
 ================
 Manual Procedure
