@@ -2,7 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-import tardis.opacities.opacity_state as numba_interface
+from tardis.opacities.opacity_state import opacity_state_initialize
 
 
 @pytest.mark.parametrize(
@@ -20,7 +20,7 @@ def test_opacity_state_initialize(
 ):
     line_interaction_type = input_params
     plasma = nb_simulation_verysimple.plasma
-    actual = numba_interface.opacity_state_initialize(
+    actual = opacity_state_initialize(
         plasma,
         line_interaction_type,
         disable_line_scattering=False,
