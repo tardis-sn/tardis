@@ -933,7 +933,7 @@ def ion_matrix(ion_coefficients, atomic_number, ion_number):
     offdiag = np.zeros(atomic_number)
     index = ion_coefficients.index
     for i in index:
-        offdiag[i] = float(ion_coefficients.loc[i].iloc[0])
+        offdiag[i] = float(ion_coefficients.loc[i].values[0])
     diag = np.hstack([-offdiag, np.zeros(1)])
     return (np.diag(diag) + np.diag(offdiag, k=-1))[ion_number, :]
 
