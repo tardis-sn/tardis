@@ -29,30 +29,6 @@ requires = ["setuptools",
             "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.black]
-line-length = 80
-target-version = ["py36"]
-exclude = '''
-(
-  /(
-      \.eggs         # all directories in the root of the project
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.nox
-    | \.tox
-    | \.venv
-    | \.svn
-    | _build
-    | buck-out
-    | build
-    | dist
-  )/
-  | docs/conf.py
-  | _astropy_init.py
-)
-'''
-
 [tool.interrogate]
 color = true
 #exclude = ["docs", "build"]
