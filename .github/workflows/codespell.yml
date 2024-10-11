@@ -9,6 +9,10 @@ on:
     branches:
       - master
 
+defaults:
+  run:
+    shell: bash -l {0}
+
 jobs:
   codespell:
     runs-on: ubuntu-latest
