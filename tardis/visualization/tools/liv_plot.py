@@ -12,6 +12,7 @@ from tardis.util.base import (
 )
 import tardis.visualization.tools.sdec_plot as sdec
 from tardis.visualization import plot_util as pu
+from tardis.io.util import parse_species_list
 
 logger = logging.getLogger(__name__)
 
@@ -253,7 +254,7 @@ class LIVPlotter:
                 f"{atomic_number2element_symbol(specie // 100)}"
                 for specie in species_in_model
             ]
-        self.parse_species_list(species_list, packets_mode, nelements)
+        self._species_list, self._species_mapped = parse_species_list(species_list, packets_mode, nelements)
         species_in_model = np.unique(
             self.data[packets_mode]
             .packets_df_line_interaction["last_line_interaction_species"]

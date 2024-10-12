@@ -17,8 +17,6 @@ from astropy.utils.data import download_file
 
 from tardis import __path__ as TARDIS_PATH
 from tardis import constants as const
-from tardis.util.base import atomic_number2element_symbol
-
 
 logger = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ from tardis.base import run_tardis
 from tardis.io.util import HDFWriterMixin
 from tardis.visualization.tools.liv_plot import LIVPlotter
 from tardis.tests.fixtures.regression_data import RegressionData
-
+from tardis.io.util import parse_species_list
 
 class PlotDataHDF(HDFWriterMixin):
     """
@@ -125,7 +125,7 @@ class TestLIVPlotter:
         attribute: The attribute to test after parsing the species list.
         """
         regression_data = RegressionData(request)
-        plotter.parse_species_list(
+        parse_species_list(
             packets_mode=self.packets_mode[0],
             species_list=self.species_list[0],
             nelements=self.nelements[0],
