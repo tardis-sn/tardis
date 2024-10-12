@@ -17,6 +17,8 @@ from astropy.utils.data import download_file
 
 from tardis import __path__ as TARDIS_PATH
 from tardis import constants as const
+from tardis.util.base import atomic_number2element_symbol
+
 
 logger = logging.getLogger(__name__)
 
@@ -204,7 +206,7 @@ def traverse_configs(base, other, func, *args):
             traverse_configs(base[k], other[k], func, *args)
     elif (
         isinstance(base, collections_abc.Iterable)
-        and not isinstance(base, basestring)
+        and not isinstance(base, str)
         and not hasattr(base, "shape")
     ):
         for val1, val2 in zip(base, other):
