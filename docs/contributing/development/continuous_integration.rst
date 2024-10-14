@@ -27,6 +27,28 @@ TARDIS Pipelines
 
 Brief description of pipelines already implemented on TARDIS
 
+# Streamlined Steps for TARDIS Pipelines
+
+We have a common set of steps which are utilized in TARDIS pipelines to streamline the process:
+
+### Common Steps
+
+1. **Use `setup_lfs` Action**
+   - If you need access to regression or atomic data, incorporate the `setup_lfs` action to ensure proper handling of large file storage.
+
+2. **Use `setup_env` Action**
+   - To configure your environment effectively, utilize the `setup_env` action. This will help establish the necessary variables and settings for your pipeline.
+
+3. **Run Configuration**
+   - Ensure that your pipeline runs with the appropriate shell settings. You can define this in your YAML configuration as follows:
+
+    .. code-block:: yaml
+        
+        defaults:
+          run:
+            shell: bash -l {0}
+
+
 Documentation build pipeline
 ============================
 
