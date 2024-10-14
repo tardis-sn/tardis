@@ -89,7 +89,7 @@ In the near future we want to auto-update the citation guidelines in the
 Release pipeline
 ================
 
-Publishes a new release of TARDIS every SUNDAY at 00:00 UTC.
+Publishes a new release of TARDIS every Sunday at 00:00 UTC.
 
 
 TARDIS Carsus Compatibility Check
