@@ -24,6 +24,14 @@ NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE = 1e-6  # Arbitrary toleran
 class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
     outputs = ("ion_number_density", "electron_densities")
 
+    def __init__(
+        self,
+        plasma_parent,
+        electron_densities=None,
+    ):
+        super().__init__(plasma_parent)
+        self._electron_densities = electron_densities
+
     def calculate(
         self,
         gamma,
@@ -138,9 +146,7 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 ),
                 jac=True,
             )
-            assert (
-                solution.success
-            ), "No solution for NLTE population equation found or solver takes too long to converge"
+            assert solution.success, "No solution for NLTE population equation found or solver takes too long to converge"
             (
                 ion_number_density[shell],
                 electron_densities[shell],
@@ -168,6 +174,14 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
 
 class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
     outputs = ("ion_number_density", "electron_densities")
+
+    def __init__(
+        self,
+        plasma_parent,
+        electron_densities=None,
+    ):
+        super().__init__(plasma_parent)
+        self._electron_densities = electron_densities
 
     def calculate(
         self,
@@ -713,9 +727,9 @@ def calculate_rate_matrix(
                 total_coll_ion_coefficients.loc[(atomic_number,)],
                 total_coll_recomb_coefficients.loc[(atomic_number,)],
             )
-        rate_matrix.loc[
-            (atomic_number, slice(None)), (atomic_number)
-        ] = rate_matrix_block
+        rate_matrix.loc[(atomic_number, slice(None)), (atomic_number)] = (
+            rate_matrix_block
+        )
 
     charge_conservation_row = calculate_charge_conservation_row(atomic_numbers)
     if set_charge_conservation:
