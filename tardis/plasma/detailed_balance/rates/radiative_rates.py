@@ -3,11 +3,9 @@ import pandas as pd
 
 
 class RadiativeRatesSolver:
-
     einstein_coefficients: pd.DataFrame
 
     def __init__(self, einstein_coefficients):
-
         # Ensuring the right columns are present
         assert einstein_coefficients.index.names == [
             "atomic_number",

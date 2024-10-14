@@ -4,8 +4,8 @@ from astropy import units as u
 
 from tardis import constants as const
 from tardis.plasma.detailed_balance.rates.collision_strengths import (
-    UpsilonCMFGENSolver,
     UpsilonChiantiSolver,
+    UpsilonCMFGENSolver,
     UpsilonRegemorterSolver,
 )
 
@@ -89,10 +89,11 @@ class ThermalCollisionalRateSolver:
             / (temperatures_electron * const.k_B),
         ).value
         collision_rates_coeff_lu = (
-            BETA_COLL / np.sqrt(temperatures_electron) * boltzmann_factor
-        ).to(
-            "cm3 / s"
-        ).value * thermal_all_collision_strengths  # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
+            (BETA_COLL / np.sqrt(temperatures_electron) * boltzmann_factor)
+            .to("cm3 / s")
+            .value
+            * thermal_all_collision_strengths
+        )  # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
 
         collision_rates_coeff_ul = (
             (self.g_u / self.g_l)[np.newaxis].T

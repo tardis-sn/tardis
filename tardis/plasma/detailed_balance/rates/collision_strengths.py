@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 from astropy import units as u
+from scipy.interpolate import PchipInterpolator, splev, splrep
 from scipy.special import exp1
-from scipy.interpolate import PchipInterpolator, splrep, splev
 
 from tardis import constants as const
 
