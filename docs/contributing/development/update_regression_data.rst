@@ -14,11 +14,7 @@ A. There's a problem in your code.
 B. Your code is OK, but the regression data is outdated.
 C. The pipeline is broken.
 
-If you suspect scenario B, please follow the `Manual Procedure <#manual-procedure>`_ to make a pull request to update the regression data. If any issues arise during this process, please tag a `TARDIS team member <https://tardis-sn.github.io/people/collaboration/>`_ responsible for CI/CD.
-
-================
-Manual Procedure
-================
+If you suspect scenario B, please follow these instructions:
 
 #. Activate the ``tardis`` environment.
 #. Fork and clone the ``tardis-regression-data`` repository.
@@ -28,4 +24,4 @@ Manual Procedure
 #. Check your results and ensure everything is correct.
 #. Make a new branch in ``tardis-regression-data``, push your new regression data, and open a pull request.
 
-By following these updated procedures, you can efficiently manage and update regression data within your TARDIS project setup.
+If any issues arise during this process, please tag a `TARDIS team member <https://tardis-sn.github.io/people/collaboration/>`_ responsible for CI/CD.
