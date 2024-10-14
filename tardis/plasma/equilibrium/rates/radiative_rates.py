@@ -48,9 +48,13 @@ class RadiativeRatesSolver:
         )
 
         rates_df = pd.concat([r_lu, r_ul])
+        rates_df["ion_number_source"] = rates_df["ion_number"]
+        rates_df["ion_number_destination"] = rates_df["ion_number"]
         rates_df.index.names = [
             "atomic_number",
             "ion_number",
+            "ion_number_source",
+            "ion_number_destination",
             "level_number_source",
             "level_number_destination",
         ]
