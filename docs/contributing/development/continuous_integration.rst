@@ -67,7 +67,7 @@ See the :ref:`Documentation Preview <doc-preview>` section for more information.
 Testing pipeline
 ================
 
-The `testing pipeline`_ (CI) comprises of six concurrent jobs. Each of these jobs runs three types of tests across two distinct categories—continuum and non-continuum—and supports three different operating system platforms. Additionally, there are extra steps involved in executing the tests and uploading the coverage results
+The `testing pipeline`_ (CI) comprises multiple concurrent jobs. Each of these jobs runs tests across two distinct categories—continuum and rpacket tracking—and supports two different operating systems. Additionally, there are extra steps involved in executing the tests and uploading the coverage results
 
 
 Authors pipeline
