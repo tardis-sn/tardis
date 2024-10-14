@@ -23,15 +23,17 @@ pipeline is as easy as making a pull request. To create a new GitHub Action work
 just create a new YAML file in ``.github/workflows``.
 
 TARDIS Pipelines
-----------------
+================
 
 Brief description of pipelines already implemented on TARDIS
 
-# Streamlined Steps for TARDIS Pipelines
+Streamlined Steps for TARDIS Pipelines
+========================================
 
 We have a common set of steps which are utilized in TARDIS pipelines to streamline the process:
 
-### Common Steps
+Common Steps
+------------
 
 1. **Use `setup_lfs` Action**
    - If you need access to regression or atomic data, incorporate the `setup_lfs` action to ensure proper handling of large file storage.
@@ -87,7 +89,7 @@ In the near future we want to auto-update the citation guidelines in the
 Release pipeline
 ================
 
-Publishes a new release of TARDIS every sunday at 00:00 UTC.
+Publishes a new release of TARDIS every SUNDAY at 00:00 UTC.
 
 
 TARDIS Carsus Compatibility Check
