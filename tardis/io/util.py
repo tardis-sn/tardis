@@ -138,7 +138,7 @@ def yaml_load_file(filename, loader=yaml.Loader):
         return yaml.load(stream, Loader=loader)
 
 
-def parse_species_list(self, species_list, packets_mode, nelements=None):
+def parse_species_list(sdec_plotter, data, species_list, packets_mode, nelements=None):
         """
         Parse user requested species list and create list of species ids to be used.
 
@@ -159,14 +159,14 @@ def parse_species_list(self, species_list, packets_mode, nelements=None):
             If species list contains invalid entries.
 
         """
-        self.sdec_plotter.parse_species_list(species_list)
-        self._species_list = self.sdec_plotter._species_list
-        self._species_mapped = self.sdec_plotter._species_mapped
-        self._keep_colour = self.sdec_plotter._keep_colour
+        sdec_plotter.parse_species_list(species_list)
+        _species_list = sdec_plotter._species_list
+        _species_mapped = sdec_plotter._species_mapped
+        _keep_colour = sdec_plotter._keep_colour
 
         if nelements:
             interaction_counts = (
-                self.data[packets_mode]
+                data[packets_mode]
                 .packets_df_line_interaction["last_line_interaction_species"]
                 .value_counts()
             )
@@ -179,8 +179,14 @@ def parse_species_list(self, species_list, packets_mode, nelements=None):
                 atomic_number2element_symbol(element)
                 for element in top_elements
             ]
-            self.parse_species_list(top_species_list, packets_mode)
-            
+            sub_species_list, sub_species_mapped, sub_keep_colour = parse_species_list(
+            sdec_plotter, data, top_species_list, packets_mode
+            )
+            _species_list = sub_species_list
+            _species_mapped = sub_species_mapped
+            _keep_colour = sub_keep_colour
+
+        return _species_list, _species_mapped, _keep_colour       
             
 def traverse_configs(base, other, func, *args):
     """
