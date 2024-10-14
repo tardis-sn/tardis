@@ -9,6 +9,10 @@ on:
     branches:
       - master
 
+defaults:
+  run:
+    shell: bash -l {0}
+
 jobs:
   codespell:
     runs-on: ubuntu-latest
@@ -24,16 +28,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
 
-      - name: Setup micromamba
-        uses: mamba-org/setup-micromamba@v1
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
         with:
-          environment-name: fetch-env
-          create-args: >-
-            python
-
-      - name: Install Codespell
-        run: pip install codespell
-
+          os-label: linux-64
+      
       - name: Run codespell
         run: |
           codespell docs/

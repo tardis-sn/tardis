@@ -1396,6 +1396,42 @@ package:
     sha256: e923acf02708a8a0b591f3bce4bdc11c8e63b73198b99b35fe6cd96bfb6a0dbe
   category: main
   optional: false
+- name: codespell
+  version: 2.3.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/codespell-2.3.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: 6e67fa19bedafa7eb7d6ea91de53e03d
+    sha256: f3ca4360e92732a4c805ea4387545b0cb17cfdba5a7da6e4f8f231581be4e9ec
+  category: main
+  optional: false
+- name: codespell
+  version: 2.3.0
+  manager: conda
+  platform: osx-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/codespell-2.3.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: 6e67fa19bedafa7eb7d6ea91de53e03d
+    sha256: f3ca4360e92732a4c805ea4387545b0cb17cfdba5a7da6e4f8f231581be4e9ec
+  category: main
+  optional: false
+- name: codespell
+  version: 2.3.0
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/codespell-2.3.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: 6e67fa19bedafa7eb7d6ea91de53e03d
+    sha256: f3ca4360e92732a4c805ea4387545b0cb17cfdba5a7da6e4f8f231581be4e9ec
+  category: main
+  optional: false
 - name: comm
   version: 0.2.2
   manager: conda
