@@ -28,7 +28,7 @@ stars (*supernovae*).
     :target: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml
 
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
-    :target: https://tardis-sn.github.io/tardis/index.html'
+    :target: https://tardis-sn.github.io/tardis/index.html
 
 .. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/_static/ruff_badge.json
     :target: https://github.com/astral-sh/ruff
