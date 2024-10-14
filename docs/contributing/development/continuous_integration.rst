@@ -25,7 +25,7 @@ just create a new YAML file in ``.github/workflows``.
 TARDIS Pipelines
 ----------------
 
-Brief description of pipelines already implemented on Tardis
+Brief description of pipelines already implemented on TARDIS
 
 Documentation build pipeline
 ============================
