@@ -23,7 +23,7 @@ class SpectrumSolver(HDFWriterMixin):
     hdf_name = "spectrum"
 
     def __init__(
-        self, transport_state, spectrum_frequency_grid, integrator_settings=None
+        self, transport_state, spectrum_frequency_grid, integrator_settings
     ):
         self.transport_state = transport_state
         self.spectrum_frequency_grid = spectrum_frequency_grid
