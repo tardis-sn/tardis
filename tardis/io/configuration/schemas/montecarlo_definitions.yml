@@ -59,6 +59,24 @@ definitions:
               type: string
               default: 'damped'
               description: THIS IS A DUMMY VARIABLE DO NOT USE
+        v_inner_boundary:
+          type: object
+          additionalProperties: false
+          properties:
+            damping_constant:
+              type: number
+              default: 0.0
+              description: damping constant
+              minimum: 0
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+              minimum: 0
+            type:
+              type: string
+              default: 'damped'
+              description: THIS IS A DUMMY VARIABLE DO NOT USE
         t_rad:
           type: object
           additionalProperties: false
