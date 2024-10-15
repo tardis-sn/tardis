@@ -7,7 +7,7 @@ to be between t\ :sub:`start`\  and t\ :sub:`end`\  using either a linear or a l
 
 
 We use the radioactivedecay python package to calculate the number of decays in each channel for each shell and at every timestep for each isotope.
-The composition is also updated after each timestep following :cite:`Guttman2024`.
+The composition is also updated after each timestep following :cite:`2024arXiv240308769G`.
 Then to calculate the decay energy of each channel, we multiply the total number of decays with the energy of each channel.
 We give weight to the decay energy of each channel of each isotope to sample the packets which takes into account the spatial distribution
 of radiocative isotopes present in different shells and the evolution of the composition over time.
