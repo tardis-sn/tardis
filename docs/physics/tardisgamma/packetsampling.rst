@@ -3,7 +3,7 @@ Packet Sampling
 
 
 In the simulation, we use spherical symmetry where the ejecta is divided into multiple spherical shells. To find the mass of each shell we multiply the mass fractions of each of the elements and isotopes with the density. We can set the timespace for the simulation
-to be between t \ :sub:`start`\  and t \ :sub:`end`\  using either a linear or a logarithmic scale.
+to be between t\ :sub:`start`\  and t\ :sub:`end`\  using either a linear or a logarithmic scale.
 
 
 We use the radioactivedecay python package to calculate the number of decays in each channel for each shell and at every timestep for each isotope.
