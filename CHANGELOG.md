@@ -1,12 +1,5 @@
 ## Changelog
 
-###  (1969/12/31 19:00)
-- [2770](https://github.com/tardis-sn/tardis/pull/2770) Restructure/detailed balance foundation (2770) (@wkerzendorf)
-- [2833](https://github.com/tardis-sn/tardis/pull/2833) Pytest Warnings Fix - 2 (2833) (@KasukabeDefenceForce)
-- [2851](https://github.com/tardis-sn/tardis/pull/2851) Fix codespell (2851) (@KasukabeDefenceForce)
-- [2854](https://github.com/tardis-sn/tardis/pull/2854) Remove black from  environment yml and lock files. (2854) (@KasukabeDefenceForce)
-- [2855](https://github.com/tardis-sn/tardis/pull/2855) Remove black from docs and update with ruff (2855) (@KasukabeDefenceForce)
-- [2853](https://github.com/tardis-sn/tardis/pull/2853) Remove black from codestyle workflow (2853) (@KasukabeDefenceForce)
 ### release-2024.10.14 (2024/10/08 12:37)
 - [2824](https://github.com/tardis-sn/tardis/pull/2824) fix typo for word boundaries in doc (2824) (@RyanGroneck)
 - [2847](https://github.com/tardis-sn/tardis/pull/2847) Ruff on tardis/simulation (2847) (@atharva-2001)
