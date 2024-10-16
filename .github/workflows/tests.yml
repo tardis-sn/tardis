@@ -107,6 +107,8 @@ jobs:
         uses: ./.github/actions/setup_env
         with:
           os-label: linux-64
+      
+      - run: ls -la
 
       # will download all artifacts(in this case all are coverage reports)
       - uses: actions/download-artifact@v4
