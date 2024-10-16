@@ -93,6 +93,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.os }}
+          include-hidden-files: true
           path: |
             .coverage*
             !.coveragerc
@@ -107,8 +108,6 @@ jobs:
         uses: ./.github/actions/setup_env
         with:
           os-label: linux-64
-      
-      - run: ls -la
 
       # will download all artifacts(in this case all are coverage reports)
       - uses: actions/download-artifact@v4
