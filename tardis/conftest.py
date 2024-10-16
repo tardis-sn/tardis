@@ -11,6 +11,7 @@ from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
 from tardis.tests.fixtures.regression_data import regression_data
+from tardis.tests.test_util import monkeysession
 
 # ensuring that regression_data is not removed by ruff
 assert regression_data is not None
