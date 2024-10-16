@@ -357,6 +357,7 @@ class TestLIVPlotter:
                             + str(index2)
                         ),
                     )
+        expected.close()
 
     def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, request):
         """
@@ -520,3 +521,4 @@ class TestLIVPlotter:
                 rtol=0.3,
                 atol=3,
             )
+        expected.close()
