@@ -22,7 +22,7 @@ if ("astropy.units" in sys.modules) or ("astropy.constants" in sys.modules):
         " after TARDIS."
     )
 else:
-    from astropy import physical_constants, astronomical_constants
+    from astropy import astronomical_constants, physical_constants
 
     physical_constants.set("codata2014")
     astronomical_constants.set("iau2012")

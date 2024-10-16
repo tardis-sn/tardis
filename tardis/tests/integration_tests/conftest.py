@@ -1,8 +1,9 @@
 import glob
 import os
-import yaml
+
 import pandas as pd
 import pytest
+import yaml
 
 # NOTE: the __githash__ variable is not available anymore
 # on `version.py`. Find another way to fix it!
@@ -87,8 +88,8 @@ def reference(request, data_path):
     else:
         try:
             reference = pd.HDFStore(data_path["reference_path"], "r")
-        except IOError:
-            raise IOError(
+        except OSError:
+            raise OSError(
                 f'Reference file {data_path["reference_path"]} does not exist and is needed'
                 f" for the tests"
             )
