@@ -54,8 +54,13 @@ jobs:
         run: git fetch origin master:master
         if: github.event_name == 'pull_request_target'
 
-      - name: Setup LFS
-        uses: ./.github/actions/setup_lfs
+      - uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardis-regression-data
+          path: tardis-regression-data
+          lfs: true
+          sparse-checkout: |
+            atom_data/kurucz_cd23_chianti_H_He.h5
 
       - name: Setup Mamba
         uses: mamba-org/setup-micromamba@v1
