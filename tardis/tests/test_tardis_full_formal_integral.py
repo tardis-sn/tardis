@@ -73,8 +73,8 @@ class TestTransportSimpleFormalIntegral:
     def test_simulation(self, simulation, request):
         regression_data = RegressionData(request)
         container = SimulationContainer(simulation)
-        regression_data.sync_hdf_store(container)
-        regression_data.close()
+        data = regression_data.sync_hdf_store(container)
+        data.close()
 
     def test_j_blue_estimators(self, simulation, request):
         regression_data = RegressionData(request)
