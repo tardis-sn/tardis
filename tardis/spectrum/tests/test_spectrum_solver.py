@@ -34,7 +34,8 @@ class TestSpectrumSolver:
         request.cls.regression_data = RegressionData(request)
         request.cls.regression_data.sync_hdf_store(simulation)
 
-        return simulation
+        yield simulation
+        request.cls.regression_data.close()
 
     def get_expected_data(self, key: str):
         return pd.read_hdf(self.regression_data.fpath, key)

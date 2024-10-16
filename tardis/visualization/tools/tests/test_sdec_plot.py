@@ -231,6 +231,7 @@ class TestSDECPlotter:
                 pd.testing.assert_frame_equal(
                     plot_object, expected.get(group + attribute_name)
                 )
+        expected.close()
 
     @pytest.fixture(scope="class", params=combinations)
     def plotter_generate_plot_mpl(self, request, observed_spectrum, plotter):
@@ -331,6 +332,7 @@ class TestSDECPlotter:
                             + str(index2)
                         ),
                     )
+        expected.close()
 
     @pytest.fixture(scope="class", params=combinations)
     def plotter_generate_plot_ply(self, request, observed_spectrum, plotter):
@@ -415,6 +417,8 @@ class TestSDECPlotter:
             np.testing.assert_allclose(
                 data.y, expected.get(group + "y").values.flatten()
             )
+
+        expected.close()
 
     def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, request):
         regression_data = RegressionData(request)
