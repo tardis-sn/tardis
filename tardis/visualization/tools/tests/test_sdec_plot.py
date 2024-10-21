@@ -163,7 +163,7 @@ class TestSDECPlotter:
     )
     def test_parse_species_list(self, request, plotter, attribute):
         """
-        Test _parse_species_list method.
+        Test parse_species_list method.
 
         Parameters
         ----------
@@ -172,7 +172,7 @@ class TestSDECPlotter:
         species : list
         """
         # THIS NEEDS TO BE RUN FIRST. NOT INDEPENDENT TESTS
-        plotter._parse_species_list(self.species_list[0])
+        plotter.parse_species_list(self.species_list[0])
         regression_data = RegressionData(request)
         data = regression_data.sync_ndarray(getattr(plotter, attribute))
         if attribute == "_full_species_list":

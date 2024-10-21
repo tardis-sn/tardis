@@ -138,6 +138,56 @@ def yaml_load_file(filename, loader=yaml.Loader):
         return yaml.load(stream, Loader=loader)
 
 
+def parse_species_list(sdec_plotter, data, species_list, packets_mode, nelements=None):
+        """
+        Parse user requested species list and create list of species ids to be used.
+
+        Parameters
+        ----------
+        species_list : list of species to plot
+            List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
+            Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
+            (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
+        packets_mode : str, optional
+            Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
+        nelements : int, optional
+            Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
+
+        Raises
+        ------
+        ValueError
+            If species list contains invalid entries.
+
+        """
+        sdec_plotter.parse_species_list(species_list)
+        _species_list = sdec_plotter._species_list
+        _species_mapped = sdec_plotter._species_mapped
+        _keep_colour = sdec_plotter._keep_colour
+
+        if nelements:
+            interaction_counts = (
+                data[packets_mode]
+                .packets_df_line_interaction["last_line_interaction_species"]
+                .value_counts()
+            )
+            interaction_counts.index = interaction_counts.index // 100
+            element_counts = interaction_counts.groupby(
+                interaction_counts.index
+            ).sum()
+            top_elements = element_counts.nlargest(nelements).index
+            top_species_list = [
+                atomic_number2element_symbol(element)
+                for element in top_elements
+            ]
+            sub_species_list, sub_species_mapped, sub_keep_colour = parse_species_list(
+            sdec_plotter, data, top_species_list, packets_mode
+            )
+            _species_list = sub_species_list
+            _species_mapped = sub_species_mapped
+            _keep_colour = sub_keep_colour
+
+        return _species_list, _species_mapped, _keep_colour       
+            
 def traverse_configs(base, other, func, *args):
     """
     Recursively traverse a base dict or list along with another one
@@ -160,7 +210,7 @@ def traverse_configs(base, other, func, *args):
             traverse_configs(base[k], other[k], func, *args)
     elif (
         isinstance(base, collections_abc.Iterable)
-        and not isinstance(base, basestring)
+        and not isinstance(base, str)
         and not hasattr(base, "shape")
     ):
         for val1, val2 in zip(base, other):

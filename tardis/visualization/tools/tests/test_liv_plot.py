@@ -12,7 +12,7 @@ from tardis.base import run_tardis
 from tardis.io.util import HDFWriterMixin
 from tardis.visualization.tools.liv_plot import LIVPlotter
 from tardis.tests.fixtures.regression_data import RegressionData
-
+from tardis.io.util import parse_species_list
 
 class PlotDataHDF(HDFWriterMixin):
     """
@@ -116,7 +116,7 @@ class TestLIVPlotter:
         attribute,
     ):
         """
-        Test for the _parse_species_list method in LIVPlotter.
+        Test for the parse_species_list method in LIVPlotter.
 
         Parameters:
         -----------
@@ -125,11 +125,22 @@ class TestLIVPlotter:
         attribute: The attribute to test after parsing the species list.
         """
         regression_data = RegressionData(request)
-        plotter._parse_species_list(
-            packets_mode=self.packets_mode[0],
-            species_list=self.species_list[0],
-            nelements=self.nelements[0],
+        
+        packets_mode=self.packets_mode[0]
+        species_list=self.species_list[0]
+        nelements=self.nelements[0]
+        
+        species_list_parsed, species_mapped, keep_colour = parse_species_list(
+            sdec_plotter=plotter.sdec_plotter,
+            data=plotter.data,
+            species_list=species_list,
+            packets_mode=packets_mode,
+            nelements=nelements,
         )
+        plotter._species_list = species_list_parsed
+        plotter._species_mapped = species_mapped
+        plotter._keep_colour = keep_colour
+        
         if attribute == "_species_mapped":
             plot_object = getattr(plotter, attribute)
             plot_object = [
