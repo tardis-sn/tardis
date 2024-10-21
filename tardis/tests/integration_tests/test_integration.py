@@ -1,16 +1,16 @@
 import os
 
-import yaml
-import pytest
 import matplotlib
+import pytest
+import yaml
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 
 from tardis.io.atom_data.base import AtomData
-from tardis.simulation import Simulation
 from tardis.io.configuration.config_reader import Configuration
+from tardis.simulation import Simulation
 
 pytestmarker = [pytest.mark.no_cover, pytest.mark.integration]
 
@@ -71,7 +71,7 @@ def model_quantities(request):
     reason="integration tests are not included in this run",
 )
 @pytest.mark.integration
-class TestIntegration(object):
+class TestIntegration:
     """Slow integration test for various setups present in subdirectories of
     ``tardis/tests/integration_tests``.
     """

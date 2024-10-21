@@ -1,27 +1,25 @@
-import pytest
-import numpy as np
-import numpy.testing as npt
-
-from astropy import units as u
 from io import StringIO
 
+import numpy as np
+import pytest
+from astropy import units as u
+
 from tardis.util.base import (
-    MalformedSpeciesError,
     MalformedElementSymbolError,
     MalformedQuantityError,
-    int_to_roman,
-    roman_to_int,
-    calculate_luminosity,
-    create_synpp_yaml,
-    intensity_black_body,
-    species_tuple_to_string,
-    species_string_to_tuple,
-    parse_quantity,
-    element_symbol2atomic_number,
+    MalformedSpeciesError,
     atomic_number2element_symbol,
-    reformat_element_symbol,
-    quantity_linspace,
+    calculate_luminosity,
     convert_abundances_format,
+    element_symbol2atomic_number,
+    int_to_roman,
+    intensity_black_body,
+    parse_quantity,
+    quantity_linspace,
+    reformat_element_symbol,
+    roman_to_int,
+    species_string_to_tuple,
+    species_tuple_to_string,
 )
 
 
