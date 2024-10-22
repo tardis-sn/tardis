@@ -2,6 +2,14 @@ import numpy as np
 import pandas as pd
 
 
+def expand_series(series):
+    # Expand the numpy arrays into rows
+    expanded_series = pd.DataFrame(
+        np.concatenate(series.values).reshape(-1, len(series))
+    )
+    return expanded_series
+
+
 class LevelPopulationSolver:
     def __init__(self, rates_matrices: pd.DataFrame, levels):
         self.rates_matrices = rates_matrices
@@ -24,13 +32,12 @@ class LevelPopulationSolver:
         )
 
         for species_id in self.rates_matrices.index:
-            # need to expand the numpy array so that it matches the dimensions of the normalized level boltzmann factors
             normalized_level_boltzmann_factors.loc[species_id, :] = (
-                self.rates_matrices.loc[
-                    species_id
-                ].apply(
-                    lambda rates_matrix: self.__calculate_boltzmann_factor(
-                        rates_matrix, species_id
+                expand_series(
+                    self.rates_matrices.loc[species_id].apply(
+                        lambda rates_matrix: self.__calculate_boltzmann_factor(
+                            rates_matrix, species_id
+                        )
                     )
                 )
             )
