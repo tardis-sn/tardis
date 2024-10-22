@@ -7,9 +7,9 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
-from matplotlib.testing.compare import compare_images
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
+from matplotlib.testing.compare import compare_images
 
 from tardis.base import run_tardis
 from tardis.io.util import HDFWriterMixin
