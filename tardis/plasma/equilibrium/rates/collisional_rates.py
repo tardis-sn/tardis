@@ -3,7 +3,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
-from tardis.plasma.detailed_balance.rates.collision_strengths import (
+from tardis.plasma.equilibrium.rates.collision_strengths import (
     UpsilonChiantiSolver,
     UpsilonCMFGENSolver,
     UpsilonRegemorterSolver,
@@ -116,6 +116,27 @@ class ThermalCollisionalRateSolver:
             "level_number_source",
             "level_number_destination",
         ]
+
+        collision_rates_coeff_df = collision_rates_coeff_df.reset_index()
+
+        # Add the new columns by duplicating the ion_number column
+        collision_rates_coeff_df["ion_number_source"] = (
+            collision_rates_coeff_df["ion_number"]
+        )
+        collision_rates_coeff_df["ion_number_destination"] = (
+            collision_rates_coeff_df["ion_number"]
+        )
+
+        collision_rates_coeff_df = collision_rates_coeff_df.set_index(
+            [
+                "atomic_number",
+                "ion_number",
+                "ion_number_source",
+                "ion_number_destination",
+                "level_number_source",
+                "level_number_destination",
+            ]
+        )
         return collision_rates_coeff_df
 
     def calculate_collision_strengths(self, temperatures_electron):

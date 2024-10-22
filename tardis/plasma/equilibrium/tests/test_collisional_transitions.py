@@ -12,7 +12,7 @@ from tardis.plasma.assembly.base import (
     PlasmaSolverFactory,
     convert_species_to_multi_index,
 )
-from tardis.plasma.detailed_balance.rates import (
+from tardis.plasma.equilibrium.rates import (
     #    UpsilonCMFGENSolver,
     ThermalCollisionalRateSolver,
     #    RadiativeRatesSolver,
