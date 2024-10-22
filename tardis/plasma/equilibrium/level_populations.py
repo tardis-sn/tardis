@@ -28,11 +28,13 @@ class LevelPopulationSolver:
 
     def solve(self):
         normalized_level_boltzmann_factors = pd.DataFrame(
-            index=self.levels.index, columns=self.rates_matrices.columns
+            index=self.levels.index,
+            columns=self.rates_matrices.columns,
+            dtype=np.float64,
         )
 
         for species_id in self.rates_matrices.index:
-            normalized_level_boltzmann_factors.loc[species_id, :] = (
+            normalized_level_boltzmann_factors.loc[species_id, :].update(
                 expand_series(
                     self.rates_matrices.loc[species_id].apply(
                         lambda rates_matrix: self.__calculate_boltzmann_factor(
