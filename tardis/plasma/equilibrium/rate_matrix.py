@@ -10,11 +10,31 @@ class RateMatrix:
         levels: pd.DataFrame,
         electron_number_densities,
     ):
+        """Constructs the rate matrix from an arbitrary number of rate solvers.
+
+        Parameters
+        ----------
+        rate_solvers : list
+            List of rate solver objects.
+        levels : pd.DataFrame
+            DataFrame of energy levels.
+        electron_number_densities : float or array of floats
+            Electron number densities in g/cm^3. If an array, it should have the
+            same length as the number of cells in the simulation.
+        """
         self.rate_solvers = rate_solvers
         self.levels = levels
         self.electron_number_densities = electron_number_densities
 
     def solve(self):
+        """Construct the compiled rate matrix dataframe.
+
+        Returns
+        -------
+        pd.DataFrame
+            A DataFrame of rate matrices indexed by atomic number and ion number,
+            with each column being a cell.
+        """
         rates_df_list = [
             solver.solve(input) for solver, input in self.rate_solvers
         ]
