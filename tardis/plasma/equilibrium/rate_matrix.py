@@ -63,7 +63,16 @@ class RateMatrix:
             df.reindex(all_indexes, fill_value=0) for df in rates_df_list
         ]
 
-        rates_df_list[1] *= electron_distribution.number_density
+        # Multiply rates by electron number density where appropriate
+        rates_df_list = [
+            rates_df * electron_distribution.number_density
+            if solver_arg_tuple[1] == "electron"
+            else rates_df
+            for solver_arg_tuple, rates_df in zip(
+                self.rate_solvers, rates_df_list
+            )
+        ]
+
         rates_df = sum(rates_df_list)
 
         grouped_rates_df = rates_df.groupby(
