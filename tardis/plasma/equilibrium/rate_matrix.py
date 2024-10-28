@@ -2,16 +2,12 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import coo_matrix
 
-# convert to factory where input is the solvers, and it produces an object that
-# itself takes in the rad field and electron distribution (which changes each iteration)
-
 
 class RateMatrix:
     def __init__(
         self,
         rate_solvers: list,
         levels: pd.DataFrame,
-        electron_number_densities,
     ):
         """Constructs the rate matrix from an arbitrary number of rate solvers.
 
@@ -21,16 +17,24 @@ class RateMatrix:
             List of rate solver objects.
         levels : pd.DataFrame
             DataFrame of energy levels.
-        electron_number_densities : float or array of floats
-            Electron number densities in g/cm^3. If an array, it should have the
-            same length as the number of cells in the simulation.
         """
         self.rate_solvers = rate_solvers
         self.levels = levels
-        self.electron_number_densities = electron_number_densities
 
-    def solve(self):
+    def solve(
+        self,
+        radiation_field,
+        electron_distribution,
+    ):
         """Construct the compiled rate matrix dataframe.
+
+        Parameters
+        ----------
+        radiation_field : RadiationField
+            Radiation field containing radiative temperature.
+        electron_distribution : ElectronDistribution
+            Distribution of electrons in the plasma, containing electron
+            temperatures and number densities.
 
         Returns
         -------
@@ -38,8 +42,13 @@ class RateMatrix:
             A DataFrame of rate matrices indexed by atomic number and ion number,
             with each column being a cell.
         """
+        required_arg = {
+            "radiative": radiation_field,
+            "electron": electron_distribution.temperature,
+        }
+
         rates_df_list = [
-            solver.solve(input) for solver, input in self.rate_solvers
+            solver.solve(required_arg[arg]) for solver, arg in self.rate_solvers
         ]
         # Extract all indexes
         all_indexes = set()
@@ -54,7 +63,7 @@ class RateMatrix:
             df.reindex(all_indexes, fill_value=0) for df in rates_df_list
         ]
 
-        rates_df_list[1] *= self.electron_number_densities
+        rates_df_list[1] *= electron_distribution.number_density
         rates_df = sum(rates_df_list)
 
         grouped_rates_df = rates_df.groupby(
