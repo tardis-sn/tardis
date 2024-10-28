@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import coo_matrix
 
+# convert to factory where input is the solvers, and it produces an object that
+# itself takes in the rad field and electron distribution (which changes each iteration)
+
 
 class RateMatrix:
     def __init__(
