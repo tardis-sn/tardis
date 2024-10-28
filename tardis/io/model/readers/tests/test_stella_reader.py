@@ -1,9 +1,9 @@
-import numpy as np
-
 from pathlib import Path
 
-from pytest import fixture
+import numpy as np
 from astropy import units as u
+from pytest import fixture
+
 from tardis.io.model import read_stella_model
 
 MODEL_DATA_PATH = Path(__file__).parent / "data"

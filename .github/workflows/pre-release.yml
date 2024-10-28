@@ -69,14 +69,19 @@ jobs:
         with:
           path: /tmp
 
-      - name: Copy zenodo.json to repository
+      - name: Check for generated Zenodo JSON and copy if exists
         run: |
-          cp /tmp/zenodo_json/.zenodo.json .
+          if [ -f "/tmp/zenodo/.zenodo.json" ]; then
+            cp /tmp/zenodo_json/.zenodo.json .
+            echo "Using generated zenodo file"
+          else
+            echo "No zenodo file found, defaulting to one in TARDIS master"
+          fi
 
       - name: Get current date
         run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
 
-      - uses: peter-evans/create-pull-request@v4
+      - uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.BOT_TOKEN }}
           committer: TARDIS Bot <tardis.sn.bot@gmail.com>

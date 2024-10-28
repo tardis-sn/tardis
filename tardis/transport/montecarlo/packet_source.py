@@ -1,13 +1,14 @@
 import abc
 
-import numpy as np
 import numexpr as ne
+import numpy as np
+from astropy import units as u
+
 from tardis import constants as const
+from tardis.io.util import HDFWriterMixin
 from tardis.transport.montecarlo.packet_collections import (
     PacketCollection,
 )
-from tardis.io.util import HDFWriterMixin
-from astropy import units as u
 
 
 class BasePacketSource(abc.ABC):
@@ -239,7 +240,6 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         Directions for packets
             numpy.ndarray
         """
-
         # For testing purposes
         if self.legacy_mode_enabled:
             return np.sqrt(np.random.random(no_of_packets))
@@ -269,7 +269,6 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
         Parameters
         ----------
-
         luminosity : u.Quantity
 
         """

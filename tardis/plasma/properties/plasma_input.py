@@ -1,5 +1,4 @@
 from tardis.plasma.properties.base import (
-    ArrayInput,
     Input,
     ProcessingPlasmaProperty,
 )

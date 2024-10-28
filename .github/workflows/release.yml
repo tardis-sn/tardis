@@ -28,7 +28,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install setuptools_scm
-        run: pip install 'setuptools_scm<7'
+        run: pip install "setuptools_scm<7" git-cliff==2.6.1
 
       - name: Show current version
         run: python .ci-helpers/get_current_version.py
@@ -38,19 +38,60 @@ jobs:
           python .ci-helpers/get_next_version.py
           echo "NEW_TAG=$(python .ci-helpers/get_next_version.py)" >> $GITHUB_ENV
 
-      - name: Create new release
+      - name: Initialize release
         uses: softprops/action-gh-release@v1
         with:
-          token: ${{ secrets.BOT_TOKEN }}
-          name: TARDIS v${{ env.NEW_TAG}}
+          name: TARDIS v${{ env.NEW_TAG }}
           tag_name: release-${{ env.NEW_TAG }}
-          prerelease: false
+          body: "This release has been created automatically by the TARDIS continuous delivery pipeline."
+          draft: false
+      
+      - name: Wait for Zenodo to update the latest release
+        run: sleep 120
+      
+      - name: Fetch Latest DOI from Zenodo
+        id: fetch-doi
+        run: |
+            CONCEPT_DOI="592480"
+            # Make the API request for BibTeX format, following redirects
+            response=$(curl -s -L -H "Accept: application/x-bibtex" "https://zenodo.org/api/records/${CONCEPT_DOI}")
+        
+            # Extract the full DOI value correctly
+            doi=$(echo "$response" | grep -oP 'doi\s*=\s*{([^}]+)}' | grep -oP '\{([^}]+)\}' | sed 's/[{}]//g')
+        
+            # Extract the DOI URL directly from the response
+            url=$(echo "$response" | grep -oP 'url\s*=\s*{([^}]+)}' | grep -oP '\{([^}]+)\}' | sed 's/[{}]//g')
+        
+            echo "Extracted DOI: ${doi}"
+            echo "Extracted URL: ${url}"
+            # Create DOI badge using the full DOI value
+            doi_badge="[![DOI Badge](https://img.shields.io/badge/DOI-${doi}-blue)](${url})"
+        
+            # Store results in GitHub environment variables
+            echo "doi_badge=${doi_badge}" >> $GITHUB_ENV
+            echo "doi_url=${url}" >> $GITHUB_ENV
+        
+      - name: Generate and process changelog
+        run: |
+          CHANGELOG=$(git cliff --config pyproject.toml --unreleased | sed -n '/^## Changelog/,$p' | grep -vE '^(ERROR|WARN)')
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Update release with changelog and DOI
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: release-${{ env.NEW_TAG }}
           body: |
             This release has been created automatically by the TARDIS continuous delivery pipeline.
-
+            ${{ env.doi_badge }}
+            ${{ env.CHANGELOG }}
+            
             A complete list of changes for this release is available at [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).
           files: |
+            conda-osx-arm64.lock
             conda-linux-64.lock
             conda-osx-64.lock
             conda-lock.yml
           fail_on_unmatched_files: false
+          draft: false
