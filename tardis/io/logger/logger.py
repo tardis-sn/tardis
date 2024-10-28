@@ -95,7 +95,7 @@ class TardisLogger:
 
     def setup_widget_logging(self):
         """Set up widget-based logging interface."""
-        widget_handler = TardisWidgetHandler(self.log_outputs, self.config.COLORS)
+        widget_handler = LoggingHandler(self.log_outputs, self.config.COLORS)
         widget_handler.setFormatter(
             logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
         )
@@ -129,7 +129,7 @@ class TardisLogger:
         display(tab)
 
 
-class TardisWidgetHandler(logging.Handler):
+class LoggingHandler(logging.Handler):
     def __init__(self, log_outputs, colors):
         super().__init__()
         self.log_outputs = log_outputs
@@ -163,15 +163,16 @@ class TardisWidgetHandler(logging.Handler):
         """Display log message in appropriate outputs."""
         html_wrapped = f"<pre style='white-space: pre-wrap; word-wrap: break-word;'>{html_output}</pre>"
         
-        # Display in specific level output
-        if level in (logging.WARNING, logging.ERROR):
-            with self.log_outputs["WARNING/ERROR"]:
-                display(HTML(html_wrapped))
-        elif level == logging.INFO:
-            with self.log_outputs["INFO"]:
-                display(HTML(html_wrapped))
-        elif level == logging.DEBUG:
-            with self.log_outputs["DEBUG"]:
+        level_to_output = {
+            logging.WARNING: "WARNING/ERROR",
+            logging.ERROR: "WARNING/ERROR",
+            logging.INFO: "INFO",
+            logging.DEBUG: "DEBUG"
+        }
+        
+        output_key = level_to_output.get(level)
+        if output_key:
+            with self.log_outputs[output_key]:
                 display(HTML(html_wrapped))
             
         # Always display in ALL output
