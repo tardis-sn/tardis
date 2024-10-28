@@ -28,6 +28,8 @@ class LoggingConfig:
     DEFAULT_SPECIFIC_STATE = False
 
 
+LOGGING_LEVELS = LoggingConfig().LEVELS
+
 class TardisLogger:
     def __init__(self):
         self.config = LoggingConfig()
