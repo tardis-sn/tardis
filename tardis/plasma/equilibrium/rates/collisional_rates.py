@@ -41,13 +41,13 @@ class ThermalCollisionalRateSolver:
             )
         self.radiative_transitions = radiative_transitions
         # find the transitions that have radiative rate data but no collisional data
-        missing_collision_strengths_index = (
+        self.missing_collision_strengths_index = (
             radiative_transitions.index.difference(
                 thermal_collisional_strengths.index
             )
         )
         self.all_collisional_strengths_index = (
-            missing_collision_strengths_index.append(
+            self.missing_collision_strengths_index.append(
                 thermal_collisional_strengths.index
             ).sort_values()
         )
@@ -75,9 +75,13 @@ class ThermalCollisionalRateSolver:
         if collisional_strength_approximation == "regemorter":
             self.thermal_collision_strength_approximator = (
                 UpsilonRegemorterSolver(
-                    radiative_transitions.loc[missing_collision_strengths_index]
+                    radiative_transitions.loc[
+                        self.missing_collision_strengths_index
+                    ]
                 )
             )
+        else:
+            self.thermal_collision_strength_approximator = None
 
     def solve(self, temperatures_electron):
         thermal_all_collision_strengths = self.calculate_collision_strengths(
@@ -156,11 +160,20 @@ class ThermalCollisionalRateSolver:
         thermal_collision_strengths = (
             self.thermal_collision_strength_solver.solve(temperatures_electron)
         )
-        thermal_collision_strength_approximated = (
-            self.thermal_collision_strength_approximator.solve(
-                temperatures_electron
+
+        if self.thermal_collision_strength_approximator is None:
+            thermal_collision_strength_approximated = pd.DataFrame(
+                0,
+                index=self.missing_collision_strengths_index,
+                columns=np.arange(len(temperatures_electron)),
+                dtype=np.float64,
             )
-        )
+        else:
+            thermal_collision_strength_approximated = (
+                self.thermal_collision_strength_approximator.solve(
+                    temperatures_electron
+                )
+            )
 
         return pd.concat(
             [
