@@ -61,7 +61,7 @@ class LevelPopulationSolver:
                 )
             )
             normalized_level_populations.loc[species_id, :].update(
-                np.hstack(solved_matrices.values)
+                np.vstack(solved_matrices.values).T
             )
 
         return normalized_level_populations
