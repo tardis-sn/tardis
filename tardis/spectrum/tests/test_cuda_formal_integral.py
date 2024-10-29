@@ -12,9 +12,6 @@ from tardis.spectrum.formal_integral import (
     NumbaFormalIntegrator,
 )
 
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
-
-
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
 GPUs_available = cuda.is_available()
 

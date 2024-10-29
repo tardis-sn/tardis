@@ -4,13 +4,9 @@
 Running tests
 *************
 
-There are two basic categories of tests in TARDIS: 1) the unit
-tests, and 2) the integration tests. Unit tests check the outputs of individual functions,
-while the integration tests check entire runs for different setups of TARDIS.
+In TARDIS, we focus primarily on unit tests. These tests check the outputs of individual functions, ensuring that each component behaves as expected.
 
-The unit tests run very quickly and thus are executed after every suggested change
-to TARDIS. The integration tests are much more costly and thus are only executed
-every few days on a dedicated server.
+Unit tests run quickly and are executed after every suggested change to TARDIS, allowing for immediate feedback and maintaining code quality.
 
 All of them are based on the excellent ``astropy-setup-helpers`` package and
 `pytest <https://docs.pytest.org/en/latest/>`_.
