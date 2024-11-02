@@ -159,6 +159,7 @@ def parse_species_list(sdec_plotter, data, species_list, packets_mode, nelements
             If species list contains invalid entries.
 
         """
+        from tardis.util.base import atomic_number2element_symbol
         sdec_plotter.parse_species_list(species_list)
         _species_list = sdec_plotter._species_list
         _species_mapped = sdec_plotter._species_mapped
