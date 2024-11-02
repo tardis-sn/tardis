@@ -6,7 +6,7 @@ from numba import cuda
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 C_INV = 3.33564e-11
-M_PI = np.arccos(-1)
+M_PI = np.pi
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
