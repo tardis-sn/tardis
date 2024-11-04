@@ -128,8 +128,9 @@ class TardisLogger:
     
     def _create_and_display_tabs(self):
         """Create and display the logging tabs."""
+        tab_order = ["ALL", "WARNING/ERROR", "INFO", "DEBUG"]
         tab = Tab(
-            children=[self.log_outputs[key] for key in ["WARNING/ERROR", "INFO", "DEBUG", "ALL"]],
+            children=[self.log_outputs[key] for key in tab_order],
             layout=Layout(
                 width="100%",
                 min_height="350px",  # Allow space for tab header + content
@@ -137,7 +138,7 @@ class TardisLogger:
             )
         )
         
-        for i, title in enumerate(["WARNING/ERROR", "INFO", "DEBUG", "ALL"]):
+        for i, title in enumerate(tab_order):
             tab.set_title(i, title)
         
         display(tab)
