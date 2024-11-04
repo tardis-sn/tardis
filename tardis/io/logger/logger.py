@@ -42,7 +42,17 @@ class TardisLogger:
         self.logger = logging.getLogger("tardis")
         
     def _create_output_widget(self, height="300px"):
-        return Output(layout=Layout(height=height, overflow_y="auto"))
+        layout = Layout(
+            height=height,
+            max_height=height,
+            min_height="100px",
+            overflow_y="auto",
+            overflow_x="auto",
+            border="1px solid #ddd",
+            width="100%",
+            display="block"
+        )
+        return Output(layout=layout)
     
     def configure_logging(self, log_level, tardis_config, specific_log_level=None):
         if "debug" in tardis_config:
@@ -118,16 +128,19 @@ class TardisLogger:
     
     def _create_and_display_tabs(self):
         """Create and display the logging tabs."""
-        tab = Tab(children=[
-            self.log_outputs[key] for key in 
-            ["WARNING/ERROR", "INFO", "DEBUG", "ALL"]
-        ])
+        tab = Tab(
+            children=[self.log_outputs[key] for key in ["WARNING/ERROR", "INFO", "DEBUG", "ALL"]],
+            layout=Layout(
+                width="100%",
+                min_height="350px",  # Allow space for tab header + content
+                overflow_y="visible"
+            )
+        )
         
         for i, title in enumerate(["WARNING/ERROR", "INFO", "DEBUG", "ALL"]):
             tab.set_title(i, title)
         
         display(tab)
-
 
 class LoggingHandler(logging.Handler):
     def __init__(self, log_outputs, colors):
@@ -161,7 +174,7 @@ class LoggingHandler(logging.Handler):
     
     def _display_log(self, level, html_output):
         """Display log message in appropriate outputs."""
-        html_wrapped = f"<pre style='white-space: pre-wrap; word-wrap: break-word;'>{html_output}</pre>"
+        html_wrapped = f"<pre style='white-space: pre-wrap; word-wrap: break-word; margin: 0;'>{html_output}</pre>"
         
         level_to_output = {
             logging.WARNING: "WARNING/ERROR",
