@@ -53,11 +53,9 @@ class TardisLogger:
                 "log_level", "INFO"
             )
             if log_level and tardis_config["debug"].get("log_level"):
-                print(
-                    "log_level is defined both in Functional Argument & YAML Configuration {debug section}"
-                )
-                print(
-                    f"log_level = {log_level.upper()} will be used for Log Level Determination\n"
+                self.logger.debug(
+                    "log_level is defined both in Functional Argument & YAML Configuration {debug section}, "
+                    f"log_level = {log_level.upper()} will be used for Log Level Determination"
                 )
         else:
             tardis_config["debug"] = {}
