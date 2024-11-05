@@ -30,9 +30,13 @@ class LevelPopulationSolver:
         np.ndarray
             The normalized, per-level population.
         """
-        x = np.zeros(rates_matrix.shape[0])  # give better name
-        x[0] = 1.0
-        normalized_level_population = np.linalg.solve(rates_matrix[:, :], x)
+        normalized_ion_population = np.zeros(
+            rates_matrix.shape[0]
+        )  # give better name
+        normalized_ion_population[0] = 1.0
+        normalized_level_population = np.linalg.solve(
+            rates_matrix[:, :], normalized_ion_population
+        )
         return normalized_level_population
 
     def solve(self):
