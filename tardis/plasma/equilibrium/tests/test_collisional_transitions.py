@@ -143,11 +143,14 @@ def test_thermal_collision_rates(
         collision_strengths_type="cmfgen",
         collisional_strength_approximation="regemorter",
     )
-    coll_rates_coeff = therm_coll_rate_solver.solve([10000, 20000] * u.K)
+    coll_rates_coeff = therm_coll_rate_solver.solve([10000, 20000] * u.K).loc[
+        :, :, 0, 0, :, :
+    ]
     pdt.assert_frame_equal(
         coll_rates_coeff.iloc[:435],
         legacy_cmfgen_collision_rate_plasma_solver.coll_exc_coeff,
         check_names=False,
+        check_column_type=False,
     )
     pdt.assert_frame_equal(
         coll_rates_coeff.iloc[435:],
@@ -155,6 +158,7 @@ def test_thermal_collision_rates(
             "level_number_lower", "level_number_upper"
         ),
         check_names=False,
+        check_column_type=False,
     )
 
 
