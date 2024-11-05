@@ -186,7 +186,7 @@ def test_legacy_chianti_collisional_strengths(
 
     npt.assert_allclose(
         collision_strengths[0, 1, :],
-        chianti_collisional_rates.loc[1, 0, 1, 0],
+        chianti_collisional_rates.loc[1, 0, 0, 0, 1, 0],
         rtol=1e-4,
         atol=1e-13,
     )
