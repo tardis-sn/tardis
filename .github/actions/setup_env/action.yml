@@ -30,3 +30,8 @@ runs:
           environment-name: tardis
           cache-environment: true
           cache-downloads: true
+
+      - run: |
+          micromamba install panel watchfiles
+          micromamba install -c pyviz nbsite
+        shell: bash
