@@ -1,6 +1,6 @@
 ## Changelog
 
-### release-2024.11.11 (2024/11/04 10:14)
+### release-2024.11.11 (2024/11/11 10:14)
 - [2858](https://github.com/tardis-sn/tardis/pull/2858) Gamma ray documentation introduction (2858) (@CePowers)
 - [2730](https://github.com/tardis-sn/tardis/pull/2730) Simulation solver workflow (2730) (@andrewfullard)
 - [2860](https://github.com/tardis-sn/tardis/pull/2860) Cleanup codestyle workflow (2860) (@KasukabeDefenceForce)
