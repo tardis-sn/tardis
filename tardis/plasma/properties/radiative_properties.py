@@ -3,7 +3,6 @@ import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from numba import jit, prange
 
 from tardis import constants as const
 from tardis.opacities.macro_atom.base import TransitionProbabilities
@@ -96,9 +95,9 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         )
 
         # the following line probably can be removed as well
-        stimulated_emission_factor[
-            np.isneginf(stimulated_emission_factor)
-        ] = 0.0
+        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = (
+            0.0
+        )
         stimulated_emission_factor[
             meta_stable_upper & (stimulated_emission_factor < 0)
         ] = 0.0
@@ -116,46 +115,6 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
                 (stimulated_emission_factor < 0) & nlte_lines_mask[np.newaxis].T
             ] = 0.0
         return stimulated_emission_factor
-
-
-class BetaSobolev(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    beta_sobolev : Numpy Array, dtype float
-    """
-
-    outputs = ("beta_sobolev",)
-    latex_name = (r"\beta_{\textrm{sobolev}}",)
-
-    def calculate(self, tau_sobolevs):
-        if getattr(self, "beta_sobolev", None) is None:
-            initial = 0.0
-        else:
-            initial = self.beta_sobolev
-
-        beta_sobolev = pd.DataFrame(
-            initial, index=tau_sobolevs.index, columns=tau_sobolevs.columns
-        )
-
-        self.calculate_beta_sobolev(
-            tau_sobolevs.values.ravel(), beta_sobolev.values.ravel()
-        )
-        return beta_sobolev
-
-    @staticmethod
-    @jit(nopython=True, parallel=True)
-    def calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
-        for i in prange(len(tau_sobolevs)):
-            if tau_sobolevs[i] > 1e3:
-                beta_sobolevs[i] = tau_sobolevs[i] ** -1
-            elif tau_sobolevs[i] < 1e-4:
-                beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
-            else:
-                beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
-                    tau_sobolevs[i]
-                )
-        return beta_sobolevs
 
 
 class RawRadBoundBoundTransProbs(

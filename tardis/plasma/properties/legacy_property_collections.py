@@ -1,3 +1,12 @@
+from tardis.opacities.continuum.bound_free import BoundFreeOpacity
+from tardis.opacities.macro_atom.base import (
+    NonMarkovChainTransitionProbabilities,
+    TransitionProbabilities,
+)
+from tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob import (
+    RawCollIonTransProbs,
+)
+from tardis.opacities.tau_sobolev import BetaSobolev, TauSobolev
 from tardis.plasma.properties import *
 
 
@@ -9,6 +18,7 @@ basic_inputs = PlasmaPropertyCollection(
     [
         DilutePlanckianRadField,
         NumberDensity,
+        TimeExplosion,
         AtomicData,
         JBlues,
         LinkTRadTElectron,
@@ -30,6 +40,7 @@ basic_properties = PlasmaPropertyCollection(
         IonizationData,
         LinesLowerLevelIndex,
         LinesUpperLevelIndex,
+        TauSobolev,
         StimulatedEmissionFactor,
         SelectedAtoms,
         ElectronTemperature,
@@ -37,7 +48,9 @@ basic_properties = PlasmaPropertyCollection(
 )
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
 lte_excitation_properties = PlasmaPropertyCollection([LevelBoltzmannFactorLTE])
-macro_atom_properties = PlasmaPropertyCollection([MacroAtomData])
+macro_atom_properties = PlasmaPropertyCollection(
+    [BetaSobolev, TransitionProbabilities, MacroAtomData]
+)
 nebular_ionization_properties = PlasmaPropertyCollection(
     [PhiSahaNebular, ZetaData, BetaElectron, RadiationFieldCorrection]
 )
@@ -50,6 +63,8 @@ nlte_properties = PlasmaPropertyCollection(
         LevelBoltzmannFactorNLTE,
         NLTEData,
         PreviousElectronDensities,
+        PreviousBetaSobolev,
+        BetaSobolev,
     ]
 )
 nlte_root_solver_properties = PlasmaPropertyCollection(
@@ -107,9 +122,11 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         RawCollisionTransProbs,
         MarkovChainIndex,
         MarkovChainTransProbsCollector,
+        NonMarkovChainTransitionProbabilities,
         MonteCarloTransProbs,
         FreeFreeCoolingRate,
         FreeBoundCoolingRate,
+        BoundFreeOpacity,
         LevelNumberDensityLTE,
         PhotoIonBoltzmannFactor,
         FreeBoundEmissionCDF,
@@ -117,7 +134,9 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         LevelIdxs2TransitionIdx,
         CollIonRateCoeffSeaton,
         CollRecombRateCoeff,
+        RawCollIonTransProbs,
         ContinuumInteractionHandler,
+        BetaSobolev,
     ]
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])

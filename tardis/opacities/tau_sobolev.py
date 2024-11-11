@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from astropy import units as u
+from numba import jit, prange
 
 from tardis import constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
@@ -70,6 +71,44 @@ def calculate_sobolev_line_opacity(
         index=lines.index,
         columns=np.array(level_number_density.columns),
     )
+
+
+@jit(nopython=True, parallel=True)
+def calculate_beta_sobolev(tau_sobolevs, previous_beta_sobolev=None):
+    """Calculate the beta Sobolev values based on the provided tau_sobolevs.
+    Values from the previous iteration can be provided.
+
+    Parameters
+    ----------
+    tau_sobolevs : pd.DataFrame
+        Tau Sobolev opacities.
+    previous_beta_sobolev : pd.DataFrame, optional
+        Beta Sobolevs from the previous iteration, by default None
+
+    Returns
+    -------
+    pd.DataFrame
+        The latest Beta Sobolev opacities.
+    """
+    if previous_beta_sobolev is None:
+        initial = 0.0
+    else:
+        initial = previous_beta_sobolev
+
+    beta_sobolevs = pd.DataFrame(
+        initial, index=tau_sobolevs.index, columns=tau_sobolevs.columns
+    )
+
+    for i in prange(len(tau_sobolevs)):
+        if tau_sobolevs[i] > 1e3:
+            beta_sobolevs[i] = tau_sobolevs[i] ** -1
+        elif tau_sobolevs[i] < 1e-4:
+            beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
+        else:
+            beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
+                tau_sobolevs[i]
+            )
+    return beta_sobolevs
 
 
 class TauSobolev(ProcessingPlasmaProperty):
@@ -168,3 +207,43 @@ class TauSobolev(ProcessingPlasmaProperty):
             index=lines.index,
             columns=np.array(level_number_density.columns),
         )
+
+
+class BetaSobolev(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    beta_sobolev : Numpy Array, dtype float
+    """
+
+    outputs = ("beta_sobolev",)
+    latex_name = (r"\beta_{\textrm{sobolev}}",)
+
+    def calculate(self, tau_sobolevs):
+        if getattr(self, "beta_sobolev", None) is None:
+            initial = 0.0
+        else:
+            initial = self.beta_sobolev
+
+        beta_sobolev = pd.DataFrame(
+            initial, index=tau_sobolevs.index, columns=tau_sobolevs.columns
+        )
+
+        self.calculate_beta_sobolev(
+            tau_sobolevs.values.ravel(), beta_sobolev.values.ravel()
+        )
+        return beta_sobolev
+
+    @staticmethod
+    @jit(nopython=True, parallel=True)
+    def calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
+        for i in prange(len(tau_sobolevs)):
+            if tau_sobolevs[i] > 1e3:
+                beta_sobolevs[i] = tau_sobolevs[i] ** -1
+            elif tau_sobolevs[i] < 1e-4:
+                beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
+            else:
+                beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
+                    tau_sobolevs[i]
+                )
+        return beta_sobolevs
