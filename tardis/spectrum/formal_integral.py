@@ -10,7 +10,7 @@ from scipy.interpolate import interp1d
 
 from tardis import constants as const
 from tardis.opacities.opacity_state import (
-    opacity_state_initialize,
+    opacity_state_to_numba,
 )
 from tardis.spectrum.formal_integral_cuda import (
     CudaFormalIntegrator,
@@ -19,9 +19,6 @@ from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
-from tardis.transport.montecarlo.numba_interface import (
-    opacity_state_initialize,
-)
 
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
@@ -272,7 +269,15 @@ class FormalIntegrator:
     points : int64
     """
 
-    def __init__(self, simulation_state, plasma, transport, points=1000):
+    def __init__(
+        self,
+        simulation_state,
+        plasma,
+        transport,
+        opacity_state=None,
+        macro_atom_state=None,
+        points=1000,
+    ):
         self.simulation_state = simulation_state
         self.transport = transport
         self.points = points
@@ -281,10 +286,10 @@ class FormalIntegrator:
                 self.transport.montecarlo_configuration
             )
         if plasma:
-            self.plasma = opacity_state_initialize(
-                plasma,
+            self.plasma = opacity_state_to_numba(
+                opacity_state,
+                macro_atom_state,
                 transport.line_interaction_type,
-                self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
@@ -304,7 +309,7 @@ class FormalIntegrator:
             self.transport.r_outer_i
             / self.simulation_state.time_explosion.to("s").value,
         )
-        self.opacity_state = opacity_state_initialize(
+        self.opacity_state = opacity_state_to_numba(
             self.original_plasma,
             self.transport.line_interaction_type,
             self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
@@ -431,9 +436,7 @@ class FormalIntegrator:
         if transport.line_interaction_type == "macroatom":
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
-            internal = self.original_plasma.transition_probabilities[
-                internal_jump_mask
-            ]
+            internal = self.plasma.transition_probabilities[internal_jump_mask]
 
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values
@@ -442,7 +445,7 @@ class FormalIntegrator:
             montecarlo_transport_state.packet_collection.time_of_simulation
             * simulation_state.volume
         )
-        exptau = 1 - np.exp(-self.original_plasma.tau_sobolevs)
+        exptau = 1 - np.exp(-self.plasma.tau_sobolev)
         Edotlu = (
             Edotlu_norm_factor
             * exptau
@@ -475,7 +478,7 @@ class FormalIntegrator:
         upper_level_index = self.atomic_data.lines.index.droplevel(
             "level_number_lower"
         )
-        e_dot_lu = pd.DataFrame(Edotlu.values, index=upper_level_index)
+        e_dot_lu = pd.DataFrame(Edotlu.value, index=upper_level_index)
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
 
@@ -505,7 +508,7 @@ class FormalIntegrator:
         transitions_index = transitions.set_index(
             ["atomic_number", "ion_number", "source_level_number"]
         ).index.copy()
-        tmp = self.original_plasma.transition_probabilities[
+        tmp = self.plasma.transition_probabilities[
             (self.atomic_data.macro_atom_data.transition_type == -1).values
         ]
         q_ul = tmp.set_index(transitions_index)
@@ -526,7 +529,7 @@ class FormalIntegrator:
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-self.original_plasma.tau_sobolevs) + att_S_ul
+        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolev) + att_S_ul
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -543,11 +546,9 @@ class FormalIntegrator:
             transport.r_outer_i = (
                 montecarlo_transport_state.geometry_state.r_outer
             )
-            transport.tau_sobolevs_integ = (
-                self.original_plasma.tau_sobolevs.values
-            )
+            transport.tau_sobolevs_integ = self.plasma.tau_sobolev.values
             transport.electron_densities_integ = (
-                self.original_plasma.electron_densities.values
+                self.plasma.electron_densities.values
             )
 
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
@@ -583,7 +584,7 @@ class FormalIntegrator:
         # (as in the MC simulation)
         transport.tau_sobolevs_integ = interp1d(
             r_middle,
-            plasma.tau_sobolevs,
+            plasma.tau_sobolev,
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
