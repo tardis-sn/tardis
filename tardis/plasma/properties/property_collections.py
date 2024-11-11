@@ -38,7 +38,7 @@ basic_properties = PlasmaPropertyCollection(
 )
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
 lte_excitation_properties = PlasmaPropertyCollection([LevelBoltzmannFactorLTE])
-macro_atom_properties = PlasmaPropertyCollection([MacroAtomData])
+macro_atom_properties = []
 nebular_ionization_properties = PlasmaPropertyCollection(
     [PhiSahaNebular, ZetaData, BetaElectron, RadiationFieldCorrection]
 )
