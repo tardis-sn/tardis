@@ -11,6 +11,7 @@ from scipy.interpolate import interp1d
 from tardis import constants as const
 from tardis.opacities.opacity_state import (
     opacity_state_to_numba,
+    opacity_state_initialize,
 )
 from tardis.spectrum.formal_integral_cuda import (
     CudaFormalIntegrator,
@@ -285,11 +286,20 @@ class FormalIntegrator:
             self.montecarlo_configuration = (
                 self.transport.montecarlo_configuration
             )
-        if plasma:
+        if plasma and opacity_state and macro_atom_state:
             self.plasma = opacity_state_to_numba(
                 opacity_state,
                 macro_atom_state,
                 transport.line_interaction_type,
+            )
+            self.atomic_data = plasma.atomic_data
+            self.original_plasma = plasma
+            self.levels_index = plasma.levels
+        elif plasma:
+            self.plasma = opacity_state_initialize(
+                plasma,
+                transport.line_interaction_type,
+                self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
