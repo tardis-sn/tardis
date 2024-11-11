@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "StimulatedEmissionFactor",
-    "BetaSobolev",
     "RawRadBoundBoundTransProbs",
 ]
 

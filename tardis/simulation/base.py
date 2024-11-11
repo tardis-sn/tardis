@@ -289,12 +289,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
         )
 
-        estimated_t_rad = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        )
-        estimated_dilution_factor = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
-        )
+        estimated_t_rad = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
@@ -449,7 +445,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
 
-        opacity_state = self.opacity.solve(self.plasma)
+        opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 macro_atom_state = MacroAtomState.from_legacy_plasma(
