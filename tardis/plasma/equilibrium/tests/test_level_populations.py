@@ -8,7 +8,6 @@ from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
 class TestLevelPopulationSolver:
     @pytest.fixture(autouse=True)
     def setup(self):
-        # TODO: improve with regression data
         rates_matrices = pd.DataFrame(
             {
                 0: [np.array([[1, 1], [2, -2]])],
@@ -42,9 +41,9 @@ class TestLevelPopulationSolver:
                 rates_matrix
             )
 
-    @pytest.mark.skip(reason="Need regression data")
-    def test_solve(self):
+    def test_solve(self, regression_data):
         """Test the solve method."""
         expected_populations = False
         result = self.solver.solve()
+        expected_populations = regression_data.sync_dataframe(result)
         pd.testing.assert_frame_equal(result, expected_populations)
