@@ -52,14 +52,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             configuration,
         )
 
-        dilute_planckian_radiation_field = DilutePlanckianRadiationField(
-            self.simulation_state.t_radiative,
-            self.simulation_state.dilution_factor,
-        )
-
         self.plasma_solver = plasma_solver_factory.assemble(
             self.simulation_state.elemental_number_density,
-            dilute_planckian_radiation_field,
+            self.simulation_state.radiation_field_state,
             self.simulation_state.time_explosion,
             self.simulation_state._electron_densities,
         )
