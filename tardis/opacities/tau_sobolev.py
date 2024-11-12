@@ -73,7 +73,7 @@ def calculate_sobolev_line_opacity(
     )
 
 
-def calculate_beta_sobolev(tau_sobolevs, previous_beta_sobolev=None):
+def calculate_beta_sobolev(tau_sobolevs):
     """Calculate the beta Sobolev values based on the provided tau_sobolevs.
     Values from the previous iteration can be provided.
 
@@ -81,8 +81,6 @@ def calculate_beta_sobolev(tau_sobolevs, previous_beta_sobolev=None):
     ----------
     tau_sobolevs : pd.DataFrame
         Tau Sobolev opacities.
-    previous_beta_sobolev : pd.DataFrame, optional
-        Beta Sobolevs from the previous iteration, by default None
 
     Returns
     -------
@@ -103,13 +101,8 @@ def calculate_beta_sobolev(tau_sobolevs, previous_beta_sobolev=None):
                 )
         return beta_sobolevs
 
-    if previous_beta_sobolev is None:
-        initial = 0.0
-    else:
-        initial = previous_beta_sobolev
-
     beta_sobolev = pd.DataFrame(
-        initial, index=tau_sobolevs.index, columns=tau_sobolevs.columns
+        0.0, index=tau_sobolevs.index, columns=tau_sobolevs.columns
     )
 
     numba_calculate_beta_sobolev(
