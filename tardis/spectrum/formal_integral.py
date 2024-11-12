@@ -607,8 +607,8 @@ class FormalIntegrator:
         att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
         )
-        Jredlu = pd.DataFrame(
-            interp1d(r_middle, Jredlu, fill_value="extrapolate")(r_middle_integ)
+        Jredlu = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
+            r_middle_integ
         )
         Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
             r_middle_integ
