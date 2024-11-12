@@ -1,0 +1,59 @@
+name: Build Jupyterbook
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - '*'
+  pull_request:
+    branches:
+      - master
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  deploy-book:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/checkout@v4
+      with:
+        repository: tardis-sn/tardis-regression-data
+        path: tardis-regression-data
+        lfs: true
+        sparse-checkout: |
+          atom_data/kurucz_cd23_chianti_H_He.h5
+
+    - name: Setup environment
+      uses: ./.github/actions/setup_env
+      with:
+        os-label: linux-64
+
+    - run: |
+        micromamba install jupyter-book sphinx-autoapi
+        pip install -e . --user
+
+    - name: Copy atom_data
+      run: |
+        mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-regression-data/atom_data/. ~/Downloads/tardis-data
+
+    - name: Build the book
+      run: |
+        jupyter-book build --all docs
+  
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: "docs_new/_build/html"
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v3

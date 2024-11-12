@@ -1,0 +1,38 @@
+format: jb-book
+root: index
+parts:
+  - caption: Getting Started
+    chapters:
+      - file: installation
+      - file: quickstart
+      - file: tutorials
+  - caption: Input/Output
+    chapters:
+      - file: io/hdf/index
+      - file: io/configuration/index
+      - file: io/model/index
+      - file: io/optional/index
+      - file: io/visualization/index
+      - file: io/output/index
+      - file: io/grid/TardisGridTutorial
+  - caption: Physics Walkthrough
+    chapters:
+      - file: physics/intro/index
+      - file: physics/setup/index
+      - file: physics/montecarlo/index
+      - file: physics/update_and_conv/update_and_conv
+      - file: physics/spectrum/index
+      - file: physics/tardisgamma/index
+  - caption: Contributing to TARDIS
+    chapters:
+      - file: contributing/CONTRIBUTING
+      - file: contributing/development/index
+      - file: contributing/tools/index
+      - file: contributing/CHANGELOG
+      - file: contributing/in_progress/index
+  - caption: Other Resources
+    chapters:
+      - file: resources/credits
+      - file: resources/research_done_using_TARDIS/research_papers
+      - file: resources/code_comparison/index
+      - file: resources/zreferences
