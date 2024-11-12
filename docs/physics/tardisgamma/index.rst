@@ -10,3 +10,4 @@ Type Ia supernovae produce a large amount of energy from :math:`\gamma`-rays pro
 
 .. toctree::
     packetinitialization
+    opacities
