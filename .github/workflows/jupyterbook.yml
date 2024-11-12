@@ -1,4 +1,4 @@
-name: Build Jupyterbook
+name: Build Jupyter Book
 
 on:
   workflow_dispatch:
@@ -13,8 +13,13 @@ defaults:
   run:
     shell: bash -l {0}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+
 jobs:
-  deploy-book:
+  build:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
