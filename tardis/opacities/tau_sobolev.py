@@ -128,28 +128,12 @@ class TauSobolev(ProcessingPlasmaProperty):
         n_{lower} \Big(1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\Big)",
     )
 
-    def __init__(self, plasma_parent):
-        super(TauSobolev, self).__init__(plasma_parent)
-        self.sobolev_coefficient = (
-            (
-                ((np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs))
-                * u.cm
-                * u.s
-                / u.cm**3
-            )
-            .to(1)
-            .value
-        )
-
     def calculate(
         self,
         lines,
         level_number_density,
-        lines_lower_level_index,
         time_explosion,
         stimulated_emission_factor,
-        f_lu,
-        wavelength_cm,
     ):
         """
         Calculate Sobolev line opacity.
@@ -176,37 +160,12 @@ class TauSobolev(ProcessingPlasmaProperty):
         ------
         ValueError
             If any calculated tau_sobolevs are nan or inf.
-
-        Examples
-        --------
-        >>> calculate_sobolev_line_opacity(lines_data, level_density_data, time_exp, stim_factor)
         """
-        f_lu = f_lu.values[np.newaxis].T
-        wavelength = wavelength_cm.values[np.newaxis].T
-        n_lower = level_number_density.values.take(
-            lines_lower_level_index, axis=0, mode="raise"
-        )
-        tau_sobolevs = (
-            self.sobolev_coefficient
-            * f_lu
-            * wavelength
-            * time_explosion
-            * n_lower
-            * stimulated_emission_factor
-        )
-
-        if np.any(np.isnan(tau_sobolevs)) or np.any(
-            np.isinf(np.abs(tau_sobolevs))
-        ):
-            raise ValueError(
-                "Some tau_sobolevs are nan, inf, -inf in tau_sobolevs."
-                " Something went wrong!"
-            )
-
-        return pd.DataFrame(
-            tau_sobolevs,
-            index=lines.index,
-            columns=np.array(level_number_density.columns),
+        return calculate_sobolev_line_opacity(
+            lines,
+            level_number_density,
+            time_explosion,
+            stimulated_emission_factor,
         )
 
 
@@ -221,30 +180,4 @@ class BetaSobolev(ProcessingPlasmaProperty):
     latex_name = (r"\beta_{\textrm{sobolev}}",)
 
     def calculate(self, tau_sobolevs):
-        if getattr(self, "beta_sobolev", None) is None:
-            initial = 0.0
-        else:
-            initial = self.beta_sobolev
-
-        beta_sobolev = pd.DataFrame(
-            initial, index=tau_sobolevs.index, columns=tau_sobolevs.columns
-        )
-
-        self.calculate_beta_sobolev(
-            tau_sobolevs.values.ravel(), beta_sobolev.values.ravel()
-        )
-        return beta_sobolev
-
-    @staticmethod
-    @jit(nopython=True, parallel=True)
-    def calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
-        for i in prange(len(tau_sobolevs)):
-            if tau_sobolevs[i] > 1e3:
-                beta_sobolevs[i] = tau_sobolevs[i] ** -1
-            elif tau_sobolevs[i] < 1e-4:
-                beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
-            else:
-                beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
-                    tau_sobolevs[i]
-                )
-        return beta_sobolevs
+        return calculate_beta_sobolev(tau_sobolevs)
