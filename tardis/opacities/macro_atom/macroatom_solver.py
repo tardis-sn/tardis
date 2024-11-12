@@ -5,7 +5,7 @@ from tardis.opacities.macro_atom.base import (
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
 
-class MacroAtomSolver(object):
+class MacroAtomSolver:
     initialize: bool = True
     normalize: bool = True
 
@@ -80,7 +80,7 @@ class MacroAtomSolver(object):
     def solve_transition_probabilities(
         self,
         atomic_data,
-        plasma,
+        mean_intensities,
         tau_sobolev,
         beta_sobolev,
         stimulated_emission_factor,
@@ -91,8 +91,8 @@ class MacroAtomSolver(object):
         ----------
         atomic_data : tardis.io.atom_data.AtomData
             Atomic Data
-        plasma : tarids.plasma.BasePlasma
-            base plasma
+        mean_intensities : pd.DataFrame
+            Mean intensity of the radiation field for each shell
         tau_sobolev : pd.DataFrame
             Expansion Optical Depths
         beta_sobolev : pd.DataFrame
@@ -110,7 +110,7 @@ class MacroAtomSolver(object):
         transition_probabilities = calculate_transition_probabilities(
             atomic_data,
             beta_sobolev,
-            plasma.j_blues,
+            mean_intensities,
             stimulated_emission_factor,
             tau_sobolev,
             self.transition_probability_coef,
@@ -122,7 +122,7 @@ class MacroAtomSolver(object):
 
     def solve(
         self,
-        plasma,
+        legacy_plasma,
         atomic_data,
         tau_sobolev,
         stimulated_emission_factor,
@@ -133,7 +133,7 @@ class MacroAtomSolver(object):
 
         Parameters
         ----------
-        plasma : tarids.plasma.BasePlasma
+        legacy_plasma : tarids.plasma.BasePlasma
             legacy base plasma
         atomic_data : tardis.io.atom_data.AtomData
             Atomic Data
@@ -150,7 +150,7 @@ class MacroAtomSolver(object):
             transition_probabilities = (
                 self.solve_legacy_transition_probabilities(
                     atomic_data,
-                    plasma,
+                    legacy_plasma,
                     tau_sobolev,
                     stimulated_emission_factor,
                 )
@@ -158,7 +158,7 @@ class MacroAtomSolver(object):
         else:
             transition_probabilities = self.solve_transition_probabilities(
                 atomic_data,
-                plasma,
+                legacy_plasma.j_blues,
                 tau_sobolev,
                 beta_sobolev,
                 stimulated_emission_factor,
@@ -167,7 +167,7 @@ class MacroAtomSolver(object):
         macro_block_references = atomic_data.macro_atom_references[
             "block_references"
         ]
-        macro_atom_info = plasma.atomic_data.macro_atom_data
+        macro_atom_info = legacy_plasma.atomic_data.macro_atom_data
 
         return MacroAtomState(
             transition_probabilities,
@@ -175,5 +175,5 @@ class MacroAtomSolver(object):
             macro_atom_info["destination_level_idx"],
             macro_atom_info["lines_idx"],
             macro_block_references,
-            plasma.atomic_data.lines_upper2macro_reference_idx,
+            legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
         )
