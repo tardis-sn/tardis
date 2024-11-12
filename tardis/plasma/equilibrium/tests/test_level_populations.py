@@ -1,20 +1,44 @@
+import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
 
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
 from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
+from tardis.plasma.equilibrium.rate_matrix import RateMatrix
+from tardis.plasma.radiation_field import (
+    DilutePlanckianRadiationField,
+)
 
 
 class TestLevelPopulationSolver:
     @pytest.fixture(autouse=True)
-    def setup(self):
-        rates_matrices = pd.DataFrame(
-            {
-                0: [np.array([[1, 1], [2, -2]])],
-            }
+    def setup(
+        self,
+        rate_solver_list,
+        new_chianti_atomic_dataset_si,
+        collisional_simulation_state,
+    ):
+        rate_matrix_solver = RateMatrix(
+            rate_solver_list, new_chianti_atomic_dataset_si.levels
         )
-        levels = pd.DataFrame({"energy": [0, 1]})
-        self.solver = LevelPopulationSolver(rates_matrices, levels)
+
+        rad_field = DilutePlanckianRadiationField(
+            collisional_simulation_state.t_radiative,
+            dilution_factor=np.zeros_like(
+                collisional_simulation_state.t_radiative
+            ),
+        )
+        electron_dist = ThermalElectronEnergyDistribution(
+            0, collisional_simulation_state.t_radiative, 1e6 * u.g / u.cm**3
+        )
+
+        rates_matrices = rate_matrix_solver.solve(rad_field, electron_dist)
+        self.solver = LevelPopulationSolver(
+            rates_matrices, new_chianti_atomic_dataset_si.levels
+        )
 
     def test_calculate_level_population_simple(self):
         """Test solving a 2-level ion."""
