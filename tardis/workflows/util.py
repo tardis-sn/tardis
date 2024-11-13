@@ -1,5 +1,5 @@
-from astropy import units as u, constants as const
 import numpy as np
+from astropy import constants as const
 
 
 def get_tau_integ(plasma, simulation_state, bin_size=10):

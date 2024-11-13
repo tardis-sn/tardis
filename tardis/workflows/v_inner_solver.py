@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
-    TAU_TARGET = np.log(2.0 / 3)
+    TAU_TARGET = np.log(2.0 / 3.0)
 
     def __init__(self, configuration, mean_optical_depth="rosseland", tau=None):
         super().__init__(configuration)
