@@ -58,11 +58,11 @@ class SimulationState(HDFWriterMixin):
     dilution_factor : np.ndarray
         If None, the dilution_factor will be initialized with the geometric
         dilution factor.
-    v_boundary_inner : astropy.units.Quantity
-    v_boundary_outer : astropy.units.Quantity
+    v_inner_boundary : astropy.units.Quantity
+    v_outer_boundary : astropy.units.Quantity
     raw_velocity : np.ndarray
         The complete array of the velocities, without being cut by
-        `v_boundary_inner` and `v_boundary_outer`
+        `v_inner_boundary` and `v_outer_boundary`
     electron_densities : astropy.units.quantity.Quantity
 
     Attributes
@@ -81,8 +81,8 @@ class SimulationState(HDFWriterMixin):
     density : astropy.units.quantity.Quantity
     volume : astropy.units.quantity.Quantity
     no_of_shells : int
-        The number of shells as formed by `v_boundary_inner` and
-        `v_boundary_outer`
+        The number of shells as formed by `v_inner_boundary` and
+        `v_outer_boundary`
     no_of_raw_shells : int
     """
 
@@ -206,15 +206,11 @@ class SimulationState(HDFWriterMixin):
         return self.time_explosion * self.velocity
 
     @property
-    def v_boundary_inner(self):
-        return self.geometry.v_inner_boundary
-    
-    @property
     def v_inner_boundary(self):
-        return self.v_boundary_inner
+        return self.geometry.v_inner_boundary
 
     @property
-    def v_boundary_outer(self):
+    def v_outer_boundary(self):
         return self.geometry.v_outer_boundary
 
     @property

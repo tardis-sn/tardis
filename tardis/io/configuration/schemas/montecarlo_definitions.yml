@@ -6,7 +6,6 @@ definitions:
       type: object
       additionalProperties: false
       properties:
-      properties:
         type:
           enum:
           - damped
