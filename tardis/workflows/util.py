@@ -17,12 +17,11 @@ def get_tau_integ(plasma, simulation_state, bin_size=10):
     Returns
     -------
     dict
-        rossland : np.ndarray
+        rosseland : np.ndarray
             Roassland Mean Optical Depth
         planck : np.ndarray
             Planck Mean Optical Depth
     """
-
     index = plasma.atomic_data.lines.nu.index
     taus = plasma.tau_sobolevs.loc[index]
     freqs = plasma.atomic_data.lines.nu.values
@@ -74,7 +73,7 @@ def get_tau_integ(plasma, simulation_state, bin_size=10):
         -1, 1
     )
     kappa_tot = kappa_thom + kappa_exp
-    kappa_rossland = (
+    kappa_rosseland = (
         (udnu * kappa_tot**-1).sum(axis=0) / (udnu.sum(axis=0))
     ) ** -1
 
@@ -83,6 +82,6 @@ def get_tau_integ(plasma, simulation_state, bin_size=10):
     ).cgs.value
     dtau = kappa_planck * dr
     planck_integ_tau = np.cumsum(dtau[::-1])[::-1]
-    rossland_integ_tau = np.cumsum((kappa_rossland * dr)[::-1])[::-1]
+    rosseland_integ_tau = np.cumsum((kappa_rosseland * dr)[::-1])[::-1]
 
-    return {"rossland": rossland_integ_tau, "planck": planck_integ_tau}
+    return {"rosseland": rosseland_integ_tau, "planck": planck_integ_tau}

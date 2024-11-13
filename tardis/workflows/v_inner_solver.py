@@ -1,14 +1,14 @@
 import logging
 
 import numpy as np
-from astropy import units as u
-
-from tardis.simulation.convergence import ConvergenceSolver
-from tardis.workflows.simple_simulation import SimpleSimulation
-from tardis.workflows.util import get_tau_integ
-from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from scipy.interpolate import interp1d
 import pandas as pd
+from astropy import units as u
+from scipy.interpolate import interp1d
+
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.simulation.convergence import ConvergenceSolver
+from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
+from tardis.workflows.util import get_tau_integ
 
 # logging support
 logger = logging.getLogger(__name__)
@@ -20,12 +20,10 @@ logger = logging.getLogger(__name__)
 # Handle non-explicit formats when going out of the simulation
 
 
-class InnerVelocitySimulationSolver(SimpleSimulation):
-
+class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
     TAU_TARGET = np.log(2.0 / 3)
 
-    def __init__(self, configuration, mean_optical_depth="rossland", tau=None):
-
+    def __init__(self, configuration, mean_optical_depth="rosseland", tau=None):
         super().__init__(configuration)
         self.mean_optical_depth = mean_optical_depth.lower()
 
@@ -44,13 +42,13 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         )
 
     def estimate_v_inner(self):
-        """Compute the Rossland Mean Optical Depth,
+        """
+        Compute the Rosseland Mean Optical Depth,
         Estimate location where v_inner makes t=2/3 (or target)
         Extrapolate with exponential fits
 
-        Need some way to return and inspect the optical depths for later logging"""
-        pass
-
+        Need some way to return and inspect the optical depths for later logging
+        """
         tau_integ = np.log(
             get_tau_integ(
                 self.plasma_solver,
@@ -104,7 +102,6 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         EstimatedRadiationFieldProperties
             Dilute radiation file and j_blues dataclass
         """
-
         estimates = super().get_convergence_estimates(transport_state)
 
         estimated_v_inner = self.estimate_v_inner()
@@ -146,11 +143,9 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         a2*
             reprojection of a2 onto m1 & m2
         """
-
         return a1[m2[m1]], a2[m1[m2]]
 
     def print_mask(self, mask):
-
         return "".join([{True: "-", False: "X"}[m] for m in mask]).join("[]")
 
     def check_convergence(
@@ -183,7 +178,6 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
             )
 
         for key, solver in self.convergence_solvers.items():
-
             current_value = getattr(self.simulation_state, key)
             estimated_value = estimated_values[key]
 
@@ -312,11 +306,14 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
         """Run the TARDIS simulation until convergence is reached"""
         converged = False
         while self.completed_iterations < self.total_iterations - 1:
+            logger.info(
+                f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
+            )
 
-            opacity = self.solve_opacity()
+            opacity_states = self.solve_opacity()
 
             transport_state, virtual_packet_energies = self.solve_montecarlo(
-                opacity, self.real_packet_count
+                opacity_states, self.real_packet_count
             )
 
             (
@@ -344,9 +341,9 @@ class InnerVelocitySimulationSolver(SimpleSimulation):
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
-        opacity = self.solve_opacity()
+        opacity_states = self.solve_opacity()
         transport_state, virtual_packet_energies = self.solve_montecarlo(
-            opacity,
+            opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
