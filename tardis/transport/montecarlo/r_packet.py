@@ -1,17 +1,15 @@
 from enum import IntEnum
 
 import numpy as np
-import pandas as pd
-from numba import int64, float64, njit, objmode
+from numba import float64, int64, njit, objmode
 from numba.experimental import jitclass
 
-from tardis.transport.montecarlo import (
-    njit_dict_no_parallel,
-)
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
-from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo import (
+    njit_dict_no_parallel,
+)
 
 
 class InteractionType(IntEnum):
@@ -48,7 +46,7 @@ rpacket_spec = [
 
 
 @jitclass(rpacket_spec)
-class RPacket(object):
+class RPacket:
     def __init__(self, r, mu, nu, energy, seed, index=0):
         self.r = r
         self.mu = mu

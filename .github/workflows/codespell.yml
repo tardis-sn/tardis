@@ -1,0 +1,38 @@
+name: codespell
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  pull_request_target:
+    branches:
+      - master
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request_target'
+
+      - name: Checkout pull/${{ github.event.number }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+        if: github.event_name == 'pull_request_target'
+
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          os-label: linux-64
+      
+      - name: Run codespell
+        run: |
+          codespell docs/

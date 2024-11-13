@@ -23,7 +23,7 @@ class SpectrumSolver(HDFWriterMixin):
     hdf_name = "spectrum"
 
     def __init__(
-        self, transport_state, spectrum_frequency_grid, integrator_settings=None
+        self, transport_state, spectrum_frequency_grid, integrator_settings
     ):
         self.transport_state = transport_state
         self.spectrum_frequency_grid = spectrum_frequency_grid
@@ -99,12 +99,10 @@ class SpectrumSolver(HDFWriterMixin):
                     "This RETURNS AN EMPTY SPECTRUM!",
                     UserWarning,
                 )
-                return TARDISSpectrum(
+                self._spectrum_integrated = TARDISSpectrum(
                     np.array([np.nan, np.nan]) * u.Hz,
                     np.array([np.nan]) * u.erg / u.s,
                 )
-        else:
-            self._spectrum_integrated = None
         return self._spectrum_integrated
 
     @property

@@ -1,34 +1,30 @@
 import warnings
+
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
-from scipy.interpolate import interp1d
 from astropy import units as u
+from numba import njit, prange
+from scipy.interpolate import interp1d
+
 from tardis import constants as const
-from numba import njit, char, float64, int64, typeof, byte, prange
-from numba.experimental import jitclass
-
-
 from tardis.opacities.opacity_state import (
-    OpacityState,
     opacity_state_initialize,
-)
-from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
-from tardis.transport.montecarlo.configuration import montecarlo_globals
-from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
-from tardis.transport.montecarlo.numba_interface import (
-    opacity_state_initialize,
-    OpacityState,
 )
 from tardis.spectrum.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
-
 from tardis.spectrum.spectrum import TARDISSpectrum
+from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
+from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
+from tardis.transport.montecarlo.numba_interface import (
+    opacity_state_initialize,
+)
 
 C_INV = 3.33564e-11
-M_PI = np.arccos(-1)
+PI = np.pi
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
@@ -61,8 +57,7 @@ def numba_formal_integral(
         intensities at each p-ray multiplied by p
         frequency x p-ray grid
     """
-
-    # todo: add all the original todos
+    # TODO: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
     # global read-only values
@@ -202,7 +197,7 @@ def numba_formal_integral(
                 pJred_lu += direction
                 pJblue_lu += direction
             I_nu[p_idx] *= p
-        L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N)
+        L[nu_idx] = 8 * PI * PI * trapezoid_integration(I_nu, R_max / N)
 
     return L, I_nu_p
 
@@ -215,7 +210,7 @@ def numba_formal_integral(
 
 
 # @jitclass(integrator_spec)
-class NumbaFormalIntegrator(object):
+class NumbaFormalIntegrator:
     """
     Helper class for performing the formal integral
     with numba.
@@ -258,7 +253,7 @@ class NumbaFormalIntegrator(object):
         )
 
 
-class FormalIntegrator(object):
+class FormalIntegrator:
     """
     Class containing the formal integrator.
 
@@ -297,7 +292,8 @@ class FormalIntegrator(object):
 
     def generate_numba_objects(self):
         """instantiate the numba interface objects
-        needed for computing the formal integral"""
+        needed for computing the formal integral
+        """
         from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
         self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
@@ -353,7 +349,7 @@ class FormalIntegrator(object):
                     "FormalIntegrator."
                 )
 
-        if not self.transport.line_interaction_type in [
+        if self.transport.line_interaction_type not in [
             "downbranch",
             "macroatom",
         ]:
@@ -632,7 +628,8 @@ class FormalIntegrator(object):
 
     def formal_integral(self, nu, N):
         """Do the formal integral with the numba
-        routines"""
+        routines
+        """
         # TODO: get rid of storage later on
 
         res = self.make_source_function()
@@ -662,7 +659,7 @@ class FormalIntegrator(object):
         I_nu = self.transport.I_nu_p * ps
         L_test = np.array(
             [
-                8 * M_PI * M_PI * trapezoid_integration((I_nu)[i, :], R_max / N)
+                8 * PI * PI * trapezoid_integration((I_nu)[i, :], R_max / N)
                 for i in range(nu.shape[0])
             ]
         )

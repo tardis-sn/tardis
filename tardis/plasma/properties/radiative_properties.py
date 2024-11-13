@@ -5,14 +5,12 @@ import pandas as pd
 from astropy import units as u
 from numba import jit, prange
 
-
 from tardis import constants as const
 from tardis.opacities.macro_atom.base import TransitionProbabilities
 from tardis.plasma.properties.base import (
     ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +37,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     latex_formula = (r"1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}",)
 
     def __init__(self, plasma_parent=None, nlte_species=None):
-        super(StimulatedEmissionFactor, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self._g_upper = None
         self._g_lower = None
         self.nlte_species = nlte_species
@@ -175,7 +173,7 @@ class RawRadBoundBoundTransProbs(
     transition_probabilities_outputs = ("p_rad_bb",)
 
     def __init__(self, plasma_parent):
-        super(RawRadBoundBoundTransProbs, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.normalize = False
 
     def calculate(

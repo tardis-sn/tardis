@@ -1,15 +1,18 @@
 """This module provides an opacity calculator class with which the opacities
-and optical depth information may be extracted from Tardis runs."""
+and optical depth information may be extracted from Tardis runs.
+"""
 import logging
-import numpy as np
+
 import astropy.units as units
-from tardis import constants as const
+import numpy as np
 from astropy.modeling.models import Blackbody
+
+from tardis import constants as const
 
 logger = logging.getLogger(__name__)
 
 
-class opacity_calculator(object):
+class opacity_calculator:
     """Basic Tardis opacity and optical depth calculator
 
     Given the model object of a Tardis run and a frequency grid, detailed
@@ -223,7 +226,8 @@ class opacity_calculator(object):
     @property
     def kappa_exp(self):
         """bound-bound opacity according to the expansion opacity formalism per
-        frequency bin and cell"""
+        frequency bin and cell
+        """
         if self._kappa_exp is None:
             self._kappa_exp = self._calc_expansion_opacity()
         return self._kappa_exp
@@ -272,7 +276,8 @@ class opacity_calculator(object):
     @property
     def planck_tau(self):
         """Planck-mean optical depth, integrated from the surface to
-        corresponding inner shell radius"""
+        corresponding inner shell radius
+        """
         if self._planck_tau is None:
             planck_tau = self._calc_integrated_planck_optical_depth()
             self._planck_tau = planck_tau
@@ -297,7 +302,6 @@ class opacity_calculator(object):
         kappa_exp : astropy.units.Quantity ndarray
             expansion opacity array (shape Nbins x Nshells)
         """
-
         index = self.mdl.plasma.tau_sobolevs.index
         line_waves = self.mdl.plasma.atomic_data.lines.loc[index]
         line_waves = line_waves.wavelength.values * units.AA
@@ -337,7 +341,6 @@ class opacity_calculator(object):
         kappa_thom : astropy.units.Quantity ndarray
             Thomson scattering opacity (shape Nshells)
         """
-
         try:
             sigma_T = const.sigma_T
         except AttributeError:
@@ -367,7 +370,6 @@ class opacity_calculator(object):
         kappa_planck_mean : astropy.units.Quantity ndarray
             Planck-mean opacity (shape Nshells)
         """
-
         kappa_planck_mean = np.zeros(self.nshells) / units.cm
 
         for i in range(self.nshells):
@@ -392,7 +394,6 @@ class opacity_calculator(object):
         delta_tau : astropy.units.Quantity ndarray (dimensionless)
             Planck-mean optical depth (shape Nshells)
         """
-
         delta_r = self.r_outer - self.r_inner
         delta_tau = delta_r * self.planck_kappa
 

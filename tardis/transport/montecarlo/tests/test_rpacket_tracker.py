@@ -1,15 +1,12 @@
+import numpy as np
 import numpy.testing as npt
 import pytest
-import numpy as np
 
-from tardis.transport.montecarlo.r_packet import InteractionType
 from tardis.transport.montecarlo.packet_trackers import (
     RPacketTracker,
     rpacket_trackers_to_dataframe,
 )
-
-
-pytestmark = pytest.mark.rpacket_tracking
+from tardis.transport.montecarlo.r_packet import InteractionType
 
 
 @pytest.fixture()

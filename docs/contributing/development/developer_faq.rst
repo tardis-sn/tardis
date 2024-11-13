@@ -10,4 +10,4 @@ Class design and inheritance:
  * If only constructor changed -> use classmethod
  * if overriding other methods -> subclass
 
-We use black to check PEP8 compliances. 
+We use ruff to check PEP8 compliances. 

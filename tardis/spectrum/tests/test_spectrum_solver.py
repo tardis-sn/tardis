@@ -32,9 +32,10 @@ class TestSpectrumSolver:
         simulation.run_final()
 
         request.cls.regression_data = RegressionData(request)
-        request.cls.regression_data.sync_hdf_store(simulation)
+        data = request.cls.regression_data.sync_hdf_store(simulation)
 
-        return simulation
+        yield simulation
+        data.close()
 
     def get_expected_data(self, key: str):
         return pd.read_hdf(self.regression_data.fpath, key)
@@ -92,7 +93,7 @@ class TestSpectrumSolver:
         transport_state = simulation.transport.transport_state
         spectrum_frequency_grid = simulation.transport.spectrum_frequency_grid
 
-        solver = SpectrumSolver(transport_state, spectrum_frequency_grid)
+        solver = SpectrumSolver(transport_state, spectrum_frequency_grid, None)
         result_real, result_virtual, result_integrated = solver.solve(
             transport_state
         )

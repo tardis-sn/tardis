@@ -203,7 +203,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         chi_0_species=(20, 2),
         delta_treatment=None,
     ):
-        super(RadiationFieldCorrection, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.departure_coefficient = departure_coefficient
         self.delta_treatment = delta_treatment
         self.chi_0_species = chi_0_species
@@ -288,7 +288,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         ion_zero_threshold=ION_ZERO_THRESHOLD,
         electron_densities=None,
     ):
-        super(IonNumberDensity, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
         self._electron_densities = electron_densities
@@ -421,7 +421,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     def __init__(
         self, plasma_parent, ion_zero_threshold=1e-20, electron_densities=None
     ):
-        super(IonNumberDensityHeNLTE, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
         self._electron_densities = electron_densities
@@ -434,8 +434,12 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
         he_three_population = helium_population_updated.loc[2].mul(
             1.0 / n_electron
         )
-        helium_population_updated.loc[0].update(he_one_population)
-        helium_population_updated.loc[2].update(he_three_population)
+        helium_population_updated.loc[
+            0, helium_population_updated.columns
+        ] = he_one_population.values
+        helium_population_updated.loc[
+            2, helium_population_updated.columns
+        ] = he_three_population.values
         unnormalised = helium_population_updated.sum()
         normalised = helium_population_updated.mul(
             number_density.loc[2] / unnormalised
@@ -465,15 +469,15 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                 helium_population_updated = self.update_he_population(
                     helium_population, n_electron, number_density
                 )
-                ion_number_density.loc[2, 0].update(
-                    helium_population_updated.loc[0].sum(axis=0)
-                )
-                ion_number_density.loc[2, 1].update(
-                    helium_population_updated.loc[1].sum(axis=0)
-                )
-                ion_number_density.loc[2, 2].update(
-                    helium_population_updated.loc[2, 0]
-                )
+                ion_number_density.loc[2, 0] = helium_population_updated.loc[
+                    0
+                ].sum(axis=0)
+                ion_number_density.loc[2, 1] = helium_population_updated.loc[
+                    1
+                ].sum(axis=0)
+                ion_number_density.loc[2, 2] = helium_population_updated.loc[
+                    2, 0
+                ]
                 ion_numbers = ion_number_density.index.get_level_values(
                     1
                 ).values

@@ -16,16 +16,6 @@ Code Style Conventions
 
 TARDIS follows the `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_ style guide written by the author of the Python programming language. It defines a consistent way to write your code making, it easier to read and maintain.
 
-Black
------
-`Black <https://black.readthedocs.io/en/stable/index.html>`_ is a PEP 8 compliant opinionated code formatter. At TARDIS. we use Black to automatically conform to PEP 8. It is already installed in the TARDIS conda environment, so all you have to do is to run Black before committing your changes: ::
-
-    black {source_file_or_directory}
-
-A better method is to run Black automatically - first `integrate it within the code editor <https://black.readthedocs.io/en/stable/editor_integration.html>`_ you use and then enable the "format on save" or "format on type" option in your editor settings.
-
-.. warning :: If your code doesn't follow the Black code style, then the Black-check action on your PR will fail.
-
 Ruff
 ----
 `Ruff <https://docs.astral.sh/ruff/>`_ is a code linter and formatter that checks for common mistakes and automatically fixes them. It is currently not installed in the TARDIS conda environment, so you will have to install it manually: ::
@@ -37,11 +27,7 @@ To run Ruff, use the following command: ::
     ruff check <source_file_or_directory> # Lints the code
     ruff check <source_file_or_directory> --fix # Lints and fixes any fixable errors
 
-Currently, Ruff is not integrated with the TARDIS CI and is not a requirement for merging a PR. However, it is recommended to run Ruff on your code before committing it to ensure that new code already follows these rules.
-
 .. note :: We adopt the linting rules utilized by astropy. Permanent rules are defined in the ``pyproject.toml``, non-permanent rules are defined in the ``.ruff.toml`` file. If you want to add a new rule, please add it to the ``.ruff.toml`` file. If you want to add a permanent rule, please open a PR to the ``pyproject.toml``.
-
-.. note :: Ruff can also be used for formatting code, but for now we recommend using Black for this purpose as the CI is configured to run Black on all PRs.
 
 Pre-commit (Optional)
 ----
@@ -60,7 +46,7 @@ This needs to be done only once per repository. The pre-commit hooks will now au
 Naming Conventions
 ------------------
 
-While Black automatically conforms your code to a majority of the PEP 8 style guide (like whitespace usage, string quotes, code layout, etc.), your code still needs to conform to the `PEP 8 naming conventions <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_. The main things to keep in mind are:
+While Ruff automatically conforms your code to a majority of the PEP 8 style guide (like whitespace usage, string quotes, code layout, etc.), your code still needs to conform to the `PEP 8 naming conventions <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_. The main things to keep in mind are:
 
 - Function names should be lowercase, with words separated by underscores as necessary to improve readability (i.e. snake_case).
 

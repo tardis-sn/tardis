@@ -4,11 +4,9 @@ on:
   push:
     branches:
     - master
-
   pull_request:
     branches:
-    - '*'
-
+    - master
     types:
       - opened
       - reopened
@@ -41,26 +39,25 @@ jobs:
         with:
           repository: tardis-sn/stardis
 
-      - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v2
+      - name: Download Lock File
+        run:  wget -q https://raw.githubusercontent.com/tardis-sn/stardis/main/conda-${{ matrix.label }}.lock
+        shell: bash
+
+      - name: Generate Cache Key
+        run: | 
+          file_hash=$(cat conda-${{ matrix.label }}.lock | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
+        id: cache-environment-key
+        shell: bash
+        
+      - uses: mamba-org/setup-micromamba@v1
         with:
-          miniforge-variant: Mambaforge
-          miniforge-version: latest
-          activate-environment: stardis
-          use-mamba: true
-  
-      - name: Cache lockfile
-        uses: actions/cache@v4
-        with:
-          path: ${{ matrix.prefix }}
-          key: conda-${{ matrix.label }}-${{ hashFiles(format('conda-{0}.lock', matrix.label)) }}-${{ env.CACHE_NUMBER }}
-        id: cache-conda
-  
-      - name: Update Conda Environment
-        id: update-env
-        run: |
-          mamba update -n stardis --file conda-${{ matrix.label }}.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true'
+          environment-file: conda-${{ matrix.label }}.lock
+          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          environment-name: stardis
+          cache-environment: true
+          cache-downloads: true
         
       - name: Install tardis
         id: install-tardis

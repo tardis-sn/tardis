@@ -17,7 +17,7 @@ def velocity_dvdr(r_packet, geometry):
     geometry: Geometry
 
     Returns
-    -----------
+    -------
     v: float, current velocity
     frac: float, dv/dr for current shell
     """
@@ -37,16 +37,16 @@ def tau_sobolev_factor(r_packet, geometry):
     The angle and velocity dependent Tau Sobolev factor component. Is called when ENABLE_NONHOMOLOGOUS_EXPANSION is set to True.
 
     Note: to get Tau Sobolev, this needs to be multiplied by tau_sobolevs found from plasma
+
     Parameters
     ----------
     r_packet: RPacket
     geometry: Geometry
 
     Returns
-    -----------
+    -------
     factor = 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)
     """
-
     v, dvdr = velocity_dvdr(r_packet, geometry)
     r = r_packet.r
     mu = r_packet.mu
@@ -61,11 +61,12 @@ def quartic_roots(a, b, c, d, e, threshold):
     Uses: https://en.wikipedia.org/wiki/Quartic_function#General_formula_for_roots
 
     Parameters
-    -----------
+    ----------
     a, b, c, d, e: coefficients of the equations ax^4 + bx^3 + cx^2 + dx + e = 0, float
     threshold: lower needed limit on roots, float
+
     Returns
-    -----------
+    -------
     roots: real positive roots of ax^4 + bx^3 + cx^2 + dx + e = 0
 
     """

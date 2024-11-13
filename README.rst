@@ -30,8 +30,8 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/_static/ruff_badge.json
+    :target: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml
 |
 
 .. _tardiscredits:
@@ -110,14 +110,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2024_13305329
+.. |CITATION| replace:: kerzendorf_2024_14070168
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.13305329-blue
-                 :target: https://doi.org/10.5281/zenodo.13305329
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.14070168-blue
+                 :target: https://doi.org/10.5281/zenodo.14070168
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2024_13305329,
+    @software{kerzendorf_2024_14070168,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -152,43 +152,44 @@ The following BibTeX entries are needed for the references:
                       Sondhi, Dhruv and
                       Yu, Jenny and
                       Patel, Maryam and
+                      Shields, Josh and
                       Varanasi, Kaushik and
                       Rathi, Shikha and
                       Chitchyan, Sona and
                       Gillanders, James and
                       Singh, Shreyas and
                       Savel, Arjun and
-                      Eweis, Youssef and
+                      Gupta, Sumit and
                       Reinecke, Martin and
                       Holas, Alexander and
+                      Eweis, Youssef and
                       Bylund, Tomas and
-                      Gupta, Sumit and
-                      Bentil, Laud and
                       Black, William and
+                      Bentil, Laud and
+                      Kumar, Asish and
                       Eguren, Jordi and
                       Kumar, Ansh and
                       Bartnik, Matthew and
-                      Kumar, Asish and
                       Alam, Arib and
                       Magee, Mark and
                       Dutta, Anirban and
+                      Srivastava, Sarthak and
                       Varma Buddaraju, Rohith and
-                      Kambham, Satwik and
-                      Lu, Jing and
                       Visser, Erin and
                       Daksh, Ayushi and
+                      Lu, Jing and
                       Livneh, Ran and
-                      Srivastava, Sarthak and
-                      Rajagopalan, Srinath and
-                      Bhakar, Jayant and
+                      Kambham, Satwik and
                       Roldan, Israel and
+                      Bhakar, Jayant and
                       Mishra, Sashank and
-                      Jain, Rinkle and
-                      Floers, Andreas and
+                      Rajagopalan, Srinath and
                       Reichenbach, John and
+                      Jain, Rinkle and
                       Actions, GitHub and
-                      Chaumal, Aarya and
+                      Floers, Andreas and
                       Gupta, Harshul and
+                      Chaumal, Aarya and
                       Brar, Antreev and
                       Singh, Sourav and
                       Kowalski, Nathan and
@@ -224,13 +225,13 @@ The following BibTeX entries are needed for the references:
                       Nayak U, Ashwin and
                       Kumar, Atul and
                       Kharkar, Atharwa},
-      title        = {tardis-sn/tardis: TARDIS v2024.08.12},
-      month        = aug,
+      title        = {tardis-sn/tardis: TARDIS v2024.11.11},
+      month        = nov,
       year         = 2024,
       publisher    = {Zenodo},
-      version      = {release-2024.08.12},
-      doi          = {10.5281/zenodo.13305329},
-      url          = {https://doi.org/10.5281/zenodo.13305329}
+      version      = {release-2024.11.11},
+      doi          = {10.5281/zenodo.14070168},
+      url          = {https://doi.org/10.5281/zenodo.14070168}
     }
 
 *******

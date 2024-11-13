@@ -28,7 +28,7 @@ def transition_colors(length, name="jet"):
     -------
     colors: list
     """
-    cmap = mpl.cm.get_cmap(name, length)
+    cmap = mpl.pyplot.get_cmap(name, length)
     colors = []
     for i in range(cmap.N):
         rgb = cmap(i)[:3]
