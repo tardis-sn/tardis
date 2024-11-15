@@ -57,31 +57,30 @@ jobs:
         run: |
           # Initialize should-run as false
           echo "should-run=false" >> $GITHUB_OUTPUT
-          
+
           # Always run for push and workflow_dispatch
           if [[ "${{ github.event_name }}" == "push" ]] || [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "should-run=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
-          # For pull_request_target events
+
+           # For pull_request_target events
           if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
             # Check if docs directory has changes
-            HAS_DOCS_CHANGES=false
-            if git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | cat | grep '^docs/' | grep -q .; then
-              HAS_DOCS_CHANGES=true
+            if git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | grep '^docs/' | grep -q .; then
               num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
               echo "Changes found in documentation files: $num_files"
+              echo "should-run=true" >> $GITHUB_OUTPUT
+              exit 0
             else
-              echo "No changes found in documentation files - will stop running the pipeline."
+              echo "No changes found in documentation files."
             fi
-            
+
             # Check if PR has build-docs label
             HAS_BUILD_DOCS_LABEL=${{ contains(github.event.pull_request.labels.*.name, 'build-docs') }}
-            
-            if [[ "$HAS_DOCS_CHANGES" == "true" && "$HAS_BUILD_DOCS_LABEL" == "false" ]] || \
-               [[ "$HAS_DOCS_CHANGES" == "false" && "$HAS_BUILD_DOCS_LABEL" == "true" ]]; then
+            if [[ "$HAS_BUILD_DOCS_LABEL" == "true" ]]; then
               echo "should-run=true" >> $GITHUB_OUTPUT
+              exit 0
             fi
           fi
 
