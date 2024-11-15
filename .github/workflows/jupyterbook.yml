@@ -59,6 +59,100 @@ jobs:
       with:
         path: "docs/_build/html"
 
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v3
+    - name: Set destination directory
+      run: |
+        BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+        if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
+
+          if [[ $BRANCH == $DEFAULT ]]; then
+            echo "DEST_DIR=" >> $GITHUB_ENV
+          else
+            echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
+          fi
+
+        elif [[ $EVENT == pull_request_target ]]; then
+          echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+
+        else
+          echo "Unexpected event trigger $EVENT"
+          exit 1
+
+        fi
+
+        cat $GITHUB_ENV
+      env:
+        DEFAULT: ${{ github.event.repository.default_branch }}
+        EVENT: ${{ github.event_name }}
+        PR: ${{ github.event.number }}
+
+    - name: Set clean branch option
+      run: |
+        if [[ $EVENT == workflow_dispatch ]]; then
+          echo "CLEAN_BRANCH=true" >> $GITHUB_ENV
+
+        else
+          echo "CLEAN_BRANCH=false" >> $GITHUB_ENV
+
+        fi
+
+        cat $GITHUB_ENV
+      env:
+        EVENT: ${{ github.event_name }}
+
+    - name: Deploy ${{ env.DEST_DIR }}
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.BOT_TOKEN }}
+        publish_branch: ${{ env.DEPLOY_BRANCH }}
+        publish_dir: ./docs/_build/html
+        destination_dir: ${{ env.DEST_DIR }}
+        keep_files: true
+        force_orphan: ${{ env.CLEAN_BRANCH }}
+        user_name: "TARDIS Bot"
+        user_email: "tardis.sn.bot@gmail.com"
+
+    - name: Find comment
+      uses: peter-evans/find-comment@v1
+      id: fc
+      with:
+        issue-number: ${{ github.event.number }}
+        body-includes: Hi, human.
+      if: always() && github.event_name == 'pull_request_target'
+
+    - name: Post comment (success)
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        token: ${{ secrets.BOT_TOKEN }}
+        issue-number: ${{ github.event.number }}
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        edit-mode: replace
+        body: |
+          *\*beep\* \*bop\**
+
+          Hi, human.
+
+          The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
+
+          [**Click here**](${{ env.URL }}) to see your results.
+      env:
+        URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ github.event.number }}/index.html
+      if: success() && github.event_name == 'pull_request_target'
+
+    - name: Post comment (failure)
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        token: ${{ secrets.BOT_TOKEN }}
+        issue-number: ${{ github.event.number }}
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        edit-mode: replace
+        body: |
+          *\*beep\* \*bop\**
+
+          Hi, human.
+
+          The **`${{ github.workflow }}`** workflow has **failed** :x:
+
+          [**Click here**](${{ env.URL }}) to see the build log.
+      env:
+        URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+      if: failure() && github.event_name == 'pull_request_target'
