@@ -24,7 +24,7 @@
 # Thus, any C-extensions that are needed to build the documentation will *not*
 # be accessible, and the documentation will not build correctly.
 
-import os
+import os 
 import sys
 import datetime
 import tardis  # FIXME: this import is required by astropy.constants
