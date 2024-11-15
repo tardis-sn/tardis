@@ -21,8 +21,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
+    # environment:
+    #   name: github-pages
     permissions:
       pages: write
       id-token: write
