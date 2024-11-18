@@ -43,22 +43,20 @@ class OpacitySolver:
         -------
         OpacityState
         """
-        atomic_data = plasma.atomic_data
-
         if self.disable_line_scattering:
             tau_sobolev = pd.DataFrame(
                 np.zeros(
                     (
-                        atomic_data.lines.shape[0],  # number of lines
+                        plasma.atomic_data.lines.shape[0],  # number of lines
                         plasma.number_density.shape[1],  # number of shells
                     ),
                     dtype=np.float64,
                 ),
-                index=atomic_data.lines.index,
+                index=plasma.atomic_data.lines.index,
             )
         else:
             tau_sobolev = calculate_sobolev_line_opacity(
-                atomic_data.lines,
+                plasma.atomic_data.lines,
                 plasma.level_number_density,
                 plasma.time_explosion,
                 plasma.stimulated_emission_factor,
