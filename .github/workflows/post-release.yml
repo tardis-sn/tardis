@@ -24,7 +24,7 @@ jobs:
         uses: orhun/git-cliff-action@v3
         with:
           config: pyproject.toml
-          args: --verbose
+          args: --verbose --tag ${{ github.event.release.tag_name }}
         env:
           OUTPUT: CHANGELOG.md
 
