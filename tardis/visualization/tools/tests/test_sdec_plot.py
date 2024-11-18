@@ -15,6 +15,7 @@ from tardis.base import run_tardis
 from tardis.io.util import HDFWriterMixin
 from tardis.tests.fixtures.regression_data import RegressionData
 from tardis.visualization.tools.sdec_plot import SDECPlotter
+from tardis.io.util import parse_species_list
 
 
 class PlotDataHDF(HDFWriterMixin):
@@ -172,7 +173,13 @@ class TestSDECPlotter:
         species : list
         """
         # THIS NEEDS TO BE RUN FIRST. NOT INDEPENDENT TESTS
-        plotter.parse_species_list(self.species_list[0])
+        full_species_list, species_list, keep_colour = parse_species_list(self.species_list[0])
+
+        # Set the attributes manually on the plotter for testing
+        plotter._full_species_list = full_species_list
+        plotter._species_list = species_list
+        plotter._keep_colour = keep_colour
+        
         regression_data = RegressionData(request)
         data = regression_data.sync_ndarray(getattr(plotter, attribute))
         if attribute == "_full_species_list":
