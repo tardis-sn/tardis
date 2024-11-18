@@ -149,6 +149,7 @@ def test_thermal_collision_rates(
     pdt.assert_frame_equal(
         coll_rates_coeff.iloc[:435],
         legacy_cmfgen_collision_rate_plasma_solver.coll_exc_coeff,
+        # to allow comparison between old and new versions
         check_names=False,
         check_column_type=False,
     )
@@ -157,6 +158,7 @@ def test_thermal_collision_rates(
         legacy_cmfgen_collision_rate_plasma_solver.coll_deexc_coeff.swaplevel(
             "level_number_lower", "level_number_upper"
         ),
+        # to allow comparison between old and new versions
         check_names=False,
         check_column_type=False,
     )
