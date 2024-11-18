@@ -24,7 +24,7 @@ class RateMatrix:
     def solve(
         self,
         radiation_field,
-        electron_distribution,
+        thermal_electron_energy_distribution,
     ):
         """Construct the compiled rate matrix dataframe.
 
@@ -32,8 +32,8 @@ class RateMatrix:
         ----------
         radiation_field : RadiationField
             Radiation field containing radiative temperature.
-        electron_distribution : ElectronDistribution
-            Distribution of electrons in the plasma, containing electron
+        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
+            Distribution of electrons in the plasma, containing electron energies,
             temperatures and number densities.
 
         Returns
@@ -44,7 +44,7 @@ class RateMatrix:
         """
         required_arg = {
             "radiative": radiation_field,
-            "electron": electron_distribution.temperature,
+            "electron": thermal_electron_energy_distribution.temperature,
         }
 
         rates_df_list = [
@@ -65,7 +65,7 @@ class RateMatrix:
 
         # Multiply rates by electron number density where appropriate
         rates_df_list = [
-            rates_df * electron_distribution.number_density
+            rates_df * thermal_electron_energy_distribution.number_density
             if solver_arg_tuple[1] == "electron"
             else rates_df
             for solver_arg_tuple, rates_df in zip(
