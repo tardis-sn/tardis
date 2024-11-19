@@ -5,17 +5,62 @@
 name: release
 
 on:
-  pull_request_target:
-    branches: [master]
-    types: [closed]
-
+  schedule:
+    - cron: "0 0 * * 0"
   workflow_dispatch: # manual trigger
 
 jobs:
-  create:
-    if: github.event_name == 'workflow_dispatch' ||
-      (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
+  pip_tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+    with:
+      pip_git: true
+  zenodo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardis_zenodo
+          token: ${{ secrets.BOT_TOKEN }}
 
+      - name: Dump Secret Key
+        run: echo "$KEY_SECRET_JSON" > key_secret.json
+        env:
+          KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
+
+      - name: Download Lock File
+        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
+        shell: bash
+
+      - name: Generate Cache Key
+        run: |
+          file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
+        id: cache-environment-key
+        shell: bash
+
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: conda-linux-64.lock
+          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          environment-name: tardis
+          cache-environment: true
+          cache-downloads: true
+
+      - name: Run Notebook
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+
+      - name: Run Notebook (allow errors)
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
+        if: failure()
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zenodo_json
+          path: .zenodo.json
+  create:
+    needs: [pip_tests, zenodo]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -86,7 +131,7 @@ jobs:
             This release has been created automatically by the TARDIS continuous delivery pipeline.
             ${{ env.doi_badge }}
             ${{ env.CHANGELOG }}
-            
+
             A complete list of changes for this release is available at [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).
           files: |
             conda-osx-arm64.lock

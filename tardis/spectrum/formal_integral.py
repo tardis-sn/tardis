@@ -24,7 +24,7 @@ from tardis.transport.montecarlo.numba_interface import (
 )
 
 C_INV = 3.33564e-11
-M_PI = np.arccos(-1)
+PI = np.pi
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
@@ -197,7 +197,7 @@ def numba_formal_integral(
                 pJred_lu += direction
                 pJblue_lu += direction
             I_nu[p_idx] *= p
-        L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N)
+        L[nu_idx] = 8 * PI * PI * trapezoid_integration(I_nu, R_max / N)
 
     return L, I_nu_p
 
@@ -640,7 +640,7 @@ class FormalIntegrator:
         I_nu = self.transport.I_nu_p * ps
         L_test = np.array(
             [
-                8 * M_PI * M_PI * trapezoid_integration((I_nu)[i, :], R_max / N)
+                8 * PI * PI * trapezoid_integration((I_nu)[i, :], R_max / N)
                 for i in range(nu.shape[0])
             ]
         )
