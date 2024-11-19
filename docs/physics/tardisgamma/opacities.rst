@@ -16,6 +16,7 @@ The pair-production coefficients are:
 
     \alpha_{pp}(h\nu \geq 1.5) = \rho [ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}}] [0.0481 + 0.301(h\nu - 1.5) \times 10^{-27}
 
+:math:`\rho` is the mass density of the ejecta and :math:`X_{text{IGE}}` is the mass fraction of Fe-group elements.
 
 Compton Scattering
 ==================
@@ -50,11 +51,12 @@ The total integrated Compton scattering coeffcient is:
 
    \alpha_C = n_e \frac{3}{4} \sigma_T [\frac{1+x}{x^3} \frac{2x(1 + x)}{1 + 2x} - \ln(1 + 2x) + \frac{1}{2x} \ln(1 + 2x) - \frac{1 + 3x}{(1 + 2x)^2}]
 
+Where :math:`n_e` is the number density of electrons.
 The direction vector is then rotated by :math:`\theta` to get the new direction and the frequency is updated.
 
 Photoabsorption
 ===============
-This occurs when the photon is completely absorbed by a material.
+This occurs when the photon is completely absorbed by a material. We assume that the :math:`\gamma`-ray deposits all of its energy when this occurs
 The coefficient is:
 
 .. math::
