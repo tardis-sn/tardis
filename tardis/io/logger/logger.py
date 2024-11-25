@@ -7,14 +7,11 @@ import concurrent.futures
 import threading
 from IPython.display import display
 import os
-from queue import Queue
-import queue
-import multiprocessing
 
 MixedFutureType = asyncio.Future | concurrent.futures.Future
 
 
-# pn.extension()
+pn.extension()
 
 def create_output_widget(height=300):
     return pn.pane.HTML(
@@ -149,15 +146,6 @@ class TardisLogger:
         self.logger.addHandler(widget_handler)
         logging.getLogger("py.warnings").addHandler(widget_handler)
         
-def is_running_in_notebook():
-    try:
-        from IPython import get_ipython
-        if get_ipython() is not None:
-            if 'IPKernelApp' in get_ipython().config:
-                return True
-    except ImportError:
-        pass
-    return False
 
 def get_environment():
     """Determine the execution environment"""
@@ -189,21 +177,15 @@ class AsyncEmitLogHandler(logging.Handler):
         self.main_thread_id = threading.get_ident()
         self.futures = []
         
-        if self.environment == 'vscode':
-            self.loop = asyncio.new_event_loop()
-            self.thread = threading.Thread(target=self._run_event_loop, daemon=True)
-            self.thread.start()
-        else:
-            self.jupyter_loop = asyncio.new_event_loop()
-            self.jupyter_thread = threading.Thread(target=self._run_jupyter_loop, daemon=True)
-            self.jupyter_thread.start()
+        # Single event loop and thread for all environments
+        self.loop = asyncio.new_event_loop()
+        self.thread = threading.Thread(target=self._run_event_loop, daemon=True)
+        self.thread.start()
+        
+        # Only set up display handle for Jupyter
+        if self.environment == 'jupyter':
             self.display_handle = display(logger_widget, display_id=True)
 
-    def _run_jupyter_loop(self):
-        """Runs event loop in separate thread for Jupyter"""
-        asyncio.set_event_loop(self.jupyter_loop)
-        self.jupyter_loop.run_forever()
-    
     def _run_event_loop(self):
         """Runs event loop in separate thread"""
         asyncio.set_event_loop(self.loop)
@@ -214,26 +196,15 @@ class AsyncEmitLogHandler(logging.Handler):
         clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
         html_output = self._format_html_output(clean_log_entry, record)
 
-        if self.environment == 'vscode':
-            future = asyncio.run_coroutine_threadsafe(
-                self._async_emit(record.levelno, html_output),
-                self.loop
-            )
-            self.futures.append(future)
-        else:
-            future = asyncio.run_coroutine_threadsafe(
-                self._async_emit(record.levelno, html_output),
-                self.jupyter_loop
-            )
-            self.futures.append(future)
+        future = asyncio.run_coroutine_threadsafe(
+            self._async_emit(record.levelno, html_output),
+            self.loop
+        )
+        self.futures.append(future)
 
     def close(self):
-        if self.environment == 'vscode':
-            self.loop.call_soon_threadsafe(self.loop.stop)
-            self.thread.join()
-        else:
-            self.jupyter_loop.call_soon_threadsafe(self.jupyter_loop.stop)
-            self.jupyter_thread.join()
+        self.loop.call_soon_threadsafe(self.loop.stop)
+        self.thread.join()
         super().close()
 
     @staticmethod
@@ -272,7 +243,7 @@ class AsyncEmitLogHandler(logging.Handler):
         self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
 
         if self.environment == 'jupyter':
-            self.display_handle.update(logger_widget)
+            self.display_handle.update(logger_widget.embed())
 
 
 class LogFilter:
@@ -289,4 +260,6 @@ def logging_state(log_level, tardis_config, specific_log_level=None):
     logger = TardisLogger()
     logger.configure_logging(log_level, tardis_config, specific_log_level)
     logger.setup_widget_logging()
+    if get_environment() == 'vscode':
+        display(logger_widget)
     return logger_widget
