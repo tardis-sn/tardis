@@ -59,7 +59,7 @@ def quantity_from_str(text):
     return u.Quantity(value, unit_str)
 
 
-class MockRegexPattern(object):
+class MockRegexPattern:
     """
     A mock class to be used in place of a compiled regular expression
     when a type check is needed instead of a regex match.
@@ -188,9 +188,9 @@ def check_equality(item1, item2):
         return True
 
 
-class HDFWriterMixin(object):
+class HDFWriterMixin:
     def __new__(cls, *args, **kwargs):
-        instance = super(HDFWriterMixin, cls).__new__(cls)
+        instance = super().__new__(cls)
         instance.optional_hdf_properties = []
         instance.__init__(*args, **kwargs)
         return instance
@@ -266,14 +266,18 @@ class HDFWriterMixin(object):
                 if value.ndim == 1:
                     # This try,except block is only for model.plasma.levels
                     try:
-                        pd.Series(value).to_hdf(buf, os.path.join(path, key))
+                        pd.Series(value).to_hdf(
+                            buf, key=os.path.join(path, key)
+                        )
                     except NotImplementedError:
                         logger.debug(
                             "Could not convert SERIES to HDF. Converting DATAFRAME to HDF"
                         )
-                        pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
+                        pd.DataFrame(value).to_hdf(
+                            buf, key=os.path.join(path, key)
+                        )
                 else:
-                    pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
+                    pd.DataFrame(value).to_hdf(buf, key=os.path.join(path, key))
             else:  # value is a TARDIS object like model, transport or plasma
                 try:
                     value.to_hdf(buf, path, name=key, overwrite=overwrite)
@@ -282,10 +286,10 @@ class HDFWriterMixin(object):
                         "Could not convert VALUE to HDF. Converting DATA (Dataframe) to HDF"
                     )
                     data = pd.DataFrame([value])
-                    data.to_hdf(buf, os.path.join(path, key))
+                    data.to_hdf(buf, key=os.path.join(path, key))
 
         if scalars:
-            pd.Series(scalars).to_hdf(buf, os.path.join(path, "scalars"))
+            pd.Series(scalars).to_hdf(buf, key=os.path.join(path, "scalars"))
 
         if buf.is_open:
             buf.close()
@@ -382,9 +386,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
             If the HDF file path already exists, whether to overwrite it or not
         """
         self.collection = collection
-        super(PlasmaWriterMixin, self).to_hdf(
-            file_path_or_buf, path, name, overwrite
-        )
+        super().to_hdf(file_path_or_buf, path, name, overwrite)
 
 
 @lru_cache(maxsize=None)
@@ -400,7 +402,6 @@ def download_from_url(url, dst, checksum, src=None, retries=3):
     src : tuple
         List of URLs to use as mirrors
     """
-
     cached_file_path = download_file(url, sources=src, pkgname="tardis")
 
     with open(cached_file_path, "rb") as f:

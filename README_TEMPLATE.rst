@@ -21,8 +21,8 @@ stars (*supernovae*).
 .. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/tardis-sn/tardis
 
-.. image:: https://img.shields.io/endpoint?url=https://jsonbin.org/tardis-bot/tardis/badges/docstr-cov
-    :target: https://github.com/tardis-sn/tardis/actions/workflows/docstr-cov.yml?query=branch%3Amaster
+.. image:: https://github.com/tardis-sn/tardis/actions/workflows/docstr-cov.yml/badge.svg
+    :target: https://github.com/tardis-sn/tardis/actions/workflows/docstr-cov.yml
 
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml/badge.svg
     :target: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml
@@ -30,8 +30,8 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/_static/ruff_badge.json
+    :target: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml
 |
 
 

@@ -1,8 +1,8 @@
+import dataclasses
 import re
+
 import pandas as pd
 from astropy import units as u
-from pathlib import Path
-import dataclasses
 
 
 @dataclasses.dataclass
@@ -26,7 +26,6 @@ def read_cmfgen_model(fname):
 
     Parameters
     ----------
-
     fname : str
 
     Returns
@@ -66,7 +65,7 @@ def read_cmfgen_model(fname):
         metadata["t0"] = float(metadata["t0"]) * u.day
     data = pd.read_csv(
         fname,
-        delim_whitespace=True,
+        sep=r"\s+",
         skiprows=DATA_START_ROW,
         header=None,
         index_col=0,

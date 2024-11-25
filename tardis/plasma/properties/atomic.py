@@ -3,12 +3,10 @@ from collections import Counter as counter
 
 import numpy as np
 import pandas as pd
-import radioactivedecay as rd
 from numba import njit
 from scipy.interpolate import PchipInterpolator
 from scipy.special import exp1
 
-from tardis import constants as const
 from tardis.plasma.exceptions import IncompleteAtomicData
 from tardis.plasma.properties.base import (
     BaseAtomicDataProperty,
@@ -377,9 +375,7 @@ class TwoPhotonData(ProcessingPlasmaProperty):
         if not mask_selected_species.sum():
             raise IncompleteAtomicData(
                 "two photon transition data for the requested "
-                "continuum_interactions species: {}".format(
-                    continuum_interaction_species.values.tolist()
-                )
+                f"continuum_interactions species: {continuum_interaction_species.values.tolist()}"
             )
         two_photon_data = two_photon_data[mask_selected_species]
         index_lower = two_photon_data.index.droplevel("level_number_upper")
@@ -787,9 +783,10 @@ class YgData(ProcessingPlasmaProperty):
         array_like
             Output array.
         """
-        f = exp1(x) * np.exp(x)
-        # Use Laurent series for large values to avoid infinite exponential
+        x = np.asarray(x)
         mask = x > 500
+        f = exp1(x) * np.exp(x * (~mask))
+        # Use Laurent series for large values to avoid infinite exponential
         f[mask] = (x**-1 - x**-2 + 2 * x**-3 - 6 * x**-4)[mask]
         return f
 

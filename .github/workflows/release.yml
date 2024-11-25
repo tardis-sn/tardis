@@ -5,17 +5,62 @@
 name: release
 
 on:
-  pull_request_target:
-    branches: [master]
-    types: [closed]
-
+  schedule:
+    - cron: "0 0 * * 0"
   workflow_dispatch: # manual trigger
 
-jobs:
-  create:
-    if: github.event_name == 'workflow_dispatch' ||
-      (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
+defaults:
+  run:
+    shell: bash -l {0}
 
+
+jobs:
+  pip_tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+    with:
+      pip_git: true
+  zenodo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardis_zenodo
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Checkout setup_env action
+        uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardis
+          sparse-checkout: |
+            .github/actions/setup_env/action.yml
+          sparse-checkout-cone-mode: true
+          path: tardis
+
+      - name: Setup environment
+        uses: ./tardis/.github/actions/setup_env
+        with:
+          os-label: "linux-64"
+
+      - name: Dump Secret Key
+        run: echo "$KEY_SECRET_JSON" > key_secret.json
+        env:
+          KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
+
+      - name: Run Notebook
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+
+      - name: Run Notebook (allow errors)
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
+        if: failure()
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zenodo_json
+          path: .zenodo.json
+
+  create:
+    needs: [pip_tests, zenodo]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,7 +73,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install setuptools_scm
-        run: pip install 'setuptools_scm<7'
+        run: pip install "setuptools_scm<7" git-cliff==2.6.1
 
       - name: Show current version
         run: python .ci-helpers/get_current_version.py
@@ -38,19 +83,62 @@ jobs:
           python .ci-helpers/get_next_version.py
           echo "NEW_TAG=$(python .ci-helpers/get_next_version.py)" >> $GITHUB_ENV
 
-      - name: Create new release
+      - name: Initialize release
         uses: softprops/action-gh-release@v1
         with:
-          token: ${{ secrets.BOT_TOKEN }}
-          name: TARDIS v${{ env.NEW_TAG}}
+          name: TARDIS v${{ env.NEW_TAG }}
           tag_name: release-${{ env.NEW_TAG }}
-          prerelease: false
+          token: ${{ secrets.BOT_TOKEN }}
+          body: "This release has been created automatically by the TARDIS continuous delivery pipeline."
+          draft: false
+      
+      - name: Wait for Zenodo to update the latest release
+        run: sleep 120
+      
+      - name: Fetch Latest DOI from Zenodo
+        id: fetch-doi
+        run: |
+            CONCEPT_DOI="592480"
+            # Make the API request for BibTeX format, following redirects
+            response=$(curl -s -L -H "Accept: application/x-bibtex" "https://zenodo.org/api/records/${CONCEPT_DOI}")
+        
+            # Extract the full DOI value correctly
+            doi=$(echo "$response" | grep -oP 'doi\s*=\s*{([^}]+)}' | grep -oP '\{([^}]+)\}' | sed 's/[{}]//g')
+        
+            # Extract the DOI URL directly from the response
+            url=$(echo "$response" | grep -oP 'url\s*=\s*{([^}]+)}' | grep -oP '\{([^}]+)\}' | sed 's/[{}]//g')
+        
+            echo "Extracted DOI: ${doi}"
+            echo "Extracted URL: ${url}"
+            # Create DOI badge using the full DOI value
+            doi_badge="[![DOI Badge](https://img.shields.io/badge/DOI-${doi}-blue)](${url})"
+        
+            # Store results in GitHub environment variables
+            echo "doi_badge=${doi_badge}" >> $GITHUB_ENV
+            echo "doi_url=${url}" >> $GITHUB_ENV
+        
+      - name: Generate and process changelog
+        run: |
+          CHANGELOG=$(git cliff --config pyproject.toml --unreleased | sed -n '/^## Changelog/,$p' | grep -vE '^(ERROR|WARN)')
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Update release with changelog and DOI
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: release-${{ env.NEW_TAG }}
+          token: ${{ secrets.BOT_TOKEN }}
           body: |
             This release has been created automatically by the TARDIS continuous delivery pipeline.
+            ${{ env.doi_badge }}
+            ${{ env.CHANGELOG }}
 
             A complete list of changes for this release is available at [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).
           files: |
+            conda-osx-arm64.lock
             conda-linux-64.lock
             conda-osx-64.lock
             conda-lock.yml
           fail_on_unmatched_files: false
+          draft: false

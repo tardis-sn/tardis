@@ -28,7 +28,7 @@ class BenchmarkMontecarloMontecarloNumbaOpacities(BenchmarkBase):
         )
 
     def time_pair_creation_opacity_calculation(self):
-        energy = 255.9
+        energy = 1240
         ejecta_density = 100000.009
         iron_group_fraction = 0.5
         calculate_opacity.pair_creation_opacity_calculation(

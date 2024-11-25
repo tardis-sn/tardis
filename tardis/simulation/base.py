@@ -15,11 +15,17 @@ from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
 from tardis.io.util import HDFWriterMixin
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
+from tardis.spectrum.luminosity import (
+    calculate_filtered_luminosity,
+)
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
@@ -103,6 +109,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     model : tardis.model.SimulationState
     plasma : tardis.plasma.BasePlasma
     transport : tardis.transport.montecarlo.MontecarloTransport
+    opacity : tardis.opacities.opacity_solver.OpacitySolver
+    macro_atom : tardis.opacities.macro_atom.macroatom_solver.MacroAtomSolver
     no_of_packets : int
     last_no_of_packets : int
     no_of_virtual_packets : int
@@ -130,6 +138,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         simulation_state,
         plasma,
         transport,
+        opacity,
+        macro_atom,
         no_of_packets,
         no_of_virtual_packets,
         luminosity_nu_start,
@@ -142,9 +152,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         show_progress_bars,
         spectrum_solver,
     ):
-        super(Simulation, self).__init__(
-            iterations, simulation_state.no_of_shells
-        )
+        super().__init__(iterations, simulation_state.no_of_shells)
 
         self.converged = False
         self.iterations = iterations
@@ -152,6 +160,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.simulation_state = simulation_state
         self.plasma = plasma
         self.transport = transport
+        self.opacity = opacity
+        self.macro_atom = macro_atom
         self.no_of_packets = no_of_packets
         self.last_no_of_packets = last_no_of_packets
         self.no_of_virtual_packets = no_of_virtual_packets
@@ -439,8 +449,24 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
 
+        opacity_state = self.opacity.solve(self.plasma)
+        if self.macro_atom is not None:
+            if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+                macro_atom_state = MacroAtomState.from_legacy_plasma(
+                    self.plasma
+                )  # TODO: Impliment
+            else:
+                macro_atom_state = self.macro_atom.solve(
+                    self.plasma,
+                    self.plasma.atomic_data,
+                    opacity_state.tau_sobolev,
+                    self.plasma.stimulated_emission_factor,
+                )
+
         transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
+            opacity_state,
+            macro_atom_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
@@ -454,25 +480,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             show_progress_bars=self.show_progress_bars,
         )
 
-        # Set up spectrum solver
-        self.spectrum_solver.transport_state = transport_state
-        self.spectrum_solver._montecarlo_virtual_luminosity.value[
-            :
-        ] = v_packets_energy_hist
-
         output_energy = (
             self.transport.transport_state.packet_collection.output_energies
         )
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = self.spectrum_solver.calculate_emitted_luminosity(
-            self.luminosity_nu_start, self.luminosity_nu_end
+        emitted_luminosity = calculate_filtered_luminosity(
+            transport_state.emitted_packet_nu,
+            transport_state.emitted_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
         )
-        reabsorbed_luminosity = (
-            self.spectrum_solver.calculate_reabsorbed_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end
-            )
+        reabsorbed_luminosity = calculate_filtered_luminosity(
+            transport_state.reabsorbed_packet_nu,
+            transport_state.reabsorbed_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
         )
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
@@ -493,7 +517,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
-        return emitted_luminosity
+        return emitted_luminosity, v_packets_energy_hist
 
     def run_convergence(self):
         """
@@ -508,7 +532,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.plasma.electron_densities,
                 self.simulation_state.t_inner,
             )
-            emitted_luminosity = self.iterate(self.no_of_packets)
+            emitted_luminosity, v_packets_energy_hist = self.iterate(
+                self.no_of_packets
+            )
             self.converged = self.advance_state(emitted_luminosity)
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
@@ -533,11 +559,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.electron_densities,
             self.simulation_state.t_inner,
         )
-        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets)
+        emitted_luminosity, v_packets_energy_hist = self.iterate(
+            self.last_no_of_packets, self.no_of_virtual_packets
+        )
 
-        # Set up spectrum solver integrator
-        self.spectrum_solver._integrator = FormalIntegrator(
-            self.simulation_state, self.plasma, self.transport
+        # Set up spectrum solver integrator and virtual spectrum
+        self.spectrum_solver.setup_optional_spectra(
+            self.transport.transport_state,
+            v_packets_energy_hist,
+            FormalIntegrator(
+                self.simulation_state, self.plasma, self.transport
+            ),
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)
@@ -695,6 +727,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         atom_data=None,
         plasma=None,
         transport=None,
+        opacity=None,
+        macro_atom=None,
         **kwargs,
     ):
         """
@@ -752,6 +786,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 packet_source=simulation_state.packet_source,
                 enable_virtual_packet_logging=virtual_packet_logging,
             )
+        if opacity is None:
+            opacity = OpacitySolver(
+                config.plasma.line_interaction_type,
+                config.plasma.disable_line_scattering,
+            )
+        if macro_atom is None:
+            if config.plasma.line_interaction_type in (
+                "downbranch",
+                "macroatom",
+            ):
+                macro_atom = MacroAtomSolver()
 
         convergence_plots_config_options = [
             "plasma_plot_config",
@@ -791,6 +836,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             simulation_state=simulation_state,
             plasma=plasma,
             transport=transport,
+            opacity=opacity,
+            macro_atom=macro_atom,
             show_convergence_plots=show_convergence_plots,
             no_of_packets=int(config.montecarlo.no_of_packets),
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),

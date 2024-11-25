@@ -45,7 +45,7 @@ def parse_atom_data(config, atom_data=None):
             print(
                 e,
                 "Error might be from the use of an old-format of the atomic database, \n"
-                "please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data"
+                "please see https://github.com/tardis-sn/tardis-regression-data/tree/master/atom_data"
                 " for the most recent version.",
             )
             raise

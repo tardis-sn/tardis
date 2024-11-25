@@ -143,7 +143,7 @@ TARDIS repository clone.
 
 #. Install TARDIS_ in develop mode::
 
-       $ python setup.py develop
+       $ pip install -e .
 
    This semi-permanently installs TARDIS on your path in such a way that
    ``tardis`` is always imported from your repository clone regardless of your
@@ -281,7 +281,7 @@ In more detail
    If you have `Sphinx <https://www.sphinx-doc.org/en/master/>`_ installed, you can also check that the documentation
    builds and looks correct::
 
-     python setup.py build_sphinx
+     cd docs && make html
 
    The last line should just state ``build succeeded``, and should not mention
    any warnings.  (For more details, see the Astropy
@@ -352,7 +352,7 @@ When you are ready to ask for someone to review your code and consider a merge:
    pull request message.  This is still a good way to start a preliminary
    code review.
 
-The TARDIS documentation features interactive notebooks that run varius aspects of the code, as well as API documentation. To make sure that these notebooks remain up-to-date with the code, and that your docstrings are correctly incorporated into the API documentation, we ask that you build the documentation for your pull request following the instructions :ref:`here <doc-preview>`.
+The TARDIS documentation features interactive notebooks that run various aspects of the code, as well as API documentation. To make sure that these notebooks remain up-to-date with the code, and that your docstrings are correctly incorporated into the API documentation, we ask that you build the documentation for your pull request following the instructions :ref:`here <doc-preview>`.
 
 .. _using-virtualenv:
 

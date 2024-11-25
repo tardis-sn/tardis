@@ -1,6 +1,6 @@
 import functools
+from os import environ as env
 from copy import deepcopy
-from os.path import dirname, join, realpath
 from pathlib import Path
 
 import numpy as np
@@ -19,7 +19,6 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators import radfield_mc_estimators
 from tardis.transport.montecarlo.numba_interface import opacity_state_initialize
 from tardis.transport.montecarlo.packet_collections import VPacketCollection
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
 
 
 class BenchmarkBase:
@@ -27,14 +26,13 @@ class BenchmarkBase:
     timeout = 600
 
     @staticmethod
-    def get_relative_path(partial_path: str):
-        path = dirname(realpath(__file__))
-        targets = Path(partial_path).parts
+    def get_relative_path(partial_path: str) -> str:
+        path = Path(__file__).resolve().parent
 
-        for target in targets:
-            path = join(path, target)
+        for target in Path(partial_path).parts:
+            path = path / target
 
-        return path
+        return str(path)
 
     def get_absolute_path(self, partial_path):
         partial_path = "../" + partial_path
@@ -63,7 +61,7 @@ class BenchmarkBase:
     def tardis_ref_path(self):
         ref_data_path = Path(
             Path(__file__).parent.parent,
-            "tardis-refdata"
+            env.get("TARDIS_REF_PATH")
         ).resolve()
         return ref_data_path
 
@@ -80,7 +78,7 @@ class BenchmarkBase:
     @functools.cached_property
     def atomic_data_fname(self):
         atomic_data_fname = (
-            f"{self.tardis_ref_path}/atom_data/kurucz_cd23_chianti_H_He.h5"
+            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He.h5"
         )
 
         if not Path(atomic_data_fname).exists():
@@ -124,7 +122,9 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_packet_collection(self):
-        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        return (
+            self.nb_simulation_verysimple.transport.transport_state.packet_collection
+        )
 
     @functools.cached_property
     def nb_simulation_verysimple(self):
@@ -154,11 +154,15 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_tau_russian(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
+        )
 
     @functools.cached_property
     def verysimple_survival_probability(self):
-        return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
+        return (
+            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
+        )
 
     @functools.cached_property
     def static_packet(self):
@@ -173,7 +177,9 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_3vpacket_collection(self):
-        spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        spectrum_frequency_grid = (
+            self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
+        )
         return VPacketCollection(
             source_rpacket_index=0,
             spectrum_frequency_grid=spectrum_frequency_grid,
@@ -195,7 +201,10 @@ class BenchmarkBase:
 
     @functools.cached_property
     def rpacket_tracker(self):
-        return RPacketTracker(0)
+        # Do not use RPacketTracker or RPacketLastInteraction directly
+        # Use it by importing packet_trackers
+        # functions with name track_* function is used by ASV
+        return packet_trackers.RPacketLastInteractionTracker()
 
     @functools.cached_property
     def transport_state(self):

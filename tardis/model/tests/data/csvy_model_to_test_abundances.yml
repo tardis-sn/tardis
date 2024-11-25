@@ -6,7 +6,7 @@ supernova:
   time_explosion: 4 day
   distance: 8.32 Mpc
 
-# standard atomic data base; get it from the tardis-refdata repository
+# standard atomic data base; get it from the tardis-regression-data repository
 atom_data: kurucz_cd23_chianti_H_He.h5
 
 csvy_model: csvy_model_to_test_abundances.csvy

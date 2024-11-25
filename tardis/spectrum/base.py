@@ -23,7 +23,7 @@ class SpectrumSolver(HDFWriterMixin):
     hdf_name = "spectrum"
 
     def __init__(
-        self, transport_state, spectrum_frequency_grid, integrator_settings=None
+        self, transport_state, spectrum_frequency_grid, integrator_settings
     ):
         self.transport_state = transport_state
         self.spectrum_frequency_grid = spectrum_frequency_grid
@@ -33,6 +33,24 @@ class SpectrumSolver(HDFWriterMixin):
         self._integrator = None
         self.integrator_settings = integrator_settings
         self._spectrum_integrated = None
+
+    def setup_optional_spectra(
+        self, transport_state, virtual_packet_luminosity=None, integrator=None
+    ):
+        """Set up the solver to handle virtual and integrated spectra
+
+        Parameters
+        ----------
+        virtual_packet_luminosity : np.ndarray, optional
+            Virtual packet luminosity, unnormalized, by default None
+        integrator : FormalIntegrator, optional
+            Integrator to compute the integrated spectrum with, by default None
+        """
+        self.transport_state = transport_state
+        self._montecarlo_virtual_luminosity = (
+            virtual_packet_luminosity * u.erg / u.s
+        )
+        self._integrator = integrator
 
     @property
     def spectrum_real_packets(self):
@@ -81,12 +99,10 @@ class SpectrumSolver(HDFWriterMixin):
                     "This RETURNS AN EMPTY SPECTRUM!",
                     UserWarning,
                 )
-                return TARDISSpectrum(
+                self._spectrum_integrated = TARDISSpectrum(
                     np.array([np.nan, np.nan]) * u.Hz,
                     np.array([np.nan]) * u.erg / u.s,
                 )
-        else:
-            self._spectrum_integrated = None
         return self._spectrum_integrated
 
     @property
@@ -135,52 +151,6 @@ class SpectrumSolver(HDFWriterMixin):
             self._montecarlo_virtual_luminosity[:-1]
             / self.transport_state.time_of_simulation.value
         )
-
-    def calculate_emitted_luminosity(
-        self, luminosity_nu_start, luminosity_nu_end
-    ):
-        """
-        Calculate emitted luminosity.
-
-        Parameters
-        ----------
-        luminosity_nu_start : astropy.units.Quantity
-        luminosity_nu_end : astropy.units.Quantity
-
-        Returns
-        -------
-        astropy.units.Quantity
-        """
-        luminosity_wavelength_filter = (
-            self.transport_state.emitted_packet_nu > luminosity_nu_start
-        ) & (self.transport_state.emitted_packet_nu < luminosity_nu_end)
-
-        return self.transport_state.emitted_packet_luminosity[
-            luminosity_wavelength_filter
-        ].sum()
-
-    def calculate_reabsorbed_luminosity(
-        self, luminosity_nu_start, luminosity_nu_end
-    ):
-        """
-        Calculate reabsorbed luminosity.
-
-        Parameters
-        ----------
-        luminosity_nu_start : astropy.units.Quantity
-        luminosity_nu_end : astropy.units.Quantity
-
-        Returns
-        -------
-        astropy.units.Quantity
-        """
-        luminosity_wavelength_filter = (
-            self.transport_state.reabsorbed_packet_nu > luminosity_nu_start
-        ) & (self.transport_state.reabsorbed_packet_nu < luminosity_nu_end)
-
-        return self.transport_state.reabsorbed_packet_luminosity[
-            luminosity_wavelength_filter
-        ].sum()
 
     def solve(self, transport_state):
         """Solve the spectra

@@ -26,16 +26,16 @@ class BasePlasma(PlasmaWriterMixin):
     def __init__(
         self,
         plasma_properties,
-        plasma_solver_settings,
         property_kwargs=None,
+        plasma_solver_settings=None,
         **kwargs,
     ):
-        self.plasma_solver_settings = plasma_solver_settings
         self.outputs_dict = {}
         self.input_properties = []
         self.plasma_properties = self._init_properties(
             plasma_properties, property_kwargs, **kwargs
         )
+        self.plasma_solver_settings = plasma_solver_settings
         self._build_graph()
         self.update(**kwargs)
 
@@ -43,7 +43,7 @@ class BasePlasma(PlasmaWriterMixin):
         if item in self.outputs_dict:
             return self.get_value(item)
         else:
-            super(BasePlasma, self).__getattribute__(item)
+            super().__getattribute__(item)
 
     def __setattr__(self, key, value):
         if key != "module_dict" and key in self.outputs_dict:
@@ -51,7 +51,7 @@ class BasePlasma(PlasmaWriterMixin):
                 "Plasma inputs can only be updated using " "the 'update' method"
             )
         else:
-            super(BasePlasma, self).__setattr__(key, value)
+            super().__setattr__(key, value)
 
     def __dir__(self):
         attrs = [item for item in self.__dict__ if not item.startswith("_")]
@@ -303,7 +303,7 @@ class BasePlasma(PlasmaWriterMixin):
         print_graph = self.remove_hidden_properties(print_graph)
 
         for node in print_graph:
-            if latex_label == True:
+            if latex_label is True:
                 if hasattr(self.plasma_properties_dict[node], "latex_formula"):
                     print_graph.nodes[str(node)][
                         "label"
@@ -324,13 +324,13 @@ class BasePlasma(PlasmaWriterMixin):
         for edge in print_graph.edges:
             label = print_graph.edges[edge]["label"]
             print_graph.edges[edge]["label"] = " "
-            if latex_label == True:
+            if latex_label is True:
                 print_graph.edges[edge]["texlbl"] = label
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
 
         for line in fileinput.FileInput(fname, inplace=1):
-            if latex_label == True:
+            if latex_label is True:
                 print(
                     line.replace(
                         r'node [label="\N"]',

@@ -1,13 +1,10 @@
 import logging
-import os
 
-import numpy as np
 import pandas as pd
 
 from tardis.plasma.properties.base import (
     PreviousIterationProperty,
 )
-from tardis.plasma.properties.ion_population import PhiSahaNebular
 
 __all__ = [
     "PreviousElectronDensities",
@@ -29,7 +26,7 @@ class PreviousElectronDensities(PreviousIterationProperty):
     def set_initial_value(self, kwargs):
         initial_value = pd.Series(
             1000000.0,
-            index=kwargs["abundance"].columns,
+            index=kwargs["number_density"].columns,
         )
         self._set_initial_value(initial_value)
 
@@ -47,6 +44,6 @@ class PreviousBetaSobolev(PreviousIterationProperty):
         initial_value = pd.DataFrame(
             1.0,
             index=kwargs["atomic_data"].lines.index,
-            columns=kwargs["abundance"].columns,
+            columns=kwargs["number_density"].columns,
         )
         self._set_initial_value(initial_value)
