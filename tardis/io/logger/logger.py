@@ -2,8 +2,19 @@ import logging
 import re
 import panel as pn
 from dataclasses import dataclass, field
+import asyncio
+import concurrent.futures
+import threading
+from IPython.display import display
+import os
+from queue import Queue
+import queue
+import multiprocessing
 
-pn.extension()
+MixedFutureType = asyncio.Future | concurrent.futures.Future
+
+
+# pn.extension()
 
 def create_output_widget(height=300):
     return pn.pane.HTML(
@@ -33,7 +44,6 @@ logger_widget = pn.Tabs(
     height=350,
     sizing_mode='stretch_width'
 )
-
 
 
 @dataclass
@@ -119,7 +129,8 @@ class TardisLogger:
 
     def setup_widget_logging(self):
         """Set up widget-based logging interface."""
-        widget_handler = LoggingHandler(log_outputs, self.config.COLORS)
+        # widget_handler = LoggingHandler(log_outputs, self.config.COLORS)
+        widget_handler = AsyncEmitLogHandler(log_outputs, self.config.COLORS)
         widget_handler.setFormatter(
             logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
         )
@@ -137,27 +148,94 @@ class TardisLogger:
         
         self.logger.addHandler(widget_handler)
         logging.getLogger("py.warnings").addHandler(widget_handler)
-    
+        
+def is_running_in_notebook():
+    try:
+        from IPython import get_ipython
+        if get_ipython() is not None:
+            if 'IPKernelApp' in get_ipython().config:
+                return True
+    except ImportError:
+        pass
+    return False
 
+def get_environment():
+    """Determine the execution environment"""
+    try:
+        import IPython
+        ipython = IPython.get_ipython()
+        
+        if ipython is None:
+            return 'standard'
+            
+        # Check for VSCode specific environment variables
+        if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
+            return 'vscode'
+            
+        # Check if running in Jupyter notebook
+        if 'IPKernelApp' in ipython.config:
+            return 'jupyter'
+            
+        return 'standard'
+    except:
+        return 'standard'
 
-class LoggingHandler(logging.Handler):
+class AsyncEmitLogHandler(logging.Handler):
     def __init__(self, log_outputs, colors):
         super().__init__()
         self.log_outputs = log_outputs
         self.colors = colors
-        self._log_contents = {key: [] for key in log_outputs.keys()}
+        self.environment = get_environment()
+        self.main_thread_id = threading.get_ident()
+        self.futures = []
         
-    def emit(self, record):
-        """Emit a log record to the appropriate widget output."""
-        try:
-            log_entry = self.format(record)
-            clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
-            html_output = self._format_html_output(clean_log_entry, record)
+        if self.environment == 'vscode':
+            self.loop = asyncio.new_event_loop()
+            self.thread = threading.Thread(target=self._run_event_loop, daemon=True)
+            self.thread.start()
+        else:
+            self.jupyter_loop = asyncio.new_event_loop()
+            self.jupyter_thread = threading.Thread(target=self._run_jupyter_loop, daemon=True)
+            self.jupyter_thread.start()
+            self.display_handle = display(logger_widget, display_id=True)
 
-            self._display_log(record.levelno, html_output)
-        except Exception:
-            self.handleError(record)
+    def _run_jupyter_loop(self):
+        """Runs event loop in separate thread for Jupyter"""
+        asyncio.set_event_loop(self.jupyter_loop)
+        self.jupyter_loop.run_forever()
     
+    def _run_event_loop(self):
+        """Runs event loop in separate thread"""
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_forever()
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
+        html_output = self._format_html_output(clean_log_entry, record)
+
+        if self.environment == 'vscode':
+            future = asyncio.run_coroutine_threadsafe(
+                self._async_emit(record.levelno, html_output),
+                self.loop
+            )
+            self.futures.append(future)
+        else:
+            future = asyncio.run_coroutine_threadsafe(
+                self._async_emit(record.levelno, html_output),
+                self.jupyter_loop
+            )
+            self.futures.append(future)
+
+    def close(self):
+        if self.environment == 'vscode':
+            self.loop.call_soon_threadsafe(self.loop.stop)
+            self.thread.join()
+        else:
+            self.jupyter_loop.call_soon_threadsafe(self.jupyter_loop.stop)
+            self.jupyter_thread.join()
+        super().close()
+
     @staticmethod
     def _remove_ansi_escape_sequences(text):
         """Remove ANSI escape sequences from string."""
@@ -167,37 +245,34 @@ class LoggingHandler(logging.Handler):
     def _format_html_output(self, log_entry, record):
         """Format log entry as HTML with appropriate styling."""
         color = self.colors.get(record.levelno, self.colors["default"])
-        
         parts = log_entry.split(" ", 2)
         if len(parts) > 2:
             prefix, levelname, message = parts
             return f'<span>{prefix}</span> <span style="color: {color}; font-weight: bold;">{levelname}</span> {message}'
         return log_entry
-    
-    def _display_log(self, level, html_output):
-        """Display log message in appropriate outputs."""
-        html_wrapped = f"<div style='margin: 0;'>{html_output}</div>"
-        
+
+    async def _async_emit(self, level, html_output):
         level_to_output = {
             logging.WARNING: "WARNING/ERROR",
-            logging.ERROR: "WARNING/ERROR",
+            logging.ERROR: "WARNING/ERROR", 
             logging.INFO: "INFO",
             logging.DEBUG: "DEBUG"
         }
         
+        html_wrapped = f"<div style='margin: 0;'>{html_output}</div>"
+        
+        # Update specific level output
         output_key = level_to_output.get(level)
         if output_key:
-            self._update_output(output_key, html_wrapped)
+            current = self.log_outputs[output_key].object or ""
+            self.log_outputs[output_key].object = current + "\n" + html_wrapped if current else html_wrapped
             
-        # Always display in ALL output
-        self._update_output("ALL", html_wrapped)
-    
-    def _update_output(self, key, html):
-        """Update the content of a specific output widget."""
-        self._log_contents[key].append(html)
-        current_content = '\n'.join(self._log_contents[key])
-        self.log_outputs[key].object = current_content
-        self.log_outputs[key].param.trigger('object')
+        # Update ALL output
+        current_all = self.log_outputs["ALL"].object or ""
+        self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
+
+        if self.environment == 'jupyter':
+            self.display_handle.update(logger_widget)
 
 
 class LogFilter:
@@ -214,3 +289,4 @@ def logging_state(log_level, tardis_config, specific_log_level=None):
     logger = TardisLogger()
     logger.configure_logging(log_level, tardis_config, specific_log_level)
     logger.setup_widget_logging()
+    return logger_widget
