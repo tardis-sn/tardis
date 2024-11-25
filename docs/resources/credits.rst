@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2024_14193201
+.. |CITATION| replace:: kerzendorf_2024_14210866
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.14193201-blue
-                 :target: https://doi.org/10.5281/zenodo.14193201
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.14210866-blue
+                 :target: https://doi.org/10.5281/zenodo.14210866
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2024_14193201,
+    @software{kerzendorf_2024_14210866,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -189,12 +189,12 @@ The following BibTeX entries are needed for the references:
                       Nayak U, Ashwin and
                       Kumar, Atul and
                       Kharkar, Atharwa},
-      title        = {tardis-sn/tardis: TARDIS v2024.11.20},
+      title        = {tardis-sn/tardis: TARDIS v2024.11.24},
       month        = nov,
       year         = 2024,
       publisher    = {Zenodo},
-      version      = {release-2024.11.20},
-      doi          = {10.5281/zenodo.14193201},
-      url          = {https://doi.org/10.5281/zenodo.14193201}
+      version      = {release-2024.11.24},
+      doi          = {10.5281/zenodo.14210866},
+      url          = {https://doi.org/10.5281/zenodo.14210866}
     }
 
