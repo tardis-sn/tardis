@@ -18,6 +18,8 @@ The pair-production coefficients are:
 
 :math:`\rho` is the mass density of the ejecta and :math:`X_{\text{IGE}}` is the mass fraction of Fe-group elements.
 
+.. figure:: images/pair_production_coefficient.png
+
 Compton Scattering
 ==================
 Compton scattering is inelastic scattering that occurs when a high frequency photon collides with an electron. Unlike Thomson scattering, which is elastic, during the collision some of the energy from the photon is transferred to the electron and the scattered photon is lower energy than the incident photon. 
@@ -52,6 +54,9 @@ The total integrated Compton scattering coeffcient is:
    \alpha_C = n_e \frac{3}{4} \sigma_T [\frac{1+x}{x^3} \frac{2x(1 + x)}{1 + 2x} - \ln(1 + 2x) + \frac{1}{2x} \ln(1 + 2x) - \frac{1 + 3x}{(1 + 2x)^2}]
 
 Where :math:`n_e` is the number density of electrons.
+
+.. figure:: images/compton_scattering_coefficient.png
+
 The direction vector is then rotated by :math:`\theta` to get the new direction and the frequency is updated.
 
 Photoabsorption
@@ -62,3 +67,5 @@ The coefficient is:
 .. math::
 
    \alpha_{pa}(\nu) = 1.16 \times 10^{-24} (h\nu)^{-3.13}  \frac{\rho}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + 25.7 \times 10^{-24} (h\nu)^{-3}  \frac{\rho}{m_{\text{Fe}}} X_{\text{IGE}}
+
+.. figure:: images/photoabsorption_coefficient.png
