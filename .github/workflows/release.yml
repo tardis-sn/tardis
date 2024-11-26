@@ -9,6 +9,11 @@ on:
     - cron: "0 0 * * 0"
   workflow_dispatch: # manual trigger
 
+defaults:
+  run:
+    shell: bash -l {0}
+
+
 jobs:
   pip_tests:
     uses: ./.github/workflows/tests.yml
@@ -23,30 +28,24 @@ jobs:
           repository: tardis-sn/tardis_zenodo
           token: ${{ secrets.BOT_TOKEN }}
 
+      - name: Checkout setup_env action
+        uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardis
+          sparse-checkout: |
+            .github/actions/setup_env/action.yml
+          sparse-checkout-cone-mode: true
+          path: tardis
+
+      - name: Setup environment
+        uses: ./tardis/.github/actions/setup_env
+        with:
+          os-label: "linux-64"
+
       - name: Dump Secret Key
         run: echo "$KEY_SECRET_JSON" > key_secret.json
         env:
           KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
-
-      - name: Download Lock File
-        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
-        shell: bash
-
-      - name: Generate Cache Key
-        run: |
-          file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
-          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
-        id: cache-environment-key
-        shell: bash
-
-      - uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: conda-linux-64.lock
-          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          environment-name: tardis
-          cache-environment: true
-          cache-downloads: true
 
       - name: Run Notebook
         run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
@@ -59,6 +58,7 @@ jobs:
         with:
           name: zenodo_json
           path: .zenodo.json
+
   create:
     needs: [pip_tests, zenodo]
     runs-on: ubuntu-latest
@@ -88,6 +88,7 @@ jobs:
         with:
           name: TARDIS v${{ env.NEW_TAG }}
           tag_name: release-${{ env.NEW_TAG }}
+          token: ${{ secrets.BOT_TOKEN }}
           body: "This release has been created automatically by the TARDIS continuous delivery pipeline."
           draft: false
       
@@ -127,6 +128,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: release-${{ env.NEW_TAG }}
+          token: ${{ secrets.BOT_TOKEN }}
           body: |
             This release has been created automatically by the TARDIS continuous delivery pipeline.
             ${{ env.doi_badge }}
