@@ -14,7 +14,7 @@ The pair-production coefficients are:
 
    \alpha_{pp}(1.5 < h\nu < 1.022) = \rho [ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}}]1.0063(h\nu - 1.022) \times 10^{-27}
 
-    \alpha_{pp}(h\nu \geq 1.5) = \rho [ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}}] [0.0481 + 0.301(h\nu - 1.5) \times 10^{-27}
+    \alpha_{pp}(h\nu \geq 1.5) = \rho [ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}}] [0.481 + 0.301(h\nu - 1.5) \times 10^{-27}
 
 :math:`\rho` is the mass density of the ejecta and :math:`X_{\text{IGE}}` is the mass fraction of Fe-group elements.
 
