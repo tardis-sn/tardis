@@ -11,8 +11,6 @@ import os
 pn.extension()
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
-MixedFutureType = asyncio.Future | concurrent.futures.Future
-
 
 def get_environment():
     """Determine the execution environment"""
