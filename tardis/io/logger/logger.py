@@ -69,7 +69,7 @@ class LoggingConfig:
 
 LOGGING_LEVELS = LoggingConfig().LEVELS
 
-class TardisLogger:
+class TARDISLogger:
     def __init__(self):
         self.config = LoggingConfig()
         self.logger = logging.getLogger("tardis")
@@ -257,7 +257,7 @@ class LogFilter:
 
 def logging_state(log_level, tardis_config, specific_log_level=None):
     """Configure logging state for TARDIS."""
-    logger = TardisLogger()
+    logger = TARDISLogger()
     logger.configure_logging(log_level, tardis_config, specific_log_level)
     logger.setup_widget_logging()
     if get_environment() == 'vscode':
