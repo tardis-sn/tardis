@@ -126,7 +126,6 @@ class TARDISLogger:
 
     def setup_widget_logging(self):
         """Set up widget-based logging interface."""
-        # widget_handler = LoggingHandler(log_outputs, self.config.COLORS)
         widget_handler = AsyncEmitLogHandler(log_outputs, self.config.COLORS)
         widget_handler.setFormatter(
             logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
