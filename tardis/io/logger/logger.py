@@ -128,7 +128,16 @@ class AsyncEmitLogHandler(logging.Handler):
 
     def close(self):
         self.loop.call_soon_threadsafe(self.loop.stop)
-        self.thread.join()
+        self.thread.join(timeout=5)
+
+        # Clean up any remaining tasks in the loop
+        pending = asyncio.all_tasks(self.loop)
+        for task in pending:
+            task.cancel()
+        
+        # Run the event loop one last time to finalize all pending tasks
+        self.loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+        self.loop.close()
         super().close()
 
     @staticmethod
