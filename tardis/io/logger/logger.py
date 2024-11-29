@@ -91,22 +91,24 @@ LOGGING_LEVELS = LoggingConfig().LEVELS
 
 
 class AsyncEmitLogHandler(logging.Handler):
-    def __init__(self, log_outputs, colors):
+    def __init__(self, log_outputs, colors, display_widget=True):
         super().__init__()
         self.log_outputs = log_outputs
         self.colors = colors
         self.environment = get_environment()
         self.main_thread_id = threading.get_ident()
         self.futures = []
+        self.display_widget = display_widget
         
-        # Single event loop and thread for all environments
-        self.loop = asyncio.new_event_loop()
-        self.thread = threading.Thread(target=self._run_event_loop, daemon=True)
-        self.thread.start()
-        
-        # Only set up display handle for Jupyter
-        if self.environment == 'jupyter':
-            self.display_handle = display(logger_widget, display_id=True)
+        # Only set up async handling for GUI environments when display_widget is True
+        if self.display_widget and self.environment in ['jupyter', 'vscode']:
+            self.loop = asyncio.new_event_loop()
+            self.thread = threading.Thread(target=self._run_event_loop, daemon=True)
+            self.thread.start()
+            
+            # Only set up display handle for Jupyter
+            if self.environment == 'jupyter':
+                self.display_handle = display(logger_widget, display_id=True)
 
     def _run_event_loop(self):
         """Runs event loop in separate thread"""
@@ -115,6 +117,13 @@ class AsyncEmitLogHandler(logging.Handler):
 
     def emit(self, record):
         log_entry = self.format(record)
+        
+        if not self.display_widget or self.environment == 'standard':
+            stream_handler = logging.StreamHandler()
+            stream_handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
+            stream_handler.emit(record)
+            return
+
         clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
         html_output = self._format_html_output(clean_log_entry, record)
 
@@ -125,17 +134,18 @@ class AsyncEmitLogHandler(logging.Handler):
         self.futures.append(future)
 
     def close(self):
-        self.loop.call_soon_threadsafe(self.loop.stop)
-        self.thread.join(timeout=5)
+        if self.display_widget and self.environment in ['jupyter', 'vscode']:
+            self.loop.call_soon_threadsafe(self.loop.stop)
+            self.thread.join(timeout=5)
 
-        # Clean up any remaining tasks in the loop
-        pending = asyncio.all_tasks(self.loop)
-        for task in pending:
-            task.cancel()
-        
-        # Run the event loop one last time to finalize all pending tasks
-        self.loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-        self.loop.close()
+            # Clean up any remaining tasks in the loop
+            pending = asyncio.all_tasks(self.loop)
+            for task in pending:
+                task.cancel()
+            
+            # Run the event loop one last time to finalize all pending tasks
+            self.loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+            self.loop.close()
         super().close()
 
     @staticmethod
@@ -232,9 +242,20 @@ class TARDISLogger:
                     logger.removeFilter(filter)
 
 
-    def setup_widget_logging(self):
-        """Set up widget-based logging interface."""
-        self.widget_handler = AsyncEmitLogHandler(log_outputs, self.config.COLORS)
+    def setup_widget_logging(self, display_widget=True):
+        """
+        Set up widget-based logging interface.
+
+        Parameters
+        ----------
+        display_widget : bool, optional
+            Whether to display the widget in GUI environments (default: True)
+        """
+        self.widget_handler = AsyncEmitLogHandler(
+            log_outputs, 
+            self.config.COLORS,
+            display_widget=display_widget
+        )
         self.widget_handler.setFormatter(
             logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
         )
@@ -262,11 +283,12 @@ class LogFilter:
         return log_record.levelno in self.log_levels
 
 
-def logging_state(log_level, tardis_config, specific_log_level=None):
-    """Configure logging state for TARDIS."""
+def logging_state(log_level, tardis_config, specific_log_level=None, display_widget=True):
     logger = TARDISLogger()
     logger.configure_logging(log_level, tardis_config, specific_log_level)
-    logger.setup_widget_logging()
-    if get_environment() == 'vscode':
+    logger.setup_widget_logging(display_widget=display_widget)
+    
+    if display_widget and get_environment() == 'vscode':
         display(logger_widget)
-    return logger_widget
+        
+    return logger_widget if (display_widget and get_environment() in ['jupyter', 'vscode']) else None
