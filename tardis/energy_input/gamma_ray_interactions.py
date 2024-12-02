@@ -197,7 +197,7 @@ def compton_scatter(photon, compton_angle):
     """
     # get comoving frame direction
     comov_direction = angle_aberration_gamma(
-        photon.direction, photon.location, photon.time_current
+        photon.direction, photon.location, photon.time_start
     )
 
     # compute an arbitrary perpendicular vector to the comoving direction
@@ -231,7 +231,7 @@ def compton_scatter(photon, compton_angle):
 
     # Calculate the angle aberration of the final direction
     final_direction = angle_aberration_gamma(
-        final_compton_scattered_vector, photon.location, photon.time_current
+        final_compton_scattered_vector, photon.location, photon.time_start
     )
 
     return final_direction
@@ -271,7 +271,7 @@ def pair_creation_packet(packet):
     packet.direction = final_direction
 
     doppler_factor = doppler_factor_3d(
-        packet.direction, packet.location, packet.time_current
+        packet.direction, packet.location, packet.time_start
     )
 
     packet.nu_cmf = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV

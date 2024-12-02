@@ -1,15 +1,13 @@
-import numpy as np
-import pandas as pd
-
 import astropy.units as u
+import numpy as np
 
-from tardis.energy_input.samplers import (
-    PositroniumSampler,
-)
 from tardis.energy_input.GXPacket import (
     GXPacketCollection,
 )
-from tardis.energy_input.samplers import sample_energy
+from tardis.energy_input.samplers import (
+    PositroniumSampler,
+    sample_energy,
+)
 from tardis.energy_input.util import (
     H_CGS_KEV,
     doppler_factor_3d,
@@ -501,13 +499,11 @@ class GammaRayPacketSource(BasePacketSource):
         parents,
         **kwargs,
     ):
-
         """
         New Gamma ray packet source class
 
         Parameters
         ----------
-
         packet_energy : float
             Energy of the gamma ray packet
         isotope_decay_df : pd.DataFrame
@@ -530,7 +526,6 @@ class GammaRayPacketSource(BasePacketSource):
             Dictionary of isotope parents
 
         """
-
         self.packet_energy = packet_energy
         self.isotope_decay_df = isotope_decay_df
         self.positronium_fraction = positronium_fraction
@@ -586,12 +581,12 @@ class GammaRayPacketSource(BasePacketSource):
         positronium_fraction : float
             The fraction of positrons that form positronium
             default is 0.0
+
         Returns
         -------
         array
             Array of sampled frequency-energies
         """
-
         energy_array = np.zeros(number_of_packets)
 
         all_packets = np.array([True] * number_of_packets)
@@ -764,11 +759,11 @@ class GammaRayPacketSource(BasePacketSource):
         )
 
         # get the isotopes and shells of the sampled packets
-        isotopes = sampled_packets_df.index.get_level_values(2)
+        isotopes = sampled_packets_df.index.get_level_values("isotope")
         isotope_positron_fraction = self.calculate_positron_fraction(
             isotopes, number_of_packets
         )
-        shells = sampled_packets_df.index.get_level_values(1)
+        shells = sampled_packets_df.index.get_level_values("shell_number")
 
         # get the inner and outer velocity boundaries for each packet to compute
         # the initial radii
@@ -835,12 +830,12 @@ class GammaRayPacketSource(BasePacketSource):
             statuses,
             shells,
             sampled_times.values,
-            positron_energy,
-        )
+            decay_time_indices,
+        ), isotope_positron_fraction
 
     def calculate_positron_fraction(self, isotopes, number_of_packets):
         """Calculate the fraction of energy that an isotope
-        releases as positron kinetic energy vs the gamma-ray energy
+        releases as positron kinetic energy compared to gamma-ray energy
 
         Parameters
         ----------
@@ -857,6 +852,7 @@ class GammaRayPacketSource(BasePacketSource):
         isotope_positron_fraction = np.zeros(number_of_packets)
 
         # Find the positron fraction from the zeroth shell of the dataframe
+        # this is because the total positron kinetic energy is the same for all shells
         shell_number_0 = self.isotope_decay_df[
             self.isotope_decay_df.index.get_level_values("shell_number") == 0
         ]

@@ -12,8 +12,7 @@ from tardis.energy_input.gamma_ray_transport import (
     iron_group_fraction_per_shell,
 )
 from tardis.energy_input.GXPacket import GXPacket
-from tardis.energy_input.util import get_index
-from tardis.energy_input.util import make_isotope_string_tardis_like
+from tardis.energy_input.util import get_index, make_isotope_string_tardis_like
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -41,7 +40,6 @@ def get_effective_time_array(time_start, time_end, time_space, time_steps):
     effective_time_array : np.ndarray
         effective time array in secs.
     """
-
     assert time_start < time_end, "time_start must be smaller than time_end!"
     if time_space == "log":
         times = np.geomspace(time_start, time_end, time_steps + 1)
@@ -102,7 +100,6 @@ def run_gamma_ray_loop(
 
     Returns
     -------
-
     escape_energy : pd.DataFrame
             DataFrame containing the energy escaping the ejecta.
     packets_df_escaped : pd.DataFrame
@@ -137,16 +134,16 @@ def run_gamma_ray_loop(
         values = model.composition.isotopic_number_density.loc[
             atom_number
         ].values
-        if values.shape[0] > 1:
-            model.elemental_number_density.loc[atom_number].update = np.sum(
+        if values.shape[1] > 1:
+            model.elemental_number_density.loc[atom_number] = np.sum(
                 values, axis=0
             )
         else:
-            model.elemental_number_density.loc[atom_number].update = values
+            model.elemental_number_density.loc[atom_number]= values
 
     # Electron number density
-    electron_number_density = model.elemental_number_density.mul(
-        model.elemental_number_density.index,
+    electron_number_density = model.composition.elemental_number_density.mul(
+        model.composition.elemental_number_density.index,
         axis=0,
     ).sum()
     electron_number = np.array(electron_number_density * ejecta_volume)
@@ -162,6 +159,7 @@ def run_gamma_ray_loop(
     taus = make_isotope_string_tardis_like(taus)
 
     gamma_df = isotope_decay_df[isotope_decay_df["radiation"] == "g"]
+    gamma_df_decay_energy_keV = gamma_df["decay_energy_keV"]
     total_energy_gamma = gamma_df["decay_energy_erg"].sum()
 
     energy_per_packet = total_energy_gamma / num_decays
@@ -183,9 +181,11 @@ def run_gamma_ray_loop(
     )
 
     logger.info("Creating packets")
-    packet_collection = packet_source.create_packets(
+    packet_collection, isotope_positron_fraction = packet_source.create_packets(
         cumulative_decays_df, num_decays, seed
     )
+
+    total_energy = np.zeros((number_of_shells, len(times) - 1))
 
     logger.info("Creating packet list")
     packets = []
@@ -200,16 +200,22 @@ def run_gamma_ray_loop(
             packet_collection.nu_cmf[i],
             packet_collection.status[i],
             packet_collection.shell[i],
-            packet_collection.time_current[i],
-            packet_collection.positron_energy[i],
+            packet_collection.time_start[i],
+            packet_collection.time_index[i],
         )
         for i in range(num_decays)
     ]
 
+    time_current = []
+    for i, p in enumerate(packets):
+        total_energy[p.shell, p.time_index] += isotope_positron_fraction[i] * energy_per_packet
+        time_current.append(p.time_start)
+
+    logger.info(f"Total energy deposited by the positrons is {total_energy.sum().sum()}")
+
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), len(times) - 1))
     energy_deposited = np.zeros((number_of_shells, len(times) - 1))
-    positron_energy = np.zeros((number_of_shells, len(times) - 1))
     packets_info_array = np.zeros((int(num_decays), 8))
     iron_group_fraction = iron_group_fraction_per_shell(model)
 
@@ -229,7 +235,7 @@ def run_gamma_ray_loop(
         energy_out,
         packets_array,
         energy_deposited_gamma,
-        energy_deposited_positron,
+        total_energy,
     ) = gamma_packet_loop(
         packets,
         grey_opacity,
@@ -245,8 +251,8 @@ def run_gamma_ray_loop(
         effective_time_array,
         energy_bins,
         energy_out,
+        total_energy,
         energy_deposited,
-        positron_energy,
         packets_info_array,
     )
 
@@ -265,30 +271,31 @@ def run_gamma_ray_loop(
     )
 
     escape_energy = pd.DataFrame(
-        data=energy_out, columns=effective_time_array, index=energy_bins
+        data=energy_out, columns=times[:-1], index=energy_bins
     )
 
     # deposited energy by gamma-rays in ergs
-    deposited_energy = pd.DataFrame(
+    gamma_ray_deposited_energy = pd.DataFrame(
         data=energy_deposited_gamma, columns=times[:-1]
     )
-    # deposited energy by positrons in ergs
-    positron_energy = pd.DataFrame(
-        data=energy_deposited_positron, columns=times[:-1]
+    # deposited energy by positrons and gamma-rays in ergs
+    total_energy = pd.DataFrame(
+        data=total_energy, columns=times[:-1]
     )
 
-    total_deposited_energy = (positron_energy + deposited_energy) / dt_array
+    logger.info(f"Total energy deposited by gamma rays and positrons is {total_energy.sum().sum()}")
+
+    total_deposited_energy = total_energy / dt_array
 
     return (
         escape_energy,
         packets_df_escaped,
-        deposited_energy,
-        total_deposited_energy,
+        gamma_ray_deposited_energy,
+        total_energy,
     )
 
 
 def get_packet_properties(number_of_shells, times, time_steps, packets):
-
     """
     Function to get the properties of the packets.
 
@@ -310,8 +317,6 @@ def get_packet_properties(number_of_shells, times, time_steps, packets):
     packets_positron_energy_array : np.ndarray
         Array of packets positron energy.
     """
-
-    # collect the properties of the packets
     shell_number = []
     time_current = []
 

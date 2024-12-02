@@ -1,7 +1,7 @@
+import astropy.constants as const
+import astropy.units as u
 import numpy as np
 from numba import njit
-import astropy.units as u
-import astropy.constants as const
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
@@ -161,6 +161,17 @@ class PositroniumSampler:
 
     @staticmethod
     def pdf(x):
+        """
+        Parameters
+        ----------
+        x : float
+            E / m_e c^2
+
+        Returns
+        -------
+        float
+            PDF of positronium energy from Ore amnd Powell (1949)
+        """
         first_term = x * (1 - x) / (2 - x) ** 2
         second_term = 2 * (1 - x) ** 2 * np.log(1 - x) / (2 - x) ** 2
         third_term = (2 - x) / x

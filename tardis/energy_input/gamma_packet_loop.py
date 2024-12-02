@@ -45,8 +45,8 @@ def gamma_packet_loop(
     effective_time_array,
     energy_bins,
     energy_out,
+    total_energy,
     energy_deposited_gamma,
-    energy_deposited_positron,
     packets_info_array,
 ):
     """Propagates packets through the simulation
@@ -101,15 +101,12 @@ def gamma_packet_loop(
     escaped_packets = 0
     scattered_packets = 0
     packet_count = len(packets)
-    # Logging does not work with numba
+    # Logging does not work with numba. Using print instead.
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
     for i in range(packet_count):
         packet = packets[i]
-        time_index = get_index(packet.time_current, times)
-        energy_deposited_positron[
-            packet.shell, time_index
-        ] += packet.positron_energy
+        time_index = packet.time_index
 
         if time_index < 0:
             print(packet.time_current, time_index)
@@ -129,7 +126,7 @@ def gamma_packet_loop(
                 doppler_factor = doppler_factor_3d(
                     packet.direction,
                     packet.location,
-                    effective_time_array[time_index],
+                    times[time_index],
                 )
 
                 kappa = kappa_calculation(comoving_energy)
@@ -210,7 +207,7 @@ def gamma_packet_loop(
                 distance_interaction, distance_boundary, distance_time
             )
 
-            packet.time_current += distance / C_CGS
+            packet.time_start += distance / C_CGS
 
             packet = move_packet(packet, distance)
 
@@ -223,7 +220,7 @@ def gamma_packet_loop(
                 else:
                     packet.shell = get_index(
                         packet.get_location_r(),
-                        inner_velocities * effective_time_array[time_index],
+                        inner_velocities * times[time_index],
                     )
 
             elif distance == distance_interaction:
@@ -235,16 +232,18 @@ def gamma_packet_loop(
 
                 packet, ejecta_energy_gained = process_packet_path(packet)
 
+                # Ejecta gains energy from the packets (gamma-rays)
                 energy_deposited_gamma[
                     packet.shell, time_index
                 ] += ejecta_energy_gained
 
+                total_energy[packet.shell, time_index] += ejecta_energy_gained
+
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
                     break
-                else:
-                    packet.status = GXPacketStatus.IN_PROCESS
-                    scattered = True
+                packet.status = GXPacketStatus.IN_PROCESS
+                scattered = True
 
             else:
                 packet.shell += shell_change
@@ -285,14 +284,15 @@ def gamma_packet_loop(
                 ]
             )
 
-    print("Escaped packets:", escaped_packets)
-    print("Scattered packets:", scattered_packets)
+    print("Number of escaped packets:", escaped_packets)
+    print("Number of scattered packets:", scattered_packets)
 
     return (
         energy_out,
         packets_info_array,
         energy_deposited_gamma,
-        energy_deposited_positron,
+        energy_deposited_gamma,
+        total_energy,
     )
 
 

@@ -1,7 +1,8 @@
 import logging
+
+import astropy.units as u
 import numpy as np
 import pandas as pd
-import astropy.units as u
 import radioactivedecay as rd
 
 from tardis.energy_input.util import KEV2ERG
@@ -52,6 +53,7 @@ def create_inventories_dict(isotope_dict):
     ----------
     isotope_dict : Dict
         dictionary of isotopes for each shell with their ``masses``.
+
     Returns
     -------
         inv : Dict
@@ -126,7 +128,6 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
         dataframe of isotopes for each shell with their decay mode, number of decays, radiation type,
         radiation energy and radiation intensity.
     """
-
     gamma_ray_lines = gamma_ray_lines.rename_axis(
         "isotope"
     )  # renaming "Isotope" in nndc to "isotope"
@@ -186,20 +187,24 @@ def time_evolve_mass_fraction(raw_isotope_mass_fraction, time_array):
     time_evolved_isotope_mass_fraction : pd.DataFrame
         time evolved mass fraction of isotopes.
     """
-
     initial_isotope_mass_fraction = raw_isotope_mass_fraction
     isotope_mass_fraction_list = []
+    dt = np.diff(time_array)
+    t_start = time_array[:-1]
+    t_end = time_array[1:]
+    t_start_index = np.indices(t_start.shape)[0]
 
-    for time in time_array:
-
+    for time in dt:
         decayed_isotope_mass_fraction = IsotopicMassFraction(
             initial_isotope_mass_fraction
         ).decay(time)
         isotope_mass_fraction_list.append(decayed_isotope_mass_fraction)
         initial_isotope_mass_fraction = decayed_isotope_mass_fraction
 
+    time_keys = list(zip(t_start, t_end, t_start_index))
+
     time_evolved_isotope_mass_fraction = pd.concat(
-        isotope_mass_fraction_list, keys=time_array, names=["time"]
+        isotope_mass_fraction_list, keys=time_keys, names=["time_start", "time_end", "time_index"],
     )
 
     return time_evolved_isotope_mass_fraction
@@ -229,14 +234,15 @@ def time_evolve_cumulative_decay(
         radiation energy and radiation intensity at each time step.
 
     """
-
     isotope_decay_df_list = []
     initial_isotope_mass_fraction = raw_isotope_mass_fraction
 
     dt = np.diff(time_array)
-    # Do not append dataframes to empty lists
+    t_start = time_array[:-1]
+    t_end = time_array[1:]
+    t_start_index = np.indices(time_array.shape)[0]
+    # Do not append dataframes to empty lists. This will be modified in future.
     for time in dt:
-        #
         isotope_dict = create_isotope_dicts(
             initial_isotope_mass_fraction, shell_masses
         )
@@ -251,8 +257,10 @@ def time_evolve_cumulative_decay(
 
         initial_isotope_mass_fraction = decayed_isotope_mass_fraction
 
+    time_keys = list(zip(t_start, t_end, t_start_index))
+
     time_evolved_decay_df = pd.concat(
-        isotope_decay_df_list, keys=time_array, names=["time"]
+        isotope_decay_df_list, keys=time_keys, names=["time_start", "time_end", "time_index"],
     )
 
     return time_evolved_decay_df
