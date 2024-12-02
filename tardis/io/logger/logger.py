@@ -2,9 +2,6 @@ import logging
 import re
 import panel as pn
 from dataclasses import dataclass, field
-import asyncio
-import concurrent.futures
-import threading
 from IPython.display import display
 import os
 
@@ -62,7 +59,6 @@ logger_widget = pn.Tabs(
     sizing_mode='stretch_width'
 )
 
-
 @dataclass
 class LoggingConfig:
     LEVELS: dict[str, int] = field(default_factory=lambda: {
@@ -86,10 +82,6 @@ class LoggingConfig:
     DEFAULT_LEVEL = "INFO"
     DEFAULT_SPECIFIC_STATE = False
 
-
-LOGGING_LEVELS = LoggingConfig().LEVELS
-
-
 class AsyncEmitLogHandler(logging.Handler):
     def __init__(self, log_outputs, colors, display_widget=True):
         super().__init__()
@@ -103,28 +95,18 @@ class AsyncEmitLogHandler(logging.Handler):
             self.display_handle = display(logger_widget, display_id=True)
 
     def emit(self, record):
-        print(f"[{threading.get_ident()}] Emit called at {asyncio.get_event_loop_policy().get_event_loop()}")
-        
+        # Handle standard environment with simple stream output
         if not self.display_widget or self.environment == 'standard':
             stream_handler = logging.StreamHandler()
             stream_handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
             stream_handler.emit(record)
             return
 
+        # Process and emit log directly
         log_entry = self.format(record)
         clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
         html_output = self._format_html_output(clean_log_entry, record)
-
-        print(f"[{threading.get_ident()}] Creating task with asyncio.to_thread")
-        # Use asyncio.to_thread to run the widget update in a separate thread
-        asyncio.create_task(
-            asyncio.to_thread(
-                self._emit_to_widget, 
-                record.levelno, 
-                html_output
-            )
-        )
-        print(f"[{threading.get_ident()}] Task created")
+        self._emit_to_widget(record.levelno, html_output)
 
     @staticmethod
     def _remove_ansi_escape_sequences(text):
@@ -134,7 +116,6 @@ class AsyncEmitLogHandler(logging.Handler):
 
     def _format_html_output(self, log_entry, record):
         """Format log entry as HTML with appropriate styling."""
-        print(f"[{threading.get_ident()}] Formatting HTML output")
         color = self.colors.get(record.levelno, self.colors["default"])
         parts = log_entry.split(" ", 2)
         if len(parts) > 2:
@@ -143,8 +124,7 @@ class AsyncEmitLogHandler(logging.Handler):
         return log_entry
 
     def _emit_to_widget(self, level, html_output):
-        """Handles the actual widget updates"""
-        print(f"[{threading.get_ident()}] _emit_to_widget started with level {level}")
+        """Handles the widget updates synchronously"""
         level_to_output = {
             logging.WARNING: "WARNING/ERROR",
             logging.ERROR: "WARNING/ERROR", 
@@ -157,21 +137,16 @@ class AsyncEmitLogHandler(logging.Handler):
         # Update specific level output
         output_key = level_to_output.get(level)
         if output_key:
-            print(f"[{threading.get_ident()}] Updating {output_key} output")
             current = self.log_outputs[output_key].object or ""
             self.log_outputs[output_key].object = current + "\n" + html_wrapped if current else html_wrapped
             
         # Update ALL output
-        print(f"[{threading.get_ident()}] Updating ALL output")
         current_all = self.log_outputs["ALL"].object or ""
         self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
 
+        # Update Jupyter display if in jupyter environment
         if self.environment == 'jupyter':
-            print(f"[{threading.get_ident()}] Updating Jupyter display")
             self.display_handle.update(logger_widget.embed())
-        
-        print(f"[{threading.get_ident()}] _emit_to_widget completed")
-
 
 class TARDISLogger:
     def __init__(self):
@@ -227,7 +202,6 @@ class TARDISLogger:
                 for logger in tardis_loggers:
                     logger.removeFilter(filter)
 
-
     def setup_widget_logging(self, display_widget=True):
         """
         Set up widget-based logging interface.
@@ -259,7 +233,6 @@ class TARDISLogger:
         self.logger.addHandler(self.widget_handler)
         PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
 
-
 class LogFilter:
     """Filter for controlling which log levels are displayed."""
     def __init__(self, log_levels):
@@ -267,7 +240,6 @@ class LogFilter:
         
     def filter(self, log_record):
         return log_record.levelno in self.log_levels
-
 
 def logging_state(log_level, tardis_config, specific_log_level=None, display_widget=True):
     logger = TARDISLogger()
