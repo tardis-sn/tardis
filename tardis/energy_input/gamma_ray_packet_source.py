@@ -17,6 +17,9 @@ from tardis.energy_input.util import (
 )
 from tardis.transport.montecarlo.packet_source import BasePacketSource
 
+POSITRON_ANNIHILATION_LINE = 511.0
+PARA_TO_ORTHO_RATIO = 0.25
+
 
 class RadioactivePacketSource(BasePacketSource):
     def __init__(
@@ -515,7 +518,9 @@ class GammaRayPacketSource(BasePacketSource):
         outer_velocities : array
             Array of outer shell velocities
         inv_volume_time : array
-            Array of inverse volume times (please explain)
+            Array of inverse volume times
+            1 / ((4 * np.pi)/3 * (vt) ** 3)
+            Indicates how the ejecta volume changes with time
         times : array
             Array of time steps
         effective_times : array
@@ -593,12 +598,12 @@ class GammaRayPacketSource(BasePacketSource):
 
         # positronium formation if fraction is greater than zero
         positronium_formation = (
-            np.random.random(number_of_packets) < positronium_fraction
+            np.random.uniform(0, 1, number_of_packets) < positronium_fraction
         )
         # annihilation line of positrons
-        annihilation_line = packets["radiation_energy_keV"] == 511.0
+        annihilation_line = packets["radiation_energy_keV"] == POSITRON_ANNIHILATION_LINE
         # three photon decay of positronium
-        three_photon_decay = np.random.random(number_of_packets) > 0.25
+        three_photon_decay = np.random.random(number_of_packets) > PARA_TO_ORTHO_RATIO
 
         energy_array[all_packets] = packets.loc[
             all_packets, "radiation_energy_keV"
@@ -808,8 +813,6 @@ class GammaRayPacketSource(BasePacketSource):
         packet_energies_cmf = self.create_packet_energies(
             number_of_packets, self.packet_energy
         )
-        positron_energy = isotope_positron_fraction * self.packet_energy
-
         packet_energies_rf = np.zeros(number_of_packets)
         nus_rf = np.zeros(number_of_packets)
 

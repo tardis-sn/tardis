@@ -1,28 +1,24 @@
-import pytest
-import numpy as np
 from pathlib import Path
-import astropy.units as u
-import numpy.testing as npt
-import radioactivedecay as rd
-import astropy.constants as const
-from radioactivedecay import converters
 
-from tardis.model import SimulationState
-from tardis.io.configuration import config_reader
-from tardis.energy_input.energy_source import (
-    get_nuclear_lines_database,
-)
+import astropy.constants as const
+import astropy.units as u
+import numpy as np
+import numpy.testing as npt
+import pytest
+import radioactivedecay as rd
+
 from tardis.energy_input.gamma_ray_channel import (
-    create_isotope_dicts,
-    create_inventories_dict,
     calculate_total_decays,
+    create_inventories_dict,
     create_isotope_decay_df,
+    create_isotope_dicts,
     time_evolve_cumulative_decay,
 )
-
 from tardis.energy_input.gamma_ray_transport import get_taus
-from tardis.energy_input.util import KEV2ERG
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
+from tardis.energy_input.util import KEV2ERG
+from tardis.io.configuration import config_reader
+from tardis.model import SimulationState
 
 
 @pytest.fixture(scope="module")
