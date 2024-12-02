@@ -1,9 +1,10 @@
 import logging
-import re
-import panel as pn
-from dataclasses import dataclass, field
-from IPython.display import display
 import os
+import re
+from dataclasses import dataclass, field
+
+import panel as pn
+from IPython.display import display
 
 pn.extension()
 
@@ -14,18 +15,18 @@ def get_environment():
     try:
         import IPython
         ipython = IPython.get_ipython()
-        
+
         if ipython is None:
             return 'standard'
-            
+
         # Check for VSCode specific environment variables
         if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
             return 'vscode'
-            
+
         # Check if running in Jupyter notebook
         if 'IPKernelApp' in ipython.config:
             return 'jupyter'
-            
+
         return 'standard'
     except:
         return 'standard'
@@ -78,7 +79,7 @@ class LoggingConfig:
         logging.DEBUG: "blue",
         "default": "black",
     })
-    
+
     DEFAULT_LEVEL = "INFO"
     DEFAULT_SPECIFIC_STATE = False
 
@@ -91,7 +92,7 @@ class AsyncEmitLogHandler(logging.Handler):
         self.colors = colors
         self.environment = get_environment()
         self.display_widget = display_widget
-        
+
         # Only set up display handle for Jupyter
         if self.display_widget and self.environment == 'jupyter':
             self.display_handle = display(logger_widget, display_id=True)
@@ -129,19 +130,19 @@ class AsyncEmitLogHandler(logging.Handler):
         """Handles the widget updates synchronously"""
         level_to_output = {
             logging.WARNING: "WARNING/ERROR",
-            logging.ERROR: "WARNING/ERROR", 
+            logging.ERROR: "WARNING/ERROR",
             logging.INFO: "INFO",
             logging.DEBUG: "DEBUG"
         }
-        
+
         html_wrapped = f"<div style='margin: 0;'>{html_output}</div>"
-        
+
         # Update specific level output
         output_key = level_to_output.get(level)
         if output_key:
             current = self.log_outputs[output_key].object or ""
             self.log_outputs[output_key].object = current + "\n" + html_wrapped if current else html_wrapped
-            
+
         # Update ALL output
         current_all = self.log_outputs["ALL"].object or ""
         self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
@@ -214,16 +215,16 @@ class TARDISLogger:
             Whether to display the widget in GUI environments (default: True)
         """
         self.widget_handler = AsyncEmitLogHandler(
-            log_outputs, 
+            log_outputs,
             self.config.COLORS,
             display_widget=display_widget
         )
         self.widget_handler.setFormatter(
             logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
         )
-        
+
         self._configure_handlers()
-    
+
     def _configure_handlers(self):
         """Configure logging handlers."""
         logging.captureWarnings(True)
@@ -231,15 +232,16 @@ class TARDISLogger:
         for logger in [self.logger, logging.getLogger()]:
             for handler in logger.handlers[:]:
                 logger.removeHandler(handler)
-        
+
         self.logger.addHandler(self.widget_handler)
         PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
 
 class LogFilter:
     """Filter for controlling which log levels are displayed."""
+
     def __init__(self, log_levels):
         self.log_levels = log_levels
-        
+
     def filter(self, log_record):
         return log_record.levelno in self.log_levels
 
@@ -247,8 +249,8 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_wid
     logger = TARDISLogger()
     logger.configure_logging(log_level, tardis_config, specific_log_level)
     logger.setup_widget_logging(display_widget=display_widget)
-    
+
     if display_widget and get_environment() == 'vscode':
         display(logger_widget)
-        
+
     return logger_widget if (display_widget and get_environment() in ['jupyter', 'vscode']) else None
