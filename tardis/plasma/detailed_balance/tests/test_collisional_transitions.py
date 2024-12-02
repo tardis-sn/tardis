@@ -46,7 +46,9 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
 
     # plasma_solver_factory.continuum_interaction_species = ["He I"]
     plasma_solver_factory.line_interaction_type = "macroatom"
-    plasma_solver_factory.prepare_factory([1])
+    plasma_solver_factory.prepare_factory(
+        [1], "tardis.plasma.properties.legacy_property_collections"
+    )
     plasma_solver_factory.plasma_modules += [
         YgData,
         ContinuumInteractionSpecies,

@@ -142,7 +142,6 @@ def calculate_transition_probability(
     transition_probabilities = np.empty(
         (transition_probability_coef.shape[0], beta_sobolev.shape[1])
     )
-    # trans_old = self.calculate_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
     transition_type = macro_atom_data.transition_type.values
     lines_idx = macro_atom_data.lines_idx.values
     tpos = macro_atom_data.transition_probability.values
@@ -287,7 +286,6 @@ class TransitionProbabilities(
         transition_probabilities = np.empty(
             (self.transition_probability_coef.shape[0], beta_sobolev.shape[1])
         )
-        # trans_old = self.calculate_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
         transition_type = macro_atom_data.transition_type.values
         lines_idx = macro_atom_data.lines_idx.values
         tpos = macro_atom_data.transition_probability.values
@@ -301,14 +299,6 @@ class TransitionProbabilities(
             self.block_references,
             transition_probabilities,
             self.normalize,
-        )
-        return transition_probabilities
-
-    def calculate_transition_probabilities(
-        self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
-    ):
-        transition_probabilities = self.prepare_transition_probabilities(
-            macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
         )
         return transition_probabilities
 
