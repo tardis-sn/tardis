@@ -62,7 +62,7 @@ logger_widget = pn.Tabs(
 
 @dataclass
 class LoggingConfig:
-    LEVELS: dict[str, int] = field(default_factory=lambda: {
+    LEVELS: dict = field(default_factory=lambda: {
         "NOTSET": logging.NOTSET,
         "DEBUG": logging.DEBUG,
         "INFO": logging.INFO,
@@ -71,7 +71,7 @@ class LoggingConfig:
         "CRITICAL": logging.CRITICAL,
     })
 
-    COLORS: dict[int | str, str] = field(default_factory=lambda: {
+    COLORS: dict = field(default_factory=lambda: {
         logging.INFO: "#D3D3D3",
         logging.WARNING: "orange",
         logging.ERROR: "red",
