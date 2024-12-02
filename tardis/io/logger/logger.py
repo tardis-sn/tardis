@@ -96,27 +96,14 @@ class AsyncEmitLogHandler(logging.Handler):
         self.log_outputs = log_outputs
         self.colors = colors
         self.environment = get_environment()
-        self.main_thread_id = threading.get_ident()
-        self.futures = []
         self.display_widget = display_widget
         
-        # Only set up async handling for GUI environments when display_widget is True
-        if self.display_widget and self.environment in ['jupyter', 'vscode']:
-            self.loop = asyncio.new_event_loop()
-            self.thread = threading.Thread(target=self._run_event_loop, daemon=True)
-            self.thread.start()
-            
-            # Only set up display handle for Jupyter
-            if self.environment == 'jupyter':
-                self.display_handle = display(logger_widget, display_id=True)
-
-    def _run_event_loop(self):
-        """Runs event loop in separate thread"""
-        asyncio.set_event_loop(self.loop)
-        self.loop.run_forever()
+        # Only set up display handle for Jupyter
+        if self.display_widget and self.environment == 'jupyter':
+            self.display_handle = display(logger_widget, display_id=True)
 
     def emit(self, record):
-        log_entry = self.format(record)
+        print(f"[{threading.get_ident()}] Emit called at {asyncio.get_event_loop_policy().get_event_loop()}")
         
         if not self.display_widget or self.environment == 'standard':
             stream_handler = logging.StreamHandler()
@@ -124,38 +111,30 @@ class AsyncEmitLogHandler(logging.Handler):
             stream_handler.emit(record)
             return
 
+        log_entry = self.format(record)
         clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
         html_output = self._format_html_output(clean_log_entry, record)
 
-        future = asyncio.run_coroutine_threadsafe(
-            self._async_emit(record.levelno, html_output),
-            self.loop
+        print(f"[{threading.get_ident()}] Creating task with asyncio.to_thread")
+        # Use asyncio.to_thread to run the widget update in a separate thread
+        asyncio.create_task(
+            asyncio.to_thread(
+                self._emit_to_widget, 
+                record.levelno, 
+                html_output
+            )
         )
-        self.futures.append(future)
-
-    def close(self):
-        if self.display_widget and self.environment in ['jupyter', 'vscode']:
-            self.loop.call_soon_threadsafe(self.loop.stop)
-            self.thread.join(timeout=5)
-
-            # Clean up any remaining tasks in the loop
-            pending = asyncio.all_tasks(self.loop)
-            for task in pending:
-                task.cancel()
-            
-            # Run the event loop one last time to finalize all pending tasks
-            self.loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-            self.loop.close()
-        super().close()
+        print(f"[{threading.get_ident()}] Task created")
 
     @staticmethod
     def _remove_ansi_escape_sequences(text):
         """Remove ANSI escape sequences from string."""
         ansi_escape = re.compile(r"\x1B[@-_][0-?]*[ -/]*[@-~]")
         return ansi_escape.sub("", text)
-    
+
     def _format_html_output(self, log_entry, record):
         """Format log entry as HTML with appropriate styling."""
+        print(f"[{threading.get_ident()}] Formatting HTML output")
         color = self.colors.get(record.levelno, self.colors["default"])
         parts = log_entry.split(" ", 2)
         if len(parts) > 2:
@@ -163,7 +142,9 @@ class AsyncEmitLogHandler(logging.Handler):
             return f'<span>{prefix}</span> <span style="color: {color}; font-weight: bold;">{levelname}</span> {message}'
         return log_entry
 
-    async def _async_emit(self, level, html_output):
+    def _emit_to_widget(self, level, html_output):
+        """Handles the actual widget updates"""
+        print(f"[{threading.get_ident()}] _emit_to_widget started with level {level}")
         level_to_output = {
             logging.WARNING: "WARNING/ERROR",
             logging.ERROR: "WARNING/ERROR", 
@@ -176,15 +157,20 @@ class AsyncEmitLogHandler(logging.Handler):
         # Update specific level output
         output_key = level_to_output.get(level)
         if output_key:
+            print(f"[{threading.get_ident()}] Updating {output_key} output")
             current = self.log_outputs[output_key].object or ""
             self.log_outputs[output_key].object = current + "\n" + html_wrapped if current else html_wrapped
             
         # Update ALL output
+        print(f"[{threading.get_ident()}] Updating ALL output")
         current_all = self.log_outputs["ALL"].object or ""
         self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
 
         if self.environment == 'jupyter':
+            print(f"[{threading.get_ident()}] Updating Jupyter display")
             self.display_handle.update(logger_widget.embed())
+        
+        print(f"[{threading.get_ident()}] _emit_to_widget completed")
 
 
 class TARDISLogger:
