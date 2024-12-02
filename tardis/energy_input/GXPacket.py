@@ -31,8 +31,8 @@ gxpacket_spec = [
     ("nu_cmf", float64),
     ("status", int64),
     ("shell", int64),
-    ("time_current", float64),
-    ("positron_energy", float64),
+    ("time_start", float64),
+    ("time_index", float64),
     ("tau", float64),
 ]
 
@@ -53,8 +53,8 @@ class GXPacket(object):
         nu_cmf,
         status,
         shell,
-        time_current,
-        positron_energy,
+        time_start,
+        time_index,
     ):
         self.location = location
         self.direction = direction
@@ -64,9 +64,9 @@ class GXPacket(object):
         self.nu_cmf = nu_cmf
         self.status = status
         self.shell = shell
-        self.time_current = time_current
+        self.time_start = time_start
+        self.time_index = time_index
         # TODO: rename to tau_event
-        self.positron_energy = positron_energy
         self.tau = -np.log(np.random.random())
 
     def get_location_r(self):
@@ -97,8 +97,8 @@ class GXPacketCollection:
         nu_cmf,
         status,
         shell,
-        time_current,
-        positron_energy,
+        time_start,
+        time_index,
     ):
         self.location = location
         self.direction = direction
@@ -108,9 +108,8 @@ class GXPacketCollection:
         self.nu_cmf = nu_cmf
         self.status = status
         self.shell = shell
-        self.time_current = time_current
-        self.number_of_packets = len(self.energy_rf)
-        self.positron_energy = positron_energy
+        self.time_current = time_start
+        self.time_index = time_index
         self.tau = -np.log(np.random.random(self.number_of_packets))
 
 

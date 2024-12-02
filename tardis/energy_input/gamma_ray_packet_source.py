@@ -618,7 +618,7 @@ class GammaRayPacketSource(BasePacketSource):
         )
         energy_array[
             positronium_formation & annihilation_line & ~three_photon_decay
-        ] = 511.0
+        ] = POSITRON_ANNIHILATION_LINE
 
         return energy_array
 
@@ -778,22 +778,19 @@ class GammaRayPacketSource(BasePacketSource):
         # sample radii at time = 0
         initial_radii = self.create_packet_radii(sampled_packets_df)
         # sample decay times
-        sampled_times = sampled_packets_df.index.get_level_values("time") * (
-            u.d
-        ).to(u.s)
 
         # TODO: Rewrite this without for loop. This is expensive
         # get the time step index of the packets
-        decay_time_indices = []
-        for i in range(number_of_packets):
-            decay_time_indices.append(get_index(sampled_times[i], self.times))
+        decay_time_indices = sampled_packets_df.index.get_level_values("time_index")
+
+        effective_decay_times = self.times[decay_time_indices]
 
         # scale radius by packet decay time. This could be replaced with
         # Geometry object calculations. Note that this also adds a random
         # unit vector multiplication for 3D. May not be needed.
         locations = (
             initial_radii.values
-            * self.effective_times[decay_time_indices]
+            * effective_decay_times
             * self.create_packet_directions(number_of_packets)
         )
 
@@ -817,7 +814,7 @@ class GammaRayPacketSource(BasePacketSource):
         nus_rf = np.zeros(number_of_packets)
 
         doppler_factors = doppler_factor_3D_all_packets(
-            directions, locations, sampled_times.values
+            directions, locations, effective_decay_times
         )
 
         packet_energies_rf = packet_energies_cmf / doppler_factors
@@ -832,7 +829,7 @@ class GammaRayPacketSource(BasePacketSource):
             nus_cmf,
             statuses,
             shells,
-            sampled_times.values,
+            effective_decay_times,
             decay_time_indices,
         ), isotope_positron_fraction
 
@@ -874,8 +871,9 @@ class GammaRayPacketSource(BasePacketSource):
         ].sum()
         # TODO: Possibly move this for loop
         for i, isotope in enumerate(isotopes):
-            isotope_positron_fraction[i] = (
-                positron_energy_per_isotope[isotope]
-                / gamma_energy_per_isotope[isotope]
-            )
+            if isotope in positron_energy_per_isotope: # check if isotope is in the dataframe
+                isotope_positron_fraction[i] = (
+                    positron_energy_per_isotope[isotope]
+                    / gamma_energy_per_isotope[isotope]
+                )
         return isotope_positron_fraction

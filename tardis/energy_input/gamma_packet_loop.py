@@ -109,7 +109,7 @@ def gamma_packet_loop(
         time_index = packet.time_index
 
         if time_index < 0:
-            print(packet.time_current, time_index)
+            print(packet.time_start, time_index)
             raise ValueError("Packet time index less than 0!")
 
         scattered = False
@@ -236,7 +236,7 @@ def gamma_packet_loop(
                 energy_deposited_gamma[
                     packet.shell, time_index
                 ] += ejecta_energy_gained
-
+                # Ejecta gains energy from both gamma-rays and positrons
                 total_energy[packet.shell, time_index] += ejecta_energy_gained
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
@@ -291,7 +291,6 @@ def gamma_packet_loop(
         energy_out,
         packets_info_array,
         energy_deposited_gamma,
-        energy_deposited_gamma,
         total_energy,
     )
 
@@ -329,7 +328,7 @@ def process_packet_path(packet):
             doppler_factor = doppler_factor_3d(
                 packet.direction,
                 packet.location,
-                packet.time_current,
+                packet.time_start,
             )
 
             packet.nu_rf = packet.nu_cmf / doppler_factor
