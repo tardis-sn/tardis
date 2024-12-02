@@ -82,6 +82,8 @@ class LoggingConfig:
     DEFAULT_LEVEL = "INFO"
     DEFAULT_SPECIFIC_STATE = False
 
+LOGGING_LEVELS = LoggingConfig().LEVELS
+
 class AsyncEmitLogHandler(logging.Handler):
     def __init__(self, log_outputs, colors, display_widget=True):
         super().__init__()
