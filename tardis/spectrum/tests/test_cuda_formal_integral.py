@@ -353,12 +353,12 @@ def test_full_formal_integral(
 
     res_numba = formal_integrator_numba.make_source_function()
     att_S_ul_numba = res_numba[0].flatten(order="F")
-    Jred_lu_numba = res_numba[1].values.flatten(order="F")
+    Jred_lu_numba = res_numba[1].flatten(order="F")
     Jblue_lu_numba = res_numba[2].flatten(order="F")
 
     res_cuda = formal_integrator_cuda.make_source_function()
     att_S_ul_cuda = res_cuda[0].flatten(order="F")
-    Jred_lu_cuda = res_cuda[1].values.flatten(order="F")
+    Jred_lu_cuda = res_cuda[1].flatten(order="F")
     Jblue_lu_cuda = res_cuda[2].flatten(order="F")
 
     formal_integrator_numba.generate_numba_objects()

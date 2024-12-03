@@ -25,7 +25,11 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         atom_data,
         config,
     )
-    plasma_solver_factory.prepare_factory(atomic_numbers, config)
+    plasma_solver_factory.prepare_factory(
+        atomic_numbers,
+        "tardis.plasma.properties.legacy_property_collections",
+        config,
+    )
     dilute_planckian_radiation_field = DilutePlanckianRadiationField(
         simulation_state.t_radiative, simulation_state.dilution_factor
     )

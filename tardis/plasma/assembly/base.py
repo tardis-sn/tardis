@@ -1,3 +1,4 @@
+import importlib
 import logging
 
 import numpy as np
@@ -21,26 +22,6 @@ from tardis.plasma.properties.level_population import LevelNumberDensity
 from tardis.plasma.properties.nlte_rate_equation_solver import (
     NLTEPopulationSolverLU,
     NLTEPopulationSolverRoot,
-)
-from tardis.plasma.properties.property_collections import (
-    adiabatic_cooling_properties,
-    basic_inputs,
-    basic_properties,
-    continuum_interaction_inputs,
-    continuum_interaction_properties,
-    dilute_lte_excitation_properties,
-    helium_lte_properties,
-    helium_nlte_properties,
-    helium_numerical_nlte_properties,
-    lte_excitation_properties,
-    lte_ionization_properties,
-    macro_atom_properties,
-    nebular_ionization_properties,
-    nlte_lu_solver_properties,
-    nlte_properties,
-    nlte_root_solver_properties,
-    non_nlte_properties,
-    two_photon_properties,
 )
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
@@ -97,6 +78,9 @@ class PlasmaSolverFactory:
     plasma_modules: list = []
     kwargs: dict = {}
     property_kwargs: dict = {}
+    plasma_collection = importlib.import_module(
+        "tardis.plasma.properties.legacy_property_collections"
+    )
 
     def __init__(
         self,
@@ -154,15 +138,23 @@ class PlasmaSolverFactory:
             plasma_config.continuum_interaction.enable_two_photon_decay
         )
 
-    def prepare_factory(self, selected_atomic_numbers, config=None):
+    def prepare_factory(
+        self, selected_atomic_numbers, property_collections, config=None
+    ):
         """
         Set up the plasma factory.
 
         Parameters
         ----------
+        selected_atomic_numbers : list of int
+            Selected atomic numbers in the simulation.
+        property_collections : str
+            The property collection module to be used in the plasma assembly.
         config : object, optional
             Configuration object containing plasma settings (default: None).
         """
+        self.plasma_collection = importlib.import_module(property_collections)
+
         self.atom_data.prepare_atom_data(
             selected_atomic_numbers,
             line_interaction_type=self.line_interaction_type,
@@ -172,7 +164,10 @@ class PlasmaSolverFactory:
 
         self.check_continuum_interaction_species()
 
-        self.plasma_modules = basic_inputs + basic_properties
+        self.plasma_modules = (
+            self.plasma_collection.basic_inputs
+            + self.plasma_collection.basic_properties
+        )
 
         self.setup_analytical_approximations()
         self.property_kwargs[RadiationFieldCorrection] = dict(
@@ -181,12 +176,12 @@ class PlasmaSolverFactory:
         if (config is not None) and len(self.legacy_nlte_species) > 0:
             self.setup_legacy_nlte(config.plasma.nlte)
         else:
-            self.plasma_modules += non_nlte_properties
+            self.plasma_modules += self.plasma_collection.non_nlte_properties
 
         if self.line_interaction_type in ("downbranch", "macroatom") and (
             len(self.continuum_interaction_species) == 0
         ):
-            self.plasma_modules += macro_atom_properties
+            self.plasma_modules += self.plasma_collection.macro_atom_properties
 
         self.setup_helium_treatment()
 
@@ -237,9 +232,11 @@ class PlasmaSolverFactory:
         # TODO: Disentangle these if else block such that compatible components
         # can be added independently.
         if self.helium_treatment == "recomb-nlte":
-            self.plasma_modules += helium_nlte_properties
+            self.plasma_modules += self.plasma_collection.helium_nlte_properties
         elif self.helium_treatment == "numerical-nlte":
-            self.plasma_modules += helium_numerical_nlte_properties
+            self.plasma_modules += (
+                self.plasma_collection.helium_numerical_nlte_properties
+            )
             if self.heating_rate_data_file in ["none", None]:
                 raise PlasmaConfigError("Heating rate data file not specified")
             self.property_kwargs[HeliumNumericalNLTE] = dict(
@@ -255,7 +252,9 @@ class PlasmaSolverFactory:
             ):
                 self.plasma_modules.append(LevelNumberDensity)
             else:
-                self.plasma_modules += helium_lte_properties
+                self.plasma_modules += (
+                    self.plasma_collection.helium_lte_properties
+                )
 
     def setup_legacy_nlte(self, nlte_config):
         """
@@ -266,7 +265,7 @@ class PlasmaSolverFactory:
         nlte_config : dict
             A dictionary containing the NLTE configuration.
         """
-        self.plasma_modules += nlte_properties
+        self.plasma_modules += self.plasma_collection.nlte_properties
         self.plasma_modules.append(
             LevelBoltzmannFactorNLTE.from_config(nlte_config)
         )
@@ -283,18 +282,26 @@ class PlasmaSolverFactory:
         None
         """
         if self.excitation_analytical_approximation == "lte":
-            self.plasma_modules += lte_excitation_properties
+            self.plasma_modules += (
+                self.plasma_collection.lte_excitation_properties
+            )
         elif self.excitation_analytical_approximation == "dilute-lte":
-            self.plasma_modules += dilute_lte_excitation_properties
+            self.plasma_modules += (
+                self.plasma_collection.dilute_lte_excitation_properties
+            )
         else:
             raise PlasmaConfigError(
                 f'Invalid excitation analytical approximation. Configured as {self.excitation_analytical_approximation} but needs to be either "lte" or "dilute-lte"'
             )
 
         if self.ionization_analytical_approximation == "lte":
-            self.plasma_modules += lte_ionization_properties
+            self.plasma_modules += (
+                self.plasma_collection.lte_ionization_properties
+            )
         elif self.ionization_analytical_approximation == "nebular":
-            self.plasma_modules += nebular_ionization_properties
+            self.plasma_modules += (
+                self.plasma_collection.nebular_ionization_properties
+            )
         else:
             raise PlasmaConfigError(
                 f'Invalid excitation analytical approximation. Configured as {self.ionization_analytical_approximation} but needs to be either "lte" or "nebular"'
@@ -427,14 +434,20 @@ class PlasmaSolverFactory:
                 f"macroatom (instead of {self.line_interaction_type})."
             )
 
-        self.plasma_modules += continuum_interaction_properties
-        self.plasma_modules += continuum_interaction_inputs
+        self.plasma_modules += (
+            self.plasma_collection.continuum_interaction_properties
+        )
+        self.plasma_modules += (
+            self.plasma_collection.continuum_interaction_inputs
+        )
 
         if self.enable_adiabatic_cooling:
-            self.plasma_modules += adiabatic_cooling_properties
+            self.plasma_modules += (
+                self.plasma_collection.adiabatic_cooling_properties
+            )
 
         if self.enable_two_photon_decay:
-            self.plasma_modules += two_photon_properties
+            self.plasma_modules += self.plasma_collection.two_photon_properties
 
         transition_probabilities_outputs = [
             plasma_property.transition_probabilities_outputs
@@ -470,12 +483,16 @@ class PlasmaSolverFactory:
                 "nlte_excitation_species": self.nlte_excitation_species,
             }
             if self.nlte_solver == "lu":
-                self.plasma_modules += nlte_lu_solver_properties
+                self.plasma_modules += (
+                    self.plasma_collection.nlte_lu_solver_properties
+                )
                 logger.warning(
                     "LU solver will be inaccurate for NLTE excitation, proceed with caution."
                 )
             elif self.nlte_solver == "root":
-                self.plasma_modules += nlte_root_solver_properties
+                self.plasma_modules += (
+                    self.plasma_collection.nlte_root_solver_properties
+                )
             else:
                 raise PlasmaConfigError(
                     f"NLTE solver type unknown - {self.nlte_solver}"
