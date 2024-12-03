@@ -14,7 +14,7 @@ The pair-production coefficients are:
 
    \alpha_{pp}(1.5 < h\nu < 1.022) = \rho [ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}}]1.0063(h\nu - 1.022) \times 10^{-27}
 
-    \alpha_{pp}(h\nu \geq 1.5) = \rho [ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}}] [0.481 + 0.301(h\nu - 1.5) \times 10^{-27}
+    \alpha_{pp}(h\nu \geq 1.5) = \rho [ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}}] [0.481 + 0.301(h\nu - 1.5)] \times 10^{-27}
 
 :math:`\rho` is the mass density of the ejecta and :math:`X_{\text{IGE}}` is the mass fraction of Fe-group elements.
 
@@ -51,7 +51,7 @@ The total integrated Compton scattering coeffcient is:
 
 .. math::
 
-   \alpha_C = n_e \frac{3}{4} \sigma_T [\frac{1+x}{x^3} \frac{2x(1 + x)}{1 + 2x} - \ln(1 + 2x) + \frac{1}{2x} \ln(1 + 2x) - \frac{1 + 3x}{(1 + 2x)^2}]
+   \alpha_C = n_e \frac{3}{4} \sigma_T [\frac{1+x}{x^3} (\frac{2x(1 + x)}{1 + 2x} - \ln(1 + 2x)) + \frac{1}{2x} \ln(1 + 2x) - \frac{1 + 3x}{(1 + 2x)^2}]
 
 Where :math:`n_e` is the number density of electrons.
 
@@ -61,7 +61,7 @@ The direction vector is then rotated by :math:`\theta` to get the new direction 
 
 Photoabsorption
 ===============
-This occurs when the photon is completely absorbed by a material. We assume that the :math:`\gamma`-ray deposits all of its energy when this occurs
+This occurs when the photon is completely absorbed by a material. We assume that the :math:`\gamma`-ray deposits all of its energy when this occurs.
 The coefficient is:
 
 .. math::
@@ -69,3 +69,13 @@ The coefficient is:
    \alpha_{pa}(\nu) = 1.16 \times 10^{-24} (h\nu)^{-3.13}  \frac{\rho}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + 25.7 \times 10^{-24} (h\nu)^{-3}  \frac{\rho}{m_{\text{Fe}}} X_{\text{IGE}}
 
 .. figure:: images/photoabsorption_coefficient.png
+
+
+
+Each source of opacity is dominant in different energy ranges. We can see this when all three coefficients are plotted together:
+
+.. figure:: images/all_coeffs.png
+
+We can also look at the fraction of the total absorption coefficient that each source of opacity takes up in different energy levels:
+
+.. figure:: images/coeff_fractions.png
