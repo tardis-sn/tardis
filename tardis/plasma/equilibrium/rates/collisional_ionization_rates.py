@@ -1,4 +1,6 @@
-from collisional_ionization_strengths import CollisionalIonizationSeaton
+from tardis.plasma.equilibrium.rates.collisional_ionization_strengths import (
+    CollisionalIonizationSeaton,
+)
 
 
 class CollisionalIonizationSolver:
