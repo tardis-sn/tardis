@@ -2,10 +2,10 @@ import numpy as np
 from numba import float64, int64
 from numba.experimental import jitclass
 
-from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.opacities.continuum.continuum_state import ContinuumState
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 class OpacityState:
@@ -15,6 +15,7 @@ class OpacityState:
         t_electrons,
         line_list_nu,
         tau_sobolev,
+        beta_sobolev,
         continuum_state,
     ):
         """
@@ -26,6 +27,7 @@ class OpacityState:
         t_electrons : numpy.ndarray
         line_list_nu : pd.DataFrame
         tau_sobolev : pd.DataFrame
+        beta_sobolev : pd.DataFrame
         continuum_state: tardis.opacities.continuum.continuum_state.ContinuumState
         """
         self.electron_density = electron_density
@@ -33,6 +35,8 @@ class OpacityState:
         self.line_list_nu = line_list_nu
 
         self.tau_sobolev = tau_sobolev
+
+        self.beta_sobolev = beta_sobolev
 
         # Continuum Opacity Data
         self.continuum_state = continuum_state
@@ -53,7 +57,38 @@ class OpacityState:
         -------
         OpacityStatePython
         """
+        if hasattr(plasma, "photo_ion_cross_sections"):
+            continuum_state = ContinuumState.from_legacy_plasma(plasma)
+        else:
+            continuum_state = None
 
+        return cls(
+            plasma.electron_densities,
+            plasma.t_electrons,
+            plasma.atomic_data.lines.nu,
+            tau_sobolev,
+            plasma.beta_sobolev,
+            continuum_state,
+        )
+
+    @classmethod
+    def from_plasma(cls, plasma, tau_sobolev, beta_sobolev):
+        """
+        Generates an OpacityStatePython object from a tardis BasePlasma
+
+        Parameters
+        ----------
+        plasma : tarids.plasma.BasePlasma
+            legacy base plasma
+        tau_sobolev : pd.DataFrame
+            Expansion Optical Depths
+        beta_sobolev : pd.DataFrame
+            Modified expansion Optical Depths
+
+        Returns
+        -------
+        OpacityStatePython
+        """
         if hasattr(plasma, "photo_ion_cross_sections"):
             continuum_state = ContinuumState.from_legacy_plasma(plasma)
         else:
@@ -66,6 +101,7 @@ class OpacityState:
             plasma.t_electrons,
             atomic_data.lines.nu,
             tau_sobolev,
+            beta_sobolev,
             continuum_state,
         )
 
