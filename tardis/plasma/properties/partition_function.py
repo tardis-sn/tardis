@@ -1,9 +1,18 @@
 import logging
 
+import astropy.units as u
 import numpy as np
 import pandas as pd
-from numpy.linalg.linalg import LinAlgError
 
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
+from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
+from tardis.plasma.equilibrium.rate_matrix import RateMatrix
+from tardis.plasma.equilibrium.rates import (
+    RadiativeRatesSolver,
+    ThermalCollisionalRateSolver,
+)
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
@@ -167,7 +176,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         atomic_data,
         nlte_data,
         t_electrons,
-        j_blues,
+        dilute_planckian_radiation_field,
         beta_sobolevs,
         general_level_boltzmann_factor,
         previous_electron_densities,
@@ -179,93 +188,61 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         """
         for species in nlte_data.nlte_species:
             logger.info(f"Calculating rates for species {species}")
-            number_of_levels = atomic_data.levels.energy.loc[species].count()
-            lnl = nlte_data.lines_level_number_lower[species]
-            lnu = nlte_data.lines_level_number_upper[species]
-            (lines_index,) = nlte_data.lines_idx[species]
+            species_slice = (species[0], species[1], slice(None), slice(None))
+            radiative_transitions = atomic_data.lines.loc[species_slice, :]
+            radiative_rate_solver = RadiativeRatesSolver(radiative_transitions)
 
-            try:
-                j_blues_filtered = j_blues.iloc[lines_index]
-            except AttributeError:
-                j_blues_filtered = j_blues
-                logger.debug(
-                    f"J Blues Filtered Value could not be calculated. Using j_blues_filtered = {j_blues_filtered}"
-                )
-            try:
-                beta_sobolevs_filtered = beta_sobolevs.iloc[lines_index]
-            except AttributeError:
-                beta_sobolevs_filtered = beta_sobolevs
-                logger.debug(
-                    f"Beta Sobolevs Filtered Value could not be calculated. Using beta_sobolevs_filtered = {beta_sobolevs}"
-                )
-            A_uls = nlte_data.A_uls[species]
-            B_uls = nlte_data.B_uls[species]
-            B_lus = nlte_data.B_lus[species]
-            r_lu_index = lnu * number_of_levels + lnl
-            r_ul_index = lnl * number_of_levels + lnu
-            r_ul_matrix = np.zeros(
-                (number_of_levels, number_of_levels, len(t_electrons)),
-                dtype=np.float64,
+            col_strength_temperatures = atomic_data.collision_data_temperatures
+            col_strengths = atomic_data.collision_data.loc[species_slice, :]
+
+            collisional_rate_solver = ThermalCollisionalRateSolver(
+                atomic_data.levels,
+                radiative_transitions,
+                col_strength_temperatures,
+                col_strengths,
+                "chianti",
             )
-            r_ul_matrix_reshaped = r_ul_matrix.reshape(
-                (number_of_levels**2, len(t_electrons))
+            rate_solvers = [
+                (radiative_rate_solver, "radiative"),
+                (collisional_rate_solver, "electron"),
+            ]
+
+            rate_matrix_solver = RateMatrix(rate_solvers, atomic_data.levels)
+
+            electron_distribution = ThermalElectronEnergyDistribution(
+                0,
+                t_electrons * u.K,
+                previous_electron_densities * u.g / u.cm**3,
             )
-            r_ul_matrix_reshaped[r_ul_index] = (
-                A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues_filtered
+
+            rate_matrix = rate_matrix_solver.solve(
+                dilute_planckian_radiation_field, electron_distribution
             )
-            r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs_filtered
-            r_lu_matrix = np.zeros_like(r_ul_matrix)
-            r_lu_matrix_reshaped = r_lu_matrix.reshape(
-                (number_of_levels**2, len(t_electrons))
+
+            solver = LevelPopulationSolver(rate_matrix, atomic_data.levels)
+
+            level_pops = solver.solve()
+
+            pd.testing.assert_index_equal(
+                general_level_boltzmann_factor.loc[species].index,
+                level_pops.loc[species].index,
             )
-            r_lu_matrix_reshaped[r_lu_index] = (
-                B_lus[np.newaxis].T * j_blues_filtered * beta_sobolevs_filtered
-            )
-            if atomic_data.collision_data is None:
-                collision_matrix = np.zeros_like(r_ul_matrix)
-            else:
-                if previous_electron_densities is None:
-                    collision_matrix = np.zeros_like(r_ul_matrix)
-                else:
-                    collision_matrix = (
-                        nlte_data.get_collision_matrix(species, t_electrons)
-                        * previous_electron_densities.values
-                    )
-            rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
-            for i in range(number_of_levels):
-                rates_matrix[i, i] = -rates_matrix[:, i].sum(axis=0)
-            rates_matrix[0, :, :] = 1.0
-            x = np.zeros(rates_matrix.shape[0])
-            x[0] = 1.0
-            for i in range(len(t_electrons)):
-                try:
-                    level_boltzmann_factor = np.linalg.solve(
-                        rates_matrix[:, :, i], x
-                    )
-                except LinAlgError as e:
-                    if e.message == "Singular matrix":
-                        raise ValueError(
-                            "SingularMatrixError during solving of the "
-                            "rate matrix. Does the atomic data contain "
-                            "collision data?"
-                        )
-                    else:
-                        raise e
-                general_level_boltzmann_factor.loc[species, i] = (
-                    level_boltzmann_factor
-                    * g.loc[species][0]
-                    / level_boltzmann_factor[0]
-                )
+
+            general_level_boltzmann_factor.loc[species] = (
+                level_pops.loc[species]
+                * g.loc[species][0]
+                / level_pops.loc[species].iloc[0]
+            ).values
         return general_level_boltzmann_factor
 
     def _calculate_classical_nebular(
         self,
-        t_electrons,
-        lines,
         atomic_data,
         nlte_data,
+        t_electrons,
+        dilute_planckian_radiation_field,
+        previous_beta_sobolev,
         general_level_boltzmann_factor,
-        j_blues,
         previous_electron_densities,
         g,
     ):
@@ -279,7 +256,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             atomic_data,
             nlte_data,
             t_electrons,
-            j_blues,
+            dilute_planckian_radiation_field,
             beta_sobolevs,
             general_level_boltzmann_factor,
             previous_electron_densities,
@@ -289,10 +266,11 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
     def _calculate_coronal_approximation(
         self,
-        t_electrons,
-        lines,
         atomic_data,
         nlte_data,
+        t_electrons,
+        dilute_planckian_radiation_field,
+        previous_beta_sobolev,
         general_level_boltzmann_factor,
         previous_electron_densities,
         g,
@@ -307,7 +285,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             atomic_data,
             nlte_data,
             t_electrons,
-            j_blues,
+            dilute_planckian_radiation_field,
             beta_sobolevs,
             general_level_boltzmann_factor,
             previous_electron_densities,
@@ -317,13 +295,12 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
     def _calculate_general(
         self,
-        t_electrons,
-        lines,
         atomic_data,
         nlte_data,
-        general_level_boltzmann_factor,
-        j_blues,
+        t_electrons,
+        dilute_planckian_radiation_field,
         previous_beta_sobolev,
+        general_level_boltzmann_factor,
         previous_electron_densities,
         g,
     ):
@@ -339,7 +316,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             atomic_data,
             nlte_data,
             t_electrons,
-            j_blues,
+            dilute_planckian_radiation_field,
             beta_sobolevs,
             general_level_boltzmann_factor,
             previous_electron_densities,
