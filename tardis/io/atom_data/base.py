@@ -171,7 +171,6 @@ class AtomData:
     # Either all or none of the related dataframes must be given
     related_groups = [
         ("macro_atom_data_all", "macro_atom_references_all"),
-        ("collision_data", "collision_data_temperatures"),
     ]
 
     @classmethod
@@ -203,35 +202,32 @@ class AtomData:
                     store["metadata"].loc[("format", "version")].value
                 )
                 carsus_version = tuple(map(int, carsus_version_str.split(".")))
-                if carsus_version == (1, 0):
-                    # Checks for various collisional data from Carsus files
-                    if "collisions_data" in store:
-                        try:
+                # Checks for various collisional data from Carsus files
+                if "collisions_data" in store:
+                    try:
+                        if carsus_version == (1, 0):
                             dataframes["collision_data_temperatures"] = store[
                                 "collisions_metadata"
                             ].temperatures
-                            if "cmfgen" in store["collisions_metadata"].dataset:
-                                dataframes["yg_data"] = store["collisions_data"]
-                                dataframes["collision_data"] = "dummy value"
-                            elif (
-                                "chianti"
-                                in store["collisions_metadata"].dataset
-                            ):
-                                dataframes["collision_data"] = store[
-                                    "collisions_data"
-                                ]
-                            else:
-                                raise KeyError(
-                                    "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
-                                )
-                        except KeyError as e:
-                            logger.warning(
-                                "Atomic Data is not a Valid Carsus Atomic Data File"
+                        if "cmfgen" in store["collisions_metadata"].dataset:
+                            dataframes["yg_data"] = store["collisions_data"]
+                            dataframes["collision_data"] = "dummy value"
+                        elif "chianti" in store["collisions_metadata"].dataset:
+                            dataframes["collision_data"] = store[
+                                "collisions_data"
+                            ]
+                        else:
+                            raise KeyError(
+                                "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
                             )
-                            raise
-                    dataframes["levels"] = store["levels_data"]
-                    dataframes["lines"] = store["lines_data"]
-                else:
+                    except KeyError as e:
+                        logger.warning(
+                            "Atomic Data is not a Valid Carsus Atomic Data File"
+                        )
+                        raise
+                dataframes["levels"] = store["levels_data"]
+                dataframes["lines"] = store["lines_data"]
+                if carsus_version != (1, 0) and carsus_version != (2, 0):
                     raise ValueError(
                         f"Current carsus version, {carsus_version}, is not supported."
                     )
@@ -528,9 +524,9 @@ class AtomData:
         )
 
         level_idxs2continuum_idx = photo_ion_levels_idx.copy()
-        level_idxs2continuum_idx[
-            "continuum_idx"
-        ] = self.level2continuum_edge_idx
+        level_idxs2continuum_idx["continuum_idx"] = (
+            self.level2continuum_edge_idx
+        )
         self.level_idxs2continuum_idx = level_idxs2continuum_idx.set_index(
             ["source_level_idx", "destination_level_idx"]
         )
@@ -564,31 +560,33 @@ class AtomData:
                 self.macro_atom_references = self.macro_atom_references.loc[
                     self.macro_atom_references["count_down"] > 0
                 ]
-                self.macro_atom_references.loc[
-                    :, "count_total"
-                ] = self.macro_atom_references["count_down"]
-                self.macro_atom_references.loc[
-                    :, "block_references"
-                ] = np.hstack(
-                    (
-                        0,
-                        np.cumsum(
-                            self.macro_atom_references["count_down"].values[:-1]
-                        ),
+                self.macro_atom_references.loc[:, "count_total"] = (
+                    self.macro_atom_references["count_down"]
+                )
+                self.macro_atom_references.loc[:, "block_references"] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references["count_down"].values[
+                                    :-1
+                                ]
+                            ),
+                        )
                     )
                 )
 
             elif line_interaction_type == "macroatom":
-                self.macro_atom_references.loc[
-                    :, "block_references"
-                ] = np.hstack(
-                    (
-                        0,
-                        np.cumsum(
-                            self.macro_atom_references["count_total"].values[
-                                :-1
-                            ]
-                        ),
+                self.macro_atom_references.loc[:, "block_references"] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references[
+                                    "count_total"
+                                ].values[:-1]
+                            ),
+                        )
                     )
                 )
 
