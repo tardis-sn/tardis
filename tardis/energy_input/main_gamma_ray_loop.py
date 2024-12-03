@@ -206,10 +206,8 @@ def run_gamma_ray_loop(
         for i in range(num_decays)
     ]
 
-    time_current = []
     for i, p in enumerate(packets):
         total_energy[p.shell, p.time_index] += isotope_positron_fraction[i] * energy_per_packet
-        time_current.append(p.time_start)
 
     logger.info(f"Total energy deposited by the positrons is {total_energy.sum().sum()}")
 

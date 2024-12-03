@@ -745,16 +745,6 @@ class GammaRayPacketSource(BasePacketSource):
             decays_per_isotope["radiation"] == "g"
         ]
 
-        # sample packets from the gamma-ray lines at time = t0 : which is the start of the gamma-ray simulation
-        # sampled_packets_df_t0 = sampled_packets_df_gamma[sampled_packets_df_gamma.index.get_level_values("time") == self.times[0] * (u.s).to(u.d)]
-        # sample same number of packets as the gamma-ray lines at time = 0
-        # sampled_packets_df_gamma_t0 = sampled_packets_df_t0.sample(
-        #     n=number_of_packets,
-        #     weights="decay_energy_erg",
-        #     replace=True,
-        #     random_state=np.random.RandomState(self.base_seed),
-        # )
-
         # sample packets from the time evolving dataframe
         sampled_packets_df = sampled_packets_df_gamma.sample(
             n=number_of_packets,
@@ -771,15 +761,12 @@ class GammaRayPacketSource(BasePacketSource):
         shells = sampled_packets_df.index.get_level_values("shell_number")
 
         # get the inner and outer velocity boundaries for each packet to compute
-        # the initial radii
         sampled_packets_df["inner_velocity"] = self.inner_velocities[shells]
         sampled_packets_df["outer_velocity"] = self.outer_velocities[shells]
 
-        # sample radii at time = 0
+        # The radii of the packets at what ever time they are emitted
         initial_radii = self.create_packet_radii(sampled_packets_df)
-        # sample decay times
 
-        # TODO: Rewrite this without for loop. This is expensive
         # get the time step index of the packets
         decay_time_indices = sampled_packets_df.index.get_level_values("time_index")
 
