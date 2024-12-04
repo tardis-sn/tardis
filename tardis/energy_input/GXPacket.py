@@ -32,7 +32,7 @@ gxpacket_spec = [
     ("status", int64),
     ("shell", int64),
     ("time_start", float64),
-    ("time_index", float64),
+    ("time_index", int64),
     ("tau", float64),
 ]
 
@@ -108,7 +108,7 @@ class GXPacketCollection:
         self.nu_cmf = nu_cmf
         self.status = status
         self.shell = shell
-        self.time_current = time_start
+        self.time_start = time_start
         self.time_index = time_index
         self.tau = -np.log(np.random.random())
 
