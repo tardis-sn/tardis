@@ -17,7 +17,7 @@ def run_tardis(
     log_level=None,
     specific_log_level=None,
     show_progress_bars=True,
-    display_widget=True,
+    display_logging_widget=True,
     **kwargs,
 ):
     """
@@ -92,7 +92,7 @@ def run_tardis(
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
 
-    logging_state(log_level, tardis_config, specific_log_level, display_widget)
+    logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
 
     if atom_data is not None:
         try:
