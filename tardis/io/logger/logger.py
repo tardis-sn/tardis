@@ -245,12 +245,12 @@ class LogFilter:
     def filter(self, log_record):
         return log_record.levelno in self.log_levels
 
-def logging_state(log_level, tardis_config, specific_log_level=None, display_widget=True):
+def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
     logger = TARDISLogger()
     logger.configure_logging(log_level, tardis_config, specific_log_level)
-    logger.setup_widget_logging(display_widget=display_widget)
+    logger.setup_widget_logging(display_widget=display_logging_widget)
 
-    if display_widget and get_environment() == 'vscode':
+    if display_logging_widget and get_environment() == 'vscode':
         display(logger_widget)
 
-    return logger_widget if (display_widget and get_environment() in ['jupyter', 'vscode']) else None
+    return logger_widget if (display_logging_widget and get_environment() in ['jupyter', 'vscode']) else None
