@@ -142,8 +142,8 @@ def run_gamma_ray_loop(
             model.elemental_number_density.loc[atom_number]= values
 
     # Electron number density
-    electron_number_density = model.composition.elemental_number_density.mul(
-        model.composition.elemental_number_density.index,
+    electron_number_density = model.elemental_number_density.mul(
+        model.elemental_number_density.index,
         axis=0,
     ).sum()
     electron_number = np.array(electron_number_density * ejecta_volume)
