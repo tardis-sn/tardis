@@ -34,7 +34,7 @@ to download the large regression data files in the tardis-regression-data reposi
     > git lfs pull
 
 
-The `tardis-regression-data` repository should be located at the same directory level as the main `tardis` repository, rather than being nested within it.
+The ``tardis-regression-data`` repository should be located at the same directory level as the main ``tardis`` repository, rather than being nested within it.
 
 Finally, the tests can be run using the following command
 
