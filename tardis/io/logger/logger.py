@@ -32,18 +32,17 @@ def get_environment():
         return 'standard'
 
 def create_output_widget(height=300):
-    return pn.pane.HTML(
-        "",
+    return pn.Feed(
         height=height,
         styles={
-            'overflow-y': 'auto',
-            'overflow-x': 'auto',
             'border': '1px solid #ddd',
             'width': '100%',
             'font-family': 'monospace',
             'padding': '8px',
             'background-color': 'white'
-        }
+        },
+        load_buffer=1_000_000, 
+        view_latest=True
     )
 
 log_outputs = {
@@ -127,7 +126,7 @@ class AsyncEmitLogHandler(logging.Handler):
         return log_entry
 
     def _emit_to_widget(self, level, html_output):
-        """Handles the widget updates synchronously"""
+        """Handles the widget updates using Feed component"""
         level_to_output = {
             logging.WARNING: "WARNING/ERROR",
             logging.ERROR: "WARNING/ERROR",
@@ -135,17 +134,15 @@ class AsyncEmitLogHandler(logging.Handler):
             logging.DEBUG: "DEBUG"
         }
 
-        html_wrapped = f"<div style='margin: 0;'>{html_output}</div>"
+        html_wrapped = pn.pane.HTML(f"<div style='margin: 0;'>{html_output}</div>")
 
         # Update specific level output
         output_key = level_to_output.get(level)
         if output_key:
-            current = self.log_outputs[output_key].object or ""
-            self.log_outputs[output_key].object = current + "\n" + html_wrapped if current else html_wrapped
+            self.log_outputs[output_key].append(html_wrapped)
 
         # Update ALL output
-        current_all = self.log_outputs["ALL"].object or ""
-        self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
+        self.log_outputs["ALL"].append(html_wrapped)
 
         # Update Jupyter display if in jupyter environment
         if self.environment == 'jupyter':
