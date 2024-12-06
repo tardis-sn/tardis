@@ -31,7 +31,7 @@ to download the large regression data files in the tardis-regression-data reposi
 
 .. code-block:: shell
 
-    > git lfs pull --include=filename
+    > git lfs pull
 
 
 The `tardis-regression-data` repository should be located at the same directory level as the main `tardis` repository, rather than being nested within it.
