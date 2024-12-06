@@ -50,7 +50,7 @@ Or, to run tests for a particular file or directory
 
 
 .. warning::
-    The steps to update the regression data are outlined in the :ref:`update regression-data`.
+    In some cases you might have to update the regression data. The steps to update the regression data are outlined in the :ref:`update regression-data`.
 
 .. warning::
     The `tests workflow <https://github.com/tardis-sn/tardis/blob/master/.github/workflows/tests.yml>`_ runs on 
