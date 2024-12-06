@@ -139,10 +139,12 @@ class AsyncEmitLogHandler(logging.Handler):
         # Update specific level output
         output_key = level_to_output.get(level)
         if output_key:
-            self.log_outputs[output_key].append(html_wrapped)
+            current_objects = self.log_outputs[output_key].objects
+            self.log_outputs[output_key].objects = current_objects + [html_wrapped]
 
         # Update ALL output
-        self.log_outputs["ALL"].append(html_wrapped)
+        current_all_objects = self.log_outputs["ALL"].objects
+        self.log_outputs["ALL"].objects = current_all_objects + [html_wrapped]
 
         # Update Jupyter display if in jupyter environment
         if self.environment == 'jupyter':
