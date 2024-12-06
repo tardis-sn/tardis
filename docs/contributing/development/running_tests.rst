@@ -22,39 +22,31 @@ tests, you can run this with:
     > pytest tardis
 
 
-Running the more advanced unit tests requires TARDIS Reference data that can be
+Running the more advanced unit tests requires TARDIS Regression data that can be
 downloaded
-(`tardis-refdata <https://github.com/tardis-sn/tardis-refdata>`_).
+(`tardis-regression-data <https://github.com/tardis-sn/tardis-regression-data>`_).
 `Git LFS <https://www.atlassian.com/git/tutorials/git-lfs>`_ is used
-to download the large refdata files in the tardis-refdata repository.
+to download the large regression data files in the tardis-regression-data repository.
 
-However, it is not required to download the entire repository. Firstly it is
-important to identify the refdata files that are needed. Sometimes, it is possible
-that a preused fixture that is also being used in the current tests is using some
-refdata. So, it is advised to check for such cases beforehand.
-
-After identifying the refdata files to be used in the unit tests, those particular
-files can be downloaded using ``git lfs`` 
 
 .. code-block:: shell
 
     > git lfs pull --include=filename
 
-It is important to maintain the same directory structure as the tardis-refdata repo
-i.e. the lfs files should be in the same directory tree exactly as in tardis-refdata
-repository.
+
+The `tardis-regression-data` repository should be located at the same directory level as the main `tardis` repository, rather than being nested within it.
 
 Finally, the tests can be run using the following command
 
 .. code-block:: shell
 
-    > pytest tardis --tardis-refdata=/path/to/tardis-refdata/
+    > pytest tardis --tardis-regression-data=/path/to/tardis-regression-data/
 
 Or, to run tests for a particular file or directory
 
 .. code-block:: shell
 
-    > pytest tardis/path/to/test_file_or_directory --tardis-refdata=/path/to/tardis-refdata/
+    > pytest tardis/path/to/test_file_or_directory --tardis-regression-data=/path/to/tardis-regression-data/
 
 .. warning::
     The `tests workflow <https://github.com/tardis-sn/tardis/blob/master/.github/workflows/tests.yml>`_ runs on 
@@ -74,7 +66,7 @@ You can generate Plasma Reference by the following command:
 .. code-block:: shell
 
     > pytest -rs tardis/plasma/tests/test_complete_plasmas.py 
-    --tardis-refdata="/path/to/tardis-refdata/" --generate-reference
+    --tardis-regression-data="/path/to/tardis-regression-data/" --generate-reference
 
 Running the Integration Tests
 =============================
