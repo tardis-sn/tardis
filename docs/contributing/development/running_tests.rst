@@ -48,6 +48,10 @@ Or, to run tests for a particular file or directory
 
     > pytest tardis/path/to/test_file_or_directory --tardis-regression-data=/path/to/tardis-regression-data/
 
+
+.. warning::
+    The steps to update the regression data are outlined in the :doc:`update_regression_data <update_regression_data>`.
+
 .. warning::
     The `tests workflow <https://github.com/tardis-sn/tardis/blob/master/.github/workflows/tests.yml>`_ runs on 
     `pull requests <https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request>`_ and on 
