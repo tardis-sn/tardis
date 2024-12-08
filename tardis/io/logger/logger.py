@@ -1,165 +1,256 @@
 import logging
-import sys
+import os
+import re
+from dataclasses import dataclass, field
 
-from tardis.io.logger.colored_logger import ColoredFormatter
+import panel as pn
+from IPython.display import display
 
-logging.captureWarnings(True)
-logger = logging.getLogger("tardis")
+pn.extension()
 
-console_handler = logging.StreamHandler(sys.stdout)
-console_formatter = ColoredFormatter()
-console_handler.setFormatter(console_formatter)
+PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
-logger.addHandler(console_handler)
-logging.getLogger("py.warnings").addHandler(console_handler)
+def get_environment():
+    """Determine the execution environment"""
+    try:
+        import IPython
+        ipython = IPython.get_ipython()
 
-LOGGING_LEVELS = {
-    "NOTSET": logging.NOTSET,
-    "DEBUG": logging.DEBUG,
-    "INFO": logging.INFO,
-    "WARNING": logging.WARNING,
-    "ERROR": logging.ERROR,
-    "CRITICAL": logging.CRITICAL,
+        if ipython is None:
+            return 'standard'
+
+        # Check for VSCode specific environment variables
+        if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
+            return 'vscode'
+
+        # Check if running in Jupyter notebook
+        if 'IPKernelApp' in ipython.config:
+            return 'jupyter'
+
+        return 'standard'
+    except:
+        return 'standard'
+
+def create_output_widget(height=300):
+    return pn.pane.HTML(
+        "",
+        height=height,
+        styles={
+            'overflow-y': 'auto',
+            'overflow-x': 'auto',
+            'border': '1px solid #ddd',
+            'width': '100%',
+            'font-family': 'monospace',
+            'padding': '8px',
+            'background-color': 'white'
+        }
+    )
+
+log_outputs = {
+    "WARNING/ERROR": create_output_widget(),
+    "INFO": create_output_widget(),
+    "DEBUG": create_output_widget(),
+    "ALL": create_output_widget(),
 }
-DEFAULT_LOG_LEVEL = "INFO"
-DEFAULT_SPECIFIC_STATE = False
 
+tab_order = ["ALL", "WARNING/ERROR", "INFO", "DEBUG"]
+logger_widget = pn.Tabs(
+    *[(title, log_outputs[title]) for title in tab_order],
+    height=350,
+    sizing_mode='stretch_width'
+)
 
-class FilterLog:
-    """
-    Filter Log Class for Filtering Logging Output
-    to a particular level
+@dataclass
+class LoggingConfig:
+    LEVELS: dict = field(default_factory=lambda: {
+        "NOTSET": logging.NOTSET,
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
+    })
 
-    Parameters
-    ----------
-    log_level : logging object
-        allows to have a filter for the
-        particular log_level
-    """
+    COLORS: dict = field(default_factory=lambda: {
+        logging.INFO: "#D3D3D3",
+        logging.WARNING: "orange",
+        logging.ERROR: "red",
+        logging.CRITICAL: "orange",
+        logging.DEBUG: "blue",
+        "default": "black",
+    })
 
-    def __init__(self, log_level):
-        self.log_level = log_level
+    DEFAULT_LEVEL = "INFO"
+    DEFAULT_SPECIFIC_STATE = False
 
-    def filter(self, log_record):
+LOGGING_LEVELS = LoggingConfig().LEVELS
+
+class AsyncEmitLogHandler(logging.Handler):
+    def __init__(self, log_outputs, colors, display_widget=True):
+        super().__init__()
+        self.log_outputs = log_outputs
+        self.colors = colors
+        self.environment = get_environment()
+        self.display_widget = display_widget
+
+        # Only set up display handle for Jupyter
+        if self.display_widget and self.environment == 'jupyter':
+            self.display_handle = display(logger_widget, display_id=True)
+
+    def emit(self, record):
+        # Handle standard environment with simple stream output
+        if not self.display_widget or self.environment == 'standard':
+            stream_handler = logging.StreamHandler()
+            stream_handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
+            stream_handler.emit(record)
+            return
+
+        # Process and emit log directly
+        log_entry = self.format(record)
+        clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
+        html_output = self._format_html_output(clean_log_entry, record)
+        self._emit_to_widget(record.levelno, html_output)
+
+    @staticmethod
+    def _remove_ansi_escape_sequences(text):
+        """Remove ANSI escape sequences from string."""
+        ansi_escape = re.compile(r"\x1B[@-_][0-?]*[ -/]*[@-~]")
+        return ansi_escape.sub("", text)
+
+    def _format_html_output(self, log_entry, record):
+        """Format log entry as HTML with appropriate styling."""
+        color = self.colors.get(record.levelno, self.colors["default"])
+        parts = log_entry.split(" ", 2)
+        if len(parts) > 2:
+            prefix, levelname, message = parts
+            return f'<span>{prefix}</span> <span style="color: {color}; font-weight: bold;">{levelname}</span> {message}'
+        return log_entry
+
+    def _emit_to_widget(self, level, html_output):
+        """Handles the widget updates synchronously"""
+        level_to_output = {
+            logging.WARNING: "WARNING/ERROR",
+            logging.ERROR: "WARNING/ERROR",
+            logging.INFO: "INFO",
+            logging.DEBUG: "DEBUG"
+        }
+
+        html_wrapped = f"<div style='margin: 0;'>{html_output}</div>"
+
+        # Update specific level output
+        output_key = level_to_output.get(level)
+        if output_key:
+            current = self.log_outputs[output_key].object or ""
+            self.log_outputs[output_key].object = current + "\n" + html_wrapped if current else html_wrapped
+
+        # Update ALL output
+        current_all = self.log_outputs["ALL"].object or ""
+        self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
+
+        # Update Jupyter display if in jupyter environment
+        if self.environment == 'jupyter':
+            self.display_handle.update(logger_widget.embed())
+
+class TARDISLogger:
+    def __init__(self):
+        self.config = LoggingConfig()
+        self.logger = logging.getLogger("tardis")
+
+    def configure_logging(self, log_level, tardis_config, specific_log_level=None):
+        if "debug" in tardis_config:
+            specific_log_level = tardis_config["debug"].get(
+                "specific_log_level", specific_log_level
+            )
+            logging_level = log_level or tardis_config["debug"].get(
+                "log_level", "INFO"
+            )
+            if log_level and tardis_config["debug"].get("log_level"):
+                self.logger.debug(
+                    "log_level is defined both in Functional Argument & YAML Configuration {debug section}, "
+                    f"log_level = {log_level.upper()} will be used for Log Level Determination"
+                )
+        else:
+            tardis_config["debug"] = {}
+            logging_level = log_level or self.config.DEFAULT_LEVEL
+            specific_log_level = specific_log_level or self.config.DEFAULT_SPECIFIC_STATE
+
+        logging_level = logging_level.upper()
+        if logging_level not in self.config.LEVELS:
+            raise ValueError(
+                f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following {list(self.config.LEVELS.keys())}"
+            )
+
+        logger = logging.getLogger("tardis")
+        tardis_loggers = [
+            logging.getLogger(name)
+            for name in logging.root.manager.loggerDict
+            if name.startswith("tardis")
+        ]
+
+        if logging_level in self.config.LEVELS:
+            for logger in tardis_loggers:
+                logger.setLevel(self.config.LEVELS[logging_level])
+
+        if logger.filters:
+            for filter in logger.filters:
+                for logger in tardis_loggers:
+                    logger.removeFilter(filter)
+
+        if specific_log_level:
+            filter_log = LogFilter([self.config.LEVELS[logging_level], logging.INFO, logging.DEBUG])
+            for logger in tardis_loggers:
+                logger.addFilter(filter_log)
+        else:
+            for filter in logger.filters:
+                for logger in tardis_loggers:
+                    logger.removeFilter(filter)
+
+    def setup_widget_logging(self, display_widget=True):
         """
-        filter() allows to set the logging level for
-        all the record that are being parsed & hence remove those
-        which are not of the particular level
+        Set up widget-based logging interface.
 
         Parameters
         ----------
-        log_record : logging.record
-            which the paricular record upon which the
-            filter will be applied
-
-        Returns
-        -------
-        boolean : True, if the current log_record has the
-            level that of the specified log_level
-            False, if the current log_record doesn't have the
-            same log_level as the specified one
+        display_widget : bool, optional
+            Whether to display the widget in GUI environments (default: True)
         """
-        return log_record.levelno == self.log_level
-
-
-def logging_state(log_level, tardis_config, specific_log_level):
-    """
-    Function to set the logging configuration for the simulation output
-    Called from within run_tardis()
-    Configured via functional arguments passed through run_tardis() - log_level & specific_log_level
-    Configured via YAML parameters under `debug` section - log_level & specific_log_level
-
-    Parameters
-    ----------
-    log_level: str
-        Allows to input the log level for the simulation
-        Uses Python logging framework to determine the messages that will be output
-    specific_log_level: boolean
-        Allows to set specific logging levels. Logs of the `log_level` level would be output.
-    """
-    if "debug" in tardis_config:
-        specific_log_level = (
-            tardis_config["debug"]["specific_log_level"]
-            if specific_log_level is None
-            else specific_log_level
+        self.widget_handler = AsyncEmitLogHandler(
+            log_outputs,
+            self.config.COLORS,
+            display_widget=display_widget
+        )
+        self.widget_handler.setFormatter(
+            logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
         )
 
-        logging_level = (
-            log_level if log_level else tardis_config["debug"]["log_level"]
-        )
+        self._configure_handlers()
 
-        # Displays a message when both log_level & tardis["debug"]["log_level"] are specified
-        if log_level and tardis_config["debug"]["log_level"]:
-            print(
-                "log_level is defined both in Functional Argument & YAML Configuration {debug section}"
-            )
-            print(
-                f"log_level = {log_level.upper()} will be used for Log Level Determination\n"
-            )
+    def _configure_handlers(self):
+        """Configure logging handlers."""
+        logging.captureWarnings(True)
 
-    else:
-        # Adds empty `debug` section for the YAML
-        tardis_config["debug"] = {}
+        for logger in [self.logger, logging.getLogger()]:
+            for handler in logger.handlers[:]:
+                logger.removeHandler(handler)
 
-        if log_level:
-            logging_level = log_level
-        else:
-            tardis_config["debug"]["log_level"] = DEFAULT_LOG_LEVEL
-            logging_level = tardis_config["debug"]["log_level"]
+        self.logger.addHandler(self.widget_handler)
+        PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
 
-        if not specific_log_level:
-            tardis_config["debug"][
-                "specific_log_level"
-            ] = DEFAULT_SPECIFIC_STATE
-            specific_log_level = tardis_config["debug"]["specific_log_level"]
+class LogFilter:
+    """Filter for controlling which log levels are displayed."""
 
-    logging_level = logging_level.upper()
-    if logging_level not in LOGGING_LEVELS:
-        raise ValueError(
-            f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
-        )
+    def __init__(self, log_levels):
+        self.log_levels = log_levels
 
-    # Getting the TARDIS logger & all its children loggers
-    logger = logging.getLogger("tardis")
+    def filter(self, log_record):
+        return log_record.levelno in self.log_levels
 
-    # Creating a list for Storing all the Loggers which are derived from TARDIS
-    tardis_loggers = tardis_logger()
+def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
+    logger = TARDISLogger()
+    logger.configure_logging(log_level, tardis_config, specific_log_level)
+    logger.setup_widget_logging(display_widget=display_logging_widget)
 
-    if logging_level in LOGGING_LEVELS:
-        for logger in tardis_loggers:
-            logger.setLevel(LOGGING_LEVELS[logging_level])
+    if display_logging_widget and get_environment() == 'vscode':
+        display(logger_widget)
 
-    if logger.filters:
-        for filter in logger.filters:
-            for logger in tardis_loggers:
-                logger.removeFilter(filter)
-
-    if specific_log_level:
-        filter_log = FilterLog(LOGGING_LEVELS[logging_level])
-        for logger in tardis_loggers:
-            logger.addFilter(filter_log)
-    else:
-        for filter in logger.filters:
-            for logger in tardis_loggers:
-                logger.removeFilter(filter)
-
-
-def tardis_logger():
-    """
-    Generates the list of the loggers which are derived from TARDIS
-    All loggers which are of the form `tardis.module_name` are added to the list
-
-    Parameters
-    ----------
-    list_for_loggers : list
-        List for storing the loggers derived from TARDIS
-
-    Returns
-    -------
-    list_for_loggers : list
-    """
-    list_for_loggers = []
-    for name in logging.root.manager.loggerDict:
-        if not name.find("tardis"):
-            list_for_loggers.append(logging.getLogger(name))
-    return list_for_loggers
+    return logger_widget if (display_logging_widget and get_environment() in ['jupyter', 'vscode']) else None

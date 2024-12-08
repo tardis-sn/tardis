@@ -24,7 +24,7 @@
 # Thus, any C-extensions that are needed to build the documentation will *not*
 # be accessible, and the documentation will not build correctly.
 
-import os
+import os 
 import sys
 import datetime
 import tardis  # FIXME: this import is required by astropy.constants
@@ -90,6 +90,7 @@ extensions = [
     "nbsphinx",
     "numpydoc",
     "recommonmark",
+    "nbsite.pyodide" # for Panel
 ]
 
 bibtex_bibfiles = ["tardis.bib"]
@@ -345,6 +346,12 @@ linkcheck_anchors = False
 redirects = [
     ("using/gui/index.rst", "using/visualization/index.rst"),
 ]
+
+# -- Panel Pydiode Settings --------------------------------------------------
+
+nbsite_pyodide_conf = {
+    "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"
+}
 
 
 # -- Sphinx hook-ins ---------------------------------------------------------
