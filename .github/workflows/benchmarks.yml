@@ -1,32 +1,28 @@
-name: benchmarks-debug
+name: benchmarks
 
 on:
   push:
     branches:
       - master
-  
-  pull_request:
+
+  pull_request_target:
     branches:
       - master
 
-  # pull_request_target:
-  #   branches:
-  #     - master
-
-  #   types:
-  #     - opened
-  #     - reopened
-  #     - synchronize
-  #     - labeled # benchmarks label required
-  #     - ready_for_review
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled # benchmarks label required
+      - ready_for_review
   workflow_dispatch:
 
 env: 
   DEPLOY_BRANCH: main
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -34,12 +30,12 @@ defaults:
 
 jobs:
   build:
-    # if: github.repository_owner == 'tardis-sn' &&
-    #   (github.event_name == 'push' ||
-    #   (!github.event.pull_request.draft) ||
-    #   github.event_name == 'workflow_dispatch' ||
-    #   (github.event_name == 'pull_request_target' &&
-    #   contains(github.event.pull_request.labels.*.name, 'benchmarks')))
+    if: github.repository_owner == 'tardis-sn' &&
+      (github.event_name == 'push' ||
+      (!github.event.pull_request.draft) ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request_target' &&
+      contains(github.event.pull_request.labels.*.name, 'benchmarks')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
