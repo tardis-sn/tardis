@@ -1,6 +1,12 @@
 ## Changelog
 
-### release-2024.12.01 (2024/11/30 20:10)
+### release-2024.12.08 (2024/12/07 20:08)
+- [2898](https://github.com/tardis-sn/tardis/pull/2898) Remove "labeled" from tests workflow triggers (2898) (@KasukabeDefenceForce)
+- [2865](https://github.com/tardis-sn/tardis/pull/2865) Rates matrix solver (2865) (@andrewfullard)
+- [2874](https://github.com/tardis-sn/tardis/pull/2874) Remove tau sobolevs from plasma (2874) (@andrewfullard)
+- [2894](https://github.com/tardis-sn/tardis/pull/2894) Fixing label issue in convergence plots (see Issue #2446) (2894) (@jamesgillanders)
+- [2895](https://github.com/tardis-sn/tardis/pull/2895) Post-release 2024.12.01 (2895) (@tardis-bot)
+### release-2024.12.01 (2024/11/25 10:00)
 - [2889](https://github.com/tardis-sn/tardis/pull/2889) Add token to release workflow (2889) (@KasukabeDefenceForce)
 - [2890](https://github.com/tardis-sn/tardis/pull/2890) Update badge for doc string coverage (2890) (@KasukabeDefenceForce)
 - [2891](https://github.com/tardis-sn/tardis/pull/2891) Revert "Fix the issue where the docs are built twice when there are no changes" (2891) (@KasukabeDefenceForce)

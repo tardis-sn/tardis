@@ -3,7 +3,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
-from tardis.plasma.detailed_balance.rates.collision_strengths import (
+from tardis.plasma.equilibrium.rates.collision_strengths import (
     UpsilonChiantiSolver,
     UpsilonCMFGENSolver,
     UpsilonRegemorterSolver,
@@ -41,13 +41,13 @@ class ThermalCollisionalRateSolver:
             )
         self.radiative_transitions = radiative_transitions
         # find the transitions that have radiative rate data but no collisional data
-        missing_collision_strengths_index = (
+        self.missing_collision_strengths_index = (
             radiative_transitions.index.difference(
                 thermal_collisional_strengths.index
             )
         )
         self.all_collisional_strengths_index = (
-            missing_collision_strengths_index.append(
+            self.missing_collision_strengths_index.append(
                 thermal_collisional_strengths.index
             ).sort_values()
         )
@@ -75,9 +75,13 @@ class ThermalCollisionalRateSolver:
         if collisional_strength_approximation == "regemorter":
             self.thermal_collision_strength_approximator = (
                 UpsilonRegemorterSolver(
-                    radiative_transitions.loc[missing_collision_strengths_index]
+                    radiative_transitions.loc[
+                        self.missing_collision_strengths_index
+                    ]
                 )
             )
+        else:
+            self.thermal_collision_strength_approximator = None
 
     def solve(self, temperatures_electron):
         thermal_all_collision_strengths = self.calculate_collision_strengths(
@@ -116,6 +120,27 @@ class ThermalCollisionalRateSolver:
             "level_number_source",
             "level_number_destination",
         ]
+
+        collision_rates_coeff_df = collision_rates_coeff_df.reset_index()
+
+        # Add the new columns by duplicating the ion_number column
+        collision_rates_coeff_df["ion_number_source"] = (
+            collision_rates_coeff_df["ion_number"]
+        )
+        collision_rates_coeff_df["ion_number_destination"] = (
+            collision_rates_coeff_df["ion_number"]
+        )
+
+        collision_rates_coeff_df = collision_rates_coeff_df.set_index(
+            [
+                "atomic_number",
+                "ion_number",
+                "ion_number_source",
+                "ion_number_destination",
+                "level_number_source",
+                "level_number_destination",
+            ]
+        )
         return collision_rates_coeff_df
 
     def calculate_collision_strengths(self, temperatures_electron):
@@ -135,11 +160,20 @@ class ThermalCollisionalRateSolver:
         thermal_collision_strengths = (
             self.thermal_collision_strength_solver.solve(temperatures_electron)
         )
-        thermal_collision_strength_approximated = (
-            self.thermal_collision_strength_approximator.solve(
-                temperatures_electron
+
+        if self.thermal_collision_strength_approximator is None:
+            thermal_collision_strength_approximated = pd.DataFrame(
+                0,
+                index=self.missing_collision_strengths_index,
+                columns=np.arange(len(temperatures_electron)),
+                dtype=np.float64,
             )
-        )
+        else:
+            thermal_collision_strength_approximated = (
+                self.thermal_collision_strength_approximator.solve(
+                    temperatures_electron
+                )
+            )
 
         return pd.concat(
             [
