@@ -15,7 +15,7 @@ on:
       - opened
       - reopened
       - synchronize
-      - labeled
+
   workflow_call:
     inputs:
       pip_git:
