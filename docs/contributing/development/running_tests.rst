@@ -36,6 +36,9 @@ to download the large regression data files in the tardis-regression-data reposi
 
 The ``tardis-regression-data`` repository should be located at the same directory level as the main ``tardis`` repository, rather than being nested within it.
 
+.. warning::
+    We have migrated from ``tardis-refdata`` to``tardis-regression-data``.
+
 Finally, the tests can be run using the following command
 
 .. code-block:: shell
