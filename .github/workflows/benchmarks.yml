@@ -9,16 +9,16 @@ on:
     branches:
       - master
 
-  pull_request_target:
-    branches:
-      - master
+  # pull_request_target:
+  #   branches:
+  #     - master
 
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - labeled # benchmarks label required
-      - ready_for_review
+  #   types:
+  #     - opened
+  #     - reopened
+  #     - synchronize
+  #     - labeled # benchmarks label required
+  #     - ready_for_review
   workflow_dispatch:
 
 env: 
