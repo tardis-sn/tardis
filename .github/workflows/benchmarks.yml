@@ -1,7 +1,11 @@
-name: benchmarks
+name: benchmarks-debug
 
 on:
   push:
+    branches:
+      - master
+  
+  pull_request:
     branches:
       - master
 
@@ -73,7 +77,7 @@ jobs:
             asv=0.6.4
             mamba
             conda-build
-            conda=24.9.0
+            conda=24.11.0
 
       - name: Accept all asv questions
         run: asv machine --yes
