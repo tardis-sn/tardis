@@ -76,6 +76,7 @@ jobs:
             python
             asv=0.6.4
             mamba
+            libmambapy<2.0
             conda-build
             conda=24.11.0
 
