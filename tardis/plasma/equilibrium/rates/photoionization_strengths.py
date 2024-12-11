@@ -269,13 +269,13 @@ class EstimatedPhotoionizationCoeffSolver:
 
         photoionization_rate_coeff = bound_free_estimator_array2frame(
             radfield_mc_estimators.photo_ion_estimator,
-            self.atom_data.level2continuum_edge_idx,
+            self.level2continuum_edge_idx,
         )
         photoionization_rate_coeff *= photoionization_normalization
 
         stimulated_recombination_rate_coeff = bound_free_estimator_array2frame(
             radfield_mc_estimators.stim_recomb_estimator,
-            self.atom_data.level2continuum_edge_idx,
+            self.level2continuum_edge_idx,
         )
         stimulated_recombination_rate_coeff *= photoionization_normalization
 
