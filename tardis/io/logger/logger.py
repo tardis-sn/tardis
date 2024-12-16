@@ -2,11 +2,8 @@ import logging
 import os
 import re
 from dataclasses import dataclass, field
-
 import panel as pn
 from IPython.display import display
-
-pn.extension()
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
@@ -45,19 +42,25 @@ def create_output_widget(height=300):
         view_latest=True
     )
 
+if get_environment() == 'vscode':
+    pn.extension()
+else:
+    pn.extension(comms='ipywidgets')
+
 log_outputs = {
     "WARNING/ERROR": create_output_widget(),
     "INFO": create_output_widget(),
     "DEBUG": create_output_widget(),
     "ALL": create_output_widget(),
 }
-
 tab_order = ["ALL", "WARNING/ERROR", "INFO", "DEBUG"]
 logger_widget = pn.Tabs(
     *[(title, log_outputs[title]) for title in tab_order],
     height=350,
     sizing_mode='stretch_width'
 )
+if get_environment() == 'vscode':
+    display(logger_widget)
 
 @dataclass
 class LoggingConfig:
@@ -85,16 +88,14 @@ class LoggingConfig:
 LOGGING_LEVELS = LoggingConfig().LEVELS
 
 class AsyncEmitLogHandler(logging.Handler):
-    def __init__(self, log_outputs, colors, display_widget=True):
+    def __init__(self, log_outputs, colors, display_widget=True, display_handle=None, logger_widget=None):
         super().__init__()
         self.log_outputs = log_outputs
         self.colors = colors
         self.environment = get_environment()
         self.display_widget = display_widget
-
-        # Only set up display handle for Jupyter
-        if self.display_widget and self.environment == 'jupyter':
-            self.display_handle = display(logger_widget, display_id=True)
+        self.display_handle = display_handle
+        self.logger_widget = logger_widget
 
     def emit(self, record):
         # Handle standard environment with simple stream output
@@ -148,12 +149,16 @@ class AsyncEmitLogHandler(logging.Handler):
 
         # Update Jupyter display if in jupyter environment
         if self.environment == 'jupyter':
-            self.display_handle.update(logger_widget.embed())
+            self.display_handle.update(self.logger_widget)
+
 
 class TARDISLogger:
-    def __init__(self):
+    def __init__(self, display_handle=None, logger_widget=None, log_outputs=None):
         self.config = LoggingConfig()
         self.logger = logging.getLogger("tardis")
+        self.display_handle = display_handle
+        self.logger_widget = logger_widget
+        self.log_outputs = log_outputs
 
     def configure_logging(self, log_level, tardis_config, specific_log_level=None):
         if "debug" in tardis_config:
@@ -214,9 +219,11 @@ class TARDISLogger:
             Whether to display the widget in GUI environments (default: True)
         """
         self.widget_handler = AsyncEmitLogHandler(
-            log_outputs,
-            self.config.COLORS,
-            display_widget=display_widget
+            log_outputs=self.log_outputs,
+            colors=self.config.COLORS,
+            display_widget=display_widget,
+            display_handle=self.display_handle,
+            logger_widget=self.logger_widget
         )
         self.widget_handler.setFormatter(
             logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
@@ -237,7 +244,6 @@ class TARDISLogger:
 
 class LogFilter:
     """Filter for controlling which log levels are displayed."""
-
     def __init__(self, log_levels):
         self.log_levels = log_levels
 
@@ -245,11 +251,12 @@ class LogFilter:
         return log_record.levelno in self.log_levels
 
 def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
-    logger = TARDISLogger()
+    if display_logging_widget and get_environment() == 'jupyter':
+        display_handle = display(logger_widget, display_id="logger_widget")
+    elif display_logging_widget and get_environment() == 'vscode':
+        display_handle = None
+    logger = TARDISLogger(display_handle=display_handle, logger_widget=logger_widget, log_outputs=log_outputs)
     logger.configure_logging(log_level, tardis_config, specific_log_level)
     logger.setup_widget_logging(display_widget=display_logging_widget)
-
-    if display_logging_widget and get_environment() == 'vscode':
-        display(logger_widget)
-
     return logger_widget if (display_logging_widget and get_environment() in ['jupyter', 'vscode']) else None
+ 
