@@ -17,7 +17,7 @@ def run_tardis(
     log_level=None,
     specific_log_level=None,
     show_progress_bars=True,
-    display_logging_widget=True,
+    display_logging_widget=False,
     **kwargs,
 ):
     """
