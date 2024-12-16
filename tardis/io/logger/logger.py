@@ -4,9 +4,11 @@ import re
 from dataclasses import dataclass, field
 import panel as pn
 from IPython.display import display
+from functools import lru_cache
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
+@lru_cache(maxsize=1)
 def get_environment():
     """Determine the execution environment"""
     try:
@@ -29,38 +31,38 @@ def get_environment():
         return 'standard'
 
 def create_output_widget(height=300):
-    return pn.Feed(
+    return pn.pane.HTML(
+        "",
         height=height,
         styles={
+            'overflow-y': 'auto',
+            'overflow-x': 'auto',
             'border': '1px solid #ddd',
             'width': '100%',
             'font-family': 'monospace',
             'padding': '8px',
             'background-color': 'white'
-        },
-        load_buffer=1_000_000, 
-        view_latest=True
+        }
     )
 
-if get_environment() == 'vscode':
-    pn.extension()
-else:
-    pn.extension(comms='ipywidgets')
-
-log_outputs = {
+ENVIRONMENT = get_environment()
+LOG_OUTPUTS = {
     "WARNING/ERROR": create_output_widget(),
     "INFO": create_output_widget(),
     "DEBUG": create_output_widget(),
     "ALL": create_output_widget(),
 }
-tab_order = ["ALL", "WARNING/ERROR", "INFO", "DEBUG"]
-logger_widget = pn.Tabs(
-    *[(title, log_outputs[title]) for title in tab_order],
+TAB_ORDER = ["ALL", "WARNING/ERROR", "INFO", "DEBUG"]
+LOGGER_WIDGET = pn.Tabs(
+    *[(title, LOG_OUTPUTS[title]) for title in TAB_ORDER],
     height=350,
     sizing_mode='stretch_width'
 )
-if get_environment() == 'vscode':
-    display(logger_widget)
+if ENVIRONMENT == 'vscode':
+    pn.extension()
+    display(LOGGER_WIDGET)
+else:
+    pn.extension(comms='ipywidgets')
 
 @dataclass
 class LoggingConfig:
@@ -127,7 +129,7 @@ class AsyncEmitLogHandler(logging.Handler):
         return log_entry
 
     def _emit_to_widget(self, level, html_output):
-        """Handles the widget updates using Feed component"""
+        """Handles the widget updates."""
         level_to_output = {
             logging.WARNING: "WARNING/ERROR",
             logging.ERROR: "WARNING/ERROR",
@@ -135,17 +137,16 @@ class AsyncEmitLogHandler(logging.Handler):
             logging.DEBUG: "DEBUG"
         }
 
-        html_wrapped = pn.pane.HTML(f"<div style='margin: 0;'>{html_output}</div>")
+        html_wrapped = f"<div style='margin: 0;'>{html_output}</div>"
 
         # Update specific level output
         output_key = level_to_output.get(level)
         if output_key:
-            current_objects = self.log_outputs[output_key].objects
-            self.log_outputs[output_key].objects = current_objects + [html_wrapped]
-
+            current = self.log_outputs[output_key].object or ""
+            self.log_outputs[output_key].object = current + "\n" + html_wrapped if current else html_wrapped
         # Update ALL output
-        current_all_objects = self.log_outputs["ALL"].objects
-        self.log_outputs["ALL"].objects = current_all_objects + [html_wrapped]
+        current_all = self.log_outputs["ALL"].object or ""
+        self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
 
         # Update Jupyter display if in jupyter environment
         if self.environment == 'jupyter':
@@ -251,14 +252,14 @@ class LogFilter:
         return log_record.levelno in self.log_levels
 
 def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
-    if display_logging_widget and get_environment() == 'jupyter':
-        display_handle = display(logger_widget, display_id="logger_widget")
-    elif display_logging_widget and get_environment() == 'vscode':
+    if display_logging_widget and ENVIRONMENT == 'jupyter':
+        display_handle = display(LOGGER_WIDGET, display_id="logger_widget")
+    elif display_logging_widget and ENVIRONMENT == 'vscode':
         display_handle = None
     else:
         display_handle = None
-    logger = TARDISLogger(display_handle=display_handle, logger_widget=logger_widget, log_outputs=log_outputs)
+    logger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
     logger.configure_logging(log_level, tardis_config, specific_log_level)
     logger.setup_widget_logging(display_widget=display_logging_widget)
-    return logger_widget if (display_logging_widget and get_environment() in ['jupyter', 'vscode']) else None
+    return LOGGER_WIDGET if (display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']) else None
  
