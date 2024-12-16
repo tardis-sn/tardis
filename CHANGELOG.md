@@ -1,6 +1,9 @@
 ## Changelog
 
-### release-2024.12.08 (2024/12/07 20:08)
+### release-2024.12.15 (2024/12/14 20:07)
+- [2902](https://github.com/tardis-sn/tardis/pull/2902) Fix Benchmarks Workflow (2902) (@atharva-2001)
+- [2900](https://github.com/tardis-sn/tardis/pull/2900) Post-release 2024.12.08 (2900) (@tardis-bot)
+### release-2024.12.08 (2024/12/04 12:24)
 - [2898](https://github.com/tardis-sn/tardis/pull/2898) Remove "labeled" from tests workflow triggers (2898) (@KasukabeDefenceForce)
 - [2865](https://github.com/tardis-sn/tardis/pull/2865) Rates matrix solver (2865) (@andrewfullard)
 - [2874](https://github.com/tardis-sn/tardis/pull/2874) Remove tau sobolevs from plasma (2874) (@andrewfullard)
