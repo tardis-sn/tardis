@@ -255,6 +255,8 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         display_handle = display(logger_widget, display_id="logger_widget")
     elif display_logging_widget and get_environment() == 'vscode':
         display_handle = None
+    else:
+        display_handle = None
     logger = TARDISLogger(display_handle=display_handle, logger_widget=logger_widget, log_outputs=log_outputs)
     logger.configure_logging(log_level, tardis_config, specific_log_level)
     logger.setup_widget_logging(display_widget=display_logging_widget)
