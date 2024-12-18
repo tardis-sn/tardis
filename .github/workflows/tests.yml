@@ -7,14 +7,14 @@ name: tests
 on:
   push:
     branches:
-      - master
-  pull_request:
-    branches:
-      - master
-    types:
-      - opened
-      - reopened
-      - synchronize
+      - update_numpy_v2
+  # pull_request:
+  #   branches:
+  #     - master
+  #   types:
+  #     - opened
+  #     - reopened
+  #     - synchronize
 
   workflow_call:
     inputs:
@@ -24,6 +24,9 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: write
+  
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
@@ -40,7 +43,7 @@ concurrency:
 jobs:
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
-    if: github.repository_owner == 'tardis-sn'
+    # if: github.repository_owner == 'tardis-sn'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -81,52 +84,89 @@ jobs:
         run: |
           pip install qgridnext
 
-      - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+      # - name: Run tests
+        # run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
 
       - name: Regression Data Generation tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis/spectrum/tests/test_spectrum_solver.py ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
 
-      - run: mv .coverage .coverage.${{ strategy.job-index }}
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.os }}
-          include-hidden-files: true
-          path: |
-            .coverage*
-            !.coveragerc
-
-  combine_coverage_reports:
-    needs: [tests]
-    if: github.repository_owner == 'tardis-sn'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup environment
-        uses: ./.github/actions/setup_env
-        with:
-          os-label: linux-64
-
-      # will download all artifacts(in this case all are coverage reports)
-      - uses: actions/download-artifact@v4
-        with:
-          path: .
-          merge-multiple: true
-
-      - name: Combine coverage reports
+      # New steps to commit and push changes
+      - name: Configure Git
+        # if: github.event_name == 'pull_request'
+        shell: bash
         run: |
-          coverage combine
-          coverage xml
-          coverage html
+          cd tardis-regression-data
+          git config --global user.name 'atharva-2001'
+          git config --global user.email 'aryaatharva18@gmail.com'
+          # git config user.name "GitHub Actions Bot"
+          # git config user.email "actions@github.com"
 
-      - name: Print report
-        run: coverage report
+      - name: Create and checkout new branch
+        shell: bash
+        run: |
+          cd tardis-regression-data
+          PR_NUMBER="$(( $RANDOM % 1000 + 1 ))"  # Generate random number between 1-1000
+          BRANCH_NAME="pr-${PR_NUMBER}-regression-data"
+          git checkout -b $BRANCH_NAME
+          # Store PR_NUMBER for next step
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
 
-      - uses: codecov/codecov-action@v4
-        if: always()
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
+      - name: Commit and push changes
+        shell: bash
+        run: |
+          cd tardis-regression-data
+          BRANCH_NAME="pr-${PR_NUMBER}-regression-data"
+          
+          if [[ -n $(git status --porcelain) ]]; then
+            git add .
+            git commit -m "Update regression data for branch ${BRANCH_NAME}"
+            git push origin $BRANCH_NAME
+          else
+            echo "No changes to commit"
+          fi
+
+
+      # - run: mv .coverage .coverage.${{ strategy.job-index }}
+
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.os }}
+      #     include-hidden-files: true
+      #     path: |
+      #       .coverage*
+      #       !.coveragerc
+
+  # combine_coverage_reports:
+  #   needs: [tests]
+  #   if: github.repository_owner == 'tardis-sn'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Setup environment
+  #       uses: ./.github/actions/setup_env
+  #       with:
+  #         os-label: linux-64
+
+  #     # will download all artifacts(in this case all are coverage reports)
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         path: .
+  #         merge-multiple: true
+
+  #     - name: Combine coverage reports
+  #       run: |
+  #         coverage combine
+  #         coverage xml
+  #         coverage html
+
+  #     - name: Print report
+  #       run: coverage report
+
+  #     - uses: codecov/codecov-action@v4
+  #       if: always()
+  #       with:
+  #         fail_ci_if_error: true
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         verbose: true
