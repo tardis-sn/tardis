@@ -98,8 +98,10 @@ jobs:
         shell: bash
         run: |
           cd tardis-regression-data
-          git config --global user.name 'atharva-2001'
-          git config --global user.email 'aryaatharva18@gmail.com'
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+
           # git config user.name "GitHub Actions Bot"
           # git config user.email "actions@github.com"
 
