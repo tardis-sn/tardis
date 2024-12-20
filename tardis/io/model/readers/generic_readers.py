@@ -48,8 +48,7 @@ def read_simple_ascii_density(
         fname,
         skip_header=1,
         names=("index", "velocity", "density"),
-        dtype=None,
-        encoding=None,
+        encoding='utf-8',
     )
     velocity = (data["velocity"] * u.km / u.s).to("cm/s")
     mean_density = (data["density"] * u.Unit("g/cm^3"))[1:]
