@@ -1,9 +1,14 @@
 import numpy as np
 from numba import njit, prange
-from tardis.transport.montecarlo import njit_dict
 
+# Define the configuration dictionary
+njit_dict = {
+    "parallel": True,  # Enables parallel execution
+    "cache": True,     # Caches the compiled function for reuse
+    "fastmath": True   # Enables aggressive optimizations for floating-point operations
+}
 
-@njit(**njit_dict)
+@njit(**njit_dict)  # Use only the dictionary
 def numba_cumulative_trapezoid(f, x):
     """
     Cumulatively integrate f(x) using the composite trapezoidal rule.
@@ -25,15 +30,12 @@ def numba_cumulative_trapezoid(f, x):
     if len(f) < 2:
         raise ValueError("Input arrays must have at least two elements for integration.")
 
-    # Compute the cumulative trapezoidal integral
     dx = np.diff(x)
     cumulative = (dx * (f[1:] + f[:-1]) / 2.0).cumsum()
 
-    # Normalize by the final value
     return np.concatenate(([0], cumulative / cumulative[-1]))
 
-
-@njit(**njit_dict, parallel=True)
+@njit(**njit_dict)  # Use only the dictionary
 def cumulative_integrate_array_by_blocks(f, x, block_references):
     """
     Cumulatively integrate a 2D array over blocks defined by block references.
@@ -61,7 +63,7 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
             stop = block_references[block_idx + 1]
 
             if stop - start < 2:
-                continue  # Skip blocks that are too small to integrate
+                continue
 
             integrated[start:stop, col] = numba_cumulative_trapezoid(
                 f[start:stop, col], x[start:stop]
