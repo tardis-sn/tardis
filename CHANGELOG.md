@@ -1,6 +1,9 @@
 ## Changelog
 
-### release-2024.12.15 (2024/12/14 20:07)
+### release-2024.12.22 (2024/12/21 20:05)
+- [2901](https://github.com/tardis-sn/tardis/pull/2901) Update test docs (2901) (@KasukabeDefenceForce)
+- [2905](https://github.com/tardis-sn/tardis/pull/2905) Post-release 2024.12.15 (2905) (@tardis-bot)
+### release-2024.12.15 (2024/12/09 10:05)
 - [2902](https://github.com/tardis-sn/tardis/pull/2902) Fix Benchmarks Workflow (2902) (@atharva-2001)
 - [2900](https://github.com/tardis-sn/tardis/pull/2900) Post-release 2024.12.08 (2900) (@tardis-bot)
 ### release-2024.12.08 (2024/12/04 12:24)
