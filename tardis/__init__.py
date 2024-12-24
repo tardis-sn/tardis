@@ -4,7 +4,8 @@
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
 from ._astropy_init import *  # noqa
-
+import numpy as np
+np._set_promotion_state("weak_and_warn")
 # ----------------------------------------------------------------------------
 
 __all__ = []
