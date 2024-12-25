@@ -19,22 +19,26 @@ class JBlueEstimator:
         self.j_blue_estimator += other.j_blue_estimator 
 
 if __name__ == "__main__":
-    # Create a small example with 3x3 shape
-    test_estimator = initialize_j_blue_estimator((3, 3))
-    print("Initial j_blue_estimator:")
-    print(test_estimator.j_blue_estimator)
-
-    # Create another estimator and modify it to show increment
-    other_estimator = initialize_j_blue_estimator((3, 3))
-    other_estimator.j_blue_estimator[0, 0] = 1.0
-    other_estimator.j_blue_estimator[1, 1] = 2.0
-
-    # Increment the first estimator with the second one
-    test_estimator.increment(other_estimator)
-    print("\nAfter incrementing with another estimator:")
-    print(test_estimator.j_blue_estimator)
-
-    # Save the estimator to a .npy file
-    output_file = "j_blue_estimator.npy"
-    np.save(output_file, test_estimator.j_blue_estimator)
-    print(f"\nSaved estimator to {output_file}") 
+    # Create example with realistic shape
+    test_estimator = initialize_j_blue_estimator((10, 20))  # typical tau_sobolev shape
+    
+    # Simulate some updates
+    packet_energy = 1.0e-10
+    packet_nu = 2.0e15
+    test_estimator.j_blue_estimator[5, 10] += packet_energy / packet_nu
+    
+    print("After simulated packet interaction:")
+    print(test_estimator.j_blue_estimator[5, 10])
+    
+    # Simulate normalization
+    time_explosion = 1.0e5
+    time_simulation = 1.0e4
+    volume = 1.0e45
+    norm_factor = 3e10 * time_explosion / (4 * np.pi * time_simulation * volume)
+    
+    normalized = test_estimator.j_blue_estimator * norm_factor
+    print("\nAfter normalization:")
+    print(normalized[5, 10])
+    
+    np.save("j_blue_raw.npy", test_estimator.j_blue_estimator)
+    np.save("j_blue_normalized.npy", normalized) 
