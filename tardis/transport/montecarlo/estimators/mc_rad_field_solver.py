@@ -107,6 +107,7 @@ class MCRadiationFieldPropertiesSolver:
         
         j_blues = j_blue_estimator * j_blues_norm_factor.cgs.value
         print("[J_BLUE_DEBUG] After normalization:", j_blues)
+        print("[J_BLUE_DEBUG] line_list_nu:", line_list_nu)
         
         planck_j_blues = estimated_radfield_state.calculate_mean_intensity(
             line_list_nu
