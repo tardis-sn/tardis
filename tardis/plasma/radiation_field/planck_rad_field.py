@@ -27,6 +27,24 @@ class DilutePlanckianRadiationField:
         dilution_factor: np.ndarray,
         geometry=None,
     ):
+        print("\n=== DilutePlanckianRadiationField.__init__ ===")
+        print("Temperature array:")
+        print(f"  First 10 elements: {temperature[:10]}")
+        print(f"  Shape: {temperature.shape}")
+        print(f"  dtype: {temperature.dtype}")
+        print(f"  unit: {temperature.unit}")
+        
+        print("\nDilution factor array:")
+        print(f"  First 10 elements: {dilution_factor[:10]}")
+        print(f"  Shape: {dilution_factor.shape}")
+        print(f"  dtype: {dilution_factor.dtype}")
+        
+        if geometry is not None:
+            print("\nGeometry boundaries:")
+            print(f"  v_inner_boundary_index: {geometry.v_inner_boundary_index}")
+            print(f"  v_outer_boundary_index: {geometry.v_outer_boundary_index}")
+        print("="*50)
+
         # ensuring that the radiation_field has both
         # dilution_factor and t_radiative equal length
         assert len(temperature) == len(dilution_factor)
@@ -53,7 +71,13 @@ class DilutePlanckianRadiationField:
 
     @property
     def temperature_kelvin(self):
-        return self.temperature.to(u.K).value
+        print("\n=== DilutePlanckianRadiationField.temperature_kelvin ===")
+        result = self.temperature.to(u.K).value
+        print(f"First 10 elements: {result[:10]}")
+        print(f"Shape: {result.shape}")
+        print(f"dtype: {result.dtype}")
+        print("="*50)
+        return result
 
     def calculate_mean_intensity(self, nu: Union[u.Quantity, np.ndarray]):
         """
@@ -69,11 +93,34 @@ class DilutePlanckianRadiationField:
         intensity : u.Quantity
             Intensity of the radiation field at the given frequency
         """
-        return self.dilution_factor * intensity_black_body(
+        print("\n=== DilutePlanckianRadiationField.calculate_mean_intensity ===")
+        print("Input frequency (nu):")
+        print(f"  First 10 elements: {nu[:10]}")
+        print(f"  Shape: {nu.shape}")
+        print(f"  dtype: {nu.dtype}")
+        if isinstance(nu, u.Quantity):
+            print(f"  unit: {nu.unit}")
+        
+        result = self.dilution_factor * intensity_black_body(
             nu[np.newaxis].T, self.temperature
         )
+        print("\nOutput intensity:")
+        print(f"  First 10 elements: {result[:10]}")
+        print(f"  Shape: {result.shape}")
+        print(f"  dtype: {result.dtype}")
+        if isinstance(result, u.Quantity):
+            print(f"  unit: {result.unit}")
+        print("="*50)
+        return result
 
     def to_planckian_radiation_field(self):
+        print("\n=== DilutePlanckianRadiationField.to_planckian_radiation_field ===")
+        print("Converting with temperature:")
+        print(f"  First 10 elements: {self.temperature[:10]}")
+        print(f"  Shape: {self.temperature.shape}")
+        print(f"  dtype: {self.temperature.dtype}")
+        print(f"  unit: {self.temperature.unit}")
+        print("="*50)
         return PlanckianRadiationField(self.temperature)
 
 
