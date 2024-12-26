@@ -96,16 +96,25 @@ class MCRadiationFieldPropertiesSolver:
         volume,
         line_list_nu,
     ):
+        print("[J_BLUE_DEBUG] Input j_blue_estimator:", j_blue_estimator)
+        
         j_blues_norm_factor = (
             const.c.cgs
             * time_explosion
             / (4 * np.pi * time_of_simulation * volume)
         )
+        print("[J_BLUE_DEBUG] Normalization factor:", j_blues_norm_factor.cgs.value)
+        
         j_blues = j_blue_estimator * j_blues_norm_factor.cgs.value
+        print("[J_BLUE_DEBUG] After normalization:", j_blues)
+        
         planck_j_blues = estimated_radfield_state.calculate_mean_intensity(
             line_list_nu
         )
+        print("[J_BLUE_DEBUG] Planck j_blues:", planck_j_blues)
+        
         zero_j_blues = j_blues == 0.0
         j_blues[zero_j_blues] = self.w_epsilon * planck_j_blues[zero_j_blues]
-
+        print("[J_BLUE_DEBUG] Final j_blues after zero handling:", j_blues)
+        
         return j_blues

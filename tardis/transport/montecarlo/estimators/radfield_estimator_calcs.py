@@ -112,9 +112,14 @@ def update_line_estimators(
     else:
         energy = calc_packet_energy_full_relativity(r_packet)
 
+    print(f"[J_BLUE_DEBUG] Updating j_blue_estimator at line_id={cur_line_id}, shell_id={r_packet.current_shell_id}")
+    print(f"[J_BLUE_DEBUG] Adding value: {energy/r_packet.nu}")
+    
     radfield_mc_estimators.j_blue_estimator[
         cur_line_id, r_packet.current_shell_id
     ] += (energy / r_packet.nu)
+    
+    print(f"[J_BLUE_DEBUG] New value at position: {radfield_mc_estimators.j_blue_estimator[cur_line_id, r_packet.current_shell_id]}")
     radfield_mc_estimators.Edotlu_estimator[
         cur_line_id, r_packet.current_shell_id
     ] += energy

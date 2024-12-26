@@ -2,9 +2,11 @@ from pathlib import Path
 
 import numpy.testing as npt
 import pandas as pd
+import numpy as np
 import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
+from tardis.io.logger.logger import logging_state
 
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
@@ -45,10 +47,12 @@ class TestTransportSimple:
         generate_reference,
         example_configuration_dir: Path,
     ):
+        
         config = Configuration.from_yaml(
             str(example_configuration_dir / "tardis_configv1_verysimple.yml")
         )
         config["atom_data"] = atomic_data_fname
+        logging_state("WARNING", config, None)
 
         simulation = Simulation.from_config(config)
         simulation.run_convergence()
@@ -66,6 +70,9 @@ class TestTransportSimple:
     def test_j_blue_estimators(self, simulation):
         key = "simulation/transport/transport_state/j_blue_estimator"
         expected = self.get_expected_data(key)
+        
+        # np.save("j_blue_estimator.npy", simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator)
+
 
         npt.assert_allclose(
             simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator,
