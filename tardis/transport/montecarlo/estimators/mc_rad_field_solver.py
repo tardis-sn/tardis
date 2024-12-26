@@ -71,11 +71,33 @@ class MCRadiationFieldPropertiesSolver:
     def estimate_dilute_planck_radiation_field(
         self, radfield_mc_estimators, time_of_simulation, volume
     ):
+        print("\n=== estimate_dilute_planck_radiation_field ===")
+        print("Input parameters:")
+        print(f"nu_bar_estimator first 10: {radfield_mc_estimators.nu_bar_estimator[:10]}")
+        print(f"nu_bar_estimator shape: {radfield_mc_estimators.nu_bar_estimator.shape}")
+        print(f"nu_bar_estimator dtype: {radfield_mc_estimators.nu_bar_estimator.dtype}")
+        
+        print(f"\nj_estimator first 10: {radfield_mc_estimators.j_estimator[:10]}")
+        print(f"j_estimator shape: {radfield_mc_estimators.j_estimator.shape}")
+        print(f"j_estimator dtype: {radfield_mc_estimators.j_estimator.dtype}")
+        
+        print(f"\ntime_of_simulation: {time_of_simulation}")
+        print(f"time_of_simulation unit: {time_of_simulation.unit}")
+        print(f"volume: {volume}")
+        
         temperature_radiative = (
             T_RADIATIVE_ESTIMATOR_CONSTANT
             * radfield_mc_estimators.nu_bar_estimator
             / radfield_mc_estimators.j_estimator
         ) * u.K
+        
+        print("\nCalculated values:")
+        print(f"T_RADIATIVE_ESTIMATOR_CONSTANT: {T_RADIATIVE_ESTIMATOR_CONSTANT}")
+        print(f"temperature_radiative first 10: {temperature_radiative[:10]}")
+        print(f"temperature_radiative shape: {temperature_radiative.shape}")
+        print(f"temperature_radiative dtype: {temperature_radiative.dtype}")
+        print(f"temperature_radiative unit: {temperature_radiative.unit}")
+        
         dilution_factor = radfield_mc_estimators.j_estimator / (
             4
             * const.sigma_sb.cgs.value
@@ -83,6 +105,12 @@ class MCRadiationFieldPropertiesSolver:
             * time_of_simulation.value
             * volume
         )
+        
+        print(f"\ndilution_factor first 10: {dilution_factor[:10]}")
+        print(f"dilution_factor shape: {dilution_factor.shape}")
+        print(f"dilution_factor dtype: {dilution_factor.dtype}")
+        print("="*50)
+        
         return DilutePlanckianRadiationField(
             temperature_radiative, dilution_factor
         )
