@@ -281,6 +281,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         ValueError
             If the plasma solver radiative rates type is unknown
         """
+        print("\n=== entering solve_plasma ===")
+        print(f"self.simulation_state.t_radiative = {self.simulation_state.t_radiative}")
+        print(f"self.simulation_state.dilution_factor = {self.simulation_state.dilution_factor}")   
         radiation_field = DilutePlanckianRadiationField(
             temperature=self.simulation_state.t_radiative,
             dilution_factor=self.simulation_state.dilution_factor,
@@ -327,6 +330,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             )
 
         self.plasma_solver.update(**update_properties)
+        print("\n=== exiting solve_plasma ===")
 
     def solve_opacity(self):
         """Solves the opacity state and any associated objects
