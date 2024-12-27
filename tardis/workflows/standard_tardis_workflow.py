@@ -203,7 +203,7 @@ class StandardTARDISWorkflow(
                 "Absorbed": [absorbed_luminosity.value, "value"],
                 "Requested": [self.luminosity_requested.value, "value"],
             }
-        self.update_convergence_plot_data(plot_data)
+        # self.update_convergence_plot_data(plot_data)
 
         logger.info(
             f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
