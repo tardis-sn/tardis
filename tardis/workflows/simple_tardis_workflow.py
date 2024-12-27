@@ -379,8 +379,23 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         ndarray
             Array of unnormalized virtual packet energies in each frequency bin
         """
+        print("\n=== entering solve_montecarlo ===")
+        print(f"no_of_real_packets: {no_of_real_packets}")
+        print(f"no_of_virtual_packets: {no_of_virtual_packets}")
+        print(f"opacity_states keys: {opacity_states.keys()}")
+
         opacity_state = opacity_states["opacity_state"]
         macro_atom_state = opacity_states["macro_atom_state"]
+        
+        print("\nOpacity State Info:")
+        print(f"tau_sobolev shape: {opacity_state.tau_sobolev.shape}")
+        print(f"tau_sobolev (first 10): {opacity_state.tau_sobolev[:10]}")
+        print(f"line_list_nu (first 10): {opacity_state.line_list_nu[:10]}")
+
+        print("\nMacro Atom State:")
+        print(f"macro_atom_state type: {type(macro_atom_state)}")
+        if macro_atom_state is not None:
+            print(f"macro_atom_state attributes: {dir(macro_atom_state)[:10]}")
 
         transport_state = self.transport_solver.initialize_transport_state(
             self.simulation_state,
@@ -392,6 +407,11 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             iteration=self.completed_iterations,
         )
 
+        print("\nInitialized Transport State:")
+        print(f"time_explosion: {transport_state.time_explosion}")
+        # print(f"packet_collection size: {len(transport_state.packet_collection)}")
+        print(f"geometry volume (first 10): {transport_state.geometry_state.volume[:10]}")
+
         virtual_packet_energies = self.transport_solver.run(
             transport_state,
             iteration=self.completed_iterations,
@@ -399,7 +419,16 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             show_progress_bars=self.show_progress_bars,
         )
 
+        print("\nAfter Transport Solver Run:")
+        print(f"virtual_packet_energies shape: {virtual_packet_energies.shape}")
+        print(f"virtual_packet_energies (first 10): {virtual_packet_energies[:10]}")
+
         output_energy = transport_state.packet_collection.output_energies
+        print("\nOutput Energy Info:")
+        print(f"output_energy shape: {output_energy.shape}")
+        print(f"output_energy (first 10): {output_energy[:10]}")
+        print(f"negative energy packets: {np.sum(output_energy < 0)} / {len(output_energy)}")
+
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
