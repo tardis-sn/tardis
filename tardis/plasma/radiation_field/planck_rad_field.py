@@ -93,24 +93,24 @@ class DilutePlanckianRadiationField:
         intensity : u.Quantity
             Intensity of the radiation field at the given frequency
         """
-        # print("\n=== DilutePlanckianRadiationField.calculate_mean_intensity ===")
-        # print("Input frequency (nu):")
-        # print(f"  First 10 elements: {nu[:10]}")
-        # print(f"  Shape: {nu.shape}")
-        # print(f"  dtype: {nu.dtype}")
-        # if isinstance(nu, u.Quantity):
-        #     print(f"  unit: {nu.unit}")
+        print("\n=== DilutePlanckianRadiationField.calculate_mean_intensity ===")
+        print("Input frequency (nu):")
+        print(f"  First 10 elements: {nu[:10]}")
+        print(f"  Shape: {nu.shape}")
+        print(f"  dtype: {nu.dtype}")
+        if isinstance(nu, u.Quantity):
+            print(f"  unit: {nu.unit}")
         
         result = self.dilution_factor * intensity_black_body(
             nu[np.newaxis].T, self.temperature
         )
-        # print("\nOutput intensity:")
-        # print(f"  First 10 elements: {result[:10]}")
-        # print(f"  Shape: {result.shape}")
-        # print(f"  dtype: {result.dtype}")
-        # if isinstance(result, u.Quantity):
-        #     print(f"  unit: {result.unit}")
-        # print("="*50)
+        print("\nOutput intensity:")
+        print(f"  First 10 elements: {result[:10]}")
+        print(f"  Shape: {result.shape}")
+        print(f"  dtype: {result.dtype}")
+        if isinstance(result, u.Quantity):
+            print(f"  unit: {result.unit}")
+        print("="*50)
         return result
 
     def to_planckian_radiation_field(self):

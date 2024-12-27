@@ -308,11 +308,26 @@ def intensity_black_body(nu, temperature):
     Intensity : float
         Returns the intensity of the black body
     """
+    print("======================Entering intensity_black_body======================")
     beta_rad = 1 / (k_B_cgs * temperature)
+    print(f"beta_rad = {beta_rad}")
+    
     coefficient = 2 * h_cgs / c_cgs**2
+    print(f"coefficient = {coefficient}")
+    
+    print(f"nu = {nu}")  # Print the frequency input
+    print(f"h_cgs = {h_cgs}")
+    print(f"temperature = {temperature}")
+    
+    # Print the exponential term separately for debugging
+    exp_term = ne.evaluate("exp(h_cgs * nu * beta_rad)")
+    print(f"exp_term = {exp_term}")
+    
     intensity = ne.evaluate(
         "coefficient * nu**3 / " "(exp(h_cgs * nu * beta_rad) -1 )"
     )
+    print(f"final intensity = {intensity}")
+    print("======================Exiting intensity_black_body======================")
     return intensity
 
 
