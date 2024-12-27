@@ -128,8 +128,8 @@ class StandardTARDISWorkflow(
         """
         print("\n=== get_convergence_estimates ===")
         print("Transport State:")
-        print(f"radfield_mc_estimators (first 10): {transport_state.radfield_mc_estimators[:10]}")
-        print(f"radfield_mc_estimators dtype: {transport_state.radfield_mc_estimators.dtype}")
+        # print(f"radfield_mc_estimators (first 10): {transport_state.radfield_mc_estimators[:10]}")
+        # print(f"radfield_mc_estimators dtype: {transport_state.radfield_mc_estimators.dtype}")
         print(f"time_explosion: {transport_state.time_explosion}")
         print(f"time_of_simulation: {transport_state.time_of_simulation}")
         print(f"volume shape: {transport_state.geometry_state.volume.shape}")
