@@ -126,6 +126,12 @@ def parse_radiation_field_state_from_csvy(
         dilution_factor = csvy_model_data["dilution_factor"].iloc[1:].values
     else:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
+    
+    print("\n=== DilutePlanckianRadiationField in parse_radiation_field_configuration/parse_radiation_field_state_from_csvy===")
+    print(f"t_radiative = {t_radiative}")
+    print(f"dilution_factor = {dilution_factor}")
+    print(f"geometry = {geometry}")
+    print("="*50)
 
     return DilutePlanckianRadiationField(t_radiative, dilution_factor, geometry)
 
