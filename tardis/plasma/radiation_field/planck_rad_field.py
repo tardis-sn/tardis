@@ -27,23 +27,23 @@ class DilutePlanckianRadiationField:
         dilution_factor: np.ndarray,
         geometry=None,
     ):
-        # print("\n=== DilutePlanckianRadiationField.__init__ ===")
-        # print("Temperature array:")
-        # print(f"  First 10 elements: {temperature[:10]}")
-        # print(f"  Shape: {temperature.shape}")
-        # print(f"  dtype: {temperature.dtype}")
-        # print(f"  unit: {temperature.unit}")
+        print("\n=== DilutePlanckianRadiationField.__init__ ===")
+        print("Temperature array:")
+        print(f"  First 10 elements: {temperature[:10]}")
+        print(f"  Shape: {temperature.shape}")
+        print(f"  dtype: {temperature.dtype}")
+        print(f"  unit: {temperature.unit}")
         
-        # print("\nDilution factor array:")
-        # print(f"  First 10 elements: {dilution_factor[:10]}")
-        # print(f"  Shape: {dilution_factor.shape}")
-        # print(f"  dtype: {dilution_factor.dtype}")
+        print("\nDilution factor array:")
+        print(f"  First 10 elements: {dilution_factor[:10]}")
+        print(f"  Shape: {dilution_factor.shape}")
+        print(f"  dtype: {dilution_factor.dtype}")
         
-        # if geometry is not None:
-        #     print("\nGeometry boundaries:")
-        #     print(f"  v_inner_boundary_index: {geometry.v_inner_boundary_index}")
-        #     print(f"  v_outer_boundary_index: {geometry.v_outer_boundary_index}")
-        # print("="*50)
+        if geometry is not None:
+            print("\nGeometry boundaries:")
+            print(f"  v_inner_boundary_index: {geometry.v_inner_boundary_index}")
+            print(f"  v_outer_boundary_index: {geometry.v_outer_boundary_index}")
+        print("="*50)
 
         # ensuring that the radiation_field has both
         # dilution_factor and t_radiative equal length
