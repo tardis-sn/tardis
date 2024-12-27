@@ -98,6 +98,7 @@ class DilutePlanckianRadiationField:
         print(f"  First 10 elements: {nu[:10]}")
         print(f"  Shape: {nu.shape}")
         print(f"  dtype: {nu.dtype}")
+        print(f"self.temperature = {self.temperature}")
         if isinstance(nu, u.Quantity):
             print(f"  unit: {nu.unit}")
         
