@@ -174,7 +174,6 @@ class TestPlasma:
         )
         yield sim.plasma
         data.close()
-
     @pytest.mark.parametrize("attr", combined_properties)
     def test_plasma_properties(self, plasma, attr):
         key = f"plasma/{attr}"

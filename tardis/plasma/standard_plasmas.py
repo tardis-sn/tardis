@@ -114,7 +114,11 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         species_string_to_tuple(species)
         for species in config.plasma.nlte_excitation_species
     ]
-
+    print("\n=== DilutePlanckianRadiationField in standard_plasmas===")
+    print(f"simulation_state.t_radiative = {simulation_state.t_radiative}")
+    print(f"simulation_state.dilution_factor = {simulation_state.dilution_factor}")
+    print("exiting standard_plasmas")
+    print("="*50)
     dilute_planckian_radiation_field = DilutePlanckianRadiationField(
         simulation_state.t_radiative, simulation_state.dilution_factor
     )
@@ -211,6 +215,9 @@ def assemble_plasma(config, simulation_state, atom_data=None):
             config.plasma.link_t_rad_t_electron
             * dilute_planckian_radiation_field.temperature.to(u.K).value
         )
+        print("\n=== t_electrons in standard_plasmas===")
+        print(f"t_electrons = {t_electrons}")
+        print("="*50)   
         initial_continuum_solver = DiluteBlackBodyContinuumPropertiesSolver(
             atom_data
         )

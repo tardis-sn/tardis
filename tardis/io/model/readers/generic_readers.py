@@ -3,7 +3,7 @@ from typing import Any, Tuple
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from numpy import recfromtxt
+from numpy import genfromtxt
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
@@ -44,11 +44,11 @@ def read_simple_ascii_density(
         time_of_model_string = fh.readline().strip()
         time_of_model = parse_quantity(time_of_model_string)
 
-    data = recfromtxt(
+    data = genfromtxt(
         fname,
         skip_header=1,
         names=("index", "velocity", "density"),
-        dtype=(int, float, float),
+        encoding='utf-8',
     )
     velocity = (data["velocity"] * u.km / u.s).to("cm/s")
     mean_density = (data["density"] * u.Unit("g/cm^3"))[1:]

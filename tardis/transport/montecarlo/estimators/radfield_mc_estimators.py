@@ -30,6 +30,8 @@ def initialize_estimator_statistics(tau_sobolev_shape, gamma_shape):
     j_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
     nu_bar_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
     j_blue_estimator = np.zeros(tau_sobolev_shape)
+    print("[J_BLUE_DEBUG] Initialized j_blue_estimator with shape:", tau_sobolev_shape)
+    print("[J_BLUE_DEBUG] Initial values:", j_blue_estimator)
     Edotlu_estimator = np.zeros(tau_sobolev_shape)
 
     photo_ion_estimator = np.zeros(gamma_shape, dtype=np.float64)
