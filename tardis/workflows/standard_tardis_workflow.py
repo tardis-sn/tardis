@@ -289,7 +289,7 @@ class StandardTARDISWorkflow(
             print("\nOpacity States:")
             print(f"opacity_states type: {type(opacity_states)}")
             print(f"opacity_states keys: {getattr(opacity_states, '__dict__', {}).keys()}")
-
+            import pdb; pdb.set_trace()
             transport_state, virtual_packet_energies = self.solve_montecarlo(
                 opacity_states, self.real_packet_count
             )

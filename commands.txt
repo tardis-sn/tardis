@@ -1,0 +1,4 @@
+pytest  tardis    --tardis-regression-data=../tardis-regression-data  -m "not continuum"     -s 
+conda remove -n tardis_numpy --all
+mamba create --name tardis_numpy --file conda-linux-64.lock
+

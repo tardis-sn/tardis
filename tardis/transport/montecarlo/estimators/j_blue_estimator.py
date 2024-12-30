@@ -19,26 +19,51 @@ class JBlueEstimator:
         self.j_blue_estimator += other.j_blue_estimator 
 
 if __name__ == "__main__":
-    # Create example with realistic shape
-    test_estimator = initialize_j_blue_estimator((10, 20))  # typical tau_sobolev shape
+    # Create multiple test cases with different shapes
+    small_estimator = initialize_j_blue_estimator((5, 10))
+    large_estimator = initialize_j_blue_estimator((20, 40))
     
-    # Simulate some updates
-    packet_energy = 1.0e-10
-    packet_nu = 2.0e15
-    test_estimator.j_blue_estimator[5, 10] += packet_energy / packet_nu
+    # Simulate different packet interactions
+    packet_energies = [1.0e-10, 2.0e-10, 5.0e-10]
+    packet_nus = [2.0e15, 3.0e15, 4.0e15]
     
-    print("After simulated packet interaction:")
-    print(test_estimator.j_blue_estimator[5, 10])
+    # Add some interactions to small estimator
+    for energy, nu in zip(packet_energies, packet_nus):
+        small_estimator.j_blue_estimator[2, 5] += energy / nu
+        small_estimator.j_blue_estimator[3, 7] += energy / (2 * nu)
     
-    # Simulate normalization
-    time_explosion = 1.0e5
-    time_simulation = 1.0e4
-    volume = 1.0e45
-    norm_factor = 3e10 * time_explosion / (4 * np.pi * time_simulation * volume)
+    # Add some interactions to large estimator
+    for energy, nu in zip(packet_energies, packet_nus):
+        large_estimator.j_blue_estimator[10, 20] += energy / nu
+        large_estimator.j_blue_estimator[15, 30] += energy / (3 * nu)
     
-    normalized = test_estimator.j_blue_estimator * norm_factor
-    print("\nAfter normalization:")
-    print(normalized[5, 10])
+    # Print raw values
+    print("Small estimator interactions:")
+    print(f"Position (2,5): {small_estimator.j_blue_estimator[2, 5]}")
+    print(f"Position (3,7): {small_estimator.j_blue_estimator[3, 7]}")
     
-    np.save("j_blue_raw.npy", test_estimator.j_blue_estimator)
-    np.save("j_blue_normalized.npy", normalized) 
+    print("\nLarge estimator interactions:")
+    print(f"Position (10,20): {large_estimator.j_blue_estimator[10, 20]}")
+    print(f"Position (15,30): {large_estimator.j_blue_estimator[15, 30]}")
+    
+    # Test estimator increment
+    small_estimator.increment(small_estimator)
+    print("\nAfter incrementing small estimator with itself:")
+    print(f"Position (2,5): {small_estimator.j_blue_estimator[2, 5]}")
+    
+    # Simulate different normalizations
+    time_explosions = [1.0e5, 2.0e5]
+    time_simulations = [1.0e4, 2.0e4]
+    volumes = [1.0e45, 2.0e45]
+    
+    print("\nTesting different normalizations:")
+    for t_explosion, t_simulation, vol in zip(time_explosions, time_simulations, volumes):
+        norm_factor = 3e10 * t_explosion / (4 * np.pi * t_simulation * vol)
+        normalized = small_estimator.j_blue_estimator * norm_factor
+        print(f"\nNormalization with:")
+        print(f"t_explosion={t_explosion}, t_simulation={t_simulation}, volume={vol}")
+        print(f"Position (2,5): {normalized[2, 5]}")
+    
+    # Save examples to files
+    np.save("j_blue_small_raw.npy", small_estimator.j_blue_estimator)
+    np.save("j_blue_large_raw.npy", large_estimator.j_blue_estimator) 

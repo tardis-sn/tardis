@@ -308,6 +308,8 @@ def intensity_black_body(nu, temperature):
     Intensity : float
         Returns the intensity of the black body
     """
+    # import pdb
+    # pdb.set_trace()
     print("======================Entering intensity_black_body======================")
     print(f"k_B_cgs = {k_B_cgs}")
     print(f"temperature = {temperature}")

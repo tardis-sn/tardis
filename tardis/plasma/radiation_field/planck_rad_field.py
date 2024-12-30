@@ -27,6 +27,7 @@ class DilutePlanckianRadiationField:
         dilution_factor: np.ndarray,
         geometry=None,
     ):
+        # import pdb; pdb.set_trace()
         print("\n=== DilutePlanckianRadiationField.__init__ ===")
         print("Temperature array:")
         print(f"  First 10 elements: {temperature[:10]}")
