@@ -35,4 +35,4 @@ jobs:
       
       - name: Run codespell
         run: |
-          codespell --ignore-regex='[A-Za-z0-9+/]{100,}' --ignore-words-list 'Parrent,Layou' docs/
+          codespell docs/ --ignore-regex='[A-Za-z0-9+/]{100,}' --ignore-words-list 'Parrent,Layou'
