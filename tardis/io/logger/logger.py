@@ -77,41 +77,28 @@ def logging_state(log_level, tardis_config, specific_log_level):
     specific_log_level: boolean
         Allows to set specific logging levels. Logs of the `log_level` level would be output.
     """
-    if "debug" in tardis_config:
-        specific_log_level = (
-            tardis_config["debug"]["specific_log_level"]
-            if specific_log_level is None
-            else specific_log_level
-        )
-
-        logging_level = (
-            log_level if log_level else tardis_config["debug"]["log_level"]
-        )
-
-        # Displays a message when both log_level & tardis["debug"]["log_level"] are specified
-        if log_level and tardis_config["debug"]["log_level"]:
-            print(
-                "log_level is defined both in Functional Argument & YAML Configuration {debug section}"
-            )
-            print(
-                f"log_level = {log_level.upper()} will be used for Log Level Determination\n"
-            )
-
-    else:
-        # Adds empty `debug` section for the YAML
+    # Ensure the debug section exists
+    if "debug" not in tardis_config:
         tardis_config["debug"] = {}
 
-        if log_level:
-            logging_level = log_level
-        else:
-            tardis_config["debug"]["log_level"] = DEFAULT_LOG_LEVEL
-            logging_level = tardis_config["debug"]["log_level"]
+    # Set specific_log_level if not provided
+    if specific_log_level is None:
+        specific_log_level = tardis_config["debug"].get("specific_log_level", DEFAULT_SPECIFIC_STATE)
 
-        if not specific_log_level:
-            tardis_config["debug"][
-                "specific_log_level"
-            ] = DEFAULT_SPECIFIC_STATE
-            specific_log_level = tardis_config["debug"]["specific_log_level"]
+    # Set logging_level if not provided
+    if log_level is None:
+        logging_level = tardis_config["debug"].get("log_level", DEFAULT_LOG_LEVEL)
+    else:
+        logging_level = log_level
+
+    # Displays a message when both log_level & tardis["debug"]["log_level"] are specified
+    if log_level and tardis_config["debug"].get("log_level"):
+        print(
+            "log_level is defined both in Functional Argument & YAML Configuration {debug section}"
+        )
+        print(
+            f"log_level = {log_level.upper()} will be used for Log Level Determination\n"
+        )
 
     logging_level = logging_level.upper()
     if logging_level not in LOGGING_LEVELS:
