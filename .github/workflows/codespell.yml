@@ -33,13 +33,6 @@ jobs:
         with:
           os-label: linux-64
 
-      # - name: Clear cache
-        # run: |
-          # echo "Clearing cache..."
-          # rm -rf ~/.cache
-      
       - name: Run codespell
         run: |
-          echo "Clearing cache..."
-          rm -rf ~/.cache
           codespell docs/ --ignore-regex='[A-Za-z0-9+/]{100,}' --ignore-words-list 'Parrent,Layou'
