@@ -32,6 +32,11 @@ jobs:
         uses: ./.github/actions/setup_env
         with:
           os-label: linux-64
+
+      - name: Clear cache
+        run: |
+          echo "Clearing cache..."
+          rm -rf ~/.cache
       
       - name: Run codespell
         run: |
