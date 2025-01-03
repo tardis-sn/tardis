@@ -3,13 +3,12 @@ import logging
 import os
 import pprint
 
-import pandas as pd
 import yaml
 from astropy import units as u
 
 from tardis.io.configuration import config_validator
 from tardis.io.model.readers.csvy import load_yaml_from_csvy
-from tardis.io.util import HDFWriterMixin, YAMLLoader, yaml_load_file
+from tardis.io.util import YAMLLoader, yaml_load_file
 
 pp = pprint.PrettyPrinter(indent=4)
 
