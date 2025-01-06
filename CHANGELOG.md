@@ -1,6 +1,8 @@
 ## Changelog
 
-### release-2024.12.29 (2024/12/28 20:05)
+### release-2025.01.05 (2025/01/04 20:05)
+- [2915](https://github.com/tardis-sn/tardis/pull/2915) Post-release 2024.12.29 (2915) (@tardis-bot)
+### release-2024.12.29 (2024/12/23 04:39)
 - [2909](https://github.com/tardis-sn/tardis/pull/2909) Post-release 2024.12.22 (2909) (@tardis-bot)
 ### release-2024.12.22 (2024/12/16 10:05)
 - [2901](https://github.com/tardis-sn/tardis/pull/2901) Update test docs (2901) (@KasukabeDefenceForce)
