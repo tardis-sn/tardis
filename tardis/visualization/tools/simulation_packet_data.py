@@ -2,66 +2,6 @@ import astropy.units as u
 import pandas as pd
 
 
-def create_packet_data_dict_from_simulation(sim):
-    """
-    Create a dictionary containing virtual and real packet data based on simulation state.
-
-    Parameters
-    ----------
-    sim : tardis.simulation.Simulation
-        TARDIS Simulation object produced by running a simulation
-
-    Returns
-    -------
-    dict
-        Dictionary containing 'virtual' and 'real' SimulationPacketData instances
-    """
-    packet_data = {
-        "real": SimulationPacketData.from_simulation(sim, "real")
-    }
-    if sim.transport.transport_state.virt_logging:
-        packet_data["virtual"] = SimulationPacketData.from_simulation(sim, "virtual")
-    else:
-        packet_data["virtual"] = None
-
-    return packet_data
-
-def create_packet_data_dict_from_hdf(hdf_fpath, packets_mode=None):
-    """
-    Create a dictionary containing virtual and real packet data from HDF file.
-
-    Parameters
-    ----------
-    hdf_fpath : str
-        Valid path to the HDF file where simulation is saved
-    packets_mode : {'virtual', 'real', None}
-        Mode of packets to be considered. If None, both modes are returned.
-
-    Returns
-    -------
-    dict
-        Dictionary containing 'virtual' and 'real' SimulationPacketData instances
-    """
-    if packets_mode not in [None, "virtual", "real"]:
-        raise ValueError(
-            "Invalid value passed to packets_mode. Only "
-            "allowed values are 'virtual', 'real' or None"
-        )
-    if packets_mode == "virtual":
-        return {
-            "virtual": SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
-            "real": None
-        }
-    if packets_mode == "real":
-        return {
-            "virtual": None,
-            "real": SimulationPacketData.from_hdf(hdf_fpath, "real")
-        }
-    return {
-        "virtual": SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
-        "real": SimulationPacketData.from_hdf(hdf_fpath, "real")
-    }
-
 class SimulationPacketData:
     """
     The data structure representing simulation packet properties.
