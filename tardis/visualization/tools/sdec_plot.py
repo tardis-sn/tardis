@@ -27,6 +27,7 @@ from tardis.visualization import plot_util as pu
 from tardis.visualization.tools.simulation_packet_data import (
     SimulationPacketData,
     create_packet_data_dict,
+    create_packet_data_dict_from_hdf,
 )
 
 logger = logging.getLogger(__name__)
@@ -84,31 +85,7 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        assert packets_mode in [None, "virtual", "real"], (
-            "Invalid value passed to packets_mode. Only "
-            "allowed values are 'virtual', 'real' or None"
-        )
-        if packets_mode == "virtual":
-            return cls(
-                {
-                    "virtual": SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
-                    "real": None,
-                }
-            )
-        elif packets_mode == "real":
-            return cls(
-                {
-                    "virtual": None,
-                    "real": SimulationPacketData.from_hdf(hdf_fpath, "real"),
-                }
-            )
-        else:
-            return cls(
-                {
-                    "virtual": SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
-                    "real": SimulationPacketData.from_hdf(hdf_fpath, "real"),
-                }
-            )
+        return cls(create_packet_data_dict_from_hdf(hdf_fpath, packets_mode))
 
     def _parse_species_list(self, species_list):
         """
