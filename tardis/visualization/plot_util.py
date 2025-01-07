@@ -5,7 +5,7 @@ import re
 import numpy as np
 
 from tardis.visualization.tools.visualization_data import (
-    SimulationPacketData,
+    VisualizationData,
 )
 
 
@@ -100,10 +100,10 @@ def create_packet_data_dict_from_simulation(sim):
         Dictionary containing 'virtual' and 'real' SimulationPacketData instances
     """
     packet_data = {
-        "real": SimulationPacketData.from_simulation(sim, "real")
+        "real": VisualizationData.from_simulation(sim, "real")
     }
     if sim.transport.transport_state.virt_logging:
-        packet_data["virtual"] = SimulationPacketData.from_simulation(sim, "virtual")
+        packet_data["virtual"] = VisualizationData.from_simulation(sim, "virtual")
     else:
         packet_data["virtual"] = None
 
@@ -132,15 +132,15 @@ def create_packet_data_dict_from_hdf(hdf_fpath, packets_mode=None):
         )
     if packets_mode == "virtual":
         return {
-            "virtual": SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
+            "virtual": VisualizationData.from_hdf(hdf_fpath, "virtual"),
             "real": None
         }
     if packets_mode == "real":
         return {
             "virtual": None,
-            "real": SimulationPacketData.from_hdf(hdf_fpath, "real")
+            "real": VisualizationData.from_hdf(hdf_fpath, "real")
         }
     return {
-        "virtual": SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
-        "real": SimulationPacketData.from_hdf(hdf_fpath, "real")
+        "virtual": VisualizationData.from_hdf(hdf_fpath, "virtual"),
+        "real": VisualizationData.from_hdf(hdf_fpath, "real")
     }
