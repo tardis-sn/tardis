@@ -2,7 +2,7 @@ import astropy.units as u
 import pandas as pd
 
 
-def create_packet_data_dict(sim):
+def create_packet_data_dict_from_simulation(sim):
     """
     Create a dictionary containing virtual and real packet data based on simulation state.
 
