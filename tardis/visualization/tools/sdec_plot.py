@@ -26,6 +26,7 @@ from tardis.util.base import (
 from tardis.visualization import plot_util as pu
 from tardis.visualization.tools.simulation_packet_data import (
     SimulationPacketData,
+    create_packet_data_dict,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,20 +65,7 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        if sim.transport.transport_state.virt_logging:
-            return cls(
-                {
-                    "virtual": SimulationPacketData.from_simulation(sim, "virtual"),
-                    "real": SimulationPacketData.from_simulation(sim, "real"),
-                }
-            )
-        else:
-            return cls(
-                {
-                    "virtual": None,
-                    "real": SimulationPacketData.from_simulation(sim, "real"),
-                }
-            )
+        return cls(create_packet_data_dict(sim))
 
     @classmethod
     def from_hdf(cls, hdf_fpath, packets_mode=None):
