@@ -14,7 +14,7 @@ from tardis.util.base import (
     species_string_to_tuple,
 )
 
-from tardis.visualization.tools.simulation_packet_data import (
+from tardis.visualization.tools.visualization_data import (
     SimulationPacketData,
 )
 
