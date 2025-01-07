@@ -14,6 +14,10 @@ from tardis.util.base import (
     species_string_to_tuple,
 )
 
+from tardis.visualization.tools.simulation_packet_data import (
+    SimulationPacketData,
+)
+
 
 def axis_label_in_latex(label_text, unit, only_text=True):
     """
