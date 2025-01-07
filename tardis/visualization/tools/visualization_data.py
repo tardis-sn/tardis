@@ -30,6 +30,7 @@ class VisualizationData:
         time_explosion,
         v_inner,
         v_outer,
+        velocity
     ):
         """
         Initialize the SimulationPacketData with required properties of simulation model.
@@ -99,10 +100,21 @@ class VisualizationData:
         self.time_explosion = time_explosion
         self.v_inner = v_inner
         self.v_outer = v_outer
-        self.velocity = pd.concat(
+
+        # First check if both options are provided
+        if velocity is not None and (v_inner is not None or v_outer is not None):
+            raise ValueError(
+                "Cannot specify both velocity and (v_inner, v_outer). "
+                "Please provide either velocity OR the (v_inner, v_outer) pair."
+            )
+
+        if velocity is not None:
+            self.velocity = velocity
+
+        if v_inner is not None and v_outer is not None:
+            self.velocity = pd.concat(
                 [v_inner, pd.Series([v_outer.iloc[-1]])], ignore_index=True
             ).tolist() * (u.cm / u.s)
-
 
         # Create dataframe of packets that experience line interaction
         line_mask = (self.packets_df["last_interaction_type"] > -1) & (
@@ -165,6 +177,7 @@ class VisualizationData:
         t_inner = sim.simulation_state.packet_source.temperature
         v_inner = sim.simulation_state.v_inner
         v_outer = sim.simulation_state.v_outer
+        velocity = sim.simulation_state.velocity
         time_of_simulation = (
             transport_state.packet_collection.time_of_simulation * u.s
         )
@@ -194,7 +207,8 @@ class VisualizationData:
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
                 v_inner=v_inner,
-                v_outer=v_outer
+                v_outer=v_outer,
+                velocity=velocity
             )
         else: # real packets
             # Packets-specific properties need to be only for those packets
@@ -226,7 +240,8 @@ class VisualizationData:
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
                 v_inner=v_inner,
-                v_outer=v_outer
+                v_outer=v_outer,
+                velocity=velocity
             )
 
     @classmethod
