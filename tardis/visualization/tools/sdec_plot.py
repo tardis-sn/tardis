@@ -45,7 +45,7 @@ class SDECPlotter:
 
         Parameters
         ----------
-        data : dict of SDECData
+        data : dict of SimulationPacketData
             Dictionary to store data required for SDEC plot, for both packet
             modes i.e. real and virtual
         """
