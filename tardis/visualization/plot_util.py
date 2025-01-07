@@ -15,7 +15,7 @@ from tardis.util.base import (
 )
 
 from tardis.visualization.tools.visualization_data import (
-    SimulationPacketData,
+    VisualizationData,
 )
 
 
