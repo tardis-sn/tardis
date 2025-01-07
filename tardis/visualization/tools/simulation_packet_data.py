@@ -170,12 +170,8 @@ class SimulationPacketData:
                 last_line_interaction_in_nu=vpacket_tracker.last_interaction_in_nu,
                 last_interaction_in_r=vpacket_tracker.last_interaction_in_r,
                 lines_df=lines_df,
-                packet_nus=u.Quantity(
-                    vpacket_tracker.nus, "Hz"
-                ),
-                packet_energies=u.Quantity(
-                    vpacket_tracker.energies, "erg"
-                ),
+                packet_nus=u.Quantity(vpacket_tracker.nus, "Hz"),
+                packet_energies=u.Quantity(vpacket_tracker.energies, "erg"),
                 r_inner=r_inner,
                 spectrum_delta_frequency=spectrum.delta_frequency,
                 spectrum_frequency_bins=spectrum._frequency,
@@ -188,9 +184,7 @@ class SimulationPacketData:
         # which got emitted
         mask = transport_state.emitted_packet_mask
         return cls(
-            last_interaction_type=transport_state.last_interaction_type[
-                mask
-            ],
+            last_interaction_type=transport_state.last_interaction_type[mask],
             last_line_interaction_in_id=transport_state.last_line_interaction_in_id[
                 mask
             ],
@@ -200,13 +194,9 @@ class SimulationPacketData:
             last_line_interaction_in_nu=transport_state.last_interaction_in_nu[
                 mask
             ],
-            last_interaction_in_r=transport_state.last_interaction_in_r[
-                mask
-            ],
+            last_interaction_in_r=transport_state.last_interaction_in_r[mask],
             lines_df=lines_df,
-            packet_nus=transport_state.packet_collection.output_nus[
-                mask
-            ],
+            packet_nus=transport_state.packet_collection.output_nus[mask],
             packet_energies=transport_state.packet_collection.output_energies[
                 mask
             ],
@@ -259,136 +249,110 @@ class SimulationPacketData:
                 "s",
             )
 
+        spectrum_prefix = (
+            f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+        )
+
         if packets_mode == "virtual":
+            packet_prefix = "/simulation/transport/transport_state/virt_packet"
             return cls(
                 last_interaction_type=hdf[
-                    "/simulation/transport/transport_state/virt_packet_last_interaction_type"
+                    f"{packet_prefix}_last_interaction_type"
                 ],
                 last_line_interaction_in_id=hdf[
-                    "/simulation/transport/transport_state/virt_packet_last_line_interaction_in_id"
+                    f"{packet_prefix}_last_line_interaction_in_id"
                 ],
                 last_line_interaction_out_id=hdf[
-                    "/simulation/transport/transport_state/virt_packet_last_line_interaction_out_id"
+                    f"{packet_prefix}_last_line_interaction_out_id"
                 ],
                 last_line_interaction_in_nu=u.Quantity(
-                    hdf[
-                        "/simulation/transport/transport_state/virt_packet_last_interaction_in_nu"
-                    ].to_numpy(),
+                    hdf[f"{packet_prefix}_last_interaction_in_nu"].to_numpy(),
                     "Hz",
                 ),
                 last_interaction_in_r=u.Quantity(
-                    hdf[
-                        "/simulation/transport/transport_state/virt_packet_last_interaction_in_r"
-                    ].to_numpy(),
+                    hdf[f"{packet_prefix}_last_interaction_in_r"].to_numpy(),
                     "cm",
                 ),
                 lines_df=lines_df,
                 packet_nus=u.Quantity(
-                    hdf[
-                        "/simulation/transport/transport_state/virt_packet_nus"
-                    ].to_numpy(),
-                    "Hz",
+                    hdf[f"{packet_prefix}_nus"].to_numpy(), "Hz"
                 ),
                 packet_energies=u.Quantity(
-                    hdf[
-                        "/simulation/transport/transport_state/virt_packet_energies"
-                    ].to_numpy(),
-                    "erg",
+                    hdf[f"{packet_prefix}_energies"].to_numpy(), "erg"
                 ),
                 r_inner=r_inner,
                 spectrum_delta_frequency=u.Quantity(
-                    hdf[
-                        "/simulation/spectrum_solver/spectrum_virtual_packets/scalars"
-                    ].delta_frequency,
-                    "Hz",
+                    hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"
                 ),
                 spectrum_frequency_bins=u.Quantity(
-                    hdf[
-                        "/simulation/spectrum_solver/spectrum_virtual_packets/_frequency"
-                    ].to_numpy(),
-                    "Hz",
+                    hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"
                 ),
                 spectrum_luminosity_density_lambda=u.Quantity(
                     hdf[
-                        "/simulation/spectrum_solver/spectrum_virtual_packets/luminosity_density_lambda"
+                        f"{spectrum_prefix}/luminosity_density_lambda"
                     ].to_numpy(),
-                    "erg / s cm",  # luminosity_density_lambda is saved in hdf in CGS
+                    "erg / s cm",
                 ).to("erg / s AA"),
                 spectrum_wavelength=u.Quantity(
-                    hdf[
-                        "/simulation/spectrum_solver/spectrum_virtual_packets/wavelength"
-                    ].to_numpy(),
-                    "cm",  # wavelength is saved in hdf in CGS
+                    hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
                 ).to("AA"),
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
-
-        emitted_packet_mask = hdf[
-            "/simulation/transport/transport_state/emitted_packet_mask"
-        ].to_numpy()
-        return cls(
-            # First convert series read from hdf to array before masking
-            # to eliminate index info which creates problems otherwise
-            last_interaction_type=hdf[
-                "/simulation/transport/transport_state/last_interaction_type"
-            ].to_numpy()[emitted_packet_mask],
-            last_line_interaction_in_id=hdf[
-                "/simulation/transport/transport_state/last_line_interaction_in_id"
-            ].to_numpy()[emitted_packet_mask],
-            last_line_interaction_out_id=hdf[
-                "/simulation/transport/transport_state/last_line_interaction_out_id"
-            ].to_numpy()[emitted_packet_mask],
-            last_line_interaction_in_nu=u.Quantity(
-                hdf[
-                    "/simulation/transport/transport_state/last_interaction_in_nu"
+        else: # real packets
+            emitted_packet_mask = hdf[
+                "/simulation/transport/transport_state/emitted_packet_mask"
+            ].to_numpy()
+            packet_prefix = "/simulation/transport/transport_state"
+            return cls(
+                last_interaction_type=hdf[
+                    f"{packet_prefix}/last_interaction_type"
                 ].to_numpy()[emitted_packet_mask],
-                "Hz",
-            ),
-            last_interaction_in_r=u.Quantity(
-                hdf[
-                    "/simulation/transport/transport_state/last_interaction_in_r"
+                last_line_interaction_in_id=hdf[
+                    f"{packet_prefix}/last_line_interaction_in_id"
                 ].to_numpy()[emitted_packet_mask],
-                "cm",
-            ),
-            lines_df=lines_df,
-            packet_nus=u.Quantity(
-                hdf[
-                    "/simulation/transport/transport_state/output_nu"
+                last_line_interaction_out_id=hdf[
+                    f"{packet_prefix}/last_line_interaction_out_id"
                 ].to_numpy()[emitted_packet_mask],
-                "Hz",
-            ),
-            packet_energies=u.Quantity(
-                hdf[
-                    "/simulation/transport/transport_state/output_energy"
-                ].to_numpy()[emitted_packet_mask],
-                "erg",
-            ),
-            r_inner=r_inner,
-            spectrum_delta_frequency=u.Quantity(
-                hdf[
-                    "/simulation/spectrum_solver/spectrum_real_packets/scalars"
-                ].delta_frequency,
-                "Hz",
-            ),
-            spectrum_frequency_bins=u.Quantity(
-                hdf[
-                    "/simulation/spectrum_solver/spectrum_real_packets/_frequency"
-                ].to_numpy(),
-                "Hz",
-            ),
-            spectrum_luminosity_density_lambda=u.Quantity(
-                hdf[
-                    "/simulation/spectrum_solver/spectrum_real_packets/luminosity_density_lambda"
-                ].to_numpy(),
-                "erg / s cm",
-            ).to("erg / s AA"),
-            spectrum_wavelength=u.Quantity(
-                hdf[
-                    "/simulation/spectrum_solver/spectrum_real_packets/wavelength"
-                ].to_numpy(),
-                "cm",
-            ).to("AA"),
-            t_inner=t_inner,
-            time_of_simulation=time_of_simulation,
-        )
+                last_line_interaction_in_nu=u.Quantity(
+                    hdf[f"{packet_prefix}/last_interaction_in_nu"].to_numpy()[
+                        emitted_packet_mask
+                    ],
+                    "Hz",
+                ),
+                last_interaction_in_r=u.Quantity(
+                    hdf[f"{packet_prefix}/last_interaction_in_r"].to_numpy()[
+                        emitted_packet_mask
+                    ],
+                    "cm",
+                ),
+                lines_df=lines_df,
+                packet_nus=u.Quantity(
+                    hdf[f"{packet_prefix}/output_nu"].to_numpy()[
+                        emitted_packet_mask
+                    ],
+                    "Hz",
+                ),
+                packet_energies=u.Quantity(
+                    hdf[f"{packet_prefix}/output_energy"].to_numpy()[
+                        emitted_packet_mask
+                    ],
+                    "erg",
+                ),
+                r_inner=r_inner,
+                spectrum_delta_frequency=u.Quantity(
+                    hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"
+                ),
+                spectrum_frequency_bins=u.Quantity(
+                    hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"
+                ),
+                spectrum_luminosity_density_lambda=u.Quantity(
+                    hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(),
+                    "erg / s cm",
+                ).to("erg / s AA"),
+                spectrum_wavelength=u.Quantity(
+                    hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
+                ).to("AA"),
+                t_inner=t_inner,
+                time_of_simulation=time_of_simulation,
+            )
