@@ -24,7 +24,6 @@ from tardis.visualization import plot_util as pu
 
 logger = logging.getLogger(__name__)
 
-
 class SDECPlotter:
     """
     Plotting interface for Spectral element DEComposition (SDEC) Plot.
