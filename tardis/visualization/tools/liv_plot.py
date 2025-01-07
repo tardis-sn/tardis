@@ -12,6 +12,10 @@ from tardis.util.base import (
     int_to_roman,
 )
 from tardis.visualization import plot_util as pu
+from tardis.visualization.tools.simulation_packet_data import (
+    SimulationPacketData,
+    create_packet_data_dict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -57,10 +61,7 @@ class LIVPlotter:
         LIVPlotter
         """
         return cls(
-            dict(
-                virtual=sdec.SDECData.from_simulation(sim, "virtual"),
-                real=sdec.SDECData.from_simulation(sim, "real"),
-            ),
+            create_packet_data_dict(sim),
             sim.plasma.time_explosion,
             sim.simulation_state.velocity,
         )
@@ -90,8 +91,8 @@ class LIVPlotter:
             ).tolist() * (u.cm / u.s)
             return cls(
                 dict(
-                    virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
-                    real=sdec.SDECData.from_hdf(hdf_fpath, "real"),
+                    virtual=SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
+                    real=SimulationPacketData.from_hdf(hdf_fpath, "real"),
                 ),
                 time_explosion,
                 velocity,
