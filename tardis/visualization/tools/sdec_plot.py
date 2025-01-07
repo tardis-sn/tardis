@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from astropy.modeling.models import BlackBody
+from simulation_packet_data import SimulationPacketData
 
 from tardis.util.base import (
     atomic_number2element_symbol,
@@ -64,15 +65,15 @@ class SDECPlotter:
         if sim.transport.transport_state.virt_logging:
             return cls(
                 {
-                    "virtual": SDECData.from_simulation(sim, "virtual"),
-                    "real": SDECData.from_simulation(sim, "real"),
+                    "virtual": SimulationPacketData.from_simulation(sim, "virtual"),
+                    "real": SimulationPacketData.from_simulation(sim, "real"),
                 }
             )
         else:
             return cls(
                 {
                     "virtual": None,
-                    "real": SDECData.from_simulation(sim, "real"),
+                    "real": SimulationPacketData.from_simulation(sim, "real"),
                 }
             )
 
@@ -100,7 +101,7 @@ class SDECPlotter:
         if packets_mode == "virtual":
             return cls(
                 {
-                    "virtual": SDECData.from_hdf(hdf_fpath, "virtual"),
+                    "virtual": SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
                     "real": None,
                 }
             )
@@ -108,14 +109,14 @@ class SDECPlotter:
             return cls(
                 {
                     "virtual": None,
-                    "real": SDECData.from_hdf(hdf_fpath, "real"),
+                    "real": SimulationPacketData.from_hdf(hdf_fpath, "real"),
                 }
             )
         else:
             return cls(
                 {
-                    "virtual": SDECData.from_hdf(hdf_fpath, "virtual"),
-                    "real": SDECData.from_hdf(hdf_fpath, "real"),
+                    "virtual": SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
+                    "real": SimulationPacketData.from_hdf(hdf_fpath, "real"),
                 }
             )
 
