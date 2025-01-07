@@ -69,6 +69,14 @@ class VisualizationData:
             Temperature of innermost shell, having unit of K
         time_of_simulation : astropy.Quantity
             Time of simulation, having unit of s (second)
+        time_explosion : astropy.units.Quantity
+            Time of the explosion.
+        v_inner : pd.Series
+            The velocity of the inner boundaries of each shell
+        v_outer : pd.Series
+            The velocity of the outer boundaries of each shell
+        velocity : astropy.units.Quantity
+            Velocity array from the simulation.
         """
         # Save packets properties in a dataframe for easier data manipulation
         packet_nus = u.Quantity(packet_nus, u.Hz)
