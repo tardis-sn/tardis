@@ -2,6 +2,30 @@ import astropy.units as u
 import pandas as pd
 
 
+def create_packet_data_dict(sim):
+    """
+    Create a dictionary containing virtual and real packet data based on simulation state.
+
+    Parameters
+    ----------
+    sim : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+
+    Returns
+    -------
+    dict
+        Dictionary containing 'virtual' and 'real' SimulationPacketData instances
+    """
+    packet_data = {
+        "real": SimulationPacketData.from_simulation(sim, "real")
+    }
+    if sim.transport.transport_state.virt_logging:
+        packet_data["virtual"] = SimulationPacketData.from_simulation(sim, "virtual")
+    else:
+        packet_data["virtual"] = None
+
+    return packet_data
+
 class SimulationPacketData:
     """
     The data structure representing simulation packet properties.
@@ -127,7 +151,7 @@ class SimulationPacketData:
     @classmethod
     def from_simulation(cls, sim, packets_mode):
         """
-        Create an instance of SDECData from a TARDIS simulation object.
+        Create an instance of SimulationPacketData from a TARDIS simulation object.
 
         Parameters
         ----------
@@ -138,7 +162,7 @@ class SimulationPacketData:
 
         Returns
         -------
-        SDECData
+        SimulationPacketData
         """
         # Properties common among both packet modes
         lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
@@ -218,7 +242,7 @@ class SimulationPacketData:
     @classmethod
     def from_hdf(cls, hdf_fpath, packets_mode):
         """
-        Create an instance of SDECData from a simulation HDF file.
+        Create an instance of SimulationPacketData from a simulation HDF file.
 
         Parameters
         ----------
@@ -229,7 +253,7 @@ class SimulationPacketData:
 
         Returns
         -------
-        SDECData
+        SimulationPacketData
         """
         with pd.HDFStore(hdf_fpath, "r") as hdf:
             lines_df = (
