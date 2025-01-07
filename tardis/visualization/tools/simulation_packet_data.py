@@ -186,18 +186,19 @@ class SimulationPacketData:
         )
 
         if packets_mode == "virtual":
+            vpacket_tracker = transport_state.vpacket_tracker
             return cls(
-                last_interaction_type=transport_state.vpacket_tracker.last_interaction_type,
-                last_line_interaction_in_id=transport_state.vpacket_tracker.last_interaction_in_id,
-                last_line_interaction_out_id=transport_state.vpacket_tracker.last_interaction_out_id,
-                last_line_interaction_in_nu=transport_state.vpacket_tracker.last_interaction_in_nu,
-                last_interaction_in_r=transport_state.vpacket_tracker.last_interaction_in_r,
+                last_interaction_type=vpacket_tracker.last_interaction_type,
+                last_line_interaction_in_id=vpacket_tracker.last_interaction_in_id,
+                last_line_interaction_out_id=vpacket_tracker.last_interaction_out_id,
+                last_line_interaction_in_nu=vpacket_tracker.last_interaction_in_nu,
+                last_interaction_in_r=vpacket_tracker.last_interaction_in_r,
                 lines_df=lines_df,
                 packet_nus=u.Quantity(
-                    transport_state.vpacket_tracker.nus, "Hz"
+                    vpacket_tracker.nus, "Hz"
                 ),
                 packet_energies=u.Quantity(
-                    transport_state.vpacket_tracker.energies, "erg"
+                    vpacket_tracker.energies, "erg"
                 ),
                 r_inner=r_inner,
                 spectrum_delta_frequency=spectrum.delta_frequency,
