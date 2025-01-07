@@ -23,6 +23,7 @@ from tardis.util.base import (
 from tardis.visualization import plot_util as pu
 from tardis.visualization.tools.simulation_packet_data import (
     SimulationPacketData,
+    create_packet_data_dict,
 )
 
 logger = logging.getLogger(__name__)
