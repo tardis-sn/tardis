@@ -16,6 +16,7 @@ from tardis.visualization import plot_util as pu
 from tardis.visualization.tools.simulation_packet_data import (
     SimulationPacketData,
     create_packet_data_dict,
+    create_packet_data_dict_from_hdf,
 )
 
 logger = logging.getLogger(__name__)
@@ -92,14 +93,11 @@ class LIVPlotter:
             velocity = pd.concat(
                 [v_inner, pd.Series([v_outer.iloc[-1]])], ignore_index=True
             ).tolist() * (u.cm / u.s)
-            return cls(
-                dict(
-                    virtual=SimulationPacketData.from_hdf(hdf_fpath, "virtual"),
-                    real=SimulationPacketData.from_hdf(hdf_fpath, "real"),
-                ),
-                time_explosion,
-                velocity,
-            )
+        return cls(
+            create_packet_data_dict_from_hdf(hdf_fpath),
+            time_explosion,
+            velocity,
+        )
 
     def _parse_species_list(self, species_list, packets_mode, nelements=None):
         """
