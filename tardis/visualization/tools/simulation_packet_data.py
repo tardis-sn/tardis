@@ -164,6 +164,11 @@ class SimulationPacketData:
         -------
         SimulationPacketData
         """
+        if packets_mode not in ["virtual", "real"]:
+            raise ValueError(
+                "Invalid value passed to packets_mode. Only "
+                "allowed values are 'virtual' or 'real'"
+            )
         # Properties common among both packet modes
         lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
             "line_id"
@@ -202,47 +207,40 @@ class SimulationPacketData:
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
-
-        elif packets_mode == "real":
-            # Packets-specific properties need to be only for those packets
-            # which got emitted
-            transport_state = sim.transport.transport_state
-            return cls(
-                last_interaction_type=transport_state.last_interaction_type[
-                    transport_state.emitted_packet_mask
-                ],
-                last_line_interaction_in_id=transport_state.last_line_interaction_in_id[
-                    transport_state.emitted_packet_mask
-                ],
-                last_line_interaction_out_id=transport_state.last_line_interaction_out_id[
-                    transport_state.emitted_packet_mask
-                ],
-                last_line_interaction_in_nu=transport_state.last_interaction_in_nu[
-                    transport_state.emitted_packet_mask
-                ],
-                last_interaction_in_r=transport_state.last_interaction_in_r[
-                    transport_state.emitted_packet_mask
-                ],
-                lines_df=lines_df,
-                packet_nus=transport_state.packet_collection.output_nus[
-                    transport_state.emitted_packet_mask
-                ],
-                packet_energies=transport_state.packet_collection.output_energies[
-                    transport_state.emitted_packet_mask
-                ],
-                r_inner=r_inner,
-                spectrum_delta_frequency=spectrum.delta_frequency,
-                spectrum_frequency_bins=spectrum._frequency,
-                spectrum_luminosity_density_lambda=spectrum.luminosity_density_lambda,
-                spectrum_wavelength=spectrum.wavelength,
-                t_inner=t_inner,
-                time_of_simulation=time_of_simulation,
-            )
-        else:
-            raise ValueError(
-                "Invalid value passed to packets_mode. Only "
-                "allowed values are 'virtual' or 'real'"
-            )
+        # Packets-specific properties need to be only for those packets
+        # which got emitted
+        mask = transport_state.emitted_packet_mask
+        return cls(
+            last_interaction_type=transport_state.last_interaction_type[
+                mask
+            ],
+            last_line_interaction_in_id=transport_state.last_line_interaction_in_id[
+                mask
+            ],
+            last_line_interaction_out_id=transport_state.last_line_interaction_out_id[
+                mask
+            ],
+            last_line_interaction_in_nu=transport_state.last_interaction_in_nu[
+                mask
+            ],
+            last_interaction_in_r=transport_state.last_interaction_in_r[
+                mask
+            ],
+            lines_df=lines_df,
+            packet_nus=transport_state.packet_collection.output_nus[
+                mask
+            ],
+            packet_energies=transport_state.packet_collection.output_energies[
+                mask
+            ],
+            r_inner=r_inner,
+            spectrum_delta_frequency=spectrum.delta_frequency,
+            spectrum_frequency_bins=spectrum._frequency,
+            spectrum_luminosity_density_lambda=spectrum.luminosity_density_lambda,
+            spectrum_wavelength=spectrum.wavelength,
+            t_inner=t_inner,
+            time_of_simulation=time_of_simulation,
+        )
 
     @classmethod
     def from_hdf(cls, hdf_fpath, packets_mode):
