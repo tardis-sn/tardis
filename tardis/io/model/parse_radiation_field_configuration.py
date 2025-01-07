@@ -8,7 +8,7 @@ from tardis.io.model.parse_geometry_configuration import (
     parse_structure_from_config,
 )
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from tardis.physics.radiation_field import validate_radiative_temperature
+from tardis.radiation_field.test_radiation_field import validate_radiative_temperature
 
 logger = logging.getLogger(__name__)
 
