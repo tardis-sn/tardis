@@ -2,7 +2,7 @@ import astropy.units as u
 import pandas as pd
 
 
-class SimulationPacketData:
+class VisualizationData:
     """
     The data structure representing simulation packet properties.
 
