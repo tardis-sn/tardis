@@ -174,6 +174,11 @@ class SimulationPacketData:
         time_of_simulation = (
             transport_state.packet_collection.time_of_simulation * u.s
         )
+        spectrum = (
+            sim.spectrum_solver.spectrum_virtual_packets
+            if packets_mode == "virtual"
+            else sim.spectrum_solver.spectrum_real_packets
+        )
 
         if packets_mode == "virtual":
             return cls(
@@ -190,10 +195,10 @@ class SimulationPacketData:
                     transport_state.vpacket_tracker.energies, "erg"
                 ),
                 r_inner=r_inner,
-                spectrum_delta_frequency=sim.spectrum_solver.spectrum_virtual_packets.delta_frequency,
-                spectrum_frequency_bins=sim.spectrum_solver.spectrum_virtual_packets._frequency,
-                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
-                spectrum_wavelength=sim.spectrum_solver.spectrum_virtual_packets.wavelength,
+                spectrum_delta_frequency=spectrum.delta_frequency,
+                spectrum_frequency_bins=spectrum._frequency,
+                spectrum_luminosity_density_lambda=spectrum.luminosity_density_lambda,
+                spectrum_wavelength=spectrum.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -226,10 +231,10 @@ class SimulationPacketData:
                     transport_state.emitted_packet_mask
                 ],
                 r_inner=r_inner,
-                spectrum_delta_frequency=sim.spectrum_solver.spectrum_real_packets.delta_frequency,
-                spectrum_frequency_bins=sim.spectrum_solver.spectrum_real_packets._frequency,
-                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
-                spectrum_wavelength=sim.spectrum_solver.spectrum_real_packets.wavelength,
+                spectrum_delta_frequency=spectrum.delta_frequency,
+                spectrum_frequency_bins=spectrum._frequency,
+                spectrum_luminosity_density_lambda=spectrum.luminosity_density_lambda,
+                spectrum_wavelength=spectrum.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
