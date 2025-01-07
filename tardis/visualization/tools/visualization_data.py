@@ -28,7 +28,8 @@ class VisualizationData:
         t_inner,
         time_of_simulation,
         time_explosion,
-        velocity
+        v_inner,
+        v_outer,
     ):
         """
         Initialize the SimulationPacketData with required properties of simulation model.
@@ -96,7 +97,12 @@ class VisualizationData:
         self.t_inner = t_inner
         self.time_of_simulation = time_of_simulation
         self.time_explosion = time_explosion
-        self.velocity = velocity
+        self.v_inner = v_inner
+        self.v_outer = v_outer
+        self.velocity = pd.concat(
+                [v_inner, pd.Series([v_outer.iloc[-1]])], ignore_index=True
+            ).tolist() * (u.cm / u.s)
+
 
         # Create dataframe of packets that experience line interaction
         line_mask = (self.packets_df["last_interaction_type"] > -1) & (
@@ -157,7 +163,8 @@ class VisualizationData:
         transport_state = sim.transport.transport_state
         r_inner = sim.simulation_state.geometry.r_inner_active
         t_inner = sim.simulation_state.packet_source.temperature
-        velocity = sim.simulation_state.velocity
+        v_inner = sim.simulation_state.v_inner
+        v_outer = sim.simulation_state.v_outer
         time_of_simulation = (
             transport_state.packet_collection.time_of_simulation * u.s
         )
@@ -185,8 +192,9 @@ class VisualizationData:
                 spectrum_wavelength=spectrum.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
-                velocity=velocity,
-                time_explosion=time_explosion
+                time_explosion=time_explosion,
+                v_inner=v_inner,
+                v_outer=v_outer
             )
         else: # real packets
             # Packets-specific properties need to be only for those packets
@@ -216,8 +224,9 @@ class VisualizationData:
                 spectrum_wavelength=spectrum.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
-                velocity=velocity,
-                time_explosion=time_explosion
+                time_explosion=time_explosion,
+                v_inner=v_inner,
+                v_outer=v_outer
             )
 
     @classmethod
@@ -264,9 +273,6 @@ class VisualizationData:
             )
             v_inner = hdf["/simulation/simulation_state/v_inner"] * (u.cm / u.s)
             v_outer = hdf["/simulation/simulation_state/v_outer"] * (u.cm / u.s)
-            velocity = pd.concat(
-                [v_inner, pd.Series([v_outer.iloc[-1]])], ignore_index=True
-            ).tolist() * (u.cm / u.s)
 
         spectrum_prefix = (
             f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
@@ -318,7 +324,8 @@ class VisualizationData:
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
-                velocity=velocity
+                v_inner=v_inner,
+                v_outer=v_outer
             )
         else: # real packets
             emitted_packet_mask = hdf[
@@ -377,5 +384,6 @@ class VisualizationData:
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
-                velocity=velocity
+                v_inner=v_inner,
+                v_outer=v_outer
             )
