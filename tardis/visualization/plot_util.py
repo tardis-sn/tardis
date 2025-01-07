@@ -4,7 +4,7 @@ import re
 
 import numpy as np
 
-from tardis.visualization.tools.simulation_packet_data import (
+from tardis.visualization.tools.visualization_data import (
     SimulationPacketData,
 )
 
