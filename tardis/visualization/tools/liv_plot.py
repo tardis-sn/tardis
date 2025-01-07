@@ -15,8 +15,8 @@ from tardis.util.base import (
 from tardis.visualization import plot_util as pu
 from tardis.visualization.tools.simulation_packet_data import (
     SimulationPacketData,
-    create_packet_data_dict,
     create_packet_data_dict_from_hdf,
+    create_packet_data_dict_from_simulation,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,9 +63,8 @@ class LIVPlotter:
         -------
         LIVPlotter
         """
-
         return cls(
-            create_packet_data_dict(sim),
+            create_packet_data_dict_from_simulation(sim),
             sim.plasma.time_explosion,
             sim.simulation_state.velocity,
         )
