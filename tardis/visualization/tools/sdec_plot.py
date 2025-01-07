@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from astropy.modeling.models import BlackBody
+from simulation_packet_data import SimulationPacketData
 
 from tardis.util.base import (
     atomic_number2element_symbol,
