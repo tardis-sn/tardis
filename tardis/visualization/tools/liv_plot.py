@@ -320,7 +320,8 @@ class LIVPlotter:
             )
 
         self._generate_plot_data(packets_mode)
-        bin_edges = (self.velocity).to("km/s")
+        velocity = self.data[packets_mode].velocity
+        bin_edges = (velocity).to("km/s")
 
         if num_bins:
             if num_bins < 1:
