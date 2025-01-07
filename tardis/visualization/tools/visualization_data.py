@@ -101,17 +101,9 @@ class VisualizationData:
         self.v_inner = v_inner
         self.v_outer = v_outer
 
-        # First check if both options are provided
-        if velocity is not None and (v_inner is not None or v_outer is not None):
-            raise ValueError(
-                "Cannot specify both velocity and (v_inner, v_outer). "
-                "Please provide either velocity OR the (v_inner, v_outer) pair."
-            )
-
         if velocity is not None:
             self.velocity = velocity
-
-        if v_inner is not None and v_outer is not None:
+        else:
             self.velocity = pd.concat(
                 [v_inner, pd.Series([v_outer.iloc[-1]])], ignore_index=True
             ).tolist() * (u.cm / u.s)
