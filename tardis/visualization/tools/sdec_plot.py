@@ -24,11 +24,6 @@ from tardis.util.base import (
     species_string_to_tuple,
 )
 from tardis.visualization import plot_util as pu
-from tardis.visualization.tools.simulation_packet_data import (
-    SimulationPacketData,
-    create_packet_data_dict_from_hdf,
-    create_packet_data_dict_from_simulation,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +61,7 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        return cls(create_packet_data_dict_from_simulation(sim))
+        return cls(pu.create_packet_data_dict_from_simulation(sim))
 
     @classmethod
     def from_hdf(cls, hdf_fpath, packets_mode=None):
@@ -85,7 +80,7 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        return cls(create_packet_data_dict_from_hdf(hdf_fpath, packets_mode))
+        return cls(pu.create_packet_data_dict_from_hdf(hdf_fpath, packets_mode))
 
     def _parse_species_list(self, species_list):
         """
