@@ -89,10 +89,12 @@ class LIVPlotter:
             If species list contains invalid entries.
 
         """
-        self.sdec_plotter._parse_species_list(species_list)
-        self._species_list = self.sdec_plotter._species_list
-        self._species_mapped = self.sdec_plotter._species_mapped
-        self._keep_colour = self.sdec_plotter._keep_colour
+        (
+            self._species_list,
+            self._species_mapped,
+            self._keep_colour,
+            self._full_species_list,
+        ) = pu.parse_species_list_util(species_list)
 
         if nelements:
             interaction_counts = (
