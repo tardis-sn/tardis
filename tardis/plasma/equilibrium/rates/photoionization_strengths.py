@@ -217,7 +217,7 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
                 dilute_blackbody_radiationfield_state
             )
         )
-
+        # Equation 16 Lucy 2003
         photoionization_rate_coeff = self.calculate_photoionization_rate_coeff(
             mean_intensity_photoionization_df,
         )
@@ -265,6 +265,9 @@ class EstimatedPhotoionizationCoeffSolver:
         ContinuumProperties
             The calculated continuum properties.
         """
+        # TODO: the estimators are computed in the form epsilon_nu * distance * xsection / comoving_nu
+        # with the stimulated recombination multiplied by a Boltzmann factor exp(-h * comoving_nu / k * electron_temp)
+        # This is why this method does not match the one in AnalyticPhotoionizationCoeffSolver
         photoionization_normalization = (time_simulation * volume * H) ** -1
 
         photoionization_rate_coeff = bound_free_estimator_array2frame(
