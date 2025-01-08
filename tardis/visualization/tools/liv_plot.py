@@ -34,7 +34,6 @@ class LIVPlotter:
 
         """
         self.data = data
-        self.sdec_plotter = sdec.SDECPlotter(data)
 
     @classmethod
     def from_simulation(cls, sim):
