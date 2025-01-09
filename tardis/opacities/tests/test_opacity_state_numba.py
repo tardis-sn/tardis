@@ -1,5 +1,5 @@
 import pytest
-from tardis.opacities.opacity_state import opacity_state_to_numba
+from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
 import numpy.testing as npt
@@ -35,8 +35,9 @@ def test_opacity_state_to_numba(
         )
     else:
         macro_atom_state = None
-    actual = opacity_state_to_numba(
-        opacity_state, macro_atom_state, line_interaction_type
+    opacity_state_instance = OpacityState()
+    actual = opacity_state_instance.to_numba(
+        macro_atom_state, line_interaction_type
     )
 
     if sliced:
