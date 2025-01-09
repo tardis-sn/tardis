@@ -40,6 +40,12 @@ as an isotropic process. Thus,
 Essentially, the different line interaction treatments only determine how the
 frequency of the packet after the line interaction is determined.
 
+Beta Sobolev Value and Escape Probability
+===================
+
+The beta Sobolev value is a critical parameter for calculating the escape probability of photons in specific spectral lines within radiative transfer models. This concept leverages the Sobolev approximation, assuming that the thermal line width is small compared to the velocity gradient, simplifying the treatment of line transfer.
+Reference : For an in-depth explanation, see :cite:`Lucy1999`
+
 Resonant Scattering
 ===================
 
