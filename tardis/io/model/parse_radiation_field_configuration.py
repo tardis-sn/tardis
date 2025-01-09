@@ -8,6 +8,7 @@ from tardis.io.model.parse_geometry_configuration import (
     parse_structure_from_config,
 )
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.radiation_field.validate_radiation_field import validate_radiative_temperature
 
 logger = logging.getLogger(__name__)
 
@@ -113,12 +114,7 @@ def parse_radiation_field_state_from_csvy(
             geometry, packet_source
         )
 
-    if np.any(t_radiative < 1000 * u.K):
-        logging.critical(
-            "Radiative temperature is too low in some of the shells, temperatures below 1000K "
-            f"(e.g., T_rad = {t_radiative[np.argmin(t_radiative)]} in shell {np.argmin(t_radiative)} in your model) "
-            "are not accurately handled by TARDIS.",
-        )
+    validate_radiative_temperature(t_radiative)
 
     if hasattr(csvy_model_data, "columns") and (
         "dilution_factor" in csvy_model_data.columns
