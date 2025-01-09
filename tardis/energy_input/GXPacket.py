@@ -66,8 +66,7 @@ class GXPacket(object):
         self.shell = shell
         self.time_start = time_start
         self.time_index = time_index
-        # TODO: rename to tau_event
-        self.tau = -np.log(np.random.random())
+        self.tau_event = -np.log(np.random.random())
 
     def get_location_r(self):
         """Calculate radius of the packet
