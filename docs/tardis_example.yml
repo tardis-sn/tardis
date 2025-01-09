@@ -16,9 +16,6 @@ model:
       num: 20
     density:
       type: branch85_w7
-      w7_v_0: 2.5e9 cm/s
-      w7_rho_0: 1e-5 g/cm^3
-      w7_time_0: 0.1 day
 
   abundances:
     type: uniform
@@ -44,7 +41,7 @@ montecarlo:
 
   last_no_of_packets: 1.e+5
   no_of_virtual_packets: 10
-  enable_full_relativity: false
+
   convergence_strategy:
     type: damped
     damping_constant: 1.0
@@ -54,15 +51,7 @@ montecarlo:
     t_inner:
       damping_constant: 0.5
 
-  tracking:
-    initial_array_length: 1000
-    track_rpacket: true
-  virtual_spectrum_spawn_range: 0.01
-  debug_packets: false
-  logger_buffer: 1000
 spectrum:
   start: 500 angstrom
   stop: 20000 angstrom
   num: 10000
-
-
