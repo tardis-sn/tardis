@@ -31,7 +31,8 @@ gxpacket_spec = [
     ("nu_cmf", float64),
     ("status", int64),
     ("shell", int64),
-    ("time_current", float64),
+    ("time_start", float64),
+    ("time_index", int64),
     ("tau", float64),
 ]
 
@@ -52,7 +53,8 @@ class GXPacket(object):
         nu_cmf,
         status,
         shell,
-        time_current,
+        time_start,
+        time_index,
     ):
         self.location = location
         self.direction = direction
@@ -62,7 +64,8 @@ class GXPacket(object):
         self.nu_cmf = nu_cmf
         self.status = status
         self.shell = shell
-        self.time_current = time_current
+        self.time_start = time_start
+        self.time_index = time_index
         # TODO: rename to tau_event
         self.tau = -np.log(np.random.random())
 
@@ -94,7 +97,8 @@ class GXPacketCollection:
         nu_cmf,
         status,
         shell,
-        time_current,
+        time_start,
+        time_index,
     ):
         self.location = location
         self.direction = direction
@@ -104,9 +108,9 @@ class GXPacketCollection:
         self.nu_cmf = nu_cmf
         self.status = status
         self.shell = shell
-        self.time_current = time_current
-        self.number_of_packets = len(self.energy_rf)
-        self.tau = -np.log(np.random.random(self.number_of_packets))
+        self.time_start = time_start
+        self.time_index = time_index
+        self.tau = -np.log(np.random.random())
 
 
 # @njit(**njit_dict_no_parallel)

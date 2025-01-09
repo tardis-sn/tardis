@@ -1,3 +1,5 @@
+import astropy.constants as const
+import astropy.units as u
 import numpy as np
 from numba import njit
 
@@ -138,3 +140,53 @@ def sample_decay_time(
             np.random.random()
         )
     return decay_time
+
+
+class PositroniumSampler:
+    def __init__(self, n_grid=1000):
+        """
+        Parameters
+        ----------
+        n_grid : int, optional
+            Number of grid points for the CDF, by default 1000
+        """
+        self.x_grid = np.linspace(0.01, 0.99, n_grid)
+        self.cdf_grid = np.array(
+            [
+                np.trapz(self.pdf(self.x_grid[:i]), self.x_grid[:i])
+                for i in range(len(self.x_grid))
+            ]
+        )
+        self.cdf_grid /= self.cdf_grid[-1]
+
+    @staticmethod
+    def pdf(x):
+        """
+        Parameters
+        ----------
+        x : float
+            E / m_e c^2
+
+        Returns
+        -------
+        float
+            PDF of positronium energy from Ore amnd Powell (1949)
+        """
+        first_term = x * (1 - x) / (2 - x) ** 2
+        second_term = 2 * (1 - x) ** 2 * np.log(1 - x) / (2 - x) ** 2
+        third_term = (2 - x) / x
+        fourth_term = 2 * (1 - x) * np.log(1 - x) / x**2
+
+        return 2 * (first_term - second_term + third_term + fourth_term)
+
+    def quantile_function(self, p):
+
+        return np.interp(p, self.cdf_grid, self.x_grid)
+
+    def sample_energy(self, n_samples=1):
+
+        return (
+            self.quantile_function(np.random.random(n_samples))
+            * const.m_e.cgs.value
+            * const.c.cgs.value**2
+        ) * u.erg.to(u.keV)
