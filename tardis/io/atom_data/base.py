@@ -448,8 +448,11 @@ class AtomData:
                 self.selected_atomic_numbers, level="atomic_number"
             )
         ]
-
-        self.lines = self.lines.sort_values(by="wavelength")
+        # see https://github.com/numpy/numpy/issues/27725#issuecomment-2465471648
+        # with kind="stable" the returned array will maintain the relative order of a values which compare as equal.
+        # this is important especially after numpy v2 release
+        # https://numpy.org/doc/stable/release/2.0.0-notes.html#minor-changes-in-behavior-of-sorting-functions
+        self.lines = self.lines.sort_values(by=["wavelength", "line_id"], kind="stable")
 
     def prepare_line_level_indexes(self):
         levels_index = pd.Series(
