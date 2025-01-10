@@ -221,6 +221,7 @@ def parse_species_list_util(species_list):
     ]
 
     return {
+        "full_species_list": full_species_list,
         "species_mapped": species_mapped,
         "keep_colour": keep_colour,
         "species_list": requested_species_ids,

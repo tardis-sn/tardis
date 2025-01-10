@@ -96,6 +96,7 @@ class SDECPlotter:
         if parsed_species_data is None:
             self._species_list = None
         else:
+            self._full_species_list = parsed_species_data["full_species_list"]
             self._species_mapped = parsed_species_data["species_mapped"]
             self._keep_colour = parsed_species_data["keep_colour"]
             self._species_list = parsed_species_data["species_list"]
