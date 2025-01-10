@@ -188,7 +188,6 @@ class PlasmaSolverFactory:
         if len(self.continuum_interaction_species) > 0:
             self.setup_continuum_interactions()
 
-
     def setup_helium_treatment(self):
         """
         Set up the helium treatment for the plasma assembly.
