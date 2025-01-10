@@ -92,12 +92,13 @@ class SDECPlotter:
             (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
 
         """
-        (
-            self._species_list,
-            self._species_mapped,
-            self._keep_colour,
-            self._full_species_list,
-        ) = pu.parse_species_list_util(species_list)
+        parsed_species_data = pu.parse_species_list_util(species_list)
+        if parsed_species_data is None:
+            self._species_list = None
+        else:
+            self._species_mapped = parsed_species_data["species_mapped"]
+            self._keep_colour = parsed_species_data["keep_colour"]
+            self._species_list = parsed_species_data["species_list"]
 
     def _calculate_plotting_data(
         self, packets_mode, packet_wvl_range, distance, nelements

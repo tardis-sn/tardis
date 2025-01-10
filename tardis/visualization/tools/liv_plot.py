@@ -88,12 +88,13 @@ class LIVPlotter:
             If species list contains invalid entries.
 
         """
-        (
-            self._species_list,
-            self._species_mapped,
-            self._keep_colour,
-            self._full_species_list,
-        ) = pu.parse_species_list_util(species_list)
+        parsed_species_data = pu.parse_species_list_util(species_list)
+        if parsed_species_data is None:
+            self._species_list = None
+        else:
+            self._species_mapped = parsed_species_data["species_mapped"]
+            self._keep_colour = parsed_species_data["keep_colour"]
+            self._species_list = parsed_species_data["species_list"]
 
         if nelements:
             interaction_counts = (
