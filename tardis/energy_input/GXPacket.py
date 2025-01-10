@@ -105,7 +105,7 @@ class GXPacketCollection:
         self.shell = shell
         self.time_current = time_current
         self.number_of_packets = len(self.energy_rf)
-        self.tau = -np.log(np.random.random(self.number_of_packets))
+        self.tau_event = -np.log(np.random.random(self.number_of_packets))
 
 
 # @njit(**njit_dict_no_parallel)

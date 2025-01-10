@@ -107,7 +107,7 @@ def distance_trace(
         outer_velocity[photon.shell] * current_time,
     )
 
-    distance_interaction = photon.tau / total_opacity
+    distance_interaction = photon.tau_event / total_opacity
     distance_time = (next_time - photon.time_current) * C_CGS
     return distance_interaction, distance_boundary, distance_time, shell_change
 
