@@ -450,7 +450,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 macro_atom_state = MacroAtomState.from_legacy_plasma(
                     self.plasma
-                )  # TODO: Impliment
+                )
             else:
                 macro_atom_state = self.macro_atom.solve(
                     self.plasma,

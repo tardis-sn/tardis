@@ -56,7 +56,7 @@ class MacroAtomState(HDFWriterMixin):
 
         Parameters
         ----------
-        plasma : tarids.plasma.BasePlasma
+        plasma : tardis.plasma.BasePlasma
             legacy base plasma
 
         Returns
@@ -71,9 +71,7 @@ class MacroAtomState(HDFWriterMixin):
             plasma.atomic_data.lines_upper2macro_reference_idx
         )
 
-        if (
-            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        ):  # TODO: Unify this in the plasma solver
+        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
             macro_block_references = plasma.macro_block_references
         else:
             macro_block_references = plasma.atomic_data.macro_atom_references[
