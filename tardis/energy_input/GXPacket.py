@@ -109,7 +109,8 @@ class GXPacketCollection:
         self.shell = shell
         self.time_start = time_start
         self.time_index = time_index
-        self.tau = -np.log(np.random.random())
+        self.tau_event = -np.log(np.random.random())
+
 
 
 # @njit(**njit_dict_no_parallel)
