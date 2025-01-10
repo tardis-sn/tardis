@@ -185,8 +185,6 @@ class PlasmaSolverFactory:
 
         self.setup_helium_treatment()
 
-        if len(self.continuum_interaction_species) > 0:
-            self.setup_continuum_interactions()
 
     def setup_helium_treatment(self):
         """
@@ -212,49 +210,54 @@ class PlasmaSolverFactory:
             If the heating rate data file is not specified when using
             "numerical-nlte" helium treatment.
         """
-        if (
-            self.helium_treatment == "recomb-nlte"
-            or self.helium_treatment == "numerical-nlte"
-        ) and (
-            len(self.nlte_ionization_species + self.nlte_excitation_species) > 0
-        ):
-            # Prevent the user from using helium NLTE treatment with
-            # NLTE ionization and excitation treatment. This is because
-            # the helium_nlte_properties could overwrite the NLTE ionization
-            # and excitation ion number and electron densities.
-            # helium_numerical_nlte_properties is also included here because
-            # it is currently in the same if else block, and thus may block
-            # the addition of the components from the else block.
+        
+        # nlte_exists determines if NLTE ionization and excitation ion 
+        # number and electron densities exists so that it can prevent 
+        # user from using Helium NLTE treatments 
+        nlte_exists = len(self.nlte_ionization_species + self.nlte_excitation_species) > 0
+
+        if self.helium_treatment == "recomb-nlte":
+            self.set_recomb_nlte_helium_treatment(nlte_exists)
+        elif self.helium_treatment == "numerical-nlte":
+            self.set_numerical_nlte_helium_treatment(nlte_exists)
+        else:
+            self.set_default_helium_treatment(nlte_exists)
+
+
+    def set_recomb_nlte_helium_treatment(self, default_nlte):
+        if default_nlte:
             raise PlasmaConfigError(
                 "Helium NLTE treatment is incompatible with the NLTE ionization and excitation treatment."
             )
 
-        # TODO: Disentangle these if else block such that compatible components
-        # can be added independently.
-        if self.helium_treatment == "recomb-nlte":
-            self.plasma_modules += self.plasma_collection.helium_nlte_properties
-        elif self.helium_treatment == "numerical-nlte":
-            self.plasma_modules += (
+        self.plasma_modules += self.plasma_collection.helium_nlte_properties
+
+
+    def set_numerical_nlte_helium_treatment(self, default_nlte):
+        if default_nlte:
+            raise PlasmaConfigError(
+                "Helium NLTE treatment is incompatible with the NLTE ionization and excitation treatment."
+            )
+        
+        self.plasma_modules += (
                 self.plasma_collection.helium_numerical_nlte_properties
             )
-            if self.heating_rate_data_file in ["none", None]:
+        
+        if self.heating_rate_data_file in ["none", None]:
                 raise PlasmaConfigError("Heating rate data file not specified")
-            self.property_kwargs[HeliumNumericalNLTE] = dict(
+        self.property_kwargs[HeliumNumericalNLTE] = dict(
                 heating_rate_data_file=self.heating_rate_data_file
             )
-        else:
-            # If nlte ionization species are present, we don't want to add the
-            # IonNumberDensity from helium_lte_properties, since we want
-            # to use the IonNumberDensity provided by the NLTE solver.
-            if (
-                len(self.nlte_ionization_species + self.nlte_excitation_species)
-                > 0
-            ):
-                self.plasma_modules.append(LevelNumberDensity)
-            else:
-                self.plasma_modules += (
-                    self.plasma_collection.helium_lte_properties
-                )
+        
+
+    def set_default_helium_treatment(self, default_nlte):
+        # If nlte ionization species are present, we don't want to add the
+        # IonNumberDensity from helium_lte_properties, since we want
+        # to use the IonNumberDensity provided by the NLTE solver.
+        self.plasma_modules += [LevelNumberDensity]
+        if not default_nlte:
+            self.plasma_modules += [IonNumberDensity]
+            
 
     def setup_legacy_nlte(self, nlte_config):
         """
