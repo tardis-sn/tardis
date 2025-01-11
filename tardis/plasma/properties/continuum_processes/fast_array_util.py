@@ -9,7 +9,7 @@ from tardis.transport.montecarlo import njit_dict
 @njit(**njit_dict)
 def numba_cumulative_trapezoid(f, x):
     """
-    Cumulatively integrate f(x) using the composite trapezoidal rule.
+    Cumulatively integrate f(x) using the composite trapezoidal rule using a loop.
 
     Parameters
     ----------
@@ -23,7 +23,11 @@ def numba_cumulative_trapezoid(f, x):
     numpy.ndarray, dtype float
         The result of cumulative integration of f along x
     """
-    integ = (np.diff(x) * (f[1:] + f[:-1]) / 2.0).cumsum()
+    n = len(f)
+    integ = np.zeros(n, dtype=np.float64)
+    for i in range(1, n):
+        dx = x[i] - x[i-1]
+        integ[i] = integ[i-1] + (f[i] + f[i-1]) * dx / 2.0
     return integ / integ[-1]
 
 
@@ -59,7 +63,7 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
         for j in prange(n_rows):  # rows
             start = block_references[j]
             stop = block_references[j + 1]
-            integrated[start + 1 : stop, i] = numba_cumulative_trapezoid(
+            integrated[start : stop, i] = numba_cumulative_trapezoid(
                 f[start:stop, i], x[start:stop]
             )
     return integrated
