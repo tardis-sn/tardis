@@ -84,3 +84,4 @@ def test_calculate_elemental_cell_masses(composition_instance):
 
     expected_masses = composition_instance.elemental_mass_fraction * (density * volume).to(u.g).value
     np.testing.assert_allclose(elemental_masses.values, expected_masses.values)
+
