@@ -219,18 +219,10 @@ class StandardTARDISWorkflow(
                 self.simulation_state.t_inner,
             )
 
-            self.opacity_state = self.opacity_solver.solve(self.plasma_solver)
-
-            if self.macro_atom_solver is not None:
-                self.macro_atom_state = self.macro_atom_solver.solve(
-                    self.plasma_solver,
-                    self.plasma_solver.atomic_data,
-                    self.opacity_state.tau_sobolev,
-                    self.plasma_solver.stimulated_emission_factor,
-                )
+            opacity_states = self.solve_opacity()
 
             transport_state, virtual_packet_energies = self.solve_montecarlo(
-                self.real_packet_count
+                opacity_states, self.real_packet_count
             )
 
             (
@@ -258,7 +250,9 @@ class StandardTARDISWorkflow(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
         transport_state, virtual_packet_energies = self.solve_montecarlo(
-            self.final_iteration_packet_count, self.virtual_packet_count
+            opacity_states,
+            self.final_iteration_packet_count,
+            self.virtual_packet_count,
         )
         self.store_plasma_state(
             self.completed_iterations,
@@ -276,5 +270,6 @@ class StandardTARDISWorkflow(
             )
         self.initialize_spectrum_solver(
             transport_state,
+            opacity_states,
             virtual_packet_energies,
         )

@@ -12,7 +12,7 @@ from tardis.plasma.assembly.base import (
     PlasmaSolverFactory,
     convert_species_to_multi_index,
 )
-from tardis.plasma.detailed_balance.rates import (
+from tardis.plasma.equilibrium.rates import (
     #    UpsilonCMFGENSolver,
     ThermalCollisionalRateSolver,
     #    RadiativeRatesSolver,
@@ -46,7 +46,9 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
 
     # plasma_solver_factory.continuum_interaction_species = ["He I"]
     plasma_solver_factory.line_interaction_type = "macroatom"
-    plasma_solver_factory.prepare_factory([1])
+    plasma_solver_factory.prepare_factory(
+        [1], "tardis.plasma.properties.legacy_property_collections"
+    )
     plasma_solver_factory.plasma_modules += [
         YgData,
         ContinuumInteractionSpecies,
@@ -141,18 +143,24 @@ def test_thermal_collision_rates(
         collision_strengths_type="cmfgen",
         collisional_strength_approximation="regemorter",
     )
-    coll_rates_coeff = therm_coll_rate_solver.solve([10000, 20000] * u.K)
+    coll_rates_coeff = therm_coll_rate_solver.solve([10000, 20000] * u.K).loc[
+        :, :, 0, 0, :, :
+    ]
     pdt.assert_frame_equal(
         coll_rates_coeff.iloc[:435],
         legacy_cmfgen_collision_rate_plasma_solver.coll_exc_coeff,
+        # to allow comparison between old and new versions
         check_names=False,
+        check_column_type=False,
     )
     pdt.assert_frame_equal(
         coll_rates_coeff.iloc[435:],
         legacy_cmfgen_collision_rate_plasma_solver.coll_deexc_coeff.swaplevel(
             "level_number_lower", "level_number_upper"
         ),
+        # to allow comparison between old and new versions
         check_names=False,
+        check_column_type=False,
     )
 
 
@@ -184,7 +192,7 @@ def test_legacy_chianti_collisional_strengths(
 
     npt.assert_allclose(
         collision_strengths[0, 1, :],
-        chianti_collisional_rates.loc[1, 0, 1, 0],
+        chianti_collisional_rates.loc[1, 0, 0, 0, 1, 0],
         rtol=1e-4,
         atol=1e-13,
     )

@@ -9,7 +9,7 @@ from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
 from tardis.opacities.opacity_solver import OpacitySolver
-from tardis.plasma.assembly.legacy_assembly import assemble_plasma
+from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
@@ -41,10 +41,22 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             atom_data=atom_data,
         )
 
-        self.plasma_solver = assemble_plasma(
+        plasma_solver_factory = PlasmaSolverFactory(
+            atom_data,
             configuration,
-            self.simulation_state,
-            atom_data=atom_data,
+        )
+
+        plasma_solver_factory.prepare_factory(
+            self.simulation_state.abundance.index,
+            "tardis.plasma.properties.property_collections",
+            configuration,
+        )
+
+        self.plasma_solver = plasma_solver_factory.assemble(
+            self.simulation_state.elemental_number_density,
+            self.simulation_state.radiation_field_state,
+            self.simulation_state.time_explosion,
+            self.simulation_state._electron_densities,
         )
 
         line_interaction_type = configuration.plasma.line_interaction_type
@@ -339,6 +351,8 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 self.plasma_solver.atomic_data,
                 opacity_state.tau_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
+                opacity_state.beta_sobolev,
+                legacy_mode=False,
             )
 
         return {
@@ -396,6 +410,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
     def initialize_spectrum_solver(
         self,
         transport_state,
+        opacity_states,
         virtual_packet_energies=None,
     ):
         """Set up the spectrum solver
@@ -421,7 +436,11 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 self.integrated_spectrum_settings
             )
             self.spectrum_solver._integrator = FormalIntegrator(
-                self.simulation_state, self.plasma_solver, self.transport_solver
+                self.simulation_state,
+                self.plasma_solver,
+                self.transport_solver,
+                opacity_states["opacity_state"],
+                opacity_states["macro_atom_state"],
             )
 
     def run(self):
@@ -467,5 +486,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         self.initialize_spectrum_solver(
             transport_state,
+            opacity_states,
             virtual_packet_energies,
         )

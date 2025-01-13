@@ -17,12 +17,7 @@ from tardis.plasma.properties import (
     StimulatedEmissionFactor,
 )
 from tardis.plasma.properties.base import TransitionProbabilitiesProperty
-from tardis.plasma.properties.level_population import LevelNumberDensity
-from tardis.plasma.properties.nlte_rate_equation_solver import (
-    NLTEPopulationSolverLU,
-    NLTEPopulationSolverRoot,
-)
-from tardis.plasma.properties.property_collections import (
+from tardis.plasma.properties.legacy_property_collections import (
     adiabatic_cooling_properties,
     basic_inputs,
     basic_properties,
@@ -41,6 +36,11 @@ from tardis.plasma.properties.property_collections import (
     nlte_root_solver_properties,
     non_nlte_properties,
     two_photon_properties,
+)
+from tardis.plasma.properties.level_population import LevelNumberDensity
+from tardis.plasma.properties.nlte_rate_equation_solver import (
+    NLTEPopulationSolverLU,
+    NLTEPopulationSolverRoot,
 )
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
