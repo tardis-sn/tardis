@@ -190,5 +190,5 @@ owner = "tardis-sn"
 repo = "tardis"
 
 [tool.codespell]
-skip = "*.ipynb,*.png,*.ggb,*.jpg,*.gif,*.ico,docs/contributing/CHANGELOG.md,docs/tardis.bib,docs/resources/research_done_using_TARDIS/research_papers.rst"
+skip = "*.png,*.ggb,*.jpg,*.gif,*.ico,docs/contributing/CHANGELOG.md,docs/tardis.bib"
 quiet-level = 3
