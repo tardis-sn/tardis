@@ -20,6 +20,17 @@ class SpontaneousRecombinationCoeffSolver:
         self.photoionization_cross_sections = photoionization_cross_sections
         self.nu = self.photoionization_cross_sections.nu.values
 
+        self.photoionization_block_references = np.pad(
+            self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+
+        self.photoionization_index = (
+            self.photoionization_cross_sections.index.unique()
+        )
+
     @property
     def common_prefactor(self):
         return (
@@ -64,7 +75,18 @@ class SpontaneousRecombinationCoeffSolver:
                 axis=0,
             )
         )
-        return spontaneous_recombination_rate_coeff
+        spontaneous_recombination_rate_coeff_integrated = (
+            integrate_array_by_blocks(
+                spontaneous_recombination_rate_coeff.to_numpy(),
+                self.nu,
+                self.photoionization_block_references,
+            )
+        )
+
+        return pd.DataFrame(
+            spontaneous_recombination_rate_coeff_integrated,
+            index=self.photoionization_index,
+        )
 
 
 class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
@@ -73,17 +95,6 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         photoionization_cross_sections,
     ):
         super().__init__(photoionization_cross_sections)
-
-        self.photoionization_block_references = np.pad(
-            self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])
-            .count()
-            .values.cumsum(),
-            [1, 0],
-        )
-
-        self.photoionization_index = (
-            self.photoionization_cross_sections.index.unique()
-        )
 
     def calculate_mean_intensity_photoionization_df(
         self,
