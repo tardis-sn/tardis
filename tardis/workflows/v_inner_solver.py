@@ -31,6 +31,8 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             self.convergence_strategy.v_inner_boundary
         )
 
+        self.opacity_states = self.solve_opacity()
+
         if tau is not None:
             self.TAU_TARGET = np.log(tau)
 
@@ -52,6 +54,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         tau_integ = np.log(
             get_tau_integ(
                 self.plasma_solver,
+                self.opacity_states["opacity_state"],
                 self.simulation_state,
             )[self.mean_optical_depth]
         )
@@ -349,5 +352,6 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         )
         self.initialize_spectrum_solver(
             transport_state,
+            opacity_states,
             virtual_packet_energies,
         )

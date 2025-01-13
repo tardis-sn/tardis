@@ -2,7 +2,7 @@ import numpy as np
 from astropy import constants as const
 
 
-def get_tau_integ(plasma, simulation_state, bin_size=10):
+def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
     """Estimate the integrated mean optical depth at each velocity bin
 
     Parameters
@@ -23,11 +23,10 @@ def get_tau_integ(plasma, simulation_state, bin_size=10):
             Planck Mean Optical Depth
     """
     index = plasma.atomic_data.lines.nu.index
-    taus = plasma.tau_sobolevs.loc[index]
     freqs = plasma.atomic_data.lines.nu.values
     order = np.argsort(freqs)
     freqs = freqs[order]
-    taus = plasma.tau_sobolevs.values[order]
+    taus = opacity_state.tau_sobolev.values[order]
 
     extra = bin_size - len(freqs) % bin_size
     extra_freqs = np.arange(extra + 1) + 1
