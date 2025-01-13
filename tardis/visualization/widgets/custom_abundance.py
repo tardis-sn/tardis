@@ -4,7 +4,6 @@ import yaml
 import numpy as np
 import pandas as pd
 import ipywidgets as ipw
-from IPython.display import display
 import plotly.graph_objects as go
 from astropy import units as u
 from radioactivedecay import Nuclide
