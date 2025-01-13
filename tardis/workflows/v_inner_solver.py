@@ -112,38 +112,38 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
 
         return estimates
 
-    def reproject(self, a1, m1, a2, m2):
+    def reproject(self, array_one, mask_one, array_two, mask_two):
         """Reprojects two sub_arrays defined by a set of masks onto an array where the masks of both objects are true
 
         let A1, A2 be arrays of size gemetry.no_of_shells and
-            a1 = A1[m1],
-            a2 = A2[m2]
+            a1 = A1[mask_one],
+            a2 = A2[mask_two]
         find a1*, a2* s.t.
-            a1* = A1[m1 & m2],
-            a2* = A2[m1 & m2]
+            a1* = A1[mask_one & mask_two],
+            a2* = A2[mask_one & mask_two]
         this is equivalent to
-            a1* = A1[m1][m2[m1]] = a1[m2[m1]],
-            a2* = A2[m2][m1[m2]] = a2[m1[m2]]
+            a1* = A1[mask_one][mask_two[mask_one]] = a1[mask_two[mask_one]],
+            a2* = A2[mask_two][mask_one[mask_two]] = a2[mask_one[mask_two]]
 
         Parameters
         ----------
-        a1 : np.ndarray
+        array1 : np.ndarray
             A sub array of an array with the shape of a geometry property
-        m1 : np.ndarray(bool)
+        mask_one : np.ndarray(bool)
             Mask such that the parrent array accessed at this mask gives a1
-        a2 : np.ndarray
+        array_two : np.ndarray
             A sub array of an array with the shape of a geometry property
-        m2 : np.ndarray(bool)
+        mask_two : np.ndarray(bool)
             Mask such that the parrent array accessed at this mask gives a2
 
         Returns
         -------
-        a1*
-            reprojection of a1 onto m1 & m2
-        a2*
-            reprojection of a2 onto m1 & m2
+        array_one*
+            reprojection of array_one onto mask_one & mask_two
+        array_two*
+            reprojection of array_two onto mask_one & mask_two
         """
-        return a1[m2[m1]], a2[m1[m2]]
+        return array_one[mask_two[mask_one]], array_two[mask_one[mask_two]]
 
     def print_mask(self, mask):
         return "".join([{True: "-", False: "X"}[m] for m in mask]).join("[]")
