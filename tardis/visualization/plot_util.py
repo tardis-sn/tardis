@@ -186,25 +186,25 @@ def parse_species_list_util(species_list):
     full_species_list = []
     species_mapped = {}
     keep_colour = []
+    requested_species_ids = []
 
     for species in species_list:
         if "-" in species:
-            element = species.split(" ")[0]
-            first_ion_numeral = roman_to_int(species.split(" ")[-1].split("-")[0])
-            second_ion_numeral = roman_to_int(species.split(" ")[-1].split("-")[-1])
+            element, ion_numerals = species.split(" ")
+            first_ion_roman, second_ion_roman = ion_numerals.split("-")
+            ion_range = range(roman_to_int(first_ion_roman), roman_to_int(second_ion_roman) + 1)
 
-            for ion_number in range(first_ion_numeral, second_ion_numeral + 1):
-                full_species_list.append(f"{element} {int_to_roman(ion_number)}")
+            full_species_list.extend(f"{element} {int_to_roman(ion)}" for ion in ion_range)
         else:
             full_species_list.append(species)
 
-    requested_species_ids = []
 
     for species in full_species_list:
         if " " in species:
+            atomic_number, ion_number = species_string_to_tuple(species)
             species_id = (
-                species_string_to_tuple(species)[0] * 100
-                + species_string_to_tuple(species)[1]
+                atomic_number * 100
+                + ion_number
             )
             requested_species_ids.append([species_id])
             species_mapped[species_id] = [species_id]
