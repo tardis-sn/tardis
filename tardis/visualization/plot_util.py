@@ -173,6 +173,7 @@ def parse_species_list_util(species_list):
     """
     if species_list is None:
         return {
+        "full_species_list": None,
         "species_mapped": None,
         "keep_colour": None,
         "species_list": None,
