@@ -23,7 +23,7 @@ def composition_instance(config_verysimple):
 def test_elemental_mass_fraction(composition_instance):
     elemental_mass_fraction = composition_instance.elemental_mass_fraction
     assert isinstance(elemental_mass_fraction, pd.DataFrame)
-    np.testing.assert_allclose(elemental_mass_fraction.sum(), 1.0, rtol=1e-3)
+    np.testing.assert_allclose(elemental_mass_fraction.sum(), 1.0)
 
 
 def test_elemental_number_density(composition_instance):
@@ -38,14 +38,14 @@ def test_elemental_number_density(composition_instance):
         mass_fractions.index
     )
     
-    expected_density = mass_fractions.multiply(density_value).divide(
+    expected_number_density = mass_fractions.multiply(density_value).divide(
         element_masses,
         axis=0
     )
     
     np.testing.assert_allclose(
         number_density.values,
-        expected_density.values,
+        expected_number_density.values,
         rtol=1e-10
     )
 
