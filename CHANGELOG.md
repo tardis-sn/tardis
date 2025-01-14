@@ -1,6 +1,10 @@
 ## Changelog
 
-### release-2025.01.05 (2025/01/04 20:05)
+### release-2025.01.12 (2025/01/11 20:04)
+- [2925](https://github.com/tardis-sn/tardis/pull/2925) give tag in git cliff command (2925) (@KasukabeDefenceForce)
+- [2923](https://github.com/tardis-sn/tardis/pull/2923) Moves non-physical input check outsode I/O module (2923) (@Sonu0305)
+- [2924](https://github.com/tardis-sn/tardis/pull/2924) Post-release 2025.01.05 (2924) (@tardis-bot)
+### release-2025.01.05 (2024/12/30 01:37)
 - [2915](https://github.com/tardis-sn/tardis/pull/2915) Post-release 2024.12.29 (2915) (@tardis-bot)
 ### release-2024.12.29 (2024/12/23 04:39)
 - [2909](https://github.com/tardis-sn/tardis/pull/2909) Post-release 2024.12.22 (2909) (@tardis-bot)
