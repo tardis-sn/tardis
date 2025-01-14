@@ -1,10 +1,11 @@
+import astropy.units as u
 import numpy as np
 import pandas as pd
 
 from tardis import constants as const
 
-H = const.h.cgs.value
-K_B = const.k_B.cgs.value
+H = const.h.cgs
+K_B = const.k_B.cgs
 
 
 class CollisionalIonizationSeaton:
@@ -40,7 +41,9 @@ class CollisionalIonizationSeaton:
             self.photoionization_cross_sections.groupby(level=[0, 1, 2]).first()
         )
         nu_i = photo_ion_cross_sections_threshold["nu"]
-        u0s = nu_i.values[np.newaxis].T / electron_temperature * (H / K_B)
+        u0s = (
+            nu_i.values[np.newaxis].T * u.Hz / electron_temperature * (H / K_B)
+        )
         factor = np.exp(-u0s) / u0s
         factor = pd.DataFrame(factor, index=nu_i.index)
         coll_ion_coeff = 1.55e13 * photo_ion_cross_sections_threshold["x_sect"]

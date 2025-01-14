@@ -3,7 +3,7 @@ from tardis.plasma.equilibrium.rates.collisional_ionization_strengths import (
 )
 
 
-class CollisionalIonizationSolver:
+class CollisionalIonizationRateSolver:
     """Solver for collisional ionization and recombination rates."""
 
     def __init__(self, photoionization_cross_sections):
@@ -35,12 +35,12 @@ class CollisionalIonizationSolver:
         """
         if approximation == "seaton":
             strength_solver = CollisionalIonizationSeaton(
-                self.photoionization_cross_sections, electron_temperature
+                self.photoionization_cross_sections
             )
         else:
             raise ValueError(f"approximation {approximation} not supported")
 
-        collision_ionization_rates = strength_solver.solve()
+        collision_ionization_rates = strength_solver.solve(electron_temperature)
 
         # Inverse of the ionization rate for equilibrium
         collision_recombination_rates = collision_ionization_rates.multiply(
