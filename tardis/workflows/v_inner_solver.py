@@ -31,6 +31,8 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             self.convergence_strategy.v_inner_boundary
         )
 
+        # Need to compute the opacity state on init to get the optical depths
+        # for the first inner boundary calculation.
         self.opacity_states = self.solve_opacity()
 
         if tau is not None:
@@ -61,7 +63,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
 
         interpolator = interp1d(
             tau_integ,
-            self.simulation_state.geometry.v_inner,  # Only use the active values as we only need a numerical estimate, not an index
+            self.simulation_state.geometry.v_inner_active,  # Only use the active values as we only need a numerical estimate, not an index
             fill_value="extrapolate",
         )
 
@@ -313,10 +315,11 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
 
-            opacity_states = self.solve_opacity()
+            # Note that we are updating the class attribute here to ensure consistency
+            self.opacity_states = self.solve_opacity()
 
             transport_state, virtual_packet_energies = self.solve_montecarlo(
-                opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count
             )
 
             (
@@ -344,14 +347,14 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
-        opacity_states = self.solve_opacity()
+        self.opacity_states = self.solve_opacity()
         transport_state, virtual_packet_energies = self.solve_montecarlo(
-            opacity_states,
+            self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
         self.initialize_spectrum_solver(
             transport_state,
-            opacity_states,
+            self.opacity_states,
             virtual_packet_energies,
         )
