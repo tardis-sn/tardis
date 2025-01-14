@@ -123,7 +123,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             electron_density=plasma.electron_densities,
             t_electrons=plasma.t_electrons,
             line_list_nu=plasma.atomic_data.lines.nu,
-            tau_sobolev=None,
+            tau_sobolev=opacity_state.tau_sobolev,
             beta_sobolev=plasma.beta_sobolev,
             continuum_state=continuum_state,
         ).to_numba(
