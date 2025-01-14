@@ -1,9 +1,6 @@
 import numpy as np
 from astropy import constants as const
-
-
-import numpy as np
-from astropy import constants as const, units as u
+from astropy import units as u
 
 
 def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
