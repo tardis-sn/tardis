@@ -1,0 +1,66 @@
+$schema: http://json-schema.org/draft-04/schema#
+type: object
+additionalProperties: false
+properties:
+  name: 
+    type: string
+    description: name of the model being run
+
+  model_density_time_0:
+    type: quantity
+    description: Initial time for the density in the model
+
+  model_isotope_time_0:
+    type: quantity
+    description: Initial time for isotope decay. Set to 0 for no isotopes.
+
+  description:
+    type: string
+    description: description of the model being run
+
+  tardis_model_config_version:
+    type: string
+    description: Version of the configuration file
+
+# datatype name used for consistency with astropy ecsv files.
+  datatype:
+    type: object
+    description: fields found in csv part of csvy file
+    additionalProperties: False
+    properties:
+      fields:
+        type: array
+
+  v_inner_boundary:
+    type: quantity
+    description: velocity of the inner boundary
+
+  v_outer_boundary:
+    type: quantity
+    description: velocity of the outer boundary of the last shell
+
+  velocity:
+    type: object
+    properties:
+      start:
+        type: quantity
+      stop:
+        type: quantity
+      num:
+        type: number
+        multipleOf: 1.0
+
+  density:
+    oneOf:
+    - $ref: 'model_definitions.yml#/definitions/density/branch85_w7'
+    - $ref: 'model_definitions.yml#/definitions/density/exponential'
+    - $ref: 'model_definitions.yml#/definitions/density/power_law'
+    - $ref: 'model_definitions.yml#/definitions/density/uniform'
+
+  abundance:
+    $ref: 'model_definitions.yml#/definitions/abundances/uniform'
+
+required:
+- tardis_model_config_version
+- model_isotope_time_0
+- model_density_time_0

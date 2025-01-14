@@ -1,0 +1,12 @@
+$$target: model.yml
+type: object
+additionalProperties: false
+properties:
+  structure:
+    oneOf:
+    - $ref: 'model_definitions.yml#/definitions/structure/specific'
+    - $ref: 'model_definitions.yml#/definitions/structure/file'
+  abundances:
+    oneOf:
+    - $ref: 'model_definitions.yml#/definitions/abundances/file'
+    - $ref: 'model_definitions.yml#/definitions/abundances/uniform'
