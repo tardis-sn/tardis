@@ -1,0 +1,26 @@
+---
+name: powerlaw_csvy
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: csvy file with a power-law density profile and uniform abundances (no values declared in the CSV section) 
+tardis_model_config_version: v1.0
+
+velocity:
+  start: 9000 km/s
+  stop: 12000 km/s
+  num: 5
+density:
+  type: power_law
+  rho_0: 1e-9 g/cm^3
+  v_0: 10000 km/s
+  exponent: -2
+abundance:
+  type: uniform
+  H: 0.5
+  He: 0.2
+  O: 0.25
+  Ni56: 0.04
+  Ni58: 0.01
+v_inner_boundary: 9000 km/s
+v_outer_boundary: 12000 km/s
+---
