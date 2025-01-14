@@ -316,7 +316,7 @@ class ShellInfoWidget:
         Notes
         -----
         You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
+        the expected_fh signature of the function passed to :code:`handler` argument
         of :code:`on` method of a table widget (qgrid.QgridWidget object) as
         explained in `qrid documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
         """
@@ -350,7 +350,7 @@ class ShellInfoWidget:
         Notes
         -----
         You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
+        the expected_fh signature of the function passed to :code:`handler` argument
         of :code:`on` method of a table widget (qgrid.QgridWidget object) as
         explained in `qrid documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
         """
@@ -385,7 +385,7 @@ class ShellInfoWidget:
         Notes
         -----
         You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
+        the expected_fh signature of the function passed to :code:`handler` argument
         of :code:`on` method of a table widget (qgrid.QgridWidget object) as
         explained in `qrid documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
         """
