@@ -41,6 +41,18 @@ class SpontaneousRecombinationCoeffSolver:
         )
 
     def calculate_photoionization_boltzmann_factor(self, electron_temperature):
+        """Calculate the Boltzmann factor at each photoionization frequency
+
+        Parameters
+        ----------
+        electron_temperature : Quantity
+            Electron temperature in each shell.
+
+        Returns
+        -------
+        numpy.ndarray
+            The Boltzmann factor per shell per photoionization frequency.
+        """
         return np.exp(-self.nu[np.newaxis].T / electron_temperature * (H / K_B))
 
     def solve(self, electron_temperature):
@@ -100,6 +112,19 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         self,
         dilute_blackbody_radiationfield_state,
     ):
+        """Calculates the mean intensity of the radiation field at each photoionization frequency.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DilutePlanckianRadiationField
+            The radiation field.
+
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame of mean intensities indexed by photoionization levels and
+            columns of cells.
+        """
         mean_intensity = (
             dilute_blackbody_radiationfield_state.calculate_mean_intensity(
                 self.nu
