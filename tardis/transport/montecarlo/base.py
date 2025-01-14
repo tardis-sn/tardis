@@ -119,7 +119,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             continuum_state = ContinuumState.from_legacy_plasma(plasma)
         else:
             continuum_state = None
-        self.opacity_state_numba = OpacityState(
+        opacity_state_numba = OpacityState(
             electron_density=plasma.electron_densities,
             t_electrons=plasma.t_electrons,
             line_list_nu=plasma.atomic_data.lines.nu,
