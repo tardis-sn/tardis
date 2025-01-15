@@ -52,18 +52,19 @@ class LevelPopulationSolver:
             dtype=np.float64,
         )
 
-        # try converting the set of vectors into a single 2D array and then applying index
-        for species_id in self.rates_matrices.index:
-            # TODO: resolve the chained assignment here. Maybe an intermediate df
-            # is needed
+        species_level_populations = pd.DataFrame(
+            index=self.levels.index,
+            columns=self.rates_matrices.columns,
+            dtype=np.float64,
+        )
 
+        for species_id in self.rates_matrices.index:
             solved_matrices = self.rates_matrices.loc[species_id].apply(
-                lambda rates_matrix: self.__calculate_level_population(
-                    rates_matrix
-                )
+                lambda rates_matrix: self.__calculate_level_population(rates_matrix)
             )
-            normalized_level_populations.loc[species_id, :].update(
-                np.vstack(solved_matrices.values).T
-            )
+            
+            species_level_populations.loc[species_id, :] = np.vstack(solved_matrices.values).T
+
+        normalized_level_populations.update(species_level_populations)
 
         return normalized_level_populations
