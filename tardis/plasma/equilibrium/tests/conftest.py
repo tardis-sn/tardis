@@ -11,7 +11,7 @@ from tardis.plasma.equilibrium.rates import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_chianti_atomic_dataset_si(tardis_regression_path):
     atomic_data_fname = (
         tardis_regression_path / "atom_data" / "kurucz_cd23_chianti_Si.h5"
@@ -24,7 +24,7 @@ def radiative_transitions(new_chianti_atomic_dataset_si, request):
     return new_chianti_atomic_dataset_si.lines.loc[request.param, :]
 
 
-@pytest.fixture
+@pytest.fixture()
 def radiative_rate_solver(radiative_transitions):
     return RadiativeRatesSolver(radiative_transitions)
 
@@ -48,7 +48,7 @@ def collisional_rate_solver(
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def rate_solver_list(radiative_rate_solver, collisional_rate_solver):
     return [
         (radiative_rate_solver, "radiative"),
@@ -56,7 +56,7 @@ def rate_solver_list(radiative_rate_solver, collisional_rate_solver):
     ]
 
 
-@pytest.fixture
+@pytest.fixture()
 def collisional_simulation_state(new_chianti_atomic_dataset_si):
     config = Configuration.from_yaml(
         Path("tardis")

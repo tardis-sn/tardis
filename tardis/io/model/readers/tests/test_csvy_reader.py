@@ -9,17 +9,17 @@ from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.model.readers import csvy
 
 
-@pytest.fixture
+@pytest.fixture()
 def csvy_full_fname(example_model_file_dir: Path):
     return example_model_file_dir / "csvy_full.csvy"
 
 
-@pytest.fixture
+@pytest.fixture()
 def csvy_nocsv_fname(example_model_file_dir: Path):
     return example_model_file_dir / "csvy_nocsv.csvy"
 
 
-@pytest.fixture
+@pytest.fixture()
 def csvy_missing_fname(example_model_file_dir: Path):
     return example_model_file_dir / "csvy_missing.csvy"
 

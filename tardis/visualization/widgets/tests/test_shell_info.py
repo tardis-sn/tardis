@@ -122,14 +122,14 @@ class TestBaseShellInfo:
 
 class TestSimulationShellInfo(TestBaseShellInfo):
     # Override the base_shell_info fixture to use value of simulation_shell_info fixture
-    @pytest.fixture
+    @pytest.fixture()
     def base_shell_info(self, simulation_shell_info):
         return simulation_shell_info
 
 
 class TestHDFShellInfo(TestBaseShellInfo):
     # Override the base_shell_info fixture to use value of hdf_shell_info fixture
-    @pytest.fixture
+    @pytest.fixture()
     def base_shell_info(self, hdf_shell_info):
         return hdf_shell_info
 

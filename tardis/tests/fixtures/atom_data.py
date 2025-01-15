@@ -37,13 +37,13 @@ def atomic_dataset(atomic_data_fname):
         return atomic_data
 
 
-@pytest.fixture
+@pytest.fixture()
 def kurucz_atomic_data(atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
     return atomic_data
 
 
-@pytest.fixture  # (scope="session")
+@pytest.fixture()  # (scope="session")
 def nlte_atomic_data_fname(tardis_regression_path):
     """
     File name for the atomic data file used in NTLE ionization solver tests.
@@ -65,7 +65,7 @@ def nlte_atomic_data_fname(tardis_regression_path):
     return atomic_data_fname
 
 
-@pytest.fixture  # (scope="session")
+@pytest.fixture()  # (scope="session")
 def nlte_atomic_dataset(nlte_atomic_data_fname):
     """
     Atomic dataset used for NLTE ionization solver tests.
@@ -74,13 +74,13 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
     return nlte_atomic_data
 
 
-@pytest.fixture  # (scope="session")
+@pytest.fixture()  # (scope="session")
 def nlte_atom_data(nlte_atomic_dataset):
     atomic_data = deepcopy(nlte_atomic_dataset)
     return atomic_data
 
 
-@pytest.fixture  # (scope="session")
+@pytest.fixture()  # (scope="session")
 def tardis_model_config_nlte_root(example_configuration_dir):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_nlte.yml"
@@ -89,7 +89,7 @@ def tardis_model_config_nlte_root(example_configuration_dir):
     return config
 
 
-@pytest.fixture  # (scope="session")
+@pytest.fixture()  # (scope="session")
 def tardis_model_config_nlte_lu(example_configuration_dir):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_nlte.yml"
@@ -98,14 +98,14 @@ def tardis_model_config_nlte_lu(example_configuration_dir):
     return config
 
 
-@pytest.fixture  # (scope="session")
+@pytest.fixture()  # (scope="session")
 def nlte_raw_model_root(tardis_model_config_nlte_root, nlte_atom_data):
     return SimulationState.from_config(
         tardis_model_config_nlte_root, nlte_atom_data
     )
 
 
-@pytest.fixture  # (scope="session")
+@pytest.fixture()  # (scope="session")
 def nlte_raw_model_lu(tardis_model_config_nlte_lu, nlte_atom_data):
     return SimulationState.from_config(
         tardis_model_config_nlte_lu, nlte_atom_data

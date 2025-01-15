@@ -5,22 +5,22 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis import constants as const
 
 
-@pytest.fixture
+@pytest.fixture()
 def basic_atom_data(kurucz_atomic_data):
     return kurucz_atomic_data.atom_data
 
 
-@pytest.fixture
+@pytest.fixture()
 def ionization_data(kurucz_atomic_data):
     return kurucz_atomic_data.ionization_data
 
 
-@pytest.fixture
+@pytest.fixture()
 def levels(kurucz_atomic_data):
     return kurucz_atomic_data.levels
 
 
-@pytest.fixture
+@pytest.fixture()
 def lines(kurucz_atomic_data):
     return kurucz_atomic_data.lines
 
