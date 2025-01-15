@@ -33,6 +33,14 @@ class SpontaneousRecombinationCoeffSolver:
 
     @property
     def common_prefactor(self):
+        """Used to multiply with both spontaneous recombination and
+        photoionization coefficients.
+
+        Returns
+        -------
+        pd.DataFrame
+            A dataframe of the prefactor.
+        """
         return (
             4.0
             * np.pi
@@ -73,7 +81,6 @@ class SpontaneousRecombinationCoeffSolver:
         -----
         Equation 13 in Lucy 2003.
         """
-        # need to fix array multiplication
         prefactor = self.common_prefactor * (2 * H * self.nu**3.0) / (C**2.0)
         photoionization_boltzmann_factor = pd.DataFrame(
             self.calculate_photoionization_boltzmann_factor(
@@ -121,7 +128,7 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             DataFrame of mean intensities indexed by photoionization levels and
             columns of cells.
         """

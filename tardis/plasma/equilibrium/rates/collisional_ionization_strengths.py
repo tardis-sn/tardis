@@ -9,7 +9,7 @@ K_B = const.k_B.cgs
 
 
 class CollisionalIonizationSeaton:
-    """Solver for collisional ionization rates in the Seaton approximation."""
+    """Solver for collisional ionization rate coefficients in the Seaton approximation."""
 
     def __init__(self, photoionization_cross_sections):
         self.photoionization_cross_sections = photoionization_cross_sections
