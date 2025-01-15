@@ -20,23 +20,64 @@ class AnalyticPhotoionizationRateSolver:
         photoionization_rate_coeff,
         stimulated_recombination_rate_coeff,
         spontaneous_recombination_rate_coeff,
-        n_i,
-        n_k,
-        n_e,
+        level_number_density,
+        ion_number_density,
+        electron_number_density,
         saha_factor,
     ):
-        # TODO: decide if these n_i, n_k, n_e numbers should be here (probably not)
+        """Compute the photoionization and spontaneous recombination rates
+
+        Parameters
+        ----------
+        photoionization_rate_coeff : pd.DataFrame
+            The photoionization rate coefficients for each transition.
+            Columns are cells.
+        stimulated_recombination_rate_coeff : pd.DataFrame
+            The stimulated recombination rate coefficients for each transition.
+            Columns are cells.
+        spontaneous_recombination_rate_coeff : pd.DataFrame
+            The spontaneous recombination rate coefficients for each transition.
+            Columns are cells.
+        level_number_density : pd.DataFrame
+            The electron energy level number density. Columns are cells.
+        ion_number_density : pd.DataFrame
+            The ion number density. Columns are cells.
+        electron_number_density : pd.DataFrame
+            The free electron number density. Columns are cells.
+        saha_factor : pd.DataFrame
+            The LTE population factor. Columns are cells.
+
+        Returns
+        -------
+        pd.DataFrame
+            Photoionization rate for each electron energy level. Columns are cells
+        pd.DataFrame
+            Spontaneous recombination rate for each electron energy level. Columns are cells
+        """
         photoionization_rate = (
-            photoionization_rate_coeff * n_i
-            - saha_factor * stimulated_recombination_rate_coeff * n_k * n_e
+            photoionization_rate_coeff * level_number_density
+            - saha_factor
+            * stimulated_recombination_rate_coeff
+            * ion_number_density
+            * electron_number_density
         )
         spontaneous_recombination_rate = (
-            saha_factor * spontaneous_recombination_rate_coeff * n_k * n_e
+            saha_factor
+            * spontaneous_recombination_rate_coeff
+            * ion_number_density
+            * electron_number_density
         )
 
         return photoionization_rate, spontaneous_recombination_rate
 
-    def solve(self, electron_temperature, n_i, n_k, n_e, saha_factor):
+    def solve(
+        self,
+        electron_temperature,
+        level_number_density,
+        ion_number_density,
+        electron_number_density,
+        saha_factor,
+    ):
         photoionization_rate_coeff_solver = AnalyticPhotoionizationCoeffSolver(
             self.photoionization_cross_sections
         )
@@ -55,9 +96,9 @@ class AnalyticPhotoionizationRateSolver:
             photoionization_rate_coeff,
             stimulated_recombination_rate_coeff,
             spontaneous_recombination_rate_coeff,
-            n_i,
-            n_k,
-            n_e,
+            level_number_density,
+            ion_number_density,
+            electron_number_density,
             saha_factor,
         )
 
@@ -77,9 +118,9 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
         radfield_mc_estimators,
         time_simulation,
         volume,
-        n_i,
-        n_k,
-        n_e,
+        level_number_density,
+        ion_number_density,
+        electron_number_density,
         saha_factor,
     ):
         photoionization_rate_coeff_solver = EstimatedPhotoionizationCoeffSolver(
@@ -104,8 +145,8 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             photoionization_rate_coeff,
             stimulated_recombination_rate_coeff,
             spontaneous_recombination_rate_coeff,
-            n_i,
-            n_k,
-            n_e,
+            level_number_density,
+            ion_number_density,
+            electron_number_density,
             saha_factor,
         )
