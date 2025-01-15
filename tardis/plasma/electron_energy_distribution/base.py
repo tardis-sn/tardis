@@ -21,7 +21,7 @@ class ThermalElectronEnergyDistribution(ElectronEnergyDistribution):
     temperature : Quantity
         Electron temperatures in Kelvin.
     number_density : Quantity
-        Electron number densities in g/cm^3.
+        Electron number densities in cm^-3.
     """
 
     temperature: u.Quantity
