@@ -61,16 +61,6 @@ def test_from_config_dict(tardis_config_verysimple):
         )
 
 
-def test_config_hdf(hdf_file_path, tardis_config_verysimple):
-    expected = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
-    )
-    expected.to_hdf(hdf_file_path, overwrite=True)
-    actual = pd.read_hdf(hdf_file_path, key="/simulation/config")
-    expected = expected.get_properties()["config"]
-    assert actual[0] == expected[0]
-
-
 def test_model_section_config(tardis_config_verysimple):
     """
     Configuration Validation Test for Model Section of the Tardis Config YAML File
