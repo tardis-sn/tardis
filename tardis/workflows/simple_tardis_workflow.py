@@ -268,6 +268,8 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             "t_inner"
         ]
 
+        return next_values
+
     def solve_plasma(self, estimated_radfield_properties):
         """Update the plasma solution with the new radiation field estimates
 
