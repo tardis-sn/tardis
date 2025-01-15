@@ -37,6 +37,10 @@ dependencies:
   - matplotlib-base
   - ipywidgets
   - plotly
+  - panel
+  - watchfiles
+  - pyviz::nbsite
+  - jupyter_bokeh
   - pip:
       - qgridnext
 
