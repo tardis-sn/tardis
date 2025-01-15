@@ -15,10 +15,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Clone tardis-sn/tardis-regression-data
+    - name: Clone atharva-2001/tardis-regression-data
       uses: actions/checkout@v4
       with:
-        repository: ${{ inputs.regression-data-repo }}
+        repository: atharva-2001/tardis-regression-data
         path: tardis-regression-data
         sparse-checkout: ${{ inputs.atom-data-sparse == 'true' && 'atom_data/kurucz_cd23_chianti_H_He.h5' || '' }}
         lfs: false
