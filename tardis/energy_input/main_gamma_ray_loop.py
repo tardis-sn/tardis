@@ -211,6 +211,9 @@ def run_gamma_ray_loop(
 
     logger.info(f"Total energy deposited by the positrons is {total_energy.sum().sum()}")
 
+    # Copy the positron energy to a new dataframe
+    positron_energy_df = pd.DataFrame(data=total_energy, columns=times[:-1])
+
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), len(times) - 1))
     energy_deposited = np.zeros((number_of_shells, len(times) - 1))
@@ -290,6 +293,7 @@ def run_gamma_ray_loop(
         packets_df_escaped,
         gamma_ray_deposited_energy,
         total_energy,
+        positron_energy_df
     )
 
 

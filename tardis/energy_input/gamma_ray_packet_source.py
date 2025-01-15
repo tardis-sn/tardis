@@ -612,7 +612,7 @@ class GammaRayPacketSource(BasePacketSource):
         energy_array[
             positronium_formation & annihilation_line & three_photon_decay
         ] = PositroniumSampler().sample_energy(
-            n_samples=np.sum(
+            samples=np.sum(
                 positronium_formation & annihilation_line & three_photon_decay
             )
         )
