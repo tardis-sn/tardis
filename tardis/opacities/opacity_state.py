@@ -48,7 +48,7 @@ class OpacityState:
 
         Parameters
         ----------
-        plasma : tarids.plasma.BasePlasma
+        plasma : tardis.plasma.BasePlasma
             legacy base plasma
         tau_sobolev : pd.DataFrame
             Expansion Optical Depths
@@ -78,7 +78,7 @@ class OpacityState:
 
         Parameters
         ----------
-        plasma : tarids.plasma.BasePlasma
+        plasma : tardis.plasma.BasePlasma
             legacy base plasma
         tau_sobolev : pd.DataFrame
             Expansion Optical Depths

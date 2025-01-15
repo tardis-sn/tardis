@@ -56,7 +56,7 @@ class MacroAtomState(HDFWriterMixin):
 
         Parameters
         ----------
-        plasma : tarids.plasma.BasePlasma
+        plasma : tardis.plasma.BasePlasma
             legacy base plasma
 
         Returns
