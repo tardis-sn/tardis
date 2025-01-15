@@ -9,7 +9,7 @@ from tardis.io.model import read_stella_model
 MODEL_DATA_PATH = Path(__file__).parent / "data"
 
 
-@fixture
+@fixture()
 def stella_model_example_file1():
     return read_stella_model(MODEL_DATA_PATH / "mesa.stella.dat")
 

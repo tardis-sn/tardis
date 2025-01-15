@@ -321,7 +321,7 @@ def test_ascii_reader_exponential_law(
         assert simulation_state.density[i].unit == u.Unit(expected_unit)
 
 
-@pytest.fixture
+@pytest.fixture()
 def simple_isotope_abundance():
     index = pd.MultiIndex.from_tuples(
         [(6, 14), (12, 28)], names=["atomic_number", "mass_number"]
@@ -398,7 +398,7 @@ def test_simulation_state_mass(simulation_verysimple, index, expected):
     assert_almost_equal(elemental_cell_masses.loc[index], expected, decimal=-27)
 
 
-@pytest.fixture
+@pytest.fixture()
 def non_uniform_simulation_state(atomic_dataset, example_model_file_dir):
     config = Configuration.from_yaml(
         example_model_file_dir / "tardis_configv1_isotope_iabund.yml"
@@ -430,7 +430,7 @@ def test_radial_1d_model_atomic_mass(
 
 
 class TestModelStateFromNonUniformAbundances:
-    @pytest.fixture
+    @pytest.fixture()
     def simulation_state(self, example_model_file_dir, atomic_dataset):
         config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_isotope_iabund.yml"

@@ -53,7 +53,7 @@ class TestLineInfoWidgetData:
             )
             assert species_interactions_df.shape == (expected_df_length, 1)
 
-    @pytest.fixture
+    @pytest.fixture()
     def allowed_species(self, line_info_widget, wavelength_range, filter_mode):
         """
         For different combinations of wavelength_range and filter_mode
