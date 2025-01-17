@@ -11,11 +11,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Clone tardis-sn/tardis-regression-data
+    - name: Clone atharva-2001/tardis-regression-data
       uses: actions/checkout@v4
       with:
-        repository: ${{ inputs.regression-data-repo }}
+        repository: atharva-2001/tardis-regression-data
         path: tardis-regression-data
+        ref: numpy_v2_2
 
     - name: Create LFS file list
       run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
