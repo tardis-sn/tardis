@@ -1,6 +1,13 @@
 ## Changelog
 
-### release-2025.01.12 (2025/01/11 20:04)
+### release-2025.01.19 (2025/01/18 20:07)
+- [2800](https://github.com/tardis-sn/tardis/pull/2800) V inner formal integral (2800) (@Rodot-)
+- [2946](https://github.com/tardis-sn/tardis/pull/2946) Fixes indentation for tracking key to be nested under montecarlo key in YAML (2946) (@Sonu0305)
+- [2907](https://github.com/tardis-sn/tardis/pull/2907) Add missing init.py file in opacitites module (2907) (@KasukabeDefenceForce)
+- [2922](https://github.com/tardis-sn/tardis/pull/2922) Fixed data download link mentioned under Quickstart for TARDIS (2922) (@Sonu0305)
+- [2908](https://github.com/tardis-sn/tardis/pull/2908) Ignore ipynb files in codespell (2908) (@KasukabeDefenceForce)
+- [2943](https://github.com/tardis-sn/tardis/pull/2943) Post-release 2025.01.12 (2943) (@tardis-bot)
+### release-2025.01.12 (2025/01/09 03:46)
 - [2925](https://github.com/tardis-sn/tardis/pull/2925) give tag in git cliff command (2925) (@KasukabeDefenceForce)
 - [2923](https://github.com/tardis-sn/tardis/pull/2923) Moves non-physical input check outsode I/O module (2923) (@Sonu0305)
 - [2924](https://github.com/tardis-sn/tardis/pull/2924) Post-release 2025.01.05 (2924) (@tardis-bot)
