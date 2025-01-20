@@ -9,13 +9,13 @@
 # To update a single package to the latest version compatible with the version constraints in the source:
 #     conda-lock lock  --lockfile conda-lock.yml --update PACKAGE
 # To re-solve the entire environment, e.g. after changing a version constraint in the source file:
-#     conda-lock -f tardis_env3.yml -f /Users/wkerzend/python/tardis/tardis_env3.yml -f /home/atharva/workspace/code/tardis-main/tardis/tardis_env3.yml -f environment_panel_no_build_pip.yml --lockfile conda-lock.yml
+#     conda-lock -f tardis_env3.yml -f /Users/wkerzend/python/tardis/tardis_env3.yml -f /home/atharva/workspace/code/tardis-main/tardis/tardis_env3.yml -f environment_panel_no_build_pip.yml -f environment_panel_no_buildp_nbsite.yml --lockfile conda-lock.yml
 version: 1
 metadata:
   content_hash:
     osx-64: f53de271de36e87ab6e9f5fa06dd1d75afde77a9406afae73f896a5ec1cdffcf
     linux-64: eb19f5b22e0784cf376dc551616a0294a2f7c0c5f0238c888619e1797240a813
-    osx-arm64: e7c15bd3d9e76389a477424b5a14c1c218caf72561b6987ef083a84db7adbd1e
+    osx-arm64: 1b740aab9e3b476b266a1ae74deb538aa61e176ebe7025a7fabef92ddb743eb6
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -28,6 +28,7 @@ metadata:
   - /Users/wkerzend/python/tardis/tardis_env3.yml
   - /home/atharva/workspace/code/tardis-main/tardis/tardis_env3.yml
   - environment_panel_no_build_pip.yml
+  - environment_panel_no_buildp_nbsite.yml
 package:
 - name: _libgcc_mutex
   version: '0.1'
@@ -51,6 +52,19 @@ package:
   hash:
     md5: 73aaf86a425cc6e73fcf236a5a46396d
     sha256: fbe2c5e56a653bebb982eda4876a9178aedfc2b545f25d0ce9c4c0b508253d22
+  category: main
+  optional: false
+- name: accessible-pygments
+  version: 0.0.5
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    pygments: ''
+    python: '>=3.9'
+  url: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
+  hash:
+    md5: 74ac5069774cdbc53910ec4d631a3999
+    sha256: 1307719f0d8ee694fc923579a39c0621c23fdaa14ccdf9278a5aac5665ac58e9
   category: main
   optional: false
 - name: alabaster
@@ -2852,6 +2866,21 @@ package:
     sha256: ced49a72b8f3c92a76d3f07bb75be2a64d3572d433f2711d36003e1b565d1d4e
   category: main
   optional: false
+- name: greenlet
+  version: 3.1.1
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    __osx: '>=11.0'
+    libcxx: '>=17'
+    python: '>=3.12,<3.13.0a0'
+    python_abi: 3.12.*
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/greenlet-3.1.1-py312hde4cb15_0.conda
+  hash:
+    md5: 6b39df249302d2e1513c5a01aad1d912
+    sha256: 8afa00a2a27b27aec39d986df7a839af4093e44c54c607bffea8300057a87751
+  category: main
+  optional: false
 - name: gtk2
   version: 2.24.33
   manager: conda
@@ -4212,6 +4241,26 @@ package:
   hash:
     md5: 32ab666927ee17b9468c2c72bbd7ba1b
     sha256: 3c98d791bebd477597fe083b3cec35132ac974c61ba1e481dc6c29fac78b419d
+  category: main
+  optional: false
+- name: jupyter-cache
+  version: 1.0.1
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    attrs: ''
+    click: ''
+    importlib-metadata: ''
+    nbclient: '>=0.2'
+    nbformat: ''
+    python: '>=3.9'
+    pyyaml: ''
+    sqlalchemy: '>=1.3.12,<3'
+    tabulate: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/jupyter-cache-1.0.1-pyhff2d567_0.conda
+  hash:
+    md5: b0ee650829b8974202a7abe7f8b81e5a
+    sha256: 054d397dd45ed08bffb0976702e553dfb0d0b0a477da9cff36e2ea702e928f48
   category: main
   optional: false
 - name: jupyter-lsp
@@ -7252,6 +7301,46 @@ package:
     sha256: 1895f47b7d68581a6facde5cb13ab8c2764c2e53a76bd746f8f98910dc4e08fe
   category: main
   optional: false
+- name: myst-nb
+  version: 1.1.2
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    importlib-metadata: ''
+    ipykernel: ''
+    ipython: ''
+    jupyter-cache: '>=0.5'
+    myst-parser: '>=1.0.0'
+    nbclient: ''
+    nbformat: '>=5.0'
+    python: '>=3.9'
+    pyyaml: ''
+    sphinx: '>=5'
+    typing_extensions: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/myst-nb-1.1.2-pyhd8ed1ab_1.conda
+  hash:
+    md5: b78625bb0b4b144fe7048523a178986d
+    sha256: 0bc2fdde44340d93834983106fdacad5683c441ae5faa5450444e4ff8560f13b
+  category: main
+  optional: false
+- name: myst-parser
+  version: 4.0.0
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    docutils: '>=0.19,<0.22'
+    jinja2: ''
+    markdown-it-py: '>=3.0.0,<4.0.0'
+    mdit-py-plugins: '>=0.4.1,<1'
+    python: '>=3.10'
+    pyyaml: ''
+    sphinx: '>=7,<9'
+  url: https://conda.anaconda.org/conda-forge/noarch/myst-parser-4.0.0-pyhd8ed1ab_1.conda
+  hash:
+    md5: fbc398f13e5f5a90f9065eaa5d91a28f
+    sha256: 9d93483bf59b4d550577b40e2bc3f39e81fdcb34533f03a6da05b0adad34526e
+  category: main
+  optional: false
 - name: nbclassic
   version: 1.1.0
   manager: conda
@@ -7556,6 +7645,36 @@ package:
   hash:
     md5: bbe1963f1e47f594070ffe87cdf612ea
     sha256: 7a5bd30a2e7ddd7b85031a5e2e14f290898098dc85bea5b3a5bf147c25122838
+  category: main
+  optional: false
+- name: nbsite
+  version: 0.8.7
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    beautifulsoup4: ''
+    ipykernel: ''
+    jinja2: ''
+    jupyter_client: ''
+    myst-nb: '>=1.1'
+    myst-parser: '>=3'
+    nbconvert: ''
+    nbformat: ''
+    notebook: ''
+    param: '>=1.7.0'
+    pillow: ''
+    portalocker: ''
+    pydata-sphinx-theme: '>=0.15,<0.16'
+    python: '>=3.9'
+    pyviz_comms: ''
+    sphinx: '>=7'
+    sphinx-copybutton: ''
+    sphinx-design: ''
+    sphinxext-rediraffe: ''
+  url: https://conda.anaconda.org/pyviz/noarch/nbsite-0.8.7-py_0.tar.bz2
+  hash:
+    md5: 8d3e4c7cf9d2304ad6a44b57a60c643f
+    sha256: 22272bc6d884d90fd99144694e581aa22f801fb76f5b5a2ca7080e9db043c4ee
   category: main
   optional: false
 - name: nbsphinx
@@ -8927,6 +9046,19 @@ package:
     sha256: 122433fc5318816b8c69283aaf267c73d87aa2d09ce39f64c9805c9a3b264819
   category: main
   optional: false
+- name: portalocker
+  version: 3.0.0
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    python: '>=3.12,<3.13.0a0'
+    python_abi: 3.12.*
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/portalocker-3.0.0-py312h81bd7bf_0.conda
+  hash:
+    md5: 61154b85894071d8157d2be3d8748534
+    sha256: dfcada628ad2f95051c200f0499df41bcef9716a2373807fe736f91fa5c8f6b9
+  category: main
+  optional: false
 - name: prometheus_client
   version: 0.20.0
   manager: conda
@@ -9315,6 +9447,26 @@ package:
   hash:
     md5: 12c566707c80111f9799308d9e265aef
     sha256: 79db7928d13fab2d892592223d7570f5061c192f27b9febd1a418427b719acc6
+  category: main
+  optional: false
+- name: pydata-sphinx-theme
+  version: 0.15.4
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    accessible-pygments: ''
+    babel: ''
+    beautifulsoup4: ''
+    docutils: '!=0.17.0'
+    packaging: ''
+    pygments: '>=2.7'
+    python: '>=3.9'
+    sphinx: '>=5.0'
+    typing_extensions: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/pydata-sphinx-theme-0.15.4-pyhd8ed1ab_0.conda
+  hash:
+    md5: c7c50dd5192caa58a05e6a4248a27acb
+    sha256: 5ec877142ded763061e114e787a4e201c2fb3f0b1db2f04ace610a1187bb34ae
   category: main
   optional: false
 - name: pyerfa
@@ -11358,6 +11510,32 @@ package:
     sha256: d4e40ab1628240b2a9cc7932dfabfba406d0803ca01301fd687273bca74b2692
   category: main
   optional: false
+- name: sphinx-copybutton
+  version: 0.5.2
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    python: '>=3.9'
+    sphinx: '>=1.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/sphinx-copybutton-0.5.2-pyhd8ed1ab_1.conda
+  hash:
+    md5: bf22cb9c439572760316ce0748af3713
+    sha256: 8cd892e49cb4d00501bc4439fb0c73ca44905f01a65b2b7fa05ba0e8f3924f19
+  category: main
+  optional: false
+- name: sphinx-design
+  version: 0.6.1
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    python: '>=3.9'
+    sphinx: '>=6,<9'
+  url: https://conda.anaconda.org/conda-forge/noarch/sphinx-design-0.6.1-pyhd8ed1ab_2.conda
+  hash:
+    md5: 3e6c15d914b03f83fc96344f917e0838
+    sha256: eb335aef48e49107b55299cedc197f86d05651f1eeff83ed8acf89df7cdc9765
+  category: main
+  optional: false
 - name: sphinx-gallery
   version: 0.16.0
   manager: conda
@@ -11893,6 +12071,35 @@ package:
   hash:
     md5: 3bc61f7161d28137797e038263c04c54
     sha256: 64d89ecc0264347486971a94487cb8d7c65bfc0176750cf7502b8a272f4ab557
+  category: main
+  optional: false
+- name: sphinxext-rediraffe
+  version: 0.2.7
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    python: '>=3.9'
+    sphinx: '>=2.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/sphinxext-rediraffe-0.2.7-pyhd8ed1ab_2.conda
+  hash:
+    md5: 6e9abf97190dc7a1f0c207e86ef3abc5
+    sha256: a191e0fe8ef135f870f94c9456b8f86fde76e453905d40cdcce059dc67049c21
+  category: main
+  optional: false
+- name: sqlalchemy
+  version: 2.0.37
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    __osx: '>=11.0'
+    greenlet: '!=0.4.17'
+    python: '>=3.12,<3.13.0a0'
+    python_abi: 3.12.*
+    typing-extensions: '>=4.6.0'
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/sqlalchemy-2.0.37-py312hea69d52_0.conda
+  hash:
+    md5: 559b768b7c5afa968ff8e343a2dfff43
+    sha256: 6ff611e1035bb0ee3f0c0c5e52e814cbd8a6626aed2022621c2a145c118c5a3b
   category: main
   optional: false
 - name: stack_data
