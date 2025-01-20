@@ -119,7 +119,7 @@ jobs:
         
       - name: Generate and process changelog
         run: |
-          CHANGELOG=$(git cliff --config pyproject.toml --unreleased | sed -n '/^## Changelog/,$p' | grep -vE '^(ERROR|WARN)')
+          CHANGELOG=$(git cliff --config pyproject.toml --unreleased --tag ${{ env.NEW_TAG }}| sed -n '/^## Changelog/,$p' | grep -vE '^(ERROR|WARN)')
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           echo "$CHANGELOG" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
