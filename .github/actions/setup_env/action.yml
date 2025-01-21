@@ -26,6 +26,7 @@ runs:
         with:
           create-args: >-
             conda-lock
+          environment-name: tardis
       
       - name: Install packages
         run: |
