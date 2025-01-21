@@ -4,7 +4,6 @@ import os
 import pprint
 
 import pandas as pd
-
 import yaml
 from astropy import units as u
 
