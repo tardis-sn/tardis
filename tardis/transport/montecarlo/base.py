@@ -115,17 +115,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
 
         geometry_state = simulation_state.geometry.to_numba()
-        if hasattr(plasma, "photo_ion_cross_sections"):
-            continuum_state = ContinuumState.from_legacy_plasma(plasma)
-        else:
-            continuum_state = None
-        opacity_state_numba = OpacityState(
-            electron_density=plasma.electron_densities,
-            t_electrons=plasma.t_electrons,
-            line_list_nu=plasma.atomic_data.lines.nu,
+        opacity_state_numba = OpacityState.from_plasma(
+            plasma=plasma,
             tau_sobolev=opacity_state.tau_sobolev,
             beta_sobolev=plasma.beta_sobolev,
-            continuum_state=continuum_state,
         ).to_numba(
             macro_atom_state,
             self.line_interaction_type,
