@@ -288,17 +288,10 @@ class FormalIntegrator:
                 self.transport.montecarlo_configuration
             )
         if plasma and opacity_state and macro_atom_state:
-            if hasattr(plasma, "photo_ion_cross_sections"):
-                continuum_state = ContinuumState.from_legacy_plasma(plasma)
-            else:
-                continuum_state = None
             self.opacity_state = OpacityState(
-                electron_density=plasma.electron_densities,
-                t_electrons=plasma.t_electrons,
-                line_list_nu=plasma.atomic_data.lines.nu,
+                plasma=plasma,
                 tau_sobolev=opacity_state.tau_sobolev,
                 beta_sobolev=plasma.beta_sobolev,
-                continuum_state=continuum_state,
             ).to_numba(
                 macro_atom_state,
                 transport.line_interaction_type,
