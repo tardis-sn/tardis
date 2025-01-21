@@ -70,7 +70,7 @@ def test_config_hdf(hdf_file_path, tardis_config_verysimple):
     expected = expected.get_properties()["config"]
     assert actual[0] == expected[0]
 
-    
+
 def test_model_section_config(tardis_config_verysimple):
     """
     Configuration Validation Test for Model Section of the Tardis Config YAML File
