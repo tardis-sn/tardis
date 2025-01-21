@@ -50,7 +50,7 @@ class MacroAtomSolver:
         ----------
         atomic_data : tardis.io.atom_data.AtomData
             Atomic Data
-        legacy_plasma : tarids.plasma.BasePlasma
+        legacy_plasma : tardis.plasma.BasePlasma
             legacy base plasma
         tau_sobolev : pd.DataFrame
             Expansion Optical Depths
@@ -133,7 +133,7 @@ class MacroAtomSolver:
 
         Parameters
         ----------
-        legacy_plasma : tarids.plasma.BasePlasma
+        legacy_plasma : tardis.plasma.BasePlasma
             legacy base plasma
         atomic_data : tardis.io.atom_data.AtomData
             Atomic Data
