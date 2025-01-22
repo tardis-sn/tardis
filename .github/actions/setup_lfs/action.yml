@@ -27,7 +27,7 @@ runs:
       id: lfs-cache-regression-data
       with:
         path: tardis-regression-data/.git/lfs
-        key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
+        key: lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
 
     - name: Git LFS Pull
       run: git lfs pull
@@ -49,4 +49,4 @@ runs:
       id: lfs-cache-regression-data-save
       with:
         path: tardis-regression-data/.git/lfs
-        key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
+        key: lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
