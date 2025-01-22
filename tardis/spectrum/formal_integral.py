@@ -288,7 +288,7 @@ class FormalIntegrator:
                 self.transport.montecarlo_configuration
             )
         if plasma and opacity_state and macro_atom_state:
-            self.opacity_state = OpacityState(
+            self.opacity_state = OpacityState.from_plasma(
                 plasma=plasma,
                 tau_sobolev=opacity_state.tau_sobolev,
                 beta_sobolev=plasma.beta_sobolev,
