@@ -104,3 +104,41 @@ class RateMatrix:
                 rate_matrices.loc[species_id, shell] = matrix_array
 
         return rate_matrices
+
+
+class IonRateMatrix:
+    def __init__(self, rate_solvers, photoionization_cross_sections):
+        self.rate_solvers = rate_solvers
+        self.photoionization_cross_sections = photoionization_cross_sections
+
+    def solve(
+        self,
+        radiation_field,
+        thermal_electron_energy_distribution,
+        level_number_density,
+        ion_number_density,
+        saha_factor,
+    ):
+        """Compute the ionization rate matrix in the
+        case where the radiation field is not estimated.
+
+        Parameters
+        ----------
+        radiation_field : RadiationField
+            A radiation field that can compute its mean intensity.
+        electron_energy_distribution : ThermalElectronEnergyDistribution
+            Electron properties.
+        level_number_density : pd.DataFrame
+            Electron energy level number density. Columns are cells.
+        ion_number_density : pd.DataFrame
+            Ion number density. Columns are cells.
+        saha_factor : pd.DataFrame
+            Saha factor: the LTE level number density divided by the LTE ion
+            number density and the electron number density.
+
+        Returns
+        -------
+        pd.DataFrame
+            A DataFrame of rate matrices indexed by atomic number and ion number,
+            with each column being a cell.
+        """

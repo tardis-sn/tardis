@@ -76,7 +76,7 @@ class AnalyticPhotoionizationRateSolver:
 
     def solve(
         self,
-        dilute_blackbody_radiationfield_state,
+        radiation_field,
         electron_energy_distribution,
         level_number_density,
         ion_number_density,
@@ -87,8 +87,8 @@ class AnalyticPhotoionizationRateSolver:
 
         Parameters
         ----------
-        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
-            A dilute black body radiation field state.
+        radiation_field : RadiationField
+            A radiation field that can compute its mean intensity.
         electron_energy_distribution : ThermalElectronEnergyDistribution
             Electron properties.
         level_number_density : pd.DataFrame
@@ -112,7 +112,7 @@ class AnalyticPhotoionizationRateSolver:
 
         photoionization_rate_coeff, stimulated_recombination_rate_coeff = (
             photoionization_rate_coeff_solver.solve(
-                dilute_blackbody_radiationfield_state,
+                radiation_field,
                 electron_energy_distribution.temperature,
             )
         )
