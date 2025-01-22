@@ -62,13 +62,13 @@ def test_from_config_dict(tardis_config_verysimple):
 
 
 def test_config_hdf(hdf_file_path, tardis_config_verysimple):
-    expected = Configuration.from_config_dict(
+    expected_fh = Configuration.from_config_dict(
         tardis_config_verysimple, validate=True, config_dirname="test"
     )
-    expected.to_hdf(hdf_file_path, overwrite=True)
+    expected_fh.to_hdf(hdf_file_path, overwrite=True)
     actual = pd.read_hdf(hdf_file_path, key="/simulation/config")
-    expected = expected.get_properties()["config"]
-    assert actual[0] == expected[0]
+    expected_fh = expected_fh.get_properties()["config"]
+    assert actual[0] == expected_fh[0]
 
 
 def test_model_section_config(tardis_config_verysimple):
