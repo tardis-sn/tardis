@@ -30,7 +30,8 @@ class VisualizationData:
         time_explosion,
         v_inner,
         v_outer,
-        velocity
+        velocity,
+        simulation
     ):
         """
         Initialize the SimulationPacketData with required properties of simulation model.
@@ -94,6 +95,8 @@ class VisualizationData:
         )
 
         # Save other properties
+        self.simulation = simulation
+
         self.lines_df = lines_df
         self.r_inner = r_inner
         self.spectrum_delta_frequency = spectrum_delta_frequency
@@ -181,6 +184,7 @@ class VisualizationData:
         time_of_simulation = (
             transport_state.packet_collection.time_of_simulation * u.s
         )
+
         spectrum = (
             sim.spectrum_solver.spectrum_virtual_packets
             if packets_mode == "virtual"
@@ -208,7 +212,8 @@ class VisualizationData:
                 time_explosion=time_explosion,
                 v_inner=v_inner,
                 v_outer=v_outer,
-                velocity=velocity
+                velocity=velocity,
+                simulation=sim,
             )
         else: # real packets
             # Packets-specific properties need to be only for those packets
@@ -241,7 +246,8 @@ class VisualizationData:
                 time_explosion=time_explosion,
                 v_inner=v_inner,
                 v_outer=v_outer,
-                velocity=velocity
+                velocity=velocity,
+                simulation=sim,
             )
 
     @classmethod
@@ -292,10 +298,12 @@ class VisualizationData:
         spectrum_prefix = (
             f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
         )
+        sim = hdf["/simulation"]
 
         if packets_mode == "virtual":
             packet_prefix = "/simulation/transport/transport_state/virt_packet"
             return cls(
+                simulation=sim,
                 last_interaction_type=hdf[
                     f"{packet_prefix}_last_interaction_type"
                 ],
@@ -348,6 +356,7 @@ class VisualizationData:
             ].to_numpy()
             packet_prefix = "/simulation/transport/transport_state"
             return cls(
+                simulation=sim,
                 last_interaction_type=hdf[
                     f"{packet_prefix}/last_interaction_type"
                 ].to_numpy()[emitted_packet_mask],
