@@ -7,6 +7,10 @@ inputs:
     description: "tardis regression data repository"
     required: false
     default: "tardis-sn/tardis-regression-data"
+  atom-data-sparse:
+    description: "Only download atom data files"
+    required: false
+    default: 'false'
 
 runs:
   using: "composite"
@@ -16,9 +20,17 @@ runs:
       with:
         repository: ${{ inputs.regression-data-repo }}
         path: tardis-regression-data
+        sparse-checkout: ${{ inputs.atom-data-sparse == 'true' && 'atom_data/kurucz_cd23_chianti_H_He.h5' || '' }}
 
     - name: Create LFS file list
-      run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+      run: |
+        if [ "${{ inputs.atom-data-sparse }}" == "true" ]; then
+          echo "Using atom data sparse checkout"
+          echo "atom_data/kurucz_cd23_chianti_H_He.h5" > .lfs-files-list
+        else
+          echo "Using full repository checkout"
+          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-files-list
+        fi
       working-directory: tardis-regression-data
       shell: bash
 
@@ -27,7 +39,7 @@ runs:
       id: lfs-cache-regression-data
       with:
         path: tardis-regression-data/.git/lfs
-        key: lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
+        key: ${{ inputs.atom-data-sparse == 'true' && 'lfs-atom-' || 'lfs-full-' }}${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-v1
 
     - name: Git LFS Pull
       run: git lfs pull
@@ -49,4 +61,4 @@ runs:
       id: lfs-cache-regression-data-save
       with:
         path: tardis-regression-data/.git/lfs
-        key: lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
+        key: ${{ inputs.atom-data-sparse == 'true' && 'lfs-atom-' || 'lfs-full-' }}${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-v1
