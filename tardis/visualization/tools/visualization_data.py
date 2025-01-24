@@ -172,11 +172,6 @@ class VisualizationData:
         )
         time_explosion = sim.plasma.time_explosion
         transport_state = sim.transport.transport_state
-        # r_inner = sim.simulation_state.geometry.r_inner_active
-        # t_inner = sim.simulation_state.packet_source.temperature
-        v_inner = sim.simulation_state.v_inner
-        v_outer = sim.simulation_state.v_outer
-        velocity = sim.simulation_state.velocity
         time_of_simulation = (
             transport_state.packet_collection.time_of_simulation * u.s
         )
@@ -205,9 +200,6 @@ class VisualizationData:
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
                 simulation=sim,
-                v_inner=v_inner,
-                v_outer=v_outer,
-                velocity=velocity,
             )
         else: # real packets
             # Packets-specific properties need to be only for those packets
@@ -237,9 +229,6 @@ class VisualizationData:
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
                 simulation=sim,
-                v_inner=v_inner,
-                v_outer=v_outer,
-                velocity=velocity,
             )
 
     @classmethod
