@@ -20,12 +20,10 @@ class VisualizationData:
         lines_df,
         packet_nus,
         packet_energies,
-        r_inner,
         spectrum_delta_frequency,
         spectrum_frequency_bins,  # stores _frequency (bin edges) not frequency
         spectrum_luminosity_density_lambda,
         spectrum_wavelength,
-        t_inner,
         time_of_simulation,
         time_explosion,
         v_inner,
@@ -98,7 +96,6 @@ class VisualizationData:
         self.simulation = simulation
 
         self.lines_df = lines_df
-        self.r_inner = r_inner
         self.spectrum_delta_frequency = spectrum_delta_frequency
         self.spectrum_frequency_bins = spectrum_frequency_bins
         self.spectrum_frequency = spectrum_frequency_bins[:-1]
@@ -106,7 +103,6 @@ class VisualizationData:
             spectrum_luminosity_density_lambda
         )
         self.spectrum_wavelength = spectrum_wavelength
-        self.t_inner = t_inner
         self.time_of_simulation = time_of_simulation
         self.time_explosion = time_explosion
         self.v_inner = v_inner
@@ -176,8 +172,8 @@ class VisualizationData:
         )
         time_explosion = sim.plasma.time_explosion
         transport_state = sim.transport.transport_state
-        r_inner = sim.simulation_state.geometry.r_inner_active
-        t_inner = sim.simulation_state.packet_source.temperature
+        # r_inner = sim.simulation_state.geometry.r_inner_active
+        # t_inner = sim.simulation_state.packet_source.temperature
         v_inner = sim.simulation_state.v_inner
         v_outer = sim.simulation_state.v_outer
         velocity = sim.simulation_state.velocity
@@ -202,18 +198,16 @@ class VisualizationData:
                 lines_df=lines_df,
                 packet_nus=u.Quantity(vpacket_tracker.nus, "Hz"),
                 packet_energies=u.Quantity(vpacket_tracker.energies, "erg"),
-                r_inner=r_inner,
                 spectrum_delta_frequency=spectrum.delta_frequency,
                 spectrum_frequency_bins=spectrum._frequency,
                 spectrum_luminosity_density_lambda=spectrum.luminosity_density_lambda,
                 spectrum_wavelength=spectrum.wavelength,
-                t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
+                simulation=sim,
                 v_inner=v_inner,
                 v_outer=v_outer,
                 velocity=velocity,
-                simulation=sim,
             )
         else: # real packets
             # Packets-specific properties need to be only for those packets
@@ -236,18 +230,16 @@ class VisualizationData:
                 packet_energies=transport_state.packet_collection.output_energies[
                     mask
                 ],
-                r_inner=r_inner,
                 spectrum_delta_frequency=spectrum.delta_frequency,
                 spectrum_frequency_bins=spectrum._frequency,
                 spectrum_luminosity_density_lambda=spectrum.luminosity_density_lambda,
                 spectrum_wavelength=spectrum.wavelength,
-                t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
+                simulation=sim,
                 v_inner=v_inner,
                 v_outer=v_outer,
                 velocity=velocity,
-                simulation=sim,
             )
 
     @classmethod
