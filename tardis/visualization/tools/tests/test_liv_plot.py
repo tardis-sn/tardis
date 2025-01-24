@@ -307,9 +307,9 @@ class TestLIVPlotter:
         """
         fig, _ = plotter_generate_plot_mpl
         regression_data = RegressionData(request)
-        expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
+        expected_fh = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
         for item in ["_species_name", "_color_list", "step_x", "step_y"]:
-            expected_values = expected.get(
+            expected_values = expected_fh.get(
                 "plot_data_hdf/" + item
             ).values.flatten()
             actual_values = getattr(generate_plot_mpl_hdf, item)
@@ -324,7 +324,7 @@ class TestLIVPlotter:
             else:
                 assert np.array_equal(expected_values, actual_values)
 
-        labels = expected["plot_data_hdf/scalars"]
+        labels = expected_fh["plot_data_hdf/scalars"]
         for index1, data in enumerate(fig.get_children()):
             if isinstance(data.get_label(), str):
                 assert (
@@ -334,13 +334,13 @@ class TestLIVPlotter:
             if isinstance(data, Line2D):
                 np.testing.assert_allclose(
                     data.get_xydata(),
-                    expected.get("plot_data_hdf/" + "data" + str(index1)),
+                    expected_fh.get("plot_data_hdf/" + "data" + str(index1)),
                     rtol=0.3,
                     atol=3,
                 )
                 np.testing.assert_allclose(
                     data.get_path().vertices,
-                    expected.get("plot_data_hdf/" + "linepath" + str(index1)),
+                    expected_fh.get("plot_data_hdf/" + "linepath" + str(index1)),
                     rtol=1,
                     atol=3,
                 )
@@ -348,7 +348,7 @@ class TestLIVPlotter:
                 for index2, path in enumerate(data.get_paths()):
                     np.testing.assert_almost_equal(
                         path.vertices,
-                        expected.get(
+                        expected_fh.get(
                             "plot_data_hdf/"
                             + "polypath"
                             + "ind_"
@@ -357,7 +357,7 @@ class TestLIVPlotter:
                             + str(index2)
                         ),
                     )
-        expected.close()
+        expected_fh.close()
 
     def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, request):
         """
@@ -474,10 +474,10 @@ class TestLIVPlotter:
         """
         fig, _ = plotter_generate_plot_ply
         regression_data = RegressionData(request)
-        expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
+        expected_fh = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
 
         for item in ["_species_name", "_color_list", "step_x", "step_y"]:
-            expected_values = expected.get(
+            expected_values = expected_fh.get(
                 "plot_data_hdf/" + item
             ).values.flatten()
             actual_values = getattr(generate_plot_plotly_hdf, item)
@@ -497,7 +497,7 @@ class TestLIVPlotter:
                 assert (
                     data.stackgroup
                     == getattr(
-                        expected["/plot_data_hdf/scalars"],
+                        expected_fh["/plot_data_hdf/scalars"],
                         "_" + str(index) + "stackgroup",
                     ).decode()
                 )
@@ -505,20 +505,20 @@ class TestLIVPlotter:
                 assert (
                     data.name
                     == getattr(
-                        expected["/plot_data_hdf/scalars"],
+                        expected_fh["/plot_data_hdf/scalars"],
                         "_" + str(index) + "name",
                     ).decode()
                 )
             np.testing.assert_allclose(
                 data.x,
-                expected.get(group + "x").values.flatten(),
+                expected_fh.get(group + "x").values.flatten(),
                 rtol=0.3,
                 atol=3,
             )
             np.testing.assert_allclose(
                 data.y,
-                expected.get(group + "y").values.flatten(),
+                expected_fh.get(group + "y").values.flatten(),
                 rtol=0.3,
                 atol=3,
             )
-        expected.close()
+        expected_fh.close()

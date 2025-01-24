@@ -215,7 +215,7 @@ class TestSDECPlotter:
         request,
     ):
         regression_data = RegressionData(request)
-        expected = regression_data.sync_hdf_store(calculate_plotting_data_hdf)
+        expected_fh = regression_data.sync_hdf_store(calculate_plotting_data_hdf)
         group = "plot_data_hdf/"
         for attribute_type, attribute_name in self.plotting_data_attributes:
             plot_object = getattr(
@@ -225,13 +225,13 @@ class TestSDECPlotter:
                 if isinstance(plot_object, astropy.units.quantity.Quantity):
                     plot_object = plot_object.cgs.value
                 np.testing.assert_allclose(
-                    plot_object, expected.get(group + attribute_name)
+                    plot_object, expected_fh.get(group + attribute_name)
                 )
             if attribute_type == "attributes_pd":
                 pd.testing.assert_frame_equal(
-                    plot_object, expected.get(group + attribute_name)
+                    plot_object, expected_fh.get(group + attribute_name)
                 )
-        expected.close()
+        expected_fh.close()
 
     @pytest.fixture(scope="class", params=combinations)
     def plotter_generate_plot_mpl(self, request, observed_spectrum, plotter):
@@ -295,13 +295,13 @@ class TestSDECPlotter:
     ):
         fig, _ = plotter_generate_plot_mpl
         regression_data = RegressionData(request)
-        expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
+        expected_fh = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
         for item in ["_species_name", "_color_list"]:
             np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
+                expected_fh.get("plot_data_hdf/" + item).values.flatten(),
                 getattr(generate_plot_mpl_hdf, item),
             )
-        labels = expected["plot_data_hdf/scalars"]
+        labels = expected_fh["plot_data_hdf/scalars"]
         for index1, data in enumerate(fig.get_children()):
             if isinstance(data.get_label(), str):
                 assert (
@@ -312,18 +312,18 @@ class TestSDECPlotter:
             if isinstance(data, Line2D):
                 np.testing.assert_allclose(
                     data.get_xydata(),
-                    expected.get("plot_data_hdf/" + "data" + str(index1)),
+                    expected_fh.get("plot_data_hdf/" + "data" + str(index1)),
                 )
                 np.testing.assert_allclose(
                     data.get_path().vertices,
-                    expected.get("plot_data_hdf/" + "linepath" + str(index1)),
+                    expected_fh.get("plot_data_hdf/" + "linepath" + str(index1)),
                 )
             # save artists which correspond to element contributions
             if isinstance(data, PolyCollection):
                 for index2, path in enumerate(data.get_paths()):
                     np.testing.assert_almost_equal(
                         path.vertices,
-                        expected.get(
+                        expected_fh.get(
                             "plot_data_hdf/"
                             + "polypath"
                             + "ind_"
@@ -332,7 +332,7 @@ class TestSDECPlotter:
                             + str(index2)
                         ),
                     )
-        expected.close()
+        expected_fh.close()
 
     @pytest.fixture(scope="class", params=combinations)
     def plotter_generate_plot_ply(self, request, observed_spectrum, plotter):
@@ -385,11 +385,11 @@ class TestSDECPlotter:
     ):
         fig, _ = plotter_generate_plot_ply
         regression_data = RegressionData(request)
-        expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
+        expected_fh = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
 
         for item in ["_species_name", "_color_list"]:
             np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
+                expected_fh.get("plot_data_hdf/" + item).values.flatten(),
                 getattr(generate_plot_plotly_hdf, item),
             )
 
@@ -399,7 +399,7 @@ class TestSDECPlotter:
                 assert (
                     data.stackgroup
                     == getattr(
-                        expected["/plot_data_hdf/scalars"],
+                        expected_fh["/plot_data_hdf/scalars"],
                         "_" + str(index) + "stackgroup",
                     ).decode()
                 )
@@ -407,18 +407,18 @@ class TestSDECPlotter:
                 assert (
                     data.name
                     == getattr(
-                        expected["/plot_data_hdf/scalars"],
+                        expected_fh["/plot_data_hdf/scalars"],
                         "_" + str(index) + "name",
                     ).decode()
                 )
             np.testing.assert_allclose(
-                data.x, expected.get(group + "x").values.flatten()
+                data.x, expected_fh.get(group + "x").values.flatten()
             )
             np.testing.assert_allclose(
-                data.y, expected.get(group + "y").values.flatten()
+                data.y, expected_fh.get(group + "y").values.flatten()
             )
 
-        expected.close()
+        expected_fh.close()
 
     def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, request):
         regression_data = RegressionData(request)

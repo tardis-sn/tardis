@@ -179,28 +179,28 @@ class TestPlasma:
     def test_plasma_properties(self, plasma, attr):
         key = f"plasma/{attr}"
         try:
-            expected = pd.read_hdf(self.regression_data.fpath, key)
+            expected_fh = pd.read_hdf(self.regression_data.fpath, key)
         except KeyError:
             pytest.skip(f"Key {key} not found in regression data")
 
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
             if attr == "selected_atoms":
-                npt.assert_allclose(actual.values, expected.values)
+                npt.assert_allclose(actual.values, expected_fh.values)
             elif actual.ndim == 1:
                 actual = pd.Series(actual)
-                pdt.assert_series_equal(actual, expected)
+                pdt.assert_series_equal(actual, expected_fh)
             else:
                 actual = pd.DataFrame(actual)
-                pdt.assert_frame_equal(actual, expected)
+                pdt.assert_frame_equal(actual, expected_fh)
         else:
             warnings.warn(f'Property "{attr}" not found')
 
     def test_levels(self, plasma):
         actual = pd.DataFrame(plasma.levels)
         key = "plasma/levels"
-        expected = pd.read_hdf(self.regression_data.fpath, key)
-        pdt.assert_frame_equal(actual, expected)
+        expected_fh = pd.read_hdf(self.regression_data.fpath, key)
+        pdt.assert_frame_equal(actual, expected_fh)
 
     @pytest.mark.parametrize("attr", scalars_properties)
     def test_scalars_properties(self, plasma, attr):
@@ -208,20 +208,20 @@ class TestPlasma:
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
         key = "plasma/scalars"
-        expected = pd.read_hdf(self.regression_data.fpath, key)[attr]
-        npt.assert_equal(actual, expected)
+        expected_fh = pd.read_hdf(self.regression_data.fpath, key)[attr]
+        npt.assert_equal(actual, expected_fh)
 
     def test_helium_treatment(self, plasma):
         actual = plasma.helium_treatment
         key = "plasma/scalars"
-        expected = pd.read_hdf(self.regression_data.fpath, key)[
+        expected_fh = pd.read_hdf(self.regression_data.fpath, key)[
             "helium_treatment"
         ]
-        assert actual == expected
+        assert actual == expected_fh
 
     def test_zeta_data(self, plasma):
         if hasattr(plasma, "zeta_data"):
             actual = plasma.zeta_data
             key = "plasma/zeta_data"
-            expected = pd.read_hdf(self.regression_data.fpath, key)
-            npt.assert_allclose(actual, expected.values)
+            expected_fh = pd.read_hdf(self.regression_data.fpath, key)
+            npt.assert_allclose(actual, expected_fh.values)

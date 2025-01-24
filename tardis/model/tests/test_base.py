@@ -472,11 +472,11 @@ def test_hdf_simulation_state_scalars(
     hdf_file_path, simulation_verysimple, attr
 ):
     path = "simulation_state/scalars"
-    expected = pd.read_hdf(hdf_file_path, path)[attr]
+    expected_fh = pd.read_hdf(hdf_file_path, path)[attr]
     actual = getattr(simulation_verysimple.simulation_state, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    assert_almost_equal(actual, expected)
+    assert_almost_equal(actual, expected_fh)
 
 
 simulation_state_nparray_attrs = ["dilution_factor", "v_inner", "v_outer"]
@@ -487,8 +487,8 @@ def test_hdf_simulation_state_nparray(
     hdf_file_path, simulation_verysimple, attr
 ):
     path = f"simulation_state/{attr}"
-    expected = pd.read_hdf(hdf_file_path, path)
+    expected_fh = pd.read_hdf(hdf_file_path, path)
     actual = getattr(simulation_verysimple.simulation_state, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    assert_almost_equal(actual, expected.values)
+    assert_almost_equal(actual, expected_fh.values)

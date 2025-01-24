@@ -165,8 +165,8 @@ def test_hdf_spectrum(hdf_file_path, spectrum, attr):
         assert_almost_equal(actual, expected)
     else:
         path = os.path.join("spectrum", attr)
-        expected = pd.read_hdf(hdf_file_path, path)
-        assert_almost_equal(actual, expected.values)
+        expected_fh = pd.read_hdf(hdf_file_path, path)
+        assert_almost_equal(actual, expected_fh.values)
 
 
 ###
