@@ -698,8 +698,11 @@ class SDECPlotter:
             Luminosity density lambda (or Flux) of photosphere (inner boundary
             of TARDIS simulation)
         """
+        t_inner = self.data[packets_mode].simulation.simulation_state.packet_source.temperature
+        r_inner = self.data[packets_mode].simulation.simulation_state.geometry.r_inner_active
+
         bb_lam = BlackBody(
-            self.data[packets_mode].t_inner,
+            t_inner,
             scale=1.0 * u.erg / (u.cm**2 * u.AA * u.s * u.sr),
         )
 
@@ -707,11 +710,12 @@ class SDECPlotter:
             bb_lam(self.plot_wavelength)
             * 4
             * np.pi**2
-            * self.data[packets_mode].r_inner[0] ** 2
+            * r_inner[0] ** 2
             * u.sr
         ).to("erg / (AA s)")
 
         return L_lambda_ph / self.lum_to_flux
+
 
     def generate_plot_mpl(
         self,
