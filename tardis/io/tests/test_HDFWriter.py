@@ -57,7 +57,7 @@ def test_complex_obj_write(tmpdir, attr):
     actual.to_hdf(fname, path="test", overwrite=True)
     expected_fh = pd.read_hdf(fname, key="/test/mock_hdf/property").values
 
-    assert_array_almost_equal(actual.property, expected)
+    assert_array_almost_equal(actual.property, expected_fh)
 
 
 arr = np.array(
