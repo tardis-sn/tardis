@@ -9,16 +9,17 @@ on:
     branches:
       - '*'
 
-  pull_request_target:
-    branches:
-      - master
+  # pull_request_target:
+  #   branches:
+  #     - master
 
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - labeled # requires the `build-docs` label
-      - ready_for_review
+
+    # types:
+    #   - opened
+    #   - reopened
+    #   - synchronize
+    #   - labeled # requires the `build-docs` label
+    #   - ready_for_review
 
   workflow_dispatch: # manual trigger
 
@@ -38,7 +39,7 @@ defaults:
 jobs:
   check-for-changes:
     runs-on: ubuntu-latest
-    if: ${{ !github.event.pull_request.draft }}
+    # if: ${{ !github.event.pull_request.draft }}  # Commented out to allow running on forks
     outputs:
       trigger-check-outcome: ${{ steps.trigger_check.outcome }}
       docs-check-outcome: ${{ steps.docs_check.outcome }}
@@ -77,8 +78,10 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-latest
-    # needs: check-for-changes
-    # if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
+    # needs: check-for-changes 
+    # if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success' 
+    permissions:
+      contents: write  # Add permissions for deployment
     steps:
       - uses: actions/checkout@v4
         if: github.event_name != 'pull_request_target'
@@ -165,14 +168,15 @@ jobs:
       - name: Deploy ${{ env.DEST_DIR }}
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.BOT_TOKEN }}
+          # github_token: ${{ secrets.BOT_TOKEN }}  # Comment out bot token
+          github_token: ${{ github.token }} 
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: ./docs/_build/html
           destination_dir: ${{ env.DEST_DIR }}
           keep_files: true
           force_orphan: ${{ env.CLEAN_BRANCH }}
-          user_name: "TARDIS Bot"
-          user_email: "tardis.sn.bot@gmail.com"
+          user_name: "GitHub Actions" # change back to TARDIS Bot
+          user_email: "github-actions[bot]@users.noreply.github.com"  # change back to TARDIS email
 
       - name: Find comment
         uses: peter-evans/find-comment@v1
