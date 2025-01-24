@@ -10,13 +10,27 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - uses: mamba-org/setup-micromamba@v1
+      - name: Download Lock File
+        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ inputs.os-label }}.lock
+        if: matrix.pip == true
+        shell: bash
+      
+      - name: Generate Cache Key
+        run: | 
+          file_hash=$(cat conda-${{ inputs.os-label }}.lock | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
+        id: cache-environment-key
+        shell: bash
+
+      - uses: mamba-org/setup-micromamba@v2
         with:
-          create-args: >-
-            conda-lock
-          environment-name: tardis
+          init-shell: bash
+          create-args: conda-lock
+          environment-name: tardis-base
 
       - name: Install packages
         run: |
-          conda-lock install --name tardis conda-${{ inputs.os-label }}.lock
+          mkdir micromamba_tardis
+          conda-lock install --prefix micromamba_tardis conda-${{ inputs.os-label }}.lock
+          micromamba activate ./micromamba_tardis
         shell: bash -el {0}

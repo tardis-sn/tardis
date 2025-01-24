@@ -7,7 +7,7 @@ name: docs
 on:
   push:
     branches:
-      - master
+      - '*'
 
   pull_request_target:
     branches:
@@ -77,8 +77,8 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-latest
-    needs: check-for-changes
-    if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
+    # needs: check-for-changes
+    # if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     steps:
       - uses: actions/checkout@v4
         if: github.event_name != 'pull_request_target'
@@ -108,14 +108,19 @@ jobs:
           mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-regression-data/atom_data/. ~/Downloads/tardis-data
 
       - name: Install package
-        run: pip install -e .
+        run: |
+          micromamba activate ./micromamba_tardis
+          pip install -e .
 
       - name: Install Sphinx extensions
         run: |
+          micromamba activate ./micromamba_tardis
           pip install sphinxcontrib-googleanalytics
 
       - name: Build documentation
-        run: cd docs/ && make html NCORES=auto
+        run: |
+          micromamba activate ./micromamba_tardis
+          cd docs/ && make html NCORES=auto
 
       - name: Set destination directory
         run: |
