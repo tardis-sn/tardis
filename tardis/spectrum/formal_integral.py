@@ -9,8 +9,9 @@ from numba import njit, prange
 from scipy.interpolate import interp1d
 
 from tardis import constants as const
+from tardis.opacities.continuum.continuum_state import ContinuumState
 from tardis.opacities.opacity_state import (
-    opacity_state_to_numba,
+    OpacityState,
     opacity_state_initialize,
 )
 from tardis.spectrum.formal_integral_cuda import (
@@ -287,8 +288,11 @@ class FormalIntegrator:
                 self.transport.montecarlo_configuration
             )
         if plasma and opacity_state and macro_atom_state:
-            self.opacity_state = opacity_state_to_numba(
-                opacity_state,
+            self.opacity_state = OpacityState.from_plasma(
+                plasma=plasma,
+                tau_sobolev=opacity_state.tau_sobolev,
+                beta_sobolev=plasma.beta_sobolev,
+            ).to_numba(
                 macro_atom_state,
                 transport.line_interaction_type,
             )
