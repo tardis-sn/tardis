@@ -115,11 +115,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
 
         geometry_state = simulation_state.geometry.to_numba()
-        opacity_state_numba = OpacityState.from_plasma(
-            plasma=plasma,
-            tau_sobolev=opacity_state.tau_sobolev,
-            beta_sobolev=plasma.beta_sobolev,
-        ).to_numba(
+        opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,
             self.line_interaction_type,
         )
