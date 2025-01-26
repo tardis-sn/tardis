@@ -5,10 +5,10 @@ import pandas as pd
 from astropy import units as u
 from scipy.interpolate import interp1d
 
+from tardis.opacities.opacity_state import OpacityState
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
-from tardis.workflows.util import get_tau_integ
 
 # logging support
 logger = logging.getLogger(__name__)
@@ -54,9 +54,8 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         Need some way to return and inspect the optical depths for later logging
         """
         tau_integ = np.log(
-            get_tau_integ(
+            self.opacity_states["opacity_state"].get_tau_integ(
                 self.plasma_solver,
-                self.opacity_states["opacity_state"],
                 self.simulation_state,
             )[self.mean_optical_depth]
         )
