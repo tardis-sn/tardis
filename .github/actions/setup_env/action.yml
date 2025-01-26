@@ -21,12 +21,16 @@ runs:
           echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
         id: cache-environment-key
         shell: bash
-        
-      - uses: mamba-org/setup-micromamba@v1
+
+      - uses: mamba-org/setup-micromamba@v2
         with:
-          environment-file: conda-${{ inputs.os-label }}.lock
-          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          environment-name: tardis
-          cache-environment: true
-          cache-downloads: true
+          init-shell: bash
+          create-args: conda-lock
+          environment-name: tardis-base
+
+      - name: Install packages
+        run: |
+          mkdir micromamba_tardis
+          conda-lock install --prefix micromamba_tardis conda-${{ inputs.os-label }}.lock
+          micromamba activate ./micromamba_tardis
+        shell: bash -el {0}

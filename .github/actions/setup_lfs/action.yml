@@ -1,5 +1,5 @@
 name: "Setup LFS"
-description: "Pull LFS repositories and caches them"
+description: "Downloads and extracts regression data from Zenodo"
 
 
 inputs:
@@ -11,42 +11,43 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Clone tardis-sn/tardis-regression-data
-      uses: actions/checkout@v4
-      with:
-        repository: ${{ inputs.regression-data-repo }}
-        path: tardis-regression-data
-
-    - name: Create LFS file list
-      run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-      working-directory: tardis-regression-data
+    - name: Download regression data from Zenodo
+      run: |
+        wget --show-progress --progress=bar:force https://sandbox.zenodo.org/records/156229/files/tardis-regression-np.zip
+        mkdir -p tardis-regression-data
+        unzip -q tardis-regression-np.zip -d tardis-regression-data
       shell: bash
 
-    - name: Restore LFS cache
-      uses: actions/cache/restore@v4
-      id: lfs-cache-regression-data
-      with:
-        path: tardis-regression-data/.git/lfs
-        key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
+    # - name: Create LFS file list
+    #   run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+    #   working-directory: tardis-regression-data
+    #   shell: bash
 
-    - name: Git LFS Pull
-      run: git lfs pull
-      working-directory: tardis-regression-data
-      if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
-      shell: bash
+    # - name: Restore LFS cache
+    #   uses: actions/cache/restore@v4
+    #   id: lfs-cache-regression-data
+    #   with:
+    #     path: tardis-regression-data/.git/lfs
+    #     key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
 
-    - name: Git LFS Checkout
-      run: git lfs checkout
-      working-directory: tardis-regression-data
-      if: steps.lfs-cache-regression-data.outputs.cache-hit == 'true'
-      shell: bash
+    # - name: Git LFS Pull
+    #   run: git lfs pull
+    #   working-directory: tardis-regression-data
+    #   if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
+    #   shell: bash
 
-    - name: Save LFS cache if not found
-      # uses fake ternary
-      # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
-      if: ${{ steps.lfs-cache-regression-data.outputs.cache-hit != 'true' && !contains(github.ref, 'merge') && always() || false }}
-      uses: actions/cache/save@v4
-      id: lfs-cache-regression-data-save
-      with:
-        path: tardis-regression-data/.git/lfs
-        key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
+    # - name: Git LFS Checkout
+    #   run: git lfs checkout
+    #   working-directory: tardis-regression-data
+    #   if: steps.lfs-cache-regression-data.outputs.cache-hit == 'true'
+    #   shell: bash
+
+    # - name: Save LFS cache if not found
+    #   # uses fake ternary
+    #   # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
+    #   if: ${{ steps.lfs-cache-regression-data.outputs.cache-hit != 'true' && !contains(github.ref, 'merge') && always() || false }}
+    #   uses: actions/cache/save@v4
+    #   id: lfs-cache-regression-data-save
+    #   with:
+    #     path: tardis-regression-data/.git/lfs
+    #     key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
