@@ -1,6 +1,11 @@
 ## Changelog
 
-### release-2025.01.19 (2025/01/18 20:07)
+### release-2025.01.26 (2025/01/25 20:04)
+- [2932](https://github.com/tardis-sn/tardis/pull/2932) opacity_state_to_numba -> to_numba and moved to as a method of class OpacityState (2932) (@Sonu0305)
+- [2897](https://github.com/tardis-sn/tardis/pull/2897) Ionization rates (2897) (@andrewfullard)
+- [2938](https://github.com/tardis-sn/tardis/pull/2938) Fixes spelling errors in the codebase (2938) (@Sonu0305)
+- [2952](https://github.com/tardis-sn/tardis/pull/2952) Post-release 2025.01.19 (2952) (@tardis-bot)
+### release-2025.01.19 (2025/01/14 16:54)
 - [2800](https://github.com/tardis-sn/tardis/pull/2800) V inner formal integral (2800) (@Rodot-)
 - [2946](https://github.com/tardis-sn/tardis/pull/2946) Fixes indentation for tracking key to be nested under montecarlo key in YAML (2946) (@Sonu0305)
 - [2907](https://github.com/tardis-sn/tardis/pull/2907) Add missing init.py file in opacitites module (2907) (@KasukabeDefenceForce)
