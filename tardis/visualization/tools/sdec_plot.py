@@ -574,6 +574,7 @@ class SDECPlotter:
             )
 
         # Contribution of each species with which packets interacted ----------
+        time_of_simulation = self.transport_state.packet_collection.time_of_simulation * u.s
         for identifier, group in packets_df_grouped:
             # Histogram of specific species
             hist_el = np.histogram(
@@ -581,7 +582,7 @@ class SDECPlotter:
                 bins=self.plot_frequency_bins.value,
                 weights=group["energies"]
                 / self.lum_to_flux
-                / self.data[packets_mode].time_of_simulation,
+                / time_of_simulation,
             )
 
             # Convert to luminosity density lambda
