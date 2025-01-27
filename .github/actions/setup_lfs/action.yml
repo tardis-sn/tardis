@@ -33,28 +33,14 @@ runs:
         fi
       working-directory: tardis-regression-data
       shell: bash
-
-    - name: Initial LFS cache restore attempt
-      uses: actions/cache/restore@v4
-      id: lfs-cache-regression-data
-      with:
-        path: tardis-regression-data/.git/lfs
-        key: tardis-regression-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
-
-    - name: Download and cache LFS files if cache miss
-      uses: atharva-2001/tardis/.github/workflows/lfs-cache.yml@fix_lfs
-      if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
-      with:
-        atom-data-sparse: ${{ inputs.atom-data-sparse }}
-        regression-data-repo: ${{ inputs.regression-data-repo }}
-        lfs-files-list: tardis-regression-data/.lfs-files-list
     
-    - name: Restore newly created LFS cache
+    - name: Restore LFS cache
       uses: actions/cache/restore@v4
       id: lfs-cache-regression-data-final
       with:
         path: tardis-regression-data/.git/lfs
         key: tardis-regression-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
+        fail-on-cache-miss: true
 
     - name: Git LFS Checkout
       run: git lfs checkout

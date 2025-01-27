@@ -29,6 +29,12 @@ defaults:
     shell: bash -l {0}
 
 jobs:
+  test_cache:
+    uses: ./.github/workflows/lfs-cache.yml
+    with:
+      atom-data-sparse: false
+      regression-data-repo: tardis-sn/tardis-regression-data
+
   build:
     if: github.repository_owner == 'tardis-sn' &&
       (github.event_name == 'push' ||
@@ -37,6 +43,7 @@ jobs:
       (github.event_name == 'pull_request_target' &&
       contains(github.event.pull_request.labels.*.name, 'benchmarks')))
     runs-on: ubuntu-latest
+    needs: [test_cache]
     steps:
       - uses: actions/checkout@v4
         if: github.event_name != 'pull_request_target'
