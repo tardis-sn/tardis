@@ -58,7 +58,6 @@ jobs:
         with:
           path: tardis-regression-data/.git/lfs
           key: tardis-regression-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
-          lookup-only: true
       
       - name: Git LFS Pull Atom Data
         run: git lfs pull --include-ref=atom_data/kurucz_cd23_chianti_H_He.h5
