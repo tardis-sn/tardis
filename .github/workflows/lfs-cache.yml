@@ -1,0 +1,71 @@
+name: Save LFS Cache
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      atom-data-sparse:
+        description: "Only download atom data files"
+        required: false
+        default: false
+        type: boolean
+      regression-data-repo:
+        description: "tardis regression data repository"
+        required: false
+        default: "tardis-sn/tardis-regression-data"
+        type: string
+      lfs-files-list:
+        description: "LFS files list"
+        required: false
+        type: string
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+concurrency:
+  # Only one workflow can run at a time
+  # the workflow group is a unique identifier and contains the workflow name, pull request number, atom data sparse, and regression data repo
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ inputs.regression-data-repo }}
+  cancel-in-progress: true
+
+
+jobs:
+  lfs-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.regression-data-repo }}
+          path: tardis-regression-data
+          sparse-checkout: ${{ inputs.atom-data-sparse == 'true' && 'atom_data/kurucz_cd23_chianti_H_He.h5' || '' }}
+
+      - name: Print files
+        run: |
+          echo ${{ inputs.lfs-files-list }}
+          echo ${{ inputs.atom-data-sparse }}
+          echo ${{ inputs.regression-data-repo }}
+      
+      - name: Git LFS Pull Atom Data
+        run: git lfs pull --include-ref=atom_data/kurucz_cd23_chianti_H_He.h5
+        if: ${{ inputs.atom-data-sparse == 'true' }}
+        working-directory: tardis-regression-data
+        shell: bash
+      
+      - name: Git LFS Pull Full Data
+        run: git lfs pull
+        if: ${{ inputs.atom-data-sparse == 'false' }}
+        working-directory: tardis-regression-data
+        shell: bash
+      
+      - name: Git LFS Checkout
+        run: git lfs checkout
+        working-directory: tardis-regression-data
+        shell: bash
+  
+      - name: Save LFS cache if not found
+        uses: actions/cache/save@v4
+        with:
+          path: tardis-regression-data/.git/lfs
+          key: tardis-regression-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
+  
