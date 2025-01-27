@@ -76,7 +76,7 @@ jobs:
   
       - name: Save LFS cache if not found
         uses: actions/cache/save@v4
-        if: steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true'
+        if: steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && !contains(github.ref, 'merge') 
         with:
           path: tardis-regression-data/.git/lfs
           key: tardis-regression-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
