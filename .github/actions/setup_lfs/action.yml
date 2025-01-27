@@ -37,7 +37,7 @@ runs:
     
     - name: Restore LFS cache
       uses: actions/cache/restore@v4
-      id: lfs-cache-regression-data-final
+      id: lfs-cache-regression-data
       with:
         path: tardis-regression-data/.git/lfs
         key: tardis-regression-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
