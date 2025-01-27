@@ -35,7 +35,7 @@ class SDECPlotter:
     model, and allows to plot it in matplotlib and plotly.
     """
 
-    def __init__(self, data):
+    def __init__(self, data, sim):
         """
         Initialize the SDECPlotter with required data of simulation model.
 
@@ -46,6 +46,10 @@ class SDECPlotter:
             modes i.e. real and virtual
         """
         self.data = data
+        self.simulation = sim
+        self.transport_state = sim.transport.transport_state
+        self.plasma = sim.plasma
+        self.simulation_state = sim.simulation_state
 
     @classmethod
     def from_simulation(cls, sim):
@@ -61,7 +65,7 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        return cls(pu.create_packet_data_dict_from_simulation(sim))
+        return cls(pu.create_packet_data_dict_from_simulation(sim), sim=sim)
 
     @classmethod
     def from_hdf(cls, hdf_fpath, packets_mode=None):
@@ -80,7 +84,9 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        return cls(pu.create_packet_data_dict_from_hdf(hdf_fpath, packets_mode))
+        with pd.HDFStore(hdf_fpath, "r") as hdf:
+            sim = hdf["/simulation"]
+        return cls(pu.create_packet_data_dict_from_hdf(hdf_fpath, packets_mode), sim=sim)
 
     def _parse_species_list(self, species_list):
         """
@@ -698,8 +704,8 @@ class SDECPlotter:
             Luminosity density lambda (or Flux) of photosphere (inner boundary
             of TARDIS simulation)
         """
-        t_inner = self.data[packets_mode].simulation.simulation_state.packet_source.temperature
-        r_inner = self.data[packets_mode].simulation.simulation_state.geometry.r_inner_active
+        t_inner = self.simulation_state.packet_source.temperature
+        r_inner = self.simulation_state.geometry.r_inner_active
 
         bb_lam = BlackBody(
             t_inner,
