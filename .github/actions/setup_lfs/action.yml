@@ -1,14 +1,14 @@
 name: "Setup LFS"
-description: "Pull LFS repositories and caches them"
+description: "Sets up Git LFS, retrieves LFS cache and fails if cache is not available"
 
 
 inputs:
   regression-data-repo:
-    description: "tardis regression data repository"
+    description: "Repository containing regression data (format: owner/repo)"
     required: false
     default: "tardis-sn/tardis-regression-data"
   atom-data-sparse:
-    description: "Only download atom data files"
+    description: "If true, only downloads atom_data/kurucz_cd23_chianti_H_He.h5 instead of full regression data"
     required: false
     default: 'false'
 

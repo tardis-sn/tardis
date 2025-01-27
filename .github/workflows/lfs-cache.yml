@@ -4,12 +4,12 @@ on:
   workflow_call:
     inputs:
       atom-data-sparse:
-        description: "Only download atom data files"
+        description: "If true, only downloads atom_data/kurucz_cd23_chianti_H_He.h5"
         required: false
         default: false
         type: boolean
       regression-data-repo:
-        description: "tardis regression data repository"
+        description: "Repository containing regression data (format: owner/repo)"
         required: false
         default: "tardis-sn/tardis-regression-data"
         type: string
@@ -46,11 +46,6 @@ jobs:
           fi
         working-directory: tardis-regression-data
 
-      - name: Print files
-        run: |
-          echo ${{ inputs.atom-data-sparse }}
-          echo ${{ inputs.regression-data-repo }}
-          echo ${{ hashFiles('tardis-regression-data/.lfs-files-list') }}
       
       - name: Test cache availability
         uses: actions/cache/restore@v4
