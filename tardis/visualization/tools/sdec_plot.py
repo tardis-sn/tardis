@@ -484,12 +484,13 @@ class SDECPlotter:
             )
 
         # Histogram weights are packet luminosities or flux
+        time_of_simulation = self.transport_state.packet_collection.time_of_simulation * u.s
         weights = (
             self.data[packets_mode].packets_df["energies"][
                 self.packet_nu_range_mask
             ]
             / self.lum_to_flux
-        ) / self.data[packets_mode].time_of_simulation
+        ) / time_of_simulation
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
@@ -574,7 +575,6 @@ class SDECPlotter:
             )
 
         # Contribution of each species with which packets interacted ----------
-        time_of_simulation = self.transport_state.packet_collection.time_of_simulation * u.s
         for identifier, group in packets_df_grouped:
             # Histogram of specific species
             hist_el = np.histogram(
@@ -662,6 +662,7 @@ class SDECPlotter:
                 .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_species")
             )
+        time_of_simulation = self.transport_state.packet_collection.time_of_simulation * u.s
 
         for identifier, group in packets_df_grouped:
             # Histogram of specific species
@@ -670,7 +671,7 @@ class SDECPlotter:
                 bins=self.plot_frequency_bins.value,
                 weights=group["energies"]
                 / self.lum_to_flux
-                / self.data[packets_mode].time_of_simulation,
+                /time_of_simulation,
             )
 
             # Convert to luminosity density lambda
