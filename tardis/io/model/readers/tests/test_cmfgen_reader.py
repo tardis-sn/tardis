@@ -8,7 +8,7 @@ from tardis.io.model.readers.cmfgen import read_cmfgen_model
 MODEL_DATA_PATH = Path(__file__).parent / "data"
 
 
-@fixture()
+@fixture
 def cmfgen_model_example_file():
     return read_cmfgen_model(MODEL_DATA_PATH / "cmfgen_model.csv")
 
