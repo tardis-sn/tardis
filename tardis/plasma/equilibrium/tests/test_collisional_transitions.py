@@ -31,7 +31,7 @@ from tardis.plasma.properties.plasma_input import ContinuumInteractionSpecies
 from tardis.plasma.radiation_field import planck_rad_field
 
 
-@pytest.fixture()
+@pytest.fixture
 def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
     atom_data = copy.deepcopy(nlte_atomic_dataset)
     # almost all settings are irrelevant for collisional strength data
@@ -67,7 +67,7 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_chianti_atomic_dataset(tardis_regression_path):
     atomic_data_fname = (
         tardis_regression_path / "atom_data" / "new_kurucz_cd23_chianti_H_He.h5"
@@ -75,7 +75,7 @@ def new_chianti_atomic_dataset(tardis_regression_path):
     return AtomData.from_hdf(atomic_data_fname)
 
 
-@pytest.fixture()
+@pytest.fixture
 def legacy_chianti_collision_rate_plasma_solver(atomic_dataset):
     atom_data = copy.deepcopy(atomic_dataset)
     atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [])

@@ -15,27 +15,27 @@ from tardis.io.model.readers.generic_readers import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def artis_density_fname(example_model_file_dir):
     return example_model_file_dir / "artis_model.dat"
 
 
-@pytest.fixture()
+@pytest.fixture
 def artis_abundances_fname(example_model_file_dir):
     return example_model_file_dir / "artis_abundances.dat"
 
 
-@pytest.fixture()
+@pytest.fixture
 def cmfgen_fname(example_model_file_dir):
     return example_model_file_dir / "cmfgen_model.csv"
 
 
-@pytest.fixture()
+@pytest.fixture
 def csv_composition_fname(example_model_file_dir):
     return example_model_file_dir / "csv_composition.csv"
 
 
-@pytest.fixture()
+@pytest.fixture
 def isotope_uniform_abundance(example_model_file_dir):
     config_path = (
         example_model_file_dir / "tardis_configv1_isotope_uniabund.yml"

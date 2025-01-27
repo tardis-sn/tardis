@@ -23,7 +23,7 @@ from tardis.util.base import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def artis_abundances_fname(example_model_file_dir):
     return example_model_file_dir / "artis_abundances.dat"
 

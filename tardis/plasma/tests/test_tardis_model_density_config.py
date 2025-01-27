@@ -7,21 +7,21 @@ from tardis.model import SimulationState
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 
 
-@pytest.fixture()
+@pytest.fixture
 def tardis_model_density_config(example_model_file_dir):
     return Configuration.from_yaml(
         example_model_file_dir / "tardis_configv1_tardis_model_format.yml"
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def raw_simulation_state(tardis_model_density_config, kurucz_atomic_data):
     return SimulationState.from_config(
         tardis_model_density_config, atom_data=kurucz_atomic_data
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def raw_plasma(
     tardis_model_density_config, raw_simulation_state, kurucz_atomic_data
 ):

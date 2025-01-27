@@ -15,7 +15,7 @@ from tardis.plasma.properties.nlte_rate_equation_solver import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_index_nlte_ion():
     """Simple fixture for nlte_ion treatment for H I and He II.
 
@@ -29,7 +29,7 @@ def simple_index_nlte_ion():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_index_lte_ion():
     """Simple fixture for lte_ion treatment for H II and He I and He III.
 
@@ -43,7 +43,7 @@ def simple_index_lte_ion():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_rate_matrix_index():
     """Simple rate_matrix_index for NTLE ionization treatment of H I and He II.
 
@@ -65,7 +65,7 @@ def simple_rate_matrix_index():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_total_photo_ion_coefficients(simple_index_nlte_ion):
     """Simple coefficients for photoionization of H I and He II.
 
@@ -80,7 +80,7 @@ def simple_total_photo_ion_coefficients(simple_index_nlte_ion):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_total_rad_recomb_coefficients(simple_index_nlte_ion):
     """Simple coefficients for radiative recombination of H I and He II.
 
@@ -95,7 +95,7 @@ def simple_total_rad_recomb_coefficients(simple_index_nlte_ion):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_total_col_ion_coefficients(simple_index_nlte_ion):
     """Simple coefficients for collisional ionization of H I and He II.
 
@@ -110,7 +110,7 @@ def simple_total_col_ion_coefficients(simple_index_nlte_ion):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_total_col_recomb_coefficients(simple_index_nlte_ion):
     """Simple coefficients for collisional recombination of H I and He II.
 
@@ -125,14 +125,14 @@ def simple_total_col_recomb_coefficients(simple_index_nlte_ion):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_phi(simple_index_lte_ion):
     """Simple Saha factors for H II, He I and He III."""
     simple_phi = [0.18936306, 0.15726292, 0.79851244]
     return pd.DataFrame(simple_phi, index=simple_index_lte_ion)
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_electron_density():
     """Simple electron density."""
     return 0.2219604493076
@@ -220,7 +220,7 @@ def test_jacobian_matrix(
     npt.assert_allclose(actual_jacobian_matrix, expected_jacobian_matrix)
 
 
-@pytest.fixture()
+@pytest.fixture
 def nlte_raw_plasma_dilution_factor_1_root(
     tardis_model_config_nlte_root, nlte_raw_model_root, nlte_atom_data
 ):
@@ -235,7 +235,7 @@ def nlte_raw_plasma_dilution_factor_1_root(
     return plasma
 
 
-@pytest.fixture()
+@pytest.fixture
 def nlte_raw_plasma_dilution_factor_1_lu(
     tardis_model_config_nlte_lu, nlte_raw_model_lu, nlte_atom_data
 ):
@@ -250,7 +250,7 @@ def nlte_raw_plasma_dilution_factor_1_lu(
     return plasma
 
 
-@pytest.fixture()
+@pytest.fixture
 def nlte_raw_plasma_dilution_factor_0_root(
     tardis_model_config_nlte_root, nlte_raw_model_root, nlte_atom_data
 ):
@@ -265,7 +265,7 @@ def nlte_raw_plasma_dilution_factor_0_root(
     return plasma
 
 
-@pytest.fixture()
+@pytest.fixture
 def nlte_raw_plasma_dilution_factor_0_lu(
     tardis_model_config_nlte_lu, nlte_raw_model_lu, nlte_atom_data
 ):

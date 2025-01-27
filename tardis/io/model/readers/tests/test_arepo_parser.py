@@ -8,12 +8,12 @@ import pytest
 from tardis.io.model.readers import arepo
 
 
-@pytest.fixture()
+@pytest.fixture
 def arepo_snapshot_fname(tardis_regression_path):
     return Path(tardis_regression_path) / "arepo_data" / "arepo_snapshot.json"
 
 
-@pytest.fixture()
+@pytest.fixture
 def get_cone_csvy_model(arepo_snapshot_fname, example_model_file_dir):
     with open(arepo_snapshot_fname) as json_file:
         data = json.loads(json.load(json_file))
@@ -56,7 +56,7 @@ def get_cone_csvy_model(arepo_snapshot_fname, example_model_file_dir):
     return data
 
 
-@pytest.fixture()
+@pytest.fixture
 def get_full_csvy_model(arepo_snapshot_fname, example_model_file_dir):
     with open(arepo_snapshot_fname) as json_file:
         data = json.loads(json.load(json_file))
@@ -96,7 +96,7 @@ def get_full_csvy_model(arepo_snapshot_fname, example_model_file_dir):
     return data
 
 
-@pytest.fixture()
+@pytest.fixture
 def get_cone_reference_data(example_model_file_dir):
     with open(
         example_model_file_dir / "arepo_cone_reference_model.csvy"
@@ -106,7 +106,7 @@ def get_cone_reference_data(example_model_file_dir):
     return data
 
 
-@pytest.fixture()
+@pytest.fixture
 def get_full_reference_data(example_model_file_dir):
     with open(
         example_model_file_dir / "arepo_full_reference_model.csvy"
