@@ -42,7 +42,7 @@ runs:
         key: tardis-regression-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
 
     - name: Download and cache LFS files if cache miss
-      uses: ./.github/workflows/lfs-cache.yml
+      uses: atharva-2001/tardis/.github/workflows/lfs-cache.yml@fix_lfs
       if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
       with:
         atom-data-sparse: ${{ inputs.atom-data-sparse }}
