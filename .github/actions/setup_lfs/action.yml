@@ -21,6 +21,7 @@ runs:
         repository: ${{ inputs.regression-data-repo }}
         path: tardis-regression-data
         sparse-checkout: ${{ inputs.atom-data-sparse == 'true' && 'atom_data/kurucz_cd23_chianti_H_He.h5' || '' }}
+        lfs: false
 
     - name: Create LFS file list
       run: |
