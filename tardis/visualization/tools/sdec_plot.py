@@ -53,7 +53,8 @@ class SDECPlotter:
         self.simulation = sim
         self.transport_state = sim.transport.transport_state
         self.plasma = sim.plasma
-        self.simulation_state = sim.simulation_state
+        self.t_inner = sim.simulation_state.packet_source.temperature
+        self.r_inner = sim.simulation_state.geometry.r_inner_active
 
         self.lines_df = self.plasma.atomic_data.lines.reset_index().set_index(
             "line_id"
@@ -783,11 +784,9 @@ class SDECPlotter:
             Luminosity density lambda (or Flux) of photosphere (inner boundary
             of TARDIS simulation)
         """
-        t_inner = self.simulation_state.packet_source.temperature
-        r_inner = self.simulation_state.geometry.r_inner_active
-
+      
         bb_lam = BlackBody(
-            t_inner,
+            self.t_inner,
             scale=1.0 * u.erg / (u.cm**2 * u.AA * u.s * u.sr),
         )
 
@@ -795,7 +794,7 @@ class SDECPlotter:
             bb_lam(self.plot_wavelength)
             * 4
             * np.pi**2
-            * r_inner[0] ** 2
+            * self.r_inner[0] ** 2
             * u.sr
         ).to("erg / (AA s)")
 
