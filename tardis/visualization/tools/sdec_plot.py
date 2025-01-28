@@ -48,7 +48,7 @@ class SDECPlotter:
         self.r_inner = None
         self.time_of_simulation = None
 
-        self.lines_df = self.plasma.atomic_data.lines.reset_index().set_index(
+        self.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
             "line_id"
         )
         self.spectrum = getattr(sim.spectrum_solver, f"spectrum_{packets_mode}_packets")
