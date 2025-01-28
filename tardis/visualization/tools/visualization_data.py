@@ -25,11 +25,7 @@ class VisualizationData:
         spectrum_luminosity_density_lambda,
         spectrum_wavelength,
         time_of_simulation,
-        time_explosion,
-        v_inner,
-        v_outer,
-        velocity,
-        simulation
+        time_explosion
     ):
         """
         Initialize the SimulationPacketData with required properties of simulation model.
@@ -93,7 +89,6 @@ class VisualizationData:
         )
 
         # Save other properties
-        self.simulation = simulation
 
         self.lines_df = lines_df
         self.spectrum_delta_frequency = spectrum_delta_frequency
@@ -105,15 +100,15 @@ class VisualizationData:
         self.spectrum_wavelength = spectrum_wavelength
         self.time_of_simulation = time_of_simulation
         self.time_explosion = time_explosion
-        self.v_inner = v_inner
-        self.v_outer = v_outer
+        # self.v_inner = v_inner
+        # self.v_outer = v_outer
 
-        if velocity is not None:
-            self.velocity = velocity
-        else:
-            self.velocity = pd.concat(
-                [v_inner, pd.Series([v_outer.iloc[-1]])], ignore_index=True
-            ).tolist() * (u.cm / u.s)
+        # if velocity is not None:
+        #     self.velocity = velocity
+        # else:
+        #     self.velocity = pd.concat(
+        #         [v_inner, pd.Series([v_outer.iloc[-1]])], ignore_index=True
+        #     ).tolist() * (u.cm / u.s)
 
         # Create dataframe of packets that experience line interaction
         line_mask = (self.packets_df["last_interaction_type"] > -1) & (
@@ -199,7 +194,6 @@ class VisualizationData:
                 spectrum_wavelength=spectrum.wavelength,
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
-                simulation=sim,
             )
         else: # real packets
             # Packets-specific properties need to be only for those packets
@@ -228,7 +222,6 @@ class VisualizationData:
                 spectrum_wavelength=spectrum.wavelength,
                 time_of_simulation=time_of_simulation,
                 time_explosion=time_explosion,
-                simulation=sim,
             )
 
     @classmethod
