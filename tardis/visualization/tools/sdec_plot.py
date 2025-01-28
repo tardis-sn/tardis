@@ -52,11 +52,10 @@ class SDECPlotter:
         # Store simulation components
         self.simulation = sim
         self.transport_state = sim.transport.transport_state
-        self.plasma = sim.plasma
         self.t_inner = sim.simulation_state.packet_source.temperature
         self.r_inner = sim.simulation_state.geometry.r_inner_active
 
-        self.lines_df = self.plasma.atomic_data.lines.reset_index().set_index(
+        self.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
             "line_id"
         )
         self.spectrum = getattr(sim.spectrum_solver, f"spectrum_{packets_mode}_packets")
