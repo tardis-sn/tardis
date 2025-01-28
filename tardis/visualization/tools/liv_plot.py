@@ -21,7 +21,7 @@ class LIVPlotter:
     Plotting interface for the last interaction velocity plot.
     """
 
-    def __init__(self, data):
+    def __init__(self, data, sim):
         """
         Initialize the plotter with required data from the simulation.
 
@@ -33,7 +33,8 @@ class LIVPlotter:
 
         """
         self.data = data
-        self.sdec_plotter = sdec.SDECPlotter(data)
+        self.simulation_state = sim.simulation_state
+        self.sdec_plotter = sdec.SDECPlotter(data, sim)
 
     @classmethod
     def from_simulation(cls, sim):
@@ -49,7 +50,7 @@ class LIVPlotter:
         -------
         LIVPlotter
         """
-        return cls(pu.create_packet_data_dict_from_simulation(sim))
+        return cls(pu.create_packet_data_dict_from_simulation(sim), sim=sim)
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
@@ -303,7 +304,7 @@ class LIVPlotter:
             )
 
         self._generate_plot_data(packets_mode)
-        velocity = self.data[packets_mode].simulation.simulation_state.velocity
+        velocity = self.simulation_state.velocity
         bin_edges = (velocity).to("km/s")
 
         if num_bins:
