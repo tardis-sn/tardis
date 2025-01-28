@@ -48,9 +48,42 @@ class SDECPlotter:
         self.r_inner = None
         self.time_of_simulation = None
 
+        self.lines_df = self.plasma.atomic_data.lines.reset_index().set_index(
+            "line_id"
+        )
         self.spectrum = getattr(sim.spectrum_solver, f"spectrum_{packets_mode}_packets")
 
-        self.packet_data = self._get_packet_data(packets_mode)
+        self.packets_df = pd.DataFrame(self._get_packet_data(packets_mode))
+
+         # Create dataframe of packets that experience line interaction
+        line_mask = (self.packets_df["last_interaction_type"] > -1) & (
+            self.packets_df["last_line_interaction_in_id"] > -1
+        )  # & operator is quite faster than np.logical_and on pd.Series
+        self.packets_df_line_interaction = self.packets_df.loc[line_mask].copy()
+
+        # Add columns for atomic number of last interaction out
+        self.packets_df_line_interaction["last_line_interaction_atom"] = (
+            self.lines_df["atomic_number"]
+            .iloc[
+                self.packets_df_line_interaction["last_line_interaction_out_id"]
+            ]
+            .to_numpy()
+        )
+        # Add columns for the species id of last interaction
+        # Species id is given by 100 * Z + X, where Z is atomic number and X is ion number
+        self.packets_df_line_interaction["last_line_interaction_species"] = (
+            self.lines_df["atomic_number"]
+            .iloc[
+                self.packets_df_line_interaction["last_line_interaction_out_id"]
+            ]
+            .to_numpy()
+            * 100
+            + self.lines_df["ion_number"]
+            .iloc[
+                self.packets_df_line_interaction["last_line_interaction_out_id"]
+            ]
+            .to_numpy()
+        )
 
     def _get_packet_data(self, packets_mode):
         """
@@ -74,9 +107,11 @@ class SDECPlotter:
                 'last_line_interaction_out_id': vpacket_tracker.last_interaction_out_id,
                 'last_line_interaction_in_nu': vpacket_tracker.last_interaction_in_nu,
                 'last_interaction_in_r': vpacket_tracker.last_interaction_in_r,
-                'packet_nus': u.Quantity(vpacket_tracker.nus, "Hz"),
-                'packet_energies': u.Quantity(vpacket_tracker.energies, "erg"),
+                'nus': u.Quantity(vpacket_tracker.nus, "Hz"),
+                'energies': u.Quantity(vpacket_tracker.energies, "erg"),
+                'lambdas':  u.Quantity(vpacket_tracker.nus, "Hz").to("angstrom", u.spectral()),
             }
+        # real packets
         mask = self.transport_state.emitted_packet_mask
         return {
             'last_interaction_type': self.transport_state.last_interaction_type[mask],
@@ -84,8 +119,9 @@ class SDECPlotter:
             'last_line_interaction_out_id': self.transport_state.last_line_interaction_out_id[mask],
             'last_line_interaction_in_nu': self.transport_state.last_line_interaction_in_nu[mask],
             'last_interaction_in_r': self.transport_state.last_interaction_in_r[mask],
-            'packet_nus': self.transport_state.packet_collection.output_nus[mask],
-            'packet_energies': self.transport_state.packet_collection.output_energies[mask],
+            'nus': self.transport_state.packet_collection.output_nus[mask],
+            'energies': self.transport_state.packet_collection.output_energies[mask],
+            'lambdas': self.transport_state.packet_collection.output_nus[mask].to("angstrom", u.spectral()),
         }
 
     @classmethod
