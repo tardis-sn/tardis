@@ -35,21 +35,65 @@ class SDECPlotter:
     model, and allows to plot it in matplotlib and plotly.
     """
 
-    def __init__(self, data, sim):
+    def __init__(self, sim, packets_mode='virtual'):
         """
-        Initialize the SDECPlotter with required data of simulation model.
+        Initialize the SDECPlotter with required simulation model data.
 
         Parameters
         ----------
-        data : dict of SimulationPacketData
-            Dictionary to store data required for SDEC plot, for both packet
-            modes i.e. real and virtual
+        sim : tardis.simulation.Simulation
+            TARDIS simulation object containing the model data
         """
-        self.data = data
+        if packets_mode not in ["virtual", "real"]:
+            raise ValueError(
+                "Invalid value passed to packets_mode. Only "
+                "allowed values are 'virtual' or 'real'"
+            )
+        # Store simulation components
         self.simulation = sim
         self.transport_state = sim.transport.transport_state
         self.plasma = sim.plasma
         self.simulation_state = sim.simulation_state
+
+        self.spectrum = getattr(sim.spectrum_solver, f"spectrum_{packets_mode}_packets")
+
+        self.packet_data = self._get_packet_data(packets_mode)
+
+    def _get_packet_data(self, packets_mode):
+        """
+        Get packet-specific data based on the packet mode.
+
+        Parameters
+        ----------
+        packets_mode : str
+            Either 'virtual' or 'real'
+
+        Returns
+        -------
+        dict
+            Dictionary containing packet-specific data
+        """
+        if packets_mode == "virtual":
+            vpacket_tracker = self.transport_state.vpacket_tracker
+            return {
+                'last_interaction_type': vpacket_tracker.last_interaction_type,
+                'last_line_interaction_in_id': vpacket_tracker.last_interaction_in_id,
+                'last_line_interaction_out_id': vpacket_tracker.last_interaction_out_id,
+                'last_line_interaction_in_nu': vpacket_tracker.last_interaction_in_nu,
+                'last_interaction_in_r': vpacket_tracker.last_interaction_in_r,
+                'packet_nus': u.Quantity(vpacket_tracker.nus, "Hz"),
+                'packet_energies': u.Quantity(vpacket_tracker.energies, "erg"),
+            }
+        mask = self.transport_state.emitted_packet_mask
+        return {
+            'last_interaction_type': self.transport_state.last_interaction_type[mask],
+            'last_line_interaction_in_id': self.transport_state.last_line_interaction_in_id[mask],
+            'last_line_interaction_out_id': self.transport_state.last_line_interaction_out_id[mask],
+            'last_line_interaction_in_nu': self.transport_state.last_line_interaction_in_nu[mask],
+            'last_interaction_in_r': self.transport_state.last_interaction_in_r[mask],
+            'packet_nus': self.transport_state.packet_collection.output_nus[mask],
+            'packet_energies': self.transport_state.packet_collection.output_energies[mask],
+        }
 
     @classmethod
     def from_simulation(cls, sim):
