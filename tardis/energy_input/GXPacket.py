@@ -33,7 +33,7 @@ gxpacket_spec = [
     ("shell", int64),
     ("time_start", float64),
     ("time_index", int64),
-    ("tau", float64),
+    ("tau_event", float64),
 ]
 
 
