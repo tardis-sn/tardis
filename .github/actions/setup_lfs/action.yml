@@ -1,12 +1,16 @@
 name: "Setup LFS"
-description: "Pull LFS repositories and caches them"
+description: "Sets up Git LFS, retrieves LFS cache and fails if cache is not available"
 
 
 inputs:
   regression-data-repo:
-    description: "tardis regression data repository"
+    description: "Repository containing regression data (format: owner/repo)"
     required: false
     default: "tardis-sn/tardis-regression-data"
+  atom-data-sparse:
+    description: "If true, only downloads atom_data/kurucz_cd23_chianti_H_He.h5 instead of full regression data"
+    required: false
+    default: 'false'
 
 runs:
   using: "composite"
@@ -16,37 +20,31 @@ runs:
       with:
         repository: ${{ inputs.regression-data-repo }}
         path: tardis-regression-data
+        sparse-checkout: ${{ inputs.atom-data-sparse == 'true' && 'atom_data/kurucz_cd23_chianti_H_He.h5' || '' }}
+        lfs: false
 
     - name: Create LFS file list
-      run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+      run: |
+        if [ "${{ inputs.atom-data-sparse }}" == "true" ]; then
+          echo "Using atom data sparse checkout"
+          echo "atom_data/kurucz_cd23_chianti_H_He.h5" > .lfs-files-list
+        else
+          echo "Using full repository checkout"
+          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-files-list
+        fi
       working-directory: tardis-regression-data
       shell: bash
-
+    
     - name: Restore LFS cache
       uses: actions/cache/restore@v4
       id: lfs-cache-regression-data
       with:
         path: tardis-regression-data/.git/lfs
-        key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
-
-    - name: Git LFS Pull
-      run: git lfs pull
-      working-directory: tardis-regression-data
-      if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
-      shell: bash
+        key: tardis-regression-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
+        fail-on-cache-miss: true
 
     - name: Git LFS Checkout
       run: git lfs checkout
       working-directory: tardis-regression-data
       if: steps.lfs-cache-regression-data.outputs.cache-hit == 'true'
       shell: bash
-
-    - name: Save LFS cache if not found
-      # uses fake ternary
-      # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
-      if: ${{ steps.lfs-cache-regression-data.outputs.cache-hit != 'true' && !contains(github.ref, 'merge') && always() || false }}
-      uses: actions/cache/save@v4
-      id: lfs-cache-regression-data-save
-      with:
-        path: tardis-regression-data/.git/lfs
-        key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-regression-data/.lfs-assets-id') }}-v1
