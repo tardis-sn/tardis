@@ -35,104 +35,18 @@ class SDECPlotter:
     model, and allows to plot it in matplotlib and plotly.
     """
 
-    def __init__(self, sim, packets_mode='virtual'):
-        """
-        Initialize the SDECPlotter with required simulation model data.
-
-        Parameters
-        ----------
-        sim : tardis.simulation.Simulation
-            TARDIS simulation object containing the model data
-        """
-        if packets_mode not in ["virtual", "real"]:
-            raise ValueError(
-                "Invalid value passed to packets_mode. Only "
-                "allowed values are 'virtual' or 'real'"
-            )
-        # Store simulation components
-        self.simulation = sim
-        self.transport_state = sim.transport.transport_state
-        self.t_inner = sim.simulation_state.packet_source.temperature
-        self.r_inner = sim.simulation_state.geometry.r_inner_active
-
-        self.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
-            "line_id"
-        )
-        self.spectrum = getattr(sim.spectrum_solver, f"spectrum_{packets_mode}_packets")
-
-        self.packets_df = pd.DataFrame(self._get_packet_data(packets_mode))
-
-         # Create dataframe of packets that experience line interaction
-        line_mask = (self.packets_df["last_interaction_type"] > -1) & (
-            self.packets_df["last_line_interaction_in_id"] > -1
-        )  # & operator is quite faster than np.logical_and on pd.Series
-        self.packets_df_line_interaction = self.packets_df.loc[line_mask].copy()
-
-        # Add columns for atomic number of last interaction out
-        self.packets_df_line_interaction["last_line_interaction_atom"] = (
-            self.lines_df["atomic_number"]
-            .iloc[
-                self.packets_df_line_interaction["last_line_interaction_out_id"]
-            ]
-            .to_numpy()
-        )
-        # Add columns for the species id of last interaction
-        # Species id is given by 100 * Z + X, where Z is atomic number and X is ion number
-        self.packets_df_line_interaction["last_line_interaction_species"] = (
-            self.lines_df["atomic_number"]
-            .iloc[
-                self.packets_df_line_interaction["last_line_interaction_out_id"]
-            ]
-            .to_numpy()
-            * 100
-            + self.lines_df["ion_number"]
-            .iloc[
-                self.packets_df_line_interaction["last_line_interaction_out_id"]
-            ]
-            .to_numpy()
-        )
-
-    def _get_packet_data(self, packets_mode):
-        """
-        Get packet-specific data based on the packet mode.
-
-        Parameters
-        ----------
-        packets_mode : str
-            Either 'virtual' or 'real'
-
-        Returns
-        -------
-        dict
-            Dictionary containing packet-specific data
-        """
-        if packets_mode == "virtual":
-            vpacket_tracker = self.transport_state.vpacket_tracker
-            return {
-                'last_interaction_type': vpacket_tracker.last_interaction_type,
-                'last_line_interaction_in_id': vpacket_tracker.last_interaction_in_id,
-                'last_line_interaction_out_id': vpacket_tracker.last_interaction_out_id,
-                'last_line_interaction_in_nu': vpacket_tracker.last_interaction_in_nu,
-                'last_interaction_in_r': vpacket_tracker.last_interaction_in_r,
-                'nus': u.Quantity(vpacket_tracker.nus, "Hz"),
-                'energies': u.Quantity(vpacket_tracker.energies, "erg"),
-                'lambdas':  u.Quantity(vpacket_tracker.nus, "Hz").to("angstrom", u.spectral()),
-            }
-        # real packets
-        mask = self.transport_state.emitted_packet_mask
-        return {
-            'last_interaction_type': self.transport_state.last_interaction_type[mask],
-            'last_line_interaction_in_id': self.transport_state.last_line_interaction_in_id[mask],
-            'last_line_interaction_out_id': self.transport_state.last_line_interaction_out_id[mask],
-            'last_line_interaction_in_nu': self.transport_state.last_line_interaction_in_nu[mask],
-            'last_interaction_in_r': self.transport_state.last_interaction_in_r[mask],
-            'nus': self.transport_state.packet_collection.output_nus[mask],
-            'energies': self.transport_state.packet_collection.output_energies[mask],
-            'lambdas': self.transport_state.packet_collection.output_nus[mask].to("angstrom", u.spectral()),
-        }
+    def __init__(self):
+        """Initialize an empty SDECPlotter instance."""
+        self.packets_df = None
+        self.packets_df_line_interaction = None
+        self.spectrum = None
+        self.lines_df = None
+        self.t_inner = None
+        self.r_inner = None
+        self.time_of_simulation = None
 
     @classmethod
-    def from_simulation(cls, sim):
+    def from_simulation(cls, sim, packets_mode='virtual'):
         """
         Create an instance of SDECPlotter from a TARDIS simulation object.
 
@@ -140,15 +54,44 @@ class SDECPlotter:
         ----------
         sim : tardis.simulation.Simulation
             TARDIS Simulation object produced by running a simulation
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered (default: 'virtual')
 
         Returns
         -------
         SDECPlotter
         """
-        return cls(sim)
+        if packets_mode not in ["virtual", "real"]:
+            raise ValueError(
+                "Invalid value passed to packets_mode. Only "
+                "allowed values are 'virtual' or 'real'"
+            )
+
+        if packets_mode == "virtual" and not hasattr(sim.transport.transport_state, 'vpacket_tracker'):
+            raise ValueError(
+                "SDECPlotter doesn't have any data for virtual packets population and SDEC "
+                "plot for the same was requested. Either set virtual_packet_logging: True "
+                "in your configuration file to generate SDEC plot with virtual packets, or "
+                "pass packets_mode='real' in your function call to generate SDEC plot with "
+                "real packets."
+            )
+
+        plotter = cls()
+
+
+        plotter.t_inner = sim.simulation_state.packet_source.temperature
+        plotter.r_inner = sim.simulation_state.geometry.r_inner_active
+        plotter.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index("line_id")
+        plotter.time_of_simulation = sim.transport.transport_state.packet_collection.time_of_simulation * u.s
+        plotter.spectrum = getattr(sim.spectrum_solver, f"spectrum_{packets_mode}_packets")
+        packet_data = plotter._get_packet_data(sim.transport.transport_state, packets_mode)
+        plotter.packets_df = pd.DataFrame(packet_data)
+        plotter._process_line_interactions()
+
+        return plotter
 
     @classmethod
-    def from_hdf(cls, hdf_fpath, packets_mode=None):
+    def from_hdf(cls, hdf_fpath, packets_mode='virtual'):
         """
         Create an instance of SDECPlotter from a simulation HDF file.
 
@@ -157,17 +100,157 @@ class SDECPlotter:
         hdf_fpath : str
             Valid path to the HDF file where simulation is saved
         packets_mode : {'virtual', 'real'}, optional
-            Mode of packets to be considered, either real or virtual. If not
-            specified, both modes are returned
+            Mode of packets to be considered (default: 'virtual')
 
         Returns
         -------
         SDECPlotter
         """
-        with pd.HDFStore(hdf_fpath, "r") as hdf:
-            sim = hdf["/simulation"]
-        return cls(pu.create_packet_data_dict_from_hdf(hdf_fpath, packets_mode))
+        if packets_mode not in ["virtual", "real"]:
+            raise ValueError(
+                "Invalid value passed to packets_mode. Only "
+                "allowed values are 'virtual' or 'real'"
+            )
 
+        plotter = cls()
+
+        with pd.HDFStore(hdf_fpath, "r") as hdf:
+            plotter.t_inner = u.Quantity(
+                hdf["/simulation/simulation_state/scalars"].t_inner, "K"
+            )
+            plotter.r_inner = u.Quantity(
+                hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
+            )
+            plotter.lines_df = (
+                hdf["/simulation/plasma/lines"]
+                .reset_index()
+                .set_index("line_id")
+            )
+            plotter.time_of_simulation = u.Quantity(
+                hdf[
+                    "/simulation/transport/transport_state/scalars"
+                ].time_of_simulation,
+                "s",
+            )
+            # Load spectrum data
+            spectrum_prefix = f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+            plotter.spectrum = plotter._load_spectrum_from_hdf(hdf, spectrum_prefix)
+
+            # Load packet data
+            packet_data = plotter._load_packet_data_from_hdf(hdf, packets_mode)
+            plotter.packets_df = pd.DataFrame(packet_data)
+
+            # Process line interactions
+            plotter._process_line_interactions()
+
+        return plotter
+
+    def _get_packet_data(self, transport_state, packets_mode):
+        """Get packet data from transport state based on mode."""
+        if packets_mode == "virtual":
+            vpacket_tracker = transport_state.vpacket_tracker
+            return {
+                'last_interaction_type': vpacket_tracker.last_interaction_type,
+                'last_line_interaction_in_id': vpacket_tracker.last_interaction_in_id,
+                'last_line_interaction_out_id': vpacket_tracker.last_interaction_out_id,
+                'last_line_interaction_in_nu': vpacket_tracker.last_interaction_in_nu,
+                'last_interaction_in_r': vpacket_tracker.last_interaction_in_r,
+                'nus': u.Quantity(vpacket_tracker.nus, "Hz"),
+                'energies': u.Quantity(vpacket_tracker.energies, "erg"),
+                'lambdas': u.Quantity(vpacket_tracker.nus, "Hz").to("angstrom", u.spectral()),
+            }
+        else:  # real packets
+            mask = transport_state.emitted_packet_mask
+            return {
+                'last_interaction_type': transport_state.last_interaction_type[mask],
+                'last_line_interaction_in_id': transport_state.last_line_interaction_in_id[mask],
+                'last_line_interaction_out_id': transport_state.last_line_interaction_out_id[mask],
+                'last_line_interaction_in_nu': transport_state.last_line_interaction_in_nu[mask],
+                'last_interaction_in_r': transport_state.last_interaction_in_r[mask],
+                'nus': transport_state.packet_collection.output_nus[mask],
+                'energies': transport_state.packet_collection.output_energies[mask],
+                'lambdas': transport_state.packet_collection.output_nus[mask].to("angstrom", u.spectral()),
+            }
+
+    def _load_spectrum_from_hdf(self, hdf, prefix):
+        """Load spectrum data from HDF file."""
+        return {
+            'delta_frequency': u.Quantity(
+                hdf[f"{prefix}/scalars"].delta_frequency, "Hz"
+            ),
+            '_frequency': u.Quantity(
+                hdf[f"{prefix}/_frequency"].to_numpy(), "Hz"
+            ),
+            'luminosity_density_lambda': u.Quantity(
+                hdf[f"{prefix}/luminosity_density_lambda"].to_numpy(),
+                "erg / s cm"
+            ).to("erg / s AA"),
+            'wavelength': u.Quantity(
+                hdf[f"{prefix}/wavelength"].to_numpy(), "cm"
+            ).to("AA")
+        }
+
+    def _load_packet_data_from_hdf(self, hdf, packets_mode):
+        """Load packet data from HDF file based on mode."""
+        if packets_mode == "virtual":
+            prefix = "/simulation/transport/transport_state/virt_packet"
+            return {
+                'last_interaction_type': hdf[f"{prefix}_last_interaction_type"],
+                'last_line_interaction_in_id': hdf[f"{prefix}_last_line_interaction_in_id"],
+                'last_line_interaction_out_id': hdf[f"{prefix}_last_line_interaction_out_id"],
+                'last_line_interaction_in_nu': u.Quantity(
+                    hdf[f"{prefix}_last_interaction_in_nu"].to_numpy(), "Hz"
+                ),
+                'last_interaction_in_r': u.Quantity(
+                    hdf[f"{prefix}_last_interaction_in_r"].to_numpy(), "cm"
+                ),
+                'nus': u.Quantity(hdf[f"{prefix}_nus"].to_numpy(), "Hz"),
+                'energies': u.Quantity(hdf[f"{prefix}_energies"].to_numpy(), "erg"),
+                'lambdas': u.Quantity(hdf[f"{prefix}_nus"].to_numpy(), "Hz").to("angstrom", u.spectral()),
+            }
+        else:
+            prefix = "/simulation/transport/transport_state"
+            mask = hdf[f"{prefix}/emitted_packet_mask"].to_numpy()
+            return {
+                'last_interaction_type': hdf[f"{prefix}/last_interaction_type"].to_numpy()[mask],
+                'last_line_interaction_in_id': hdf[f"{prefix}/last_line_interaction_in_id"].to_numpy()[mask],
+                'last_line_interaction_out_id': hdf[f"{prefix}/last_line_interaction_out_id"].to_numpy()[mask],
+                'last_line_interaction_in_nu': u.Quantity(
+                    hdf[f"{prefix}/last_interaction_in_nu"].to_numpy()[mask], "Hz"
+                ),
+                'last_interaction_in_r': u.Quantity(
+                    hdf[f"{prefix}/last_interaction_in_r"].to_numpy()[mask], "cm"
+                ),
+                'nus': u.Quantity(hdf[f"{prefix}/output_nu"].to_numpy()[mask], "Hz"),
+                'energies': u.Quantity(hdf[f"{prefix}/output_energy"].to_numpy()[mask], "erg"),
+                'lambdas': u.Quantity(hdf[f"{prefix}/output_nu"].to_numpy()[mask], "Hz").to("angstrom", u.spectral()),
+            }
+
+    def _process_line_interactions(self):
+        """Process line interactions and create line interaction dataframe."""
+        # Create dataframe of packets that experience line interaction
+        line_mask = (self.packets_df["last_interaction_type"] > -1) & (
+            self.packets_df["last_line_interaction_in_id"] > -1
+        )
+        self.packets_df_line_interaction = self.packets_df.loc[line_mask].copy()
+
+        # Add columns for atomic number of last interaction out
+        self.packets_df_line_interaction["last_line_interaction_atom"] = (
+            self.lines_df["atomic_number"]
+            .iloc[self.packets_df_line_interaction["last_line_interaction_out_id"]]
+            .to_numpy()
+        )
+
+        # Add columns for the species id of last interaction
+        self.packets_df_line_interaction["last_line_interaction_species"] = (
+            self.lines_df["atomic_number"]
+            .iloc[self.packets_df_line_interaction["last_line_interaction_out_id"]]
+            .to_numpy()
+            * 100
+            + self.lines_df["ion_number"]
+            .iloc[self.packets_df_line_interaction["last_line_interaction_out_id"]]
+            .to_numpy()
+        )
     def _parse_species_list(self, species_list):
         """
         Parse user requested species list and create list of species ids to be used.
@@ -292,15 +375,6 @@ class SDECPlotter:
             raise ValueError(
                 "Invalid value passed to packets_mode. Only "
                 "allowed values are 'virtual' or 'real'"
-            )
-
-        if packets_mode == "virtual" and not hasattr(self.transport_state, 'vpacket_tracker'):
-            raise ValueError(
-                "SDECPlotter doesn't have any data for virtual packets population and SDEC "
-                "plot for the same was requested. Either set virtual_packet_logging: True "
-                "in your configuration file to generate SDEC plot with virtual packets, or "
-                "pass packets_mode='real' in your function call to generate SDEC plot with "
-                "real packets."
             )
 
         # Store the plottable range of each spectrum property which is
@@ -562,13 +636,12 @@ class SDECPlotter:
             )
 
         # Histogram weights are packet luminosities or flux
-        time_of_simulation = self.transport_state.packet_collection.time_of_simulation * u.s
         weights = (
             self.packets_df["energies"][
                 self.packet_nu_range_mask
             ]
             / self.lum_to_flux
-        ) / time_of_simulation
+        ) / self.time_of_simulation
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
@@ -660,7 +733,7 @@ class SDECPlotter:
                 bins=self.plot_frequency_bins.value,
                 weights=group["energies"]
                 / self.lum_to_flux
-                / time_of_simulation,
+                / self.time_of_simulation,
             )
 
             # Convert to luminosity density lambda
@@ -739,7 +812,6 @@ class SDECPlotter:
                 self.packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_species")
             )
-        time_of_simulation = self.transport_state.packet_collection.time_of_simulation * u.s
 
         for identifier, group in packets_df_grouped:
             # Histogram of specific species
@@ -748,7 +820,7 @@ class SDECPlotter:
                 bins=self.plot_frequency_bins.value,
                 weights=group["energies"]
                 / self.lum_to_flux
-                /time_of_simulation,
+                / self.time_of_simulation,
             )
 
             # Convert to luminosity density lambda
@@ -959,7 +1031,7 @@ class SDECPlotter:
 
         return plt.gca()
 
-    def _plot_emission_mpl(self):
+    def _plot_emission_mpl(self, ax):
         """Plot emission part of the SDEC Plot using matplotlib."""
         # To create stacked area chart in matplotlib, we will start with zero
         # lower level and will keep adding luminosities to it (upper level)
