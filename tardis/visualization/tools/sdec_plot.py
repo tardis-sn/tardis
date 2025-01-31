@@ -125,7 +125,7 @@ class SDECPlotter:
         }
 
     @classmethod
-    def from_simulation(cls, sim):
+    def from_simulation(cls, sim, packets_mode='virtual'):
         """
         Create an instance of SDECPlotter from a TARDIS simulation object.
 
@@ -133,6 +133,8 @@ class SDECPlotter:
         ----------
         sim : tardis.simulation.Simulation
             TARDIS Simulation object produced by running a simulation
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered (default: 'virtual')
 
         Returns
         -------
@@ -164,8 +166,7 @@ class SDECPlotter:
         hdf_fpath : str
             Valid path to the HDF file where simulation is saved
         packets_mode : {'virtual', 'real'}, optional
-            Mode of packets to be considered, either real or virtual. If not
-            specified, both modes are returned
+            Mode of packets to be considered (default: 'virtual')
 
         Returns
         -------
@@ -196,6 +197,145 @@ class SDECPlotter:
 
         return plotter
 
+        plotter = cls()
+
+        with pd.HDFStore(hdf_fpath, "r") as hdf:
+            plotter.t_inner = u.Quantity(
+                hdf["/simulation/simulation_state/scalars"].t_inner, "K"
+            )
+            plotter.r_inner = u.Quantity(
+                hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
+            )
+            plotter.lines_df = (
+                hdf["/simulation/plasma/lines"]
+                .reset_index()
+                .set_index("line_id")
+            )
+            plotter.time_of_simulation = u.Quantity(
+                hdf[
+                    "/simulation/transport/transport_state/scalars"
+                ].time_of_simulation,
+                "s",
+            )
+            # Load spectrum data
+            spectrum_prefix = f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+            plotter.spectrum = plotter._load_spectrum_from_hdf(hdf, spectrum_prefix)
+
+            # Load packet data
+            packet_data = plotter._load_packet_data_from_hdf(hdf, packets_mode)
+            plotter.packets_df = pd.DataFrame(packet_data)
+
+            # Process line interactions
+            plotter._process_line_interactions()
+
+        return plotter
+
+    def _get_packet_data(self, transport_state, packets_mode):
+        """Get packet data from transport state based on mode."""
+        if packets_mode == "virtual":
+            vpacket_tracker = transport_state.vpacket_tracker
+            return {
+                'last_interaction_type': vpacket_tracker.last_interaction_type,
+                'last_line_interaction_in_id': vpacket_tracker.last_interaction_in_id,
+                'last_line_interaction_out_id': vpacket_tracker.last_interaction_out_id,
+                'last_line_interaction_in_nu': vpacket_tracker.last_interaction_in_nu,
+                'last_interaction_in_r': vpacket_tracker.last_interaction_in_r,
+                'nus': u.Quantity(vpacket_tracker.nus, "Hz"),
+                'energies': u.Quantity(vpacket_tracker.energies, "erg"),
+                'lambdas': u.Quantity(vpacket_tracker.nus, "Hz").to("angstrom", u.spectral()),
+            }
+        else:  # real packets
+            mask = transport_state.emitted_packet_mask
+            return {
+                'last_interaction_type': transport_state.last_interaction_type[mask],
+                'last_line_interaction_in_id': transport_state.last_line_interaction_in_id[mask],
+                'last_line_interaction_out_id': transport_state.last_line_interaction_out_id[mask],
+                'last_line_interaction_in_nu': transport_state.last_line_interaction_in_nu[mask],
+                'last_interaction_in_r': transport_state.last_interaction_in_r[mask],
+                'nus': transport_state.packet_collection.output_nus[mask],
+                'energies': transport_state.packet_collection.output_energies[mask],
+                'lambdas': transport_state.packet_collection.output_nus[mask].to("angstrom", u.spectral()),
+            }
+
+    def _load_spectrum_from_hdf(self, hdf, prefix):
+        """Load spectrum data from HDF file."""
+        return {
+            'delta_frequency': u.Quantity(
+                hdf[f"{prefix}/scalars"].delta_frequency, "Hz"
+            ),
+            '_frequency': u.Quantity(
+                hdf[f"{prefix}/_frequency"].to_numpy(), "Hz"
+            ),
+            'luminosity_density_lambda': u.Quantity(
+                hdf[f"{prefix}/luminosity_density_lambda"].to_numpy(),
+                "erg / s cm"
+            ).to("erg / s AA"),
+            'wavelength': u.Quantity(
+                hdf[f"{prefix}/wavelength"].to_numpy(), "cm"
+            ).to("AA")
+        }
+
+    def _load_packet_data_from_hdf(self, hdf, packets_mode):
+        """Load packet data from HDF file based on mode."""
+        if packets_mode == "virtual":
+            prefix = "/simulation/transport/transport_state/virt_packet"
+            return {
+                'last_interaction_type': hdf[f"{prefix}_last_interaction_type"],
+                'last_line_interaction_in_id': hdf[f"{prefix}_last_line_interaction_in_id"],
+                'last_line_interaction_out_id': hdf[f"{prefix}_last_line_interaction_out_id"],
+                'last_line_interaction_in_nu': u.Quantity(
+                    hdf[f"{prefix}_last_interaction_in_nu"].to_numpy(), "Hz"
+                ),
+                'last_interaction_in_r': u.Quantity(
+                    hdf[f"{prefix}_last_interaction_in_r"].to_numpy(), "cm"
+                ),
+                'nus': u.Quantity(hdf[f"{prefix}_nus"].to_numpy(), "Hz"),
+                'energies': u.Quantity(hdf[f"{prefix}_energies"].to_numpy(), "erg"),
+                'lambdas': u.Quantity(hdf[f"{prefix}_nus"].to_numpy(), "Hz").to("angstrom", u.spectral()),
+            }
+        else:
+            prefix = "/simulation/transport/transport_state"
+            mask = hdf[f"{prefix}/emitted_packet_mask"].to_numpy()
+            return {
+                'last_interaction_type': hdf[f"{prefix}/last_interaction_type"].to_numpy()[mask],
+                'last_line_interaction_in_id': hdf[f"{prefix}/last_line_interaction_in_id"].to_numpy()[mask],
+                'last_line_interaction_out_id': hdf[f"{prefix}/last_line_interaction_out_id"].to_numpy()[mask],
+                'last_line_interaction_in_nu': u.Quantity(
+                    hdf[f"{prefix}/last_interaction_in_nu"].to_numpy()[mask], "Hz"
+                ),
+                'last_interaction_in_r': u.Quantity(
+                    hdf[f"{prefix}/last_interaction_in_r"].to_numpy()[mask], "cm"
+                ),
+                'nus': u.Quantity(hdf[f"{prefix}/output_nu"].to_numpy()[mask], "Hz"),
+                'energies': u.Quantity(hdf[f"{prefix}/output_energy"].to_numpy()[mask], "erg"),
+                'lambdas': u.Quantity(hdf[f"{prefix}/output_nu"].to_numpy()[mask], "Hz").to("angstrom", u.spectral()),
+            }
+
+    def _process_line_interactions(self):
+        """Process line interactions and create line interaction dataframe."""
+        # Create dataframe of packets that experience line interaction
+        line_mask = (self.packets_df["last_interaction_type"] > -1) & (
+            self.packets_df["last_line_interaction_in_id"] > -1
+        )
+        self.packets_df_line_interaction = self.packets_df.loc[line_mask].copy()
+
+        # Add columns for atomic number of last interaction out
+        self.packets_df_line_interaction["last_line_interaction_atom"] = (
+            self.lines_df["atomic_number"]
+            .iloc[self.packets_df_line_interaction["last_line_interaction_out_id"]]
+            .to_numpy()
+        )
+
+        # Add columns for the species id of last interaction
+        self.packets_df_line_interaction["last_line_interaction_species"] = (
+            self.lines_df["atomic_number"]
+            .iloc[self.packets_df_line_interaction["last_line_interaction_out_id"]]
+            .to_numpy()
+            * 100
+            + self.lines_df["ion_number"]
+            .iloc[self.packets_df_line_interaction["last_line_interaction_out_id"]]
+            .to_numpy()
+        )
     def _parse_species_list(self, species_list):
         """
         Parse user requested species list and create list of species ids to be used.
@@ -932,7 +1072,7 @@ class SDECPlotter:
 
         return plt.gca()
 
-    def _plot_emission_mpl(self):
+    def _plot_emission_mpl(self, ax):
         """Plot emission part of the SDEC Plot using matplotlib."""
         # To create stacked area chart in matplotlib, we will start with zero
         # lower level and will keep adding luminosities to it (upper level)
