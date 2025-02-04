@@ -13,7 +13,6 @@ diagnostic visualizations.
     :maxdepth: 2
 
     analyzing_spectrum/index
-    spectrum-visualization-notebook
     how_to_sdec_plot
     how_to_liv_plot
     tutorial_convergence_plot
@@ -22,7 +21,7 @@ diagnostic visualizations.
 Analyzing TARDIS Spectra
 ========================
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     
     spectrum-visualization-notebook
 
