@@ -67,6 +67,12 @@ jobs:
         working-directory: tardis-regression-data
       
       - name: Git LFS Checkout
+        if: ${{ inputs.atom-data-sparse == 'true' }}
+        run: git lfs checkout atom_data/kurucz_cd23_chianti_H_He.h5
+        working-directory: tardis-regression-data
+
+      - name: Git LFS Checkout Full
+        if: ${{ inputs.atom-data-sparse == 'false' }}
         run: git lfs checkout
         working-directory: tardis-regression-data
   
