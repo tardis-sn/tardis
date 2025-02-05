@@ -1,3 +1,4 @@
+import astropy.units as u
 import numpy as np
 import pandas as pd
 
@@ -7,9 +8,9 @@ from tardis.transport.montecarlo.estimators.util import (
     integrate_array_by_blocks,
 )
 
-C = const.c.cgs.value
-H = const.h.cgs.value
-K_B = const.k_B.cgs.value
+C = const.c.cgs
+H = const.h.cgs
+K_B = const.k_B.cgs
 
 
 class SpontaneousRecombinationCoeffSolver:
@@ -18,7 +19,7 @@ class SpontaneousRecombinationCoeffSolver:
         photoionization_cross_sections,
     ):
         self.photoionization_cross_sections = photoionization_cross_sections
-        self.nu = self.photoionization_cross_sections.nu.values
+        self.nu = self.photoionization_cross_sections.nu.values * u.Hz
 
         self.photoionization_block_references = np.pad(
             self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])

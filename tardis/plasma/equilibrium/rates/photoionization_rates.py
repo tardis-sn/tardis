@@ -19,6 +19,53 @@ class AnalyticPhotoionizationRateSolver:
             )
         )
 
+    @staticmethod
+    def __reindex_ionization_rate_dataframe(
+        rate_dataframe, recombination=False
+    ):
+        rate_dataframe.index.names = [
+            "atomic_number",
+            "ion_number",
+            "level_number_source",
+        ]
+
+        rate_dataframe = rate_dataframe.reset_index()
+
+        if recombination:
+            rate_dataframe["ion_number_destination"] = rate_dataframe[
+                "ion_number"
+            ]
+            rate_dataframe["ion_number_source"] = (
+                rate_dataframe["ion_number"] + 1
+            )
+        else:
+            rate_dataframe["ion_number_source"] = rate_dataframe["ion_number"]
+            rate_dataframe["ion_number_destination"] = (
+                rate_dataframe["ion_number"] + 1
+            )
+
+        # ionized electrons are assumed to leave the ion in the ground state for now
+        rate_dataframe["level_number_destination"] = 0
+
+        not_fully_ionized_mask = (
+            rate_dataframe["atomic_number"] != rate_dataframe["ion_number"]
+        )
+
+        rate_dataframe = rate_dataframe[not_fully_ionized_mask]
+
+        rate_dataframe = rate_dataframe.set_index(
+            [
+                "atomic_number",
+                "ion_number",
+                "ion_number_source",
+                "ion_number_destination",
+                "level_number_source",
+                "level_number_destination",
+            ]
+        )
+
+        return rate_dataframe
+
     def compute_rates(
         self,
         photoionization_rate_coeff,
@@ -72,7 +119,18 @@ class AnalyticPhotoionizationRateSolver:
             * electron_number_density
         )
 
-        return photoionization_rate, spontaneous_recombination_rate
+        # Need to balance photoion and spont recomb rate
+
+        photoionization_rate = self.__reindex_ionization_rate_dataframe(
+            photoionization_rate, recombination=False
+        )
+        spontaneous_recombination_rate = (
+            self.__reindex_ionization_rate_dataframe(
+                spontaneous_recombination_rate, recombination=True
+            )
+        )
+
+        return [photoionization_rate, spontaneous_recombination_rate]
 
     def solve(
         self,
