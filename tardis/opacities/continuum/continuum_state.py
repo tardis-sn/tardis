@@ -55,7 +55,7 @@ class ContinuumState:
 
         Parameters
         ----------
-        plasma : tarids.plasma.BasePlasma
+        plasma : tardis.plasma.BasePlasma
             legacy base plasma
 
         Returns
