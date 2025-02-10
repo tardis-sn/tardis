@@ -68,9 +68,17 @@ Mission Statement
     io/configuration/index
     io/model/index
     io/optional/index
-    io/visualization/index
     io/output/index
     io/grid/TardisGridTutorial
+
+
+.. toctree::
+    :maxdepth: 3
+    :caption: Analysing Tardis Outputs
+    :hidden:
+
+    analysing_tardis_outputs/visualization/index
+
 
 .. toctree::
     :maxdepth: 2
