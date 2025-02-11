@@ -32,7 +32,6 @@ def test_elemental_mass_fraction(test_composition_simple, regression_data):
 def test_elemental_number_density(test_composition_simple, regression_data):
     number_density = test_composition_simple.elemental_number_density
 
-    print(type(number_density), "numba")
     assert isinstance(number_density, pd.DataFrame)
     assert np.all(number_density.values >= 0)
 
