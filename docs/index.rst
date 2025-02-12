@@ -78,7 +78,7 @@ Mission Statement
     :hidden:
 
     analysing_tardis_outputs/visualization/index
-    analysing_tardis_outputs/spectrum-visualization-notebook
+    analysing_tardis_outputs/spectrum/index
 
 
 .. toctree::
