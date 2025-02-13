@@ -5,6 +5,7 @@ import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
 from astropy import units as u
+from astropy.constants import c
 from numba import njit, prange
 from scipy.interpolate import interp1d
 
@@ -22,7 +23,7 @@ from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
-C_INV = 3.33564e-11
+C_INV = (1 / c.cgs.value)  # Convert to inverse of speed of light in cgs units
 PI = np.pi
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
