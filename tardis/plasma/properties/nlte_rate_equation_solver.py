@@ -126,6 +126,8 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 atomic_numbers,
                 number_density[shell],
                 initial_electron_densities[shell],
+                previous_solution=None,
+                method="singly_ionized"
             )
             # All first guess values have to be positive
             assert (
