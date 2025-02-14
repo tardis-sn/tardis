@@ -545,6 +545,8 @@ def calculate_first_guess(
     atomic_numbers,
     number_density,
     electron_density,
+    previous_solution=None,
+    method="singly_ionized"
 ):
     """Constructs a first guess for ion number densities and electron density, where all species are singly ionized.
 
@@ -558,15 +560,55 @@ def calculate_first_guess(
         Number density of present species.
     electron_density : float
         Current value of electron density.
+    previous_solution : numpy.array, optional
+        The previous solution from a previous iteration, used when method="previous_solution".
+    method : str, optional
+        The method to compute the first guess. Options:
+        -"singly_ionized": Asssume all ions are singly ionized (default).
+        -"previous_solution": Uses the previous solution if available.
+        -"lu-decomposition": Uses LU decomposition for a refined estimate.
+        -"auto": Tries multiple methods, switching if one fails.
 
     Returns
     -------
     numpy.array
         Guess for ion number densities and electron density.
     """
-    first_guess = pd.Series(0.0, index=rate_matrix_index)
-    for atomic_number in atomic_numbers:
-        first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
+    try:
+        if method == "singly_ionized":
+            first_guess = pd.series(0.0, inex=rate_matrix_index)
+            for atomic_number in atomic_numbers:
+                first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
+            
+        elif method == "previous_solution" and previous_solution is not None:
+            first_guess = previous_solution.copy()
+            
+        elif method == "lu_decomposition":
+            matrix_size = len(rate_matrix_index)
+            A = np.eye(matrix_size)
+            b = number_density.values
+            
+            first_guess = np.linalg.lstsq(A, b, rcond=None)[0]
+            
+        elif method == "auto":
+            try:
+                first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, method="previous_solution")
+            except:
+                try:
+                    first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, method="lu_decomposition")
+                
+                except:
+                    first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, method="singly_ionized")
+                    
+        else:
+            raise ValueError(f"Unknown method: {method}")
+    except Exception as e:
+        print(f"Warning: Failed with method {method}, falling back to singly ionized. Erro: {e}")
+        first_guess = pd.Series(0.0, index=rate_matrix_index)
+        for atomic_number in atomic_numbers:
+            first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
+        
+
     # TODO: After the first iteration, the new guess can be the old solution.
     first_guess = first_guess.values
     first_guess[-1] = electron_density
