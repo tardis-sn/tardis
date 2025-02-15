@@ -1,8 +1,8 @@
+from dataclasses import dataclass, field
+
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from dataclasses import dataclass, field
-
 
 @dataclass
 class ArtisModelData:
@@ -11,27 +11,56 @@ class ArtisModelData:
     mean_density: u.Quantity
     mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
 
+    def to_geometry(self):
+        """
+        Construct a HomologousRadial1DGeometry object from this ArtisModelData.
 
-def read_artis_density(fname):
+        We create v_inner and v_outer by treating the velocity array as boundary
+        points for the shells. The time_of_model is used as the time_explosion.
+        """
+        geometry = HomologousRadial1DGeometry(
+            v_inner=self.velocity[:-1],
+            v_outer=self.velocity[1:],
+            v_inner_boundary=None,
+            v_outer_boundary=None,
+            time_explosion=self.time_of_model,
+        )
+        return geometry
+
+
+def read_artis_density(fname, legacy_return=True):
     """
-    Reading a density file of the following structure (example; lines starting with a hash will be ignored):
-    The first density describes the mean density in the center of the model and is not used.
-    5
-    #index velocity [km/s] log10(density) [log10(g/cm^3)]
-    0 1.1e4 1.6e8
-    1 1.2e4 1.7e8
+    Read an ARTIS density file.
+
+    The file is expected to have:
+      • First line: number of shells (ignored beyond reading the integer).
+      • Second line: time of the model in days, which is then converted to seconds.
+      • Remaining lines: columns containing cell_id, velocity (km/s), log10(density),
+        and mass fractions of Ni56, Co56, Fe52, and Cr48.
+
+    Notes
+    -----
+    The first density (i.e., the center of the model) is not used in the returned arrays.
 
     Parameters
     ----------
     fname : str
-        filename or path with filename
+        Path to the ARTIS density file.
+    legacy_return : bool, optional (default: True)
+        If True, returns (time_of_model, velocity, mean_density).
+        If False, returns (time_of_model, velocity, mean_density, isotope_mass_fractions).
 
     Returns
     -------
     time_of_model : astropy.units.Quantity
-        time at which the model is valid
-    data : pandas.DataFrame
-        data frame containing index, velocity (in km/s) and density
+        The time at which the model is valid, in seconds.
+    velocity : astropy.units.Quantity
+        The velocity array in cm/s.
+    mean_density : astropy.units.Quantity
+        The array of mean densities in g/cm^3, excluding the first (central) value.
+    isotope_mass_fractions : pandas.DataFrame, optional
+        Mass fractions for Ni56, Co56, Fe52, and Cr48 if legacy_return=False.
+        The DataFrame has a MultiIndex of (Z, A) for rows and the cell_id for columns.
     """
     with open(fname) as fh:
         for i, line in enumerate(open(fname)):
@@ -43,13 +72,13 @@ def read_artis_density(fname):
                 break
 
     artis_model_columns = [
-        "index",
+        "cell_id",
         "velocities",
         "mean_densities_0",
-        "ni56_fraction",
-        "co56_fraction",
-        "fe52_fraction",
-        "cr48_fraction",
+        "ni56_mass_fraction",
+        "co56_mass_fraction",
+        "fe52_mass_fraction",
+        "cr48_mass_fraction",
     ]
 
     artis_model = pd.read_csv(
@@ -58,23 +87,40 @@ def read_artis_density(fname):
         usecols=(0, 1, 2, 4, 5, 6, 7),
         dtype={item: np.float64 for item in artis_model_columns},
         names=artis_model_columns,
-        # The argument `delim_whitespace` was changed to `sep`
-        #   because the first one is deprecated since version 2.2.0.
-        #   The regular expression means: the separation is one or
-        #   more spaces together (simple space, tabs, new lines).
         sep=r"\s+",
-    ).to_records(index=False)
+    )
 
     velocity = u.Quantity(artis_model["velocities"], "km/s").to("cm/s")
     mean_density = u.Quantity(10 ** artis_model["mean_densities_0"], "g/cm^3")[1:]
 
-    return time_of_model, velocity, mean_density
+    isotope_mass_fractions = pd.DataFrame(
+        artis_model[
+            [
+                "ni56_mass_fraction",
+                "co56_mass_fraction",
+                "fe52_mass_fraction",
+                "cr48_mass_fraction",
+            ]
+        ].T
+    )
+    isotope_mass_fractions.index = pd.MultiIndex.from_tuples(
+        [(28, 56), (27, 56), (26, 52), (24, 48)],
+        names=["Z", "A"],
+    )
+
+    isotope_mass_fractions.columns = artis_model["cell_id"]
+    isotope_mass_fractions.columns.name = "cell_id"
+
+    if legacy_return:
+        return time_of_model, velocity, mean_density
+    else:
+        return time_of_model, velocity, mean_density, isotope_mass_fractions
 
 
-def read_artis_mass_fractions(fname):
+def read_artis_mass_fractions(fname, normalize=True):
     """
     Reads mass fractions from an artis abundance file named e.g. 'artis_abundances.dat'.
-    Each row typically corresponds to one shell. The first column might be shell index,
+    Each row typically corresponds to one shell. The first column is shell index,
     followed by columns for each element.
 
     Parameters
@@ -90,25 +136,20 @@ def read_artis_mass_fractions(fname):
     """
     # Skip comment lines or set them to '#' if needed
     # Here we assume no header row, so we'll assign column names ourselves
-    df = pd.read_csv(fname, comment="#", delim_whitespace=True, header=None)
+    mass_fractions_df = pd.read_csv(
+        fname, comment="#", sep="\s+", header=None, index_col=0
+    )
 
-    # rename columns so that col0 is 'shell_index'
-    col_names = [f"col_{i}" for i in range(df.shape[1])]
-    df.columns = col_names
-    df = df.rename(columns={"col_0": "shell_index"})
+    mass_fractions_df.index.name = "cell_index"
+    mass_fractions_df.columns.Z = "element"
 
-    # Convert everything except 'shell_index' into mass fractions
-    # In real usage, you might want to give meaningful element names
-    # or read them from a separate file. Here we build placeholders.
-    ncols = df.shape[1] - 1
-    element_names = [f"X_{i}" for i in range(ncols)]
-    rename_map = {f"col_{i+1}": element_names[i] for i in range(ncols)}
-    df = df.rename(columns=rename_map)
+    if normalize:
+        mass_fractions_df = mass_fractions_df.div(mass_fractions_df.sum(axis=1), axis=0)
+    mass_fractions_df = mass_fractions_df.T
+    mass_fractions_df.index.name = "Z"
+    mass_fractions_df.columns.name = "cell_id"
 
-    # set 'shell_index' as index for clarity
-    df = df.set_index("shell_index")
-
-    return df
+    return mass_fractions_df
 
 
 def read_artis_model(density_fname, abundance_fname):
@@ -127,13 +168,23 @@ def read_artis_model(density_fname, abundance_fname):
     ArtisModelData
         Contains time_of_model, velocity, mean_density, and mass_fractions
     """
-    time_of_model, velocity, mean_density = read_artis_density(density_fname)
+    time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density(
+        density_fname, legacy_return=False
+    )
     mass_fractions = read_artis_mass_fractions(abundance_fname)
+    mass_fractions.index = pd.MultiIndex.from_arrays(
+        [mass_fractions.index, [-1] * len(mass_fractions.index)], names=["Z", "A"]
+    )
+    isotope_summed = isotope_mass_fractions.groupby(level="Z").sum()
+    mass_fractions = mass_fractions.sub(isotope_summed, level="Z", fill_value=0)
+
+    mass_fractions = pd.concat([mass_fractions, isotope_mass_fractions], axis=0)
 
     # Build the dataclass with the combined info:
     return ArtisModelData(
         time_of_model=time_of_model,
-        velocity=velocity.value,  # or keep as Quantity if you prefer
+        velocity=velocity,  # or keep as Quantity if you prefer
         mean_density=mean_density,
         mass_fractions=mass_fractions,
     )
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry

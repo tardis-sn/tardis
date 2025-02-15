@@ -39,3 +39,4 @@ def test_ascii_reader_invalid_volumes(example_model_file_dir):
         read_density_file(
             example_model_file_dir / "invalid_artis_model.dat", "artis"
         )
+
