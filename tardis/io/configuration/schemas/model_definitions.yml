@@ -181,7 +181,7 @@ definitions:
           description: filename
         model_isotope_time_0:
           type: quantity
-          default: 0 s
+          default: -1 s
           description: Initial time for isotope decay
 
       required:
@@ -199,7 +199,7 @@ definitions:
           - uniform
         model_isotope_time_0:
           type: quantity
-          default: 0 s
+          default: -1 s
           description: Initial time for isotope decay
       additionalProperties:
         type: number

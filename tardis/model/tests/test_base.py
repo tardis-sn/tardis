@@ -403,7 +403,7 @@ def non_uniform_simulation_state(atomic_dataset, example_model_file_dir):
     config = Configuration.from_yaml(
         example_model_file_dir / "tardis_configv1_isotope_iabund.yml"
     )
-
+    config.model.abundances.model_isotope_time_0 = 0 * u.s
     return SimulationState.from_config(config, atom_data=atomic_dataset)
 
 
@@ -435,6 +435,7 @@ class TestModelStateFromNonUniformAbundances:
         config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_isotope_iabund.yml"
         )
+        config.model.abundances.model_isotope_time_0 = 0 * u.s
         return SimulationState.from_config(config, atom_data=atomic_dataset)
 
     def test_atomic_mass(self, simulation_state):
