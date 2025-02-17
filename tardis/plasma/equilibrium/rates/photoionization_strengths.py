@@ -279,6 +279,152 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         )
 
 
+class AnalyticCorrectedPhotoionizationCoeffSolver(
+    SpontaneousRecombinationCoeffSolver
+):
+    def __init__(
+        self,
+        photoionization_cross_sections,
+    ):
+        super().__init__(photoionization_cross_sections)
+
+    def calculate_mean_intensity_photoionization_df(
+        self,
+        dilute_blackbody_radiationfield_state,
+    ):
+        """Calculates the mean intensity of the radiation field at each photoionization frequency.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DilutePlanckianRadiationField
+            The radiation field.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of mean intensities indexed by photoionization levels and
+            columns of cells.
+        """
+        mean_intensity = (
+            dilute_blackbody_radiationfield_state.calculate_mean_intensity(
+                self.nu
+            )
+        )
+        return pd.DataFrame(
+            mean_intensity,
+            index=self.photoionization_cross_sections.index,
+            columns=np.arange(
+                len(dilute_blackbody_radiationfield_state.temperature)
+            ),
+        )
+
+    def calculate_corrected_photoionization_rate_coeff(
+        self,
+        mean_intensity_photoionization_df,
+        photoionization_boltzmann_factor,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
+    ):
+        """
+        Calculate the stimulated emission corrected photoionization rate coefficient.
+
+        Parameters
+        ----------
+        mean_intensity_photoionization_df : pd.DataFrame
+            A DataFrame of the mean intensity of the radiation field at each frequency
+
+        Returns
+        -------
+        pd.DataFrame
+            The calculated photoionization rate coefficient.
+
+        Notes
+        -----
+        Equation 16 in Lucy 2003.
+        """
+        photoionization_rate_coeff = mean_intensity_photoionization_df.multiply(
+            self.common_prefactor,
+            axis=0,
+        )
+
+        correction_factor = (
+            1
+            - (lte_level_population * ion_population)
+            / (lte_ion_population * level_population)
+            * photoionization_boltzmann_factor
+        )
+
+        corrected_photoionization_rate_coeff = (
+            photoionization_rate_coeff.multiply(correction_factor, axis=0)
+        )
+
+        corrected_photoionization_rate_coeff = integrate_array_by_blocks(
+            corrected_photoionization_rate_coeff.values,
+            self.nu,
+            self.photoionization_block_references,
+        )
+        corrected_photoionization_rate_coeff = pd.DataFrame(
+            corrected_photoionization_rate_coeff,
+            index=self.photoionization_index,
+        )
+        return corrected_photoionization_rate_coeff
+
+    def solve(
+        self,
+        dilute_blackbody_radiationfield_state,
+        electron_temperature,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
+    ):
+        """
+        Prepares the ionization and recombination coefficients by grouping them for
+        ion numbers.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
+            The dilute black body radiation field state.
+        electron_temperature : u.Quantity
+            Electron temperature in each shell.
+
+        Returns
+        -------
+        photoionization_rate_coeff
+            Photoionization rate coefficient grouped by atomic number and ion number.
+        recombination_rate_coeff
+            Radiative recombination rate coefficient grouped by atomic number and ion number.
+        """
+        photoionization_boltzmann_factor = pd.DataFrame(
+            self.calculate_photoionization_boltzmann_factor(
+                electron_temperature
+            ),
+            index=self.common_prefactor.index,
+        )
+
+        mean_intensity_photoionization_df = (
+            self.calculate_mean_intensity_photoionization_df(
+                dilute_blackbody_radiationfield_state
+            )
+        )
+        # Equation 16 Lucy 2003
+        corrected_photoionization_rate_coeff = (
+            self.calculate_corrected_photoionization_rate_coeff(
+                mean_intensity_photoionization_df,
+                photoionization_boltzmann_factor,
+                lte_level_population,
+                level_population,
+                lte_ion_population,
+                ion_population,
+            )
+        )
+
+        return corrected_photoionization_rate_coeff
+
+
 class EstimatedPhotoionizationCoeffSolver:
     def __init__(
         self,
