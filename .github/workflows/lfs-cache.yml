@@ -52,7 +52,6 @@ jobs:
           fi
         working-directory: tardis-regression-data
 
-      
       - name: Test cache availability
         uses: actions/cache/restore@v4
         id: test-lfs-cache-regression-data
@@ -60,6 +59,13 @@ jobs:
           path: tardis-regression-data/.git/lfs
           key: tardis-regression-${{ inputs.atom-data-sparse == true && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
           lookup-only: true
+    
+      - name: label test
+        if: |
+          inputs.allow_lfs_pull != true
+        run: |
+          echo "Error: LFS pull is required but not allowed (allow_lfs_pull is false)"
+          exit 1
       
       - name: Fail if LFS pull is needed but not allowed
         if: |
