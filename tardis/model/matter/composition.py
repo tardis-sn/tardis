@@ -202,7 +202,9 @@ class Composition:
         if self.isotopic_mass_fraction.empty:
             return self.elemental_mass_fraction
         else:
-            self.isotopic_mass_fraction.decay(time_explosion)
+            return self.isotopic_mass_fraction.calculate_decayed_mass_fractions(
+                time_explosion
+            )
 
     def calculate_elemental_cell_masses(self, volume):
         """

@@ -93,7 +93,7 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
     if model_isotope_time_0 >= 0 * u.s:
         isotope_mass_fractions = IsotopicMassFraction(
             isotope_mass_fractions, time_0=model_isotope_time_0
-        ).decay(time_explosion)
+        ).calculate_decayed_mass_fractions(time_explosion)
 
     nuclide_mass_fractions = convert_to_nuclide_mass_fractions(
         isotope_mass_fractions, mass_fractions
@@ -171,7 +171,7 @@ def parse_mass_fractions_from_csvy(
 
     isotope_mass_fractions = IsotopicMassFraction(
         isotope_mass_fractions, time_0=csvy_model_config.model_isotope_time_0
-    ).decay(time_explosion)
+    ).calculate_decayed_mass_fractions(time_explosion)
     return convert_to_nuclide_mass_fractions(isotope_mass_fractions, mass_fractions)
 
 
