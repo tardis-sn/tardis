@@ -155,17 +155,6 @@ def tardis_regression_path(request):
         )
 
 
-@pytest.fixture(scope="session")
-def tardis_snapshot_path(request):
-    tardis_snapshot_path = request.config.getoption("--tardis-snapshot-data")
-    if tardis_snapshot_path is None:
-        pytest.skip("--tardis-snapshot-data was not specified")
-    else:
-        return Path(
-            os.path.expandvars(os.path.expanduser(tardis_snapshot_path))
-        )
-
-
 @pytest.fixture(scope="function")
 def tardis_config_verysimple():
     return yaml_load_file(
