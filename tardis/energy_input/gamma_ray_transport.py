@@ -154,7 +154,8 @@ def create_isotope_dicts_old(raw_isotope_abundance, cell_masses):
 
 
 def create_inventories_dict_old(isotope_dict):
-    """Function to create dictionary of inventories for each shell
+    """
+    Function to create dictionary of inventories for each shell
 
     Parameters
     ----------
