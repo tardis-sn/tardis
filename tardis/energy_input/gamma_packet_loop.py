@@ -190,7 +190,7 @@ def gamma_packet_loop(
                 + pair_creation_opacity
             ) * doppler_factor
 
-            packet.tau = -np.log(np.random.random())
+            packet.tau_event = -np.log(np.random.random())
 
             (
                 distance_interaction,
