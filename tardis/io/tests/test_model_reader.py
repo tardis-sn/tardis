@@ -45,7 +45,7 @@ def isotope_uniform_abundance(example_model_file_dir):
 
 
 def test_simple_read_artis_density(artis_density_fname: str):
-    time_of_model, velocity, mean_density = read_artis_density(
+    time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density(
         artis_density_fname
     )
 
