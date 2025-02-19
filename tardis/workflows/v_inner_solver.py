@@ -38,12 +38,51 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         if tau is not None:
             self.TAU_TARGET = np.log(tau)
 
+        self.iterations_w = np.full((self.total_iterations, self.simulation_state.no_of_shells), np.nan)
+        self.iterations_t_rad = np.full((self.total_iterations, self.simulation_state.no_of_shells), np.nan) * u.K
+        self.iterations_electron_densities = np.full((self.total_iterations, self.simulation_state.no_of_shells), np.nan)
+        self.iterations_t_inner = np.full(self.total_iterations, np.nan) * u.K
+        self.iterations_v_inner_boundary = np.full(self.total_iterations, np.nan) * u.cm / u.s
+        self.iterations_mean_optical_depth = np.full((self.total_iterations, self.simulation_state.no_of_shells), np.nan)
+
         initial_v_inner = self.estimate_v_inner()
 
         self.simulation_state.geometry.v_inner_boundary = initial_v_inner
         self.simulation_state.blackbody_packet_source.radius = (
             self.simulation_state.r_inner[0]
         )
+
+    def store_plasma_state(self, i, t_radiative, dilution_factor, electron_densities, t_inner, v_inner_boundary, tau_integ):
+        """Store current plasma information, 
+        including the velocity of the inner boundary 
+        and the Rosseland mean optical depth,
+        used in iterated i.
+
+        Parameters
+        ----------
+        i : int
+            current iteration index (0 for the first)
+        t_rad : astropy.units.Quantity
+            radiation temperature
+        dilution_factor : np.ndarray
+            dilution factor
+        electron_densities : np.ndarray
+            electron density
+        t_inner : astropy.units.Quantity
+            temperature of inner boundary
+        v_inner_boundary : astropy.units.Quantity
+            velocity of inner boundary
+        tau_integ : np.ndarray
+            Rosseland mean optical depth
+        """
+        self.iterations_t_rad[i, -len(t_radiative):] = t_radiative
+        self.iterations_w[i, -len(dilution_factor):] = dilution_factor
+        self.iterations_electron_densities[i, -len(electron_densities):] = electron_densities.values
+        self.iterations_t_inner[i] = t_inner
+
+        self.iterations_v_inner_boundary[i] = v_inner_boundary
+        
+        self.iterations_mean_optical_depth[i,-len(tau_integ):] = tau_integ
 
     def estimate_v_inner(self):
         """
@@ -53,7 +92,8 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
 
         Need some way to return and inspect the optical depths for later logging
         """
-        tau_integ = np.log(
+
+        self.tau_integ = np.log(
             get_tau_integ(
                 self.plasma_solver,
                 self.opacity_states["opacity_state"],
@@ -61,8 +101,10 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             )[self.mean_optical_depth]
         )
 
+        self.iterations_mean_optical_depth[self.completed_iterations,self.simulation_state.geometry.v_inner_boundary_index:] = self.tau_integ[self.simulation_state.geometry.v_inner_boundary_index:] 
+        
         interpolator = interp1d(
-            tau_integ[self.simulation_state.geometry.v_inner_boundary_index:],
+            self.tau_integ[self.simulation_state.geometry.v_inner_boundary_index:],
             self.simulation_state.geometry.v_inner_active,  # Only use the active values as we only need a numerical estimate, not an index
             fill_value="extrapolate",
         )
@@ -314,6 +356,15 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
+            self.store_plasma_state(
+                self.completed_iterations,
+                self.simulation_state.t_radiative,
+                self.simulation_state.dilution_factor,
+                self.plasma_solver.electron_densities,
+                self.simulation_state.t_inner,
+                self.simulation_state.geometry.v_inner_boundary,
+                self.tau_integ
+            )
 
             # Note that we are updating the class attribute here to ensure consistency
             self.opacity_states = self.solve_opacity()
@@ -353,6 +404,17 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
+
+        self.store_plasma_state(
+                self.completed_iterations,
+                self.simulation_state.t_radiative,
+                self.simulation_state.dilution_factor,
+                self.plasma_solver.electron_densities,
+                self.simulation_state.t_inner,
+                self.simulation_state.geometry.v_inner_boundary,
+                self.tau_integ
+            )
+        
         self.initialize_spectrum_solver(
             transport_state,
             self.opacity_states,
