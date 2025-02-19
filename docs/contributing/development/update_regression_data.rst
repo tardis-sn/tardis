@@ -4,7 +4,7 @@
 Update the Regression Data
 *************************
 
-A special kind of tests are executed only when ``pytest`` is called alongside the ``--regression-data`` flag. These tests compare the output of the TARDIS code (mostly arrays) against the information stored in the regression data files.
+A special kind of tests are executed only when ``pytest`` is called alongside the ``--tardis-regression-data`` flag. These tests compare the output of the TARDIS code (mostly arrays) against the information stored in the regression data files.
 
 TARDIS stores regression data in the `tardis-regression-data <https://github.com/tardis-sn/tardis-regression-data>`_ repository. Sometimes, this data needs to be updated. The procedure to update these files has been simplified, allowing for a more straightforward process.
 
@@ -20,7 +20,7 @@ If you suspect scenario B, please follow these instructions:
 #. Fork and clone the ``tardis-regression-data`` repository.
 #. Follow any necessary instructions within your local copy.
 #. Go to your local ``tardis`` repository and ensure you are working on the branch from which you want to generate new regression data.
-#. Generate new regression data with ``pytest tardis --regression-data=/path/to/tardis-regression-data --generate-reference``.
+#. Generate new regression data with ``pytest tardis --tardis-regression-data=/path/to/tardis-regression-data --generate-reference``.
 #. Check your results and ensure everything is correct.
 #. Make a new branch in ``tardis-regression-data``, push your new regression data, and open a pull request.
 
