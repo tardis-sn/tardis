@@ -100,8 +100,6 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
                 self.simulation_state,
             )[self.mean_optical_depth]
         )
-
-        self.iterations_mean_optical_depth[self.completed_iterations,self.simulation_state.geometry.v_inner_boundary_index:] = self.tau_integ[self.simulation_state.geometry.v_inner_boundary_index:] 
         
         interpolator = interp1d(
             self.tau_integ[self.simulation_state.geometry.v_inner_boundary_index:],
