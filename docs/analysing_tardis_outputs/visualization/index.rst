@@ -18,12 +18,6 @@ diagnostic visualizations.
     tutorial_convergence_plot
     tutorial_montecarlo_packet_visualization
 
-Analyzing TARDIS Spectra
-========================
-.. toctree::
-    :maxdepth: 1
-    
-    spectrum-visualization-notebook
 
 TARDIS Widgets (Graphical User Interfaces)
 ==========================================
