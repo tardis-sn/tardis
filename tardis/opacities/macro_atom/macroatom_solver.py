@@ -167,7 +167,7 @@ class MacroAtomSolver:
         macro_block_references = atomic_data.macro_atom_references[
             "block_references"
         ]
-        macro_atom_info = legacy_plasma.atomic_data.macro_atom_data
+        macro_atom_info = atomic_data.macro_atom_data
 
         return MacroAtomState(
             transition_probabilities,
@@ -175,5 +175,5 @@ class MacroAtomSolver:
             macro_atom_info["destination_level_idx"],
             macro_atom_info["lines_idx"],
             macro_block_references,
-            legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
+            atomic_data.lines_upper2macro_reference_idx,
         )
