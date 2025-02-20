@@ -147,13 +147,14 @@ class MacroAtomSolver:
             State of the macro atom ready to be placed into the OpacityState
         """
         if legacy_mode:
-            transition_probabilities = (
-                self.solve_legacy_transition_probabilities(
-                    atomic_data,
-                    j_blues,
-                    tau_sobolev,
-                    stimulated_emission_factor,
-                )
+            transition_probabilities = self.solve_legacy_transition_probabilities(
+                atomic_data,
+                j_blues,  # This currently should fail, missing beta_sobolevs
+                tau_sobolev,
+                stimulated_emission_factor,
+            )
+            raise NotImplementedError(
+                "This method is not yet implemented for legacy_mode"
             )
         else:
             transition_probabilities = self.solve_transition_probabilities(
