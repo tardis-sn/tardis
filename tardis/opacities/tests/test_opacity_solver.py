@@ -41,7 +41,7 @@ def test_opacity_solver(
         pass
     else:
         macroatom_state = MacroAtomSolver().solve(
-            legacy_plasma,
+            legacy_plasma.j_blues,
             legacy_plasma.atomic_data,
             actual.tau_sobolev,
             legacy_plasma.stimulated_emission_factor,

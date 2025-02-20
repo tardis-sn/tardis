@@ -347,7 +347,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             macro_atom_state = None
         else:
             macro_atom_state = self.macro_atom_solver.solve(
-                self.plasma_solver,
+                self.plasma_solver.j_blues,
                 self.plasma_solver.atomic_data,
                 opacity_state.tau_sobolev,
                 self.plasma_solver.stimulated_emission_factor,

@@ -122,7 +122,7 @@ class MacroAtomSolver:
 
     def solve(
         self,
-        legacy_plasma,
+        j_blues,
         atomic_data,
         tau_sobolev,
         stimulated_emission_factor,
@@ -150,7 +150,7 @@ class MacroAtomSolver:
             transition_probabilities = (
                 self.solve_legacy_transition_probabilities(
                     atomic_data,
-                    legacy_plasma,
+                    j_blues,
                     tau_sobolev,
                     stimulated_emission_factor,
                 )
@@ -158,7 +158,7 @@ class MacroAtomSolver:
         else:
             transition_probabilities = self.solve_transition_probabilities(
                 atomic_data,
-                legacy_plasma.j_blues,
+                j_blues,
                 tau_sobolev,
                 beta_sobolev,
                 stimulated_emission_factor,
