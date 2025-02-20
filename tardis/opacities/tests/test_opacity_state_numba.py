@@ -32,12 +32,12 @@ def test_opacity_state_to_numba(
             legacy_plasma.atomic_data,
             opacity_state.tau_sobolev,
             legacy_plasma.stimulated_emission_factor,
+            beta_sobolev=opacity_state.beta_sobolev,
+            legacy_mode=False,
         )
     else:
         macro_atom_state = None
-    actual = opacity_state.to_numba(
-        macro_atom_state, line_interaction_type
-    )
+    actual = opacity_state.to_numba(macro_atom_state, line_interaction_type)
 
     if sliced:
         index = slice(2, 5)

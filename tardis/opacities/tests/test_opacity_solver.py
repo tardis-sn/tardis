@@ -45,6 +45,8 @@ def test_opacity_solver(
             legacy_plasma.atomic_data,
             actual.tau_sobolev,
             legacy_plasma.stimulated_emission_factor,
+            beta_sobolev=actual.beta_sobolev,
+            legacy_mode=False,
         )
         pdt.assert_frame_equal(
             macroatom_state.transition_probabilities,
