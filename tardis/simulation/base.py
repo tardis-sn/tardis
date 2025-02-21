@@ -453,10 +453,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )  # TODO: Impliment
             else:
                 macro_atom_state = self.macro_atom.solve(
-                    self.plasma,
+                    self.plasma.j_blues,
                     self.plasma.atomic_data,
                     opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
+                    opacity_state.beta_sobolev,
+                    legacy_mode=False,
                 )
 
         transport_state = self.transport.initialize_transport_state(

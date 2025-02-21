@@ -122,7 +122,7 @@ class MacroAtomSolver:
 
     def solve(
         self,
-        legacy_plasma,
+        j_blues,
         atomic_data,
         tau_sobolev,
         stimulated_emission_factor,
@@ -147,18 +147,19 @@ class MacroAtomSolver:
             State of the macro atom ready to be placed into the OpacityState
         """
         if legacy_mode:
-            transition_probabilities = (
-                self.solve_legacy_transition_probabilities(
-                    atomic_data,
-                    legacy_plasma,
-                    tau_sobolev,
-                    stimulated_emission_factor,
-                )
+            transition_probabilities = self.solve_legacy_transition_probabilities(
+                atomic_data,
+                j_blues,  # This currently should fail, missing beta_sobolevs
+                tau_sobolev,
+                stimulated_emission_factor,
+            )
+            raise NotImplementedError(
+                "This method is not yet implemented for legacy_mode"
             )
         else:
             transition_probabilities = self.solve_transition_probabilities(
                 atomic_data,
-                legacy_plasma.j_blues,
+                j_blues,
                 tau_sobolev,
                 beta_sobolev,
                 stimulated_emission_factor,
@@ -167,7 +168,7 @@ class MacroAtomSolver:
         macro_block_references = atomic_data.macro_atom_references[
             "block_references"
         ]
-        macro_atom_info = legacy_plasma.atomic_data.macro_atom_data
+        macro_atom_info = atomic_data.macro_atom_data
 
         return MacroAtomState(
             transition_probabilities,
@@ -175,5 +176,5 @@ class MacroAtomSolver:
             macro_atom_info["destination_level_idx"],
             macro_atom_info["lines_idx"],
             macro_block_references,
-            legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
+            atomic_data.lines_upper2macro_reference_idx,
         )
