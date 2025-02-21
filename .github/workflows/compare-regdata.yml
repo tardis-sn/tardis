@@ -135,6 +135,7 @@ jobs:
               .join('\n');
             
             return artifactLinks;
+      
 
       - name: Find existing comment
         uses: peter-evans/find-comment@v3
@@ -179,3 +180,37 @@ jobs:
             The **`${{ github.workflow }}`** workflow has **failed** :x:
             
             [**Click here**](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true) to see the build log.
+
+  push-artifacts:
+    name: Push Artifacts to Repository
+    needs: [tests]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: compare_regression_data_*
+          path: artifacts
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Clone target repository
+        run: |
+          git clone https://x-access-token:${{ secrets.ATHARVA_TOKEN }}@github.com/atharva-2001/regression-data-comp.git
+          cd regression-data-comp
+          
+          # Create PR-specific directory
+          PR_DIR="PR-${{ github.event.pull_request.number }}"
+          mkdir -p "$PR_DIR"
+          
+          # Copy artifacts to PR directory
+          cp -r ../artifacts/* "$PR_DIR/"
+          
+          # Commit and push changes
+          git add "$PR_DIR"
+          git commit -m "Add regression data comparison for PR #${{ github.event.pull_request.number }}"
+          git push
