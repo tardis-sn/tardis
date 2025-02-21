@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from astropy import units as u
 from radioactivedecay import Inventory, Nuclide
-from radioactivedecay.utils import Z_to_elem
+from radioactivedecay.utils import Z_to_elem, elem_to_Z
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +80,7 @@ class IsotopicMassFraction(pd.DataFrame):
                     )
         return [Inventory(comp_dict, "g") for comp_dict in comp_dicts]
 
-    def decay(self, t):
+    def calculate_decayed_mass_fractions(self, time_decay):
         """
         Decay the Model
 
@@ -96,21 +96,67 @@ class IsotopicMassFraction(pd.DataFrame):
         """
         inventories = self.to_inventories()
         t_second = (
-            u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
+            u.Quantity(time_decay, u.day).to(u.s).value - self.time_0.to(u.s).value
         )
         logger.info(f"Decaying abundances for {t_second} seconds")
         if t_second < 0:
             logger.warning(
-                f"Decay time {t_second} is negative. This could indicate a miss-specified input model."
-                f" A negative decay time can potentially lead to negative abundances."
+                "Decay time %f is negative. This could indicate a miss-specified input model."
+                " A negative decay time can potentially lead to negative abundances.",
+                t_second,
             )
-        decayed_inventories = [item.decay(t_second) for item in inventories]
+        decayed_inventories = [item.decay(t_second, "s") for item in inventories]
         df = IsotopicMassFraction.from_inventories(decayed_inventories)
         df = df.sort_index()
         assert (
             df.ge(0.0).all().all()
         ), "Negative abundances detected. Please make sure your input abundances are correct."
         return df
+
+    def calculate_number_of_decays(self, time_decay, shell_masses=None):
+        """
+        Calculate the number of decays over a given time period for each shell.
+
+        Parameters
+        ----------
+        time_decay : astropy.units.Quantity
+            Time elapsed for which to compute the total decays (converted to days internally).
+        shell_masses : astropy.units.Quantity, optional
+            Masses of each shell. If provided, isotopes in each shell's inventory will be
+            multiplied by the corresponding shell mass.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A DataFrame of decays indexed by (atomic_number, mass_number),
+            with columns representing the decays in each shell.
+        """
+        # Convert the time to days for radioactivedecay
+        t_days = u.Quantity(time_decay, u.day).value
+
+        # Get inventories for each shell. If shell_masses is provided,
+        # each inventory is in grams of isotopes.
+        inventories = self.to_inventories(shell_masses)
+
+        decays_dict = {}
+        for shell_index, inventory in enumerate(inventories):
+            shell_decays = inventory.cumulative_decays(t_days, "d")
+            for isotope, dec_count in shell_decays.items():
+                element_symbol, massno_str = isotope.split("-")
+                atomic_number = elem_to_Z(element_symbol)
+                mass_number = int(massno_str)
+                decays_dict[(atomic_number, mass_number, shell_index)] = dec_count
+
+        # Build a decays DataFrame
+        decays_df = pd.DataFrame.from_dict(
+            decays_dict, orient="index", columns=["decays"]
+        )
+        decays_df.index = pd.MultiIndex.from_tuples(
+            decays_df.index, names=["atomic_number", "mass_number", "shell"]
+        )
+        decays_df = decays_df["decays"].unstack(level="shell").fillna(0)
+
+        return decays_df
 
     def as_atoms(self):
         """
