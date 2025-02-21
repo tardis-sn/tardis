@@ -221,6 +221,13 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     sim.run_final()
     return sim
 
+@pytest.fixture(scope="session")
+def simulation_verysimple_default(config_verysimple, atomic_dataset):
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    sim.run_final()
+    return sim
+
 
 @pytest.fixture(scope="session")
 def simulation_verysimple_vpacket_tracking(config_verysimple, atomic_dataset):

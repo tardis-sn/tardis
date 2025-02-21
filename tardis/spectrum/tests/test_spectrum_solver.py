@@ -18,13 +18,13 @@ class TestSpectrumSolver:
     @pytest.fixture(scope="class")
     def simulation_regression_data(
         self,
-        simulation_verysimple,
+        simulation_verysimple_default,
         request: pytest.FixtureRequest,
     ):
         request.cls.regression_data = RegressionData(request)
-        data = request.cls.regression_data.sync_hdf_store(simulation_verysimple)
+        data = request.cls.regression_data.sync_hdf_store(simulation_verysimple_default)
 
-        yield simulation_verysimple
+        yield simulation_verysimple_default
         data.close()
 
     def get_expected_data(self, key: str):
