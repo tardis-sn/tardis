@@ -152,9 +152,9 @@ class IsotopicMassFraction(pd.DataFrame):
             decays_dict, orient="index", columns=["decays"]
         )
         decays_df.index = pd.MultiIndex.from_tuples(
-            decays_df.index, names=["atomic_number", "mass_number", "shell"]
+            decays_df.index, names=["atomic_number", "mass_number", "cell_id"]
         )
-        decays_df = decays_df["decays"].unstack(level="shell").fillna(0)
+        decays_df = decays_df["decays"].unstack(level="cell_id").fillna(0)
 
         return decays_df
 
