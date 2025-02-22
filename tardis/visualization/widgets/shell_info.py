@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import ipywidgets as ipw
 import pandas as pd
 
@@ -8,6 +9,19 @@ from tardis.util.base import (
 )
 from tardis.visualization.widgets.util import create_table_widget
 
+=======
+from tardis import run_tardis
+from tardis.io.atom_data import download_atom_data
+from tardis.util.base import (
+    atomic_number2element_symbol,
+    species_tuple_to_string,
+)
+import pandas as pd
+import numpy as np
+import panel as pn
+
+pn.extension('tabulator')
+>>>>>>> 69644cd932 (GSoC Panel Objective 1)
 
 class BaseShellInfo:
     """The simulation information that is used by shell info widget"""
@@ -64,61 +78,47 @@ class BaseShellInfo:
                 "Dilution Factor": self.dilution_factor,
             }
         )
-        shells_temp_w.index = range(
-            1, len(self.t_radiative) + 1
-        )  # Overwrite index
+        shells_temp_w.index = range(1, len(self.t_radiative) + 1)  # Shells start at 1
         shells_temp_w.index.name = "Shell No."
-        # Format to string to make qgrid show values in scientific notations
         return shells_temp_w.map(lambda x: f"{x:.6e}")
 
     def element_count(self, shell_num):
-        """Generates fractional abundance of elements present in a specific
-        shell in a form that can be used by a table widget
+        """Generates fractional abundance of elements present in a specific shell
 
         Parameters
         ----------
         shell_num : int
-            Shell number (note: starts from 1, not 0 which is what simulation
-            model use)
+            Shell number (starts from 1)
 
         Returns
         -------
         pandas.DataFrame
-            Dataframe containing element symbol and fractional abundance in a
-            specific shell, against each atomic number
+            Dataframe with element symbol and fractional abundance
         """
         element_count_data = self.abundance[shell_num - 1].copy()
         element_count_data.index.name = "Z"
         element_count_data = element_count_data.fillna(0)
         return pd.DataFrame(
             {
-                "Element": element_count_data.index.map(
-                    atomic_number2element_symbol
-                ),
-                # Format to string to show in scientific notation
-                f"Frac. Ab. (Shell {shell_num})": element_count_data.map(
-                    "{:.6e}".format
-                ),
+                "Element": element_count_data.index.map(atomic_number2element_symbol),
+                f"Frac. Ab. (Shell {shell_num})": element_count_data.map("{:.6e}".format),
             }
         )
 
     def ion_count(self, atomic_num, shell_num):
-        """Generates fractional abundance of ions of a specific element and
-        shell, in a form that can be used by a table widget
+        """Generates fractional abundance of ions for a specific element and shell
 
         Parameters
         ----------
         atomic_num : int
             Atomic number of element
         shell_num : int
-            Shell number (note: starts from 1, not 0 which is what simulation
-            model use)
+            Shell number (starts from 1)
 
         Returns
         -------
         pandas.DataFrame
-            Dataframe containing ion specie and fractional abundance for a
-            specific element, against each ion number
+            Dataframe with ion species and fractional abundance
         """
         ion_num_density = self.ion_number_density[shell_num - 1].loc[atomic_num]
         element_num_density = self.number_density.loc[atomic_num, shell_num - 1]
@@ -130,39 +130,29 @@ class BaseShellInfo:
                 "Species": ion_count_data.index.map(
                     lambda x: species_tuple_to_string((atomic_num, x))
                 ),
-                f"Frac. Ab. (Z={atomic_num})": ion_count_data.map(
-                    "{:.6e}".format
-                ),
+                f"Frac. Ab. (Z={atomic_num})": ion_count_data.map("{:.6e}".format),
             }
         )
 
     def level_count(self, ion, atomic_num, shell_num):
-        """Generates fractional abundance of levels of a specific ion, element
-        and shell, in a form that can be used by a table widget
+        """Generates fractional abundance of levels for a specific ion, element, and shell
 
         Parameters
         ----------
         ion : int
-            Ion number (note: starts from 0, same what is used by simulation
-            model)
+            Ion number (starts from 0)
         atomic_num : int
             Atomic number of element
         shell_num : int
-            Shell number (note: starts from 1, not 0 which is what simulation
-            model use)
+            Shell number (starts from 1)
 
         Returns
         -------
         pandas.DataFrame
-            Dataframe containing fractional abundance for a specific ion,
-            against each level number
+            Dataframe with fractional abundance per level
         """
-        level_num_density = self.level_number_density[shell_num - 1].loc[
-            atomic_num, ion
-        ]
-        ion_num_density = self.ion_number_density[shell_num - 1].loc[
-            atomic_num, ion
-        ]
+        level_num_density = self.level_number_density[shell_num - 1].loc[atomic_num, ion]
+        ion_num_density = self.ion_number_density[shell_num - 1].loc[atomic_num, ion]
         level_count_data = level_num_density / ion_num_density  # Normalization
         level_count_data.index.name = "Level"
         level_count_data.name = f"Frac. Ab. (Ion={ion})"
@@ -171,17 +161,15 @@ class BaseShellInfo:
 
 
 class SimulationShellInfo(BaseShellInfo):
-    """The simulation information that is used by shell info widget, obtained
-    from a TARDIS Simulation object
-    """
+    """Shell info from a TARDIS Simulation object"""
 
     def __init__(self, sim_model):
-        """Initialize the object with TARDIS Simulation object
+        """Initialize with a TARDIS Simulation object
 
         Parameters
         ----------
         sim_model : tardis.simulation.Simulation
-            TARDIS Simulation object produced by running a simulation
+            TARDIS Simulation object
         """
         super().__init__(
             sim_model.simulation_state.t_radiative,
@@ -194,19 +182,15 @@ class SimulationShellInfo(BaseShellInfo):
 
 
 class HDFShellInfo(BaseShellInfo):
-    """The simulation information that is used by shell info widget, obtained
-    from a simulation HDF file
-    """
+    """Shell info from a simulation HDF file"""
 
     def __init__(self, hdf_fpath):
-        """Initialize the object with a simulation HDF file
+        """Initialize with a simulation HDF file
 
         Parameters
         ----------
         hdf_fpath : str
-            A valid path to a simulation HDF file (HDF file must be created
-            from a TARDIS Simulation object using :code:`to_hdf` method with
-            default arguments)
+            Path to a simulation HDF file
         """
         with pd.HDFStore(hdf_fpath, "r") as sim_data:
             super().__init__(
@@ -220,63 +204,96 @@ class HDFShellInfo(BaseShellInfo):
 
 
 class ShellInfoWidget:
-    """The Shell Info Widget to explore abundances in different shells.
-
-    It consists of four interlinked table widgets - shells table; element count,
-    ion count and level count tables - allowing to explore fractional abundances
-    all the way from elements, to ions, to levels by clicking on the rows of
-    tables.
-    """
+    """Widget to explore abundances in shells with four interlinked tables"""
 
     def __init__(self, shell_info_data):
-        """Initialize the object with the shell information of a simulation
-        model
-
-        Parameters
-        ----------
-        shell_info_data : subclass of BaseShellInfo
-            Shell information object constructed from Simulation object or HDF
-            file
-        """
         self.data = shell_info_data
 
-        # Creating the shells data table widget
-        self.shells_table = create_table_widget(
-            self.data.shells_data(), [30, 35, 35]
+        # Shells table
+        shells_df = self.data.shells_data()
+        self.shells_title = pn.pane.Markdown("### Shells", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
+        self.shells_table = pn.widgets.Tabulator(
+            shells_df,
+            layout="fit_data",
+            selectable=1,
+            widths={"Shell No.": 80, "Rad. Temp.": 120, "Dilution Factor": 120},
+            titles={"Shell No.": "Shell No.", "Rad. Temp.": "Rad. Temp. (K)", "Dilution Factor": "W"},
+            styles={'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
+            text_align="center",
+            header_align="center",
         )
 
-        # Creating the element count table widget
-        self.element_count_table = create_table_widget(
-            self.data.element_count(self.shells_table.df.index[0]),
-            [15, 30, 55],
-            changeable_col={
-                "index": -1,  # since last column will change names
-                # Shells table index will give all possible shell numbers
-                "other_names": [
-                    f"Frac. Ab. (Shell {shell_num})"
-                    for shell_num in self.shells_table.df.index
-                ],
-            },
+        # Element count table (Shell 1 initially)
+        element_df = self.data.element_count(1)
+        self.element_title = pn.pane.Markdown("### Elements (Shell 1)", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
+        self.element_count_table = pn.widgets.Tabulator(
+            element_df,
+            layout="fit_data",
+            selectable=1,
+            widths={"Element": 100, "Frac. Ab. (Shell 1)": 140},
+            styles={'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
+            text_align="center",
+            header_align="center",
         )
 
-        # Creating the ion count table widget
-        self.ion_count_table = create_table_widget(
-            self.data.ion_count(
-                self.element_count_table.df.index[0],
-                self.shells_table.df.index[0],
+        # Ion count table (initially empty, but ensure data is populated on selection)
+        self.ion_title = pn.pane.Markdown("### Ions (No Selection)", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
+        self.ion_count_table = pn.widgets.Tabulator(
+            pd.DataFrame(columns=["Species", "Frac. Ab."]),
+            layout="fit_data",
+            selectable=1,
+            widths={"Species": 140, "Frac. Ab.": 140},
+            styles={'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
+            text_align="center",
+            header_align="center",
+        )
+
+        # Level count table (initially empty, but ensure data is populated on selection)
+        self.level_title = pn.pane.Markdown("### Levels (No Selection)", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
+        self.level_count_table = pn.widgets.Tabulator(
+            pd.DataFrame(columns=["Level", "Frac. Ab."]),
+            layout="fit_data",
+            selectable=1,
+            widths={"Level": 100, "Frac. Ab.": 180},
+            styles={'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
+            text_align="center",
+            header_align="center",
+        )
+
+        # Bind events
+        self.shells_table.param.watch(self.update_element_count_table, "selection")
+        self.element_count_table.param.watch(self.update_ion_count_table, "selection")
+        self.ion_count_table.param.watch(self.update_level_count_table, "selection")
+
+        # Notes with compact styling
+        self.notes = pn.pane.HTML(
+            """
+            <div style="font-size: 12px; padding: 5px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 3px; color: #333;">
+                <b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (sum to 1)<br>
+                <b>W</b> denotes <i>Dilution Factor</i><br>
+                <b>Radiative Temp.</b> is in Kelvin
+            </div>
+            """,
+            width=350,
+        )
+
+        # Improved layout with compact, no-scroll design
+        self.layout = pn.Column(
+            pn.pane.Markdown("# TARDIS Shell Info Explorer", styles={'font-size': '20px', 'font-weight': 'bold', 'margin-bottom': '10px', 'color': '#333'}),
+            self.notes,
+            pn.Row(
+                pn.Column(self.shells_title, self.shells_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=320),
+                pn.Column(self.element_title, self.element_count_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=240),
+                pn.Column(self.ion_title, self.ion_count_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=280),
+                pn.Column(self.level_title, self.level_count_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=280),
+                styles={'margin': '10px', 'padding': '10px', 'background-color': '#fff', 'border': '1px solid #ddd', 'border-radius': '3px'},
+                sizing_mode="scale_both",  # Scales to fit the screen without scrolling
             ),
-            [20, 30, 50],
-            changeable_col={
-                "index": -1,
-                # Since element are same for each shell thus previous table
-                # (element counts for shell 1) will give all possible elements
-                "other_names": [
-                    f"Frac. Ab. (Z={atomic_num})"
-                    for atomic_num in self.element_count_table.df.index
-                ],
-            },
+            sizing_mode="scale_both",
+            styles={'padding': '10px', 'background-color': '#f9f9f9', 'border': '1px solid #ddd', 'border-radius': '3px'},
         )
 
+<<<<<<< HEAD
         # Creating the level count table widget
         self.level_count_table = create_table_widget(
             self.data.level_count(
@@ -297,225 +314,114 @@ class ShellInfoWidget:
                 ],
             },
         )
+=======
+        # Initial selection for shells table only if data exists
+        if not shells_df.empty:
+            self.shells_table.selection = [0]
+>>>>>>> 69644cd932 (GSoC Panel Objective 1)
 
-    def update_element_count_table(self, event, qgrid_widget):
-        """Event listener to update the data in element count table widget based
-        on interaction (row selected event) in shells table widget.
-
-        Parameters
-        ----------
-        event : dict
-            Dictionary that holds information about event (see Notes section)
-        qgrid_widget : qgrid.QgridWidget
-            QgridWidget instance that fired the event (see Notes section)
-
-        Notes
-        -----
-        You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (qgrid.QgridWidget object) as
-        explained in `qrid documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
-        """
-        # Get shell number from row selected in shells_table
-        shell_num = event["new"][0] + 1
-
-        # Update data in element_count_table
-        self.element_count_table.df = self.data.element_count(shell_num)
-
-        # Get atomic_num of 0th row of element_count_table
-        atomic_num0 = self.element_count_table.df.index[0]
-
-        # Also update next table (ion counts) by triggering its event listener
-        # Listener won't trigger if last row selected in element_count_table was also 0th
-        if self.element_count_table.get_selected_rows() == [0]:
-            self.element_count_table.change_selection([])  # Unselect rows
-        # Select 0th row in count table which will trigger update_ion_count_table
-        self.element_count_table.change_selection([atomic_num0])
-
-    def update_ion_count_table(self, event, qgrid_widget):
-        """Event listener to update the data in ion count table widget based
-        on interaction (row selected event) in element count table widget.
-
-        Parameters
-        ----------
-        event : dict
-            Dictionary that holds information about event (see Notes section)
-        qgrid_widget : qgrid.QgridWidget
-            QgridWidget instance that fired the event (see Notes section)
-
-        Notes
-        -----
-        You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (qgrid.QgridWidget object) as
-        explained in `qrid documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
-        """
-        # Don't execute function if no row was selected, implicitly i.e. by api
-        if event["new"] == [] and event["source"] == "api":
-            return
-
-        # Get shell no. & atomic_num from rows selected in previous tables
-        shell_num = self.shells_table.get_selected_rows()[0] + 1
-        atomic_num = self.element_count_table.df.index[event["new"][0]]
-
-        # Update data in ion_count_table
-        self.ion_count_table.df = self.data.ion_count(atomic_num, shell_num)
-
-        # Also update next table (level counts) by triggering its event listener
-        ion0 = self.ion_count_table.df.index[0]
-        if self.ion_count_table.get_selected_rows() == [0]:
-            self.ion_count_table.change_selection([])
-        self.ion_count_table.change_selection([ion0])
-
-    def update_level_count_table(self, event, qgrid_widget):
-        """Event listener to update the data in level count table widget based
-        on interaction (row selected event) in ion count table widget.
-
-        Parameters
-        ----------
-        event : dict
-            Dictionary that holds information about event (see Notes section)
-        qgrid_widget : qgrid.QgridWidget
-            QgridWidget instance that fired the event (see Notes section)
-
-        Notes
-        -----
-        You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (qgrid.QgridWidget object) as
-        explained in `qrid documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
-        """
-        # Don't execute function if no row was selected implicitly (by api)
-        if event["new"] == [] and event["source"] == "api":
-            return
-
-        # Get shell no., atomic_num, ion from selected rows in previous tables
-        shell_num = self.shells_table.get_selected_rows()[0] + 1
-        atomic_num = self.element_count_table.df.index[
-            self.element_count_table.get_selected_rows()[0]
-        ]
-        ion = self.ion_count_table.df.index[event["new"][0]]
-
-        # Update data in level_count_table
-        self.level_count_table.df = self.data.level_count(
-            ion, atomic_num, shell_num
-        )
-
-    def display(
-        self,
-        shells_table_width="30%",
-        element_count_table_width="24%",
-        ion_count_table_width="24%",
-        level_count_table_width="18%",
-        **layout_kwargs,
-    ):
-        """Display the shell info widget by putting all component widgets nicely
-        together and allowing interaction between the table widgets
-
-        Parameters
-        ----------
-        shells_table_width : str, optional
-            CSS :code:`width` property value for shells table, by default '30%'
-        element_count_table_width : str, optional
-            CSS :code:`width` property value for element count table, by default '24%'
-        ion_count_table_width : str, optional
-            CSS :code:`width` property value for ion count table, by default '24%'
-        level_count_table_width : str, optional
-            CSS :code:`width` property value for level count table, by default '18%'
-
-        Other Parameters
-        ----------------
-        **layout_kwargs
-            Any valid CSS properties to be passed to the :code:`layout` attribute
-            of table widgets container (HTML :code:`div`) as explained in
-            `ipywidgets documentation <https://ipywidgets.readthedocs.io/en/stable/examples/Widget%20Styling.html#The-layout-attribute>`_
-
-        Returns
-        -------
-        ipywidgets.Box
-            Shell info widget containing all component widgets
-        """
-        if not is_notebook():
-            print("Please use a notebook to display the widget")
+    def update_element_count_table(self, event):
+        """Update element table based on shell selection"""
+        selected_rows = event.new
+        if selected_rows:
+            shell_num = selected_rows[0] + 1
+            element_df = self.data.element_count(shell_num)
+            self.element_count_table.value = element_df
+            self.element_title.object = f"### Elements (Shell {shell_num})"
+            self.element_count_table.widths = {
+                "Element": 100,
+                f"Frac. Ab. (Shell {shell_num})": 140,
+            }
+            self.element_count_table.styles = {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'}
+            self.element_count_table.text_align = "center"
+            self.element_count_table.header_align = "center"
+            if not element_df.empty:
+                self.element_count_table.selection = [0]
+            else:
+                self.element_count_table.selection = []
+                self.update_ion_count_table(None)
         else:
-            # CSS properties of the layout of shell info tables container
-            tables_container_layout = dict(
-                display="flex",
-                align_items="flex-start",
-                justify_content="space-between",
-            )
-            tables_container_layout.update(layout_kwargs)
+            self.element_count_table.value = pd.DataFrame(columns=["Element", "Frac. Ab."])
+            self.element_title.object = "### Elements (No Shell Selected)"
+            self.element_count_table.selection = []
+            self.update_ion_count_table(None)
 
-            # Setting tables' widths
-            self.shells_table.layout.width = shells_table_width
-            self.element_count_table.layout.width = element_count_table_width
-            self.ion_count_table.layout.width = ion_count_table_width
-            self.level_count_table.layout.width = level_count_table_width
+    def update_ion_count_table(self, event):
+        """Update ion table based on element selection"""
+        if event and self.shells_table.selection:
+            selected_rows = event.new
+            shell_num = self.shells_table.selection[0] + 1
+            if selected_rows:
+                atomic_num = self.element_count_table.value.index[selected_rows[0]]
+                ion_df = self.data.ion_count(atomic_num, shell_num)
+                self.ion_count_table.value = ion_df
+                self.ion_title.object = f"### Ions (Z={atomic_num}, Shell {shell_num})"
+                self.ion_count_table.widths = {
+                    "Species": 140,
+                    f"Frac. Ab. (Z={atomic_num})": 140,
+                }
+                self.ion_count_table.styles = {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'}
+                self.ion_count_table.text_align = "center"
+                self.ion_count_table.header_align = "center"
+                if not ion_df.empty:
+                    self.ion_count_table.selection = [0]
+                else:
+                    self.ion_count_table.selection = []
+                    self.update_level_count_table(None)
+            else:
+                self.ion_count_table.value = pd.DataFrame(columns=["Species", "Frac. Ab."])
+                self.ion_title.object = "### Ions (No Element Selected)"
+                self.ion_count_table.selection = []
+                self.update_level_count_table(None)
+        else:
+            self.ion_count_table.value = pd.DataFrame(columns=["Species", "Frac. Ab."])
+            self.ion_title.object = "### Ions (No Selection)"
+            self.ion_count_table.selection = []
+            self.update_level_count_table(None)
 
-            # Attach event listeners to table widgets
-            self.shells_table.on(
-                "selection_changed", self.update_element_count_table
-            )
-            self.element_count_table.on(
-                "selection_changed", self.update_ion_count_table
-            )
-            self.ion_count_table.on(
-                "selection_changed", self.update_level_count_table
-            )
+    def update_level_count_table(self, event):
+        """Update level table based on ion selection"""
+        if event and self.shells_table.selection and self.element_count_table.selection:
+            selected_rows = event.new
+            shell_num = self.shells_table.selection[0] + 1
+            atomic_num = self.element_count_table.value.index[self.element_count_table.selection[0]]
+            if selected_rows:
+                ion = self.ion_count_table.value.index[selected_rows[0]]
+                level_df = self.data.level_count(ion, atomic_num, shell_num)
+                self.level_count_table.value = level_df
+                self.level_title.object = f"### Levels (Ion={ion}, Z={atomic_num}, Shell {shell_num})"
+                self.level_count_table.widths = {
+                    "Level": 100,
+                    f"Frac. Ab. (Ion={ion})": 180,
+                }
+                self.level_count_table.styles = {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'}
+                self.level_count_table.text_align = "center"
+                self.level_count_table.header_align = "center"
+                if not level_df.empty:
+                    self.level_count_table.selection = [0]
+                else:
+                    self.level_count_table.selection = []
+            else:
+                self.level_count_table.value = pd.DataFrame(columns=["Level", "Frac. Ab."])
+                self.level_title.object = "### Levels (No Ion Selected)"
+                self.level_count_table.selection = []
+        else:
+            self.level_count_table.value = pd.DataFrame(columns=["Level", "Frac. Ab."])
+            self.level_title.object = "### Levels (No Selection)"
+            self.level_count_table.selection = []
 
-            # Putting all table widgets in a container styled with tables_container_layout
-            shell_info_tables_container = ipw.Box(
-                [
-                    self.shells_table,
-                    self.element_count_table,
-                    self.ion_count_table,
-                    self.level_count_table,
-                ],
-                layout=ipw.Layout(**tables_container_layout),
-            )
-            self.shells_table.change_selection([1])
-
-            # Notes text explaining how to interpret tables widgets' data
-            text = ipw.HTML(
-                "<b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all "
-                "values sum to 1)<br><b>W</b> denotes <i>Dilution Factor</i> and "
-                "<b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i>"
-            )
-
-            # Put text horizontally before shell info container
-            shell_info_widget = ipw.VBox([text, shell_info_tables_container])
-            return shell_info_widget
+    def get_panel(self):
+        """Return the Panel object for display"""
+        return self.layout
 
 
 def shell_info_from_simulation(sim_model):
-    """Create shell info widget from a TARDIS simulation object
-
-    Parameters
-    ----------
-    sim_model : tardis.simulation.Simulation
-        TARDIS Simulation object produced by running a simulation
-
-    Returns
-    -------
-    ShellInfoWidget
-    """
+    """Create shell info widget from a TARDIS simulation object"""
     shell_info_data = SimulationShellInfo(sim_model)
     return ShellInfoWidget(shell_info_data)
 
 
 def shell_info_from_hdf(hdf_fpath):
-    """Create shell info widget from a simulation HDF file
-
-    Parameters
-    ----------
-    hdf_fpath : str
-        A valid path to a simulation HDF file (HDF file must be created
-        from a TARDIS Simulation object using :code:`to_hdf` method with
-        default arguments)
-
-    Returns
-    -------
-    ShellInfoWidget
-    """
+    """Create shell info widget from a simulation HDF file"""
     shell_info_data = HDFShellInfo(hdf_fpath)
     return ShellInfoWidget(shell_info_data)
