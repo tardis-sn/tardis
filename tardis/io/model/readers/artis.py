@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 
+
 @dataclass
 class ArtisModelData:
     time_of_model: u.Quantity
@@ -72,7 +73,7 @@ def read_artis_density(fname, legacy_return=True):
                 break
 
     artis_model_columns = [
-        "cell_id",
+        "cell_index",
         "velocities",
         "mean_densities_0",
         "ni56_mass_fraction",
@@ -89,7 +90,9 @@ def read_artis_density(fname, legacy_return=True):
         names=artis_model_columns,
         sep=r"\s+",
     )
-
+    assert (
+        len(artis_model) == no_of_shells
+    ), "Number of shells {len(artis_model)} does not match metadate {no_of_shells}"
     velocity = u.Quantity(artis_model["velocities"], "km/s").to("cm/s")
     mean_density = u.Quantity(10 ** artis_model["mean_densities_0"], "g/cm^3")
 
@@ -105,11 +108,11 @@ def read_artis_density(fname, legacy_return=True):
     )
     isotope_mass_fractions.index = pd.MultiIndex.from_tuples(
         [(28, 56), (27, 56), (26, 52), (24, 48)],
-        names=["Z", "A"],
+        names=["atomic_number", "mass_number"],
     )
 
-    isotope_mass_fractions.columns = artis_model["cell_id"]
-    isotope_mass_fractions.columns.name = "cell_id"
+    isotope_mass_fractions.columns = artis_model["cell_index"]
+    isotope_mass_fractions.columns.name = "cell_index"
 
     if legacy_return:
         return time_of_model, velocity, mean_density
@@ -141,13 +144,12 @@ def read_artis_mass_fractions(fname, normalize=True):
     )
 
     mass_fractions_df.index.name = "cell_index"
-    mass_fractions_df.columns.Z = "element"
 
     if normalize:
         mass_fractions_df = mass_fractions_df.div(mass_fractions_df.sum(axis=1), axis=0)
     mass_fractions_df = mass_fractions_df.T
-    mass_fractions_df.index.name = "Z"
-    mass_fractions_df.columns.name = "cell_id"
+    mass_fractions_df.index.name = "atomic_number"
+    mass_fractions_df.columns.name = "cell_index"
 
     return mass_fractions_df
 
@@ -173,10 +175,13 @@ def read_artis_model(density_fname, abundance_fname):
     )
     mass_fractions = read_artis_mass_fractions(abundance_fname)
     mass_fractions.index = pd.MultiIndex.from_arrays(
-        [mass_fractions.index, [-1] * len(mass_fractions.index)], names=["Z", "A"]
+        [mass_fractions.index, [-1] * len(mass_fractions.index)],
+        names=["atomic_number", "mass_number"],
     )
-    isotope_summed = isotope_mass_fractions.groupby(level="Z").sum()
-    mass_fractions = mass_fractions.sub(isotope_summed, level="Z", fill_value=0)
+    isotope_summed = isotope_mass_fractions.groupby(level="atomic_number").sum()
+    mass_fractions = mass_fractions.sub(
+        isotope_summed, level="atomic_number", fill_value=0
+    )
 
     mass_fractions = pd.concat([mass_fractions, isotope_mass_fractions], axis=0)
 
@@ -187,4 +192,6 @@ def read_artis_model(density_fname, abundance_fname):
         mean_density=mean_density,
         mass_fractions=mass_fractions,
     )
+
+
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry

@@ -1,5 +1,3 @@
-import os
-
 import numpy.testing as npt
 import pytest
 from astropy import units as u
@@ -10,8 +8,6 @@ from tardis.io.model.readers.generic_readers import (
     read_simple_ascii_density,
     read_simple_ascii_mass_fractions,
 )
-
-test_data_directory = os.path.dirname(__file__)
 
 
 def test_simple_ascii_density_reader_time(example_model_file_dir):
@@ -39,4 +35,3 @@ def test_ascii_reader_invalid_volumes(example_model_file_dir):
         read_density_file(
             example_model_file_dir / "invalid_artis_model.dat", "artis"
         )
-
