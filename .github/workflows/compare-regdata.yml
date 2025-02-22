@@ -1,0 +1,113 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: compare-regdata
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+  PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-cache:
+    uses: ./.github/workflows/lfs-cache.yml
+    with:
+      atom-data-sparse: false
+      regression-data-repo: tardis-sn/tardis-regression-data
+      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+
+  tests:
+    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    if: github.repository_owner == 'tardis-sn'
+    needs: [test-cache]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: [osx-arm64, linux-64]
+        continuum: ['not', '']
+        include:
+          - label: osx-arm64
+            os: macos-latest
+            prefix: /Users/runner/miniconda3/envs/tardis
+
+          - label: linux-64
+            os: ubuntu-latest
+            prefix: /usr/share/miniconda3/envs/tardis
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
+
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          os-label: ${{ matrix.label }}
+
+      - name: Install package editable
+        if: ${{ !inputs.pip_git }}
+        run: |
+          pip install -e . --user
+
+      - name: Install package git
+        if: ${{ inputs.pip_git }}
+        run: |
+          pip install git+https://github.com/tardis-sn/tardis.git@master
+
+      - name: Install qgridnext
+        if: ${{ !inputs.pip_git }}
+        run: |
+          pip install qgridnext
+
+
+      - name: Regression Data Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
+      
+      - name: Commit regression data
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add tardis
+          git commit -m "Update regression data for commit ${GITHUB_SHA}"
+        working-directory: ${{ github.workspace }}/tardis-regression-data
+      
+      - name: Update compare.py from fork
+        run: |
+          curl -s https://raw.githubusercontent.com/atharva-2001/tardis-regression-data/refs/heads/update_notebook/compare.py > compare.py
+        working-directory: ${{ github.workspace }}/tardis-regression-data
+
+      - name: Run comparison notebook
+        run: |
+          jupyter nbconvert --execute compare_regression_data.ipynb \
+            --to html \
+            --output=compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html \
+        working-directory: ${{ github.workspace }}/tardis-regression-data
+
+      - name: Upload comparison notebook
+        uses: actions/upload-artifact@v4
+        with:
+          name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+          include-hidden-files: true
+          path: ${{ github.workspace }}/tardis-regression-data/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
