@@ -65,29 +65,14 @@ class Composition:
         Number density of each element in each shell.
     """
 
-    def __init__(
-        self,
-        density,
-        nuclide_mass_fraction,
-        element_masses,
-        element_masses_unit=u.g,
-    ):
+    def __init__(self, density, nuclide_mass_fraction):
         self.density = density
         assert np.all(
             nuclide_mass_fraction.values >= 0
         ), "Negative mass fraction detected"
         self.nuclide_mass_fraction = nuclide_mass_fraction
 
-        self.nuclide_masses_unit = element_masses_unit
-
-        self.nuclide_masses = element_masses
-        self.nuclide_masses.index = self.convert_element2nuclide_index(
-            element_masses.index
-        )
-
         isotope_masses = self.assemble_isotope_masses()
-
-        self.nuclide_masses = pd.concat([self.nuclide_masses, isotope_masses])
 
     def assemble_isotope_masses(self):
         isotope_mass_df = pd.Series(
@@ -117,17 +102,7 @@ class Composition:
     def elemental_mass_fraction(self):
         return self.nuclide_mass_fraction.groupby(level=0).sum()
 
-    @property
-    def element_masses(self):
-        """Atomic mass of elements in each shell"""
-        element_masses = self.nuclide_masses[
-            self.nuclide_masses.index.get_level_values(1) == -1
-        ]
-        element_masses.index = element_masses.index.droplevel(1)
-        return element_masses
-
-    @property
-    def effective_element_masses(self):
+    def calculate_effective_element_masses(self, element_masses):
         # This is functionality that we will likely want to remove
         effective_element_masses = self.nuclide_mass_fraction[
             self.nuclide_mass_fraction.index.get_level_values(1) == -1
@@ -136,7 +111,7 @@ class Composition:
             effective_element_masses.index.droplevel(1)
         )
         for col in effective_element_masses.columns:
-            effective_element_masses[col] = self.element_masses.loc[
+            effective_element_masses[col] = element_masses.loc[
                 effective_element_masses.index
             ]
 
@@ -158,14 +133,12 @@ class Composition:
         )
         return effective_element_masses
 
-    @property
-    def elemental_number_density(self):
+    def calculate_elemental_number_density(self, element_masses):
         """Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass"""
         return (
-            self.elemental_mass_fraction
-            * self.density.to(u.g / u.cm**3).value
+            self.elemental_mass_fraction * self.density.to(u.g / u.cm**3).value
         ).divide(
-            self.effective_element_masses.reindex(
+            self.calculate_effective_element_masses(element_masses).reindex(
                 self.elemental_mass_fraction.index
             ),
             axis=0,

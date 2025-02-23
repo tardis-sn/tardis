@@ -371,12 +371,16 @@ def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
     ],
 )
 def test_composition_elemental_number_density(
-    simulation_verysimple, index, expected
+    simulation_verysimple, index, expected, atomic_dataset
 ):
     comp = simulation_verysimple.simulation_state.composition
 
     assert_almost_equal(
-        comp.elemental_number_density.loc[index], expected, decimal=-2
+        comp.calculate_elemental_number_density(atomic_dataset.atom_data.mass).loc[
+            index
+        ],
+        expected,
+        decimal=-2,
     )
 
 
@@ -416,10 +420,12 @@ def non_uniform_simulation_state(atomic_dataset, example_model_file_dir):
     ],
 )
 def test_radial_1d_model_atomic_mass(
-    non_uniform_simulation_state, index, expected
+    non_uniform_simulation_state, atomic_dataset, index, expected
 ):
     atomic_mass = (
-        non_uniform_simulation_state.composition.effective_element_masses
+        non_uniform_simulation_state.composition.calculate_effective_element_masses(
+            atomic_dataset.atom_data.mass
+        )
     )
 
     assert_almost_equal(
@@ -438,8 +444,10 @@ class TestModelStateFromNonUniformAbundances:
         config.model.abundances.model_isotope_time_0 = 0 * u.s
         return SimulationState.from_config(config, atom_data=atomic_dataset)
 
-    def test_atomic_mass(self, simulation_state):
-        atomic_mass = simulation_state.composition.effective_element_masses
+    def test_atomic_mass(self, simulation_state, atomic_dataset):
+        atomic_mass = simulation_state.composition.calculate_effective_element_masses(
+            atomic_dataset.atom_data.mass
+        )
         assert_almost_equal(atomic_mass.loc[(1, 0)], 1.67378172e-24, decimal=30)
         assert_almost_equal(
             atomic_mass.loc[(28, 0)], 9.51707707e-23, decimal=30
@@ -448,8 +456,10 @@ class TestModelStateFromNonUniformAbundances:
             atomic_mass.loc[(28, 1)], 9.54725917e-23, decimal=30
         )
 
-    def test_elemental_number_density(self, simulation_state):
-        number = simulation_state.composition.elemental_number_density
+    def test_elemental_number_density(self, simulation_state, atomic_dataset):
+        number = simulation_state.composition.calculate_elemental_number_density(
+            atomic_dataset.atom_data.mass
+        )
         assert_almost_equal(number.loc[(1, 0)], 0)
         assert_almost_equal(number.loc[(28, 0)], 10825403.434893506, decimal=2)
         assert_almost_equal(number.loc[(28, 1)], 1640835.7822178686, decimal=2)
