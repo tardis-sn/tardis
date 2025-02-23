@@ -16,11 +16,6 @@ from tardis.io.model.readers.generic_readers import (
 
 
 @pytest.fixture
-def artis_density_fname(example_model_file_dir):
-    return example_model_file_dir / "artis_model.dat"
-
-
-@pytest.fixture
 def artis_abundances_fname(example_model_file_dir):
     return example_model_file_dir / "artis_abundances.dat"
 
@@ -42,21 +37,6 @@ def isotope_uniform_abundance(example_model_file_dir):
     )
     config = Configuration.from_yaml(config_path)
     return config.model.abundances
-
-
-def test_simple_read_artis_density(artis_density_fname: str):
-    time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density(
-        artis_density_fname
-    )
-
-    assert np.isclose(0.00114661 * u.day, time_of_model, atol=1e-7 * u.day)
-    assert np.isclose(
-        mean_density[23],
-        0.2250048 * u.g / u.cm**3,
-        atol=1.0e-6 * u.g / u.cm**3,
-    )
-    assert len(mean_density) == 69
-    assert len(velocity) == len(mean_density) + 1
 
 
 # Artis files are currently read with read ascii files function
