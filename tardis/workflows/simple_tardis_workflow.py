@@ -53,7 +53,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         )
 
         self.plasma_solver = plasma_solver_factory.assemble(
-            self.simulation_state.elemental_number_density,
+            self.simulation_state.calculate_elemental_number_density(),
             self.simulation_state.radiation_field_state,
             self.simulation_state.time_explosion,
             self.simulation_state._electron_densities,
