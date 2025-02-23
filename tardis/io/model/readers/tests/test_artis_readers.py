@@ -18,7 +18,9 @@ def artis_density_fname(example_model_file_dir):
 def test_artis_density_reader(artis_density_fname: str):
     # Using a test ARTIS density file.
     # File: tardis_artis_density_test.dat
-    time_model, velocity, mean_density = read_artis_density(artis_density_fname)
+    time_model, velocity, mean_density, isotopic_mass_fractions = read_artis_density(
+        artis_density_fname, legacy_return=False
+    )
     # Check that time is recognized as time
     assert time_model.unit.physical_type == "time"
     # Check velocity unit is cm/s
