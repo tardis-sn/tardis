@@ -122,23 +122,24 @@ def read_artis_density(fname, legacy_return=True):
 
 def read_artis_mass_fractions(fname, normalize=True):
     """
-    Reads mass fractions from an ARTIS abundance file named e.g. 'artis_abundances.dat'.
-    Each row typically corresponds to one shell. The first column is shell index,
-    followed by columns for each element.
+    Reads mass fractions from an ARTIS abundance file.
+
+    The file must have shell indices in the first column, followed by
+    columns for each element. Each row generally corresponds to one shell.
 
     Parameters
     ----------
     fname : str
-        filename or path to ARTIS abundances
+        Path to the ARTIS abundance file.
+    normalize : bool, optional
+        If True, normalizes each row so the sum of mass fractions is 1.
 
     Returns
     -------
-    mass_fractions : pandas.DataFrame
-        DataFrame containing mass fractions per shell (rows).
-        The first column is assumed to be shell index.
+    pandas.DataFrame
+        A DataFrame with 'atomic_number' as its index and 'cell_index'
+        as columns, holding the mass fractions for each element and shell.
     """
-    # Skip comment lines or set them to '#' if needed
-    # Here we assume no header row, so we'll assign column names ourselves
     mass_fractions_df = pd.read_csv(
         fname, comment="#", sep="\s+", header=None, index_col=0
     )
@@ -156,19 +157,19 @@ def read_artis_mass_fractions(fname, normalize=True):
 
 def read_artis_model(density_fname, abundance_fname):
     """
-    Reads both the density and abundance files and returns combined data.
+    Read density and abundance files, combine them, and return a single model dataset.
 
     Parameters
     ----------
     density_fname : str
-        Path to the ARTIS density file
+        Path to the ARTIS density file.
     abundance_fname : str
-        Path to the ARTIS abundance file
+        Path to the ARTIS abundance file.
 
     Returns
     -------
     ArtisModelData
-        Contains time_of_model, velocity, mean_density, and mass_fractions
+        Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     """
     time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density(
         density_fname, legacy_return=False
@@ -185,10 +186,9 @@ def read_artis_model(density_fname, abundance_fname):
 
     mass_fractions = pd.concat([mass_fractions, isotope_mass_fractions], axis=0)
 
-    # Build the dataclass with the combined info:
     return ArtisModelData(
         time_of_model=time_of_model,
-        velocity=velocity,  # or keep as Quantity if you prefer
+        velocity=velocity,
         mean_density=mean_density,
         mass_fractions=mass_fractions,
     )
