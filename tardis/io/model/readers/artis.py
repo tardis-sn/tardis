@@ -115,21 +115,21 @@ def read_artis_density(fname, legacy_return=True):
     isotope_mass_fractions.columns.name = "cell_index"
 
     if legacy_return:
-        return time_of_model, velocity, mean_density
+        return time_of_model, velocity, mean_density[1:]
     else:
         return time_of_model, velocity, mean_density, isotope_mass_fractions
 
 
 def read_artis_mass_fractions(fname, normalize=True):
     """
-    Reads mass fractions from an artis abundance file named e.g. 'artis_abundances.dat'.
+    Reads mass fractions from an ARTIS abundance file named e.g. 'artis_abundances.dat'.
     Each row typically corresponds to one shell. The first column is shell index,
     followed by columns for each element.
 
     Parameters
     ----------
     fname : str
-        filename or path to artis abundances
+        filename or path to ARTIS abundances
 
     Returns
     -------
