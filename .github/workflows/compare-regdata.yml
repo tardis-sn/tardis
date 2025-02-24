@@ -101,6 +101,10 @@ jobs:
       - name: Add environment variable to save plots
         run: |
           echo "SAVE_COMP_IMG=1" >> $GITHUB_ENV
+      
+      - name: Install Kaleido
+        run: |
+          pip install kaleido
 
       - name: Run comparison notebook
         run: |
