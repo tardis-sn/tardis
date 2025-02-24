@@ -33,7 +33,6 @@ def test_opacity_state_to_numba(
             opacity_state.tau_sobolev,
             legacy_plasma.stimulated_emission_factor,
             beta_sobolev=opacity_state.beta_sobolev,
-            legacy_mode=False,
         )
     else:
         macro_atom_state = None
