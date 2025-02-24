@@ -352,7 +352,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 opacity_state.tau_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
                 opacity_state.beta_sobolev,
-                legacy_mode=False,
             )
 
         return {

@@ -458,7 +458,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
                     opacity_state.beta_sobolev,
-                    legacy_mode=False,
                 )
 
         transport_state = self.transport.initialize_transport_state(
