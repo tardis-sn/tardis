@@ -197,24 +197,24 @@ jobs:
             <summary>📊 View Comparison Plots</summary>
             
             ### macOS (not continuum)
-            ![Spectrum Comparison](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/spectrum.png)
-            ![Same Name Differences](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/same_name_diff.png)
-            ![Key Differences](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/diff_keys.png)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/spectrum.png)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/same_name_diff.png)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/diff_keys.png)
             
             ### macOS (continuum)
-            ![Spectrum Comparison](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/spectrum.png)
-            ![Same Name Differences](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/same_name_diff.png)
-            ![Key Differences](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/diff_keys.png)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/spectrum.png)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/same_name_diff.png)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/diff_keys.png)
             
             ### Ubuntu (not continuum)
-            ![Spectrum Comparison](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/spectrum.png)
-            ![Same Name Differences](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/same_name_diff.png)
-            ![Key Differences](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/diff_keys.png)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/spectrum.png)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/same_name_diff.png)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/diff_keys.png)
             
             ### Ubuntu (continuum)
-            ![Spectrum Comparison](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/spectrum.png)
-            ![Same Name Differences](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/same_name_diff.png)
-            ![Key Differences](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/diff_keys.png)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/spectrum.png)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/same_name_diff.png)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/diff_keys.png)
             
             </details>
             
