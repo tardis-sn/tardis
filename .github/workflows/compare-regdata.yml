@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - master
-  pull_request_target:
+  pull_request:
     branches:
       - master
     types:
@@ -35,7 +35,7 @@ jobs:
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request_target.labels.*.name, 'git-lfs-pull') }}
+      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
@@ -114,7 +114,7 @@ jobs:
 
   deploy-comparison:
     needs: tests
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: main
@@ -126,7 +126,7 @@ jobs:
 
       - name: Set destination directory
         run: |
-          if [[ $EVENT == pull_request_target ]]; then
+          if [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
           else
             echo "DEST_DIR=commit/$GITHUB_SHA" >> $GITHUB_ENV
