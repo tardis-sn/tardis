@@ -142,7 +142,8 @@ jobs:
             for cont in "" "not_"; do
               dir=$(find comparison-artifacts -type d -name "comparison_plots*" -path "*${cont}${os}*" | head -n1)
               if [ -n "$dir" ]; then
-                echo "${cont}${os}_path=${dir}" >> $GITHUB_OUTPUT
+                clean_dir=$(echo $dir | sed 's|^comparison-artifacts/||')
+                echo "${cont}${os}_path=${clean_dir}" >> $GITHUB_OUTPUT
               fi
             done
           done
