@@ -83,7 +83,7 @@ jobs:
 
 
       - name: Regression Data Generation tests
-        run: pytest tardis/plasma/tests ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis/plasma/tests/test_complete_plasmas.py  tardis/transport/montecarlo/tests/test_continuum.py ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
       
       - name: Commit regression data
         run: |
