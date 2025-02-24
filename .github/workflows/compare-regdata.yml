@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - master
-  pull_request:
+  pull_request_target:
     branches:
       - master
     types:
@@ -35,7 +35,7 @@ jobs:
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request_target.labels.*.name, 'git-lfs-pull') }}
 
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
@@ -111,3 +111,61 @@ jobs:
           name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
           include-hidden-files: true
           path: ${{ github.workspace }}/tardis-regression-data/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+
+  deploy-comparison:
+    needs: tests
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_BRANCH: main
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: comparison-artifacts
+
+      - name: Set destination directory
+        run: |
+          if [[ $EVENT == pull_request_target ]]; then
+            echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+          else
+            echo "DEST_DIR=commit/$GITHUB_SHA" >> $GITHUB_ENV
+          fi
+        env:
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.number }}
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.BOT_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
+          publish_dir: comparison-artifacts
+          destination_dir: ${{ env.DEST_DIR }}
+          external_repository: tardis-sn/reg-data-comp
+          user_name: "TARDIS Bot"
+          user_email: "tardis.sn.bot@gmail.com"
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.number }}
+          body-includes: Regression data comparison results
+
+      - name: Post comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            ### Regression Data Comparison Results
+            
+            The comparison results have been generated and can be viewed here:
+            - [View comparison results](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }})
+            
+            You can also download the artifacts directly from the [Actions tab](${{ env.ARTIFACT_URL }}).
+        env:
+          ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
