@@ -164,7 +164,11 @@ jobs:
             ### Regression Data Comparison Results
             
             The comparison results have been generated and can be viewed here:
-            - [View comparison results](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }})
+            
+            - [macOS (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_macos-latest.html/compare_regression_data_${{ github.sha }}_not_macos-latest.html)
+            - [macOS (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__macos-latest.html/compare_regression_data_${{ github.sha }}__macos-latest.html)
+            - [Ubuntu (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html)
+            - [Ubuntu (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__ubuntu-latest.html/compare_regression_data_${{ github.sha }}__ubuntu-latest.html)
             
             You can also download the artifacts directly from the [Actions tab](${{ env.ARTIFACT_URL }}).
         env:
