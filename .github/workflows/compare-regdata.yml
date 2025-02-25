@@ -5,9 +5,6 @@
 name: compare-regdata
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
@@ -15,6 +12,7 @@ on:
       - opened
       - reopened
       - synchronize
+      - labeled
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
@@ -32,14 +30,15 @@ concurrency:
 jobs:
   test-cache:
     uses: ./.github/workflows/lfs-cache.yml
+    if: contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+      allow_lfs_pull: ${{ contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
-    if: github.repository_owner == 'tardis-sn'
+    if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
     strategy:
