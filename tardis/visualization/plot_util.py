@@ -1,7 +1,18 @@
 """Utility functions to be used in plotting."""
 
 import re
+
 import numpy as np
+
+from tardis.util.base import (
+    element_symbol2atomic_number,
+    int_to_roman,
+    roman_to_int,
+    species_string_to_tuple,
+)
+from tardis.visualization.tools.visualization_data import (
+    VisualizationData,
+)
 
 
 def axis_label_in_latex(label_text, unit, only_text=True):
@@ -79,3 +90,140 @@ def to_rgb255_string(color_tuple):
     """
     color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
     return f"rgb{color_tuple_255}"
+
+def create_packet_data_dict_from_simulation(sim):
+    """
+    Create a dictionary containing virtual and real packet data based on simulation state.
+
+    Parameters
+    ----------
+    sim : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+
+    Returns
+    -------
+    dict
+        Dictionary containing 'virtual' and 'real' SimulationPacketData instances
+    """
+    packet_data = {
+        "real": VisualizationData.from_simulation(sim, "real")
+    }
+    if sim.transport.transport_state.virt_logging:
+        packet_data["virtual"] = VisualizationData.from_simulation(sim, "virtual")
+    else:
+        packet_data["virtual"] = None
+
+    return packet_data
+
+def create_packet_data_dict_from_hdf(hdf_fpath, packets_mode=None):
+    """
+    Create a dictionary containing virtual and real packet data from HDF file.
+
+    Parameters
+    ----------
+    hdf_fpath : str
+        Valid path to the HDF file where simulation is saved
+    packets_mode : {'virtual', 'real', None}
+        Mode of packets to be considered. If None, both modes are returned.
+
+    Returns
+    -------
+    dict
+        Dictionary containing 'virtual' and 'real' SimulationPacketData instances
+    """
+    if packets_mode not in [None, "virtual", "real"]:
+        raise ValueError(
+            "Invalid value passed to packets_mode. Only "
+            "allowed values are 'virtual', 'real' or None"
+        )
+    if packets_mode == "virtual":
+        return {
+            "virtual": VisualizationData.from_hdf(hdf_fpath, "virtual"),
+            "real": None
+        }
+    if packets_mode == "real":
+        return {
+            "virtual": None,
+            "real": VisualizationData.from_hdf(hdf_fpath, "real")
+        }
+    return {
+        "virtual": VisualizationData.from_hdf(hdf_fpath, "virtual"),
+        "real": VisualizationData.from_hdf(hdf_fpath, "real")
+    }
+
+
+def parse_species_list_util(species_list):
+    """
+    Parse user requested species list and create list of species ids to be used.
+
+    Parameters
+    ----------
+    species_list : list of species to plot
+        List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
+        Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
+        (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
+
+    Returns
+    -------
+    dict
+        A dictionary containing:
+        - full_species_list: List of expanded species (e.g. Si I - V -> [Si I, Si II, ...]).
+        - species_mapped: Mapping of species ids to species names.
+        - keep_colour: List of atomic numbers to group elements with consistent colors.
+    """
+    if species_list is None:
+        return {
+        "full_species_list": None,
+        "species_mapped": None,
+        "keep_colour": None,
+        "species_list": None,
+    }
+
+
+    if any(char.isdigit() for char in " ".join(species_list)):
+        raise ValueError("All species must be in Roman numeral form, e.g., Si II")
+
+    full_species_list = []
+    species_mapped = {}
+    keep_colour = []
+    requested_species_ids = []
+
+    for species in species_list:
+        if "-" in species:
+            element, ion_numerals = species.split(" ")
+            first_ion_roman, second_ion_roman = ion_numerals.split("-")
+            ion_range = range(roman_to_int(first_ion_roman), roman_to_int(second_ion_roman) + 1)
+
+            full_species_list.extend(f"{element} {int_to_roman(ion)}" for ion in ion_range)
+        else:
+            full_species_list.append(species)
+
+
+    for species in full_species_list:
+        if " " in species:
+            atomic_number, ion_number = species_string_to_tuple(species)
+            species_id = (
+                atomic_number * 100
+                + ion_number
+            )
+            requested_species_ids.append([species_id])
+            species_mapped[species_id] = [species_id]
+        else:
+            atomic_number = element_symbol2atomic_number(species)
+            species_ids = [
+                atomic_number * 100 + ion_number for ion_number in range(atomic_number)
+            ]
+            requested_species_ids.append(species_ids)
+            species_mapped[atomic_number * 100] = species_ids
+            keep_colour.append(atomic_number)
+
+    requested_species_ids = [
+        species_id for temp_list in requested_species_ids for species_id in temp_list
+    ]
+
+    return {
+        "full_species_list": full_species_list,
+        "species_mapped": species_mapped,
+        "keep_colour": keep_colour,
+        "species_list": requested_species_ids,
+    }
