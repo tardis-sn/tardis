@@ -186,4 +186,7 @@ class PositroniumSampler:
         inverse_cdf = interp1d(self.cdf_grid, self.x_grid, bounds_error=False, fill_value="extrapolate")
 
         z = np.random.random(samples)
-        return inverse_cdf(z)
+        # converted to keV
+        return (inverse_cdf(z) * const.m_e.cgs.value 
+            * const.c.cgs.value**2 
+         * u.erg.to(u.keV))

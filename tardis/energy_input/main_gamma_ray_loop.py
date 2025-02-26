@@ -159,7 +159,6 @@ def run_gamma_ray_loop(
     taus = make_isotope_string_tardis_like(taus)
 
     gamma_df = isotope_decay_df[isotope_decay_df["radiation"] == "g"]
-    gamma_df_decay_energy_keV = gamma_df["decay_energy_keV"]
     total_energy_gamma = gamma_df["decay_energy_erg"].sum()
 
     energy_per_packet = total_energy_gamma / num_decays
@@ -211,11 +210,14 @@ def run_gamma_ray_loop(
 
     logger.info(f"Total energy deposited by the positrons is {total_energy.sum().sum()}")
 
+    #positron_energy = total_energy
+
     # Copy the positron energy to a new dataframe
-    positron_energy_df = pd.DataFrame(data=total_energy, columns=times[:-1])
+    positron_energy_df = pd.DataFrame(data=total_energy.copy(), columns=times[:-1])
 
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), len(times) - 1))
+    energy_out_cosi = np.zeros((len(energy_bins - 1), len(times) - 1))
     energy_deposited = np.zeros((number_of_shells, len(times) - 1))
     packets_info_array = np.zeros((int(num_decays), 8))
     iron_group_fraction = iron_group_fraction_per_shell(model)
@@ -234,6 +236,7 @@ def run_gamma_ray_loop(
 
     (
         energy_out,
+        energy_out_cosi,
         packets_array,
         energy_deposited_gamma,
         total_energy,
@@ -252,6 +255,7 @@ def run_gamma_ray_loop(
         effective_time_array,
         energy_bins,
         energy_out,
+        energy_out_cosi,
         total_energy,
         energy_deposited,
         packets_info_array,
@@ -275,6 +279,10 @@ def run_gamma_ray_loop(
         data=energy_out, columns=times[:-1], index=energy_bins
     )
 
+    escape_energy_cosi = pd.DataFrame(
+        data=energy_out_cosi, columns=times[:-1], index=energy_bins
+    )
+
     # deposited energy by gamma-rays in ergs
     gamma_ray_deposited_energy = pd.DataFrame(
         data=energy_deposited_gamma, columns=times[:-1]
@@ -290,9 +298,10 @@ def run_gamma_ray_loop(
 
     return (
         escape_energy,
+        escape_energy_cosi,
         packets_df_escaped,
         gamma_ray_deposited_energy,
-        total_energy,
+        total_deposited_energy,
         positron_energy_df
     )
 
