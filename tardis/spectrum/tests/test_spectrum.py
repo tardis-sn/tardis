@@ -135,6 +135,14 @@ def test_f_nu_to_f_lambda(spectrum):
         spectrum.luminosity_density_lambda.value, expected.value
     )
 
+            
+def test_from_hdf_to_class(spectrum):
+    actual = TARDISSpectrum(spectrum._frequency, spectrum.luminosity)
+    actual.to_hdf("test.hdf", overwrite=True)
+    expected = actual.from_hdf_to_class("test.hdf")
+
+    compare_spectra(actual, expected)
+
 
 ###
 # Save and Load
