@@ -2,6 +2,22 @@ name: Save LFS Cache
 
 on:
   workflow_dispatch:
+    inputs:
+      atom-data-sparse:
+        description: "If true, only downloads atom_data/kurucz_cd23_chianti_H_He.h5"
+        required: false
+        default: false
+        type: boolean
+      regression-data-repo:
+        description: "Repository containing regression data (format: owner/repo)"
+        required: false
+        default: "tardis-sn/tardis-regression-data"
+        type: string
+      allow_lfs_pull:
+        description: "If true, allows LFS pull operations"
+        required: false
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       atom-data-sparse:
