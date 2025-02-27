@@ -1,6 +1,7 @@
 name: Save LFS Cache
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       atom-data-sparse:
