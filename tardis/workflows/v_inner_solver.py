@@ -52,7 +52,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             self.simulation_state.r_inner[0]
         )
 
-    def store_plasma_state(self, i, t_radiative, dilution_factor, electron_densities, t_inner, v_inner_boundary, tau_integ):
+    def store_plasma_state(self, i, num_active_shells, t_radiative, dilution_factor, electron_densities, t_inner, v_inner_boundary, tau_integ):
         """Store current plasma information, 
         including the velocity of the inner boundary 
         and the Rosseland mean optical depth,
@@ -62,6 +62,8 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         ----------
         i : int
             current iteration index (0 for the first)
+        num_active_shells : int
+            number of active shells
         t_rad : astropy.units.Quantity
             radiation temperature
         dilution_factor : np.ndarray
@@ -75,12 +77,12 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         tau_integ : np.ndarray
             Rosseland mean optical depth
         """
-        self.iterations_t_rad[i, -len(t_radiative):] = t_radiative
-        self.iterations_w[i, -len(dilution_factor):] = dilution_factor
-        self.iterations_electron_densities[i, -len(electron_densities):] = electron_densities.values
+        self.iterations_t_rad[i, -num_active_shells:] = t_radiative
+        self.iterations_w[i, -num_active_shells:] = dilution_factor
+        self.iterations_electron_densities[i, -num_active_shells:] = electron_densities.values[-num_active_shells:]
         self.iterations_t_inner[i] = t_inner
         self.iterations_v_inner_boundary[i] = v_inner_boundary
-        self.iterations_mean_optical_depth[i,-len(tau_integ):] = tau_integ
+        self.iterations_mean_optical_depth[i,-num_active_shells:] = tau_integ[-num_active_shells:]
 
     def reshape_store_plasma_state(self, executed_iterations):
         """Reshapes the storage arrays in case convergence was reached before
@@ -380,6 +382,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             )
             self.store_plasma_state(
                 self.completed_iterations,
+                self.simulation_state.no_of_shells,
                 self.simulation_state.t_radiative,
                 self.simulation_state.dilution_factor,
                 self.plasma_solver.electron_densities,
@@ -429,6 +432,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
 
         self.store_plasma_state(
                 self.completed_iterations,
+                self.simulation_state.no_of_shells,
                 self.simulation_state.t_radiative,
                 self.simulation_state.dilution_factor,
                 self.plasma_solver.electron_densities,
