@@ -27,6 +27,30 @@ TARDIS Pipelines
 
 Brief description of pipelines already implemented on TARDIS
 
+Cache Keys in TARDIS CI
+-----------------------
+
+TARDIS uses specific cache key formats to efficiently store and retrieve data during CI runs:
+
+1. **Regression Data Cache Keys**
+   - Format: ``tardis-regression-<data-type>-<hash>-v1``
+   - Examples:
+     - ``tardis-regression-atom-data-sparse-<hash>-v1`` - For atomic data cache
+     - ``tardis-regression-full-data-<hash>-v1`` - For full TARDIS regression data cache
+   - Used in: ``setup_lfs`` action
+
+2. **Environment Cache Keys**
+   - Format: ``tardis-conda-env-<os-label>-<hash>-v1``
+   - Examples:
+     - ``tardis-conda-env-linux-<hash>-v1`` - For Linux conda environment
+     - ``tardis-conda-env-macos-<hash>-v1`` - For macOS conda environment
+   - Used in: ``setup_env`` action
+
+.. warning::
+   - The version suffix (-v1) allows for future cache invalidation if needed.
+   - Sometimes the cache might not be saved due to race conditions between parallel jobs. Please check workflow runs when testing new regression data for cache misses to avoid consuming LFS quota.
+
+
 Streamlined Steps for TARDIS Pipelines
 ========================================
 

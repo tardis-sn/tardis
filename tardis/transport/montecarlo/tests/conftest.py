@@ -147,7 +147,7 @@ def static_packet():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def set_seed_fixture():
     def set_seed(value):
         np.random.seed(value)
@@ -155,7 +155,7 @@ def set_seed_fixture():
     return njit(set_seed)
 
 
-@pytest.fixture()
+@pytest.fixture
 def random_call_fixture():
     def random_call():
         np.random.random()

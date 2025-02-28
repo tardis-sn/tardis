@@ -309,7 +309,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
-        converged = False
+        self.converged = False
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
@@ -334,14 +334,14 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
                 estimated_values["mask"],
             )
 
-            converged = self.check_convergence(estimated_values)
+            self.converged = self.check_convergence(estimated_values)
 
             self.completed_iterations += 1
 
-            if converged and self.convergence_strategy.stop_if_converged:
+            if self.converged and self.convergence_strategy.stop_if_converged:
                 break
 
-        if converged:
+        if self.converged:
             logger.info("\n\tStarting final iteration")
         else:
             logger.error(

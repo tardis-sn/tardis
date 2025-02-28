@@ -1,12 +1,12 @@
 import numpy as np
 from numba import njit
 
-from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.energy_input.util import (
+    C_CGS,
     doppler_factor_3d,
     solve_quadratic_equation,
-    C_CGS,
 )
+from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 @njit(**njit_dict_no_parallel)
@@ -25,7 +25,6 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     distance : float
 
     """
-
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(
@@ -108,7 +107,7 @@ def distance_trace(
     )
 
     distance_interaction = photon.tau / total_opacity
-    distance_time = (next_time - photon.time_current) * C_CGS
+    distance_time = (next_time - photon.time_start) * C_CGS
     return distance_interaction, distance_boundary, distance_time, shell_change
 
 
@@ -135,7 +134,7 @@ def move_packet(packet, distance):
     packet.location = location_new
 
     doppler_factor = doppler_factor_3d(
-        packet.direction, packet.location, packet.time_current
+        packet.direction, packet.location, packet.time_start
     )
 
     packet.nu_cmf = packet.nu_rf * doppler_factor

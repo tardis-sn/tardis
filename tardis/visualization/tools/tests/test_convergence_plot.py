@@ -22,7 +22,7 @@ def convergence_plots(request):
     return convergence_plots
 
 
-@pytest.fixture()
+@pytest.fixture
 def fetch_luminosity_data(convergence_plots):
     """Prepare data for t_inner and luminosity plot."""
     for item in [2] * convergence_plots.iterations:

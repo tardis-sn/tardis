@@ -9,7 +9,7 @@ from tardis.transport.montecarlo.packet_trackers import (
 from tardis.transport.montecarlo.r_packet import InteractionType
 
 
-@pytest.fixture()
+@pytest.fixture
 def interaction_type_last_interaction_class(
     simulation_rpacket_tracking,
 ):
@@ -20,7 +20,7 @@ def interaction_type_last_interaction_class(
     return interaction_type
 
 
-@pytest.fixture()
+@pytest.fixture
 def shell_id_last_interaction_class(
     simulation_rpacket_tracking,
 ):
@@ -39,7 +39,7 @@ def shell_id_last_interaction_class(
     return last_line_interaction_shell_id
 
 
-@pytest.fixture()
+@pytest.fixture
 def nu_from_packet_collection(
     simulation_rpacket_tracking,
 ):
@@ -73,7 +73,7 @@ def last_interaction_type_rpacket_tracker(rpacket_tracker):
     return interaction_type
 
 
-@pytest.fixture()
+@pytest.fixture
 def shell_id_rpacket_tracker(
     rpacket_tracker, last_interaction_type_rpacket_tracker
 ):
@@ -92,7 +92,7 @@ def shell_id_rpacket_tracker(
     return last_line_interaction_shell_id
 
 
-@pytest.fixture()
+@pytest.fixture
 def nu_rpacket_tracker(rpacket_tracker):
     """Output nu of rpacket from RPacketTracker class"""
     no_of_packets = len(rpacket_tracker)
