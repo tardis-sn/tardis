@@ -1,0 +1,223 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: compare-regdata
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+  PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-cache:
+    uses: ./.github/workflows/lfs-cache.yml
+    if: contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
+    with:
+      atom-data-sparse: false
+      regression-data-repo: tardis-sn/tardis-regression-data
+      allow_lfs_pull: ${{ contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+
+  tests:
+    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
+    needs: [test-cache]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: [osx-arm64, linux-64]
+        continuum: ['not', '']
+        include:
+          - label: osx-arm64
+            os: macos-latest
+            prefix: /Users/runner/miniconda3/envs/tardis
+
+          - label: linux-64
+            os: ubuntu-latest
+            prefix: /usr/share/miniconda3/envs/tardis
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup LFS
+        uses: ./.github/actions/setup_lfs
+
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          os-label: ${{ matrix.label }}
+
+      - name: Install package editable
+        if: ${{ !inputs.pip_git }}
+        run: |
+          pip install -e . --user
+
+      - name: Install package git
+        if: ${{ inputs.pip_git }}
+        run: |
+          pip install git+https://github.com/tardis-sn/tardis.git@master
+
+      - name: Install qgridnext
+        if: ${{ !inputs.pip_git }}
+        run: |
+          pip install qgridnext
+
+
+      - name: Regression Data Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
+      
+      - name: Commit regression data
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add tardis
+          git commit -m "Update regression data for commit ${GITHUB_SHA}"
+        working-directory: ${{ github.workspace }}/tardis-regression-data
+      
+      - name: Update compare.py from fork
+        run: |
+          curl -s https://raw.githubusercontent.com/atharva-2001/tardis-regression-data/refs/heads/update_notebook/compare.py > compare.py
+        working-directory: ${{ github.workspace }}/tardis-regression-data
+      
+      - name: Add environment variable to save plots
+        run: |
+          echo "SAVE_COMP_IMG=1" >> $GITHUB_ENV
+      
+      - name: Install Kaleido
+        run: |
+          pip install kaleido
+
+      - name: Run comparison notebook
+        run: |
+          jupyter nbconvert --execute compare_regression_data.ipynb \
+            --to html \
+            --output=compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html \
+        working-directory: ${{ github.workspace }}/tardis-regression-data
+
+      - name: Upload comparison notebook
+        uses: actions/upload-artifact@v4
+        with:
+          name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+          include-hidden-files: true
+          path: |
+            ${{ github.workspace }}/tardis-regression-data/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+            ${{ github.workspace }}/tardis-regression-data/comparison_plots*
+
+
+  deploy-comparison:
+    needs: tests
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_BRANCH: main
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: comparison-artifacts
+
+      - name: Get comparison plots paths
+        id: get_paths
+        run: |
+          for os in "macos-latest" "ubuntu-latest"; do
+            for cont in "" "not_"; do
+              dir=$(find comparison-artifacts -type d -name "comparison_plots*" -path "*${cont}${os}*" | head -n1)
+              if [ -n "$dir" ]; then
+                clean_dir=$(echo $dir | sed 's|^comparison-artifacts/||')
+                echo "${cont}${os}_path=${clean_dir}" >> $GITHUB_OUTPUT
+              fi
+            done
+          done
+
+      - name: Set destination directory
+        run: |
+          if [[ $EVENT == pull_request ]]; then
+            echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+          else
+            echo "DEST_DIR=commit/$GITHUB_SHA" >> $GITHUB_ENV
+          fi
+        env:
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.number }}
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.BOT_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
+          publish_dir: comparison-artifacts
+          destination_dir: ${{ env.DEST_DIR }}
+          external_repository: tardis-sn/reg-data-comp
+          user_name: "TARDIS Bot"
+          user_email: "tardis.sn.bot@gmail.com"
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.number }}
+          body-includes: Regression Data Comparison Results
+
+      - name: Post comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            ### Regression Data Comparison Results
+            
+            The comparison results have been generated and can be viewed here:
+            
+            - [macOS (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_macos-latest.html/compare_regression_data_${{ github.sha }}_not_macos-latest.html)
+            - [macOS (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__macos-latest.html/compare_regression_data_${{ github.sha }}__macos-latest.html)
+            - [Ubuntu (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html)
+            - [Ubuntu (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__ubuntu-latest.html/compare_regression_data_${{ github.sha }}__ubuntu-latest.html)
+            
+            <details>
+            <summary>📊 View Comparison Plots</summary>
+            
+            ### macOS (not continuum)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/spectrum.png?raw=true)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/same_name_diff.png?raw=true)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/diff_keys.png?raw=true)
+            
+            ### macOS (continuum)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/spectrum.png?raw=true)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/same_name_diff.png?raw=true)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/diff_keys.png?raw=true)
+            
+            ### Ubuntu (not continuum)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/spectrum.png?raw=true)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/same_name_diff.png?raw=true)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/diff_keys.png?raw=true)
+            
+            ### Ubuntu (continuum)
+            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/spectrum.png?raw=true)
+            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/same_name_diff.png?raw=true)
+            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/diff_keys.png?raw=true)
+            
+            </details>
+            
+            You can also download the artifacts directly from the [Actions tab](${{ env.ARTIFACT_URL }}).
+        env:
+          ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
