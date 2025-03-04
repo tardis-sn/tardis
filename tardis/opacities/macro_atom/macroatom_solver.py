@@ -1,7 +1,13 @@
+import numpy as np
+import pandas as pd
+
 from tardis.opacities.macro_atom.base import (
     calculate_transition_probabilities,
     initialize_transition_probabilities,
+    get_macro_atom_data,
 )
+from tardis.opacities.macro_atom import util
+
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 
 
@@ -67,18 +73,47 @@ class MacroAtomSolver:
         if self.initialize:
             self.initialize_transition_probabilities(atomic_data)
 
-        transition_probabilities = calculate_transition_probabilities(
-            atomic_data,
-            beta_sobolev,
-            mean_intensities,
+        # transition_probabilities = calculate_transition_probabilities(
+        #     atomic_data,
+        #     beta_sobolev,
+        #     mean_intensities,
+        #     stimulated_emission_factor,
+        #     tau_sobolev,
+        #     self.transition_probability_coef,
+        #     self.block_references,
+        #     normalize=self.normalize,
+        # )
+
+        if len(mean_intensities) == 0:
+            return None
+        macro_atom_data = get_macro_atom_data(atomic_data)
+
+        transition_probabilities = np.empty(
+            (self.transition_probability_coef.shape[0], beta_sobolev.shape[1])
+        )
+        transition_type = macro_atom_data.transition_type.values
+        lines_idx = macro_atom_data.lines_idx.values
+        tpos = macro_atom_data.transition_probability.values
+        # This function modifies transition_probabilities inplace
+        util.fast_calculate_transition_probabilities(
+            tpos,
+            beta_sobolev.values,
+            mean_intensities.values,
             stimulated_emission_factor,
-            tau_sobolev,
-            self.transition_probability_coef,
+            transition_type,
+            lines_idx,
             self.block_references,
-            normalize=self.normalize,
+            transition_probabilities,
+            self.normalize,
+        )
+        transition_probabilities_df = pd.DataFrame(
+            transition_probabilities,
+            index=macro_atom_data.transition_line_id,
+            columns=tau_sobolev.columns,
         )
 
-        return transition_probabilities
+        return transition_probabilities_df
+
 
     def solve(
         self,
