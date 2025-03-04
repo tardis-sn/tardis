@@ -90,55 +90,6 @@ def calculate_transition_probabilities(
         return None
     macro_atom_data = get_macro_atom_data(atomic_data)
 
-    transition_probabilities = calculate_transition_probability(
-        macro_atom_data,
-        beta_sobolev,
-        j_blues,
-        stimulated_emission_factor,
-        transition_probability_coef,
-        block_references,
-        normalize,
-    )
-    transition_probabilities = pd.DataFrame(
-        transition_probabilities,
-        index=macro_atom_data.transition_line_id,
-        columns=tau_sobolevs.columns,
-    )
-    return transition_probabilities
-
-
-def calculate_transition_probability(
-    macro_atom_data,
-    beta_sobolev,
-    j_blues,
-    stimulated_emission_factor,
-    transition_probability_coef,
-    block_references,
-    normalize,
-):
-    """Calculate the transition probabilities using optimized functions
-    Parameters
-    ----------
-    macro_atom_data : pd.DataFrame
-        Macro Atom Data
-    beta_sobolev : pd.DataFrame
-        Beta Sobolevs
-    j_blues : pd.DataFrame
-        mean intensity
-    stimulated_emission_factor : np.ndarray
-        Stimulated Emission Factors
-    transition_probability_coef : np.ndarray
-        Reshaped macro atom transition probabilities
-    block_references : np.ndarray
-        macro atom block references
-    normalize : bool
-        Whether or not to normalize the transition probabilities to unity
-
-    Returns
-    -------
-    np.ndarray
-        transition probabilities
-    """
     transition_probabilities = np.empty(
         (transition_probability_coef.shape[0], beta_sobolev.shape[1])
     )
@@ -156,6 +107,12 @@ def calculate_transition_probability(
         transition_probabilities,
         normalize,
     )
+    transition_probabilities = pd.DataFrame(
+        transition_probabilities,
+        index=macro_atom_data.transition_line_id,
+        columns=tau_sobolevs.columns,
+    )
+
     return transition_probabilities
 
 
