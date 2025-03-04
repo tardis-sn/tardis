@@ -42,6 +42,7 @@ dependencies:
   - watchfiles
   - pyviz::nbsite
   - jupyter_bokeh
+  - anywidget
   # - pip:
   #     - qgridnext
 
