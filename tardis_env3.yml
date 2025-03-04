@@ -2,6 +2,7 @@ name: tardis
 
 channels:
   - conda-forge
+  # - pyviz
 
 dependencies:
   # WARNING: any change to this section must be applied to the conda-forge
@@ -41,8 +42,8 @@ dependencies:
   - watchfiles
   - pyviz::nbsite
   - jupyter_bokeh
-  - pip:
-      - qgridnext
+  # - pip:
+  #     - qgridnext
 
   # --- Packages not required for conda-forge recipe ---
 
