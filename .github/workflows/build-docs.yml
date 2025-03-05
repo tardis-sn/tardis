@@ -9,6 +9,9 @@ on:
     branches:
       - master
 
+  pull_request:
+    branches:
+      - master
   pull_request_target:
     branches:
       - master
@@ -95,7 +98,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request_target' || github.event_name == 'pull_request'
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -106,6 +109,11 @@ jobs:
         uses: ./.github/actions/setup_env
         with:
           os-label: linux-64
+
+      - name: Install JupyterLab Extensions
+        run: |
+          jupyter labextension install @jupyter-widgets/jupyterlab-manager
+          jupyter labextension install @bokeh/jupyter_bokeh
 
       - name: Copy atom_data
         run: |
