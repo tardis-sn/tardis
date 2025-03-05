@@ -30,3 +30,9 @@ runs:
           environment-name: tardis
           cache-environment: true
           cache-downloads: true
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
