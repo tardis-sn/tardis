@@ -33,6 +33,7 @@ runs:
       
       - name: Install JupyterLab Extensions
         run: |
+          micromamba install nodejs
           micromamba run -n tardis jupyter labextension install @jupyter-widgets/jupyterlab-manager
           micromamba run -n tardis jupyter labextension install @bokeh/jupyter_bokeh
         shell: bash
