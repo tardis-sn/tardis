@@ -48,8 +48,8 @@ TARDIS uses specific cache key formats to efficiently store and retrieve data du
 
 .. warning::
    - The version suffix (-v1) allows for future cache invalidation if needed.
-   - Sometimes the cache might not be saved due to race conditions between parallel jobs. Please check workflow runs when testing new regression data for cache misses to avoid consuming LFS quota.
-
+   - The `lfs-cache` workflow will fail if the cache is not available and will not pull LFS data by default. 
+   - However, if the `allow_lfs_pull` label is added to the PR, the workflow will pull LFS data. Please note that this is to be used sparingly and only with caution.
 
 Streamlined Steps for TARDIS Pipelines
 ========================================
@@ -59,8 +59,9 @@ We have a common set of steps which are utilized in TARDIS pipelines to streamli
 Common Steps
 ------------
 
-1. **Use `setup_lfs` Action**
+1. **Use `setup_lfs` Action and `lfs-cache` workflow**
    - If you need access to regression or atomic data, incorporate the `setup_lfs` action to ensure proper handling of large file storage.
+   - The `lfs-cache` workflow is used to cache the regression data and atomic data and to check if the cache is available.
 
 2. **Use `setup_env` Action**
    - To configure your environment effectively, utilize the `setup_env` action. This will help establish the necessary variables and settings for your pipeline.
@@ -133,3 +134,15 @@ The Save Atomic Files workflow runs every week but can also be triggered manuall
 It runs the "Bridge" and sends an artifact containing the generated atomic data file
 and the comparison notebook to Moria. This workflow has a separate job to indicate if the 
 bridge has failed.
+
+The Regression Data Comparison Workflow
+======================================
+
+The Regression Data Comparison workflow compares the regression data between the current branch and the base branch on pull requests. It only runs on pull requests and not on the master branch. The workflow generates regression data for the latest commit on the pull request and compares it with the master branch using the comparison notebook. The notebook is then uploaded as an artifact and pushed to reg-data-comp repository for previews in the bot comment.
+
+.. note :: The workflow exports images from the comparison notebook and embeds them in the bot comment. Unless there are any key changes to any of the HDF files in the regression data the bot will only show two images, one containing the spectrum change and another containing relative changes in the keys. If there are any key changes, the bot will show three images, the additional one visualizing the key changes.
+
+The `LFS-cache` workflow
+=======================
+
+The `LFS-cache` workflow caches the regression data and atomic data and can be triggered either manually or when there is a push to the main branch of the regression data repository. This is mainly responsible for doing LFS pulls when necessary and caching objects while the `setup-lfs` action is used to restore the cached objects. Both fail if the cache is not available.
