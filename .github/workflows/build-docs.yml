@@ -113,11 +113,6 @@ jobs:
 
       - name: Install package
         run: pip install -e .
-      
-      - name: Setup Node for Panel
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'latest'
 
       - name: Install Sphinx extensions
         run: |
