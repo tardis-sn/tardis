@@ -1,16 +1,17 @@
 import logging
-import matplotlib.pyplot as plt
+
+import astropy.units as u
 import matplotlib.cm as cm
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import astropy.units as u
+import plotly.graph_objects as go
 
+import tardis.visualization.tools.sdec_plot as sdec
 from tardis.util.base import (
     atomic_number2element_symbol,
     int_to_roman,
 )
-import tardis.visualization.tools.sdec_plot as sdec
 from tardis.visualization import plot_util as pu
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ class LIVPlotter:
     Plotting interface for the last interaction velocity plot.
     """
 
-    def __init__(self, data, time_explosion, velocity):
+    def __init__(self, data, sim):
         """
         Initialize the plotter with required data from the simulation.
 
@@ -31,17 +32,10 @@ class LIVPlotter:
             Dictionary to store data required for last interaction velocity plot,
             for both packet modes (real, virtual).
 
-        time_explosion : astropy.units.Quantity
-            Time of the explosion.
-
-        velocity : astropy.units.Quantity
-            Velocity array from the simulation.
         """
-
         self.data = data
-        self.time_explosion = time_explosion
-        self.velocity = velocity
-        self.sdec_plotter = sdec.SDECPlotter(data)
+        self.simulation_state = sim.simulation_state
+        self.sdec_plotter = sdec.SDECPlotter(data, sim)
 
     @classmethod
     def from_simulation(cls, sim):
@@ -57,15 +51,7 @@ class LIVPlotter:
         -------
         LIVPlotter
         """
-
-        return cls(
-            dict(
-                virtual=sdec.SDECData.from_simulation(sim, "virtual"),
-                real=sdec.SDECData.from_simulation(sim, "real"),
-            ),
-            sim.plasma.time_explosion,
-            sim.simulation_state.velocity,
-        )
+        return cls(pu.create_packet_data_dict_from_simulation(sim), sim=sim)
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
@@ -81,23 +67,7 @@ class LIVPlotter:
         -------
         LIVPlotter
         """
-        with pd.HDFStore(hdf_fpath, "r") as hdf:
-            time_explosion = (
-                hdf["/simulation/plasma/scalars"]["time_explosion"] * u.s
-            )
-            v_inner = hdf["/simulation/simulation_state/v_inner"] * (u.cm / u.s)
-            v_outer = hdf["/simulation/simulation_state/v_outer"] * (u.cm / u.s)
-            velocity = pd.concat(
-                [v_inner, pd.Series([v_outer.iloc[-1]])], ignore_index=True
-            ).tolist() * (u.cm / u.s)
-            return cls(
-                dict(
-                    virtual=sdec.SDECData.from_hdf(hdf_fpath, "virtual"),
-                    real=sdec.SDECData.from_hdf(hdf_fpath, "real"),
-                ),
-                time_explosion,
-                velocity,
-            )
+        return cls(pu.create_packet_data_dict_from_hdf(hdf_fpath))
 
     def _parse_species_list(self, species_list, packets_mode, nelements=None):
         """
@@ -211,6 +181,8 @@ class LIVPlotter:
         species_not_wvl_range = []
         species_counter = 0
 
+        time_explosion = self.data[packets_mode].time_explosion
+
         for specie_list in self._species_mapped.values():
             full_v_last = []
             for specie in specie_list:
@@ -227,7 +199,7 @@ class LIVPlotter:
                         g_df["last_interaction_in_r"].values * u.cm
                     )
                     v_last_interaction = (
-                        r_last_interaction / self.time_explosion
+                        r_last_interaction / time_explosion
                     ).to("km/s")
                     full_v_last.extend(v_last_interaction)
             if full_v_last:
@@ -333,7 +305,8 @@ class LIVPlotter:
             )
 
         self._generate_plot_data(packets_mode)
-        bin_edges = (self.velocity).to("km/s")
+        velocity = self.simulation_state.velocity
+        bin_edges = (velocity).to("km/s")
 
         if num_bins:
             if num_bins < 1:
