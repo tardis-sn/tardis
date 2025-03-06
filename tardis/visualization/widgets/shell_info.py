@@ -213,7 +213,7 @@ class ShellInfoWidget:
         tabulator.header_align = "center"
 
         # helper method to create Tabulator widgets with defaults
-    def _create_tabulator(df, widths, titles=None, **kwargs):
+    def _create_tabulator(self, df, widths, titles=None, **kwargs):
         """Create a Tabulator widget with pre-set common arguements"""
         defaults = {
             "layout": "fit_data",
