@@ -183,8 +183,6 @@ if os.getenv("DISABLE_NBSPHINX") == "1":
 else:
     nbsphinx_execute = "auto"
 
-# nbsphinx_kernel_name = 'python3'
-# nbsphinx_allow_errors = True
 
 # -- Project information ------------------------------------------------------
 
