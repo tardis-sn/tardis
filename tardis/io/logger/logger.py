@@ -253,7 +253,7 @@ class LogFilter:
 
 def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
     if display_logging_widget and ENVIRONMENT == 'jupyter':
-        display_handle = display(LOGGER_WIDGET, display_id="logger_widget")
+        display_handle = display(LOGGER_WIDGET.embed(), display_id="logger_widget")
     elif display_logging_widget and ENVIRONMENT == 'vscode':
         display_handle = None
     else:
