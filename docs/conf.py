@@ -24,7 +24,7 @@
 # Thus, any C-extensions that are needed to build the documentation will *not*
 # be accessible, and the documentation will not build correctly.
 
-import os 
+import os
 import sys
 import datetime
 import tardis  # FIXME: this import is required by astropy.constants
@@ -90,16 +90,15 @@ extensions = [
     "nbsphinx",
     "numpydoc",
     "recommonmark",
-    "nbsite.pyodide" # for Panel
 ]
 
 bibtex_bibfiles = ["tardis.bib"]
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3/", None),
-    "numpy": ("https://numpy.org/doc/stable/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "python": ("http://docs.python.org/", None),
+    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
+    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
+    "matplotlib": ("http://matplotlib.sourceforge.net/", None),
     "astropy": ("http://docs.astropy.org/en/stable/", None),
     "h5py": ("http://docs.h5py.org/en/latest/", None),
     "pandas": ("http://pandas.pydata.org/pandas-docs/dev/", None),
@@ -135,7 +134,7 @@ nbsphinx_execute_arguments = [
 ]
 
 nbsphinx_prolog = r"""
-{% set docname = 'docs/' + env.doc2path(env.docname, base=None)|string %}
+{% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
 .. raw:: html
     
     <style>
@@ -346,12 +345,6 @@ linkcheck_anchors = False
 redirects = [
     ("using/gui/index.rst", "using/visualization/index.rst"),
 ]
-
-# -- Panel Pydiode Settings --------------------------------------------------
-
-nbsite_pyodide_conf = {
-    "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"
-}
 
 
 # -- Sphinx hook-ins ---------------------------------------------------------
