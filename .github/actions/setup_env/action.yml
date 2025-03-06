@@ -10,34 +10,36 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - name: Download Lock File
-        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ inputs.os-label }}.lock
-        if: matrix.pip == true
-        shell: bash
+      # - name: Download Lock File
+      #   run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ inputs.os-label }}.lock
+      #   if: matrix.pip == true
+      #   shell: bash
       
-      - name: Generate Cache Key
-        run: | 
-          file_hash=$(cat conda-${{ inputs.os-label }}.lock | shasum -a 256 | cut -d' ' -f1)
-          echo "file_hash=tardis-conda-env-${{ inputs.os-label }}-${file_hash}-v1" >> "${GITHUB_OUTPUT}"
-        id: cache-environment-key
-        shell: bash
+      # - name: Generate Cache Key
+      #   run: | 
+      #     file_hash=$(cat conda-${{ inputs.os-label }}.lock | shasum -a 256 | cut -d' ' -f1)
+      #     echo "file_hash=tardis-conda-env-${{ inputs.os-label }}-${file_hash}-v1" >> "${GITHUB_OUTPUT}"
+      #   id: cache-environment-key
+      #   shell: bash
         
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: conda-${{ inputs.os-label }}.lock
-          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          # cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          # cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
           environment-name: tardis
-          cache-environment: true
-          cache-downloads: true
+          # cache-environment: true
+          # cache-downloads: true
+          init-shell: >-
+            bash -el {0}
       
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'latest'
+      # - name: Install Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 'latest'
       
       - name: Install jupyter bokeh extensions
         run: |
           jupyter labextension install @jupyter-widgets/jupyterlab-manager
           jupyter labextension install @bokeh/jupyter_bokeh
-        shell: bash
+        shell: bash -el {0}
