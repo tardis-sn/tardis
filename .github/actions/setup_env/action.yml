@@ -31,7 +31,7 @@ runs:
           # cache-environment: true
           # cache-downloads: true
           init-shell: >-
-            bash -el {0}
+            bash
       
       # - name: Install Node.js
       #   uses: actions/setup-node@v4
