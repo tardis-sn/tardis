@@ -206,58 +206,59 @@ class HDFShellInfo(BaseShellInfo):
 class ShellInfoWidget:
     """Widget to explore abundances in shells with four interlinked tables"""
 
+    def _apply_tabulator_styles(self, tabulator):
+        """Apply consistent styles and alignment to a Tabulator widget"""
+        tabulator.styles = {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'}
+        tabulator.text_align = "center"
+        tabulator.header_align = "center"
+
+        # helper method to create Tabulator widgets with defaults
+    def _create_tabulator(df, widths, titles=None, **kwargs):
+        """Create a Tabulator widget with pre-set common arguements"""
+        defaults = {
+            "layout": "fit_data",
+            "selectable": 1,
+            "styles": {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
+            "text_align": "center",
+            "header_align": "center",
+        }
+        if titles:
+            defaults["titles"] = titles
+        defaults.update(kwargs)
+        return pn.widgets.Tabulator(df, widths=widths, **defaults)
+
     def __init__(self, shell_info_data):
         self.data = shell_info_data
 
         # Shells table
         shells_df = self.data.shells_data()
         self.shells_title = pn.pane.Markdown("### Shells", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
-        self.shells_table = pn.widgets.Tabulator(
+        self.shells_table = self._create_tabulator(
             shells_df,
-            layout="fit_data",
-            selectable=1,
-            widths={"Shell No.": 80, "Rad. Temp.": 120, "Dilution Factor": 120},
-            titles={"Shell No.": "Shell No.", "Rad. Temp.": "Rad. Temp. (K)", "Dilution Factor": "W"},
-            styles={'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
-            text_align="center",
-            header_align="center",
+            widths={"Shell No.": 80, "Rad. Temp.": 120, "Dilution Factor:" 120},
+            titles={"Shell No.": "Shell No.", "Rad. Temp.": "Rad. Temp. (K)", "Dilution Factor": "W"}
         )
 
         # Element count table (Shell 1 initially)
         element_df = self.data.element_count(1)
         self.element_title = pn.pane.Markdown("### Elements (Shell 1)", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
-        self.element_count_table = pn.widgets.Tabulator(
+        self.element_count_table = self._create_tabulator(
             element_df,
-            layout="fit_data",
-            selectable=1,
             widths={"Element": 100, "Frac. Ab. (Shell 1)": 140},
-            styles={'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
-            text_align="center",
-            header_align="center",
         )
 
         # Ion count table (initially empty, but ensure data is populated on selection)
         self.ion_title = pn.pane.Markdown("### Ions (No Selection)", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
-        self.ion_count_table = pn.widgets.Tabulator(
+        self.ion_count_table = self._create_tabulator(
             pd.DataFrame(columns=["Species", "Frac. Ab."]),
-            layout="fit_data",
-            selectable=1,
             widths={"Species": 140, "Frac. Ab.": 140},
-            styles={'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
-            text_align="center",
-            header_align="center",
         )
 
         # Level count table (initially empty, but ensure data is populated on selection)
         self.level_title = pn.pane.Markdown("### Levels (No Selection)", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
-        self.level_count_table = pn.widgets.Tabulator(
+        self.level_count_table = self._create_tabulator(
             pd.DataFrame(columns=["Level", "Frac. Ab."]),
-            layout="fit_data",
-            selectable=1,
             widths={"Level": 100, "Frac. Ab.": 180},
-            styles={'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
-            text_align="center",
-            header_align="center",
         )
 
         # Bind events
@@ -332,9 +333,8 @@ class ShellInfoWidget:
                 "Element": 100,
                 f"Frac. Ab. (Shell {shell_num})": 140,
             }
-            self.element_count_table.styles = {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'}
-            self.element_count_table.text_align = "center"
-            self.element_count_table.header_align = "center"
+            self._apply_tabulator_styles(self.element_count_table)
+
             if not element_df.empty:
                 self.element_count_table.selection = [0]
             else:
@@ -360,9 +360,8 @@ class ShellInfoWidget:
                     "Species": 140,
                     f"Frac. Ab. (Z={atomic_num})": 140,
                 }
-                self.ion_count_table.styles = {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'}
-                self.ion_count_table.text_align = "center"
-                self.ion_count_table.header_align = "center"
+                self._apply_tabulator_styles(self.ion_count_table)
+
                 if not ion_df.empty:
                     self.ion_count_table.selection = [0]
                 else:
@@ -394,9 +393,8 @@ class ShellInfoWidget:
                     "Level": 100,
                     f"Frac. Ab. (Ion={ion})": 180,
                 }
-                self.level_count_table.styles = {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'}
-                self.level_count_table.text_align = "center"
-                self.level_count_table.header_align = "center"
+                self._apply_tabulator_styles(self.level_count_table)
+
                 if not level_df.empty:
                     self.level_count_table.selection = [0]
                 else:
