@@ -70,7 +70,12 @@ class MacroAtomSolver:
         """
         if self.initialize:
             self.initialize_transition_probabilities(atomic_data)
-
+        # I wonder why?
+        # Not sure who wrote this but the answer is that when the plasma is
+        # first initialised (before the first iteration, without temperature
+        # values etc.) there are no j_blues values so this just prevents
+        # an error. Aoife.
+        # Josh followup - I renamed j_blues to mean_intensities to be more agnostic
         if len(mean_intensities) == 0:
             return None
         macro_atom_data = get_macro_atom_data(atomic_data)
