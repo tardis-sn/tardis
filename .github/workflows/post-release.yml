@@ -70,7 +70,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.12"
 
       - name: Install rst-include
         run: pip install rst-include==2.1.2.2 requests==2.27.1
