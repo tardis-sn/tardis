@@ -309,6 +309,14 @@ linkcheck_ignore = [
 linkcheck_timeout = 180
 linkcheck_anchors = False
 
+# -- Options for Panel -------------------------------------------
+
+nbsite_pyodide_conf = {
+     "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"
+}
+os.environ["PANEL_DOCS_BUILD"] = "1" 
+
+
 # -- Turn on nitpicky mode for sphinx (to warn about references not found) ----
 #
 # nitpicky = True
