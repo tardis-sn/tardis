@@ -568,7 +568,7 @@ def calculate_first_guess(
         The method to compute the first guess. Options:
         -"singly_ionized": Asssume all ions are singly ionized (default).
         -"previous_solution": Uses the previous solution if available.
-        -"lu-decomposition": Uses LU decomposition for a refined estimate.
+        -"lu_decomposition": Uses LU decomposition for a refined estimate.
         -"auto": Tries multiple methods, switching if one fails.
 
     Returns
@@ -578,7 +578,7 @@ def calculate_first_guess(
     """
     try:
         if method == "singly_ionized":
-            first_guess = pd.series(0.0, inex=rate_matrix_index)
+            first_guess = pd.Series(0.0, index=rate_matrix_index)
             for atomic_number in atomic_numbers:
                 first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
             
@@ -588,7 +588,10 @@ def calculate_first_guess(
         elif method == "lu_decomposition":
             matrix_size = len(rate_matrix_index)
             A = np.eye(matrix_size)
-            b = number_density.values
+            b = number_density.values.flatten()
+
+            if len(b) != matrix_size:
+                raise ValueError("Incompatible dimensions between rate matrix and number density.")
             
             first_guess = np.linalg.lstsq(A, b, rcond=None)[0]
             
@@ -605,14 +608,15 @@ def calculate_first_guess(
         else:
             raise ValueError(f"Unknown method: {method}")
     except Exception as e:
-        print(f"Warning: Failed with method {method}, falling back to singly ionized. Erro: {e}")
+        print(f"Warning: Failed with method {method}, falling back to singly ionized. Error: {e}")
         first_guess = pd.Series(0.0, index=rate_matrix_index)
         for atomic_number in atomic_numbers:
             first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
         
 
     # TODO: After the first iteration, the new guess can be the old solution.
-    first_guess = first_guess.values
+    if not isinstance(first_guess, np.ndarray):
+        first_guess = first_guess.values
     first_guess[-1] = electron_density
     return first_guess
 
