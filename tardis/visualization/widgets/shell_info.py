@@ -235,7 +235,7 @@ class ShellInfoWidget:
         self.shells_title = pn.pane.Markdown("### Shells", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
         self.shells_table = self._create_tabulator(
             shells_df,
-            widths={"Shell No.": 80, "Rad. Temp.": 120, "Dilution Factor:" 120},
+            widths={"Shell No.": 80, "Rad. Temp.": 120, "Dilution Factor": 120},
             titles={"Shell No.": "Shell No.", "Rad. Temp.": "Rad. Temp. (K)", "Dilution Factor": "W"}
         )
 
