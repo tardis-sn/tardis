@@ -628,8 +628,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         for value in plasma_output.split("\n"):
             output_df = output_df + f"\t{value}\n"
-        logger.info("\n\tPlasma stratification:")
-        logger.info(f"\n{output_df}")
+        # logger.info("\n\tPlasma stratification:")
+        # logger.info(f"\n{output_df}")
 
         logger.info(
             f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
