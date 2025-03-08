@@ -587,24 +587,37 @@ def calculate_first_guess(
             
         elif method == "lu_decomposition":
             matrix_size = len(rate_matrix_index)
+            b = np.zeros(matrix_size)
+            for i, (atomic_number, ion_number) in enumerate(rate_matrix_index):
+                if ion_number == 1:
+                    b[i] = number_density.get(atomic_number, 0.0)
+                       
             A = np.eye(matrix_size)
-            b = number_density.values.flatten()
-
-            if len(b) != matrix_size:
-                raise ValueError("Incompatible dimensions between rate matrix and number density.")
-            
             first_guess = np.linalg.lstsq(A, b, rcond=None)[0]
             
         elif method == "auto":
-            try:
-                first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, method="previous_solution")
-            except:
+            if previous_solution is not None:
                 try:
-                    first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, method="lu_decomposition")
-                
-                except:
-                    first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, method="singly_ionized")
-                    
+                    first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, previous_solution, method="previous_solution")
+                    print("using previous_solution")
+                except Exception as e:
+                    print(f"Warning: Failed with method previous_solution: {e}")
+                    try:
+                        first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, previous_solution, method="lu_decomposition")
+                        print("using lu_decomposition")
+                    except Exception as e:
+                        print(f"Warning: Failed with method lu_decomposition: {e}")
+                        first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, previous_solution, method="singly_ionized")
+                        print("Using singly_ionized")
+            else:
+                try:
+                    first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, previous_solution, method="lu_decomposition")
+                    print("using lu_decomposition")
+                except Exception as e:
+                    print(f"Warning: Failed with method lu_decomposition: {e}")
+                    first_guess = calculate_first_guess(rate_matrix_index, atomic_numbers, number_density, electron_density, previous_solution, method="singly_ionized")
+                    print("Using singly_ionized")
+   
         else:
             raise ValueError(f"Unknown method: {method}")
     except Exception as e:
