@@ -157,7 +157,6 @@ def test_from_hdf(spectrum):
 
         np.testing.assert_array_equal(spectrum.frequency, result.frequency)
         np.testing.assert_array_equal(spectrum.luminosity, result.luminosity)
-        # compare_spectra(spectrum, result)
 
 ###
 # Save and Load

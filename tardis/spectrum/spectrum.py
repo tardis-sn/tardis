@@ -23,7 +23,6 @@ class TARDISSpectrum(HDFWriterMixin):
 
     hdf_properties = [
         "_frequency",
-        # "distance",
         "luminosity",
         "delta_frequency",
         "wavelength",
@@ -169,11 +168,7 @@ class TARDISSpectrum(HDFWriterMixin):
                 luminosity_store = store['/tardis_spectrum/luminosity']
                 luminosity_arr = np.array(luminosity_store) * (u.erg/u.s)
 
-                # distance_val = store['/test/tardis_spectrum/scalars']['distance']
-
                 final_obj = TARDISSpectrum(frequency_arr, luminosity_arr)
-                # final_obj.distance = distance_val
-
                 return final_obj
             
         except FileNotFoundError as e:
