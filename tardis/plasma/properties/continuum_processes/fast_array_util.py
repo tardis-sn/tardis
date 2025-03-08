@@ -27,6 +27,39 @@ def numba_cumulative_trapezoid(f, x):
     integ = (np.diff(x) * (f[1:] + f[:-1]) / 2.0).cumsum()
     return integ / integ[-1]
 
+@njit(**njit_dict)
+def numba_cumulative_trapezoid_2d(f, dx):
+    """
+    Cumulatively integrate f(x) using the composite trapezoidal rule.
+    Vectorized trapezoidal integration for a single block.
+    Precomputes `dx_block` externally to avoid redundant `np.diff`.
+
+    Parameters
+    ----------
+    f : numpy.ndarray, dtype float
+        Input array to with multiple functions integrate.
+    dx : numpy.ndarray, dtype float
+        The width of each block to integrate along.
+
+    Returns
+    -------
+    numpy.ndarray, dtype float
+
+
+    """
+    n, m = f.shape
+    trapz = dx.reshape(-1, 1) * (f[1:] + f[:-1]) / 2.0  # (n-1, m)
+    integ = np.zeros_like(trapz)
+
+    # Parallel cumulative sum over columns
+    for i in prange(m):
+        cumulative = 0.0
+        for j in range(trapz.shape[0]):
+            cumulative += trapz[j, i]
+            integ[j, i] = cumulative
+        if cumulative != 0:
+            integ[:, i] /= cumulative
+    return integ
 
 @njit(**njit_dict)
 def cumulative_integrate_array_by_blocks(f, x, block_references):
@@ -53,11 +86,15 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
         Array with cumulatively integrated values. Shape is (N_freq, N_shells)
         same as f.
     """
-    n_rows = len(block_references) - 1
+    dx = np.diff(x)  # Precompute once globally
     integrated = np.zeros_like(f)
-    for j in prange(n_rows):  # rows
+    n_blocks = len(block_references) - 1
+
+    for j in prange(n_blocks):
         start = block_references[j]
         stop = block_references[j + 1]
-        integrated[start + 1: stop, :] = numba_cumulative_trapezoid(
-            f[start:stop, :], x[start:stop])
+        dx_block = dx[start: stop - 1]
+        f_block = f[start:stop, :]
+        integrated[start + 1:stop, :] = numba_cumulative_trapezoid_2d(f_block, dx_block)
+
     return integrated
