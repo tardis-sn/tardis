@@ -12,11 +12,18 @@ diagnostic visualizations.
 .. toctree::
     :maxdepth: 2
 
+    analyzing_spectrum/index
     how_to_sdec_plot
     how_to_liv_plot
     tutorial_convergence_plot
     tutorial_montecarlo_packet_visualization
 
+Analyzing TARDIS Spectra
+========================
+.. toctree::
+    :maxdepth: 1
+    
+    spectrum-visualization-notebook
 
 TARDIS Widgets (Graphical User Interfaces)
 ==========================================
