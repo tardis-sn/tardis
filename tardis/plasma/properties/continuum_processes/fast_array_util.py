@@ -14,7 +14,7 @@ def numba_cumulative_trapezoid(f, x):
     Parameters
     ----------
     f : numpy.ndarray, dtype float
-        Input array to integrate.
+        Input array to with multiple functions integrate.
     x : numpy.ndarray, dtype float
         The coordinate to integrate along.
 
@@ -23,6 +23,7 @@ def numba_cumulative_trapezoid(f, x):
     numpy.ndarray, dtype float
         The result of cumulative integration of f along x
     """
+
     integ = (np.diff(x) * (f[1:] + f[:-1]) / 2.0).cumsum()
     return integ / integ[-1]
 
@@ -54,12 +55,9 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
     """
     n_rows = len(block_references) - 1
     integrated = np.zeros_like(f)
-    for i in prange(f.shape[1]):  # columns
-        # TODO: Avoid this loop through vectorization of cumulative_trapezoid
-        for j in prange(n_rows):  # rows
-            start = block_references[j]
-            stop = block_references[j + 1]
-            integrated[start + 1 : stop, i] = numba_cumulative_trapezoid(
-                f[start:stop, i], x[start:stop]
-            )
+    for j in prange(n_rows):  # rows
+        start = block_references[j]
+        stop = block_references[j + 1]
+        integrated[start + 1: stop, :] = numba_cumulative_trapezoid(
+            f[start:stop, :], x[start:stop])
     return integrated
