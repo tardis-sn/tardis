@@ -23,6 +23,7 @@ class TARDISSpectrum(HDFWriterMixin):
 
     hdf_properties = [
         "_frequency",
+        # "distance",
         "luminosity",
         "delta_frequency",
         "wavelength",
@@ -152,16 +153,28 @@ class TARDISSpectrum(HDFWriterMixin):
         else:
             warnings.warn(f"Did not find plotting mode {mode}, doing nothing.")
 
-    def from_hdf_to_class(self,hdf_path):
+    def from_hdf(self,hdf_path):
+        """
+        Retrieves the class object from the hdf path provided. 
+
+        Parameters
+        ----------
+        hdf_path : string, Path to the hdf file 
+        """
         try:
             with pd.HDFStore(hdf_path, mode="r") as store:
-                _freq = store['/tardis_spectrum/_frequency']
-                _f = np.array(_freq) * u.Hz
+                freq_store = store['/tardis_spectrum/_frequency']
+                frequency_arr = np.array(freq_store) * u.Hz
 
-                _lumi = store['/tardis_spectrum/luminosity']
-                _l = np.array(_lumi) * (u.erg/u.s)
+                luminosity_store = store['/tardis_spectrum/luminosity']
+                luminosity_arr = np.array(luminosity_store) * (u.erg/u.s)
 
-                return TARDISSpectrum(_f, _l)
+                # distance_val = store['/test/tardis_spectrum/scalars']['distance']
+
+                final_obj = TARDISSpectrum(frequency_arr, luminosity_arr)
+                # final_obj.distance = distance_val
+
+                return final_obj
             
         except FileNotFoundError as e:
             print(f"File not found: {e}")
