@@ -13,6 +13,20 @@ boundary_interaction_dtype = np.dtype(
 )
 
 
+line_interaction_dtype = np.dtype(
+    [
+        ("event_id", "int64"),
+        ("shell_id", "int64"),
+        ("r", "float64"),
+        ("in_id", "int64"),
+        ("in_nu", "float64"),
+        ("in_mu", "float64"),
+        ("out_id", "int64"),
+        ("out_nu", "float64"),
+        ("out_mu", "float64"),
+    ]
+)
+
 rpacket_tracker_spec = [
     ("seed", int64),
     ("index", int64),
@@ -24,8 +38,10 @@ rpacket_tracker_spec = [
     ("shell_id", int64[:]),
     ("interaction_type", int64[:]),
     ("boundary_interaction", from_dtype(boundary_interaction_dtype)[:]),
+    ("line_interaction", from_dtype(line_interaction_dtype)[:]),
     ("num_interactions", int64),
     ("boundary_interactions_index", int64),
+    ("line_interactions_index", int64),
     ("event_id", int64),
     ("extend_factor", int64),
 ]
@@ -38,8 +54,6 @@ class RPacketTracker:
 
     Parameters
     ----------
-        length : int
-            Length of the initial array that is instantiated
         seed : int
             Seed for each RPacket
         index : int
@@ -81,8 +95,13 @@ class RPacketTracker:
             length,
             dtype=boundary_interaction_dtype,
         )
+        self.line_interaction = np.empty(
+            length,
+            dtype=line_interaction_dtype,
+        )
         self.num_interactions = 0
         self.boundary_interactions_index = 0
+        self.line_interactions_index = 0
         self.event_id = 1
         self.extend_factor = 2
 
@@ -146,6 +165,54 @@ class RPacketTracker:
 
         self.boundary_interactions_index += 1
 
+    def track_line_interaction(self, r_packet, is_in_line):
+        """
+        Track line interaction properties
+        """
+        if self.line_interactions_index >= self.line_interaction.size:
+            self.line_interaction = self.extend_array(
+                self.line_interaction,
+                self.line_interaction.size,
+            )
+
+        # shell_id and r are properties of where the interaction heppened
+        # Can't put it in `is_in_line` or `is_out_line`
+        self.line_interaction[self.line_interactions_index][
+            "shell_id"
+        ] = r_packet.current_shell_id
+        self.line_interaction[self.line_interactions_index]["r"] = r_packet.r
+
+        if is_in_line:
+            # The interaction starts now
+            self.line_interaction[self.line_interactions_index][
+                "event_id"
+            ] = self.event_id
+
+            self.line_interaction[self.line_interactions_index][
+                "in_id"
+            ] = r_packet.last_line_interaction_in_id
+            self.line_interaction[self.line_interactions_index][
+                "in_nu"
+            ] = r_packet.nu
+            self.line_interaction[self.line_interactions_index][
+                "in_mu"
+            ] = r_packet.mu
+        else:
+            self.line_interaction[self.line_interactions_index][
+                "out_id"
+            ] = r_packet.last_line_interaction_out_id
+            self.line_interaction[self.line_interactions_index][
+                "out_nu"
+            ] = r_packet.nu
+            self.line_interaction[self.line_interactions_index][
+                "out_mu"
+            ] = r_packet.mu
+
+            # The interaction completes now.
+            self.event_id += 1
+
+            self.line_interactions_index += 1
+
     def finalize_array(self):
         """
         Change the size of the array from length ( or multiple of length ) to
@@ -160,6 +227,9 @@ class RPacketTracker:
         self.interaction_type = self.interaction_type[: self.num_interactions]
         self.boundary_interaction = self.boundary_interaction[
             : self.boundary_interactions_index
+        ]
+        self.line_interaction = self.line_interaction[
+            : self.line_interactions_index
         ]
 
 
@@ -272,6 +342,9 @@ class RPacketLastInteractionTracker:
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
         """
+
+    def track_line_interaction(self, r_packet, is_in_line):
+        pass
 
 
 @njit
