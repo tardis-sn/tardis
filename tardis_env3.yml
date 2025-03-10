@@ -37,7 +37,7 @@ dependencies:
   - notebook
   - matplotlib-base
   - ipywidgets
-  - plotly
+  - plotly==5.22.0 # pinned for panel
   - panel
   - watchfiles
   - pyviz::nbsite
