@@ -37,7 +37,7 @@ def numba_cumulative_trapezoid_2d(f, dx):
     Parameters
     ----------
     f : numpy.ndarray, dtype float
-        Input array to with multiple functions integrate.
+        Input array with multiple functions to integrate.
     dx : numpy.ndarray, dtype float
         The width of each block to integrate along.
 
