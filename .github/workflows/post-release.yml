@@ -85,6 +85,15 @@ jobs:
             README.rst
             docs/resources/credits.rst
 
+      - name: Dispatch to Tardis Website
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            -d '{ "event_type": "repo-push" }' \
+            https://api.github.com/repos/tardis-sn/tardis-org-data/dispatches
+
   pull_request:
     needs: [changelog, citation, credits]
     runs-on: ubuntu-latest
