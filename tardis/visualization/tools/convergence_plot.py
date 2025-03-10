@@ -448,12 +448,8 @@ class ConvergencePlots(object):
                 display(
                     widgets.VBox(
                         [
-                            self.plasma_plot.show(
-                                renderer="notebook_connected"
-                            ),
-                            self.t_inner_luminosities_plot.show(
-                                renderer="notebook_connected"
-                            ),
+                            self.plasma_plot.show(),
+                            self.t_inner_luminosities_plot.show(),
                         ]
                     )
                 )
