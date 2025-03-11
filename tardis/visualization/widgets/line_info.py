@@ -195,7 +195,7 @@ class LineInfoWidget:
             # Obtain species group from last_line_in dataframe
             selected_species_group = self.line_interaction_analysis[
                 filter_mode
-            ].last_line_in.groupby(["atomic_number", "ion_number"])
+            ].last_line_in.groupby(["atomic_number", "ion_charge"])
 
             if selected_species_group.groups:
                 selected_species_symbols = [
@@ -283,7 +283,7 @@ class LineInfoWidget:
                     self.line_interaction_analysis[filter_mode]
                     .last_line_in.xs(
                         key=selected_species_tuple,
-                        level=["atomic_number", "ion_number"],
+                        level=["atomic_number", "ion_charge"],
                         drop_level=False,
                     )
                     .reset_index()
@@ -294,7 +294,7 @@ class LineInfoWidget:
                     self.line_interaction_analysis[filter_mode]
                     .last_line_out.xs(
                         key=selected_species_tuple,
-                        level=["atomic_number", "ion_number"],
+                        level=["atomic_number", "ion_charge"],
                         drop_level=False,
                     )
                     .reset_index()
@@ -309,7 +309,7 @@ class LineInfoWidget:
                 allowed_species = [
                     species_tuple_to_string(species)
                     for species in self.line_interaction_analysis[filter_mode]
-                    .last_line_in.groupby(["atomic_number", "ion_number"])
+                    .last_line_in.groupby(["atomic_number", "ion_charge"])
                     .groups.keys()
                 ]
                 raise ValueError(

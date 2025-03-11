@@ -48,7 +48,7 @@ class TestLineInfoWidgetData:
             # Test shape of the dataframe
             expected_df_length = (
                 line_info_widget.line_interaction_analysis[filter_mode]
-                .last_line_in.groupby(["atomic_number", "ion_number"])
+                .last_line_in.groupby(["atomic_number", "ion_charge"])
                 .ngroups
             )
             assert species_interactions_df.shape == (expected_df_length, 1)
@@ -98,7 +98,7 @@ class TestLineInfoWidgetData:
                 line_info_widget.line_interaction_analysis[filter_mode]
                 .last_line_in.xs(
                     key=species_string_to_tuple(selected_species),
-                    level=["atomic_number", "ion_number"],
+                    level=["atomic_number", "ion_charge"],
                 )
                 .reset_index()
             )
@@ -107,7 +107,7 @@ class TestLineInfoWidgetData:
                 line_info_widget.line_interaction_analysis[filter_mode]
                 .last_line_out.xs(
                     key=species_string_to_tuple(selected_species),
-                    level=["atomic_number", "ion_number"],
+                    level=["atomic_number", "ion_charge"],
                 )
                 .reset_index()
             )

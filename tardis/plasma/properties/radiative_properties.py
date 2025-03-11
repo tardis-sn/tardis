@@ -104,7 +104,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             nlte_lines_mask = (
                 lines.reset_index()
                 .apply(
-                    lambda row: (row.atomic_number, row.ion_number)
+                    lambda row: (row.atomic_number, row.ion_charge)
                     in self.nlte_species,
                     axis=1,
                 )
@@ -163,7 +163,7 @@ class RawRadBoundBoundTransProbs(
         mask_continuum_species = pd.MultiIndex.from_arrays(
             [
                 atomic_data.macro_atom_data.atomic_number,
-                atomic_data.macro_atom_data.ion_number,
+                atomic_data.macro_atom_data.ion_charge,
             ]
         ).isin(continuum_interaction_species)
         p_rad_bb = p_rad_bb.set_index(index, drop=True)[mask_continuum_species]

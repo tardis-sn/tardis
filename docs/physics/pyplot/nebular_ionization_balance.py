@@ -36,7 +36,7 @@ nebular_plasma = plasma.NebularPlasma.from_abundance(
 
 
 # Initializing a dataframe to store the ion populations  and level populations for the different temperatures
-ion_number_densities = pd.DataFrame(index=nebular_plasma.ion_populations.index)
+ion_charge_densities = pd.DataFrame(index=nebular_plasma.ion_populations.index)
 level_populations = pd.DataFrame(
     index=nebular_plasma.level_populations.loc[14, 1].index
 )
@@ -49,7 +49,7 @@ for t_rad in t_rads:
     si_number_density = nebular_plasma.number_density.get_value(14)
     # Normalizing the ion populations
     ion_density = nebular_plasma.ion_populations / si_number_density
-    ion_number_densities[t_rad] = ion_density
+    ion_charge_densities[t_rad] = ion_density
 
     # normalizing the level_populations for Si II
     current_level_population = (
@@ -63,14 +63,14 @@ for t_rad in t_rads:
 
 ion_colors = ["b", "g", "r", "k"]
 
-for ion_number in [0, 1, 2, 3]:
-    current_ion_density = ion_number_densities.loc[14, ion_number]
+for ion_charge in [0, 1, 2, 3]:
+    current_ion_density = ion_charge_densities.loc[14, ion_charge]
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
-        "%s-" % ion_colors[ion_number],
+        "%s-" % ion_colors[ion_charge],
         label="Si %s W=1.0"
-        % tardis.util.base.int_to_roman(ion_number + 1).upper(),
+        % tardis.util.base.int_to_roman(ion_charge + 1).upper(),
     )
 
 
@@ -87,14 +87,14 @@ for t_rad in t_rads[::5]:
     ax2.semilogy()
 
 # Calculating the different ion populations for the given temperatures with W=0.5
-ion_number_densities = pd.DataFrame(index=nebular_plasma.ion_populations.index)
+ion_charge_densities = pd.DataFrame(index=nebular_plasma.ion_populations.index)
 for t_rad in t_rads:
     nebular_plasma.update_radiationfield(t_rad, w=0.5)
     # getting total si number density
     si_number_density = nebular_plasma.number_density.get_value(14)
     # Normalizing the ion populations
     ion_density = nebular_plasma.ion_populations / si_number_density
-    ion_number_densities[t_rad] = ion_density
+    ion_charge_densities[t_rad] = ion_density
 
     # normalizing the level_populations for Si II
     current_level_population = (
@@ -108,15 +108,15 @@ for t_rad in t_rads:
 
 # Plotting the ion fractions
 
-for ion_number in [0, 1, 2, 3]:
+for ion_charge in [0, 1, 2, 3]:
     print("w=0.5")
-    current_ion_density = ion_number_densities.loc[14, ion_number]
+    current_ion_density = ion_charge_densities.loc[14, ion_charge]
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
-        "%s--" % ion_colors[ion_number],
+        "%s--" % ion_colors[ion_charge],
         label="Si %s W=0.5"
-        % tardis.util.base.int_to_roman(ion_number + 1).upper(),
+        % tardis.util.base.int_to_roman(ion_charge + 1).upper(),
     )
 
 for t_rad in t_rads[::5]:

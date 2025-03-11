@@ -78,7 +78,7 @@ def calculate_absorption_luminosities(
         lines_df["atomic_number"]
         .iloc[packets_df_line_interaction["last_line_interaction_out_id"]]
         .to_numpy() * 100
-        + lines_df["ion_number"]
+        + lines_df["ion_charge"]
         .iloc[packets_df_line_interaction["last_line_interaction_out_id"]]
         .to_numpy()
     )
@@ -233,7 +233,7 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
         lines_df["atomic_number"]
         .iloc[packets_df_line_interaction["last_line_interaction_out_id"]]
         .to_numpy() * 100
-        + lines_df["ion_number"]
+        + lines_df["ion_charge"]
         .iloc[packets_df_line_interaction["last_line_interaction_out_id"]]
         .to_numpy()
     )

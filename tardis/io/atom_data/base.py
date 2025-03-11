@@ -42,37 +42,37 @@ class AtomData:
 
     ionization_data : pandas.DataFrame
     A DataFrame containing the *ionization data* with:
-        index : atomic_number, ion_number
+        index : atomic_number, ion_charge
         columns : ionization_energy[eV].
-    It is important to note here is that `ion_number` describes the *final ion state*
+    It is important to note here is that `ion_charge` describes the *final ion state*
     e.g. H I - H II is described with ion=1
 
     levels : pandas.DataFrame
     A DataFrame containing the *levels data* with:
         index : numerical index
-        columns : atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
+        columns : atomic_number, ion_charge, level_number, energy[eV], g[1], metastable.
 
     lines : pandas.DataFrame
     A DataFrame containing the *lines data* with:
         index : numerical index
-        columns : line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
+        columns : line_id, atomic_number, ion_charge, level_number_lower, level_number_upper,
         wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
     macro_atom_data :
     A DataFrame containing the *macro atom data* with:
         index : numerical index
-        columns : atomic_number, ion_number, source_level_number, destination_level_number,
+        columns : atomic_number, ion_charge, source_level_number, destination_level_number,
         transition_line_id, transition_type, transition_probability;
 
     macro_atom_references :
     A DataFrame containing  the *macro atom references* with:
         index : numerical index
-        columns : atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
+        columns : atomic_number, ion_charge, source_level_number, count_down, count_up, count_total.
     Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
 
     collision_data : (pandas.DataFrame, np.array)
     A DataFrame containing the *electron collisions data* with:
-        index : atomic_number, ion_number, level_number_lower, level_number_upper
+        index : atomic_number, ion_charge, level_number_lower, level_number_upper
         columns : e_col_id, delta_e, g_ratio, c_ul;
 
     collision_data_temperatures : np.array
@@ -91,11 +91,11 @@ class AtomData:
     photoionization_data : pandas.DataFrame
     A DataFrame containing the *photoionization data* with:
         index : numerical index
-        columns : atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
+        columns : atomic_number, ion_charge, level_number, nu[Hz], x_sect[cm^2]
 
     two_photon_data : pandas.DataFrame
     A DataFrame containing the *two photon decay data* with:
-        index: atomic_number, ion_number, level_number_lower, level_number_upper
+        index: atomic_number, ion_charge, level_number_lower, level_number_upper
         columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
 
     decay_radiation_data : pandas.DataFrame
@@ -487,7 +487,7 @@ class AtomData:
             The continuum interaction object
         """
         # photoionization_data = atomic_data.photoionization_data.set_index(
-        #    ["atomic_number", "ion_number", "level_number"]
+        #    ["atomic_number", "ion_charge", "level_number"]
         # )
         mask_selected_species = self.photoionization_data.index.droplevel(
             "level_number"
@@ -626,7 +626,7 @@ class AtomData:
                 tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays(
                     [
                         self.macro_atom_data["atomic_number"],
-                        self.macro_atom_data["ion_number"],
+                        self.macro_atom_data["ion_charge"],
                         self.macro_atom_data["destination_level_number"],
                     ]
                 )
@@ -634,7 +634,7 @@ class AtomData:
                 tmp_macro_source_level_idx = pd.MultiIndex.from_arrays(
                     [
                         self.macro_atom_data["atomic_number"],
-                        self.macro_atom_data["ion_number"],
+                        self.macro_atom_data["ion_charge"],
                         self.macro_atom_data["source_level_number"],
                     ]
                 )

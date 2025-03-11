@@ -8,7 +8,7 @@ class ChiantiCollisionData:
     """Collisional data from Chianti sources
     data : (pandas.DataFrame, np.array)
     A DataFrame containing the *electron collisions data* with:
-        index : atomic_number, ion_number, level_number_lower, level_number_upper
+        index : atomic_number, ion_charge, level_number_lower, level_number_upper
         columns : e_col_id, delta_e, g_ratio, c_ul;
     temperatures : np.array
         An array with the collision temperatures.

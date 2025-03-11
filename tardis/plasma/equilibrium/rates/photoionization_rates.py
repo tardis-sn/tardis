@@ -25,7 +25,7 @@ class AnalyticPhotoionizationRateSolver:
         stimulated_recombination_rate_coeff,
         spontaneous_recombination_rate_coeff,
         level_number_density,
-        ion_number_density,
+        ion_charge_density,
         electron_number_density,
         saha_factor,
     ):
@@ -44,8 +44,8 @@ class AnalyticPhotoionizationRateSolver:
             Columns are cells.
         level_number_density : pd.DataFrame
             The electron energy level number density. Columns are cells.
-        ion_number_density : pd.DataFrame
-            The ion number density. Columns are cells.
+        ion_charge_density : pd.DataFrame
+            The ion charge density. Columns are cells.
         electron_number_density : u.Quantity
             The free electron number density per cell.
         saha_factor : pd.DataFrame
@@ -62,13 +62,13 @@ class AnalyticPhotoionizationRateSolver:
             photoionization_rate_coeff * level_number_density
             - saha_factor
             * stimulated_recombination_rate_coeff
-            * ion_number_density
+            * ion_charge_density
             * electron_number_density
         )
         spontaneous_recombination_rate = (
             saha_factor
             * spontaneous_recombination_rate_coeff
-            * ion_number_density
+            * ion_charge_density
             * electron_number_density
         )
 
@@ -79,7 +79,7 @@ class AnalyticPhotoionizationRateSolver:
         dilute_blackbody_radiationfield_state,
         electron_energy_distribution,
         level_number_density,
-        ion_number_density,
+        ion_charge_density,
         saha_factor,
     ):
         """Solve the photoionization and spontaneous recombination rates in the
@@ -93,8 +93,8 @@ class AnalyticPhotoionizationRateSolver:
             Electron properties.
         level_number_density : pd.DataFrame
             Electron energy level number density. Columns are cells.
-        ion_number_density : pd.DataFrame
-            Ion number density. Columns are cells.
+        ion_charge_density : pd.DataFrame
+            Ion charge density. Columns are cells.
         saha_factor : pd.DataFrame
             Saha factor: the LTE level number density divided by the LTE ion
             number density and the electron number density.
@@ -128,7 +128,7 @@ class AnalyticPhotoionizationRateSolver:
             stimulated_recombination_rate_coeff,
             spontaneous_recombination_rate_coeff,
             level_number_density,
-            ion_number_density,
+            ion_charge_density,
             electron_energy_distribution.number_density,
             saha_factor,
         )
@@ -154,7 +154,7 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
         time_simulation,
         volume,
         level_number_density,
-        ion_number_density,
+        ion_charge_density,
         saha_factor,
     ):
         """Solve the photoionization and spontaneous recombination rates in the
@@ -172,8 +172,8 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             Volume per cell.
         level_number_density : pd.DataFrame
             Electron energy level number density. Columns are cells.
-        ion_number_density : pd.DataFrame
-            Ion number density. Columns are cells.
+        ion_charge_density : pd.DataFrame
+            Ion charge density. Columns are cells.
         saha_factor : pd.DataFrame
             Saha factor: the LTE level number density divided by the LTE ion
             number density and the electron number density.
@@ -208,7 +208,7 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             stimulated_recombination_rate_coeff,
             spontaneous_recombination_rate_coeff,
             level_number_density,
-            ion_number_density,
+            ion_charge_density,
             electron_energy_distribution.number_density,
             saha_factor,
         )

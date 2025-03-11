@@ -9,12 +9,12 @@ class MacroAtomData:
 
     transition_probability_data : (pandas.DataFrame, np.array)
         index : numerical index
-        columns : atomic_number, ion_number, source_level_number, destination_level_number,
+        columns : atomic_number, ion_charge, source_level_number, destination_level_number,
         transition_line_id, transition_type, transition_probability;
 
     block_reference_data : (pandas.DataFrame, np.array)
         index : numerical index
-        columns : atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
+        columns : atomic_number, ion_charge, source_level_number, count_down, count_up, count_total.
         Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
     """
 

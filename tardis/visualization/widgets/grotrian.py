@@ -131,9 +131,9 @@ class GrotrianPlot:
     atom_data : pandas.DataFrame
         Mapping from atomic number to symbol and name
     level_energy_data : pandas.Series
-        Level energies (in eV) indexed by (atomic_number, ion_number, level_number)
+        Level energies (in eV) indexed by (atomic_number, ion_charge, level_number)
     level_population_data : pandas.DataFrame
-        Level populations indexed by (atomic_number, ion_number, level_number)
+        Level populations indexed by (atomic_number, ion_charge, level_number)
         and each column representing the supernova shell
     line_interaction_analysis : tardis.analysis.LastLineInteraction
         LastLineInteraction object with the appropriate filters
@@ -142,10 +142,10 @@ class GrotrianPlot:
     -----------------------
     atomic_number : int
         Atomic number of the ion for which the diagram is plotted
-        Note: User should set the atomic_number and ion_number together using set_ion function.
-    ion_number : int
+        Note: User should set the atomic_number and ion_charge together using set_ion function.
+    ion_charge : int
         Ion number of the ion for which the diagram is plotted
-        Note: User should set the atomic_number and ion_number together using set_ion function.
+        Note: User should set the atomic_number and ion_charge together using set_ion function.
     shell : int or None
         The supernova shell to filter on.
         If None, the level populations are averaged across all shells,
@@ -246,7 +246,7 @@ class GrotrianPlot:
 
         # Selected Species
         self._atomic_number = None
-        self._ion_number = None
+        self._ion_charge = None
         self._shell = None
 
         ### Define default parameters for visual elements related to energy levels
@@ -328,9 +328,9 @@ class GrotrianPlot:
     def filter_mode(self, value):
         assert value in self.FILTER_MODES
 
-        # Set the atomic_number and ion_number in the appropriate analysis object
+        # Set the atomic_number and ion_charge in the appropriate analysis object
         self._line_interaction_analysis[value].set_ion(
-            self.atomic_number, self.ion_number
+            self.atomic_number, self.ion_charge
         )
         self._line_interaction_analysis[value].shell = self.shell
 
@@ -344,34 +344,34 @@ class GrotrianPlot:
             raise ValueError("Atomic number is not set")
         return self._atomic_number
 
-    def set_ion(self, atomic_number, ion_number):
+    def set_ion(self, atomic_number, ion_charge):
         """
         Sets the atomic number and ion number
         """
-        assert type(atomic_number) is int and type(ion_number) is int
-        if (atomic_number, ion_number) not in self._level_energy_data.index or (
+        assert type(atomic_number) is int and type(ion_charge) is int
+        if (atomic_number, ion_charge) not in self._level_energy_data.index or (
             atomic_number,
-            ion_number,
+            ion_charge,
         ) not in self._level_population_data.index:
             raise ValueError(
-                "The (atomic_number, ion_number) pair doesn't exist in model"
+                "The (atomic_number, ion_charge) pair doesn't exist in model"
             )
         self._line_interaction_analysis[self.filter_mode].set_ion(
-            atomic_number, ion_number
+            atomic_number, ion_charge
         )
 
         self._atomic_number = atomic_number
-        self._ion_number = ion_number
+        self._ion_charge = ion_charge
         self._compute_level_data()
 
         # Reset any custom wavelengths if user changes ion
         self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
 
     @property
-    def ion_number(self):
-        if self._ion_number is None:
-            raise ValueError("Ion number is not set")
-        return self._ion_number
+    def ion_charge(self):
+        if self._ion_charge is None:
+            raise ValueError("Ion charge is not set")
+        return self._ion_charge
 
     @property
     def atomic_name(self):
@@ -533,12 +533,12 @@ class GrotrianPlot:
         """
         ### Get energy levels and convert to eV
         raw_energy_levels = self._level_energy_data.loc[
-            self.atomic_number, self.ion_number
+            self.atomic_number, self.ion_charge
         ].loc[0 : self.max_levels]
 
         ### Get level populations
         raw_level_populations = self._level_population_data.loc[
-            self.atomic_number, self.ion_number
+            self.atomic_number, self.ion_charge
         ].loc[0 : self.max_levels]
 
         ### Average out the level populations across all zones, if zone not selected
@@ -916,7 +916,7 @@ class GrotrianPlot:
         # Update fig layout
         self.fig.update_layout(
             title=(
-                f"Energy Level Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)} "
+                f"Energy Level Diagram for {self.atomic_name} {int_to_roman(self.ion_charge + 1)} "
                 f"(Shell: {self.shell if self.shell is not None else 'All'})"
             ),
             title_x=0.5,
@@ -1100,7 +1100,7 @@ class GrotrianWidget:
         line_interaction_analysis = self.plot._line_interaction_analysis
         selected_species_group = line_interaction_analysis[
             self.plot.filter_mode
-        ].last_line_in.groupby(["atomic_number", "ion_number"])
+        ].last_line_in.groupby(["atomic_number", "ion_charge"])
 
         if selected_species_group.groups:
             selected_species_symbols = [
@@ -1137,9 +1137,9 @@ class GrotrianWidget:
         change : dict
             Change information of the event
         """
-        atomic_number, ion_number = species_string_to_tuple(change["new"])
+        atomic_number, ion_charge = species_string_to_tuple(change["new"])
         index = self.fig.children.index(self.plot.fig)
-        self.plot.set_ion(atomic_number, ion_number)
+        self.plot.set_ion(atomic_number, ion_charge)
 
         # Set the updated plot in the figure
         children_list = list(self.fig.children)

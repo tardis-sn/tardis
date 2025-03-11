@@ -146,6 +146,33 @@ class LIVPlotter:
             ]
             self._parse_species_list(top_species_list, packets_mode)
 
+    def _make_colorbar_labels(self):
+        """
+        Generate labels for the colorbar based on species.
+
+        If a species list is provided, uses that to generate labels.
+        Otherwise, generates labels from the species in the model.
+        """
+        if self._species_list is None:
+            species_name = [
+                atomic_number2element_symbol(atomic_num)
+                for atomic_num in self.species
+            ]
+        else:
+            species_name = []
+            for species_key, species_ids in self._species_mapped.items():
+                if any(species in self.species for species in species_ids):
+                    if species_key % 100 == 0:
+                        label = atomic_number2element_symbol(species_key // 100)
+                    else:
+                        atomic_number = species_key // 100
+                        ion_charge = species_key % 100
+                        ion_numeral = int_to_roman(ion_charge + 1)
+                        label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
+                    species_name.append(label)
+
+        self._species_name = species_name
+
     def _make_colorbar_colors(self):
         """
         Generate colors for the species to be plotted.
@@ -196,8 +223,8 @@ class LIVPlotter:
                 if specie in self.species:
                     if specie not in groups.groups:
                         atomic_number = specie // 100
-                        ion_number = specie % 100
-                        ion_numeral = int_to_roman(ion_number + 1)
+                        ion_charge = specie % 100
+                        ion_numeral = int_to_roman(ion_charge + 1)
                         label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
                         species_not_wvl_range.append(label)
                         continue

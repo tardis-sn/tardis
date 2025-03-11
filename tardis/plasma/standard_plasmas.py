@@ -82,7 +82,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         for species in config.plasma.continuum_interaction.species
     ]
     continuum_interaction_species = pd.MultiIndex.from_tuples(
-        continuum_interaction_species, names=["atomic_number", "ion_number"]
+        continuum_interaction_species, names=["atomic_number", "ion_charge"]
     )
 
     atom_data.prepare_atom_data(

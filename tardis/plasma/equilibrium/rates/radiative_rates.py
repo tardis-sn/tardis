@@ -9,7 +9,7 @@ class RadiativeRatesSolver:
         # Ensuring the right columns are present
         assert einstein_coefficients.index.names == [
             "atomic_number",
-            "ion_number",
+            "ion_charge",
             "level_number_lower",
             "level_number_upper",
         ]
@@ -50,23 +50,23 @@ class RadiativeRatesSolver:
         rates_df = pd.concat([r_lu, r_ul])
         rates_df.index.names = [
             "atomic_number",
-            "ion_number",
+            "ion_charge",
             "level_number_source",
             "level_number_destination",
         ]
 
         rates_df = rates_df.reset_index()
 
-        # Add the new columns by duplicating the ion_number column
-        rates_df["ion_number_source"] = rates_df["ion_number"]
-        rates_df["ion_number_destination"] = rates_df["ion_number"]
+        # Add the new columns by duplicating the ion_charge column
+        rates_df["ion_charge_source"] = rates_df["ion_charge"]
+        rates_df["ion_charge_destination"] = rates_df["ion_charge"]
 
         rates_df = rates_df.set_index(
             [
                 "atomic_number",
-                "ion_number",
-                "ion_number_source",
-                "ion_number_destination",
+                "ion_charge",
+                "ion_charge_source",
+                "ion_charge_destination",
                 "level_number_source",
                 "level_number_destination",
             ]
