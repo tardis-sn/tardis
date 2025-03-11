@@ -851,7 +851,7 @@ class ShellInfo(QtWidgets.QDialog):
         """Called when a header in the first column is clicked to show
         ion populations."""
         self.current_atom_index = self.table1_data.index.values.tolist()[index]
-        self.table2_data = self.parent.model.plasma.ion_number_density[
+        self.table2_data = self.parent.model.plasma.ion_charge_density[
             self.shell_index
         ].ix[self.current_atom_index]
         self.ionsdata = self.createTable(
@@ -991,8 +991,8 @@ class LineInfo(QtWidgets.QDialog):
             self.parent.model.atom_data.lines.ix[last_line_out_ids],
         )
         self.grouped_lines_in, self.grouped_lines_out = (
-            self.last_line_in.groupby(["atomic_number", "ion_number"]),
-            self.last_line_out.groupby(["atomic_number", "ion_number"]),
+            self.last_line_in.groupby(["atomic_number", "ion_charge"]),
+            self.last_line_out.groupby(["atomic_number", "ion_charge"]),
         )
         self.ions_in, self.ions_out = (
             self.grouped_lines_in.groups.keys(),
@@ -1013,7 +1013,7 @@ class LineInfo(QtWidgets.QDialog):
         given lines, atom and ions.
 
         """
-        grouped = lines.groupby(["atomic_number", "ion_number"])
+        grouped = lines.groupby(["atomic_number", "ion_charge"])
         transitions_with_duplicates = (
             lines.ix[grouped.groups[(atom, ion)]]
             .groupby(["level_number_lower", "level_number_upper"])
@@ -1132,7 +1132,7 @@ class LineInteractionTables(QtWidgets.QWidget):
         self.lines_data = lines_data.reset_index().set_index("line_id")
         line_interaction_species_group = (
             line_interaction_analysis.last_line_in.groupby(
-                ["atomic_number", "ion_number"]
+                ["atomic_number", "ion_charge"]
             )
         )
         self.species_selected = sorted(
@@ -1175,12 +1175,12 @@ class LineInteractionTables(QtWidgets.QWidget):
 
         current_last_line_in = last_line_in.xs(
             key=(current_species[0], current_species[1]),
-            level=["atomic_number", "ion_number"],
+            level=["atomic_number", "ion_charge"],
             drop_level=False,
         ).reset_index()
         current_last_line_out = last_line_out.xs(
             key=(current_species[0], current_species[1]),
-            level=["atomic_number", "ion_number"],
+            level=["atomic_number", "ion_charge"],
             drop_level=False,
         ).reset_index()
 

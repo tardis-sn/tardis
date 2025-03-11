@@ -98,7 +98,7 @@ class UpsilonCMFGENSolver:
         Energy difference between upper and lower levels coupled by collisions.
     yg_idx : pandas.DataFrame
         Source_level_idx and destination_level_idx of collision transitions.
-        Indexed by atomic_number, ion_number, level_number_lower,
+        Indexed by atomic_number, ion_charge, level_number_lower,
         level_number_upper.
     """
 
@@ -228,7 +228,7 @@ class UpsilonRegemorterSolver:
     def __init__(self, transition_data, g_bar=0.2) -> None:
         assert transition_data.index.names == [
             "atomic_number",
-            "ion_number",
+            "ion_charge",
             "level_number_lower",
             "level_number_upper",
         ]

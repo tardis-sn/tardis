@@ -22,7 +22,7 @@ NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE = 1e-6  # Arbitrary toleran
 
 
 class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
-    outputs = ("ion_number_density", "electron_densities")
+    outputs = ("ion_charge_density", "electron_densities")
 
     def __init__(
         self,
@@ -65,14 +65,14 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
         partition_function : pandas.DataFrame
             General partition function. Indexed by atomic number, ion number.
         levels : MultiIndex
-            (atomic_number, ion_number, level_number)
+            (atomic_number, ion_charge, level_number)
             Index of filtered atomic data.
         level_boltzmann_factor : pandas.DataFrame
             General Boltzmann factor.
         phi : pandas.DataFrame
             Saha Factors.
         rate_matrix_index : MultiIndex
-            (atomic_number, ion_number, treatment type)
+            (atomic_number, ion_charge, treatment type)
             If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
             if treated in NLTE ionization, 3rd index is "nlte_ion".
         number_density : pandas.DataFrame
@@ -82,7 +82,7 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
 
         Returns
         -------
-        ion_number_densities : pandas.DataFrame
+        ion_charge_densities : pandas.DataFrame
             Number density with NLTE ionization treatment.
         electron_densities : Series
             Electron density with NLTE ionization treatment.
@@ -112,9 +112,9 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
         )  # dropping the n_e index, as rate_matrix_index's first index is (atomic_numbers, "n_e")
 
         index = rate_matrix_index.droplevel("level_number").drop("n_e")
-        ion_number_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
+        ion_charge_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
         electron_densities = pd.Series(0.0, index=phi.columns)
-        ion_numbers = index.get_level_values("ion_number")
+        ion_Charge = index.get_level_values("ion_charge")
 
         for shell in phi.columns:
             solution_vector = calculate_balance_vector(
@@ -148,19 +148,19 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
             )
             assert solution.success, "No solution for NLTE population equation found or solver takes too long to converge"
             (
-                ion_number_density[shell],
+                ion_charge_density[shell],
                 electron_densities[shell],
             ) = check_negative_population(
                 pd.Series(solution.x[:-1], index=index),
                 solution.x[-1],
                 number_density[shell],
-                ion_numbers,
+                ion_Charge,
             )
             # Check that the electron density is still in line with charge conservation
             # after removing negative populations
             assert (
                 np.abs(
-                    np.sum(ion_numbers * ion_number_density[shell])
+                    np.sum(ion_Charge * ion_charge_density[shell])
                     - electron_densities[shell]
                 )
                 / electron_densities[shell]
@@ -169,11 +169,11 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
 
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
 
-        return ion_number_density, electron_densities
+        return ion_charge_density, electron_densities
 
 
 class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
-    outputs = ("ion_number_density", "electron_densities")
+    outputs = ("ion_charge_density", "electron_densities")
 
     def __init__(
         self,
@@ -216,14 +216,14 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
         partition_function : pandas.DataFrame
             General partition function. Indexed by atomic number, ion number.
         levels : MultiIndex
-            (atomic_number, ion_number, level_number)
+            (atomic_number, ion_charge, level_number)
             Index of filtered atomic data.
         level_boltzmann_factor : pandas.DataFrame
             General Boltzmann factor.
         phi : pandas.DataFrame
             Saha Factors.
         rate_matrix_index : MultiIndex
-            (atomic_number, ion_number, treatment type)
+            (atomic_number, ion_charge, treatment type)
             If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
             if treated in NLTE ionization, 3rd index is "nlte_ion".
         number_density : pandas.DataFrame
@@ -233,7 +233,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
 
         Returns
         -------
-        ion_number_densities : pandas.DataFrame
+        ion_charge_densities : pandas.DataFrame
             Number density with NLTE ionization treatment.
         electron_densities : Series
             Electron density with NLTE ionization treatment.
@@ -264,8 +264,8 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
 
         index = rate_matrix_index.droplevel("level_number")
         electron_densities = initial_electron_densities.copy()
-        ion_number_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
-        ion_numbers = index.get_level_values("ion_number")
+        ion_charge_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
+        ion_Charge = index.get_level_values("ion_charge")
 
         # Ordering of loops is important to allow for
         # easier parallelization in the future
@@ -297,15 +297,15 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
                     pd.Series(ion_solution, index=index),
                     None,  # Electron density will be recalculated from ion number densities
                     number_density[shell],
-                    ion_numbers,
+                    ion_Charge,
                 )
                 delta_ion, delta_electron = self.calculate_lu_solver_delta(
                     ion_solution,
                     electron_solution,
-                    ion_number_density[shell],
+                    ion_charge_density[shell],
                     electron_densities[shell],
                 )
-                ion_number_density[shell] = ion_solution
+                ion_charge_density[shell] = ion_solution
                 electron_densities[shell] = electron_solution
                 if (
                     np.all(np.abs(delta_ion) < NLTE_POPULATION_SOLVER_TOLERANCE)
@@ -326,11 +326,11 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
 
         logger.info("NLTE ionization solver finished")
 
-        return ion_number_density, electron_densities
+        return ion_charge_density, electron_densities
 
     @staticmethod
     def calculate_lu_solver_delta(
-        ion_solution, electron_solution, ion_number_density, electron_densities
+        ion_solution, electron_solution, ion_charge_density, electron_densities
     ):
         """Calculates relative change between new solution and old value.
 
@@ -354,7 +354,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
         assert (
             electron_solution >= 0.0
         ), "Negative electron density found, this should not happen."
-        delta_ion = (ion_number_density - ion_solution) / ion_solution
+        delta_ion = (ion_charge_density - ion_solution) / ion_solution
         delta_electron = (
             electron_densities - electron_solution
         ) / electron_solution
@@ -362,7 +362,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
 
 
 def check_negative_population(
-    ion_number_density, electron_densities, number_density, ion_numbers
+    ion_charge_density, electron_densities, number_density, ion_Charge
 ):
     """
     Checks if negative populations are present in the solution. If the relative
@@ -372,18 +372,18 @@ def check_negative_population(
 
     Parameters
     ----------
-    ion_number_density : pandas.Series
+    ion_charge_density : pandas.Series
         Number density with NLTE ionization treatment.
     electron_densities : float
         Electron density with NLTE ionization treatment.
     number_density : pandas.Series
         Number density of all present species.
-    ion_numbers : numpy.array
+    ion_Charge : numpy.array
         Ion numbers of all present species.
 
     Returns
     -------
-    ion_number_density : pandas.Series
+    ion_charge_density : pandas.Series
         Number density with NLTE ionization treatment.
     electron_densities : float
         Electron density with NLTE ionization treatment.
@@ -402,25 +402,25 @@ def check_negative_population(
             # to large to be numerical.
             continue
         else:
-            for ion_number in ion_number_density.loc[atom_number].index:
-                if (ion_number_density.loc[atom_number, ion_number] < 0.0) and (
-                    ion_number_density.loc[atom_number, ion_number]
+            for ion_charge in ion_charge_density.loc[atom_number].index:
+                if (ion_charge_density.loc[atom_number, ion_charge] < 0.0) and (
+                    ion_charge_density.loc[atom_number, ion_charge]
                     / number_density.loc[atom_number]
                     > NLTE_POPULATION_NEGATIVE_RELATIVE_POPULATION_TOLERANCE
                 ):
-                    ion_number_density.loc[atom_number, ion_number] = 0.0
+                    ion_charge_density.loc[atom_number, ion_charge] = 0.0
 
     assert np.greater_equal(
-        ion_number_density, 0.0
+        ion_charge_density, 0.0
     ).all(), "Negative ion number density found, solver failed."
 
     if electron_densities is None:
         # For the root solver, we don't want to recalculate the electron density
-        electron_densities = np.sum(ion_numbers * ion_number_density)
+        electron_densities = np.sum(ion_Charge * ion_charge_density)
     assert (
         electron_densities >= 0.0
     ), "Negative electron density found, solver failed."
-    return ion_number_density, electron_densities
+    return ion_charge_density, electron_densities
 
 
 def prepare_ion_recomb_coefficients_nlte_ion(
@@ -453,7 +453,7 @@ def prepare_ion_recomb_coefficients_nlte_ion(
     partition_function : pandas.DataFrame
         General partition function. Indexed by atomic number, ion number.
     levels : MultiIndex
-        (atomic_number, ion_number, level_number)
+        (atomic_number, ion_charge, level_number)
         Index of filtered atomic data.
     level_boltzmann_factor : pandas.DataFrame
         General Boltzmann factor.
@@ -481,22 +481,22 @@ def prepare_ion_recomb_coefficients_nlte_ion(
     )
     total_photo_ion_coefficients = (
         (level_population_fraction.loc[gamma.index] * gamma)
-        .groupby(level=("atomic_number", "ion_number"))
+        .groupby(level=("atomic_number", "ion_charge"))
         .sum()
     )
 
     total_rad_recomb_coefficients = (
         (alpha_sp + alpha_stim)
-        .groupby(level=["atomic_number", "ion_number"])
+        .groupby(level=["atomic_number", "ion_charge"])
         .sum()
     )
     total_coll_ion_coefficients = (
         (level_population_fraction.loc[coll_ion_coeff.index] * coll_ion_coeff)
-        .groupby(level=("atomic_number", "ion_number"))
+        .groupby(level=("atomic_number", "ion_charge"))
         .sum()
     )
     total_coll_recomb_coefficients = (
-        (coll_recomb_coeff).groupby(level=("atomic_number", "ion_number")).sum()
+        (coll_recomb_coeff).groupby(level=("atomic_number", "ion_charge")).sum()
     )
     return (
         total_photo_ion_coefficients,
@@ -519,7 +519,7 @@ def calculate_balance_vector(
     number_density : pandas.DataFrame
         Number densities of all present species.
     rate_matrix_index : pandas.MultiIndex
-        (atomic_number, ion_number, treatment type)
+        (atomic_number, ion_charge, treatment type)
 
     Returns
     -------
@@ -546,12 +546,12 @@ def calculate_first_guess(
     number_density,
     electron_density,
 ):
-    """Constructs a first guess for ion number densities and electron density, where all species are singly ionized.
+    """Constructs a first guess for ion charge densities and electron density, where all species are singly ionized.
 
     Parameters
     ----------
     rate_matrix_index : pandas.MultiIndex
-        (atomic_number, ion_number, treatment type)
+        (atomic_number, ion_charge, treatment type)
     atomic_numbers : numpy.array
         All atomic numbers present in the plasma.
     number_density : pandas.DataFrame
@@ -562,7 +562,7 @@ def calculate_first_guess(
     Returns
     -------
     numpy.array
-        Guess for ion number densities and electron density.
+        Guess for ion charge densities and electron density.
     """
     first_guess = pd.Series(0.0, index=rate_matrix_index)
     for atomic_number in atomic_numbers:
@@ -602,7 +602,7 @@ def population_objective_function(
     solution_vector : numpy.array
         Solution vector for the set of equations.
     rate_matrix_index : pandas.MultiIndex
-        (atomic_number, ion_number, treatment type)
+        (atomic_number, ion_charge, treatment type)
         If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
         if treated in NLTE ionization, 3rd index is "nlte_ion".
     total_photo_ion_coefficients : pandas.DataFrame
@@ -696,32 +696,32 @@ def calculate_rate_matrix(
         total_coll_recomb_coefficients * electron_density**2
     )
     for atomic_number in atomic_numbers:
-        ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(
-            "ion_number"
+        ion_Charge = rate_matrix.loc[atomic_number].index.get_level_values(
+            "ion_charge"
         )
         phi_block = phi_shell.loc[atomic_number]
         rate_matrix_block = lte_rate_matrix_block(phi_block, electron_density)
 
-        nlte_ion_numbers = ion_numbers[
+        nlte_ion_Charge = ion_Charge[
             rate_matrix.loc[atomic_number].index.get_level_values(
                 "level_number"
             )
             == "nlte_ion"
         ]
-        # >>> lte_ion_numbers is for future use in NLTE excitation treatment
+        # >>> lte_ion_Charge is for future use in NLTE excitation treatment
         if False:
-            lte_ion_numbers = ion_numbers[
+            lte_ion_Charge = ion_Charge[
                 rate_matrix.loc[atomic_number].index.get_level_values(
                     "level_number"
                 )
                 == "lte_ion"
             ]
         # <<<
-        for ion_number in nlte_ion_numbers:
+        for ion_charge in nlte_ion_Charge:
             rate_matrix_block = set_nlte_ion_rate(
                 rate_matrix_block,
                 atomic_number,
-                ion_number,
+                ion_charge,
                 total_rad_recomb_coefficients.loc[(atomic_number,)],
                 total_photo_ion_coefficients.loc[(atomic_number,)],
                 total_coll_ion_coefficients.loc[(atomic_number,)],
@@ -755,7 +755,7 @@ def calculate_jacobian_matrix(
     rate_matrix : pandas.DataFrame
         Rate matrix used for NLTE solver.
     rate_matrix_index : MultiIndex
-        (atomic_number, ion_number, treatment type)
+        (atomic_number, ion_charge, treatment type)
         If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
         if treated in NLTE ionization, 3rd index is "nlte_ion".
     total_rad_recomb_coefficients : pandas.DataFrame
@@ -817,7 +817,7 @@ def lte_rate_matrix_block(phi_block, electron_density):
 def set_nlte_ion_rate(
     rate_matrix_block,
     atomic_number,
-    ion_number,
+    ion_charge,
     total_rad_recomb_coefficients,
     total_photo_ion_coefficients,
     total_coll_ion_coefficients,
@@ -831,7 +831,7 @@ def set_nlte_ion_rate(
         The diagonal block corresponding to current atomic number.
     atomic_number : int
         Current atomic number
-    ion_number : int
+    ion_charge : int
         Current ion number
     total_rad_recomb_coefficients : pandas.DataFrame
         Rad. recomb. coefficients for current atomic number
@@ -853,14 +853,14 @@ def set_nlte_ion_rate(
     recomb_coefficients = (
         total_rad_recomb_coefficients + total_coll_recomb_coefficients
     )
-    if atomic_number != ion_number:
+    if atomic_number != ion_charge:
         ion_coeff_matrix_ion_row = ion_matrix(
-            ion_coefficients, atomic_number, ion_number
+            ion_coefficients, atomic_number, ion_charge
         )
         recomb_coeff_matrix_ion_row = recomb_matrix(
-            recomb_coefficients, atomic_number, ion_number
+            recomb_coefficients, atomic_number, ion_charge
         )
-        rate_matrix_block[ion_number, :] = (
+        rate_matrix_block[ion_charge, :] = (
             ion_coeff_matrix_ion_row + recomb_coeff_matrix_ion_row
         )
     return rate_matrix_block
@@ -883,23 +883,23 @@ def deriv_matrix_block(
     total_rad_recomb_coefficients,
     total_coll_ion_coefficients,
     total_coll_recomb_coefficients,
-    current_ion_number_densities,
+    current_ion_charge_densities,
     current_electron_density,
 ):
-    """Calculates the dot product of the derivative of rate matrix and ion number densities+electron density column.
+    """Calculates the dot product of the derivative of rate matrix and ion charge densities+electron density column.
 
     Parameters
     ----------
     atomic_number : int64
         Current atomic number
     total_rad_recomb_coefficients : pandas.DataFrame
-        Radiative recombination coefficients grouped by atomic number and ion number.
+        Radiative recombination coefficients grouped by atomic number and ion charge.
     total_coll_ion_coefficients : pandas.DataFrame
         Collisional ionization coefficients.
     total_coll_recomb_coefficients : pandas.DataFrame
         Collisional recombination coefficients.
-    current_ion_number_densities : numpy.array
-        Current ion number densities for the current atomic number.
+    current_ion_charge_densities : numpy.array
+        Current ion charge densities for the current atomic number.
     current_electron_density : float64
         Current electron density
 
@@ -908,27 +908,27 @@ def deriv_matrix_block(
     numpy.array
         Returns the part of the last column of the jacobian matrix, corresponding to atomic number.
     """
-    ion_numbers = np.arange(0, atomic_number)
+    ion_Charge = np.arange(0, atomic_number)
     radiative_rate_coeff_matrix = recomb_matrix(
-        total_rad_recomb_coefficients, atomic_number, ion_numbers
+        total_rad_recomb_coefficients, atomic_number, ion_Charge
     )
     coll_recomb_matrix = (
         recomb_matrix(
-            total_coll_recomb_coefficients, atomic_number, ion_numbers
+            total_coll_recomb_coefficients, atomic_number, ion_Charge
         )
         * current_electron_density
         * 2
     )
     coll_ion_coeff_matrix = ion_matrix(
-        total_coll_ion_coefficients, atomic_number, ion_numbers
+        total_coll_ion_coefficients, atomic_number, ion_Charge
     )
     deriv_matrix = (
         radiative_rate_coeff_matrix + coll_ion_coeff_matrix + coll_recomb_matrix
     )
-    return np.dot(deriv_matrix, current_ion_number_densities)
+    return np.dot(deriv_matrix, current_ion_charge_densities)
 
 
-def ion_matrix(ion_coefficients, atomic_number, ion_number):
+def ion_matrix(ion_coefficients, atomic_number, ion_charge):
     """Constructs an ionization rate matrix from the ionization rates.
 
     Parameters
@@ -937,8 +937,8 @@ def ion_matrix(ion_coefficients, atomic_number, ion_number):
         Recombination coefficients.
     atomic_number : int64
         Current atomic number. Used for the dimension of a square matrix.
-    ion_number : int64
-        Current ion number. Used for returning the correct row.
+    ion_charge : int64
+        Current ion charge. Used for returning the correct row.
 
     Returns
     -------
@@ -949,10 +949,10 @@ def ion_matrix(ion_coefficients, atomic_number, ion_number):
     for i in index:
         offdiag[i] = ion_coefficients.loc[i].values[0]
     diag = np.hstack([-offdiag, np.zeros(1)])
-    return (np.diag(diag) + np.diag(offdiag, k=-1))[ion_number, :]
+    return (np.diag(diag) + np.diag(offdiag, k=-1))[ion_charge, :]
 
 
-def recomb_matrix(recomb_coefficients, atomic_number, ion_number):
+def recomb_matrix(recomb_coefficients, atomic_number, ion_charge):
     """Constructs a recombination rate matrix from the recombination rates.
 
     Parameters
@@ -961,7 +961,7 @@ def recomb_matrix(recomb_coefficients, atomic_number, ion_number):
         Recombination coefficients.
     atomic_number : int64
         Current atomic number. Used for the dimension of a square matrix.
-    ion_number : int64
+    ion_charge : int64
         Current ion number. Used for returning the correct row.
 
     Returns
@@ -973,7 +973,7 @@ def recomb_matrix(recomb_coefficients, atomic_number, ion_number):
     for i in index:
         offdiag[i] = recomb_coefficients.loc[i].values[0]
     diag = np.hstack([np.zeros(1), -offdiag])
-    return (np.diag(diag) + np.diag(offdiag, k=1))[ion_number, :]
+    return (np.diag(diag) + np.diag(offdiag, k=1))[ion_charge, :]
 
 
 ####################
@@ -1135,10 +1135,10 @@ def create_coll_exc_deexc_matrix(
     Parameters
     ----------
     coll_exc_coefficient : pandas.Series
-        Series of collisional excitation coefficients for current (atomic number, ion_number)
+        Series of collisional excitation coefficients for current (atomic number, ion_charge)
         in the current shell.
     coll_deexc_coefficient : pandas.Series
-        Series of collisional deexcitation coefficients for (atomic number, ion_number)
+        Series of collisional deexcitation coefficients for (atomic number, ion_charge)
         in the current shell.
     number_of_levels : int
         Number of levels for the current atomic number, ion number.

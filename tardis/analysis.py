@@ -10,7 +10,7 @@ from astropy import units as u
 
 from tardis import constants
 
-INVALID_ION_ERROR_MSG = "Atomic number, ion_number pair not present in model"
+INVALID_ION_ERROR_MSG = "Atomic number, ion_charge pair not present in model"
 
 
 class LastLineInteraction:
@@ -56,7 +56,7 @@ class LastLineInteraction:
         self._wavelength_start = 0 * u.angstrom
         self._wavelength_end = np.inf * u.angstrom
         self._atomic_number = None
-        self._ion_number = None
+        self._ion_charge = None
         self._shell = None
         self.packet_filter_mode = packet_filter_mode
         self.update_last_interaction_filter()
@@ -98,29 +98,29 @@ class LastLineInteraction:
             raise ValueError(INVALID_ION_ERROR_MSG)
 
     @property
-    def ion_number(self):
-        return self._ion_number
+    def ion_charge(self):
+        return self._ion_charge
 
-    @ion_number.setter
-    def ion_number(self, value):
-        old_ion_number = self._ion_number
+    @ion_charge.setter
+    def ion_charge(self, value):
+        old_ion_charge = self._ion_charge
         try:
-            self._ion_number = value
+            self._ion_charge = value
             self.update_last_interaction_filter()
         except:
-            self._ion_number = old_ion_number
+            self._ion_charge = old_ion_charge
             raise ValueError(INVALID_ION_ERROR_MSG)
 
-    def set_ion(self, atomic_number, ion_number):
+    def set_ion(self, atomic_number, ion_charge):
         old_atomic_number = self._atomic_number
-        old_ion_number = self._ion_number
+        old_ion_charge = self._ion_charge
         try:
             self._atomic_number = atomic_number
-            self._ion_number = ion_number
+            self._ion_charge = ion_charge
             self.update_last_interaction_filter()
         except:
             self._atomic_number = old_atomic_number
-            self._ion_number = old_ion_number
+            self._ion_charge = old_ion_charge
             raise ValueError(INVALID_ION_ERROR_MSG)
 
     @property
@@ -182,12 +182,12 @@ class LastLineInteraction:
                 self.atomic_number, level="atomic_number", drop_level=False
             )
 
-        if self.ion_number is not None:
+        if self.ion_charge is not None:
             last_line_in = last_line_in.xs(
-                self.ion_number, level="ion_number", drop_level=False
+                self.ion_charge, level="ion_charge", drop_level=False
             )
             last_line_out = last_line_out.xs(
-                self.ion_number, level="ion_number", drop_level=False
+                self.ion_charge, level="ion_charge", drop_level=False
             )
 
         self.last_line_in = last_line_in
@@ -200,7 +200,7 @@ class LastLineInteraction:
             [
                 "wavelength",
                 "atomic_number",
-                "ion_number",
+                "ion_charge",
                 "level_number_lower",
                 "level_number_upper",
             ]
@@ -213,7 +213,7 @@ class LastLineInteraction:
             [
                 "wavelength",
                 "atomic_number",
-                "ion_number",
+                "ion_charge",
                 "level_number_lower",
                 "level_number_upper",
             ]

@@ -164,7 +164,7 @@ class NonContinuumTransProbsMask(ProcessingPlasmaProperty):
         # the next higher ionization states of the continuum species
         # since they only contain zero probabilities.
         continuum_trans_probs_mask = atomic_data.macro_atom_data.set_index(
-            ["atomic_number", "ion_number"]
+            ["atomic_number", "ion_charge"]
         ).index.isin(continuum_interaction_species)
         non_continuum_trans_probs_mask = np.logical_not(
             continuum_trans_probs_mask

@@ -134,7 +134,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
 
     def calculate(
         self,
-        ion_number_density,
+        ion_charge_density,
         electron_densities,
         t_electrons,
         w,
@@ -160,7 +160,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
             with open(
                 f"He_NLTE_Files/shellconditions_{zone}.txt", "w"
             ) as output_file:
-                output_file.write(ion_number_density.loc[2].sum()[zone])
+                output_file.write(ion_charge_density.loc[2].sum()[zone])
                 output_file.write(electron_densities[zone])
                 output_file.write(t_electrons[zone])
                 output_file.write(self.heating_rate_data[zone])
@@ -177,7 +177,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                 for element in range(1, 31):
                     try:
                         number_density = (
-                            ion_number_density[zone].loc[element].sum()
+                            ion_charge_density[zone].loc[element].sum()
                         )
                     except:
                         number_density = 0.0
@@ -187,7 +187,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                     output_file.write(number_density)
 
             helium_lines = lines[lines["atomic_number"] == 2]
-            helium_lines = helium_lines[helium_lines["ion_number"] == 0]
+            helium_lines = helium_lines[helium_lines["ion_charge"] == 0]
         for zone, _ in enumerate(electron_densities):
             with open(
                 f"He_NLTE_Files/discradfield_{zone}.txt", "w"
@@ -274,7 +274,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         )
         unnormalised = helium_population.sum()
         normalised = helium_population.mul(
-            ion_number_density.loc[2].sum() / unnormalised
+            ion_charge_density.loc[2].sum() / unnormalised
         )
         helium_population.update(normalised)
         return helium_population

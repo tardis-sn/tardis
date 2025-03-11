@@ -48,7 +48,7 @@ class Levels(BaseAtomicDataProperty):
     Attributes
     ----------
     levels : pandas.MultiIndex
-        (atomic_number, ion_number, level_number)
+        (atomic_number, ion_charge, level_number)
         Index of filtered atomic data. Index used for all other attribute dataframes for this class
     excitation_energy : pandas.DataFrame, dtype float
         Excitation energies of atomic levels.
@@ -85,7 +85,7 @@ class Lines(BaseAtomicDataProperty):
     Attributes
     ----------
     lines : pandas.DataFrame
-        Atomic lines data. Columns are wavelength, atomic_number,ion_number,
+        Atomic lines data. Columns are wavelength, atomic_number,ion_charge,
         f_ul, f_lu, level_number_lower, level_number_upper, nu, B_lu, B_ul, A_ul,
         wavelength. Index is line_id.
     nu : pandas.DataFrame, dtype float
@@ -131,7 +131,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     ----------
     photo_ion_cross_sections : pandas.DataFrame, dtype float
         Photoionization cross sections as a function of frequency.
-        Columns are nu, x_sect, index=('atomic_number','ion_number','level_number')
+        Columns are nu, x_sect, index=('atomic_number','ion_charge','level_number')
     photo_ion_block_references : numpy.ndarray, dtype int
         Indices where the photoionization data for
         a given level starts. Needed for calculation
@@ -144,7 +144,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     photo_ion_index : pandas.MultiIndex, dtype int
         Atomic, ion and level numbers for which photoionization data exists.
     level2continuum_idx : pandas.Series, dtype int
-        Maps a level MultiIndex (atomic_number, ion_number, level_number) to
+        Maps a level MultiIndex (atomic_number, ioharge, level_number) to
         the continuum_idx of the corresponding bound-free continuum (which are
         sorted by decreasing frequency).
     level_idxs2continuum_idx : pandas.DataFrame, dtype int
@@ -173,7 +173,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
 
     def calculate(self, atomic_data, continuum_interaction_species):
         # photoionization_data = atomic_data.photoionization_data.set_index(
-        #    ["atomic_number", "ion_number", "level_number"]
+        #    ["atomic_number", "ion_charge", "level_number"]
         # )
         photoionization_data = atomic_data.photoionization_data
         mask_selected_species = photoionization_data.index.droplevel(
@@ -359,7 +359,7 @@ class TwoPhotonData(ProcessingPlasmaProperty):
     ----------
     two_photon_data : pandas.DataFrame, dtype float
     A DataFrame containing the *two photon decay data* with:
-        index: atomic_number, ion_number, level_number_lower, level_number_upper
+        index: atomic_number, ion_charge, level_number_lower, level_number_upper
         columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
         alpha, beta, gamma are fit coefficients for the frequency dependent
         transition probability A(y) of the two photon decay. See Eq. 2 in
@@ -575,7 +575,7 @@ class ZetaData(BaseAtomicDataProperty):
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
         zeta_data["atomic_number"] = zeta_data.index.codes[0] + 1
-        zeta_data["ion_number"] = zeta_data.index.codes[1] + 1
+        zeta_data["ion_charge"] = zeta_data.index.codes[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
         zeta_data_check = counter(zeta_data.atomic_number.values)
         keys = np.array(list(zeta_data_check.keys()))
@@ -607,20 +607,20 @@ class ZetaData(BaseAtomicDataProperty):
             for value in range(len(zeta_data)):
                 updated_dataframe.loc[
                     zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
+                    zeta_data.ion_charge.values[value],
                 ] = zeta_data.loc[
                     zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
+                    zeta_data.ion_charge.values[value],
                 ]
             updated_dataframe = updated_dataframe.astype(float)
             updated_index = pd.DataFrame(updated_index)
             updated_dataframe["atomic_number"] = np.array(updated_index[0])
-            updated_dataframe["ion_number"] = np.array(updated_index[1])
+            updated_dataframe["ion_charge"] = np.array(updated_index[1])
             updated_dataframe = updated_dataframe.fillna(1.0)
             return updated_dataframe
 
     def _set_index(self, zeta_data):
-        return zeta_data.set_index(["atomic_number", "ion_number"])
+        return zeta_data.set_index(["atomic_number", "ion_charge"])
 
 
 class NLTEData(ProcessingPlasmaProperty):
@@ -655,7 +655,7 @@ class YgData(ProcessingPlasmaProperty):
         Energy difference between upper and lower levels coupled by collisions.
     yg_idx : pandas.DataFrame
         Source_level_idx and destination_level_idx of collision transitions.
-        Indexed by atomic_number, ion_number, level_number_lower,
+        Indexed by atomic_number, ion_charge, level_number_lower,
         level_number_upper.
     """
 

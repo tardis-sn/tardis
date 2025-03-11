@@ -134,7 +134,7 @@ class SDECData:
             .to_numpy()
         )
         # Add columns for the species id of last interaction
-        # Species id is given by 100 * Z + X, where Z is atomic number and X is ion number
+        # Species id is given by 100 * Z + X, where Z is atomic number and X is ion charge
         self.packets_df_line_interaction["last_line_interaction_species"] = (
             self.lines_df["atomic_number"]
             .iloc[
@@ -142,7 +142,7 @@ class SDECData:
             ]
             .to_numpy()
             * 100
-            + self.lines_df["ion_number"]
+            + self.lines_df["ion_charge"]
             .iloc[
                 self.packets_df_line_interaction["last_line_interaction_out_id"]
             ]
@@ -546,11 +546,11 @@ class SDECPlotter:
                             species.split(" ")[-1].split("-")[-1]
                         )
                         # add each ion between the two requested into the species list
-                        for ion_number in np.arange(
+                        for ion_charge in np.arange(
                             first_ion_numeral, second_ion_numeral + 1
                         ):
                             full_species_list.append(
-                                f"{element} {int_to_roman(ion_number)}"
+                                f"{element} {int_to_roman(ion_charge)}"
                             )
                     else:
                         # Otherwise it's either an element or ion so just add to the list
@@ -577,8 +577,8 @@ class SDECPlotter:
                     else:
                         atomic_number = element_symbol2atomic_number(species)
                         species_ids = [
-                            atomic_number * 100 + ion_number
-                            for ion_number in np.arange(atomic_number)
+                            atomic_number * 100 + ion_charge
+                            for ion_charge in np.arange(atomic_number)
                         ]
                         requested_species_ids.append(species_ids)
                         species_mapped[atomic_number * 100] = species_ids
@@ -1370,12 +1370,12 @@ class SDECPlotter:
                     logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
+                    ion_charge = identifier % 100
+                    atomic_number = (identifier - ion_charge) / 100
 
                     info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
-                        f"{int_to_roman(ion_number + 1)}"
+                        f"{int_to_roman(ion_charge + 1)}"
                         f" is not in the emitted packets; skipping"
                     )
                     logger.info(info_msg)
@@ -1427,13 +1427,13 @@ class SDECPlotter:
                     )
                     logger.info(info_msg)
                 else:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
+                    # Get the ion charge and atomic number for each species
+                    ion_charge = identifier % 100
+                    atomic_number = (identifier - ion_charge) / 100
 
                     info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
-                        f"{int_to_roman(ion_number + 1)}"
+                        f"{int_to_roman(ion_charge + 1)}"
                         f" is not in the absorbed packets; skipping"
                     )
                     logger.info(info_msg)
@@ -1468,10 +1468,10 @@ class SDECPlotter:
             species_name = []
             for species in self.species:
                 # Go through each species requested
-                ion_number = species % 100
-                atomic_number = (species - ion_number) / 100
+                ion_charge = species % 100
+                atomic_number = (species - ion_charge) / 100
 
-                ion_numeral = int_to_roman(ion_number + 1)
+                ion_numeral = int_to_roman(ion_charge + 1)
                 atomic_symbol = atomic_number2element_symbol(atomic_number)
 
                 # if the element was requested, and not a specific ion, then
@@ -1508,8 +1508,8 @@ class SDECPlotter:
         for species_counter, identifier in enumerate(self.species):
             if self._species_list is not None:
                 # Get the ion number and atomic number for each species
-                ion_number = identifier % 100
-                atomic_number = (identifier - ion_number) / 100
+                ion_charge = identifier % 100
+                atomic_number = (identifier - ion_charge) / 100
                 if previous_atomic_number == 0:
                     # If this is the first species being plotted, then take note of the atomic number
                     # don't update the colour index
@@ -1791,12 +1791,12 @@ class SDECPlotter:
                     logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
+                    ion_charge = identifier % 100
+                    atomic_number = (identifier - ion_charge) / 100
 
                     info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
-                        f"{int_to_roman(ion_number + 1)}"
+                        f"{int_to_roman(ion_charge + 1)}"
                         f" is not in the emitted packets; skipping"
                     )
                     logger.info(info_msg)
@@ -1851,12 +1851,12 @@ class SDECPlotter:
                     logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
+                    ion_charge = identifier % 100
+                    atomic_number = (identifier - ion_charge) / 100
 
                     info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
-                        f"{int_to_roman(ion_number + 1)}"
+                        f"{int_to_roman(ion_charge + 1)}"
                         f" is not in the absorbed packets; skipping"
                     )
                     logger.info(info_msg)
