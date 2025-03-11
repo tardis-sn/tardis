@@ -44,7 +44,7 @@ class MacroAtomSolver:
     def solve_transition_probabilities(
         self,
         atomic_data,
-        mean_intensities,
+        mean_intensities_lines_blue_wing,
         tau_sobolev,
         beta_sobolev,
         stimulated_emission_factor,
@@ -55,8 +55,8 @@ class MacroAtomSolver:
         ----------
         atomic_data : tardis.io.atom_data.AtomData
             Atomic Data
-        mean_intensities : pd.DataFrame
-            Mean intensity of the radiation field for each shell
+        mean_intensities_lines_blue_wing : pd.DataFrame
+            Mean intensity of the radiation field of each line in the blue wing for each shell
         tau_sobolev : pd.DataFrame
             Expansion Optical Depths
         beta_sobolev : pd.DataFrame
@@ -70,13 +70,8 @@ class MacroAtomSolver:
         """
         if self.initialize:
             self.initialize_transition_probabilities(atomic_data)
-        # I wonder why?
-        # Not sure who wrote this but the answer is that when the plasma is
-        # first initialised (before the first iteration, without temperature
-        # values etc.) there are no j_blues values so this just prevents
-        # an error. Aoife.
-        # Josh followup - I renamed j_blues to mean_intensities to be more agnostic
-        if len(mean_intensities) == 0:
+        # Referenced in https://github.com/tardis-sn/tardis/issues/3009
+        if len(mean_intensities_lines_blue_wing) == 0:
             return None
         macro_atom_data = get_macro_atom_data(atomic_data)
 
@@ -90,7 +85,7 @@ class MacroAtomSolver:
         util.fast_calculate_transition_probabilities(
             tpos,
             beta_sobolev.values,
-            mean_intensities.values,
+            mean_intensities_lines_blue_wing.values,
             stimulated_emission_factor,
             transition_type,
             lines_idx,
@@ -108,7 +103,7 @@ class MacroAtomSolver:
 
     def solve(
         self,
-        mean_intensities,
+        mean_intensities_lines_blue_wing,
         atomic_data,
         tau_sobolev,
         stimulated_emission_factor,
@@ -118,8 +113,8 @@ class MacroAtomSolver:
 
         Parameters
         ----------
-        mean_intensities : pd.DataFrame
-            Mean intensity of the radiation field for each shell
+        mean_intensities_lines_blue_wing : pd.DataFrame
+            Mean intensity of the radiation field of each line in the blue wing for each shell
         atomic_data : tardis.io.atom_data.AtomData
             Atomic Data
         tau_sobolev : pd.DataFrame
@@ -134,7 +129,7 @@ class MacroAtomSolver:
         """
         transition_probabilities = self.solve_transition_probabilities(
             atomic_data,
-            mean_intensities,
+            mean_intensities_lines_blue_wing,
             tau_sobolev,
             beta_sobolev,
             stimulated_emission_factor,
