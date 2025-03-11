@@ -140,11 +140,7 @@ class TransitionProbabilities(
         stimulated_emission_factor,
         tau_sobolevs,
     ):
-        # I wonder why?
-        # Not sure who wrote this but the answer is that when the plasma is
-        # first initialised (before the first iteration, without temperature
-        # values etc.) there are no j_blues values so this just prevents
-        # an error. Aoife.
+        # Referenced in https://github.com/tardis-sn/tardis/issues/3009
         if len(j_blues) == 0:
             return None
         macro_atom_data = self._get_macro_atom_data(atomic_data)
