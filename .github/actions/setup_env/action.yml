@@ -30,3 +30,6 @@ runs:
           environment-name: tardis
           cache-environment: true
           cache-downloads: true
+      
+      - run: export PANEL_DOCS_BUILD=1
+        shell: bash

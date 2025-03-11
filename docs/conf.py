@@ -309,6 +309,19 @@ linkcheck_ignore = [
 linkcheck_timeout = 180
 linkcheck_anchors = False
 
+# -- Options for Panel -------------------------------------------
+
+nbsite_pyodide_conf = {
+     "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"
+}
+os.environ["PANEL_DOCS_BUILD"] = "1" 
+from ipywidgets.embed import DEFAULT_EMBED_REQUIREJS_URL
+
+html_js_files = [
+    DEFAULT_EMBED_REQUIREJS_URL,
+    "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"
+]
+
 # -- Turn on nitpicky mode for sphinx (to warn about references not found) ----
 #
 # nitpicky = True
