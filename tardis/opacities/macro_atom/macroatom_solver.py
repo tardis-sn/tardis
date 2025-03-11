@@ -57,6 +57,7 @@ class MacroAtomSolver:
             Atomic Data
         mean_intensities_lines_blue_wing : pd.DataFrame
             Mean intensity of the radiation field of each line in the blue wing for each shell
+            For more detail see Lucy 2003, https://www.aanda.org/component/article?access=bibcode&bibcode=&bibcode=2003A%2526A...403..261LFUL
         tau_sobolev : pd.DataFrame
             Expansion Optical Depths
         beta_sobolev : pd.DataFrame
