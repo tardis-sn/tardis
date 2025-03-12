@@ -184,7 +184,15 @@ def tardis_config_verysimple_nlte():
 
 @pytest.fixture(autouse=True)
 def mock_tqdm(monkeypatch: pytest.MonkeyPatch):
+    # Disable tqdm cleanup and monitoring
     monkeypatch.setattr("tqdm.tqdm.monitor_interval", 0)
+    monkeypatch.setattr("tqdm.tqdm.display", lambda *a, **k: None)
+    monkeypatch.setattr("tqdm.tqdm.close", lambda *a, **k: None)
+    monkeypatch.setattr("tqdm.tqdm.__del__", lambda *a, **k: None)
+    monkeypatch.setattr("tqdm.tqdm.write", lambda *a, **k: None)
+    monkeypatch.setattr("tqdm.tqdm.clear", lambda *a, **k: None)
+    monkeypatch.setattr("tqdm.tqdm.set_lock", lambda *a, **k: None)
+    monkeypatch.setattr("tqdm.tqdm.get_lock", lambda *a, **k: None)
     
     class NoopTqdm:
         monitor_interval = 0
@@ -249,8 +257,9 @@ def mock_tqdm(monkeypatch: pytest.MonkeyPatch):
             self.postfix = str(postfix or '')
             
         def __del__(self):
-            self.close()
+            pass  # Prevent any cleanup operations
 
+    # Create instances with the existing structure
     noop_iterations = NoopTqdm(desc="Iterations:")
     noop_packets = NoopTqdm(desc="Packets:", postfix="0")
     
