@@ -184,35 +184,54 @@ def tardis_config_verysimple_nlte():
 
 @pytest.fixture(autouse=True)
 def mock_tqdm(monkeypatch: pytest.MonkeyPatch):
-    def noop_tqdm(**kwargs):
-        return type('NoopTqdm', (), {
-            'update': lambda *a, **k: None,
-            'close': lambda *a, **k: None,
-            'refresh': lambda *a, **k: None,
-            'reset': lambda total=None, *a, **k: None,
-            'container': type('Container', (), {
-                'close': lambda *a, **k: None,
-                'children': [
-                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()}),
-                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()})
-                ]
-            })(),
-            'n': 0,
-            'total': None,
-            'postfix': '0',
-            'desc': '',
-            'fp': None,
-            'ncols': None,
-            'status_printer': lambda *a, **k: type('Container', (), {
-                'children': [
-                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()}),
-                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()})
-                ]
-            })()
-        })()
+    class NoopTqdm:
+        def __init__(self, *args, **kwargs):
+            self.n = 0
+            self.total = kwargs.get('total', None)
+            self.desc = kwargs.get('desc', '')
+            self.postfix = kwargs.get('postfix', '')
+            self.fp = None
+            self.ncols = None
+            self._closed = False
+            
+        def update(self, *args, **kwargs):
+            pass
+            
+        def close(self, *args, **kwargs):
+            self._closed = True
+            
+        def refresh(self, *args, **kwargs):
+            pass
+            
+        def reset(self, total=None, *args, **kwargs):
+            self.n = 0
+            if total is not None:
+                self.total = total
+                
+        @property
+        def container(self):
+            return self.Container()
+            
+        def status_printer(self, *args, **kwargs):
+            return self.Container()
+            
+        def __del__(self):
+            self.close()
+            
+        class Container:
+            def close(self, *args, **kwargs):
+                pass
+                
+            @property
+            def children(self):
+                class Child:
+                    class Layout:
+                        width = '0%'
+                    layout = Layout()
+                return [Child(), Child()]
 
-    monkeypatch.setattr("tqdm.tqdm", noop_tqdm)
-    monkeypatch.setattr("tqdm.notebook.tqdm", noop_tqdm)
+    monkeypatch.setattr("tqdm.tqdm", NoopTqdm)
+    monkeypatch.setattr("tqdm.notebook.tqdm", NoopTqdm)
     
     yield
 
