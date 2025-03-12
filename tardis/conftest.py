@@ -11,6 +11,7 @@ from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
 from tardis.tests.fixtures.regression_data import regression_data
+from typing import Iterable
 
 # ensuring that regression_data is not removed by ruff
 assert regression_data is not None
@@ -181,6 +182,39 @@ def tardis_config_verysimple_nlte():
         YAMLLoader,
     )
 
+@pytest.fixture(autouse=True)
+def mock_tqdm(monkeypatch: pytest.MonkeyPatch):
+    def noop_tqdm(**kwargs):
+        return type('NoopTqdm', (), {
+            'update': lambda *a, **k: None,
+            'close': lambda *a, **k: None,
+            'refresh': lambda *a, **k: None,
+            'reset': lambda total=None, *a, **k: None,
+            'container': type('Container', (), {
+                'close': lambda *a, **k: None,
+                'children': [
+                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()}),
+                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()})
+                ]
+            })(),
+            'n': 0,
+            'total': None,
+            'postfix': '0',
+            'desc': '',
+            'fp': None,
+            'ncols': None,
+            'status_printer': lambda *a, **k: type('Container', (), {
+                'children': [
+                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()}),
+                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()})
+                ]
+            })()
+        })()
+
+    monkeypatch.setattr("tqdm.tqdm", noop_tqdm)
+    monkeypatch.setattr("tqdm.notebook.tqdm", noop_tqdm)
+    
+    yield
 
 ###
 # HDF Fixtures
