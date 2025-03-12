@@ -184,90 +184,12 @@ def tardis_config_verysimple_nlte():
 
 @pytest.fixture(autouse=True)
 def mock_tqdm(monkeypatch: pytest.MonkeyPatch):
-    # Disable tqdm cleanup and monitoring
-    monkeypatch.setattr("tqdm.tqdm.monitor_interval", 0)
-    monkeypatch.setattr("tqdm.tqdm.display", lambda *a, **k: None)
-    monkeypatch.setattr("tqdm.tqdm.close", lambda *a, **k: None)
-    monkeypatch.setattr("tqdm.tqdm.__del__", lambda *a, **k: None)
-    monkeypatch.setattr("tqdm.tqdm.write", lambda *a, **k: None)
-    monkeypatch.setattr("tqdm.tqdm.clear", lambda *a, **k: None)
-    monkeypatch.setattr("tqdm.tqdm.set_lock", lambda *a, **k: None)
-    monkeypatch.setattr("tqdm.tqdm.get_lock", lambda *a, **k: None)
+    monkeypatch.setenv("TQDM_DISABLE", "1")
     
-    class NoopTqdm:
-        monitor_interval = 0
-        
-        def __init__(self, *args, **kwargs):
-            self.n = 0
-            self.total = kwargs.get('total', None)
-            self.desc = kwargs.get('desc', '')
-            self.postfix = kwargs.get('postfix', '0')
-            self.fp = None
-            self.ncols = None
-            self._closed = False
-            self._started = False
-            
-        def __iter__(self):
-            return self
-            
-        def __enter__(self):
-            return self
-            
-        def __exit__(self, *args, **kwargs):
-            self.close()
-            
-        def update(self, n=1):
-            self.n += n
-            
-        def close(self):
-            if not self._closed:
-                self._closed = True
-                
-        def clear(self, *args, **kwargs):
-            pass
-            
-        def refresh(self):
-            pass
-            
-        def reset(self, total=None):
-            self.n = 0
-            if total is not None:
-                self.total = total
-                
-        @property
-        def container(self):
-            return type('Container', (), {
-                'close': lambda: None,
-                'children': [
-                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()}),
-                    type('Child', (), {'layout': type('Layout', (), {'width': '0%'})()})
-                ]
-            })()
-            
-        def status_printer(self, *args, **kwargs):
-            return self.container
-            
-        def display(self, *args, **kwargs):
-            pass
-            
-        def set_description(self, desc=None, **kwargs):
-            self.desc = desc or ''
-            
-        def set_postfix(self, postfix=None, **kwargs):
-            self.postfix = str(postfix or '')
-            
-        def __del__(self):
-            pass  # Prevent any cleanup operations
-
-    # Create instances with the existing structure
-    noop_iterations = NoopTqdm(desc="Iterations:")
-    noop_packets = NoopTqdm(desc="Packets:", postfix="0")
-    
-    monkeypatch.setattr("tqdm.tqdm", NoopTqdm)
-    monkeypatch.setattr("tqdm.notebook.tqdm", NoopTqdm)
-    
-    monkeypatch.setattr("tardis.util.base.iterations_pbar", noop_iterations)
-    monkeypatch.setattr("tardis.util.base.packet_pbar", noop_packets)
+    monkeypatch.setattr("tardis.util.base.update_packet_pbar", lambda *a, **k: None)
+    monkeypatch.setattr("tardis.util.base.refresh_packet_pbar", lambda *a, **k: None)
+    monkeypatch.setattr("tardis.util.base.update_iterations_pbar", lambda *a, **k: None)
+    monkeypatch.setattr("tardis.util.base.fix_bar_layout", lambda *a, **k: None)
     
     yield
 
