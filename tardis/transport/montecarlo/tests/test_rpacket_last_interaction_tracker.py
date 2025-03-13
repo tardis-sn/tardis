@@ -18,7 +18,7 @@ def interaction_type_in_use(
     return interaction_type
 
 
-@pytest.fixture()
+@pytest.fixture
 def shell_id_in_use(
     nb_simulation_verysimple,
     interaction_type_in_use,
@@ -32,7 +32,7 @@ def shell_id_in_use(
     return shell_id[mask]
 
 
-@pytest.fixture()
+@pytest.fixture
 def r_in_use(
     nb_simulation_verysimple,
     interaction_type_in_use,
@@ -65,7 +65,7 @@ def interaction_type_to_check(
     return interaction_type
 
 
-@pytest.fixture()
+@pytest.fixture
 def shell_id_to_check(
     nb_simulation_verysimple,
     interaction_type_to_check,
@@ -83,7 +83,7 @@ def shell_id_to_check(
     return shell_id[mask]
 
 
-@pytest.fixture()
+@pytest.fixture
 def r_to_check(
     nb_simulation_verysimple,
     interaction_type_to_check,
@@ -101,7 +101,7 @@ def r_to_check(
     return r[mask]
 
 
-@pytest.fixture()
+@pytest.fixture
 def nu_packet_collection(
     nb_simulation_verysimple,
 ):
@@ -112,7 +112,7 @@ def nu_packet_collection(
     return packet_collection.output_nus
 
 
-@pytest.fixture()
+@pytest.fixture
 def nu_to_check(
     nb_simulation_verysimple,
 ):

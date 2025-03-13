@@ -268,6 +268,8 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             "t_inner"
         ]
 
+        return next_values
+
     def solve_plasma(self, estimated_radfield_properties):
         """Update the plasma solution with the new radiation field estimates
 
@@ -345,12 +347,11 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             macro_atom_state = None
         else:
             macro_atom_state = self.macro_atom_solver.solve(
-                self.plasma_solver,
+                self.plasma_solver.j_blues,
                 self.plasma_solver.atomic_data,
                 opacity_state.tau_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
                 opacity_state.beta_sobolev,
-                legacy_mode=False,
             )
 
         return {
@@ -443,7 +444,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
-        converged = False
+        self.converged = False
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
@@ -464,13 +465,13 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
             self.solve_plasma(estimated_radfield_properties)
 
-            converged = self.check_convergence(estimated_values)
+            self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
 
-            if converged and self.convergence_strategy.stop_if_converged:
+            if self.converged and self.convergence_strategy.stop_if_converged:
                 break
 
-        if converged:
+        if self.converged:
             logger.info("\n\tStarting final iteration")
         else:
             logger.error(

@@ -9,8 +9,9 @@ from numba import njit, prange
 from scipy.interpolate import interp1d
 
 from tardis import constants as const
+from tardis.opacities.continuum.continuum_state import ContinuumState
 from tardis.opacities.opacity_state import (
-    opacity_state_to_numba,
+    OpacityState,
     opacity_state_initialize,
 )
 from tardis.spectrum.formal_integral_cuda import (
@@ -287,8 +288,7 @@ class FormalIntegrator:
                 self.transport.montecarlo_configuration
             )
         if plasma and opacity_state and macro_atom_state:
-            self.opacity_state = opacity_state_to_numba(
-                opacity_state,
+            self.opacity_state = opacity_state.to_numba(
                 macro_atom_state,
                 transport.line_interaction_type,
             )
@@ -434,9 +434,22 @@ class FormalIntegrator:
         -------
         Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
         """
+
         simulation_state = self.simulation_state
+        # slice for the active shells
+        local_slice = slice(
+            simulation_state.geometry.v_inner_boundary_index,
+            simulation_state.geometry.v_outer_boundary_index,
+        )
+
         transport = self.transport
         montecarlo_transport_state = transport.transport_state
+        transition_probabilities = self.opacity_state.transition_probabilities[
+            :, local_slice
+        ]
+        tau_sobolevs = self.opacity_state.tau_sobolev[:, local_slice]
+
+        columns = range(simulation_state.no_of_shells)
 
         # macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
@@ -449,9 +462,7 @@ class FormalIntegrator:
         if transport.line_interaction_type == "macroatom":
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
-            internal = self.opacity_state.transition_probabilities[
-                internal_jump_mask
-            ]
+            internal = transition_probabilities[internal_jump_mask]
 
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values
@@ -460,7 +471,7 @@ class FormalIntegrator:
             montecarlo_transport_state.packet_collection.time_of_simulation
             * simulation_state.volume
         )
-        exptau = 1 - np.exp(-self.opacity_state.tau_sobolev)
+        exptau = 1 - np.exp(-tau_sobolevs)
         Edotlu = (
             Edotlu_norm_factor
             * exptau
@@ -493,14 +504,14 @@ class FormalIntegrator:
         upper_level_index = self.atomic_data.lines.index.droplevel(
             "level_number_lower"
         )
-        e_dot_lu = pd.DataFrame(Edotlu.value, index=upper_level_index)
+        e_dot_lu = pd.DataFrame(
+            Edotlu.value, index=upper_level_index, columns=columns
+        )
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
 
         if transport.line_interaction_type == "macroatom":
-            C_frame = pd.DataFrame(
-                columns=np.arange(no_shells), index=macro_ref.index
-            )
+            C_frame = pd.DataFrame(columns=columns, index=macro_ref.index)
             q_indices = (source_level_idx, destination_level_idx)
             for shell in range(no_shells):
                 Q = sp.coo_matrix(
@@ -523,7 +534,7 @@ class FormalIntegrator:
             ["atomic_number", "ion_number", "source_level_number"]
         ).index.copy()
         tmp = pd.DataFrame(
-            self.opacity_state.transition_probabilities[
+            transition_probabilities[
                 (self.atomic_data.macro_atom_data.transition_type == -1).values
             ]
         )
@@ -539,13 +550,15 @@ class FormalIntegrator:
         att_S_ul = wave * (q_ul * e_dot_u) * t / (4 * np.pi)
 
         result = pd.DataFrame(
-            att_S_ul.values, index=transitions.transition_line_id.values
+            att_S_ul.values,
+            index=transitions.transition_line_id.values,
+            columns=columns,
         )
         att_S_ul = result.loc[lines.index.values].values
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-self.opacity_state.tau_sobolev) + att_S_ul
+        Jredlu = Jbluelu * np.exp(-tau_sobolevs) + att_S_ul
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -592,7 +605,9 @@ class FormalIntegrator:
 
         transport.electron_densities_integ = interp1d(
             r_middle,
-            plasma.electron_densities,
+            plasma.electron_densities.iloc[
+                self.simulation_state.geometry.v_inner_boundary_index : self.simulation_state.geometry.v_outer_boundary_index
+            ],
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
@@ -600,7 +615,10 @@ class FormalIntegrator:
         # (as in the MC simulation)
         transport.tau_sobolevs_integ = interp1d(
             r_middle,
-            self.opacity_state.tau_sobolev,
+            self.opacity_state.tau_sobolev[
+                :,
+                self.simulation_state.geometry.v_inner_boundary_index : self.simulation_state.geometry.v_outer_boundary_index,
+            ],
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
