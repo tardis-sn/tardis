@@ -23,6 +23,26 @@ import panel as pn
 pn.extension('tabulator')
 >>>>>>> 69644cd932 (GSoC Panel Objective 1)
 
+# Centralized style dictionaries
+TABLE_STYLES = {
+    'border': '1px solid #ddd',
+    'font-size': '12px',
+    'background-color': '#fff'
+}
+
+TITLE_STYLES = {
+    'font-size': '14px',
+    'font-weight': 'bold',
+    'color': '#333'
+}
+
+CONTAINER_STYLES = {
+    'padding': '10px',
+    'background-color': '#f9f9f9',
+    'border': '1px solid #ddd',
+    'border-radius': '3px'
+}
+
 class BaseShellInfo:
     """The simulation information that is used by shell info widget"""
 
@@ -204,11 +224,16 @@ class HDFShellInfo(BaseShellInfo):
 
 
 class ShellInfoWidget:
-    """Widget to explore abundances in shells with four interlinked tables"""
+    """The Shell Info Widget to explore abundances in different shells.
+    It consists of four interlinked table widgets - shells table; element count,
+    ion count and level count tables - allowing to explore fractional abundances
+    all the way from elements, to ions, to levels by clicking on the rows of
+    tables.
+    """
 
     def _apply_tabulator_styles(self, tabulator):
         """Apply consistent styles and alignment to a Tabulator widget"""
-        tabulator.styles = {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'}
+        tabulator.styles = TABLE_STYLES
         tabulator.text_align = "center"
         tabulator.header_align = "center"
 
@@ -218,7 +243,7 @@ class ShellInfoWidget:
         defaults = {
             "layout": "fit_data",
             "selectable": 1,
-            "styles": {'border': '1px solid #ddd', 'font-size': '12px', 'background-color': '#fff'},
+            "styles": TABLE_STYLES,
             "text_align": "center",
             "header_align": "center",
         }
@@ -232,7 +257,7 @@ class ShellInfoWidget:
 
         # Shells table
         shells_df = self.data.shells_data()
-        self.shells_title = pn.pane.Markdown("### Shells", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
+        self.shells_title = pn.pane.Markdown("### Shells", margin=(0, 0, 5, 0), styles=TITLE_STYLES)
         self.shells_table = self._create_tabulator(
             shells_df,
             widths={"Shell No.": 80, "Rad. Temp.": 120, "Dilution Factor": 120},
@@ -241,21 +266,21 @@ class ShellInfoWidget:
 
         # Element count table (Shell 1 initially)
         element_df = self.data.element_count(1)
-        self.element_title = pn.pane.Markdown("### Elements (Shell 1)", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
+        self.element_title = pn.pane.Markdown("### Elements (Shell 1)", margin=(0, 0, 5, 0), styles=TITLE_STYLES)
         self.element_count_table = self._create_tabulator(
             element_df,
             widths={"Element": 100, "Frac. Ab. (Shell 1)": 140},
         )
 
         # Ion count table (initially empty, but ensure data is populated on selection)
-        self.ion_title = pn.pane.Markdown("### Ions (No Selection)", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
+        self.ion_title = pn.pane.Markdown("### Ions (No Selection)", margin=(0, 0, 5, 0), styles=TITLE_STYLES)
         self.ion_count_table = self._create_tabulator(
             pd.DataFrame(columns=["Species", "Frac. Ab."]),
             widths={"Species": 140, "Frac. Ab.": 140},
         )
 
         # Level count table (initially empty, but ensure data is populated on selection)
-        self.level_title = pn.pane.Markdown("### Levels (No Selection)", margin=(0, 0, 5, 0), styles={'font-size': '14px', 'font-weight': 'bold', 'color': '#333'})
+        self.level_title = pn.pane.Markdown("### Levels (No Selection)", margin=(0, 0, 5, 0), styles=TITLE_STYLES)
         self.level_count_table = self._create_tabulator(
             pd.DataFrame(columns=["Level", "Frac. Ab."]),
             widths={"Level": 100, "Frac. Ab.": 180},
@@ -291,7 +316,7 @@ class ShellInfoWidget:
                 sizing_mode="scale_both",  # Scales to fit the screen without scrolling
             ),
             sizing_mode="scale_both",
-            styles={'padding': '10px', 'background-color': '#f9f9f9', 'border': '1px solid #ddd', 'border-radius': '3px'},
+            styles=CONTAINER_STYLES,
         )
 
 <<<<<<< HEAD
@@ -414,12 +439,30 @@ class ShellInfoWidget:
 
 
 def shell_info_from_simulation(sim_model):
-    """Create shell info widget from a TARDIS simulation object"""
+    """Create shell info widget from a TARDIS simulation object
+    Parameters
+    ----------
+    sim_model : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+    Returns
+    -------
+    ShellInfoWidget
+    """
     shell_info_data = SimulationShellInfo(sim_model)
     return ShellInfoWidget(shell_info_data)
 
 
 def shell_info_from_hdf(hdf_fpath):
-    """Create shell info widget from a simulation HDF file"""
+    """Create shell info widget from a simulation HDF file
+    Parameters
+    ----------
+    hdf_fpath : str
+        A valid path to a simulation HDF file (HDF file must be created
+        from a TARDIS Simulation object using :code:`to_hdf` method with
+        default arguments)
+    Returns
+    -------
+    ShellInfoWidget
+    """
     shell_info_data = HDFShellInfo(hdf_fpath)
     return ShellInfoWidget(shell_info_data)
