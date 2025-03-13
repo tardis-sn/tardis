@@ -1,6 +1,7 @@
 """Utility functions to be used in plotting."""
 
 import re
+
 import numpy as np
 
 
