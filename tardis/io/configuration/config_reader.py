@@ -190,18 +190,7 @@ class ConfigurationNameSpace(dict):
         return ConfigurationNameSpace(copy.deepcopy(dict(self)))
 
 
-class ConfigWriterMixin(HDFWriterMixin):
-    """
-    Overrides HDFWriterMixin to obtain HDF properties from configuration keys
-    """
-
-    def get_properties(self):
-        data = yaml.dump(self)
-        data = pd.DataFrame(index=[0], data={"config": data})
-        return data
-
-
-class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
+class Configuration(ConfigurationNameSpace, HDFWriterMixin):
     """
     Tardis configuration class
     """
@@ -303,6 +292,11 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         )
 
         return cls(validated_config_dict)
+    
+    def get_properties(self):
+        data = yaml.dump(self)
+        data = pd.DataFrame(index=[0], data={"config": data})
+        return data
 
     @staticmethod
     def validate_spectrum_section(
