@@ -14,7 +14,7 @@ def numba_cumulative_trapezoid(f, x):
     Parameters
     ----------
     f : numpy.ndarray, dtype float
-        Input array to with multiple functions integrate.
+        Input array to integrate.
     x : numpy.ndarray, dtype float
         The coordinate to integrate along.
 
