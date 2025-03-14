@@ -31,6 +31,8 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             self.convergence_strategy.v_inner_boundary
         )
 
+        self.store_plasma = self.convergence_solvers.v_inner_boundary.store_plasma
+
         # Need to compute the opacity state on init to get the optical depths
         # for the first inner boundary calculation.
         self.opacity_states = self.solve_opacity()
@@ -409,16 +411,17 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
-            self.store_plasma_state(
-                self.completed_iterations,
-                self.simulation_state.no_of_shells,
-                self.simulation_state.t_radiative,
-                self.simulation_state.dilution_factor,
-                self.plasma_solver.electron_densities,
-                self.simulation_state.t_inner,
-                self.simulation_state.geometry.v_inner_boundary,
-                self.tau_integ,
-            )
+            if self.store_plasma:
+                self.store_plasma_state(
+                    self.completed_iterations,
+                    self.simulation_state.no_of_shells,
+                    self.simulation_state.t_radiative,
+                    self.simulation_state.dilution_factor,
+                    self.plasma_solver.electron_densities,
+                    self.simulation_state.t_inner,
+                    self.simulation_state.geometry.v_inner_boundary,
+                    self.tau_integ,
+                )
 
             # Note that we are updating the class attribute here to ensure consistency
             self.opacity_states = self.solve_opacity()
@@ -458,19 +461,19 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
+        if self.store_plasma:
+            self.store_plasma_state(
+                self.completed_iterations,
+                self.simulation_state.no_of_shells,
+                self.simulation_state.t_radiative,
+                self.simulation_state.dilution_factor,
+                self.plasma_solver.electron_densities,
+                self.simulation_state.t_inner,
+                self.simulation_state.geometry.v_inner_boundary,
+                self.tau_integ,
+            )
 
-        self.store_plasma_state(
-            self.completed_iterations,
-            self.simulation_state.no_of_shells,
-            self.simulation_state.t_radiative,
-            self.simulation_state.dilution_factor,
-            self.plasma_solver.electron_densities,
-            self.simulation_state.t_inner,
-            self.simulation_state.geometry.v_inner_boundary,
-            self.tau_integ,
-        )
-
-        self.reshape_store_plasma_state(self.completed_iterations)
+            self.reshape_store_plasma_state(self.completed_iterations)
 
         self.initialize_spectrum_solver(
             transport_state,
