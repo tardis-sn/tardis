@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 import numpy as np
-from numba import float64, int64, njit, objmode
+from numba import float64, int64, njit, objmode, jit
 from numba.experimental import jitclass
 
 from tardis.transport.frame_transformations import (
@@ -79,7 +79,7 @@ class RPacket:
         self.next_line_id = next_line_id
 
 
-@njit(**njit_dict_no_parallel)
+@jit(forceobj=True)
 def print_r_packet_properties(r_packet):
     """
     Print all packet information
