@@ -33,9 +33,9 @@ defaults:
   run:
     shell: bash -l {0}
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#   cancel-in-progress: true
 
 jobs:
   test-cache:
@@ -46,7 +46,7 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.fault_handler }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -55,6 +55,7 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
+        fault_handler: ['enabled']
         include:
           - label: osx-arm64
             os: macos-latest
@@ -63,6 +64,12 @@ jobs:
           - label: linux-64
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
+
+          - fault_handler: enabled
+            python_fault: PYTHONFAULTHANDLER=1
+          
+          # - fault_handler: disabled
+          #   python_fault: PYTHONFAULTHANDLER=0
     steps:
       - uses: actions/checkout@v4
 
@@ -90,6 +97,8 @@ jobs:
           pip install qgridnext
 
       - name: Run tests
+        env:
+          PYTHONFAULTHANDLER: ${{ matrix.python_fault }}
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
 
       - name: Regression Data Generation tests
