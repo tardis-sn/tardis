@@ -99,7 +99,7 @@ jobs:
       - name: Run tests
         env:
           PYTHONFAULTHANDLER: ${{ matrix.python_fault }}
-        run: pytest tardis/visualization ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
