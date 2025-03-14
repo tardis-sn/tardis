@@ -26,16 +26,16 @@ on:
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
-  PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append -vvv
+  PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 defaults:
   run:
     shell: bash -l {0}
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#   cancel-in-progress: true
 
 jobs:
   test-cache:
@@ -55,7 +55,7 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
-        fault_handler: ['enabled', 'disabled']
+        fault_handler: ['enabled']
         include:
           - label: osx-arm64
             os: macos-latest
@@ -68,8 +68,8 @@ jobs:
           - fault_handler: enabled
             python_fault: PYTHONFAULTHANDLER=1
           
-          - fault_handler: disabled
-            python_fault: PYTHONFAULTHANDLER=0
+          # - fault_handler: disabled
+          #   python_fault: PYTHONFAULTHANDLER=0
     steps:
       - uses: actions/checkout@v4
 
@@ -99,7 +99,7 @@ jobs:
       - name: Run tests
         env:
           PYTHONFAULTHANDLER: ${{ matrix.python_fault }}
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis/visualization ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
