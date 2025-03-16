@@ -9,6 +9,7 @@ from tardis import run_tardis
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
+from tardis.io.model.parse_simulation_state import parse_simulation_state
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
@@ -19,6 +20,7 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators import radfield_mc_estimators
 from tardis.transport.montecarlo.numba_interface import opacity_state_initialize
 from tardis.transport.montecarlo.packet_collections import VPacketCollection
+from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 
 
 class BenchmarkBase:
@@ -261,3 +263,17 @@ class BenchmarkBase:
         return packet_trackers.generate_rpacket_last_interaction_tracker_list(
             no_of_packets
         )
+    
+    @functools.cached_property
+    def simulation_state(self, **kwargs):
+        atomic_data = deepcopy(self.atomic_dataset)
+        return parse_simulation_state(self.config_verysimple, None, False, kwargs, atomic_data)
+    
+    @functools.cached_property
+    def plasma(self):
+        return assemble_plasma(
+            self.config_verysimple,
+            self.simulation_state,
+            atom_data=self.atomic_dataset,
+        )
+        
