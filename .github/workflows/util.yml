@@ -1,4 +1,4 @@
-name: label check
+name: utility
 
 on:
   pull_request:
