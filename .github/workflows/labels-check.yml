@@ -4,10 +4,10 @@ on:
   pull_request:
     branches:
       - '*'
-    types: [labeled, synchronize]
+    types: [opened, labeled, synchronize]
 
 jobs:
-  check-and-manage-labels:
+  git-lfs-pull-label:
     if: contains(github.event.pull_request.labels.*.name, 'git-lfs-pull')
     runs-on: ubuntu-latest
     permissions:
@@ -25,4 +25,20 @@ jobs:
           body: |
             Warning - LFS bandwidth usage
             ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
+
+  check-first-time-committer:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    permissions:
+      pull-requests: write
+    
+    steps:
+      - name: Add welcome comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
+            Before asking for reviews, please make sure all checks have passed.
 
