@@ -118,9 +118,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            await github.rest.issues.removeLabel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              name: 'git-lfs-pull'
-            });
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                name: 'git-lfs-pull'
+              });
+              console.log('Successfully removed git-lfs-pull label');
+            } catch (error) {
+              console.log(`Unable to remove git-lfs-pull label: ${error.message}`);
+            }
