@@ -2,6 +2,8 @@ name: Label Check
 
 on:
   pull_request:
+    branches:
+      - master
     types: [labeled]
 
 jobs:
