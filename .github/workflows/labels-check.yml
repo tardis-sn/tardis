@@ -1,9 +1,13 @@
 name: Label Check
 
 on:
+  pull_request_target:
+    branches:
+      - '*'
+    types: [labeled]
   pull_request:
     branches:
-      - master
+      - '*'
     types: [labeled]
 
 jobs:
