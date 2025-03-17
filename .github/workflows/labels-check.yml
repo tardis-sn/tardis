@@ -16,19 +16,11 @@ jobs:
       contents: read
     
     steps:
-      - name: Find existing comment
-        uses: peter-evans/find-comment@v1
-        id: fc
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: Warning - LFS bandwidth usage
-
       - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
           body: |
             Warning - LFS bandwidth usage
