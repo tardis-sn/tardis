@@ -7,6 +7,13 @@ on:
     types: [labeled, synchronize]
 
 jobs:
+  test-cache:
+    uses: ./.github/workflows/lfs-cache.yml
+    with:
+      atom-data-sparse: true
+      regression-data-repo: tardis-sn/tardis-regression-data
+      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+
   check-and-manage-labels:
     if: contains(github.event.pull_request.labels.*.name, 'CI/CD')
     runs-on: ubuntu-latest
@@ -33,15 +40,3 @@ jobs:
           body: |
             Warning - LFS bandwidth usage
             ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
-
-      - name: Remove label
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.issues.removeLabel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              name: 'CI/CD'
-            });
