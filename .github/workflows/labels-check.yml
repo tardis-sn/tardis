@@ -2,7 +2,7 @@ name: Label Check
 
 on:
   pull_request_target:
-    types: [labeled]
+    types: [labeled, synchronize]
 
 jobs:
   check-and-manage-labels:
