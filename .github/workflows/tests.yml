@@ -91,6 +91,13 @@ jobs:
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+        env:
+          PYTHONFAULTHANDLER: 1 # sefgault
+          PYTHONDEVMODE: 1  # Enable additional runtime checks and warnings
+          PYTHONASYNCIODEBUG: 1  # Show asyncio debug info
+          PYTHONTRACEMALLOC: 5  # Enable tracemalloc with 5 frames
+          PYTHONWARNINGS: "always"  # Show all warnings
+          PYTHONUNBUFFERED: 1  # Immediately show output without buffering
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
