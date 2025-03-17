@@ -113,7 +113,7 @@ jobs:
           key: tardis-regression-${{ inputs.atom-data-sparse == true && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
 
       - name: Remove label
-        if: inputs.atom-data-sparse == true
+        if: ${{ inputs.allow_lfs_pull }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -122,5 +122,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              name: 'infrastructure'
+              name: 'git-lfs-pull'
             });

@@ -1,4 +1,4 @@
-name: Label Check
+name: label check
 
 on:
   pull_request:
@@ -7,15 +7,8 @@ on:
     types: [labeled, synchronize]
 
 jobs:
-  test-cache:
-    uses: ./.github/workflows/lfs-cache.yml
-    with:
-      atom-data-sparse: true
-      regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
-
   check-and-manage-labels:
-    if: contains(github.event.pull_request.labels.*.name, 'CI/CD')
+    if: contains(github.event.pull_request.labels.*.name, 'git-lfs-pull')
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
