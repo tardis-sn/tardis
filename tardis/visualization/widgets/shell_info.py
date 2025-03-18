@@ -304,6 +304,21 @@ class ShellInfoWidget:
         )
 
     def update_element_count_table(self, event):
+        """Event listener to update the data in the element count table widget 
+        based on interaction (row selection event) in the shells table widget.
+
+        Parameters
+        ----------
+        event : dict
+            Dictionary that holds information about the event (see Notes section).
+
+        Notes
+        -----
+        This function is triggered automatically as an event handler for row 
+        selection in the shells table widget. It updates the element count table 
+        based on the selected shell number and ensures that the first row in the 
+        table is selected to trigger further updates.
+        """
         if not self.shells_table.selection:
             return
         shell_num = self.shells_table.selection[0] + 1  # Convert 0-based index to 1-based shell number
@@ -314,6 +329,21 @@ class ShellInfoWidget:
         self.element_count_table.selection = [0]  # Select first row
 
     def update_ion_count_table(self, event):
+        """Event listener to update the data in the ion count table widget 
+        based on interaction (row selection event) in the element count table widget.
+
+        Parameters
+        ----------
+        event : dict
+            Dictionary that holds information about the event (see Notes section).
+
+        Notes
+        -----
+        This function is triggered automatically as an event handler for row 
+        selection in the element count table widget. It updates the ion count table 
+        based on the selected atomic number and shell number and ensures that the 
+        first row in the table is selected to trigger further updates.
+        """
         if not self.element_count_table.selection or not self.shells_table.selection:
             return
         shell_num = self.shells_table.selection[0] + 1
@@ -325,6 +355,20 @@ class ShellInfoWidget:
         self.ion_count_table.selection = [0]  # Select first row
 
     def update_level_count_table(self, event):
+        """Event listener to update the data in the level count table widget 
+        based on interaction (row selection event) in the ion count table widget.
+
+        Parameters
+        ----------
+        event : dict
+            Dictionary that holds information about the event (see Notes section).
+
+        Notes
+        -----
+        This function is triggered automatically as an event handler for row 
+        selection in the ion count table widget. It updates the level count table 
+        based on the selected ion, atomic number, and shell number.
+        """
         if not self.ion_count_table.selection or not self.element_count_table.selection or not self.shells_table.selection:
             return
         shell_num = self.shells_table.selection[0] + 1
@@ -340,6 +384,30 @@ class ShellInfoWidget:
         level_count_table_width=180,
         **layout_kwargs,
     ):
+        """Display the shell info widget by arranging all component widgets 
+        and enabling interactions between the table widgets.
+
+        Parameters
+        ----------
+        shells_table_width : int, optional
+            Width of the shells table in pixels, by default 300.
+        element_count_table_width : int, optional
+            Width of the element count table in pixels, by default 240.
+        ion_count_table_width : int, optional
+            Width of the ion count table in pixels, by default 240.
+        level_count_table_width : int, optional
+            Width of the level count table in pixels, by default 180.
+
+        Other Parameters
+        ----------------
+        **layout_kwargs
+            Additional CSS properties to be applied to the table container layout.
+
+        Returns
+        -------
+        panel.layout.Column
+            Shell info widget containing all component tables and descriptive text.
+        """
         # Set table widths
         self.shells_table.width = shells_table_width
         self.element_count_table.width = element_count_table_width
