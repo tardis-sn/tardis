@@ -111,7 +111,35 @@ def create_table_widget(
 
 
 class TableSummaryLabel:
+    """
+    Label like widget to show summary of a qgrid table widget.
+
+    Also handles aligning the label with the table columns exactly like a
+    summary row.
+    """
+
     def __init__(self, target_table, table_col_widths, label_key, label_value):
+        """
+        Initialize a TableSummaryLabel for a table widget.
+
+        Parameters
+        ----------
+        target_table : qgrid.QgridWidget
+            Table widget whose summary label it is
+        table_col_widths : list
+            A list containing width of each column of table in order (including
+            the index as 1st column). The width values must be proportions of
+            100 i.e. they must sum to 100
+        label_key : str
+            Brief description of what label summarizes about table
+        label_value : int
+            Initial summary value of the table to be shown in label
+
+        Notes
+        -----
+        TableSummaryLabel can only be created for a table with two
+        columns (including index as 1st column) as of now
+        """
         if len(table_col_widths) != 2:
             raise NotImplementedError(
                 "Currently TableSummaryLabel can only be created for a table "
@@ -123,19 +151,88 @@ class TableSummaryLabel:
         self.widget = self._create(label_key, label_value)
 
     def update_and_resize(self, value):
-        self.widget[1].object = str(value)
+        """
+        Update the label value and resize it as per the size of target table.
+
+        Resizing is done in such a way so as to match the width of components
+        of label with columns of target table, making it look like another row.
+        This method should be called whenever there is any update in data or
+        layout of target table.
+
+        Parameters
+        ----------
+        value : int
+            Value to be shown in label
+
+        Notes
+        -----
+        The width resizing operation is highly dependent on qgrid tables'
+        layout. So it may not remain precise if there happens any CSS change
+        in upcoming versions of qgrid.
+        """
+        self.widget.children[1].value = str(value)
+
         try:
-            table_width = int(self.target_table.width.rstrip("%")) * 100  # Convert % to px approximation
-            self.widget[0].width = f"{(table_width * self.table_col_widths[0] / 100)}%"
-            self.widget[1].width = f"{(table_width * self.table_col_widths[1] / 100)}%"
+            table_width = int(self.target_table.layout.width.rstrip("px"))
         except AttributeError:
-            logger.warning("target_table doesn't have fixed width defined, label cannot be resized!")
+            logger.warning(
+                "target_table doesn't have any fixed width defined, label "
+                "cannot be resized!",
+                exc_info=1,
+            )
+            return
+
+        max_rows_allowed = self.target_table.grid_options["maxVisibleRows"]
+        if len(self.target_table.df) > max_rows_allowed:
+            table_width -= 12  # 12px is space consumed by scroll bar of qgrid
+
+        # Distribute the table width in proportions of column width to label components
+        self.widget.children[
+            0
+        ].layout.width = f"{(table_width) * self.table_col_widths[0]/100}px"
+        self.widget.children[
+            1
+        ].layout.width = f"{(table_width) * self.table_col_widths[1]/100}px"
 
     def _create(self, key, value):
-        return pn.Row(
-            pn.pane.HTML(f"<div style='text-align:right;'><b>{key}:<b></div>"),
-            pn.pane.HTML(str(value)),
-            styles={'display': 'flex', 'justify-content': 'flex-start'}
+        """
+        Create widget for TableSummaryLabel.
+
+        Parameters
+        ----------
+        key : str
+            Brief description of what label summarizes about target table
+        value : int
+            Initial summary value of the target table to be shown in label
+
+        Returns
+        -------
+        ipywidgets.Box
+            Widget containing all componets of label
+        """
+        # WARNING: Use dictionary instead of ipw.Layout for specifying layout
+        # of ipywidgets, otherwise there will be unintended behavior
+        component_layout_options = dict(
+            flex="0 0 auto",  # to prevent shrinking of flex-items
+            padding="0px 2px",  # match with header
+            margin="0px",  # remove default 1px margin
+        )
+
+        return ipw.Box(
+            [
+                ipw.HTML(
+                    f"<div style='text-align:right;'> <b>{key}:<b> </div>",
+                    layout=component_layout_options,
+                ),
+                ipw.HTML(
+                    str(value),
+                    layout=component_layout_options,
+                ),
+            ],
+            layout=dict(
+                display="flex",
+                justify_content="flex-start",
+            ),
         )
 
 class Timer:
