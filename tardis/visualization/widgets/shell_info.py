@@ -247,6 +247,15 @@ class ShellInfoWidget:
          # helper method to create Tabulator widgets with defaults
     def _create_tabulator(self, df, widths, titles=None, **kwargs):
         """Create a Tabulator widget with pre-set common arguements"""
+        # defaults = {
+        #     "layout": "fit_columns",
+        #     "selectable": 1,
+        #     "styles": TABLE_STYLES,
+        #     "text_align": "center",
+        #     "header_align": "center",
+        #     # "autosize_mode": "fit_view",
+        #     "width": 100,
+        # }
         defaults = {
             "layout": "fit_data",
             "selectable": 1,
@@ -309,13 +318,13 @@ class ShellInfoWidget:
             width=350,
         )
         self.layout = pn.Column(
-            pn.pane.Markdown("# TARDIS Shell Info Explorer", styles={'font-size': '20px', 'font-weight': 'bold', 'margin-bottom': '10px', 'margin-top': '10px', 'color': '#333'}),
+            pn.pane.Markdown("# TARDIS Shell Info Explorer", styles={'font-size': '20px', 'font-weight': 'bold', 'margin-bottom': '10px', 'margin-top': '10px', 'color': '#333', 'width': '100%'}),
         self.notes,
             pn.Row(
-                pn.Column(self.shells_title, self.shells_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=320),
-                pn.Column(self.element_title, self.element_count_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=240),
-                pn.Column(self.ion_title, self.ion_count_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=280),
-                pn.Column(self.level_title, self.level_count_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=280),
+                pn.Column(self.shells_title, self.shells_table, styles={'padding': '5px', 'border': '1px solid #ff0000'}, sizing_mode="stretch_width"),
+                pn.Column(self.element_title, self.element_count_table, styles={'padding': '5px', 'border': '1px solid #9933ff'}, sizing_mode="stretch_width"),
+                pn.Column(self.ion_title, self.ion_count_table, styles={'padding': '5px', 'border': '1px solid #0000ff'}, sizing_mode="stretch_width"),
+                pn.Column(self.level_title, self.level_count_table, styles={'padding': '5px', 'border': '1px solid #00ff00'}, sizing_mode="stretch_width"),
                 styles={'margin': '10px', 'padding': '10px', 'background-color': '#fff', 'border': '1px solid #ddd', 'border-radius': '3px'},
                 sizing_mode="scale_both",  # Scales to fit the screen without scrolling
             ),
