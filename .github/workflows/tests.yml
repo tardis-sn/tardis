@@ -26,16 +26,16 @@ on:
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
-  PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append -s
+  PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 defaults:
   run:
     shell: bash -l {0}
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#   cancel-in-progress: true
 
 jobs:
   test-cache:
