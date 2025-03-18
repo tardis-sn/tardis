@@ -140,6 +140,11 @@ class TableSummaryLabel:
 
 class Timer:
     """Timer to implement debouncing using an asynchronous loop.
+
+    Notes
+    -----
+    This class is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debounce
     """
 
     def __init__(self, timeout, callback):
@@ -175,6 +180,11 @@ def debounce(wait):
     Returns
     -------
         function
+
+    Notes
+    -----
+    This decorator is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debounce
     """
 
     def decorator(fn):
