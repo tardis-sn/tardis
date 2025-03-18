@@ -182,6 +182,7 @@ if os.getenv("DISABLE_NBSPHINX") == "1":
 else:
     nbsphinx_execute = "auto"
 
+nbsphinx_allow_errors = True
 
 # -- Project information ------------------------------------------------------
 
