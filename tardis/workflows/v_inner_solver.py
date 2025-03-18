@@ -62,7 +62,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         )
 
         interpolator = interp1d(
-            tau_integ[self.simulation_state.geometry.v_inner_boundary_index:],
+            tau_integ[self.simulation_state.geometry.v_inner_boundary_index :],
             self.simulation_state.geometry.v_inner_active,  # Only use the active values as we only need a numerical estimate, not an index
             fill_value="extrapolate",
         )
@@ -92,13 +92,8 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         ] = True
         return mask
 
-    def get_convergence_estimates(self, transport_state):
+    def get_convergence_estimates(self):
         """Compute convergence estimates from the transport state
-
-        Parameters
-        ----------
-        transport_state : MonteCarloTransportState
-            Transport state object to compute estimates
 
         Returns
         -------
@@ -107,7 +102,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         EstimatedRadiationFieldProperties
             Dilute radiation file and j_blues dataclass
         """
-        estimates = super().get_convergence_estimates(transport_state)
+        estimates = super().get_convergence_estimates()
 
         estimated_v_inner = self.estimate_v_inner()
 
@@ -318,14 +313,14 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             # Note that we are updating the class attribute here to ensure consistency
             self.opacity_states = self.solve_opacity()
 
-            transport_state, virtual_packet_energies = self.solve_montecarlo(
+            virtual_packet_energies = self.solve_montecarlo(
                 self.opacity_states, self.real_packet_count
             )
 
             (
                 estimated_values,
                 estimated_radfield_properties,
-            ) = self.get_convergence_estimates(transport_state)
+            ) = self.get_convergence_estimates()
 
             self.solve_simulation_state(estimated_values)
 
@@ -348,13 +343,12 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
         self.opacity_states = self.solve_opacity()
-        transport_state, virtual_packet_energies = self.solve_montecarlo(
+        virtual_packet_energies = self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
         self.initialize_spectrum_solver(
-            transport_state,
             self.opacity_states,
             virtual_packet_energies,
         )
