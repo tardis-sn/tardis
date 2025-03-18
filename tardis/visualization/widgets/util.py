@@ -12,7 +12,8 @@ def create_table_widget(
     data, col_widths, table_options=None, changeable_col=None
 ):
     """
-    Create table widget object which supports interaction and updating the data.
+    Create an interactive table widget using Panel's Tabulator, supporting
+    data display, interaction, and optional column name changes.
 
     Parameters
     ----------
@@ -23,14 +24,26 @@ def create_table_widget(
         the index as 1st column). The width values must be proportions of
         100 i.e. they must sum to 100.
     table_options : dict, optional
-        A dictionary to specify options for the Tabulator widget.
+        A dictionary specifying configuration options for the Tabulator widget.
+        Overrides the default options where applicable.
     changeable_col : dict, optional
-        A dictionary to specify the information about column which will change its name when data updates.
+        A dictionary specifying the information about column that may change its name when
+        the data updates. It must contain two keys:
+        - :code:`index`: The index of the column in the DataFrame :code:`data`.
+        - :code:`other_names`: A list of possible new names for the column.
 
     Returns
     -------
     panel.widgets.Tabulator
-        Table widget object
+        An interactive Tabulator table widget displaying the DataFrame.
+
+    Raises
+    ------
+    ValueError
+        If the length of :code:`col_widths` does not match the number of
+        columns + 1 (for the index), or if the column widths do not sum to 100.
+    ValueError
+        If :code:`changeable_col` does not contain both 'index' and 'other_names' keys.
     """
     if len(col_widths) != data.shape[1] + 1:
         raise ValueError(
