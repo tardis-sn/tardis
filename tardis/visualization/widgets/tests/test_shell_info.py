@@ -1,17 +1,29 @@
 import numpy as np
+import pandas as pd
 import pandas.testing as pdt
-import pytest
 
 from tardis.visualization.widgets.shell_info import (
     BaseShellInfo,
     HDFShellInfo,
     ShellInfoWidget,
-    SimulationShellInfo,
 )
 
 
 @pytest.fixture(scope="class")
 def base_shell_info(simulation_verysimple):
+    """
+    Create a BaseShellInfo instance from a very simple simulation.
+
+    Parameters
+    ----------
+    simulation_verysimple : tardis.simulation.Simulation
+        A simple TARDIS simulation object for testing.
+
+    Returns
+    -------
+    tardis.visualization.widgets.shell_info.BaseShellInfo
+        BaseShellInfo instance initialized with data from the simulation.
+    """
     return BaseShellInfo(
         simulation_verysimple.simulation_state.t_radiative,
         simulation_verysimple.simulation_state.dilution_factor,
@@ -24,11 +36,39 @@ def base_shell_info(simulation_verysimple):
 
 @pytest.fixture(scope="class")
 def simulation_shell_info(simulation_verysimple):
+    """
+    Create a SimulationShellInfo instance from a very simple simulation.
+
+    Parameters
+    ----------
+    simulation_verysimple : tardis.simulation.Simulation
+        A simple TARDIS simulation object for testing.
+
+    Returns
+    -------
+    tardis.visualization.widgets.shell_info.SimulationShellInfo
+        SimulationShellInfo instance initialized with the simulation.
+    """
     return SimulationShellInfo(simulation_verysimple)
 
 
 @pytest.fixture(scope="class")
 def hdf_shell_info(hdf_file_path, simulation_verysimple):
+    """
+    Create a HDFShellInfo instance from a simulation saved to an HDF file.
+
+    Parameters
+    ----------
+    hdf_file_path : str
+        Path to save the HDF file.
+    simulation_verysimple : tardis.simulation.Simulation
+        A simple TARDIS simulation object for testing.
+
+    Returns
+    -------
+    tardis.visualization.widgets.shell_info.HDFShellInfo
+        HDFShellInfo instance initialized with the HDF file path.
+    """
     simulation_verysimple.to_hdf(
         hdf_file_path, overwrite=True
     )  # save sim at hdf_file_path
@@ -37,6 +77,16 @@ def hdf_shell_info(hdf_file_path, simulation_verysimple):
 
 class TestBaseShellInfo:
     def test_shells_data(self, base_shell_info, simulation_verysimple):
+        """
+        Test that shells_data method returns correct data.
+
+        Parameters
+        ----------
+        base_shell_info : BaseShellInfo
+            The BaseShellInfo instance to test.
+        simulation_verysimple : tardis.simulation.Simulation
+            The simulation containing expected values.
+        """
         shells_data = base_shell_info.shells_data()
         assert shells_data.shape == (
             len(simulation_verysimple.simulation_state.t_radiative),
@@ -55,6 +105,18 @@ class TestBaseShellInfo:
     def test_element_count_data(
         self, base_shell_info, simulation_verysimple, shell_num
     ):
+        """
+        Test that element_count method returns correct data.
+
+        Parameters
+        ----------
+        base_shell_info : BaseShellInfo
+            The BaseShellInfo instance to test.
+        simulation_verysimple : tardis.simulation.Simulation
+            The simulation containing expected values.
+        shell_num : int
+            The shell number to test.
+        """
         element_count_data = base_shell_info.element_count(1)
         assert element_count_data.shape == (
             len(
@@ -71,6 +133,20 @@ class TestBaseShellInfo:
     def test_ion_count_data(
         self, base_shell_info, simulation_verysimple, atomic_num, shell_num
     ):
+        """
+        Test that ion_count method returns correct data.
+
+        Parameters
+        ----------
+        base_shell_info : BaseShellInfo
+            The BaseShellInfo instance to test.
+        simulation_verysimple : tardis.simulation.Simulation
+            The simulation containing expected values.
+        atomic_num : int
+            The atomic number to test.
+        shell_num : int
+            The shell number to test.
+        """
         ion_count_data = base_shell_info.ion_count(atomic_num, shell_num)
         sim_ion_number_density = (
             simulation_verysimple.plasma.ion_number_density[shell_num - 1].loc[
@@ -99,6 +175,22 @@ class TestBaseShellInfo:
         atomic_num,
         shell_num,
     ):
+        """
+        Test that level_count method returns correct data.
+
+        Parameters
+        ----------
+        base_shell_info : BaseShellInfo
+            The BaseShellInfo instance to test.
+        simulation_verysimple : tardis.simulation.Simulation
+            The simulation containing expected values.
+        ion_num : int
+            The ion number to test.
+        atomic_num : int
+            The atomic number to test.
+        shell_num : int
+            The shell number to test.
+        """
         level_count_data = base_shell_info.level_count(
             ion_num, atomic_num, shell_num
         )
@@ -123,6 +215,19 @@ class TestSimulationShellInfo(TestBaseShellInfo):
     # Override the base_shell_info fixture to use value of simulation_shell_info fixture
     @pytest.fixture
     def base_shell_info(self, simulation_shell_info):
+        """
+        Override the base_shell_info fixture with simulation_shell_info.
+
+        Parameters
+        ----------
+        simulation_shell_info : SimulationShellInfo
+            The simulation shell info instance.
+
+        Returns
+        -------
+        SimulationShellInfo
+            The same simulation shell info instance.
+        """
         return simulation_shell_info
 
 
@@ -130,6 +235,19 @@ class TestHDFShellInfo(TestBaseShellInfo):
     # Override the base_shell_info fixture to use value of hdf_shell_info fixture
     @pytest.fixture
     def base_shell_info(self, hdf_shell_info):
+        """
+        Override the base_shell_info fixture with hdf_shell_info.
+
+        Parameters
+        ----------
+        hdf_shell_info : HDFShellInfo
+            The HDF shell info instance.
+
+        Returns
+        -------
+        HDFShellInfo
+            The same HDF shell info instance.
+        """
         return hdf_shell_info
 
 
@@ -141,6 +259,21 @@ class TestShellInfoWidget:
 
     @pytest.fixture(scope="class")
     def shell_info_widget(self, base_shell_info, monkeysession):
+        """
+        Create a ShellInfoWidget instance for testing.
+
+        Parameters
+        ----------
+        base_shell_info : BaseShellInfo
+            The BaseShellInfo instance to use.
+        monkeysession : pytest.MonkeyPatch
+            MonkeyPatch fixture for the session.
+
+        Returns
+        -------
+        ShellInfoWidget
+            Widget instance with event listeners attached.
+        """
         shell_info_widget = ShellInfoWidget(base_shell_info)
         monkeysession.setattr(
             "tardis.visualization.widgets.shell_info.is_notebook", lambda: True
@@ -152,6 +285,16 @@ class TestShellInfoWidget:
     def test_selection_on_shells_table(
         self, base_shell_info, shell_info_widget
     ):
+        """
+        Test widget updates correctly when a shell is selected.
+
+        Parameters
+        ----------
+        base_shell_info : BaseShellInfo
+            The BaseShellInfo instance with expected data.
+        shell_info_widget : ShellInfoWidget
+            The widget to test.
+        """
         shell_info_widget.shells_table.change_selection([self.select_shell_num])
 
         expected_element_count = base_shell_info.element_count(
@@ -180,6 +323,16 @@ class TestShellInfoWidget:
     def test_selection_on_element_count_table(
         self, base_shell_info, shell_info_widget
     ):
+        """
+        Test widget updates correctly when an element is selected.
+
+        Parameters
+        ----------
+        base_shell_info : BaseShellInfo
+            The BaseShellInfo instance with expected data.
+        shell_info_widget : ShellInfoWidget
+            The widget to test.
+        """
         shell_info_widget.element_count_table.change_selection(
             [self.select_atomic_num]
         )
@@ -203,6 +356,16 @@ class TestShellInfoWidget:
     def test_selection_on_ion_count_table(
         self, base_shell_info, shell_info_widget
     ):
+        """
+        Test widget updates correctly when an ion is selected.
+
+        Parameters
+        ----------
+        base_shell_info : BaseShellInfo
+            The BaseShellInfo instance with expected data.
+        shell_info_widget : ShellInfoWidget
+            The widget to test.
+        """
         shell_info_widget.ion_count_table.change_selection(
             [self.select_ion_num]
         )
@@ -213,3 +376,98 @@ class TestShellInfoWidget:
         pdt.assert_frame_equal(
             expected_level_count, shell_info_widget.level_count_table.df
         )
+
+    def test_widget_styling(self, shell_info_widget):
+        """
+        Test that the tabulator styling is correctly applied to the tables.
+
+        Parameters
+        ----------
+        shell_info_widget : ShellInfoWidget
+            The widget to test.
+        """
+        assert shell_info_widget.shells_table.style == TABLE_STYLES
+        assert shell_info_widget.element_count_table.style == TABLE_STYLES
+        assert shell_info_widget.ion_count_table.style == TABLE_STYLES
+        assert shell_info_widget.level_count_table.style == TABLE_STYLES
+
+    def test_create_tabulator_table(self, shell_info_widget):
+        """
+        Test tabulator creation with custom parameters.
+
+        Parameters
+        ----------
+        shell_info_widget : ShellInfoWidget
+            The widget containing the tabulator creation method.
+        """
+        test_df = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
+        tabulator = shell_info_widget._create_tabulator(
+            test_df,
+            widths={"A": 100, "B": 150},
+            titles={"A": "column A", "B": "Column B"}
+        )
+        assert tabulator.value.equals(test_df)
+        assert tabulator.widths == {"A": 100, "B": 150}
+        assert tabulator.titles == {"A": "column A", "B": "Column B"}
+
+    def test_update_with_empty_selection(self, shell_info_widget):
+        """
+        Test update methods with empty selections.
+
+        Parameters
+        ----------
+        shell_info_widget : ShellInfoWidget
+            The widget to test.
+        """
+        # set empty selection
+        shell_info_widget.shells_table.selection = []
+
+        #Trigger update
+        shell_info_widget.update_element_count_table(None)
+        
+        #Check the element table is properly reset
+        assert "No Shell Selected" in shell_info_widget.element_title.object
+        assert shell_info_widget.element_count_table.value.empty
+
+        #Checking ion table is also reset
+        assert "No Selection" in shell_info_widget.ion_title.object
+        assert shell_info_widget.ion_count_table.value.empty
+
+        #Checking level table is also reset
+        assert "No Selection" in shell_info_widget.level_title.object
+        assert shell_info_widget.level_count_table.value.empty
+
+    def test_widget_layout(self, shell_info_widget):
+        """
+        Test that widget layout is created correctly.
+
+        Parameters
+        ----------
+        shell_info_widget : ShellInfoWidget
+            The widget to test.
+        """
+        layout = shell_info_widget.layout
+        assert isinstance(layout, pn.Column)
+        assert len(layout) > 0
+
+        #check that title is present
+        assert any(isinstance(item, pn.pane.Markdown) and "TARDIS" in str(item.object) for item in layout.objects)
+
+    def test_get_panel(self, shell_info_widget):
+        """
+        Test the get_panel method returns the correct panel layout.
+
+        Parameters
+        ----------
+        shell_info_widget : ShellInfoWidget
+            The widget to test.
+
+        Returns
+        -------
+        None
+        """
+        panel = shell_info_widget.get_panel()
+        assert panel is shell_info_widget.layout
+
+
+

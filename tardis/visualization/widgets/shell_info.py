@@ -16,6 +16,7 @@ from tardis.util.base import (
     atomic_number2element_symbol,
     species_tuple_to_string,
 )
+from tardis.util.base import is_notebook
 import pandas as pd
 import numpy as np
 import panel as pn
@@ -232,14 +233,42 @@ class ShellInfoWidget:
     """
 
     def _apply_tabulator_styles(self, tabulator):
-        """Apply consistent styles and alignment to a Tabulator widget"""
+        """
+        Apply consistent styles and alignment to a Tabulator widget.
+
+        Parameters
+        ----------
+        tabulator : panel.widgets.Tabulator
+            The tabulator widget to style.
+        """
         tabulator.styles = TABLE_STYLES
         tabulator.text_align = "center"
         tabulator.header_align = "center"
 
         # helper method to create Tabulator widgets with defaults
     def _create_tabulator(self, df, widths, titles=None, **kwargs):
-        """Create a Tabulator widget with pre-set common arguements"""
+        """
+        Create a Tabulator widget with pre-set common arguments.
+        
+        This helper method creates a standardized tabulator widget with consistent
+        styling and behavior.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The data to display in the tabulator.
+        widths : dict
+            Dictionary mapping column names to column widths.
+        titles : dict, optional
+            Dictionary mapping column names to display titles (default: None).
+        **kwargs : dict
+            Additional keyword arguments to pass to the Tabulator constructor.
+
+        Returns
+        -------
+        panel.widgets.Tabulator
+            Configured tabulator widget.
+        """
         defaults = {
             "layout": "fit_data",
             "selectable": 1,
@@ -253,6 +282,17 @@ class ShellInfoWidget:
         return pn.widgets.Tabulator(df, widths=widths, **defaults)
 
     def __init__(self, shell_info_data):
+        """
+        Initialize the Shell Info Widget with simulation data.
+        
+        Sets up the four interconnected tables and establishes event handlers
+        for selection changes.
+
+        Parameters
+        ----------
+        shell_info_data : BaseShellInfo or subclass
+            The shell information data source to use for populating tables.
+        """
         self.data = shell_info_data
 
         # Shells table
@@ -347,7 +387,17 @@ class ShellInfoWidget:
 >>>>>>> 69644cd932 (GSoC Panel Objective 1)
 
     def update_element_count_table(self, event):
-        """Update element table based on shell selection"""
+        """
+        Update element table based on shell selection.
+        
+        This event handler updates the element table when a shell is selected in 
+        the shells table. It also triggers downstream updates.
+
+        Parameters
+        ----------
+        event : param.Event
+            The event containing the new selection information.
+        """
         selected_rows = event.new
         if selected_rows:
             shell_num = selected_rows[0] + 1
@@ -372,7 +422,17 @@ class ShellInfoWidget:
             self.update_ion_count_table(None)
 
     def update_ion_count_table(self, event):
-        """Update ion table based on element selection"""
+        """
+        Update ion table based on element selection.
+        
+        This event handler updates the ion table when an element is selected in 
+        the element count table. It also triggers downstream updates.
+
+        Parameters
+        ----------
+        event : param.Event or None
+            The event containing the new selection information, or None if called directly.
+        """
         if event and self.shells_table.selection:
             selected_rows = event.new
             shell_num = self.shells_table.selection[0] + 1
@@ -404,7 +464,17 @@ class ShellInfoWidget:
             self.update_level_count_table(None)
 
     def update_level_count_table(self, event):
-        """Update level table based on ion selection"""
+        """
+        Update level table based on ion selection.
+        
+        This event handler updates the level table when an ion is selected in 
+        the ion count table.
+
+        Parameters
+        ----------
+        event : param.Event or None
+            The event containing the new selection information, or None if called directly.
+        """
         if event and self.shells_table.selection and self.element_count_table.selection:
             selected_rows = event.new
             shell_num = self.shells_table.selection[0] + 1
@@ -437,6 +507,22 @@ class ShellInfoWidget:
         """Return the Panel object for display"""
         return self.layout
 
+    def display(self):
+        """
+        Display the widget in the current context.
+        
+        In notebook contexts, returns the Panel object for display.
+        In non-notebook contexts, serves the Panel application.
+
+        Returns
+        -------
+        panel.Column or None
+            The main layout if in a notebook context, None otherwise.
+        """        
+        if is_notebook():
+            return self.get_panel()
+        else:
+            pn.serve(self.get_panel())
 
 def shell_info_from_simulation(sim_model):
     """Create shell info widget from a TARDIS simulation object
