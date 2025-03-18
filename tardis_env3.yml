@@ -18,6 +18,7 @@ dependencies:
   - numba
   - numexpr
   - radioactivedecay
+  
 
   # Plasma
   - networkx
@@ -31,14 +32,13 @@ dependencies:
   - pytables
   - requests
   - tqdm
+  
 
   # Widgets & Visualization
   - notebook
   - matplotlib-base
-  - ipywidgets
+  - panel
   - plotly
-  - pip:
-      - qgridnext
 
   # --- Packages not required for conda-forge recipe ---
 
