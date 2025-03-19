@@ -23,8 +23,14 @@ logger = logging.getLogger(__name__)
 class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
     TAU_TARGET = np.log(2.0 / 3.0)
 
-    def __init__(self, configuration, mean_optical_depth="rosseland", tau=None):
-        super().__init__(configuration)
+    def __init__(
+        self,
+        configuration,
+        mean_optical_depth="rosseland",
+        tau=None,
+        csvy=False,
+    ):
+        super().__init__(configuration, csvy)
         self.mean_optical_depth = mean_optical_depth.lower()
 
         self.convergence_solvers["v_inner_boundary"] = ConvergenceSolver(
