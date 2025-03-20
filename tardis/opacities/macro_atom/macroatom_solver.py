@@ -37,46 +37,6 @@ class MacroAtomSolver:
         self.block_references = coef_and_block_ref["block_references"]
         self.initialize = False
 
-    def solve_legacy_transition_probabilities(
-        self,
-        atomic_data,
-        legacy_plasma,
-        tau_sobolev,
-        stimulated_emission_factor,
-    ):
-        """Solve the basic transition probabilities for the macroatom
-
-        Parameters
-        ----------
-        atomic_data : tardis.io.atom_data.AtomData
-            Atomic Data
-        legacy_plasma : tardis.plasma.BasePlasma
-            legacy base plasma
-        tau_sobolev : pd.DataFrame
-            Expansion Optical Depths
-        stimulated_emission_factor : np.ndarray
-
-        Returns
-        -------
-        pd.DataFrame
-            Transition Probabilities
-        """
-        if self.initialize:
-            self.initialize_transition_probabilities(atomic_data)
-
-        transition_probabilities = calculate_transition_probabilities(
-            atomic_data,
-            legacy_plasma.beta_sobolev,
-            legacy_plasma.j_blues,
-            stimulated_emission_factor,
-            tau_sobolev,
-            self.transition_probability_coef,
-            self.block_references,
-            normalize=self.normalize,
-        )
-
-        return transition_probabilities
-
     def solve_transition_probabilities(
         self,
         atomic_data,
@@ -122,52 +82,42 @@ class MacroAtomSolver:
 
     def solve(
         self,
-        legacy_plasma,
+        mean_intensities,
         atomic_data,
         tau_sobolev,
         stimulated_emission_factor,
         beta_sobolev=None,
-        legacy_mode=True,
     ):
         """Solved the Macro Atom State
 
         Parameters
         ----------
-        legacy_plasma : tardis.plasma.BasePlasma
-            legacy base plasma
+        mean_intensities : pd.DataFrame
+            Mean intensity of the radiation field for each shell
         atomic_data : tardis.io.atom_data.AtomData
             Atomic Data
         tau_sobolev : pd.DataFrame
             Expansion Optical Depths
         stimulated_emission_factor : pd.DataFrame
+        beta_sobolev : pd.DataFrame
 
         Returns
         -------
         tardis.opacities.macroatom_state.MacroAtomState
             State of the macro atom ready to be placed into the OpacityState
         """
-        if legacy_mode:
-            transition_probabilities = (
-                self.solve_legacy_transition_probabilities(
-                    atomic_data,
-                    legacy_plasma,
-                    tau_sobolev,
-                    stimulated_emission_factor,
-                )
-            )
-        else:
-            transition_probabilities = self.solve_transition_probabilities(
-                atomic_data,
-                legacy_plasma.j_blues,
-                tau_sobolev,
-                beta_sobolev,
-                stimulated_emission_factor,
-            )
+        transition_probabilities = self.solve_transition_probabilities(
+            atomic_data,
+            mean_intensities,
+            tau_sobolev,
+            beta_sobolev,
+            stimulated_emission_factor,
+        )
 
         macro_block_references = atomic_data.macro_atom_references[
             "block_references"
         ]
-        macro_atom_info = legacy_plasma.atomic_data.macro_atom_data
+        macro_atom_info = atomic_data.macro_atom_data
 
         return MacroAtomState(
             transition_probabilities,
@@ -175,5 +125,5 @@ class MacroAtomSolver:
             macro_atom_info["destination_level_idx"],
             macro_atom_info["lines_idx"],
             macro_block_references,
-            legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
+            atomic_data.lines_upper2macro_reference_idx,
         )

@@ -1,6 +1,23 @@
 name: Save LFS Cache
 
 on:
+  workflow_dispatch:
+    inputs:
+      atom-data-sparse:
+        description: "If true, only downloads atom_data/kurucz_cd23_chianti_H_He.h5"
+        required: false
+        default: false
+        type: boolean
+      regression-data-repo:
+        description: "Repository containing regression data (format: owner/repo)"
+        required: false
+        default: "tardis-sn/tardis-regression-data"
+        type: string
+      allow_lfs_pull:
+        description: "If true, allows LFS pull operations"
+        required: false
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       atom-data-sparse:
@@ -13,6 +30,11 @@ on:
         required: false
         default: "tardis-sn/tardis-regression-data"
         type: string
+      allow_lfs_pull:
+        description: "If true, allows LFS pull operations"
+        required: false
+        default: false
+        type: boolean
 
 defaults:
   run:
@@ -34,7 +56,7 @@ jobs:
         with:
           repository: ${{ inputs.regression-data-repo }}
           path: tardis-regression-data
-          sparse-checkout: ${{ inputs.atom-data-sparse == 'true' && 'atom_data/kurucz_cd23_chianti_H_He.h5' || '' }}
+          sparse-checkout: ${{ inputs.atom-data-sparse == true && 'atom_data/kurucz_cd23_chianti_H_He.h5' || '' }}
     
       - name: Create LFS file list
         run: |
@@ -47,7 +69,6 @@ jobs:
           fi
         working-directory: tardis-regression-data
 
-      
       - name: Test cache availability
         uses: actions/cache/restore@v4
         id: test-lfs-cache-regression-data
@@ -55,24 +76,38 @@ jobs:
           path: tardis-regression-data/.git/lfs
           key: tardis-regression-${{ inputs.atom-data-sparse == 'true' && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
           lookup-only: true
+  
+      - name: Fail if LFS pull is needed but not allowed
+        if: |
+          steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && 
+          inputs.allow_lfs_pull != true
+        run: |
+          echo "Error: LFS pull is required but not allowed (allow_lfs_pull is false)"
+          exit 1
       
       - name: Git LFS Pull Atom Data
+        if: |
+          inputs.atom-data-sparse == true && 
+          steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && 
+          inputs.allow_lfs_pull == true
         run: git lfs pull --include=atom_data/kurucz_cd23_chianti_H_He.h5
-        if: ${{ inputs.atom-data-sparse == true && steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' }}
         working-directory: tardis-regression-data
       
       - name: Git LFS Pull Full Data
+        if: |
+          inputs.atom-data-sparse == false && 
+          steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && 
+          inputs.allow_lfs_pull == true
         run: git lfs pull
-        if: ${{ inputs.atom-data-sparse == false && steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' }}
         working-directory: tardis-regression-data
       
       - name: Git LFS Checkout
-        if: ${{ inputs.atom-data-sparse == 'true' }}
+        if: ${{ inputs.atom-data-sparse == true }}
         run: git lfs checkout atom_data/kurucz_cd23_chianti_H_He.h5
         working-directory: tardis-regression-data
 
       - name: Git LFS Checkout Full
-        if: ${{ inputs.atom-data-sparse == 'false' }}
+        if: ${{ inputs.atom-data-sparse == false }}
         run: git lfs checkout
         working-directory: tardis-regression-data
   
