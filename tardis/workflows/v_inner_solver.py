@@ -37,7 +37,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             self.convergence_strategy.v_inner_boundary
         )
 
-        self.store_plasma = configuration.montecarlo.convergence_strategy.v_inner_boundary.store_plasma
+        self.store_iteration_properties = configuration.montecarlo.convergence_strategy.v_inner_boundary.store_iteration_properties
 
         # Need to compute the opacity state on init to get the optical depths
         # for the first inner boundary calculation.
@@ -412,7 +412,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
-            if self.store_plasma:
+            if self.store_iteration_properties:
                 self.store_plasma_state(
                     self.completed_iterations,
                     self.simulation_state.no_of_shells,
@@ -462,7 +462,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
-        if self.store_plasma:
+        if self.store_iteration_properties:
             self.store_plasma_state(
                 self.completed_iterations,
                 self.simulation_state.no_of_shells,
