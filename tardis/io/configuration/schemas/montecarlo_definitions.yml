@@ -62,7 +62,7 @@ definitions:
           type: object
           additionalProperties: false
           properties:
-            store_plasma:
+            store_iteration_properties:
               type: boolean
               default: false
               description: store the plasma state at each iteration
