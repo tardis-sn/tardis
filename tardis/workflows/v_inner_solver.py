@@ -73,6 +73,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         self.simulation_state.blackbody_packet_source.radius = (
             self.simulation_state.r_inner[0]
         )
+        self.final_integrated_tau = None
 
     def store_plasma_state(
         self,
@@ -475,6 +476,11 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             )
 
             self.reshape_store_plasma_state(self.completed_iterations)
+
+        # Keep final integrated tau always for diagnostic purposes
+        self.final_integrated_tau = self.tau_integ[
+            -self.simulation_state.no_of_shells :
+        ]
 
         self.initialize_spectrum_solver(
             self.opacity_states,
