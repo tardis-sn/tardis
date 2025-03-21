@@ -94,11 +94,11 @@ jobs:
           # conda remove --force $LIB_NAME --yes || true
           
           # Install the specific version
-          micromamba install -c conda-forge llvmlite=$LLVMLITE_VERSION --no-dep --yes
+          micromamba install -c conda-forge llvmlite=$LLVMLITE_VERSION  numba=$LIB_VERSION --yes
 
           # install numba
-          micromamba install python==3.12.9 --no-dep --yes
-          pip install $LIB_NAME==$LIB_VERSION 
+          # micromamba install python==3.12.9 --no-dep --yes
+          # pip install $LIB_NAME==$LIB_VERSION 
           
           # Show installed version for confirmation
           python -c "import $LIB_NAME; print(f'$LIB_NAME version: {$LIB_NAME.__version__}')" || echo "Version check not applicable for this library"
