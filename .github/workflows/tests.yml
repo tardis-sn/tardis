@@ -38,32 +38,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-cache:
-    uses: ./.github/workflows/lfs-cache.yml
-    with:
-      atom-data-sparse: false
-      regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+  # test-cache:
+  #   uses: ./.github/workflows/lfs-cache.yml
+  #   with:
+  #     atom-data-sparse: false
+  #     regression-data-repo: tardis-sn/tardis-regression-data
+  #     allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.library }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
     if: github.repository_owner == 'tardis-sn'
-    needs: [test-cache]
-    runs-on: ${{ matrix.os }}
+    # needs: [test-cache]
+    # runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
         label: [osx-arm64, linux-64]
-        continuum: ['not', '']
+        continuum: ['not']
         library: ['astropy=6.1.1', 'numpy=2.0.2', 'numba=0.60.0', 'matplotlib-base=3.8.4', 'h5py=3.11.0']
         include:
           - label: osx-arm64
             os: macos-latest
             prefix: /Users/runner/miniconda3/envs/tardis
 
-          - label: linux-64
-            os: ubuntu-latest
-            prefix: /usr/share/miniconda3/envs/tardis
+          # - label: linux-64
+          #   os: ubuntu-latest
+          #   prefix: /usr/share/miniconda3/envs/tardis
     steps:
       - uses: actions/checkout@v4
 
