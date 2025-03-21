@@ -54,7 +54,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        label: [osx-arm64, linux-64]
+        label: [osx-arm64]
         continuum: ['not']
         library: ['astropy=6.1.1', 'numpy=2.0.2', 'numba=0.60.0', 'matplotlib-base=3.8.4', 'h5py=3.11.0']
         include:
