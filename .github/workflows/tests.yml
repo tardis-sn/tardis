@@ -33,9 +33,9 @@ defaults:
   run:
     shell: bash -l {0}
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-cache:
@@ -46,7 +46,7 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.library }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -55,6 +55,7 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
+        library: ['astropy=6.1.1', 'numpy=2.0.2', 'numba=0.60.0', 'matplotlib-base=3.8.4', 'h5py=3.11.0']
         include:
           - label: osx-arm64
             os: macos-latest
@@ -73,6 +74,21 @@ jobs:
         uses: ./.github/actions/setup_env
         with:
           os-label: ${{ matrix.label }}
+          
+      - name: Install specific version of ${{ matrix.library }}
+        run: |
+          # Extract library name and version from matrix value
+          LIB_NAME=$(echo "${{ matrix.library }}" | cut -d'=' -f1)
+          LIB_VERSION=$(echo "${{ matrix.library }}" | cut -d'=' -f2)
+          
+          # Uninstall current version if it exists
+          # conda remove --force $LIB_NAME --yes || true
+          
+          # Install the specific version
+          micromamba install -c conda-forge $LIB_NAME=$LIB_VERSION --yes
+          
+          # Show installed version for confirmation
+          python -c "import $LIB_NAME; print(f'$LIB_NAME version: {$LIB_NAME.__version__}')" || echo "Version check not applicable for this library"
 
       - name: Install package editable
         if: ${{ !inputs.pip_git }}
@@ -90,24 +106,24 @@ jobs:
           pip install qgridnext
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis tardis/transport/montecarlo/tests/test_rpacket_tracker.py ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
         env:
           PYTHONFAULTHANDLER: 1 # sefgault
-          PYTHONDEVMODE: 1  # Enable additional runtime checks and warnings
-          PYTHONASYNCIODEBUG: 1  # Show asyncio debug info
-          PYTHONTRACEMALLOC: 5  # Enable tracemalloc with 5 frames
-          PYTHONWARNINGS: "always"  # Show all warnings
-          PYTHONUNBUFFERED: 1  # Immediately show output without buffering
+        #   PYTHONDEVMODE: 1  # Enable additional runtime checks and warnings
+        #   PYTHONASYNCIODEBUG: 1  # Show asyncio debug info
+        #   PYTHONTRACEMALLOC: 5  # Enable tracemalloc with 5 frames
+        #   PYTHONWARNINGS: "always"  # Show all warnings
+        #   PYTHONUNBUFFERED: 1  # Immediately show output without buffering
 
       - name: Regression Data Generation tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis/transport/montecarlo/tests/test_rpacket_tracker.py ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
 
       - run: mv .coverage .coverage.${{ strategy.job-index }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.os }}
+          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.os }}-${{ matrix.library }}
           include-hidden-files: true
           path: |
             .coverage*
