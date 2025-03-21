@@ -181,6 +181,16 @@ def tardis_config_verysimple_nlte():
         YAMLLoader,
     )
 
+@pytest.fixture(autouse=True)
+def mock_tqdm(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("TQDM_DISABLE", "1")
+
+    monkeypatch.setattr("tardis.util.base.update_packet_pbar", lambda *a, **k: None)
+    monkeypatch.setattr("tardis.util.base.refresh_packet_pbar", lambda *a, **k: None)
+    monkeypatch.setattr("tardis.util.base.update_iterations_pbar", lambda *a, **k: None)
+    monkeypatch.setattr("tardis.util.base.fix_bar_layout", lambda *a, **k: None)
+
+    yield
 
 ###
 # HDF Fixtures
