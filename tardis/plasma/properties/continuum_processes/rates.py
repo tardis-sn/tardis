@@ -69,22 +69,22 @@ def get_ion_multi_index(multi_index_full, next_higher=True):
 
     Parameters
     ----------
-    multi_index_full : pandas.MultiIndex (atomic_number, ion_number,
+    multi_index_full : pandas.MultiIndex (atomic_number, ion_charge,
                                           level_number)
     next_higher : bool, default True
-        If True use ion number of next higher ion, else use ion_number from
+        If True use ion number of next higher ion, else use ion_charge from
         multi_index_full.
 
     Returns
     -------
-    pandas.MultiIndex (atomic_number, ion_number)
+    pandas.MultiIndex (atomic_number, ion_charge)
        Ion MultiIndex for the given level MultiIndex.
     """
     atomic_number = multi_index_full.get_level_values(0)
-    ion_number = multi_index_full.get_level_values(1)
+    ion_charge = multi_index_full.get_level_values(1)
     if next_higher is True:
-        ion_number += 1
-    return pd.MultiIndex.from_arrays([atomic_number, ion_number])
+        ion_charge += 1
+    return pd.MultiIndex.from_arrays([atomic_number, ion_charge])
 
 
 def get_ground_state_multi_index(multi_index_full):
@@ -93,18 +93,18 @@ def get_ground_state_multi_index(multi_index_full):
 
     Parameters
     ----------
-    multi_index_full : pandas.MultiIndex (atomic_number, ion_number,
+    multi_index_full : pandas.MultiIndex (atomic_number, ion_charge,
                                           level_number)
 
     Returns
     -------
-    pandas.MultiIndex (atomic_number, ion_number)
+    pandas.MultiIndex (atomic_number, ion_charge)
         Ground-state MultiIndex for the next higher ion.
     """
     atomic_number = multi_index_full.get_level_values(0)
-    ion_number = multi_index_full.get_level_values(1) + 1
-    level_number = np.zeros_like(ion_number)
-    return pd.MultiIndex.from_arrays([atomic_number, ion_number, level_number])
+    ion_charge = multi_index_full.get_level_values(1) + 1
+    level_number = np.zeros_like(ion_charge)
+    return pd.MultiIndex.from_arrays([atomic_number, ion_charge, level_number])
 
 
 def cooling_rate_series2dataframe(cooling_rate_series, destination_level_idx):
@@ -300,11 +300,11 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
         gamma,
         alpha_stim,
         electron_densities,
-        ion_number_density,
+        ion_charge_density,
         level_number_density,
     ):
         n_k_index = get_ion_multi_index(alpha_stim.index)
-        n_k = ion_number_density.loc[n_k_index].values
+        n_k = ion_charge_density.loc[n_k_index].values
         n_i = level_number_density.loc[alpha_stim.index].values
         gamma_corr = gamma - (alpha_stim * n_k / n_i).multiply(
             electron_densities
@@ -600,9 +600,9 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
     transition_probabilities_outputs = ("cool_rate_ff",)
     latex_name = (r"C^{\textrm{ff}}",)
 
-    def calculate(self, ion_number_density, electron_densities, t_electrons):
+    def calculate(self, ion_charge_density, electron_densities, t_electrons):
         ff_cooling_factor = self._calculate_ff_cooling_factor(
-            ion_number_density, electron_densities
+            ion_charge_density, electron_densities
         )
         cool_rate_ff = F_K * np.sqrt(t_electrons) * ff_cooling_factor
         cool_rate_ff = cooling_rate_series2dataframe(
@@ -611,11 +611,11 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
         return cool_rate_ff, ff_cooling_factor.values
 
     @staticmethod
-    def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
-        ion_charge = ion_number_density.index.get_level_values(1).values
+    def _calculate_ff_cooling_factor(ion_charge_density, electron_densities):
+        ion_charge = ion_charge_density.index.get_level_values(1).values
         factor = (
             electron_densities
-            * ion_number_density.multiply(ion_charge**2, axis=0).sum()
+            * ion_charge_density.multiply(ion_charge**2, axis=0).sum()
         )
         return factor
 
@@ -667,11 +667,11 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
         self,
         c_fb_sp,
         electron_densities,
-        ion_number_density,
+        ion_charge_density,
         level2continuum_idx,
     ):
         next_ion_stage_index = get_ion_multi_index(c_fb_sp.index)
-        n_k = ion_number_density.loc[next_ion_stage_index]
+        n_k = ion_charge_density.loc[next_ion_stage_index]
 
         cool_rate_fb = c_fb_sp.multiply(electron_densities, axis=1) * n_k.values
         cool_rate_fb_tot = cooling_rate_series2dataframe(
@@ -699,13 +699,13 @@ class LevelNumberDensityLTE(ProcessingPlasmaProperty):
     latex_name = (r"n_{\textrm{i}}^*",)
 
     # TODO: only do this for continuum species
-    def calculate(self, electron_densities, phi_ik, ion_number_density):
+    def calculate(self, electron_densities, phi_ik, ion_charge_density):
         next_higher_ion_index = get_ion_multi_index(
             phi_ik.index, next_higher=True
         )
         # TODO: Check that n_k is correct (and not n_k*)
         lte_level_number_density = (
-            phi_ik * ion_number_density.loc[next_higher_ion_index].values
+            phi_ik * ion_charge_density.loc[next_higher_ion_index].values
         ).multiply(electron_densities, axis=1)
         return lte_level_number_density
 
@@ -759,10 +759,10 @@ class CollIonRateCoeffSeaton(ProcessingPlasmaProperty):
         coll_ion_coeff = factor.multiply(coll_ion_coeff, axis=0)
         coll_ion_coeff = coll_ion_coeff.divide(np.sqrt(t_electrons), axis=1)
 
-        ion_number = coll_ion_coeff.index.get_level_values("ion_number").values
-        coll_ion_coeff[ion_number == 0] *= 0.1
-        coll_ion_coeff[ion_number == 1] *= 0.2
-        coll_ion_coeff[ion_number >= 2] *= 0.3
+        ion_charge = coll_ion_coeff.index.get_level_values("ion_charge").values
+        coll_ion_coeff[ion_charge == 0] *= 0.1
+        coll_ion_coeff[ion_charge == 1] *= 0.2
+        coll_ion_coeff[ion_charge >= 2] *= 0.3
         return coll_ion_coeff
 
     def _calculate_factor(self, nu_i, t_electrons):

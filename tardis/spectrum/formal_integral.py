@@ -524,14 +524,14 @@ class FormalIntegrator:
 
         e_dot_u.index.names = [
             "atomic_number",
-            "ion_number",
+            "ion_charge",
             "source_level_number",
         ]  # To make the q_ul e_dot_u product work, could be cleaner
         transitions = self.plasma.atomic_data.macro_atom_data[
             self.plasma.atomic_data.macro_atom_data.transition_type == -1
         ].copy()
         transitions_index = transitions.set_index(
-            ["atomic_number", "ion_number", "source_level_number"]
+            ["atomic_number", "ion_charge", "source_level_number"]
         ).index.copy()
         tmp = pd.DataFrame(
             transition_probabilities[

@@ -28,7 +28,7 @@ plasma_properties_list = [
     "electron_densities",
     "t_rad",
     "selected_atoms",
-    "ion_number_density",
+    "ion_charge_density",
     "partition_function",
     "abundance",
     "g_electron",
