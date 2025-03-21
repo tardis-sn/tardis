@@ -1,6 +1,7 @@
 import warnings
 
 import numpy as np
+import pandas as pd
 from astropy import units as u
 
 from tardis.io.util import HDFWriterMixin
@@ -150,6 +151,28 @@ class TARDISSpectrum(HDFWriterMixin):
             )
         else:
             warnings.warn(f"Did not find plotting mode {mode}, doing nothing.")
+
+    def from_hdf(self,hdf_path):
+        """
+        Retrieves the class object from the hdf path provided. 
+
+        Parameters
+        ----------
+        hdf_path : string, Path to the hdf file 
+        """
+        try:
+            with pd.HDFStore(hdf_path, mode="r") as store:
+                freq_store = store['/tardis_spectrum/_frequency']
+                frequency_arr = np.array(freq_store) * u.Hz
+
+                luminosity_store = store['/tardis_spectrum/luminosity']
+                luminosity_arr = np.array(luminosity_store) * (u.erg/u.s)
+
+                final_obj = TARDISSpectrum(frequency_arr, luminosity_arr)
+                return final_obj
+            
+        except FileNotFoundError as e:
+            print(f"File not found: {e}")
 
     def to_ascii(self, fname, mode="luminosity_density"):
         if mode == "luminosity_density":
