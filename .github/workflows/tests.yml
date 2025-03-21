@@ -86,7 +86,7 @@ jobs:
           # conda remove --force $LIB_NAME --yes || true
           
           # Install the specific version
-          micromamba install -c conda-forge $LIB_NAME=$LIB_VERSION --yes
+          micromamba install -c conda-forge $LIB_NAME=$LIB_VERSION python --yes
           
           # Show installed version for confirmation
           python -c "import $LIB_NAME; print(f'$LIB_NAME version: {$LIB_NAME.__version__}')" || echo "Version check not applicable for this library"
