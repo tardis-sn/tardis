@@ -120,6 +120,10 @@ jobs:
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
+        env:
+          JUPYTER_PLATFORM_DIRS: "1"
+          JUPYTER_RATE_LIMIT_WINDOW: "60"
+          JUPYTER_IOPUB_MSG_RATE_LIMIT: "100000"
 
       - name: Set destination directory
         run: |
