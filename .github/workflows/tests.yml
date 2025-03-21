@@ -97,7 +97,7 @@ jobs:
           micromamba install -c conda-forge llvmlite=$LLVMLITE_VERSION  python --yes
 
           # install numba
-          pip install $LIB_NAME==$LIB_VERSION
+          pip install $LIB_NAME==$LIB_VERSION python
           
           # Show installed version for confirmation
           python -c "import $LIB_NAME; print(f'$LIB_NAME version: {$LIB_NAME.__version__}')" || echo "Version check not applicable for this library"
