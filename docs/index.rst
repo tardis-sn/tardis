@@ -45,7 +45,7 @@ Mission Statement
     (supernovae, kilonovae, etc.) for research and education purposes. 
     We aim to build up a diverse group of researchers and developers 
     using an open-community model that emphasizes interdisciplinary 
-    research and science reproducibility.*
+    research and science reproducibility.* 
 
 .. toctree::
     :maxdepth: 2
