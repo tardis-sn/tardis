@@ -2,17 +2,18 @@
 
 import asyncio
 import logging
-
-import ipywidgets as ipw
+import panel as pn
 
 logger = logging.getLogger(__name__)
 
+pn.extension('tabulator')
 
 def create_table_widget(
     data, col_widths, table_options=None, changeable_col=None
 ):
     """
-    Create table widget object which supports interaction and updating the data.
+    Create an interactive table widget using Panel's Tabulator, supporting
+    data display, interaction, and optional column name changes.
 
     Parameters
     ----------
@@ -23,93 +24,89 @@ def create_table_widget(
         the index as 1st column). The width values must be proportions of
         100 i.e. they must sum to 100.
     table_options : dict, optional
-        A dictionary to specify options to use when creating interactive table
-        widget (same as :grid_options: of qgrid, specified in Notes section of
-        their `API documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.show_grid>_`).
-        Invalid keys will have no effect and valid keys will override or add to
-        the options used by this function.
+        A dictionary specifying configuration options for the Tabulator widget.
+        Overrides the default options where applicable.
     changeable_col : dict, optional
-        A dictionary to specify the information about column which will
-        change its name when data in generated table widget updates. It
-        must have two keys - :code:`index` to specify index of changeable
-        column in dataframe :code:`data` as an integer, and :code:`other_names`
-        to specify all possible names changeable column will get as a list
-        of strings. Default value :code:`None` indicates that there is no
-        changable column.
+        A dictionary specifying the information about column that may change its name when
+        the data updates. It must contain two keys:
+        - :code:`index`: The index of the column in the DataFrame :code:`data`.
+        - :code:`other_names`: A list of possible new names for the column.
 
     Returns
     -------
-    qgrid.QgridWidget
-        Table widget object
+    panel.widgets.Tabulator
+        An interactive Tabulator table widget displaying the DataFrame.
+
+    Raises
+    ------
+    ValueError
+        If the length of :code:`col_widths` does not match the number of
+        columns + 1 (for the index), or if the column widths do not sum to 100.
+    ValueError
+        If :code:`changeable_col` does not contain both 'index' and 'other_names' keys.
     """
-    try:
-        import qgridnext
-    except ModuleNotFoundError as e:
-        logger.exception(
-            "qgridnext must be installed via pip for widgets to work.\n \
-            Run 'pip install qgridnext' inside your tardis environment.\n \
-            Falling back to qgrid"
-        )
-        import qgrid as qgridnext
-
-    # Setting the options to be used for creating table widgets
-    grid_options = {
-        "sortable": False,
-        "filterable": False,
-        "editable": False,
-        "minVisibleRows": 2,
-    }
-    if table_options:
-        grid_options.update(table_options)
-
-    column_options = {
-        "minWidth": None,
-    }
-
-    # Check whether passed col_widths list is correct or not
     if len(col_widths) != data.shape[1] + 1:
         raise ValueError(
             "Size of column widths list do not match with "
             "number of columns + 1 (index) in dataframe"
         )
-
-    # Note: Since forceFitColumns is enabled by default in grid_options,
-    # the column widths (when all specified) get applied in proportions,
-    # despite their original unit is px thus it's better they sum to 100
     if sum(col_widths) != 100:
         raise ValueError(
             "Column widths are not proportions of 100 (i.e. "
             "they do not sum to 100)"
         )
 
-    # Preparing dictionary that defines column widths
-    cols_with_index = [data.index.name] + data.columns.to_list()
-    column_widths_definitions = {
-        col_name: {"width": col_width}
-        for col_name, col_width in zip(cols_with_index, col_widths)
+    # Default Tabulator options
+    tabulator_options = {
+        'layout': 'fit_data_fill',
+        'pagination': None,
+        'selectable': 1,
     }
+    num_rows = data.shape[0]
+    if num_rows > 20:
+        tabulator_options['height'] = 550
+    else:
+        tabulator_options['height'] = None
+    if table_options:
+        tabulator_options.update(table_options)
 
-    # We also need to define widths for different names of changeable column
+    # Define widths for columns (including index)
+    widths = {data.index.name or 'index': f'{col_widths[0]}%'}  # Handle case where index.name is None
+    widths.update({col: f'{col_widths[i+1]}%' for i, col in enumerate(data.columns)})
+    custom_css = """
+    .tabulator-header {
+        height: auto !important;
+        min-height: 40px;  /* Ensure enough height for headers */
+        white-space: normal;  /* Allow wrapping if needed */
+        overflow: visible !important;  /* Prevent clipping */
+        text-overflow: clip;  /* Prevent truncation */
+    }
+    .tabulator-col-title {
+        white-space: normal;  /* Allow wrapping */
+        overflow: visible !important;
+        text-overflow: clip;
+        padding: 4px;  /* Add padding for readability */
+    }
+    .tabulator-tableholder {
+        overflow-y: auto !important;  /* Ensure scrollbar works */
+    }
+    """
+
     if changeable_col:
-        if {"index", "other_names"}.issubset(set(changeable_col.keys())):
-            column_widths_definitions.update(
-                {
-                    col_name: {"width": col_widths[changeable_col["index"]]}
-                    for col_name in changeable_col["other_names"]
-                }
-            )
-        else:
+        if not {"index", "other_names"}.issubset(set(changeable_col.keys())):
             raise ValueError(
                 "Changeable column dictionary does not contain "
                 "'index' or 'other_names' key"
             )
 
-    # Create the table widget using qgrid
-    return qgridnext.show_grid(
+    return pn.widgets.Tabulator(
         data,
-        grid_options=grid_options,
-        column_options=column_options,
-        column_definitions=column_widths_definitions,
+        **tabulator_options,
+        widths=widths,
+        stylesheets=[
+            ":host {--mdc-ripple-color: transparent;}",
+            custom_css
+        ]
     )
 
 
@@ -237,7 +234,6 @@ class TableSummaryLabel:
                 justify_content="flex-start",
             ),
         )
-
 
 class Timer:
     """Timer to implement debouncing using an asynchronous loop.
