@@ -1,0 +1,49 @@
+· Creating environments
+· Discovering benchmarks
+·· Uninstalling from mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+·· Installing e1b76424 <master> into mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+· Running 30 total benchmarks (5 commits * 1 environments * 6 benchmarks)
+[ 0.00%] · For tardis commit e1b76424 <master>:
+[ 0.00%] ·· Benchmarking mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+[ 1.67%] ··· ...se.BenchmarkPlasmaAssemblyBase.time_assemble            1.38±0s
+[ 3.33%] ··· ...rkPlasmaAssemblyBase.time_initialize_j_blues           36.5±0ms
+[ 5.00%] ··· ...hmarkPlasmaAssemblyBase.time_prepare_factory            24.5±0s
+[ 6.67%] ··· ...blyBase.time_setup_analytical_approximations           13.4±0μs
+[ 8.33%] ··· ...semblyBase.time_setup_continuum_interactions            443±0μs
+[10.00%] ··· ...asmaAssemblyBase.time_setup_helium_treatment           17.3±0μs
+[10.00%] · For tardis commit 74b9646b <master~1>:
+[10.00%] ·· Building for mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+[10.00%] ·· Benchmarking mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+[11.67%] ··· ...se.BenchmarkPlasmaAssemblyBase.time_assemble            1.46±0s
+[13.33%] ··· ...rkPlasmaAssemblyBase.time_initialize_j_blues           38.1±0ms
+[15.00%] ··· ...hmarkPlasmaAssemblyBase.time_prepare_factory            24.7±0s
+[16.67%] ··· ...blyBase.time_setup_analytical_approximations           17.2±0μs
+[18.33%] ··· ...semblyBase.time_setup_continuum_interactions            485±0μs
+[20.00%] ··· ...asmaAssemblyBase.time_setup_helium_treatment           17.2±0μs
+[20.00%] · For tardis commit 3339d3ff <master~2>:
+[20.00%] ·· Building for mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+[20.00%] ·· Benchmarking mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+[21.67%] ··· ...se.BenchmarkPlasmaAssemblyBase.time_assemble            1.53±0s
+[23.33%] ··· ...rkPlasmaAssemblyBase.time_initialize_j_blues           36.6±0ms
+[25.00%] ··· ...hmarkPlasmaAssemblyBase.time_prepare_factory            24.6±0s
+[26.67%] ··· ...blyBase.time_setup_analytical_approximations           11.6±0μs
+[28.33%] ··· ...semblyBase.time_setup_continuum_interactions            679±0μs
+[30.00%] ··· ...asmaAssemblyBase.time_setup_helium_treatment           18.8±0μs
+[30.00%] · For tardis commit 8c13ac34 <master~3>:
+[30.00%] ·· Building for mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+[30.00%] ·· Benchmarking mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+[31.67%] ··· ...se.BenchmarkPlasmaAssemblyBase.time_assemble            1.48±0s
+[33.33%] ··· ...rkPlasmaAssemblyBase.time_initialize_j_blues           43.1±0ms
+[35.00%] ··· ...hmarkPlasmaAssemblyBase.time_prepare_factory            24.8±0s
+[36.67%] ··· ...blyBase.time_setup_analytical_approximations           21.2±0μs
+[38.33%] ··· ...semblyBase.time_setup_continuum_interactions            432±0μs
+[40.00%] ··· ...asmaAssemblyBase.time_setup_helium_treatment           25.8±0μs
+[40.00%] · For tardis commit f730fb96 <release-2025.03.09>:
+[40.00%] ·· Building for mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+[40.00%] ·· Benchmarking mamba-py3.12-TARDIS_REF_PATHtardis-regression-data_atom_data
+[41.67%] ··· ...se.BenchmarkPlasmaAssemblyBase.time_assemble            1.51±0s
+[43.33%] ··· ...rkPlasmaAssemblyBase.time_initialize_j_blues           37.7±0ms
+[45.00%] ··· ...hmarkPlasmaAssemblyBase.time_prepare_factory            25.8±0s
+[46.67%] ··· ...blyBase.time_setup_analytical_approximations           22.5±0μs
+[48.33%] ··· ...semblyBase.time_setup_continuum_interactions            489±0μs
+[50.00%] ··· ...asmaAssemblyBase.time_setup_helium_treatment           22.7±0μs
