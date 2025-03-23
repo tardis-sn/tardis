@@ -1,6 +1,11 @@
 ## Changelog
 
-### release-2025.03.19 (2025/03/19 10:50)
+### release-2025.03.23 (2025/03/22 21:06)
+- [3016](https://github.com/tardis-sn/tardis/pull/3016) Workflow Label Pipeline and Fixes (3016) (@atharva-2001)
+- [3022](https://github.com/tardis-sn/tardis/pull/3022) add final integrated tau property to v_inner workflow (3022) (@jvshields)
+- [2981](https://github.com/tardis-sn/tardis/pull/2981) v_inner_solver store plasma state fxn (2981) (@erinvisser)
+- [3019](https://github.com/tardis-sn/tardis/pull/3019) Post-release 2025.03.19 (3019) (@tardis-bot)
+### release-2025.03.19 (2025/03/17 17:44)
 - [3014](https://github.com/tardis-sn/tardis/pull/3014) Post-release 2025.03.16 (3014) (@tardis-bot)
 ### release-2025.03.16 (2025/03/11 09:19)
 - [2968](https://github.com/tardis-sn/tardis/pull/2968) Add sdec visualisation notebook (2968) (@KasukabeDefenceForce)
