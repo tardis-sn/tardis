@@ -10,6 +10,62 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.regression_data import RegressionData
 
+
+import unittest
+import numpy as np
+from tardis.plasma.properties.ion_population import get_zeta_values  # Adjust the import if necessary
+
+class TestZetaValues(unittest.TestCase):
+    def setUp(self):
+        """
+        This will run before every test case. Use it to prepare test data.
+        """
+        # Prepare mock zeta_data (this is a mock, you can adjust it according to your data)
+        # Example: Columns are t_rads, and rows are ion indices
+        data = {
+            0.1: [0.5, 0.6, 0.7],
+            0.2: [0.4, 0.5, 0.6],
+            0.3: [0.3, 0.4, 0.5],
+            0.4: [0.2, 0.3, 0.4]
+        }
+        self.zeta_data = pd.DataFrame(data, index=[1, 2, 3]) # Ion indices as row labels
+        self.ion_index = 2  
+
+    def test_get_zeta_values_with_active_shells(self):
+        """
+        Test the zeta_values function with active shells only.
+        """
+        active_shells = [True, False, True, True] 
+        t_rad = np.array([0.1, 0.3, 0.4])  
+
+        zeta_values = get_zeta_values(self.zeta_data, self.ion_index, t_rad, active_shells=active_shells)
+
+        self.assertEqual(len(zeta_values), 3)  
+        self.assertTrue(np.all(np.isfinite(zeta_values))) 
+
+    def test_get_zeta_values_without_active_shells(self):
+        """
+        Test the zeta_values function without filtering active shells (i.e., using all shells).
+        """
+        t_rad = np.array([0.1, 0.2, 0.3, 0.4]) 
+
+        zeta_values = get_zeta_values(self.zeta_data, self.ion_index, t_rad)
+
+        self.assertEqual(len(zeta_values), 4) 
+        self.assertTrue(np.all(np.isfinite(zeta_values)))  
+
+    def test_get_zeta_values_with_out_of_range_t_rad(self):
+        """
+        Test the zeta_values function with t_rads outside the interpolation range.
+        """
+        t_rad = np.array([0.5]) 
+
+        zeta_values = get_zeta_values(self.zeta_data, self.ion_index, t_rad)
+
+      
+        self.assertEqual(zeta_values[0], 1.0) 
+
+
 PLASMA_CONFIG_FPATH = (
     Path("tardis") / "plasma" / "tests" / "data" / "plasma_base_test_config.yml"
 )
@@ -224,4 +280,5 @@ class TestPlasma:
             actual = plasma.zeta_data
             key = "plasma/zeta_data"
             expected = pd.read_hdf(self.regression_data.fpath, key)
-            npt.assert_allclose(actual, expected.values)
+            pdt.assert_frame_equal(actual, expected)
+

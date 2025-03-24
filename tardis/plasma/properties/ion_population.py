@@ -161,8 +161,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
             * (t_electrons / t_rad) ** 0.5
         )
         return phis
-
-   @staticmethod
+@staticmethod
 def get_zeta_values(zeta_data, ion_index, t_rad, active_shells=None):
     """
     Interpolates the zeta values for the given `t_rad` (radiative temperatures) using the `zeta_data`.
@@ -197,7 +196,6 @@ def get_zeta_values(zeta_data, ion_index, t_rad, active_shells=None):
         zeta[np.isnan(zeta)] = 1.0
 
     return zeta
-
 
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
