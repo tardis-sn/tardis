@@ -162,24 +162,42 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         )
         return phis
 
-    @staticmethod
-    def get_zeta_values(zeta_data, ion_index, t_rad):
-        zeta_t_rad = zeta_data.columns.values.astype(np.float64)
-        zeta_values = zeta_data.loc[ion_index].values.astype(np.float64)
-        zeta = interpolate.interp1d(
-            zeta_t_rad, zeta_values, bounds_error=False, fill_value=np.nan
-        )(t_rad)
-        zeta = zeta.astype(float)
+   @staticmethod
+def get_zeta_values(zeta_data, ion_index, t_rad, active_shells=None):
+    """
+    Interpolates the zeta values for the given `t_rad` (radiative temperatures) using the `zeta_data`.
+    This function only uses active shells' `t_rads` for the interpolation.
 
-        if np.any(np.isnan(zeta)):
-            warnings.warn(
-                f"t_rads outside of zeta factor interpolation"
-                f" zeta_min={zeta_data.columns.values.min():.2f} zeta_max={zeta_data.columns.values.max():.2f} "
-                f"- replacing with zeta = 1.0"
-            )
-            zeta[np.isnan(zeta)] = 1.0
+    :param zeta_data: A pandas DataFrame containing zeta data.
+    :param ion_index: The ion index for which the zeta values are to be fetched.
+    :param t_rad: The radiative temperatures (can be a single value or array).
+    :param active_shells: A boolean mask or list of active shells to use (optional). If `None`, all shells are considered.
+    :return: The interpolated zeta values.
+    """
+    if active_shells is not None:
+        t_rad = t_rad[active_shells]  # Filter out inactive t_rads
 
-        return zeta
+    zeta_t_rad = zeta_data.columns.values.astype(np.float64)
+    zeta_values = zeta_data.loc[ion_index].values.astype(np.float64)
+
+    # Interpolate zeta values for the given t_rad 
+    zeta = interpolate.interp1d(
+        zeta_t_rad, zeta_values, bounds_error=False, fill_value=np.nan
+    )(t_rad)
+
+    zeta = zeta.astype(float)
+
+    # t_rads by replacing NaNs with 1.0
+    if np.any(np.isnan(zeta)):
+        warnings.warn(
+            f"t_rads outside of zeta factor interpolation"
+            f" zeta_min={zeta_data.columns.values.min():.2f} zeta_max={zeta_data.columns.values.max():.2f} "
+            f"- replacing with zeta = 1.0"
+        )
+        zeta[np.isnan(zeta)] = 1.0
+
+    return zeta
+
 
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
