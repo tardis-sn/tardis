@@ -118,9 +118,11 @@ class TARDISHEWorkflow:
             The start time in days.
         time_end : float
             The end time in days.
-        number_of_steps : int
+        time_space : string
+            The time spacing between time steps ('linear' or 'log').
+        time_steps : int
             The number of time steps to take between t_start and t_end.
-        
+            
         Returns
         -------
         times : array
@@ -149,7 +151,7 @@ class TARDISHEWorkflow:
             The time spacing between time steps.
         seed : int
             The random seed for the simulation.
-        fp : str
+        fp : float
             Positronium fraction
         spectrum_bins : int
             The number of bins in the spectrum.
@@ -168,29 +170,3 @@ class TARDISHEWorkflow:
         ) = run_gamma_ray_loop(self.simulation_state, decay_isotopes, decay_over_time,
                                   number_of_packets, times, effective_times, seed, fp,
                                   spectrum_bins, grey_opacity)
-        
-
-    def get_escape_energy(self):
-
-        return self.escape_energy
-    
-    def get_escape_energy_cosi(self):
-
-        return self.escape_energy_cosi
-    
-    def get_packets_escaped(self):
-        
-        return self.packets_escaped
-    
-    def get_gamma_ray_deposited_energy(self):
-
-        return self.gamma_ray_deposited_energy
-    
-    def get_total_deposited_energy(self):
-
-        return self.total_deposited_energy
-    
-    def get_positron_energy(self):
-
-        return self.positron_energy
-    
