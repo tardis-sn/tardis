@@ -1,25 +1,16 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import sys
 
-# Packages may add whatever they like to this file, but
-# should keep this content at the top.
-# ----------------------------------------------------------------------------
-import os
-
-__all__ = ['__version__']
+__all__ = ['__version__', 'run_tardis', 'yaml_load']
 
 try:
     from .version import version as __version__
 except ImportError:
     __version__ = ''
 
-# ----------------------------------------------------------------------------
-
-import sys
-import warnings
-
-# ----------------------------------------------------------------------------
-
 if ("astropy.units" in sys.modules) or ("astropy.constants" in sys.modules):
+    import warnings
+
     warnings.warn(
         "Astropy is already imported externally. Astropy should be imported"
         " after TARDIS."
