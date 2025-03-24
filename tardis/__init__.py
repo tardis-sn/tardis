@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------
 import os
 
-__all__ = ['__version__', 'test']
+__all__ = ['__version__']
 
 try:
     from .version import version as __version__
