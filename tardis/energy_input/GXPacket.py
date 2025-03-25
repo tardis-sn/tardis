@@ -33,7 +33,7 @@ gxpacket_spec = [
     ("shell", int64),
     ("time_start", float64),
     ("time_index", int64),
-    ("tau", float64),
+    ("tau_event", float64),
 ]
 
 
@@ -66,8 +66,7 @@ class GXPacket(object):
         self.shell = shell
         self.time_start = time_start
         self.time_index = time_index
-        # TODO: rename to tau_event
-        self.tau = -np.log(np.random.random())
+        self.tau_event = -np.log(np.random.random())
 
     def get_location_r(self):
         """Calculate radius of the packet
@@ -110,7 +109,8 @@ class GXPacketCollection:
         self.shell = shell
         self.time_start = time_start
         self.time_index = time_index
-        self.tau = -np.log(np.random.random())
+        self.tau_event = -np.log(np.random.random())
+
 
 
 # @njit(**njit_dict_no_parallel)
