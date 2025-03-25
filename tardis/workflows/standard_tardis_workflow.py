@@ -39,6 +39,7 @@ class StandardTARDISWorkflow(
         show_progress_bars=False,
         show_convergence_plots=False,
         convergence_plots_kwargs={},
+        csvy=False,
     ):
         self.show_progress_bars = show_progress_bars
         self.log_level = log_level
@@ -46,7 +47,7 @@ class StandardTARDISWorkflow(
         self.enable_virtual_packet_logging = enable_virtual_packet_logging
         self.convergence_plots_kwargs = convergence_plots_kwargs
 
-        SimpleTARDISWorkflow.__init__(self, configuration)
+        SimpleTARDISWorkflow.__init__(configuration, csvy)
 
         # set up plasma storage
         PlasmaStateStorerMixin.__init__(
@@ -105,13 +106,8 @@ class StandardTARDISWorkflow(
 
         return convergence_plots, export_convergence_plots
 
-    def get_convergence_estimates(self, transport_state):
+    def get_convergence_estimates(self):
         """Compute convergence estimates from the transport state
-
-        Parameters
-        ----------
-        transport_state : MonteCarloTransportState
-            Transport state object to compute estimates
 
         Returns
         -------
@@ -122,11 +118,11 @@ class StandardTARDISWorkflow(
         """
         estimated_radfield_properties = (
             self.transport_solver.radfield_prop_solver.solve(
-                transport_state.radfield_mc_estimators,
-                transport_state.time_explosion,
-                transport_state.time_of_simulation,
-                transport_state.geometry_state.volume,
-                transport_state.opacity_state.line_list_nu,
+                self.transport_state.radfield_mc_estimators,
+                self.transport_state.time_explosion,
+                self.transport_state.time_of_simulation,
+                self.transport_state.geometry_state.volume,
+                self.transport_state.opacity_state.line_list_nu,
             )
         )
 
@@ -134,14 +130,14 @@ class StandardTARDISWorkflow(
         estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         emitted_luminosity = calculate_filtered_luminosity(
-            transport_state.emitted_packet_nu,
-            transport_state.emitted_packet_luminosity,
+            self.transport_state.emitted_packet_nu,
+            self.transport_state.emitted_packet_luminosity,
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
         absorbed_luminosity = calculate_filtered_luminosity(
-            transport_state.reabsorbed_packet_nu,
-            transport_state.reabsorbed_packet_luminosity,
+            self.transport_state.reabsorbed_packet_nu,
+            self.transport_state.reabsorbed_packet_luminosity,
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
@@ -221,14 +217,14 @@ class StandardTARDISWorkflow(
 
             opacity_states = self.solve_opacity()
 
-            transport_state, virtual_packet_energies = self.solve_montecarlo(
+            virtual_packet_energies = self.solve_montecarlo(
                 opacity_states, self.real_packet_count
             )
 
             (
                 estimated_values,
                 estimated_radfield_properties,
-            ) = self.get_convergence_estimates(transport_state)
+            ) = self.get_convergence_estimates()
 
             if self.convergence_plots is not None:
                 self.convergence_plots.update()
@@ -249,7 +245,7 @@ class StandardTARDISWorkflow(
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
-        transport_state, virtual_packet_energies = self.solve_montecarlo(
+        virtual_packet_energies = self.solve_montecarlo(
             opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
@@ -263,13 +259,12 @@ class StandardTARDISWorkflow(
         )
         self.reshape_plasma_state_store(self.completed_iterations)
         if self.convergence_plots is not None:
-            self.get_convergence_estimates(transport_state)
+            self.get_convergence_estimates()
             self.convergence_plots.update(
                 export_convergence_plots=self.export_convergence_plots,
                 last=True,
             )
         self.initialize_spectrum_solver(
-            transport_state,
             opacity_states,
             virtual_packet_energies,
         )

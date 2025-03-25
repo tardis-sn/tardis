@@ -175,7 +175,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
             warnings.warn(
                 f"t_rads outside of zeta factor interpolation"
                 f" zeta_min={zeta_data.columns.values.min():.2f} zeta_max={zeta_data.columns.values.max():.2f} "
-                f"- replacing with {t_rad}"
+                f"- replacing with zeta = 1.0"
             )
             zeta[np.isnan(zeta)] = 1.0
 
@@ -434,12 +434,12 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
         he_three_population = helium_population_updated.loc[2].mul(
             1.0 / n_electron
         )
-        helium_population_updated.loc[
-            0, helium_population_updated.columns
-        ] = he_one_population.values
-        helium_population_updated.loc[
-            2, helium_population_updated.columns
-        ] = he_three_population.values
+        helium_population_updated.loc[0, helium_population_updated.columns] = (
+            he_one_population.values
+        )
+        helium_population_updated.loc[2, helium_population_updated.columns] = (
+            he_three_population.values
+        )
         unnormalised = helium_population_updated.sum()
         normalised = helium_population_updated.mul(
             number_density.loc[2] / unnormalised
