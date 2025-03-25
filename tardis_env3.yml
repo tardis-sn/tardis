@@ -38,8 +38,8 @@ dependencies:
   - ipywidgets
   - plotly
   - anywidget # for plotly FigureWidget
-  # - pip:
-  #     - qgridnext
+  - pip:
+      - qgridnext
 
   # --- Packages not required for conda-forge recipe ---
 
