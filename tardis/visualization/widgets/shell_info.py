@@ -6,7 +6,7 @@ from tardis.util.base import (
     is_notebook,
 )
 
-from tardis.visualization.widgets.util import create_table_widget
+from tardis.visualization.widgets.util import create_table_widget_shell_info
 
 import pandas as pd
 import numpy as np
@@ -246,12 +246,12 @@ class ShellInfoWidget:
         self.data = shell_info_data
 
         # Initialize tables with Panel Tabulator
-        self.shells_table = create_table_widget(
+        self.shells_table = create_table_widget_shell_info(
             self.data.shells_data(), [30, 35, 35]
         )
 
         # Creating the element count table widget
-        self.element_count_table = create_table_widget(
+        self.element_count_table = create_table_widget_shell_info(
             self.data.element_count(self.shells_table.value.index[0]),
             [15, 30, 55],
             changeable_col={
@@ -265,7 +265,7 @@ class ShellInfoWidget:
         )
 
         # Creating the ion count table widget
-        self.ion_count_table = create_table_widget(
+        self.ion_count_table = create_table_widget_shell_info(
             self.data.ion_count(
                 self.element_count_table.value.index[0],
                 self.shells_table.value.index[0],
@@ -283,7 +283,7 @@ class ShellInfoWidget:
         )
 
         # Creating the level count table widget
-        self.level_count_table = create_table_widget(
+        self.level_count_table = create_table_widget_shell_info(
             self.data.level_count(
                 self.ion_count_table.value.index[0],
                 self.element_count_table.value.index[0],
