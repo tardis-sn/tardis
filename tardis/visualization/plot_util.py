@@ -1,7 +1,12 @@
 """Utility functions to be used in plotting."""
 
 import re
+
 import numpy as np
+
+from tardis.visualization.tools.visualization_data import (
+    VisualizationData,
+)
 
 
 def axis_label_in_latex(label_text, unit, only_text=True):
@@ -79,3 +84,63 @@ def to_rgb255_string(color_tuple):
     """
     color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
     return f"rgb{color_tuple_255}"
+
+def create_packet_data_dict_from_simulation(sim):
+    """
+    Create a dictionary containing virtual and real packet data based on simulation state.
+
+    Parameters
+    ----------
+    sim : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+
+    Returns
+    -------
+    dict
+        Dictionary containing 'virtual' and 'real' SimulationPacketData instances
+    """
+    packet_data = {
+        "real": VisualizationData.from_simulation(sim, "real")
+    }
+    if sim.transport.transport_state.virt_logging:
+        packet_data["virtual"] = VisualizationData.from_simulation(sim, "virtual")
+    else:
+        packet_data["virtual"] = None
+
+    return packet_data
+
+def create_packet_data_dict_from_hdf(hdf_fpath, packets_mode=None):
+    """
+    Create a dictionary containing virtual and real packet data from HDF file.
+
+    Parameters
+    ----------
+    hdf_fpath : str
+        Valid path to the HDF file where simulation is saved
+    packets_mode : {'virtual', 'real', None}
+        Mode of packets to be considered. If None, both modes are returned.
+
+    Returns
+    -------
+    dict
+        Dictionary containing 'virtual' and 'real' SimulationPacketData instances
+    """
+    if packets_mode not in [None, "virtual", "real"]:
+        raise ValueError(
+            "Invalid value passed to packets_mode. Only "
+            "allowed values are 'virtual', 'real' or None"
+        )
+    if packets_mode == "virtual":
+        return {
+            "virtual": VisualizationData.from_hdf(hdf_fpath, "virtual"),
+            "real": None
+        }
+    if packets_mode == "real":
+        return {
+            "virtual": None,
+            "real": VisualizationData.from_hdf(hdf_fpath, "real")
+        }
+    return {
+        "virtual": VisualizationData.from_hdf(hdf_fpath, "virtual"),
+        "real": VisualizationData.from_hdf(hdf_fpath, "real")
+    }
