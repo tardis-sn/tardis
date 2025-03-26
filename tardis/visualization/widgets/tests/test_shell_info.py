@@ -152,64 +152,90 @@ class TestShellInfoWidget:
     def test_selection_on_shells_table(
         self, base_shell_info, shell_info_widget
     ):
-        shell_info_widget.shells_table.change_selection([self.select_shell_num])
+        # Shell number 4 is at row index 3 (0-based)
+        row_num = self.select_shell_num - 1
+        shell_info_widget.shells_table.selection = [row_num]
+        shell_info_widget.update_element_count_table(None)
 
         expected_element_count = base_shell_info.element_count(
             self.select_shell_num
         )
         pdt.assert_frame_equal(
-            expected_element_count, shell_info_widget.element_count_table.df
+            expected_element_count, shell_info_widget.element_count_table.value
         )
 
-        expected_ion_count = base_shell_info.ion_count(
-            expected_element_count.index[0], self.select_shell_num
-        )
+        # Check ion count table (updated with first atomic number)
+        atomic_num0 = shell_info_widget.element_count_table.value.index[0]
+        expected_ion_count = base_shell_info.ion_count(atomic_num0, self.select_shell_num)
         pdt.assert_frame_equal(
-            expected_ion_count, shell_info_widget.ion_count_table.df
+            expected_ion_count, shell_info_widget.ion_count_table.value
         )
 
+        # Check level count table (updated with first ion)
+        ion0 = shell_info_widget.ion_count_table.value.index[0]
         expected_level_count = base_shell_info.level_count(
-            expected_ion_count.index[0],
-            expected_element_count.index[0],
+            ion0,
+            atomic_num0,
             self.select_shell_num,
         )
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.df
+            expected_level_count, shell_info_widget.level_count_table.value
         )
 
     def test_selection_on_element_count_table(
         self, base_shell_info, shell_info_widget
     ):
-        shell_info_widget.element_count_table.change_selection(
-            [self.select_atomic_num]
-        )
+        row_num = self.select_shell_num - 1
+        shell_info_widget.shells_table.selection = [row_num]
+        shell_info_widget.update_element_count_table(None)
 
+        # Select atomic number 12 in element count table
+        atomic_num = self.select_atomic_num
+        pos = shell_info_widget.element_count_table.value.index.get_loc(atomic_num)
+        shell_info_widget.element_count_table.selection = [pos]
+        shell_info_widget.update_ion_count_table(None)
+
+        # Check ion count table
         expected_ion_count = base_shell_info.ion_count(
-            self.select_atomic_num, self.select_shell_num
+            atomic_num, self.select_shell_num
         )
         pdt.assert_frame_equal(
-            expected_ion_count, shell_info_widget.ion_count_table.df
+            expected_ion_count, shell_info_widget.ion_count_table.value
         )
 
+        # Check level count table (updated with first ion)
+        ion0 = shell_info_widget.ion_count_table.value.index[0]
         expected_level_count = base_shell_info.level_count(
-            expected_ion_count.index[0],
-            self.select_atomic_num,
+            ion0,
+            atomic_num,
             self.select_shell_num,
         )
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.df
+            expected_level_count, shell_info_widget.level_count_table.value
         )
 
     def test_selection_on_ion_count_table(
         self, base_shell_info, shell_info_widget
     ):
-        shell_info_widget.ion_count_table.change_selection(
-            [self.select_ion_num]
-        )
+        row_num = self.select_shell_num - 1
+        shell_info_widget.shells_table.selection = [row_num]
+        shell_info_widget.update_element_count_table(None)
 
+        atomic_num = self.select_atomic_num
+        pos = shell_info_widget.element_count_table.value.index.get_loc(atomic_num)
+        shell_info_widget.element_count_table.selection = [pos]
+        shell_info_widget.update_ion_count_table(None)
+
+        # Select ion number 3 in ion count table
+        ion_num = self.select_ion_num
+        pos = shell_info_widget.ion_count_table.value.index.get_loc(ion_num)
+        shell_info_widget.ion_count_table.selection = [pos]
+        shell_info_widget.update_level_count_table(None)
+
+        # Check level count table
         expected_level_count = base_shell_info.level_count(
-            self.select_ion_num, self.select_atomic_num, self.select_shell_num
+            ion_num, atomic_num, self.select_shell_num
         )
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.df
+            expected_level_count, shell_info_widget.level_count_table.value
         )
