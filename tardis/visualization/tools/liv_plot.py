@@ -162,8 +162,8 @@ class LIVPlotter:
                         label = atomic_number2element_symbol(species_key // 100)
                     else:
                         atomic_number = species_key // 100
-                        ion_number = species_key % 100
-                        ion_numeral = int_to_roman(ion_number + 1)
+                        ion_charge = species_key % 100
+                        ion_numeral = int_to_roman(ion_charge + 1)
                         label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
                     species_name.append(label)
 
@@ -217,8 +217,8 @@ class LIVPlotter:
                 if specie in self.species:
                     if specie not in groups.groups:
                         atomic_number = specie // 100
-                        ion_number = specie % 100
-                        ion_numeral = int_to_roman(ion_number + 1)
+                        ion_charge = specie % 100
+                        ion_numeral = int_to_roman(ion_charge + 1)
                         label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
                         species_not_wvl_range.append(label)
                         continue

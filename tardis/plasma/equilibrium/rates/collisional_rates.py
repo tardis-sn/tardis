@@ -116,27 +116,27 @@ class ThermalCollisionalRateSolver:
         )
         collision_rates_coeff_df.index.names = [
             "atomic_number",
-            "ion_number",
+            "ion_charge",
             "level_number_source",
             "level_number_destination",
         ]
 
         collision_rates_coeff_df = collision_rates_coeff_df.reset_index()
 
-        # Add the new columns by duplicating the ion_number column
-        collision_rates_coeff_df["ion_number_source"] = (
-            collision_rates_coeff_df["ion_number"]
+        # Add the new columns by duplicating the ion_charge column
+        collision_rates_coeff_df["ion_charge_source"] = (
+            collision_rates_coeff_df["ion_charge"]
         )
-        collision_rates_coeff_df["ion_number_destination"] = (
-            collision_rates_coeff_df["ion_number"]
+        collision_rates_coeff_df["ion_charge_destination"] = (
+            collision_rates_coeff_df["ion_charge"]
         )
 
         collision_rates_coeff_df = collision_rates_coeff_df.set_index(
             [
                 "atomic_number",
-                "ion_number",
-                "ion_number_source",
-                "ion_number_destination",
+                "ion_charge",
+                "ion_charge_source",
+                "ion_charge_destination",
                 "level_number_source",
                 "level_number_destination",
             ]
