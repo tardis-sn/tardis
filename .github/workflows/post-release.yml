@@ -70,7 +70,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.12"
 
       - name: Install rst-include
         run: pip install rst-include==2.1.2.2 requests==2.27.1
@@ -84,6 +84,15 @@ jobs:
           path: |
             README.rst
             docs/resources/credits.rst
+
+      - name: Dispatch to Tardis Website
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            -d '{ "event_type": "repo-push" }' \
+            https://api.github.com/repos/tardis-sn/tardis-org-data/dispatches
 
   pull_request:
     needs: [changelog, citation, credits]

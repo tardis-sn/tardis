@@ -23,15 +23,21 @@ logger = logging.getLogger(__name__)
 class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
     TAU_TARGET = np.log(2.0 / 3.0)
 
-    def __init__(self, configuration, mean_optical_depth="rosseland", tau=None):
-        super().__init__(configuration)
+    def __init__(
+        self,
+        configuration,
+        mean_optical_depth="rosseland",
+        tau=None,
+        csvy=False,
+    ):
+        super().__init__(configuration, csvy)
         self.mean_optical_depth = mean_optical_depth.lower()
 
         self.convergence_solvers["v_inner_boundary"] = ConvergenceSolver(
             self.convergence_strategy.v_inner_boundary
         )
 
-        self.store_plasma = self.convergence_solvers.v_inner_boundary.store_plasma
+        self.store_iteration_properties = configuration.montecarlo.convergence_strategy.v_inner_boundary.store_iteration_properties
 
         # Need to compute the opacity state on init to get the optical depths
         # for the first inner boundary calculation.
@@ -67,6 +73,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         self.simulation_state.blackbody_packet_source.radius = (
             self.simulation_state.r_inner[0]
         )
+        self.final_integrated_tau = None
 
     def store_plasma_state(
         self,
@@ -140,6 +147,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             : executed_iterations + 1, :
         ]
 
+
     def estimate_v_inner(self):
         """
         Compute the Rosseland Mean Optical Depth,
@@ -189,13 +197,8 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         ] = True
         return mask
 
-    def get_convergence_estimates(self, transport_state):
+    def get_convergence_estimates(self):
         """Compute convergence estimates from the transport state
-
-        Parameters
-        ----------
-        transport_state : MonteCarloTransportState
-            Transport state object to compute estimates
 
         Returns
         -------
@@ -204,7 +207,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         EstimatedRadiationFieldProperties
             Dilute radiation file and j_blues dataclass
         """
-        estimates = super().get_convergence_estimates(transport_state)
+        estimates = super().get_convergence_estimates()
 
         estimated_v_inner = self.estimate_v_inner()
 
@@ -411,7 +414,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
-            if self.store_plasma:
+            if self.store_iteration_properties:
                 self.store_plasma_state(
                     self.completed_iterations,
                     self.simulation_state.no_of_shells,
@@ -426,14 +429,14 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             # Note that we are updating the class attribute here to ensure consistency
             self.opacity_states = self.solve_opacity()
 
-            transport_state, virtual_packet_energies = self.solve_montecarlo(
+            virtual_packet_energies = self.solve_montecarlo(
                 self.opacity_states, self.real_packet_count
             )
 
             (
                 estimated_values,
                 estimated_radfield_properties,
-            ) = self.get_convergence_estimates(transport_state)
+            ) = self.get_convergence_estimates()
 
             self.solve_simulation_state(estimated_values)
 
@@ -456,12 +459,12 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
         self.opacity_states = self.solve_opacity()
-        transport_state, virtual_packet_energies = self.solve_montecarlo(
+        virtual_packet_energies = self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
-        if self.store_plasma:
+        if self.store_iteration_properties:
             self.store_plasma_state(
                 self.completed_iterations,
                 self.simulation_state.no_of_shells,
@@ -475,8 +478,12 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
 
             self.reshape_store_plasma_state(self.completed_iterations)
 
+        # Keep final integrated tau always for diagnostic purposes
+        self.final_integrated_tau = self.tau_integ[
+            -self.simulation_state.no_of_shells :
+        ]
+
         self.initialize_spectrum_solver(
-            transport_state,
             self.opacity_states,
             virtual_packet_energies,
         )

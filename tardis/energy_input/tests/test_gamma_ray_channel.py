@@ -1,23 +1,24 @@
-import pytest
-import numpy as np
 from pathlib import Path
-import astropy.units as u
-import numpy.testing as npt
-import radioactivedecay as rd
-import astropy.constants as const
-from radioactivedecay import converters
 
-from tardis.model import SimulationState
-from tardis.io.configuration import config_reader
-from tardis.energy_input.energy_source import (
-    get_nuclear_lines_database,
-)
+import astropy.constants as const
+import astropy.units as u
+import numpy as np
+import numpy.testing as npt
+import pytest
+import radioactivedecay as rd
+
 from tardis.energy_input.gamma_ray_channel import (
-    create_isotope_dicts,
-    create_inventories_dict,
     calculate_total_decays,
+    create_inventories_dict,
     create_isotope_decay_df,
+    create_isotope_dicts,
+    time_evolve_cumulative_decay,
 )
+from tardis.energy_input.gamma_ray_transport import get_taus
+from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
+from tardis.energy_input.util import KEV2ERG
+from tardis.io.configuration import config_reader
+from tardis.model import SimulationState
 
 
 @pytest.fixture(scope="module")
@@ -234,3 +235,124 @@ def test_activity(gamma_ray_test_composition, nuclide_name):
     expected = number_of_atoms * (1 - np.exp(-decay_constant * time_delta))
 
     npt.assert_allclose(actual, expected)
+
+
+def test_total_energy_production(gamma_ray_test_composition, atomic_dataset):
+    """
+    Function to test the total energy production with equation 18 of Nadyozhin 1994. This is only for Ni56 now.
+    Parameters
+    ----------
+    gamma_ray_test_composition: Function holding the composition.
+    """
+    time_start = 0.0 * u.d
+    time_end = np.inf * u.d
+    time_delta = (time_end - time_start).value
+
+    gamma_ray_lines = atomic_dataset.decay_radiation_data
+    raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
+    isotope_dict = create_isotope_dicts(raw_isotopic_mass_fraction, cell_masses)
+    inventories_dict = create_inventories_dict(isotope_dict)
+    total_decays = calculate_total_decays(inventories_dict, time_delta)
+    isotope_decay_df = create_isotope_decay_df(total_decays, gamma_ray_lines)
+    taus, parents = get_taus(raw_isotopic_mass_fraction)
+
+    ni56_nuclide = rd.Nuclide("Ni56")
+    atomic_mass_unit = const.u.cgs.value
+    tau_ni56 = taus["Ni-56"]
+    tau_co56 = taus["Co-56"]
+
+    ni56_mass_fraction = raw_isotopic_mass_fraction.loc[(28, 56)]
+
+    ni_56_mass = sum(ni56_mass_fraction * cell_masses)
+    ni_56_mass_solar = ni_56_mass / const.M_sun.cgs.value
+
+    shell_number_0 = isotope_decay_df[
+        isotope_decay_df.index.get_level_values("shell_number") == 0
+    ]
+
+    ni56 = shell_number_0[shell_number_0.index.get_level_values(1) == "Ni56"]
+    ni_56_energy = ni56["energy_per_channel_keV"].sum()
+
+    co_56 = shell_number_0[shell_number_0.index.get_level_values(1) == "Co56"]
+    co_56_energy = co_56["energy_per_channel_keV"].sum()
+
+    first_term = const.M_sun.cgs.value / (
+        (tau_co56 - tau_ni56) * ni56_nuclide.atomic_mass * atomic_mass_unit
+    )
+    ni_term = (
+        (ni_56_energy * (tau_co56 / tau_ni56 - 1) - co_56_energy)
+        * first_term
+        * KEV2ERG
+    )
+
+    co_term = co_56_energy * first_term * KEV2ERG
+
+    expected = (
+        ni_term
+        * tau_ni56
+        * (
+            np.exp(-time_start.value / tau_ni56)
+            - np.exp(-time_end.value / tau_ni56)
+        )
+        + co_term
+        * tau_co56
+        * (
+            np.exp(-time_start.value / tau_co56)
+            - np.exp(-time_end.value / tau_co56)
+        )
+    ) * ni_56_mass_solar
+
+    ni56_df = isotope_decay_df[
+        isotope_decay_df.index.get_level_values(1) == "Ni56"
+    ]
+    ni56_energy = ni56_df["decay_energy_erg"].sum()
+    co_56_df = isotope_decay_df[
+        isotope_decay_df.index.get_level_values(1) == "Co56"
+    ]
+    co56_energy = co_56_df["decay_energy_erg"].sum()
+    actual = ni56_energy + co56_energy
+
+    npt.assert_allclose(actual, expected)
+
+
+def test_cumulative_decays(gamma_ray_test_composition, atomic_dataset):
+    """
+    Function to test that the total energy calculated from summing all the decays
+    from the entire time range of simulation is the same as decay energy from individual
+    time steps considering that after each time step the composition (mass fractions) changes.
+    Tested for Ni56, Cr48, Fe52.
+    Parameters
+    ----------
+    gamma_ray_simulation_state: Tardis simulation state
+    atomic_dataset: Tardis atomic-nuclear dataset
+    """
+
+    time_start = 0.1 * u.d
+    time_end = 100 * u.d
+    time_steps = 3
+    time_space = "linear"
+    time_delta = (time_end - time_start).value
+
+    gamma_ray_lines = atomic_dataset.decay_radiation_data
+    raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
+    isotope_dict = create_isotope_dicts(raw_isotopic_mass_fraction, cell_masses)
+    inventories_dict = create_inventories_dict(isotope_dict)
+    total_decays = calculate_total_decays(inventories_dict, time_delta)
+    isotope_decay_df = create_isotope_decay_df(total_decays, gamma_ray_lines)
+
+    times, effective_times = get_effective_time_array(
+        time_start.value, time_end.value, time_space, time_steps
+    )
+    # total decay energy in the entire time range
+    actual = isotope_decay_df["decay_energy_erg"].sum()
+
+    # time evolve the decay energy
+    evolve_decays_with_time = time_evolve_cumulative_decay(
+        raw_isotopic_mass_fraction, cell_masses, gamma_ray_lines, times
+    )
+    expected = evolve_decays_with_time["decay_energy_erg"].sum()
+
+    # This rtol is set since the decay energy is calculated with Fe52 (which has Mn-52m as a daughter)
+    # The data is not available for Mn-52m in the decay_radiation_data
+    # If we use any other isotope without a metastable state, the total decay energy matches exactly.
+    npt.assert_allclose(actual, expected, rtol=1e-4)
