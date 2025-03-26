@@ -37,6 +37,7 @@ dependencies:
   - matplotlib-base
   - ipywidgets
   - plotly
+  - anywidget # for plotly FigureWidget
   - pip:
       - qgridnext
 

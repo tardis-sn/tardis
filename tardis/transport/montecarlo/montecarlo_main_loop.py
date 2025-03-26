@@ -94,16 +94,16 @@ def montecarlo_main_loop(
 
     for i in prange(no_of_packets):
         thread_id = get_thread_id()
-        if show_progress_bars:
-            if thread_id == main_thread_id:
-                with objmode:
-                    update_amount = 1 * n_threads
-                    update_packet_pbar(
-                        update_amount,
-                        current_iteration=iteration,
-                        no_of_packets=no_of_packets,
-                        total_iterations=total_iterations,
-                    )
+        # if show_progress_bars:
+        #     if thread_id == main_thread_id:
+        #         with objmode:
+        #             update_amount = 1 * n_threads
+        #             update_packet_pbar(
+        #                 update_amount,
+        #                 current_iteration=iteration,
+        #                 no_of_packets=no_of_packets,
+        #                 total_iterations=total_iterations,
+        #             )
 
         r_packet = RPacket(
             packet_collection.initial_radii[i],
