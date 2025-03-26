@@ -9,3 +9,4 @@ TARDIS can read a variety of models. The following models are currently supporte
 
     how_to_read_stella_model.ipynb
     how_to_read_cmfgen_model.ipynb
+    how_to_read_artis_model.ipynb
