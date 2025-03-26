@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import sys
 
-__all__ = ['__version__', 'run_tardis', 'yaml_load']
+__all__ = ['__version__', 'run_tardis']
 
 try:
     from .version import version as __version__
@@ -24,4 +24,3 @@ else:
 # ----------------------------------------------------------------------------
 
 from tardis.base import run_tardis
-from tardis.io.util import yaml_load_file as yaml_load
