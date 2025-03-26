@@ -147,6 +147,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             : executed_iterations + 1, :
         ]
 
+
     def estimate_v_inner(self):
         """
         Compute the Rosseland Mean Optical Depth,
