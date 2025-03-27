@@ -75,15 +75,12 @@ jobs:
             bash
           create-args: >-
             python
+            panel
             asv=0.6.4
             mamba
             libmambapy<2.0
             conda-build
             conda=24.11.0
-
-      - name: Install Panel 1.6.1
-        run: |
-          micromamba run -n benchmark micromamba install -c conda-forge panel=1.6.1 --verbose
 
       - name: Accept all asv questions
         run: asv machine --yes
