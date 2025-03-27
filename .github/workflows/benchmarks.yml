@@ -81,6 +81,11 @@ jobs:
             conda-build
             conda=24.11.0
 
+      - name: Install Panel 1.6.1
+        run: |
+          micromamba activate benchmark
+          micromamba install -n benchmark -c conda-forge panel=1.6.1 --verbose
+
       - name: Accept all asv questions
         run: asv machine --yes
 
