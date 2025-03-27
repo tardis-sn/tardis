@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import astropy.units as u
 import astropy.constants as const
+from dataclasses import dataclass
 from tardis.model import SimulationState
 from tardis.energy_input.energy_source import get_nuclear_lines_database
 from tardis.energy_input.gamma_ray_channel import (
@@ -69,6 +70,7 @@ class TARDISHEWorkflow:
 
         return total_decays
     
+
     def decay_isotopes_expanded(self, total_decays):
         """
         Expand the total decays dataframe to include the decay energy for each gamma-X ray
@@ -164,9 +166,28 @@ class TARDISHEWorkflow:
         decay_over_time = self.time_evolve_cumulative_decay_expanded(times)
 
 
-        (self.escape_energy, self.escape_energy_cosi, 
-         self.packets_escaped, self.gamma_ray_deposited_energy, 
-         self.total_deposited_energy, self.positron_energy
+        (escape_energy, escape_energy_cosi, 
+         packets_escaped, gamma_ray_deposited_energy, 
+         total_deposited_energy, positron_energy
         ) = run_gamma_ray_loop(self.simulation_state, decay_isotopes, decay_over_time,
-                                  number_of_packets, times, effective_times, seed, fp,
-                                  spectrum_bins, grey_opacity)
+                      number_of_packets, times, effective_times, seed, fp,
+                      spectrum_bins, grey_opacity)
+
+        return TARDISHEWorkflowResult(
+            escape_energy=escape_energy,
+            escape_energy_cosi=escape_energy_cosi,
+            packets_escaped=packets_escaped,
+            gamma_ray_deposited_energy=gamma_ray_deposited_energy,
+            total_deposited_energy=total_deposited_energy,
+            positron_energy=positron_energy
+        )
+
+@dataclass
+class TARDISHEWorkflowResult:
+
+    escape_energy: pd.DataFrame
+    escape_energy_cosi: pd.DataFrame
+    packets_escaped: pd.DataFrame
+    gamma_ray_deposited_energy: pd.DataFrame
+    total_deposited_energy: pd.DataFrame
+    positron_energy: pd.DataFrame
