@@ -83,8 +83,8 @@ jobs:
 
       - name: Install Panel 1.6.1
         run: |
-          micromamba activate benchmark
           micromamba install -n benchmark -c conda-forge panel=1.6.1 --verbose
+        shell: micromamba-shell {0}
 
       - name: Accept all asv questions
         run: asv machine --yes
