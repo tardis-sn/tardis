@@ -188,3 +188,22 @@ def test_creat_from_J(spectrum):
     )
 
     compare_spectra(actual, spectrum)
+
+
+def test_from_hdf(tmp_path, spectrum):
+    temp_file = tmp_path / "test_spectrum.h5"
+    spectrum.to_hdf(temp_file)
+    spectrum_from_hdf = TARDISSpectrum.from_hdf(temp_file)
+
+    assert isinstance(spectrum_from_hdf, TARDISSpectrum)
+    
+    attributes_to_test = [
+        '_frequency', 'luminosity', 'frequency', 'delta_frequency',
+        'wavelength', 'luminosity_density_nu', 'luminosity_density_lambda'
+    ]
+    for attr in attributes_to_test:
+        test_helper.assert_quantity_allclose(
+            getattr(spectrum_from_hdf, attr),
+            getattr(spectrum, attr)
+        )
+    
