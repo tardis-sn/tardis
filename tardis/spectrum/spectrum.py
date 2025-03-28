@@ -4,7 +4,7 @@ import numpy as np
 from astropy import units as u
 
 from tardis.io.util import HDFWriterMixin
-
+import pandas as pd
 
 class TARDISSpectrum(HDFWriterMixin):
     """
@@ -170,3 +170,10 @@ class TARDISSpectrum(HDFWriterMixin):
             raise NotImplementedError(
                 'only mode "luminosity_density"' 'and "flux" are implemented'
             )
+
+    @classmethod
+    def from_hdf(cls, hdf_file):
+        fh = pd.HDFStore(hdf_file, "r")
+        frequency = u.Quantity(fh['/tardis_spectrum/_frequency']) * u.Hz
+        luminosity = u.Quantity(fh['/tardis_spectrum/luminosity']) * u.erg/u.second
+        return cls(frequency, luminosity)
