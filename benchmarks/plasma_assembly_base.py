@@ -22,7 +22,9 @@ class BenchmarkPlasmaAssemblyBase(BenchmarkBase):
         self.dilute_planckian_radiation_field = DilutePlanckianRadiationField(
             self.simulation_state.t_radiative, self.simulation_state.dilution_factor
         )
-        
+
+    def teardown(self):
+        self.PlasmaSolverFactory.atom_data.prepared = False
 
     def time_prepare_factory(self):
         self.PlasmaSolverFactory.prepare_factory( property_collections="tardis.plasma.properties.legacy_property_collections", selected_atomic_numbers=self.nb_simulation_verysimple.simulation_state.abundance.index)
