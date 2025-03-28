@@ -125,9 +125,9 @@ def create_table_widget_shell_info(
     data : pandas.DataFrame
         Data you want to display in table widget
     col_widths : list
-        A list containing width of each column of data in order (including
-        the index as 1st column). The width values must be proportions of
-        100 i.e. they must sum to 100.
+        A list containing the desired widths of each column of data in order (including
+        the index as 1st column). The widths can be any non-negative numbers, and they
+        will be normalized to sum to 100 for setting the column widths.
     table_options : dict, optional
         A dictionary specifying configuration options for the Tabulator widget.
         Overrides the default options where applicable.
@@ -146,7 +146,7 @@ def create_table_widget_shell_info(
     ------
     ValueError
         If the length of :code:`col_widths` does not match the number of
-        columns + 1 (for the index), or if the column widths do not sum to 100.
+        columns + 1 (for the index), or if any column width is negative.
     ValueError
         If :code:`changeable_col` does not contain both 'index' and 'other_names' keys.
     """
@@ -155,11 +155,16 @@ def create_table_widget_shell_info(
             "Size of column widths list do not match with "
             "number of columns + 1 (index) in dataframe"
         )
-    if sum(col_widths) != 100:
+    if any(w < 0 for w in col_widths):
         raise ValueError(
-            "Column widths are not proportions of 100 (i.e. "
-            "they do not sum to 100)"
+            "Column widths must be non-negative"
         )
+
+    total = sum(col_widths)
+    if total == 0:
+        normalized_widths = [100 / len(col_widths)] * len(col_widths)
+    else:
+        normalized_widths = [w * 100 / total for w in col_widths]
 
     # Default Tabulator options
     tabulator_options = {
@@ -176,8 +181,8 @@ def create_table_widget_shell_info(
         tabulator_options.update(table_options)
 
     # Define widths for columns (including index)
-    widths = {data.index.name or 'index': f'{col_widths[0]}%'}  # Handle case where index.name is None
-    widths.update({col: f'{col_widths[i+1]}%' for i, col in enumerate(data.columns)})
+    widths = {data.index.name or 'index': f'{normalized_widths[0]}%'}  # Handle case where index.name is None
+    widths.update({col: f'{normalized_widths[i+1]}%' for i, col in enumerate(data.columns)})
     custom_css = """
     .tabulator-header {
         height: auto !important;
