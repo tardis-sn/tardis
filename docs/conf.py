@@ -95,7 +95,7 @@ extensions = [
 
 nbsite_pyodide_conf = {
     "autodetect_deps": True,
-    "requirements": ["panel", "h5py"],
+    "requirements": ["panel"],
     "enable_pwa": True,
     "scripts": ['/_static/shell_info.py', '/_static/util.py', '/_static/base.py'],
 }
