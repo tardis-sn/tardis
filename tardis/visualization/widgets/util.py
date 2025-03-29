@@ -36,7 +36,7 @@ def create_table_widget(
         column in dataframe :code:`data` as an integer, and :code:`other_names`
         to specify all possible names changeable column will get as a list
         of strings. Default value :code:`None` indicates that there is no
-        changable column.
+        changeable column.
 
     Returns
     -------
@@ -318,7 +318,7 @@ class TableSummaryLabel:
         Returns
         -------
         ipywidgets.Box
-            Widget containing all componets of label
+            Widget containing all components of label
         """
         # WARNING: Use dictionary instead of ipw.Layout for specifying layout
         # of ipywidgets, otherwise there will be unintended behavior
