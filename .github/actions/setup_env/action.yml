@@ -37,5 +37,5 @@ runs:
         shell: bash
 
       - name: Install nbsite via pip
-        run: pip install nbsite
+        run: pip install nbsite -q
         shell: bash
