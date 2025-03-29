@@ -33,5 +33,5 @@ runs:
 
       - name: Install Panel in Conda Environment
         run: |
-          micromamba install -n tardis -c conda-forge panel=1.6.1
+          micromamba install -n tardis -c conda-forge panel=1.6.1 pyviz nbsite
         shell: bash
