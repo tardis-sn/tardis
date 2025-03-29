@@ -1,12 +1,9 @@
-from tardis.base import run_tardis
-from tardis.io.atom_data.atom_web_download import download_atom_data
-from tardis.util.base import (
+from base import (
     atomic_number2element_symbol,
     species_tuple_to_string,
-    is_notebook,
 )
 
-from tardis.visualization.widgets.util import create_table_widget_shell_info
+from util import create_table_widget_shell_info
 
 import pandas as pd
 import numpy as np
@@ -198,11 +195,13 @@ class SimulationShellInfo(BaseShellInfo):
         )
 
 
+import h5py
+import pandas as pd
+
 class HDFShellInfo(BaseShellInfo):
     """The simulation information that is used by shell info widget, obtained
     from a simulation HDF file
     """
-
     def __init__(self, hdf_fpath):
         """Initialize the object with a simulation HDF file
 
@@ -213,15 +212,22 @@ class HDFShellInfo(BaseShellInfo):
             from a TARDIS Simulation object using :code:`to_hdf` method with
             default arguments)
         """
-        with pd.HDFStore(hdf_fpath, "r") as sim_data:
-            super().__init__(
-                sim_data["/simulation/simulation_state/t_radiative"],
-                sim_data["/simulation/simulation_state/dilution_factor"],
-                sim_data["/simulation/simulation_state/abundance"],
-                sim_data["/simulation/plasma/number_density"],
-                sim_data["/simulation/plasma/ion_number_density"],
-                sim_data["/simulation/plasma/level_number_density"],
-            )
+        with h5py.File(hdf_fpath, "r") as f:
+            t_radiative = pd.Series(f["/simulation/simulation_state/t_radiative"][:])
+            dilution_factor = pd.Series(f["/simulation/simulation_state/dilution_factor"][:])
+            abundance = pd.DataFrame(f["/simulation/simulation_state/abundance"][:])
+            number_density = pd.DataFrame(f["/simulation/plasma/number_density"][:])
+            ion_number_density = pd.DataFrame(f["/simulation/plasma/ion_number_density"][:])
+            level_number_density = pd.DataFrame(f["/simulation/plasma/level_number_density"][:])
+
+        super().__init__(
+            t_radiative,
+            dilution_factor,
+            abundance,
+            number_density,
+            ion_number_density,
+            level_number_density,
+        )
 
 
 class ShellInfoWidget:

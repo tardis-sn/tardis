@@ -30,3 +30,12 @@ runs:
           environment-name: tardis
           cache-environment: true
           cache-downloads: true
+
+      - name: Install Panel in Conda Environment
+        run: |
+          micromamba install -n tardis -c conda-forge panel=1.6.1
+        shell: bash
+
+      - name: Install nbsite via pip
+        run: pip install nbsite -q
+        shell: bash

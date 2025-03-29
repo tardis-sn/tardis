@@ -57,6 +57,7 @@ Mission Statement
     how_to_guides
     faq
     API <api/modules>
+    embed
 
 
 .. toctree::
