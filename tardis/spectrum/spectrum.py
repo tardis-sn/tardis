@@ -173,7 +173,7 @@ class TARDISSpectrum(HDFWriterMixin):
 
     @classmethod
     def from_hdf(cls, hdf_file):
-        fh = pd.HDFStore(hdf_file, "r")
-        frequency = u.Quantity(fh['/tardis_spectrum/_frequency']) * u.Hz
-        luminosity = u.Quantity(fh['/tardis_spectrum/luminosity']) * u.erg/u.second
+        spectrum_hdf = pd.HDFStore(hdf_file, "r")
+        frequency = u.Quantity(spectrum_hdf['/tardis_spectrum/_frequency']) * u.Hz
+        luminosity = u.Quantity(spectrum_hdf['/tardis_spectrum/luminosity']) * u.erg/u.second
         return cls(frequency, luminosity)
