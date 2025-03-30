@@ -119,7 +119,7 @@ jobs:
           pip install sphinxcontrib-googleanalytics
 
       - name: Build documentation
-        run: cd docs/ && make html NCORES=1
+        run: cd docs/ && make html NCORES=auto
 
       - name: Set destination directory
         run: |
