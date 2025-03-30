@@ -37,5 +37,5 @@ runs:
         shell: bash
 
       - name: Install nbsite via conda
-        run: micromamba install -c pyviz nbsite
+        run: micromamba install -n tardis -c pyviz nbsite
         shell: bash
