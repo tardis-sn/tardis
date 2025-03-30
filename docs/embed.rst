@@ -1,6 +1,10 @@
 .. _embed: 
 
-.. .. pyodide::
+************************
+Embedded ShellInfoWidget
+************************
+
+.. pyodide::
 ..     from pyodide.http import pyfetch
 ..     import pandas as pd
 ..     import panel as pn
