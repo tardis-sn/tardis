@@ -97,7 +97,7 @@ nbsite_pyodide_conf = {
     "autodetect_deps": True,
     "requirements": ["panel"],
     "enable_pwa": True,
-    "scripts": ['/_static/shell_info.py', '/_static/util.py', '/_static/base.py'],
+    # "scripts": ['/_static/shell_info.py', '/_static/util.py', '/_static/base.py'],
 }
 
 bibtex_bibfiles = ["tardis.bib"]
