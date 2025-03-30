@@ -36,6 +36,6 @@ runs:
           micromamba install -n tardis -c conda-forge panel=1.6.1
         shell: bash
 
-      - name: Install nbsite via pip
-        run: pip install nbsite -q
+      - name: Install nbsite via conda
+        run: conda install -c pyviz nbsite
         shell: bash
