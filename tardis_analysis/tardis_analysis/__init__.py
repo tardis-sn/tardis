@@ -1,13 +1,10 @@
-
-from .config import SPECTRUM_KEYS, MATPLOTLIB_COLORS, PLOTLY_COLORS
+from .config import SPECTRUM_KEYS, PLOTLY_COLORS
 from .git_utils import process_commits
-from .h5_utils import load_h5_data
-from .visualize import plot_all_commits_matplotlib, plot_all_commits_plotly
-from .residual_plots import plot_residuals_matplotlib, plot_residuals_plotly
+from .data_processing import load_h5_data, calculate_residuals
+from .combined_viz import plot_combined_analysis_plotly
 
 __all__ = [
-    'SPECTRUM_KEYS', 'MATPLOTLIB_COLORS', 'PLOTLY_COLORS',
-    'process_commits', 'load_h5_data',
-    'plot_all_commits_matplotlib', 'plot_all_commits_plotly'
-    'plot_residuals_matplotlib', 'plot_residuals_plotly'
+    'SPECTRUM_KEYS', 'PLOTLY_COLORS',
+    'process_commits', 'load_h5_data', 'calculate_residuals',
+    'plot_combined_analysis_plotly'
 ]

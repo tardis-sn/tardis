@@ -1,10 +1,8 @@
-
 import subprocess
 import os
 from git import Repo
 
 def process_commits(tardis_repo_path, regression_data_repo_path, branch, target_file, commits_input=None, n=10):
-    """Process commits from tardis repo, run tests, and commit regression data."""
     target_file_path = os.path.join(regression_data_repo_path, target_file)
     tardis_repo = Repo(tardis_repo_path)
     regression_repo = Repo(regression_data_repo_path)

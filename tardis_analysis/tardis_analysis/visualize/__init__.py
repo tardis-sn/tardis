@@ -1,2 +1,0 @@
-from .matplotlib_viz import plot_all_commits_matplotlib
-from .plotly_viz import plot_all_commits_plotly

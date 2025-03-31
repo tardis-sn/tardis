@@ -3,10 +3,9 @@ import argparse
 import os
 from git import Repo
 from tardis_analysis.git_utils import process_commits
-from tardis_analysis.h5_utils import load_h5_data
-from tardis_analysis.visualize import plot_all_commits_matplotlib, plot_all_commits_plotly
+from tardis_analysis.data_processing import load_h5_data
+from tardis_analysis.combined_viz import plot_combined_analysis_plotly
 from tardis_analysis.config import SPECTRUM_KEYS
-from tardis_analysis.residual_plots import plot_residuals_matplotlib, plot_residuals_plotly
 
 def main():
     parser = argparse.ArgumentParser(description="Analyze Tardis regression data across commits.")
@@ -56,10 +55,7 @@ def main():
 
     os.makedirs(output_dir, exist_ok=True)
 
-    plot_all_commits_matplotlib(commit_data, SPECTRUM_KEYS, output_dir)
-    plot_all_commits_plotly(commit_data, SPECTRUM_KEYS, output_dir)
-    plot_residuals_matplotlib(commit_data, SPECTRUM_KEYS, output_dir)
-    plot_residuals_plotly(commit_data, SPECTRUM_KEYS, output_dir)
+    plot_combined_analysis_plotly(commit_data, SPECTRUM_KEYS, output_dir, commit_hashes=processed_commits)
 
 
 if __name__ == "__main__":
