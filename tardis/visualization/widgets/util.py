@@ -4,9 +4,12 @@ import asyncio
 import logging
 
 import ipywidgets as ipw
+import pandas as pd
+import panel as pn
 
 logger = logging.getLogger(__name__)
 
+pn.extension('tabulator')
 
 def create_table_widget(
     data, col_widths, table_options=None, changeable_col=None
@@ -39,32 +42,9 @@ def create_table_widget(
 
     Returns
     -------
-    qgrid.QgridWidget
+    panel.widgets.Tabulator
         Table widget object
     """
-    try:
-        import qgridnext
-    except ModuleNotFoundError as e:
-        logger.exception(
-            "qgridnext must be installed via pip for widgets to work.\n \
-            Run 'pip install qgridnext' inside your tardis environment.\n \
-            Falling back to qgrid"
-        )
-        import qgrid as qgridnext
-
-    # Setting the options to be used for creating table widgets
-    grid_options = {
-        "sortable": False,
-        "filterable": False,
-        "editable": False,
-        "minVisibleRows": 2,
-    }
-    if table_options:
-        grid_options.update(table_options)
-
-    column_options = {
-        "minWidth": None,
-    }
 
     # Check whether passed col_widths list is correct or not
     if len(col_widths) != data.shape[1] + 1:
@@ -81,41 +61,59 @@ def create_table_widget(
             "Column widths are not proportions of 100 (i.e. "
             "they do not sum to 100)"
         )
+    
+        # Convert qgrid-style options to Tabulator options
+    tabulator_options = {
+        "sortable": False,
+        "selectable": False,
+        "show_index": True,
+    }
+    
+    # Handle pagination options
+    if table_options:
+        if "maxVisibleRows" in table_options:
+            tabulator_options["pagination"] = "local"
+            tabulator_options["page_size"] = table_options["maxVisibleRows"]
+        if "editable" in table_options:
+            tabulator_options["selectable"] = table_options["editable"]
+        if "sortable" in table_options:
+            tabulator_options["sortable"] = table_options["sortable"]
+        if "filterable" in table_options:
+            # Panel's Tabulator doesn't have a direct filterable option
+            # But we can add filters to each column
+            pass
+
+    # Use default width for better responsiveness (units in pixels)
+    default_width = 800
 
     # Preparing dictionary that defines column widths
+    column_widths = {}
     cols_with_index = [data.index.name] + data.columns.to_list()
-    column_widths_definitions = {
-        col_name: {"width": col_width}
-        for col_name, col_width in zip(cols_with_index, col_widths)
-    }
+    for col_name, width_prop in zip(cols_with_index, col_widths):
+        column_widths[col_name] = int(width_prop / 100 * default_width)
 
     # We also need to define widths for different names of changeable column
-    if changeable_col:
-        if {"index", "other_names"}.issubset(set(changeable_col.keys())):
-            column_widths_definitions.update(
-                {
-                    col_name: {"width": col_widths[changeable_col["index"]]}
-                    for col_name in changeable_col["other_names"]
-                }
-            )
-        else:
-            raise ValueError(
-                "Changeable column dictionary does not contain "
-                "'index' or 'other_names' key"
-            )
+    # Handle changeable column if specified
+    if changeable_col and {"index", "other_names"}.issubset(set(changeable_col.keys())):
+        changeable_width = col_widths[changeable_col["index"]]
+        for col_name in changeable_col["other_names"]:
+            column_widths[col_name] = int(changeable_width / 100 * default_width)
 
-    # Create the table widget using qgrid
-    return qgridnext.show_grid(
+    # Create the table widget using Panel's Tabulator
+    tabulator = pn.widgets.Tabulator(
         data,
-        grid_options=grid_options,
-        column_options=column_options,
-        column_definitions=column_widths_definitions,
+        widths=column_widths,
+        width=default_width,
+        **tabulator_options
     )
+    
+    return tabulator
+
 
 
 class TableSummaryLabel:
     """
-    Label like widget to show summary of a qgrid table widget.
+    Label like widget to show summary of a Panel table widget.
 
     Also handles aligning the label with the table columns exactly like a
     summary row.
@@ -167,35 +165,42 @@ class TableSummaryLabel:
         value : int
             Value to be shown in label
 
+
         Notes
         -----
-        The width resizing operation is highly dependent on qgrid tables'
-        layout. So it may not remain precise if there happens any CSS change
-        in upcoming versions of qgrid.
+        The width resizing operation is adapted for Panel Tabulator tables.
         """
         self.widget.children[1].value = str(value)
 
         try:
-            table_width = int(self.target_table.layout.width.rstrip("px"))
+            # Get the width of the Panel Tabulator widget
+            table_width = self.target_table.width
+            
+            # Convert to integer if it's a string with 'px'
+            if isinstance(table_width, str) and table_width.endswith('px'):
+                table_width = int(table_width.rstrip('px'))
+            elif not isinstance(table_width, (int, float)):
+                # Use a default width if not defined
+                table_width = 800
+                
         except AttributeError:
             logger.warning(
-                "target_table doesn't have any fixed width defined, label "
+                "target_table doesn't have a width attribute, label "
                 "cannot be resized!",
                 exc_info=1,
             )
             return
 
-        max_rows_allowed = self.target_table.grid_options["maxVisibleRows"]
-        if len(self.target_table.df) > max_rows_allowed:
-            table_width -= 12  # 12px is space consumed by scroll bar of qgrid
-
+        # Check if pagination is enabled
+        has_pagination = getattr(self.target_table, 'pagination', None) == 'local'
+        pagination_height = 30 if has_pagination else 0
+        
+        # Panel's Tabulator handles scrollbars differently than qgrid
+        # No need to subtract scrollbar width explicitly
+        
         # Distribute the table width in proportions of column width to label components
-        self.widget.children[
-            0
-        ].layout.width = f"{(table_width) * self.table_col_widths[0]/100}px"
-        self.widget.children[
-            1
-        ].layout.width = f"{(table_width) * self.table_col_widths[1]/100}px"
+        self.widget.children[0].layout.width = f"{(table_width) * self.table_col_widths[0]/100}px"
+        self.widget.children[1].layout.width = f"{(table_width) * self.table_col_widths[1]/100}px"
 
     def _create(self, key, value):
         """
