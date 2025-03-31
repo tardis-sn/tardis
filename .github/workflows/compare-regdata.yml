@@ -30,15 +30,15 @@ concurrency:
 jobs:
   test-cache:
     uses: ./.github/workflows/lfs-cache.yml
-    if: contains(github.event.pull_request_target.labels.*.name, 'run-regression-comparison')
+    if: contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ contains(github.event.pull_request_target.labels.*.name, 'git-lfs-pull') }}
+      allow_lfs_pull: ${{ contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
     name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
-    if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request_target.labels.*.name, 'run-regression-comparison')
+    if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
     strategy:

@@ -6,9 +6,6 @@ name: clean-docs
 
 on:
   delete:
-    branches: # remove deleted branches
-      - "*"
-
   pull_request_target: # remove closed or merged pull requests
     branches:
       - "*"
