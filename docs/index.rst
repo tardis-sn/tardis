@@ -79,6 +79,7 @@ Mission Statement
 
     analysing_tardis_outputs/visualization/index
     analysing_tardis_outputs/spectrum/index
+    analysing_tardis_outputs/rpacket_plot_notebook.ipynb
 
 
 .. toctree::
