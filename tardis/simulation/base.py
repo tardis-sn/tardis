@@ -444,6 +444,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
+    
+        if self.macro_atom is None:
+            self.plasma.beta_sobolev = None
+            macro_atom_state = None
 
         opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
@@ -453,10 +457,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )  # TODO: Impliment
             else:
                 macro_atom_state = self.macro_atom.solve(
-                    self.plasma,
+                    self.plasma.j_blues,
                     self.plasma.atomic_data,
                     opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
+                    opacity_state.beta_sobolev,
                 )
 
         transport_state = self.transport.initialize_transport_state(

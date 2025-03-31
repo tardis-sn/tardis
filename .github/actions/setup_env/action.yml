@@ -18,7 +18,7 @@ runs:
       - name: Generate Cache Key
         run: | 
           file_hash=$(cat conda-${{ inputs.os-label }}.lock | shasum -a 256 | cut -d' ' -f1)
-          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
+          echo "file_hash=tardis-conda-env-${{ inputs.os-label }}-${file_hash}-v1" >> "${GITHUB_OUTPUT}"
         id: cache-environment-key
         shell: bash
         

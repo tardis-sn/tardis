@@ -12,7 +12,7 @@ from tardis import constants as const
 logger = logging.getLogger(__name__)
 
 
-class opacity_calculator:
+class OpacityCalculator:
     """Basic Tardis opacity and optical depth calculator
 
     Given the model object of a Tardis run and a frequency grid, detailed

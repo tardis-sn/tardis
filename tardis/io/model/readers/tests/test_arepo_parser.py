@@ -8,7 +8,7 @@ import pytest
 from tardis.io.model.readers import arepo
 
 
-@pytest.fixture()
+@pytest.fixture
 def arepo_snapshot_fname(tardis_regression_path):
     return Path(tardis_regression_path) / "arepo_data" / "arepo_snapshot.json"
 

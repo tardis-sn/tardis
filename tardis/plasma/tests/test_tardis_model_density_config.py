@@ -14,14 +14,14 @@ def tardis_model_density_config(example_model_file_dir):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def raw_simulation_state(tardis_model_density_config, kurucz_atomic_data):
     return SimulationState.from_config(
         tardis_model_density_config, atom_data=kurucz_atomic_data
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def raw_plasma(
     tardis_model_density_config, raw_simulation_state, kurucz_atomic_data
 ):
