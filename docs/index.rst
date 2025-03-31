@@ -79,6 +79,8 @@ Mission Statement
 
     analysing_tardis_outputs/visualization/index
     analysing_tardis_outputs/spectrum/index
+    analysing_tardis_outputs/analysing_convergence_plot.ipynb
+
 
 
 .. toctree::
