@@ -70,7 +70,9 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
 @pytest.fixture
 def new_chianti_atomic_dataset(tardis_regression_path):
     atomic_data_fname = (
-        tardis_regression_path / "atom_data" / "new_kurucz_cd23_chianti_H_He.h5"
+        tardis_regression_path
+        / "atom_data"
+        / "kurucz_cd23_chianti_H_He_latest.h5"
     )
     return AtomData.from_hdf(atomic_data_fname)
 
@@ -79,6 +81,8 @@ def new_chianti_atomic_dataset(tardis_regression_path):
 def legacy_chianti_collision_rate_plasma_solver(atomic_dataset):
     atom_data = copy.deepcopy(atomic_dataset)
     atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [])
+    atom_data.nlte_data._init_indices()
+    atom_data.nlte_data._create_collision_coefficient_matrix()
     return atom_data.nlte_data.get_collision_matrix(
         (1, 0), np.array([10000, 20000])
     )
