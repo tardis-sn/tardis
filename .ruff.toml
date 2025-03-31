@@ -217,3 +217,5 @@ lint.unfixable = [
 
 [lint.extend-per-file-ignores]
 "docs/*" = []
+
+exclude = ["conda-osx-arm64.lock", "conda-linux-64.lock", "conda-lock.yml"]

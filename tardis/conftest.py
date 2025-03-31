@@ -181,7 +181,6 @@ def tardis_config_verysimple_nlte():
         YAMLLoader,
     )
 
-
 ###
 # HDF Fixtures
 ###
