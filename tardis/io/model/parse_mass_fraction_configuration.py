@@ -89,7 +89,10 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
         isotope_mass_fractions /= norm_factor
     # The next line is if the mass_fractions are given via dict
     # and not gone through the schema validator
+
     model_isotope_time_0 = config.model.abundances.model_isotope_time_0
+    assert model_isotope_time_0 < time_explosion
+
     if model_isotope_time_0 >= 0 * u.s:
         isotope_mass_fractions = IsotopicMassFraction(
             isotope_mass_fractions, time_0=model_isotope_time_0
