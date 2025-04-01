@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.energy_input.main_gamma_ray_loop &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.energy_input.main_gamma_ray_loop</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.energy_input.main_gamma_ray_loop</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import astropy.units as u
+import numpy as np
+import pandas as pd
+
+from tardis.energy_input.energy_source import (
+    get_nuclear_lines_database,
+)
+from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
+from tardis.energy_input.gamma_ray_channel import (
+    calculate_total_decays,
+    create_inventories_dict,
+    create_isotope_dicts,
+)
+
+from tardis.energy_input.gamma_ray_transport import (
+    calculate_total_decays_old,
+    create_isotope_dicts_old,
+    create_inventories_dict_old,
+)
+from tardis.energy_input.gamma_ray_packet_source import RadioactivePacketSource
+from tardis.energy_input.gamma_ray_transport import (
+    calculate_average_energies,
+    calculate_average_power_per_mass,
+    calculate_ejecta_velocity_volume,
+    calculate_energy_per_mass,
+    decay_chain_energies,
+    distribute_packets,
+    get_taus,
+    iron_group_fraction_per_shell,
+)
+from tardis.energy_input.GXPacket import GXPacket
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+
+<div class="viewcode-block" id="run_gamma_ray_loop">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.main_gamma_ray_loop.html#tardis.energy_input.main_gamma_ray_loop.run_gamma_ray_loop">[docs]</a>
+def run_gamma_ray_loop(
+    model,
+    plasma,
+    num_decays,
+    time_start,
+    time_end,
+    time_space,
+    time_steps,
+    seed,
+    positronium_fraction,
+    atom_data,
+    spectrum_bins,
+    grey_opacity,
+    photoabsorption_opacity=&quot;tardis&quot;,
+    pair_creation_opacity=&quot;tardis&quot;,
+):
+    &quot;&quot;&quot;
+    Main loop to determine the gamma-ray propagation through the ejecta.
+    &quot;&quot;&quot;
+    np.random.seed(seed)
+    time_explosion = model.time_explosion.to(u.s).value
+    inner_velocities = model.v_inner.to(&quot;cm/s&quot;).value
+    outer_velocities = model.v_outer.to(&quot;cm/s&quot;).value
+    ejecta_volume = model.volume.to(&quot;cm^3&quot;).value
+    number_of_shells = model.no_of_shells
+    shell_masses = model.volume * model.density
+    raw_isotope_abundance = model.composition.raw_isotope_abundance.sort_values(
+        by=[&quot;atomic_number&quot;, &quot;mass_number&quot;], ascending=False
+    )
+    time_start *= u.d.to(u.s)
+    time_end *= u.d.to(u.s)
+
+    assert time_start &lt; time_end, &quot;time_start must be smaller than time_end!&quot;
+    if time_space == &quot;log&quot;:
+        times = np.geomspace(time_start, time_end, time_steps + 1)
+        effective_time_array = np.sqrt(times[:-1] * times[1:])
+    else:
+        times = np.linspace(time_start, time_end, time_steps + 1)
+        effective_time_array = 0.5 * (times[:-1] + times[1:])
+
+    dt_array = np.diff(times)
+
+    ejecta_velocity_volume = calculate_ejecta_velocity_volume(model)
+
+    inv_volume_time = (
+        1.0 / ejecta_velocity_volume[:, np.newaxis]
+    ) / effective_time_array**3.0
+
+    energy_df_rows = np.zeros((number_of_shells, time_steps))
+    # Use isotopic number density
+    for atom_number in plasma.isotope_number_density.index.get_level_values(0):
+        values = plasma.isotope_number_density.loc[atom_number].values
+        if values.shape[0] &gt; 1:
+            plasma.isotope_number_density.loc[atom_number].update = np.sum(
+                values, axis=0
+            )
+        else:
+            plasma.isotope_number_density.loc[atom_number].update = values
+
+    # Electron number density
+    electron_number_density = plasma.number_density.mul(
+        plasma.number_density.index, axis=0
+    ).sum()
+    taus, parents = get_taus(raw_isotope_abundance)
+    # inventories = raw_isotope_abundance.to_inventories()
+    electron_number = np.array(electron_number_density * ejecta_volume)
+    electron_number_density_time = (
+        electron_number[:, np.newaxis] * inv_volume_time
+    )
+
+    # Calculate decay chain energies
+
+    mass_density_time = shell_masses[:, np.newaxis] * inv_volume_time
+    gamma_ray_lines = atom_data.decay_radiation_data
+    isotope_dict = create_isotope_dicts_old(raw_isotope_abundance, shell_masses)
+    inventories_dict = create_inventories_dict_old(isotope_dict)
+    total_decays = calculate_total_decays_old(
+        inventories_dict, time_end - time_start
+    )
+
+    (
+        average_energies,
+        average_positron_energies,
+        gamma_ray_line_dict,
+    ) = calculate_average_energies(raw_isotope_abundance, gamma_ray_lines)
+
+    decayed_energy = decay_chain_energies(
+        average_energies,
+        total_decays,
+    )
+    energy_per_mass, energy_df = calculate_energy_per_mass(
+        decayed_energy, raw_isotope_abundance, shell_masses
+    )
+    average_power_per_mass = calculate_average_power_per_mass(
+        energy_per_mass, time_end - time_start
+    )
+    number_of_isotopes = plasma.isotope_number_density * ejecta_volume
+    total_isotope_number = number_of_isotopes.sum().sum()
+    decayed_packet_count = num_decays * number_of_isotopes.divide(
+        total_isotope_number, axis=0
+    )
+
+    total_energy = energy_df.sum().sum()
+    energy_per_packet = total_energy / num_decays
+    packets_per_isotope_df = (
+        distribute_packets(decayed_energy, total_energy, num_decays)
+        .round()
+        .fillna(0)
+        .astype(int)
+    )
+
+    total_energy = total_energy * u.eV.to(&quot;erg&quot;)
+
+    logger.info(f&quot;Total gamma-ray energy is {total_energy}&quot;)
+
+    iron_group_fraction = iron_group_fraction_per_shell(model)
+    number_of_packets = packets_per_isotope_df.sum().sum()
+    logger.info(f&quot;Total number of packets is {number_of_packets}&quot;)
+    individual_packet_energy = total_energy / number_of_packets
+    logger.info(f&quot;Energy per packet is {individual_packet_energy}&quot;)
+
+    logger.info(&quot;Initializing packets&quot;)
+
+    packet_source = RadioactivePacketSource(
+        individual_packet_energy,
+        gamma_ray_line_dict,
+        positronium_fraction,
+        inner_velocities,
+        outer_velocities,
+        inv_volume_time,
+        times,
+        energy_df_rows,
+        effective_time_array,
+        taus,
+        parents,
+        average_positron_energies,
+        average_power_per_mass,
+    )
+
+    packet_collection = packet_source.create_packets(packets_per_isotope_df)
+
+    energy_df_rows = packet_source.energy_df_rows
+    energy_plot_df_rows = np.zeros((number_of_packets, 8))
+
+    logger.info(&quot;Creating packet list&quot;)
+    packets = []
+    total_cmf_energy = packet_collection.energy_cmf.sum()
+    total_rf_energy = packet_collection.energy_rf.sum()
+    for i in range(number_of_packets):
+        packet = GXPacket(
+            packet_collection.location[:, i],
+            packet_collection.direction[:, i],
+            packet_collection.energy_rf[i],
+            packet_collection.energy_cmf[i],
+            packet_collection.nu_rf[i],
+            packet_collection.nu_cmf[i],
+            packet_collection.status[i],
+            packet_collection.shell[i],
+            packet_collection.time_current[i],
+        )
+        packets.append(packet)
+        energy_plot_df_rows[i] = np.array(
+            [
+                i,
+                packet.energy_rf,
+                packet.get_location_r(),
+                packet.time_current,
+                int(packet.status),
+                0,
+                0,
+                0,
+            ]
+        )
+
+    logger.info(f&quot;Total cmf energy is {total_cmf_energy}&quot;)
+    logger.info(f&quot;Total rf energy is {total_rf_energy}&quot;)
+
+    energy_bins = np.logspace(2, 3.8, spectrum_bins)
+    energy_out = np.zeros((len(energy_bins - 1), time_steps))
+    packets_info_array = np.zeros((int(num_decays), 8))
+
+    (
+        energy_df_rows,
+        energy_plot_df_rows,
+        energy_out,
+        deposition_estimator,
+        bin_width,
+        packets_array,
+    ) = gamma_packet_loop(
+        packets,
+        grey_opacity,
+        photoabsorption_opacity,
+        pair_creation_opacity,
+        electron_number_density_time,
+        mass_density_time,
+        inv_volume_time,
+        iron_group_fraction.to_numpy(),
+        inner_velocities,
+        outer_velocities,
+        times,
+        dt_array,
+        effective_time_array,
+        energy_bins,
+        energy_df_rows,
+        energy_plot_df_rows,
+        energy_out,
+        packets_info_array,
+    )
+
+    energy_plot_df = pd.DataFrame(
+        data=energy_plot_df_rows,
+        columns=[
+            &quot;packet_index&quot;,
+            &quot;energy_input&quot;,
+            &quot;energy_input_r&quot;,
+            &quot;energy_input_time&quot;,
+            &quot;energy_input_type&quot;,
+            &quot;compton_opacity&quot;,
+            &quot;photoabsorption_opacity&quot;,
+            &quot;total_opacity&quot;,
+        ],
+    )
+
+    energy_plot_positrons = pd.DataFrame(
+        data=packet_source.energy_plot_positron_rows,
+        columns=[
+            &quot;packet_index&quot;,
+            &quot;energy_input&quot;,
+            &quot;energy_input_r&quot;,
+            &quot;energy_input_time&quot;,
+        ],
+    )
+
+    energy_estimated_deposition = (
+        pd.DataFrame(data=deposition_estimator, columns=times[:-1])
+    ) / dt_array
+
+    energy_df = pd.DataFrame(data=energy_df_rows, columns=times[:-1]) / dt_array
+    escape_energy = pd.DataFrame(
+        data=energy_out, columns=times[:-1], index=energy_bins
+    )
+
+    return (
+        energy_df,
+        energy_plot_df,
+        escape_energy,
+        decayed_packet_count,
+        energy_plot_positrons,
+        energy_estimated_deposition,
+    )</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 01 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

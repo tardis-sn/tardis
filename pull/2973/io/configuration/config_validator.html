@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration Validator &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Reading a Configuration" href="tutorial_read_configuration.html" />
+    <link rel="prev" title="TARDIS Example Configuration" href="example.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration (Required Input)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="components/index.html">Configuration Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example.html">TARDIS Example Configuration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Configuration Validator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#container">Container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-use">How to use</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial_read_configuration.html">Reading a Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Configuration (Required Input)</a></li>
+      <li class="breadcrumb-item active">Configuration Validator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/io/configuration/config_validator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration-validator">
+<h1>Configuration Validator<a class="headerlink" href="#configuration-validator" title="Link to this heading">¶</a></h1>
+<p>The default config validator takes a user configuration and a default configuration and creates a consistent and valid configuration for TARDIS based on the constraints given in the default configuration. Both input data are normally given as a YAML dictionary with a consistent hierarchical structure, i.e. for every item in the user configuration there has to be a declaration in the default configuration at the same hierarchical level. This declaration can be either an unspecific empty level declaration like:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Main_level:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Second_level:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Third_level:</dt><dd><p>…</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>or a declaration of a configuration item like:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>item:</dt><dd><ul>
+<li><p>property_type: int</p></li>
+<li><p>default: 1</p></li>
+<li><p>mandatory: True</p></li>
+<li><p>help:  ‘This is a doc string.’</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>This contains always  the keywords <code class="docutils literal notranslate"><span class="pre">help</span></code>, <code class="docutils literal notranslate"><span class="pre">default</span></code>, <code class="docutils literal notranslate"><span class="pre">mandatory</span></code>, and <code class="docutils literal notranslate"><span class="pre">property_type</span></code>. The keyword help is  a doc-string which describes the corresponding item. “Default” specifies the default value which is used in case that no value for this item is specified in the corresponding user configuration item. If the keyword mandatory is <code class="docutils literal notranslate"><span class="pre">True</span></code>, the item has to be specified in the user configuration. The keyword <code class="docutils literal notranslate"><span class="pre">property_type</span></code> is used to specify the type of the item. At the moment, the config parser knows the following types:</p>
+<ul class="simple">
+<li><p><strong>Int:</strong> The property type int is for integer like config items.</p></li>
+<li><p><strong>Float:</strong> The property type float is for float like config items.</p></li>
+<li><p><strong>String:</strong> The property type string is for string like config items.</p></li>
+<li><p><strong>Quantity:</strong> The property type quantity is for physical quantities with units given as string. The string contains value and unit separated by a whitespace E.g. 2 cm.</p></li>
+<li><p><strong>Range:</strong> The property type range specifies a range via start and end.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">abs(start</span> <span class="pre">-</span> <span class="pre">end</span> <span class="pre">)</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>.</p>
+</div>
+<ul class="simple">
+<li><p><strong>Quantity_range:</strong> Like property type range but with quantities as start and stop. The consistency of the units is checked.</p></li>
+</ul>
+<p>Additionally to the four standard keywords the types integer, float, and quantity can have the keywords <code class="docutils literal notranslate"><span class="pre">allowed_value</span></code> and <code class="docutils literal notranslate"><span class="pre">allowed_type</span></code>. <code class="docutils literal notranslate"><span class="pre">allowed_value</span></code> specifies the allowed values in a list, whereas <code class="docutils literal notranslate"><span class="pre">allowed_type</span></code> specifies a range of allowed values, such as “x&gt;10”.</p>
+<section id="container">
+<h2>Container<a class="headerlink" href="#container" title="Link to this heading">¶</a></h2>
+<p>For more complex configurations with dependencies, you can use the containers that allow branching in the configuration. A container is declared in the default configuration file by setting the  <code class="docutils literal notranslate"><span class="pre">property_type</span></code> to container property and specifying the properties of the container with keyword type. The <code class="docutils literal notranslate"><span class="pre">property_type</span></code> of this section is container-declaration that allows you to specify the possible container items with the keyword container. For every specified container item, the code expects the declaration of all sub items. The keywords for this are “_“ + “name of the container item”.
+If the type declaration for this container is finished, you can specify all container items like normal items. Here is an example for a container configuration with two branches:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>container_example:</dt><dd><ul>
+<li><p>property_type: container-property</p></li>
+<li><dl class="simple">
+<dt>type:</dt><dd><ul>
+<li><p>property_type: container-declaration</p></li>
+<li><p>containers: [‘one’, ‘two’, ‘three’]</p></li>
+<li><p>_one: [‘one_one’, ‘one_two’]</p></li>
+<li><p>_two: [‘two_one’]</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>one_one:</dt><dd><ul>
+<li><p>property_type: string</p></li>
+<li><p>default: ‘This is a container item’</p></li>
+<li><p>mandatory: False</p></li>
+<li><p>help: This is a container item from the container one.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>one_two:</dt><dd><ul>
+<li><dl class="simple">
+<dt>sub_one_two_one:</dt><dd><ul>
+<li><p>property_type: string</p></li>
+<li><p>default: ‘This is a container item’</p></li>
+<li><p>mandatory: False</p></li>
+<li><p>help: This is a container item from the container one.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sub_one_two_two:</dt><dd><ul>
+<li><p>property_type: string</p></li>
+<li><p>default: ‘This is a container item’</p></li>
+<li><p>mandatory: False</p></li>
+<li><p>help: This is a container item from the container one.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>two_one:</dt><dd><ul>
+<li><dl class="simple">
+<dt>quantity_range:</dt><dd><ul>
+<li><p>property_type: quantity_range</p></li>
+<li><p>default: [1 m,10 cm] <em>#[Start,End]</em></p></li>
+<li><p>mandatory: False</p></li>
+<li><p>help:  Like property type range but with quantities as start and stop. The consistency of the units is checked.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="how-to-use">
+<h2>How to use<a class="headerlink" href="#how-to-use" title="Link to this heading">¶</a></h2>
+<p>To use the default parser create a new config object form the class ConfigurationValidator either from a dictionaries or from YAML files:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- My_config = ConfigurationValidator(default configuration dictionary, user configuration dictionary)
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- My_config = ConfigurationValidator.from_yaml (default configuration file, user configuration file).
+</pre></div>
+</div>
+<p>To access the configuration for TARDIS, use the method <code class="docutils literal notranslate"><span class="pre">get_config</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="example.html" class="btn btn-neutral float-left" title="TARDIS Example Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial_read_configuration.html" class="btn btn-neutral float-right" title="Reading a Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 01 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
