@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+
 
 @dataclass
 class ArtisModelData:
@@ -141,7 +143,7 @@ def read_artis_mass_fractions(fname, normalize=True):
         as columns, holding the mass fractions for each element and shell.
     """
     mass_fractions_df = pd.read_csv(
-        fname, comment="#", sep="\s+", header=None, index_col=0
+        fname, comment="#", sep=r"\s+", header=None, index_col=0
     )
 
     mass_fractions_df.index.name = "cell_index"
@@ -192,6 +194,3 @@ def read_artis_model(density_fname, abundance_fname):
         mean_density=mean_density,
         mass_fractions=mass_fractions,
     )
-
-
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
