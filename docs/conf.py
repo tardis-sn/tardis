@@ -382,6 +382,20 @@ def generate_how_to_guides_page(app):
     with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
+def generate_worflows_page(app):
+    "Create workflows.rst"
+    notebooks = ""
+
+    for root, dirs, fnames in os.walk("workflows/"):
+        for fname in fnames:
+            if 'workflow' in fname and fname.endswith(".ipynb") and "checkpoint" not in fname:
+                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+
+    title = "Workflows\n*********\n"
+    description = "The following pages contain the TARDIS workflows:"
+
+    with open("workflows.rst", mode="wt", encoding="utf-8") as f:
+        f.write(f"{title}\n{description}\n{notebooks}")
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     """Exclude specific functions/methods from the documentation"""
