@@ -1,0 +1,7 @@
+tardis.energy\_input.nuclear\_energy\_source module
+===================================================
+
+.. automodule:: tardis.energy_input.nuclear_energy_source
+   :members:
+   :undoc-members:
+   :show-inheritance:
