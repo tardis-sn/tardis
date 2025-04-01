@@ -52,22 +52,48 @@ jobs:
       - name: Clean old PR folders
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
+          if [[ ! -d pull ]]; then
+            echo "No pull directory found"
+            exit 0
+          fi
+          
+          echo "Listing PR folders:"
+          ls -la pull/
+          
+          # Get list of PR folders with their last modification time
           for dir in pull/*; do
             if [[ -d "$dir" ]]; then
               last_mod=$(stat -f %m "$dir")
               echo "$last_mod $dir"
             fi
           done > pr_folders.txt
-          old_folders=$(sort -n pr_folders.txt | head -10 | awk '{print $2}')
-          echo "Found folders to remove:"
-          echo "$old_folders"
+          
+          echo "Contents of pr_folders.txt:"
           cat pr_folders.txt
           
-          # Remove the folders and commit
-          echo "$old_folders" | xargs git rm -rf
+          # Sort by modification time and get the 10 oldest
+          old_folders=$(sort -n pr_folders.txt | head -10 | awk '{print $2}')
+          
+          if [[ -z "$old_folders" ]]; then
+            echo "No PR folders found to remove"
+            rm pr_folders.txt
+            exit 0
+          fi
+          
+          echo "Found folders to remove:"
+          echo "$old_folders"
+          
+          # Remove the folders
+          for folder in $old_folders; do
+            echo "Removing $folder"
+            git rm -rf "$folder"
+          done
+          
           rm pr_folders.txt
-
+          
+          # Commit and push if there are changes
           if git status --porcelain | grep -q .; then
+            echo "Changes detected, committing and pushing"
             git commit -m "clean: remove old PR documentation folders"
             git push
           else
