@@ -18,7 +18,7 @@ env:
 
 jobs:
   clean:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,13 +52,23 @@ jobs:
       - name: Clean old PR folders
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
-          if [[ -d pull ]]; then
-            # Get 10 oldest PR folders based on modification time
-            old_folders=$(find pull -maxdepth 1 -mindepth 1 -type d -printf "%T@ %p\n" | sort | head -10 | cut -d' ' -f2)
-            
-            if [[ -n "$old_folders" ]]; then
-              echo "$old_folders" | xargs git rm -rf
-              git commit -m "clean: remove old PR documentation folders"
-              git push
+          for dir in pull/*; do
+            if [[ -d "$dir" ]]; then
+              last_mod=$(stat -f %m "$dir")
+              echo "$last_mod $dir"
             fi
+          done > pr_folders.txt
+          old_folders=$(sort -n pr_folders.txt | head -10 | awk '{print $2}')
+          echo "Found folders to remove:"
+          echo "$old_folders"
+          
+          # Remove the folders and commit
+          echo "$old_folders" | xargs git rm -rf
+          rm pr_folders.txt
+
+          if git status --porcelain | grep -q .; then
+            git commit -m "clean: remove old PR documentation folders"
+            git push
+          else
+            echo "No changes to commit"
           fi
