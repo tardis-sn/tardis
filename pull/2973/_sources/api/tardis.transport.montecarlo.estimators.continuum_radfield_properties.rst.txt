@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.estimators.continuum\_radfield\_properties module
-=============================================================================
-
-.. automodule:: tardis.transport.montecarlo.estimators.continuum_radfield_properties
-   :members:
-   :undoc-members:
-   :show-inheritance:
