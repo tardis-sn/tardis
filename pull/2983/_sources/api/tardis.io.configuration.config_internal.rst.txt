@@ -1,0 +1,7 @@
+tardis.io.configuration.config\_internal module
+===============================================
+
+.. automodule:: tardis.io.configuration.config_internal
+   :members:
+   :undoc-members:
+   :show-inheritance:
