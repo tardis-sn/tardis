@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.energy_input.gamma_ray_transport module &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tardis.energy_input.main_gamma_ray_loop module" href="tardis.energy_input.main_gamma_ray_loop.html" />
+    <link rel="prev" title="tardis.energy_input.gamma_ray_packet_source module" href="tardis.energy_input.gamma_ray_packet_source.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tardis.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="tardis.energy_input.html">tardis.energy_input package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.grid.html">tardis.grid package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.gui.html">tardis.gui package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.html">tardis.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.model.html">tardis.model package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.opacities.html">tardis.opacities package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.html">tardis.plasma package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.scripts.html">tardis.scripts package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.simulation.html">tardis.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.spectrum.html">tardis.spectrum package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.stats.html">tardis.stats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.html">tardis.transport package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.util.html">tardis.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.html">tardis.visualization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.html">tardis.workflows package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#module-tardis">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">tardis</a></li>
+          <li class="breadcrumb-item"><a href="tardis.html">tardis package</a></li>
+          <li class="breadcrumb-item"><a href="tardis.energy_input.html">tardis.energy_input package</a></li>
+      <li class="breadcrumb-item active">tardis.energy_input.gamma_ray_transport module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/tardis.energy_input.gamma_ray_transport.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-tardis.energy_input.gamma_ray_transport">
+<span id="tardis-energy-input-gamma-ray-transport-module"></span><h1>tardis.energy_input.gamma_ray_transport module<a class="headerlink" href="#module-tardis.energy_input.gamma_ray_transport" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.calculate_average_energies">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">calculate_average_energies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_isotope_abundance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_ray_lines</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#calculate_average_energies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.calculate_average_energies" title="Link to this definition">¶</a></dt>
+<dd><p>Function to calculate average energies of positrons and gamma rays
+from a list of gamma ray lines from nndc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>raw_isotope_abundance</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>isotope abundance in mass fractions</p>
+</dd>
+<dt><strong>gamma_ray_lines</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>decay data</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>average_energies_list</strong><span class="classifier">List</span></dt><dd><p>list of gamma ray energies</p>
+</dd>
+<dt><strong>average_positron_energies_list</strong><span class="classifier">List</span></dt><dd><p>list of positron energies</p>
+</dd>
+<dt><strong>gamma_ray_line_array_list</strong><span class="classifier">List</span></dt><dd><p>list of gamma ray lines</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.calculate_average_power_per_mass">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">calculate_average_power_per_mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_per_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#calculate_average_power_per_mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.calculate_average_power_per_mass" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.calculate_ejecta_velocity_volume">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">calculate_ejecta_velocity_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#calculate_ejecta_velocity_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.calculate_ejecta_velocity_volume" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.calculate_energy_per_mass">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">calculate_energy_per_mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decay_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_isotope_abundance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_masses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#calculate_energy_per_mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.calculate_energy_per_mass" title="Link to this definition">¶</a></dt>
+<dd><p>Function to calculate decay energy per mass for each isotope chain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>decay_energy</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of decay chain energies for each isotope in each shell</p>
+</dd>
+<dt><strong>raw_isotope_abundance</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>isotope abundance in mass fractions.</p>
+</dd>
+<dt><strong>cell_masses</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>shell masses in units of g</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>energy_per_mass</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>decay energy per mass for each isotope chain
+For e.g Ni56 has 2 decay chains:
+Ni56 -&gt; Co56 -&gt; Fe56. It will calculate the decay energy per mass for each chain
+and store as a dataframe.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.calculate_total_decays_old">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">calculate_total_decays_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inventories</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#calculate_total_decays_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.calculate_total_decays_old" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create inventories of isotope</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model</strong><span class="classifier">tardis.Radial1DModel</span></dt><dd><p>The tardis model to calculate gamma ray propagation through</p>
+</dd>
+<dt><strong>time_end</strong><span class="classifier">float</span></dt><dd><p>End time of simulation in days</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>Total decay list</strong><span class="classifier">List</span></dt><dd><p>list of total decays for x g of isotope for time ‘t’</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.create_inventories_dict_old">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">create_inventories_dict_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#create_inventories_dict_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.create_inventories_dict_old" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create dictionary of inventories for each shell</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>isotope_dict</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of isotopes for each shell with their <code class="docutils literal notranslate"><span class="pre">masses</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>inv</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of inventories for each shell
+For eg: {0: {‘Ni56’: &lt;radioactivedecay.Inventory at 0x7f7d2c0d0e50&gt;,</p>
+<blockquote>
+<div><blockquote>
+<div><p>‘Co56’: &lt;radioactivedecay.Inventory at 0x7f7d2c0d0e50&gt;},</p>
+</div></blockquote>
+<dl class="simple">
+<dt>{1: {‘Ni56’: &lt;radioactivedecay.Inventory at 0x7f7d2c0d0e50&gt;,</dt><dd><p>‘Co56’: &lt;radioactivedecay.Inventory at 0x7f7d2c0d0e50&gt;}} etc</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.create_isotope_dicts_old">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">create_isotope_dicts_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_isotope_abundance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_masses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#create_isotope_dicts_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.create_isotope_dicts_old" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create a dictionary of isotopes for each shell with their masses.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>raw_isotope_abundance</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>isotope abundance in mass fractions.</p>
+</dd>
+<dt><strong>cell_masses</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>shell masses in units of g</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>isotope_dicts</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of isotopes for each shell with their <code class="docutils literal notranslate"><span class="pre">masses</span></code>.
+For eg: {0: {(28, 56): {‘Ni56’: 0.0001}, (27, 57): {‘Co56’: 0.0001}}</p>
+<blockquote>
+<div><p>{1: {(28, 56): {‘Ni56’: 0.0001}, (27, 57): {‘Co56’: 0.0001}}} etc</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.decay_chain_energies">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">decay_chain_energies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">average_energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_decays</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#decay_chain_energies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.decay_chain_energies" title="Link to this definition">¶</a></dt>
+<dd><p>Function to calculate decay chain energies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>raw_isotope_abundance</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>isotope abundance in mass fractions</p>
+</dd>
+<dt><strong>average_energies_list</strong><span class="classifier">List</span></dt><dd><p>list of gamma ray energies</p>
+</dd>
+<dt><strong>average_positron_energies_list</strong><span class="classifier">List</span></dt><dd><p>list of positron energies</p>
+</dd>
+<dt><strong>gamma_ray_line_array_list</strong><span class="classifier">List</span></dt><dd><p>list of gamma ray lines</p>
+</dd>
+<dt><strong>total_decays</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of total decays for each isotope in each shell</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>decay_energy</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of decay chain energies for each isotope in each shell</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.distribute_packets">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">distribute_packets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decay_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_packets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#distribute_packets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.distribute_packets" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.fractional_decay_energy">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">fractional_decay_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decay_energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#fractional_decay_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.fractional_decay_energy" title="Link to this definition">¶</a></dt>
+<dd><p>Function to calculate fractional decay energy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>decay_energy</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of decay chain energies for each isotope in each shell</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fractional_decay_energy</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of fractional decay chain energies for each isotope in each shell</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.get_chain_decay_power_per_ejectamass">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">get_chain_decay_power_per_ejectamass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inventory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_positron_energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#get_chain_decay_power_per_ejectamass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.get_chain_decay_power_per_ejectamass" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.get_nuclide_atomic_number">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">get_nuclide_atomic_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nuclide</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#get_nuclide_atomic_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.get_nuclide_atomic_number" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.get_taus">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">get_taus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_isotope_abundance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#get_taus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.get_taus" title="Link to this definition">¶</a></dt>
+<dd><p>Function to calculate taus for each isotope</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>raw_isotope_abundance</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>isotope abundance in mass fractions</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>taus</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of taus for each isotope</p>
+</dd>
+<dt><strong>parents</strong><span class="classifier">Dict</span></dt><dd><p>dictionary of parents for each isotope</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.iron_group_fraction_per_shell">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">iron_group_fraction_per_shell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#iron_group_fraction_per_shell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.iron_group_fraction_per_shell" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.gamma_ray_transport.packets_per_isotope">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.gamma_ray_transport.</span></span><span class="sig-name descname"><span class="pre">packets_per_isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fractional_decay_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decayed_packet_count_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/gamma_ray_transport.html#packets_per_isotope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.gamma_ray_transport.packets_per_isotope" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tardis.energy_input.gamma_ray_packet_source.html" class="btn btn-neutral float-left" title="tardis.energy_input.gamma_ray_packet_source module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.energy_input.main_gamma_ray_loop.html" class="btn btn-neutral float-right" title="tardis.energy_input.main_gamma_ray_loop module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 01 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

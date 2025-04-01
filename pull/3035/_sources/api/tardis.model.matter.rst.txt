@@ -1,0 +1,19 @@
+tardis.model.matter package
+===========================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.model.matter.composition
+   tardis.model.matter.decay
+
+Module contents
+---------------
+
+.. automodule:: tardis.model.matter
+   :members:
+   :undoc-members:
+   :show-inheritance:
