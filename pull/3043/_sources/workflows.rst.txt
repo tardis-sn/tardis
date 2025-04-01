@@ -1,0 +1,8 @@
+Workflows
+*********
+
+The following pages contain the TARDIS workflows:
+
+* :doc:`workflows//v_inner_solver_workflow`
+* :doc:`workflows//standard_workflow`
+* :doc:`workflows//simple_workflow`
