@@ -61,6 +61,7 @@ jobs:
           old_folders=$(sort -n pr_folders.txt | head -10 | awk '{print $2}')
           echo "Found folders to remove:"
           echo "$old_folders"
+          cat pr_folders.txt
           
           # Remove the folders and commit
           echo "$old_folders" | xargs git rm -rf
