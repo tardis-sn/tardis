@@ -8,6 +8,13 @@
    ]
   },
   {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The source code for this workflow can be found at: https://github.com/tardis-sn/tardis/blob/master/tardis/workflows/simple_tardis_workflow.py."
+   ]
+  },
+  {
    "cell_type": "code",
    "execution_count": 8,
    "metadata": {},
@@ -76,13 +83,6 @@
     "plt.legend()\n",
     "plt.show()"
    ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": []
   }
  ],
  "metadata": {
