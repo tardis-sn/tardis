@@ -56,7 +56,7 @@ jobs:
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
 
@@ -93,7 +93,6 @@ jobs:
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
 
