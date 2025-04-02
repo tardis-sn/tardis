@@ -27,11 +27,13 @@
 import os
 import sys
 import datetime
-import tardis  # FIXME: this import is required by astropy.constants
+import panel as pn
+pn.extension() # needs to be imported before tardis
+
 from importlib import import_module
 import toml
 from pathlib import Path
-
+import tardis  # FIXME: this import is required by astropy.constants
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
 except ImportError:
@@ -310,12 +312,12 @@ linkcheck_timeout = 180
 linkcheck_anchors = False
 
 # -- Options for Panel -------------------------------------------
+from ipywidgets.embed import DEFAULT_EMBED_REQUIREJS_URL
 
+# https://panel.holoviz.org/how_to/wasm/sphinx.html#configuration
 nbsite_pyodide_conf = {
      "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"
 }
-os.environ["PANEL_DOCS_BUILD"] = "1" 
-from ipywidgets.embed import DEFAULT_EMBED_REQUIREJS_URL
 
 html_js_files = [
     DEFAULT_EMBED_REQUIREJS_URL,

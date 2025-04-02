@@ -5,30 +5,21 @@ from dataclasses import dataclass, field
 import panel as pn
 from IPython.display import display
 from functools import lru_cache
+import pandas as pd
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
+
+import panel as pn
+if not pn.extension._loaded:
+    pn.extension(comms="ipywidgets")
 
 @lru_cache(maxsize=1)
 def get_environment():
     """Determine the execution environment"""
-    try:
-        import IPython
-        ipython = IPython.get_ipython()
+    if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
+        return 'vscode'
+    return 'jupyter'
 
-        if ipython is None:
-            return 'standard'
-
-        # Check for VSCode specific environment variables
-        if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
-            return 'vscode'
-
-        # Check if running in Jupyter notebook
-        if 'IPKernelApp' in ipython.config:
-            return 'jupyter'
-
-        return 'standard'
-    except:
-        return 'standard'
 
 def create_output_widget(height=300):
     return pn.pane.HTML(
@@ -58,14 +49,6 @@ LOGGER_WIDGET = pn.Tabs(
     height=350,
     sizing_mode='stretch_width'
 )
-
-if ENVIRONMENT == 'vscode':
-    pn.extension()
-    display(LOGGER_WIDGET)
-elif os.environ.get("PANEL_DOCS_BUILD"):
-    pn.extension()
-else:
-    pn.extension(comms='ipywidgets')
 
 @dataclass
 class LoggingConfig:
@@ -103,17 +86,22 @@ class AsyncEmitLogHandler(logging.Handler):
         self.logger_widget = logger_widget
 
     def emit(self, record):
-        # Handle standard environment with simple stream output
-        if not self.display_widget or self.environment == 'standard':
+        if not self.display_widget or self.display_handle is None:
             stream_handler = logging.StreamHandler()
             stream_handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
             stream_handler.emit(record)
             return
 
-        # Process and emit log directly
-        log_entry = self.format(record)
-        clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
-        html_output = self._format_html_output(clean_log_entry, record)
+        if isinstance(record.msg, pd.DataFrame):
+            html_output = record.msg.to_html(
+                border=0.1,
+            )
+
+        else:
+            log_entry = self.format(record)
+            clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
+            html_output = self._format_html_output(clean_log_entry, record)
+            
         self._emit_to_widget(record.levelno, html_output)
 
     @staticmethod
@@ -152,7 +140,7 @@ class AsyncEmitLogHandler(logging.Handler):
         self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
 
         # Update Jupyter display if in jupyter environment
-        if self.environment == 'jupyter':
+        if self.environment == 'jupyter' and self.display_handle is not None:
             self.display_handle.update(self.logger_widget)
 
 
@@ -257,8 +245,8 @@ class LogFilter:
 def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
     if display_logging_widget and ENVIRONMENT == 'jupyter':
         display_handle = display(LOGGER_WIDGET.embed(), display_id="logger_widget")
-    elif display_logging_widget and ENVIRONMENT == 'vscode':
-        display_handle = None
+    elif display_logging_widget:
+        display_handle = display(LOGGER_WIDGET, display_id="logger_widget")
     else:
         display_handle = None
     logger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)

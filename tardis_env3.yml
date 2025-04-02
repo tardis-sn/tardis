@@ -2,7 +2,6 @@ name: tardis
 
 channels:
   - conda-forge
-  # - pyviz
 
 dependencies:
   # WARNING: any change to this section must be applied to the conda-forge
@@ -37,14 +36,14 @@ dependencies:
   - notebook
   - matplotlib-base
   - ipywidgets
-  - plotly==5.22.0 # pinned for panel
+  - plotly==5.22.0 # pinned since new version doesn't show convergence plots in sphinx
+  - anywidget # plotly figurewidget plots
   - panel
   - watchfiles
-  - pyviz::nbsite
-  - jupyter_bokeh
-  - anywidget
-  # - pip:
-  #     - qgridnext
+  - pyviz::nbsite # https://panel.holoviz.org/how_to/wasm/sphinx.html
+  - jupyter_bokeh # to make panel work in vscode
+  - pip:
+      - qgridnext
 
   # --- Packages not required for conda-forge recipe ---
 
