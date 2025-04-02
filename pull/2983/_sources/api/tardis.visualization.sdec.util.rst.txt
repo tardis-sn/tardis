@@ -1,7 +1,0 @@
-tardis.visualization.sdec.util module
-=====================================
-
-.. automodule:: tardis.visualization.sdec.util
-   :members:
-   :undoc-members:
-   :show-inheritance:

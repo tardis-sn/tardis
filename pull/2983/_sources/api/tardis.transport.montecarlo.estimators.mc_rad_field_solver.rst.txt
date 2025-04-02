@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.estimators.mc\_rad\_field\_solver module
-====================================================================
-
-.. automodule:: tardis.transport.montecarlo.estimators.mc_rad_field_solver
-   :members:
-   :undoc-members:
-   :show-inheritance:
