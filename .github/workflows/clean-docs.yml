@@ -6,96 +6,54 @@ name: clean-docs
 
 on:
   delete:
-  pull_request_target:
-    branches: ["*"]
-    types: [closed]
-  push:
-    branches: [workflow_fixes]
-  workflow_dispatch:
+  pull_request_target: # remove closed or merged pull requests
+    branches:
+      - "*"
+    types:
+      - closed
 
 env:
-  DEPLOY_BRANCH: gh-pages
+  DEPLOY_BRANCH: gh-pages #  deployed docs branch
 
 jobs:
   clean:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.DEPLOY_BRANCH }}
 
-      - name: Configure Git
+      - name: Set folder to delete
         run: |
+          if [[ $EVENT == delete ]]; then
+            echo "DEST_DIR=$EVENT_TYPE/$EVENT_REF" >> $GITHUB_ENV
+
+          elif [[ $EVENT == pull_request_target ]]; then
+            echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+
+          else
+            echo "Unexpected event trigger $EVENT"
+            exit 1
+
+          fi
+          cat $GITHUB_ENV
+        env:
+          PR: ${{ github.event.number }}
+          EVENT: ${{ github.event_name }}
+          EVENT_REF: ${{ github.event.ref }}
+          EVENT_TYPE: ${{ github.event.ref_type }}
+
+      - name: Clean ${{ env.DEST_DIR }}
+        run: |
+          git fetch origin ${{ env.DEPLOY_BRANCH }}
+          git checkout ${{ env.DEPLOY_BRANCH }}
           git config user.name "TARDIS Bot"
           git config user.email tardis.sn.bot@gmail.com
 
-      - name: Clean specific PR folder
-        if: github.event_name == 'pull_request_target'
-        run: |
-          folder="pull/${{ github.event.number }}"
-          if [[ -d "$folder" ]]; then
-            git rm -rf "$folder"
-            git commit -m "clean $folder"
+          if [[ -d $DEST_DIR ]]; then
+            git rm -rf $DEST_DIR
+            git commit -m "clean $DEST_DIR"
             git push
-          fi
 
-      - name: Clean specific branch folder
-        if: github.event_name == 'delete'
-        run: |
-          folder="${{ github.event.ref_type }}/${{ github.event.ref }}"
-          if [[ -d "$folder" ]]; then
-            git rm -rf "$folder"
-            git commit -m "clean $folder"
-            git push
-          fi
-
-      - name: Clean old PR folders
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        run: |
-          if [[ ! -d pull ]]; then
-            echo "No pull directory found"
-            exit 0
-          fi
-          
-          echo "Listing PR folders:"
-          ls -la pull/
-          
-          # Get list of PR folders with their last modification time
-          for dir in pull/*; do
-            if [[ -d "$dir" ]]; then
-              last_mod=$(stat -f %m "$dir")
-              echo "$last_mod $dir"
-            fi
-          done > pr_folders.txt
-          
-          echo "Contents of pr_folders.txt:"
-          cat pr_folders.txt
-          
-          # Sort by modification time and get the 10 oldest
-          old_folders=$(sort -n pr_folders.txt | head -10 | awk '{print $2}')
-          
-          if [[ -z "$old_folders" ]]; then
-            echo "No PR folders found to remove"
-            rm pr_folders.txt
-            exit 0
-          fi
-          
-          echo "Found folders to remove:"
-          echo "$old_folders"
-          
-          # Remove the folders
-          for folder in $old_folders; do
-            echo "Removing $folder"
-            git rm -rf "$folder"
-          done
-          
-          rm pr_folders.txt
-          
-          # Commit and push if there are changes
-          if git status --porcelain | grep -q .; then
-            echo "Changes detected, committing and pushing"
-            git commit -m "clean: remove old PR documentation folders"
-            git push
           else
-            echo "No changes to commit"
+            echo "$DEST_DIR does not exist"
+
           fi
