@@ -1,0 +1,341 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.io.model.readers.generic_readers &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/runbutton.css?v=880c2f88" />
+
+  
+    <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/run_cell.js?v=da6c9fe8"></script>
+      <script src="../../../../../_static/WorkerHandler.js"></script>
+      <script src="../../../../../_static/ServiceHandler.js"></script>
+      <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.6.3.min.js"></script>
+      <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.6.3.min.js"></script>
+      <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.6.3.min.js"></script>
+      <script src="https://cdn.holoviz.org/panel/1.6.1/dist/panel.min.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../embed.html">Embedded ShellInfoWidget</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.io.model.readers.generic_readers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.io.model.readers.generic_readers</h1><div class="highlight"><pre>
+<span></span>from typing import Any, Tuple
+
+import numpy as np
+import pandas as pd
+from astropy import units as u
+from numpy import genfromtxt
+from radioactivedecay import Nuclide
+from radioactivedecay.utils import Z_DICT, elem_to_Z
+
+from tardis.io.model.readers.util import read_csv_isotope_mass_fractions
+from tardis.util.base import parse_quantity
+
+
+<div class="viewcode-block" id="ConfigurationError">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.ConfigurationError">[docs]</a>
+class ConfigurationError(Exception):
+    pass</div>
+
+
+
+<div class="viewcode-block" id="read_simple_ascii_density">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_simple_ascii_density">[docs]</a>
+def read_simple_ascii_density(
+    fname: Any,
+) -&gt; Tuple[u.Quantity, u.Quantity, u.Quantity]:
+    &quot;&quot;&quot;
+    Reading a density file of the following structure (example; lines starting with a hash will be ignored):
+    The first density describes the mean density in the center of the model and is not used.
+    5 s
+    #index velocity [km/s] density [g/cm^3]
+    0 1.1e4 1.6e8
+    1 1.2e4 1.7e8
+
+    Parameters
+    ----------
+    fname : str
+        filename or path with filename
+
+    Returns
+    -------
+    time_of_model : astropy.units.Quantity
+        time at which the model is valid
+    velocity : u.Quantity
+        velocity
+    mean_density: u.Quantity
+        mean density
+    &quot;&quot;&quot;
+    with open(fname) as fh:
+        time_of_model_string = fh.readline().strip()
+        time_of_model = parse_quantity(time_of_model_string)
+
+    data = genfromtxt(
+        fname,
+        skip_header=1,
+        names=(&quot;index&quot;, &quot;velocity&quot;, &quot;density&quot;),
+        dtype=[(&#39;index&#39;, &#39;i8&#39;), (&#39;velocity&#39;, &#39;f8&#39;), (&#39;density&#39;, &#39;f8&#39;)], 
+        encoding=&#39;utf-8&#39;,
+    )
+    velocity = (data[&quot;velocity&quot;] * u.km / u.s).to(&quot;cm/s&quot;)
+    mean_density = (data[&quot;density&quot;] * u.Unit(&quot;g/cm^3&quot;))[1:]
+
+    return time_of_model, velocity, mean_density</div>
+
+
+
+<div class="viewcode-block" id="read_csv_composition">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_csv_composition">[docs]</a>
+def read_csv_composition(fname, delimiter=r&quot;\s+&quot;):
+    &quot;&quot;&quot;Read composition from a simple CSV file
+
+    The CSV file can contain specific isotopes or elemental mass fractions in the
+    different columns. The first row must contain the header in which the
+    contents of each column is specified by the elemental symbol (for elemental
+    mass fractions) or by the symbol plus mass number (for isotopic mass fractions).
+
+    Example: C O Fe Ni56 Co
+
+    The i-th row specifies the composition in the i-th shell
+
+    fname : str
+        filename of the csv file
+    &quot;&quot;&quot;
+    return read_csv_isotope_mass_fractions(
+        fname, delimiter=delimiter, skip_columns=0, skip_rows=[1]
+    )</div>
+
+
+
+<div class="viewcode-block" id="read_simple_ascii_mass_fractions">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_simple_ascii_mass_fractions">[docs]</a>
+def read_simple_ascii_mass_fractions(fname):
+    &quot;&quot;&quot;
+    Reading a mass fraction file of the following structure (example; lines starting with hash will be ignored):
+    The first line of mass fractions describe the mass fractions in the center of the model and are not used.
+    #index element1, element2, ..., element30
+    0 0.4 0.3, .. 0.2
+
+    Parameters
+    ----------
+    fname : str
+        filename or path with filename
+
+    Returns
+    -------
+    index : np.ndarray
+        containing the indices
+    mass_fractions : pandas.DataFrame
+        data frame containing index, element1 - element30 and columns according to the shells
+    &quot;&quot;&quot;
+    data = np.loadtxt(fname)
+
+    index = data[1:, 0].astype(int)
+    mass_fractions = pd.DataFrame(
+        data[1:, 1:].transpose(), index=np.arange(1, data.shape[1])
+    )
+
+    return index, mass_fractions</div>
+
+
+
+<div class="viewcode-block" id="read_uniform_mass_fractions">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_uniform_mass_fractions">[docs]</a>
+def read_uniform_mass_fractions(mass_fractions_section, no_of_shells):
+    &quot;&quot;&quot;
+    Parameters
+    ----------
+    mass_fractions_section : config.model.abundances
+    no_of_shells : int
+
+    Returns
+    -------
+    mass_fractions : pandas.DataFrame
+    isotope_mass_fractions : pandas.DataFrame
+    &quot;&quot;&quot;
+    mass_fractions = pd.DataFrame(
+        columns=np.arange(no_of_shells),
+        index=pd.Index(np.arange(1, 120), name=&quot;atomic_number&quot;),
+        dtype=np.float64,
+    )
+
+    isotope_index = pd.MultiIndex(
+        [[]] * 2, [[]] * 2, names=[&quot;atomic_number&quot;, &quot;mass_number&quot;]
+    )
+    isotope_mass_fractions = pd.DataFrame(
+        columns=np.arange(no_of_shells), index=isotope_index, dtype=np.float64
+    )
+
+    for element_symbol_string in mass_fractions_section:
+        if element_symbol_string in [&quot;type&quot;, &quot;model_isotope_time_0&quot;]:
+            continue
+        try:
+            if element_symbol_string in Z_DICT.values():
+                z = elem_to_Z(element_symbol_string)
+                mass_fractions.loc[z] = float(
+                    mass_fractions_section[element_symbol_string]
+                )
+            else:
+                nuc = Nuclide(element_symbol_string)
+                mass_no = nuc.A
+                z = nuc.Z
+                isotope_mass_fractions.loc[(z, mass_no), :] = float(
+                    mass_fractions_section[element_symbol_string]
+                )
+
+        except RuntimeError as err:
+            raise RuntimeError(
+                f&quot;mass_fractions are not defined properly in config file : {err.args}&quot;
+            )
+
+    return mass_fractions, isotope_mass_fractions</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 02 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.io.model.readers.base &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/runbutton.css?v=880c2f88" />
+
+  
+    <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/run_cell.js?v=da6c9fe8"></script>
+      <script src="../../../../../_static/WorkerHandler.js"></script>
+      <script src="../../../../../_static/ServiceHandler.js"></script>
+      <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.6.3.min.js"></script>
+      <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.6.3.min.js"></script>
+      <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.6.3.min.js"></script>
+      <script src="https://cdn.holoviz.org/panel/1.6.1/dist/panel.min.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../embed.html">Embedded ShellInfoWidget</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.io.model.readers.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.io.model.readers.base</h1><div class="highlight"><pre>
+<span></span>import numpy as np
+import pandas as pd
+
+from tardis.io.model.readers.artis import read_artis_density
+from tardis.io.model.readers.cmfgen_deprecated import (
+    read_cmfgen_composition,
+    read_cmfgen_density,
+)
+from tardis.io.model.readers.generic_readers import (
+    ConfigurationError,
+    read_csv_composition,
+    read_simple_ascii_density,
+    read_simple_ascii_mass_fractions,
+)
+
+
+<div class="viewcode-block" id="read_mass_fractions_file">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.readers.base.html#tardis.io.model.readers.base.read_mass_fractions_file">[docs]</a>
+def read_mass_fractions_file(
+    mass_fractions_filename,
+    mass_fractions_filetype,
+    inner_boundary_index=None,
+    outer_boundary_index=None,
+):
+    &quot;&quot;&quot;
+    read different density file formats
+
+    Parameters
+    ----------
+    mass_fractions_filename : str
+        filename or path of the density file
+    mass_fractions_filetype : str
+        type of the density file
+    inner_boundary_index : int
+        index of the inner shell, default None
+    outer_boundary_index : int
+        index of the outer shell, default None
+    &quot;&quot;&quot;
+    file_parsers = {
+        &quot;simple_ascii&quot;: read_simple_ascii_mass_fractions,
+        &quot;artis&quot;: read_simple_ascii_mass_fractions,
+        &quot;cmfgen_model&quot;: read_cmfgen_composition,
+        &quot;custom_composition&quot;: read_csv_composition,
+    }
+
+    isotope_mass_fractions = pd.DataFrame()
+    if mass_fractions_filetype in [&quot;cmfgen_model&quot;, &quot;custom_composition&quot;]:
+        index, mass_fractions, isotope_mass_fractions = file_parsers[
+            mass_fractions_filetype
+        ](mass_fractions_filename)
+    else:
+        index, mass_fractions = file_parsers[mass_fractions_filetype](
+            mass_fractions_filename
+        )
+
+    if outer_boundary_index is not None:
+        outer_boundary_index_m1 = outer_boundary_index - 1
+    else:
+        outer_boundary_index_m1 = None
+    index = index[inner_boundary_index:outer_boundary_index]
+    mass_fractions = mass_fractions.loc[
+        :, slice(inner_boundary_index, outer_boundary_index_m1)
+    ]
+    mass_fractions.columns = np.arange(len(mass_fractions.columns))
+    return index, mass_fractions, isotope_mass_fractions</div>
+
+
+
+<div class="viewcode-block" id="read_density_file">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.readers.base.html#tardis.io.model.readers.base.read_density_file">[docs]</a>
+def read_density_file(filename, filetype):
+    &quot;&quot;&quot;
+    read different density file formats
+
+    Parameters
+    ----------
+    filename : str
+        filename or path of the density file
+    filetype : str
+        type of the density file
+
+    Returns
+    -------
+    time_of_model : astropy.units.Quantity
+        time at which the model is valid
+    velocity : np.ndarray
+        the array containing the velocities
+    unscaled_mean_densities : np.ndarray
+        the array containing the densities
+    electron_densities : np.ndarray
+        The array containing electron densities
+    temperature : np.ndarray
+        The array containing temperatures
+    &quot;&quot;&quot;
+    file_parsers = {
+        &quot;artis&quot;: read_artis_density,
+        &quot;simple_ascii&quot;: read_simple_ascii_density,
+        &quot;cmfgen_model&quot;: read_cmfgen_density,
+    }
+
+    electron_densities = None
+    temperature = None
+    if filetype == &quot;cmfgen_model&quot;:
+        (
+            time_of_model,
+            velocity,
+            unscaled_mean_densities,
+            electron_densities,
+            temperature,
+        ) = read_cmfgen_density(filename)
+    else:
+        (time_of_model, velocity, unscaled_mean_densities) = file_parsers[
+            filetype
+        ](filename)
+
+    v_inner = velocity[:-1]
+    v_outer = velocity[1:]
+
+    invalid_volume_mask = (v_outer - v_inner) &lt;= 0
+    if invalid_volume_mask.sum() &gt; 0:
+        message = &quot;\n&quot;.join(
+            [
+                f&quot;cell {i:d}: v_inner {v_inner_i:s}, v_outer &quot; f&quot;{v_outer_i:s}&quot;
+                for i, v_inner_i, v_outer_i in zip(
+                    np.arange(len(v_outer))[invalid_volume_mask],
+                    v_inner[invalid_volume_mask],
+                    v_outer[invalid_volume_mask],
+                )
+            ]
+        )
+        raise ConfigurationError(
+            &quot;Invalid volume of following cell(s):\n&quot; f&quot;{message:s}&quot;
+        )
+
+    return (
+        time_of_model,
+        velocity,
+        unscaled_mean_densities,
+        electron_densities,
+        temperature,
+    )</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 02 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
