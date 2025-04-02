@@ -26,5 +26,5 @@ Module contents
 
 .. automodule:: tardis.opacities.macro_atom
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

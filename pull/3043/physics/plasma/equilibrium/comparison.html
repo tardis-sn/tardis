@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
@@ -14,27 +16,21 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chianti rates &mdash; tardis</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
   
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -53,9 +49,6 @@
           <a href="../../../index.html" class="icon icon-home">
             tardis
           </a>
-              <div class="version">
-                latest
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -85,6 +78,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -93,7 +87,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -176,15 +170,15 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
 
-<span class="kn">from</span> <span class="nn">tardis.io.atom_data</span> <span class="kn">import</span> <span class="n">AtomData</span>
-<span class="kn">from</span> <span class="nn">tardis.plasma.equilibrium.rates</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.equilibrium.rates</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">RadiativeRatesSolver</span><span class="p">,</span>
     <span class="n">ThermalCollisionalRateSolver</span><span class="p">,</span>
     <span class="n">UpsilonRegemorterSolver</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">tardis.plasma.radiation_field</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.radiation_field</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DilutePlanckianRadiationField</span><span class="p">,</span>
     <span class="n">PlanckianRadiationField</span><span class="p">,</span>
 <span class="p">)</span>
@@ -207,8 +201,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tardis.io.configuration.config_reader</span> <span class="kn">import</span> <span class="n">Configuration</span>
-<span class="kn">from</span> <span class="nn">tardis.model.base</span> <span class="kn">import</span> <span class="n">SimulationState</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationState</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;test_continuum_template_wkerzen_rate_coeffs.yml&quot;</span><span class="p">)</span>
 </pre></div>
@@ -218,7 +212,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_radiative_rates</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_radiative_rates</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">):</span>
     <span class="n">rad_rate_solver</span> <span class="o">=</span> <span class="n">RadiativeRatesSolver</span><span class="p">(</span><span class="n">radiative_transitions</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rad_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">)</span>
 </pre></div>
@@ -228,7 +222,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_estimated_upsilon_rates</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_estimated_upsilon_rates</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">):</span>
     <span class="n">col_strength_solver</span> <span class="o">=</span> <span class="n">UpsilonRegemorterSolver</span><span class="p">(</span><span class="n">radiative_transitions</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">col_strength_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
 </pre></div>
@@ -238,7 +232,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_cmfgen_collisional_rates</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_cmfgen_collisional_rates</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,):</span>
     <span class="n">col_strength_temperatures</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data_temperatures</span>
     <span class="n">col_strengths</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">yg_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
     <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,</span> <span class="n">col_strength_temperatures</span><span class="p">,</span> <span class="n">col_strengths</span><span class="p">,</span> <span class="s1">&#39;cmfgen&#39;</span><span class="p">)</span>
@@ -250,7 +244,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_chianti_collisional_rates</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_chianti_collisional_rates</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,):</span>
     <span class="n">col_strength_temperatures</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data_temperatures</span>
     <span class="n">col_strengths</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
     <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,</span> <span class="n">col_strength_temperatures</span><span class="p">,</span> <span class="n">col_strengths</span><span class="p">,</span> <span class="s1">&#39;chianti&#39;</span><span class="p">)</span>
@@ -273,7 +267,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="n">chianti_sim_state</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="o">=</span><span class="n">chianti_atom_data</span><span class="p">)</span>
 
@@ -1146,8 +1140,8 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tardis</span> <span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="n">beta_coll</span> <span class="o">=</span> <span class="p">(</span>
     <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">h</span><span class="o">**</span><span class="mi">4</span> <span class="o">/</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k_B</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">m_e</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">3</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span>
 <span class="p">)</span><span class="o">.</span><span class="n">cgs</span>
@@ -1276,7 +1270,7 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">coll_matrix</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
@@ -1542,28 +1536,28 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">copy</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">tardis.plasma.assembly.base</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.assembly.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">PlasmaSolverFactory</span><span class="p">,</span>
     <span class="n">convert_species_to_multi_index</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">tardis.plasma.properties.atomic</span> <span class="kn">import</span> <span class="n">YgData</span><span class="p">,</span> <span class="n">YgInterpolator</span>
-<span class="kn">from</span> <span class="nn">tardis.plasma.properties.continuum_processes</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.atomic</span><span class="w"> </span><span class="kn">import</span> <span class="n">YgData</span><span class="p">,</span> <span class="n">YgInterpolator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.continuum_processes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CollDeexcRateCoeff</span><span class="p">,</span>
     <span class="n">CollExcRateCoeff</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">tardis.plasma.properties.general</span> <span class="kn">import</span> <span class="n">BetaElectron</span>
-<span class="kn">from</span> <span class="nn">tardis.plasma.properties.partition_function</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.general</span><span class="w"> </span><span class="kn">import</span> <span class="n">BetaElectron</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.partition_function</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ThermalLevelBoltzmannFactorLTE</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">tardis.plasma.properties.plasma_input</span> <span class="kn">import</span> <span class="n">ContinuumInteractionSpecies</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.plasma_input</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContinuumInteractionSpecies</span>
 
 
-<span class="k">def</span> <span class="nf">legacy_cmfgen_collision_rate_plasma_solver</span><span class="p">(</span><span class="n">nlte_atomic_dataset</span><span class="p">,</span> <span class="n">rad_field</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">legacy_cmfgen_collision_rate_plasma_solver</span><span class="p">(</span><span class="n">nlte_atomic_dataset</span><span class="p">,</span> <span class="n">rad_field</span><span class="p">):</span>
     <span class="n">atom_data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">nlte_atomic_dataset</span><span class="p">)</span>
     <span class="c1"># almost all settings are irrelevant for collisional strength data</span>
     <span class="n">number_densities</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">temperature</span><span class="p">)})</span><span class="o">.</span><span class="n">T</span>
@@ -1680,7 +1674,7 @@ Name: (1, 0, 0, 1), dtype: float64
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Apr 2025.
+      <span class="lastupdated">Last updated on 02 Apr 2025.
       </span></p>
   </div>
 

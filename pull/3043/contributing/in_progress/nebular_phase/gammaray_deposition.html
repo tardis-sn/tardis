@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
@@ -14,27 +16,21 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gamma-ray energy deposition &mdash; tardis</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
   
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -55,9 +51,6 @@
           <a href="../../../index.html" class="icon icon-home">
             tardis
           </a>
-              <div class="version">
-                latest
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -87,6 +80,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -95,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul class="current">
@@ -208,18 +202,18 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">tardis.model</span> <span class="kn">import</span> <span class="n">SimulationState</span>
-<span class="kn">from</span> <span class="nn">tardis.io.config_reader</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
 
-<span class="kn">from</span> <span class="nn">tardis.plasma.properties</span> <span class="kn">import</span> <span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span>
-<span class="kn">from</span> <span class="nn">tardis.plasma.base</span> <span class="kn">import</span> <span class="n">BasePlasma</span>
-<span class="kn">from</span> <span class="nn">tardis.io.atom_data</span> <span class="kn">import</span> <span class="n">AtomData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties</span><span class="w"> </span><span class="kn">import</span> <span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePlasma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
 
-<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
-<span class="kn">from</span> <span class="nn">tardis.energy_input.gamma_ray_transport</span> <span class="kn">import</span> <span class="n">main_gamma_ray_loop</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.gamma_ray_transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">main_gamma_ray_loop</span>
 
 <span class="c1"># Adjust model</span>
 <span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;../../../../tardis/io/tests/data/tardis_configv1_density_exponential_nebular.yml&quot;</span><span class="p">)</span>
@@ -257,9 +251,9 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="kn">from</span> <span class="nn">tardis.plasma.properties</span> <span class="kn">import</span> <span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span>
-<span class="kn">from</span> <span class="nn">tardis.plasma.base</span> <span class="kn">import</span> <span class="n">BasePlasma</span>
-<span class="kn">from</span> <span class="nn">tardis.io.atom_data</span> <span class="kn">import</span> <span class="n">AtomData</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties</span><span class="w"> </span><span class="kn">import</span> <span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePlasma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
 
 <span class="nb">input</span> <span class="o">=</span> <span class="p">[</span><span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">]</span>
 
@@ -449,7 +443,7 @@ Final energy to test for conservation
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tardis.energy_input.energy_source</span> <span class="kn">import</span> <span class="n">read_artis_lines</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.energy_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_artis_lines</span>
 
 <span class="n">ni56_lines</span> <span class="o">=</span> <span class="n">read_artis_lines</span><span class="p">(</span><span class="s2">&quot;ni56&quot;</span><span class="p">,</span> <span class="s2">&quot;~/Downloads/tardisnuclear/&quot;</span><span class="p">)</span>
 <span class="n">co56_lines</span> <span class="o">=</span> <span class="n">read_artis_lines</span><span class="p">(</span><span class="s2">&quot;co56&quot;</span><span class="p">,</span> <span class="s2">&quot;~/Downloads/tardisnuclear/&quot;</span><span class="p">)</span>
@@ -1066,7 +1060,7 @@ Final energy to test for conservation
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy_df</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">eV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;erg&#39;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">analytic_estimate</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">analytic_estimate</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
     <span class="k">return</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.97</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">40</span> <span class="o">/</span> <span class="n">t</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="mf">0.03</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">6.45</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="o">/</span><span class="mf">8.8</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.45</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="o">/</span><span class="mf">111.3</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1e43</span>
 
 <span class="n">t_tardis</span> <span class="o">=</span> <span class="n">energy</span><span class="o">.</span><span class="n">index</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
@@ -1128,7 +1122,7 @@ No artists with labels found to put in legend.  Note that artists whose label st
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Apr 2025.
+      <span class="lastupdated">Last updated on 02 Apr 2025.
       </span></p>
   </div>
 

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -14,24 +16,20 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.model.geometry.radial1d module &mdash; tardis</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -52,9 +50,6 @@
           <a href="../index.html" class="icon icon-home">
             tardis
           </a>
-              <div class="version">
-                latest
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -109,6 +104,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -117,7 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -167,7 +163,7 @@
 <span id="tardis-model-geometry-radial1d-module"></span><h1>tardis.model.geometry.radial1d module<a class="headerlink" href="#module-tardis.model.geometry.radial1d" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.model.geometry.radial1d.</span></span><span class="sig-name descname"><span class="pre">HomologousRadial1DGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_outer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_inner_boundary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_outer_boundary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/model/geometry/radial1d.html#HomologousRadial1DGeometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.model.geometry.radial1d.</span></span><span class="sig-name descname"><span class="pre">HomologousRadial1DGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_outer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_inner_boundary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_outer_boundary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/model/geometry/radial1d.html#HomologousRadial1DGeometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Holds information about model geometry for radial 1D models.</p>
 <dl class="field-list simple">
@@ -188,42 +184,42 @@
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">no_of_shells</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">no_of_shells</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells_active">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">no_of_shells_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells_active" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">no_of_shells_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells_active" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_inner">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_inner</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_inner" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_inner</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_inner" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_inner_active">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_inner_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_inner_active" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_inner_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_inner_active" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_middle">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_middle</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_middle" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_middle</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_middle" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_middle_active">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_middle_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_middle_active" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_middle_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_middle_active" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_outer">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_outer</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_outer" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_outer</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_outer" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_outer_active">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_outer_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_outer_active" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_outer_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.r_outer_active" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -242,43 +238,43 @@
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_inner_active">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_inner_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_inner_active" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_inner_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_inner_active" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_inner_boundary_index">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_inner_boundary_index</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_inner_boundary_index" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_inner_boundary_index</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_inner_boundary_index" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_middle">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_middle</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_middle" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_middle</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_middle" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_middle_active">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_middle_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_middle_active" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_middle_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_middle_active" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_outer_active">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_outer_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_outer_active" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_outer_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_outer_active" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_outer_boundary_index">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_outer_boundary_index</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_outer_boundary_index" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_outer_boundary_index</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.v_outer_boundary_index" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.volume">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.volume" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.volume" title="Link to this definition">¶</a></dt>
 <dd><p>Volume in shell computed from r_outer and r_inner</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.HomologousRadial1DGeometry.volume_active">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.volume_active" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume_active</span></span><a class="headerlink" href="#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.volume_active" title="Link to this definition">¶</a></dt>
 <dd><p>Volume in shell computed from r_outer and r_inner</p>
 </dd></dl>
 
@@ -286,7 +282,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.NumbaRadial1DGeometry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.model.geometry.radial1d.</span></span><span class="sig-name descname"><span class="pre">NumbaRadial1DGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/model/geometry/radial1d.html#NumbaRadial1DGeometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.model.geometry.radial1d.NumbaRadial1DGeometry" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.model.geometry.radial1d.</span></span><span class="sig-name descname"><span class="pre">NumbaRadial1DGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/model/geometry/radial1d.html#NumbaRadial1DGeometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.model.geometry.radial1d.NumbaRadial1DGeometry" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#tardis.model.geometry.radial1d.NumbaRadial1DGeometry" title="tardis.model.geometry.radial1d.NumbaRadial1DGeometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumbaRadial1DGeometry</span></code></a></p>
 <p>Radial 1D Geometry for the Numba mode</p>
 <dl class="field-list simple">
@@ -302,7 +298,7 @@
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.model.geometry.radial1d.NumbaRadial1DGeometry.class_type">
-<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.NumbaRadial1DGeometry#7f2687970c20&lt;r_inner:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),r_outer:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),v_inner:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),v_outer:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),volume:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A)&gt;</span></em><a class="headerlink" href="#tardis.model.geometry.radial1d.NumbaRadial1DGeometry.class_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.NumbaRadial1DGeometry#7fd733274050&lt;r_inner:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),r_outer:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),v_inner:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),v_outer:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A),volume:array(float64,</span> <span class="pre">1d,</span> <span class="pre">A)&gt;</span></em><a class="headerlink" href="#tardis.model.geometry.radial1d.NumbaRadial1DGeometry.class_type" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -321,7 +317,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Apr 2025.
+      <span class="lastupdated">Last updated on 02 Apr 2025.
       </span></p>
   </div>
 

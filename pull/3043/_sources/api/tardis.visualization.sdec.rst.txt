@@ -14,5 +14,5 @@ Module contents
 
 .. automodule:: tardis.visualization.sdec
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

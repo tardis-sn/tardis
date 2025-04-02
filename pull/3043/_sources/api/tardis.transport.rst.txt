@@ -23,5 +23,5 @@ Module contents
 
 .. automodule:: tardis.transport
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

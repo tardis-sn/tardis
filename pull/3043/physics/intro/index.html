@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -14,31 +16,25 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Physics Walkthrough Introduction &mdash; tardis</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Light, Matter, and How They Interact" href="light_and_matter.html" />
-    <link rel="prev" title="Analysing Spectral Energy Distribution and Emission/Absorption Visualization" href="../../analysing_tardis_outputs/spectrum/sdec_notebook.html" />
+    <link rel="prev" title="Analyzing Last Interaction Velocity (LIV) Distribution" href="../../analysing_tardis_outputs/liv_plot_notebook.html" />
     <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -54,9 +50,6 @@
           <a href="../../index.html" class="icon icon-home">
             tardis
           </a>
-              <div class="version">
-                latest
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -86,6 +79,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul class="current">
@@ -101,7 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -150,7 +144,7 @@
 <p>The goal of TARDIS is, given input information about a supernova, to determine (i) properties of the plasma making up the supernova and (ii) the spectrum of light that is emitted from the supernova.</p>
 <p>The physics of TARDIS is in four major parts, which are summarized here and in the diagram below. First, the TARDIS simulation is set up (<a class="reference internal" href="../setup/index.html"><span class="doc">Setting Up the Simulation</span></a>) from a TARDIS configuration (see <a class="reference internal" href="../../io/configuration/tutorial_read_configuration.html"><span class="doc">here</span></a> for how the configuration is created). This involves the creation of the supernova model and the initial conditions of the supernova’s plasma, as well as initializing the Monte Carlo transport. Next is the Monte Carlo Iteration (<a class="reference internal" href="../montecarlo/index.html"><span class="doc">Monte Carlo Iteration</span></a>) where the heart of TARDIS takes place; packets of light are sent through the supernova and tracked as they interact with matter. Next, TARDIS uses information from the Monte Carlo iteration to update properties of the plasma to eventually find the correct plasma state (<a class="reference internal" href="../update_and_conv/update_and_conv.html"><span class="doc">Updating Plasma and Convergence</span></a>). This process of doing a Monte Carlo iteration and then updating the plasma is repeated for a specified number of times or until certain aspects of the plasma state converge (as is also discussed in <a class="reference internal" href="../update_and_conv/update_and_conv.html"><span class="doc">Updating Plasma and Convergence</span></a>). After that, data generated in the Monte Carlo simulation is used to synthesize the output spectrum of the supernova (<a class="reference internal" href="../spectrum/index.html"><span class="doc">Spectrum Generation</span></a>).</p>
 <p>In the diagram, each physics step is shown in a box with the name of the step (bolded and underlined) along with the method that triggers the step (italicized) and the major components of the step. The reading of the configuration and the overall iterative process (comprising the Monte Carlo Iteration step and Updating Plasma and Convergence step) are also shown, again with the methods triggering these processes in italics.</p>
-<div class="graphviz"><object data="../../_images/graphviz-1f931cfc3d273b416332d555cba00339beff3fd1.svg" type="image/svg+xml" class="graphviz">
+<div class="graphviz"><object data="../../_images/graphviz-3951e8a6adfca19c1af3dd9190c1330b33f7e702.svg" type="image/svg+xml" class="graphviz">
 <p class="warning">digraph {
     compound = true
     graph [nodesep=4, ranksep=1]
@@ -197,7 +191,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../../analysing_tardis_outputs/spectrum/sdec_notebook.html" class="btn btn-neutral float-left" title="Analysing Spectral Energy Distribution and Emission/Absorption Visualization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../analysing_tardis_outputs/liv_plot_notebook.html" class="btn btn-neutral float-left" title="Analyzing Last Interaction Velocity (LIV) Distribution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="light_and_matter.html" class="btn btn-neutral float-right" title="Light, Matter, and How They Interact" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -205,7 +199,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Apr 2025.
+      <span class="lastupdated">Last updated on 02 Apr 2025.
       </span></p>
   </div>
 

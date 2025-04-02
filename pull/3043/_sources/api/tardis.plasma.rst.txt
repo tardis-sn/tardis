@@ -28,5 +28,5 @@ Module contents
 
 .. automodule:: tardis.plasma
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -14,24 +16,20 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.visualization.tools.sdec_plot module &mdash; tardis</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -52,9 +50,6 @@
           <a href="../index.html" class="icon icon-home">
             tardis
           </a>
-              <div class="version">
-                latest
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -109,6 +104,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -117,7 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -170,7 +166,7 @@
 proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.sdec_plot.</span></span><span class="sig-name descname"><span class="pre">SDECData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_in_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_out_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_in_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_interaction_in_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_nus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_delta_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_frequency_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_luminosity_density_lambda</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECData" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.sdec_plot.</span></span><span class="sig-name descname"><span class="pre">SDECData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_in_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_out_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_in_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_interaction_in_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_nus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_delta_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_frequency_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_luminosity_density_lambda</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECData" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The data of simulation model used by Spectral element DEComposition (SDEC) Plot.</p>
 <p>This preprocesses the data required by SDECPlotter class for doing
@@ -216,7 +212,7 @@ unit of Hz</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECData.from_hdf">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECData.from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECData.from_hdf" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECData.from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECData.from_hdf" title="Link to this definition">¶</a></dt>
 <dd><p>Create an instance of SDECData from a simulation HDF file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -237,7 +233,7 @@ unit of Hz</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECData.from_simulation">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECData.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECData.from_simulation" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECData.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECData.from_simulation" title="Link to this definition">¶</a></dt>
 <dd><p>Create an instance of SDECData from a TARDIS simulation object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -260,7 +256,7 @@ unit of Hz</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.sdec_plot.</span></span><span class="sig-name descname"><span class="pre">SDECPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.sdec_plot.</span></span><span class="sig-name descname"><span class="pre">SDECPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Plotting interface for Spectral element DEComposition (SDEC) Plot.</p>
 <p>It performs necessary calculations to generate SDEC Plot for a simulation
@@ -277,7 +273,7 @@ modes i.e. real and virtual</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf" title="Link to this definition">¶</a></dt>
 <dd><p>Create an instance of SDECPlotter from a simulation HDF file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -299,7 +295,7 @@ specified, both modes are returned</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.from_simulation">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.from_simulation" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.from_simulation" title="Link to this definition">¶</a></dt>
 <dd><p>Create an instance of SDECPlotter from a TARDIS simulation object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -446,7 +442,7 @@ e.g. [‘Si II’, ‘Ca II’, ‘C’, ‘Fe I-V’]</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Apr 2025.
+      <span class="lastupdated">Last updated on 02 Apr 2025.
       </span></p>
   </div>
 
