@@ -27,8 +27,6 @@
 import os
 import sys
 import datetime
-import panel as pn
-pn.extension() # needs to be imported before tardis
 
 from importlib import import_module
 import toml

@@ -10,10 +10,12 @@ import pandas as pd
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
 import panel as pn
-if not pn.extension._loaded:
+
+if os.environ.get('GITHUB_ACTIONS') == 'true':
+    pn.extension()
+else:
     pn.extension(comms="ipywidgets")
 
-@lru_cache(maxsize=1)
 def get_environment():
     """Determine the execution environment"""
     if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
