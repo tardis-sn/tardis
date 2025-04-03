@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Continuous Integration &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Update the Regression Data" href="update_regression_data.html" />
+    <link rel="prev" title="Developer FAQ" href="developer_faq.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Workflow</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="issues.html">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="git_workflow.html">General Workflow to add a new feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="git_workflow.html#preparation-and-working-with-git">Preparation and Working with Git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html">Documentation Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running_tests.html">Running tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_quality.html">Code Quality Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer_faq.html">Developer FAQ</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#tardis-core-team-instructions">TARDIS core team Instructions</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Continuous Integration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#github-actions">GitHub Actions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cache-keys-in-tardis-ci">Cache Keys in TARDIS CI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common-steps">Common Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="update_regression_data.html">Update the Regression Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="matterbridge.html">Matterbridge Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="debug_numba.html">Debugging numba_montecarlo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Developer Workflow</a></li>
+      <li class="breadcrumb-item active">Continuous Integration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/contributing/development/continuous_integration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="continuous-integration">
+<h1>Continuous Integration<a class="headerlink" href="#continuous-integration" title="Link to this heading">¶</a></h1>
+<p>We use a so-called <a class="reference internal" href="#continuous-integration">continuous integration</a> workflow with TARDIS.
+This means that each time a change is proposed (via pull request)
+or a change is merged into the <em>master</em> branch, a service will
+clone the repository, checkout to the current commit and execute
+all the TARDIS tests. This helps us to detect bugs immediately.</p>
+<section id="github-actions">
+<h2>GitHub Actions<a class="headerlink" href="#github-actions" title="Link to this heading">¶</a></h2>
+<p>A pipeline (or a workflow) is essentially a <a class="reference internal" href="../../resources/zreferences.html#term-YAML"><span class="xref std std-term">YAML</span></a> configuration file
+with different sections such as variables, jobs and steps. These files
+run commands or tasks when they are triggered by some event, like a
+commit being pushed to a certain branch.</p>
+<p>Currently, we use GitHub Actions to run all of our pipelines. Making changes to an existing
+pipeline is as easy as making a pull request. To create a new GitHub Action workflow,
+just create a new YAML file in <code class="docutils literal notranslate"><span class="pre">.github/workflows</span></code>.</p>
+<section id="tardis-pipelines">
+<h3>TARDIS Pipelines<a class="headerlink" href="#tardis-pipelines" title="Link to this heading">¶</a></h3>
+<p>Brief description of pipelines already implemented on TARDIS</p>
+</section>
+</section>
+<section id="cache-keys-in-tardis-ci">
+<h2>Cache Keys in TARDIS CI<a class="headerlink" href="#cache-keys-in-tardis-ci" title="Link to this heading">¶</a></h2>
+<p>TARDIS uses specific cache key formats to efficiently store and retrieve data during CI runs:</p>
+<ol class="arabic">
+<li><p><strong>Regression Data Cache Keys</strong>
+- Format: <code class="docutils literal notranslate"><span class="pre">tardis-regression-&lt;data-type&gt;-&lt;hash&gt;-v1</span></code>
+- Examples:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tardis-regression-atom-data-sparse-&lt;hash&gt;-v1</span></code> - For atomic data cache</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tardis-regression-full-data-&lt;hash&gt;-v1</span></code> - For full TARDIS regression data cache</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>Used in: <code class="docutils literal notranslate"><span class="pre">setup_lfs</span></code> action</p></li>
+</ul>
+</li>
+<li><p><strong>Environment Cache Keys</strong>
+- Format: <code class="docutils literal notranslate"><span class="pre">tardis-conda-env-&lt;os-label&gt;-&lt;hash&gt;-v1</span></code>
+- Examples:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tardis-conda-env-linux-&lt;hash&gt;-v1</span></code> - For Linux conda environment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tardis-conda-env-macos-&lt;hash&gt;-v1</span></code> - For macOS conda environment</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>Used in: <code class="docutils literal notranslate"><span class="pre">setup_env</span></code> action</p></li>
+</ul>
+</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<ul class="simple">
+<li><p>The version suffix (-v1) allows for future cache invalidation if needed.</p></li>
+<li><p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">lfs-cache</span></code> workflow will fail if the cache is not available and will not pull LFS data by default.</p></li>
+<li><p>However, if the <code class="xref py py-obj docutils literal notranslate"><span class="pre">allow_lfs_pull</span></code> label is added to the PR, the workflow will pull LFS data. Please note that this is to be used sparingly and only with caution.</p></li>
+</ul>
+</div>
+<section id="streamlined-steps-for-tardis-pipelines">
+<h3>Streamlined Steps for TARDIS Pipelines<a class="headerlink" href="#streamlined-steps-for-tardis-pipelines" title="Link to this heading">¶</a></h3>
+<p>We have a common set of steps which are utilized in TARDIS pipelines to streamline the process:</p>
+</section>
+</section>
+<section id="common-steps">
+<h2>Common Steps<a class="headerlink" href="#common-steps" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Use `setup_lfs` Action and `lfs-cache` workflow</strong>
+- If you need access to regression or atomic data, incorporate the <code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lfs</span></code> action to ensure proper handling of large file storage.
+- The <code class="xref py py-obj docutils literal notranslate"><span class="pre">lfs-cache</span></code> workflow is used to cache the regression data and atomic data and to check if the cache is available.</p></li>
+<li><p><strong>Use `setup_env` Action</strong>
+- To configure your environment effectively, utilize the <code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_env</span></code> action. This will help establish the necessary variables and settings for your pipeline.</p></li>
+<li><p><strong>Run Configuration</strong>
+- Ensure that your pipeline runs with the appropriate shell settings. You can define this in your YAML configuration as follows:</p>
+<blockquote>
+<div><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bash -l {0}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<section id="documentation-build-pipeline">
+<h3>Documentation build pipeline<a class="headerlink" href="#documentation-build-pipeline" title="Link to this heading">¶</a></h3>
+<p>A GitHub Actions workflow that builds and deploys the TARDIS documentation website.</p>
+</section>
+<section id="documentation-preview-pipeline">
+<h3>Documentation preview pipeline<a class="headerlink" href="#documentation-preview-pipeline" title="Link to this heading">¶</a></h3>
+<p>This workflow does not run on the main repository, just on forks.
+See the <a class="reference internal" href="documentation_guidelines.html#doc-preview"><span class="std std-ref">Documentation Preview</span></a> section for more information.</p>
+</section>
+<section id="id1">
+<h3>Testing pipeline<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/tardis-sn/tardis/blob/master/azure-pipelines/simple_test_framework.yml">testing pipeline</a> (CI) comprises multiple concurrent jobs. Each of these jobs runs tests across two distinct categories—continuum and rpacket tracking—and supports two different operating systems. Additionally, there are extra steps involved in executing the tests and uploading the coverage results</p>
+</section>
+<section id="authors-pipeline">
+<h3>Authors pipeline<a class="headerlink" href="#authors-pipeline" title="Link to this heading">¶</a></h3>
+<p>This pipeline runs a notebook located in <code class="docutils literal notranslate"><span class="pre">tardis-zenodo</span></code> repository and
+pushes a new version of <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> to the root of <code class="docutils literal notranslate"><span class="pre">tardis</span></code>
+repository if new committers are found (or author order changes). The
+rendered notebook is uploaded to the pipeline results as an artifact.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Fails if some author name is incomplete (due to an incomplete
+GitHub profile) or duplicated (committed with more than one
+email address). In both cases update <code class="docutils literal notranslate"><span class="pre">.mailmap</span></code> to fix it.</p>
+</div>
+<p>In the near future we want to auto-update the citation guidelines in the
+<code class="docutils literal notranslate"><span class="pre">README.rst</span></code> and the documentation.</p>
+</section>
+<section id="release-pipeline">
+<h3>Release pipeline<a class="headerlink" href="#release-pipeline" title="Link to this heading">¶</a></h3>
+<p>Publishes a new release of TARDIS every Sunday at 00:00 UTC.</p>
+</section>
+<section id="tardis-carsus-compatibility-check">
+<h3>TARDIS Carsus Compatibility Check<a class="headerlink" href="#tardis-carsus-compatibility-check" title="Link to this heading">¶</a></h3>
+<p>The TARDIS Carsus Compatibility Check or the “Bridge” compares reference data
+generated with different versions of Carsus. It consists of two jobs- a “carsus-build” job to
+generate an atomic file with the latest version of Carsus and a “tardis-build” job
+to generate a new reference data with it. These two reference data files are compared using the
+<a class="reference external" href="https://github.com/tardis-sn/tardis-refdata/blob/master/notebooks/ref_data_compare_from_paths.ipynb">this notebook</a>.
+The workflow has a <code class="docutils literal notranslate"><span class="pre">workflow_dispatch</span></code> event so that it can be triggered manually, but is also
+triggered every week due to the “save-atomic-files” workflow.</p>
+</section>
+<section id="the-save-atomic-files-workflow">
+<h3>The Save Atomic Files Workflow<a class="headerlink" href="#the-save-atomic-files-workflow" title="Link to this heading">¶</a></h3>
+<p>The Save Atomic Files workflow runs every week but can also be triggered manually.
+It runs the “Bridge” and sends an artifact containing the generated atomic data file
+and the comparison notebook to Moria. This workflow has a separate job to indicate if the
+bridge has failed.</p>
+</section>
+<section id="the-regression-data-comparison-workflow">
+<h3>The Regression Data Comparison Workflow<a class="headerlink" href="#the-regression-data-comparison-workflow" title="Link to this heading">¶</a></h3>
+<p>The Regression Data Comparison workflow compares the regression data between the current branch and the base branch on pull requests. It only runs on pull requests and not on the master branch. The workflow generates regression data for the latest commit on the pull request and compares it with the master branch using the comparison notebook. The notebook is then uploaded as an artifact and pushed to reg-data-comp repository for previews in the bot comment.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The workflow exports images from the comparison notebook and embeds them in the bot comment. Unless there are any key changes to any of the HDF files in the regression data the bot will only show two images, one containing the spectrum change and another containing relative changes in the keys. If there are any key changes, the bot will show three images, the additional one visualizing the key changes.</p>
+</div>
+</section>
+<section id="the-lfs-cache-workflow">
+<h3>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">LFS-cache</span></code> workflow<a class="headerlink" href="#the-lfs-cache-workflow" title="Link to this heading">¶</a></h3>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">LFS-cache</span></code> workflow caches the regression data and atomic data and can be triggered either manually or when there is a push to the main branch of the regression data repository. This is mainly responsible for doing LFS pulls when necessary and caching objects while the <code class="xref py py-obj docutils literal notranslate"><span class="pre">setup-lfs</span></code> action is used to restore the cached objects. Both fail if the cache is not available.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="developer_faq.html" class="btn btn-neutral float-left" title="Developer FAQ" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="update_regression_data.html" class="btn btn-neutral float-right" title="Update the Regression Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 03 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

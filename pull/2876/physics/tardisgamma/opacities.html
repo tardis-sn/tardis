@@ -1,0 +1,457 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sources of Opacity &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Contribution Guidelines" href="../../contributing/CONTRIBUTING.html" />
+    <link rel="prev" title="Packet Initialization" href="packetinitialization.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">TARDIS-High Energy</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="packetinitialization.html">Packet Initialization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Sources of Opacity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Pair-Creation">Pair Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Compton-Scattering">Compton Scattering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Photoabsorption">Photoabsorption</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">TARDIS-High Energy</a></li>
+      <li class="breadcrumb-item active">Sources of Opacity</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/physics/tardisgamma/opacities.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/physics/tardisgamma/opacities.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><section id="Sources-of-Opacity">
+<h1>Sources of Opacity<a class="headerlink" href="#Sources-of-Opacity" title="Link to this heading">¶</a></h1>
+<p>Within the ejecta there are several sources of opacity for the <span class="math notranslate nohighlight">\(\gamma\)</span>-rays that we need to take into account. Each source of opacity has its own function in the code. The following cells show each source of opacity and how they are implemented in the code.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.opacities.opacities</span><span class="w"> </span><span class="kn">import</span> <span class="n">compton_opacity_calculation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.opacities.opacities</span><span class="w"> </span><span class="kn">import</span> <span class="n">photoabsorption_opacity_calculation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.opacities.opacities</span><span class="w"> </span><span class="kn">import</span> <span class="n">pair_creation_opacity_calculation</span>
+<span class="o">%</span><span class="k">config</span> InlineBackend.figure_format = &#39;retina&#39;
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span> <span class="c1"># in KeV</span>
+</pre></div>
+</div>
+</div>
+<p>The values are taken from the <span class="math notranslate nohighlight">\(k^{th}\)</span> shell at time <span class="math notranslate nohighlight">\(t_i\)</span></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ejecta_density</span> <span class="o">=</span> <span class="mf">1.25e-10</span>  <span class="c1"># g/cm^3</span>
+<span class="n">electron_density</span> <span class="o">=</span> <span class="mf">3.57e11</span>  <span class="c1"># cm^-3</span>
+<span class="n">x_ige</span> <span class="o">=</span> <span class="mf">0.01</span>
+</pre></div>
+</div>
+</div>
+<section id="Pair-Creation">
+<h2>Pair Creation<a class="headerlink" href="#Pair-Creation" title="Link to this heading">¶</a></h2>
+<p>Pair Creation is dominant when the energy of the <span class="math notranslate nohighlight">\(\gamma\)</span>-ray is greater than or equal to <span class="math notranslate nohighlight">\(2m_e c^2\)</span>. It occurs when a <span class="math notranslate nohighlight">\(\gamma\)</span>-ray interacts with an atomic nucleus and creates an electron-positron pair.</p>
+<p><img alt="Pair Production Diagram" src="../../_images/pair_production_diagram.jpg" /></p>
+<p><em>Image from</em> <a class="reference external" href="http://electrons.wikidot.com/pair-production-and-annihilation">Wikidot</a></p>
+<p>The positron forms a bound-state with an electron called positronium which decay into two photons at 0.511 MeV or three photons. The photon packet keeps its energy but is sent into a new direction. The pair-production coefficients (<span class="math notranslate nohighlight">\(cm^{-1}\)</span>) as given in <span id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id27" title="J. H. Hubbell. Photon cross sections, attenuation coefficients, and energy absorption coefficients from 10 kev to 100 gev. NSRDS-NBS, 1969.">Hub69</a>]</span> :cite:<a href="#id2"><span class="problematic" id="id3">`</span></a>Ambwani1988`(see Equation 2) are:</p>
+<div class="math notranslate nohighlight">
+\[\alpha_{pp}(1.5 &lt; h\nu &lt; 1.022 MeV) = \rho \left[ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}} \right] 1.0063 (h\nu - 1.022 MeV) \times 10^{-27}\]</div>
+<div class="math notranslate nohighlight">
+\[\alpha_{pp}(h\nu \geq 1.5 MeV) = \rho \left[ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}} \right] \left[ 0.0481 + 0.301(h\nu - 1.5 MeV) \right] \times 10^{-27}\]</div>
+<p><span class="math notranslate nohighlight">\(\rho\)</span> is the mass density of the ejecta and <span class="math notranslate nohighlight">\(X_{\text{IGE}}\)</span> is the mass fraction of Fe-group elements.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pair_creation_opacities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">)):</span>
+    <span class="n">pair_creation_opacities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pair_creation_opacity_calculation</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ejecta_density</span><span class="o">=</span><span class="n">ejecta_density</span><span class="p">,</span> <span class="n">iron_group_fraction</span><span class="o">=</span><span class="n">x_ige</span><span class="p">)</span>
+
+<span class="c1"># We can then plot the opacity</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">pair_creation_opacities</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet Energy (KeV)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\alpha_</span><span class="si">{pp}</span><span class="s2">$ (cm$^{-1}$)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">right</span><span class="o">=</span> <span class="mi">5000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Pair Creation Attenuation Coefficient&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;Pair Creation Attenuation Coefficient&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/physics_tardisgamma_opacities_6_1.png" class="no-scaled-link" src="../../_images/physics_tardisgamma_opacities_6_1.png" style="width: 590px; height: 454px;" />
+</div>
+</div>
+</section>
+<section id="Compton-Scattering">
+<h2>Compton Scattering<a class="headerlink" href="#Compton-Scattering" title="Link to this heading">¶</a></h2>
+<p>Compton scattering is inelastic scattering that occurs when a high energy photon collides with an electron. Unlike Thomson scattering, which is elastic, during the collision some of the energy from the photon is transferred to the electron and the scattered photon is lower energy than the incident photon. This means that the scattered photon also has a lower frequency and a longer wavelength. In the simulation we assume that the electrons are moving significantly slower than the photons.</p>
+<p><img alt="Compton Scattering Diagram" src="../../_images/compton_diagram.png" /></p>
+<p><em>Image from</em> <a class="reference external" href="https://en.wikipedia.org/wiki/Compton_scattering">Wikipedia</a></p>
+<p>A high energy photon with an energy <span class="math notranslate nohighlight">\(e\)</span> after scattering through an angle <span class="math notranslate nohighlight">\(\theta\)</span> loses its energy by the fraction <span class="math notranslate nohighlight">\(f\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[f = \frac{1}{1 + x(1 - \cos{\theta})}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\theta\)</span> is the angle the photon is scattered at and <span class="math notranslate nohighlight">\(x = \frac{h \nu}{m_e c^2}\)</span></p>
+<p>The partial cross section from 0 to <span class="math notranslate nohighlight">\(\theta\)</span> in terms of f as given in the <a class="reference external" href="https://github.com/artis-mcrt/artis">ARTIS</a> code <span id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id30" title="S. A. Sim. Multidimensional simulations of radiative transfer in type ia supernovae. Monthly Notices of the Royal Astronomical Society, 375(1):154–162, February 2007. URL: http://dx.doi.org/10.1111/j.1365-2966.2006.11271.x, doi:10.1111/j.1365-2966.2006.11271.x.">Sim07</a>]</span> <span id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id31" title="M. Kromer and S. A. Sim. Time-dependent three-dimensional spectrum synthesis for type ia supernovae. Monthly Notices of the Royal Astronomical Society, 398(4):1809–1826, October 2009. URL: http://dx.doi.org/10.1111/j.1365-2966.2009.15256.x, doi:10.1111/j.1365-2966.2009.15256.x.">KS09</a>]</span> is:</p>
+<div class="math notranslate nohighlight">
+\[\sigma(f) = \frac{3 \sigma_T}{8x} \frac{\left( x^2 - 2x - 2 \right) \ln(f)}{x^2} + \frac{f^2 - 1}{2f^2} +  \frac{f - 1}{x} [\frac{1}{x} + \frac{2}{f} + \frac{1}{xf}]\]</div>
+<p>Where <span class="math notranslate nohighlight">\(f\)</span> can range from <span class="math notranslate nohighlight">\(1\)</span> to <span class="math notranslate nohighlight">\(\frac{1}{1+2x}\)</span> and <span class="math notranslate nohighlight">\(\sigma_T\)</span> is the Thomson scattering cross section.</p>
+<p>The scattering angle is given by:</p>
+<div class="math notranslate nohighlight">
+\[\theta = \cos^{-1}({1 - \frac{f-1}{x}})\]</div>
+<p>The total integrated Compton scattering coefficient <span id="id6">[<a class="reference internal" href="../../resources/zreferences.html#id32" title="Steven Weinberg. The Quantum Theory of Fields. Cambridge University Press, 1995.">Wei95</a>]</span> is:</p>
+<div class="math notranslate nohighlight">
+\[\alpha_C = n_e \frac{3}{4} \sigma_T [\frac{1+x}{x^3} (\frac{2x(1 + x)}{1 + 2x} - \ln(1 + 2x)) + \frac{1}{2x} \ln(1 + 2x) - \frac{1 + 3x}{(1 + 2x)^2}]\]</div>
+<p>Where <span class="math notranslate nohighlight">\(n_e\)</span> is the number density of electrons.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">compton_opacities</span> <span class="o">=</span> <span class="n">compton_opacity_calculation</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">electron_density</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">sigma_T</span><span class="o">.</span><span class="n">cgs</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">electron_density</span><span class="o">*</span><span class="mf">.75</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Thomson Scattering Cross Section&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">compton_opacities</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet energies (KeV)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\alpha_</span><span class="si">{C}</span><span class="s2">$ (cm$^{-1}$)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Compton Scattering Attenuation Coefficient&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fc6c1743080&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/physics_tardisgamma_opacities_8_1.png" class="no-scaled-link" src="../../_images/physics_tardisgamma_opacities_8_1.png" style="width: 570px; height: 454px;" />
+</div>
+</div>
+</section>
+<section id="Photoabsorption">
+<h2>Photoabsorption<a class="headerlink" href="#Photoabsorption" title="Link to this heading">¶</a></h2>
+<p>This occurs when the photon is completely absorbed by a material. We assume that the <span class="math notranslate nohighlight">\(\gamma\)</span>-ray deposits all of its energy when this occurs. The coefficient as given in <span id="id7">[<a class="reference internal" href="../../resources/zreferences.html#id29" title="Wm.J. Veigele. Photon cross sections from 0.1 kev to 1 mev for elements z = 1 to z = 94. Atomic Data and Nuclear Data Tables, 5(1):51-111, 1973. URL: https://www.sciencedirect.com/science/article/pii/S0092640X73800154, doi:https://doi.org/10.1016/S0092-640X(73)80015-4.">Vei73</a>]</span> :cite:<a href="#id8"><span class="problematic" id="id9">`</span></a>Ambwani1988`(see Equation 3) is:</p>
+<div class="math notranslate nohighlight">
+\[\alpha_{pa}(\nu) = 1.16 \times 10^{-24} (\frac{h\nu}{100 keV})^{-3.13}  \frac{\rho}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + 25.7 \times 10^{-24} (\frac{h\nu}{100 keV})^{-3}  \frac{\rho}{m_{\text{Fe}}} X_{\text{IGE}}\]</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The photoabsorption opacity function takes in the packet energy, ejecta density and the fraction of iron group elements</span>
+<span class="n">photoabsorption_opacities</span> <span class="o">=</span> <span class="n">photoabsorption_opacity_calculation</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span> <span class="n">energies</span><span class="p">,</span> <span class="n">ejecta_density</span><span class="o">=</span><span class="n">ejecta_density</span><span class="p">,</span> <span class="n">iron_group_fraction</span><span class="o">=</span><span class="n">x_ige</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">photoabsorption_opacities</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet energies (KeV)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\alpha_</span><span class="si">{pa}</span><span class="s2">$ (cm$^{-1}$)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Photoabsorption Attenuation Coefficient&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(5.0, 50.0)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/physics_tardisgamma_opacities_10_1.png" class="no-scaled-link" src="../../_images/physics_tardisgamma_opacities_10_1.png" style="width: 568px; height: 454px;" />
+</div>
+</div>
+<p>The different forms of opacity are dominant at different energies which is evident when the opacities are plotted together.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">pair_creation_opacities</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Pair Creation&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">compton_opacities</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span> <span class="s2">&quot;Compton Scattering&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">photoabsorption_opacities</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span> <span class="s2">&quot;Photoabsorption&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet energies (KeV)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\alpha$ (cm$^{-1}$)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Attenuation Coefficients at Different Energies&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">left</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fc6c1755ee0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/physics_tardisgamma_opacities_12_1.png" class="no-scaled-link" src="../../_images/physics_tardisgamma_opacities_12_1.png" style="width: 586px; height: 455px;" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_opacity</span> <span class="o">=</span> <span class="n">pair_creation_opacities</span> <span class="o">+</span> <span class="n">compton_opacities</span> <span class="o">+</span> <span class="n">photoabsorption_opacities</span>
+<span class="n">frac_pair_creation</span> <span class="o">=</span> <span class="n">pair_creation_opacities</span> <span class="o">/</span> <span class="n">total_opacity</span>
+<span class="n">frac_compton_scattering</span> <span class="o">=</span> <span class="n">compton_opacities</span> <span class="o">/</span> <span class="n">total_opacity</span>
+<span class="n">frac_photoabsorption</span> <span class="o">=</span> <span class="n">photoabsorption_opacities</span> <span class="o">/</span> <span class="n">total_opacity</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">frac_pair_creation</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Pair Creation&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">frac_compton_scattering</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Compton Scattering&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">frac_photoabsorption</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Photoabsorption&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">left</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet energies (KeV)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Fraction of Total Attenuation Coefficient&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;Fraction of Total Attenuation Coefficient&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/physics_tardisgamma_opacities_13_1.png" class="no-scaled-link" src="../../_images/physics_tardisgamma_opacities_13_1.png" style="width: 567px; height: 433px;" />
+</div>
+</div>
+<p>Note that the above graphs may not be the same for every simulation. For example if the number density of electrons is much larger, Compton Scattering can be the the dominant source of opacity for this entire energy range.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="packetinitialization.html" class="btn btn-neutral float-left" title="Packet Initialization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../contributing/CONTRIBUTING.html" class="btn btn-neutral float-right" title="Contribution Guidelines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 03 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
