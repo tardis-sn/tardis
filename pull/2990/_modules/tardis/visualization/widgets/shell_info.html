@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.visualization.widgets.shell_info &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.visualization.widgets.shell_info</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.visualization.widgets.shell_info</h1><div class="highlight"><pre>
+<span></span>from tardis import run_tardis
+from tardis.io.atom_data import download_atom_data
+from tardis.util.base import (
+    atomic_number2element_symbol,
+    species_tuple_to_string,
+)
+from tardis.util.base import is_notebook
+import pandas as pd
+import numpy as np
+import panel as pn
+
+pn.extension(&#39;tabulator&#39;)
+
+# Centralized style dictionaries
+TABLE_STYLES = {
+    &#39;border&#39;: &#39;1px solid #ddd&#39;,
+    &#39;font-size&#39;: &#39;12px&#39;,
+    &#39;background-color&#39;: &#39;#fff&#39;
+}
+
+TITLE_STYLES = {
+    &#39;font-size&#39;: &#39;14px&#39;,
+    &#39;font-weight&#39;: &#39;bold&#39;,
+    &#39;color&#39;: &#39;#333&#39;
+}
+
+CONTAINER_STYLES = {
+    &#39;padding&#39;: &#39;10px&#39;,
+    &#39;background-color&#39;: &#39;#f9f9f9&#39;,
+    &#39;border&#39;: &#39;1px solid #ddd&#39;,
+    &#39;border-radius&#39;: &#39;3px&#39;
+}
+
+<div class="viewcode-block" id="BaseShellInfo">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.BaseShellInfo">[docs]</a>
+class BaseShellInfo:
+    &quot;&quot;&quot;The simulation information that is used by shell info widget&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        t_radiative,
+        dilution_factor,
+        abundance,
+        number_density,
+        ion_number_density,
+        level_number_density,
+    ):
+        &quot;&quot;&quot;Initialize the object with all simulation properties in use
+
+        Parameters
+        ----------
+        t_radiative : array_like
+            Radiative Temperature of each shell of simulation
+        dilution_factor : array_like
+            Dilution Factor (W) of each shell of simulation model
+        abundance : pandas.DataFrame
+            Fractional abundance of elements where row labels are atomic number
+            and column labels are shell number
+        number_density : pandas.DataFrame
+            Number densities of elements where row labels are atomic number and
+            column labels are shell numbers
+        ion_number_density : pandas.DataFrame
+            Number densities of ions where rows are multi-indexed with (atomic
+            number, ion number) and column labels are shell number
+        level_number_density : pandas.DataFrame
+            Number densities of levels where rows are multi-indexed with (atomic
+            number, ion number, level number) and column labels are shell number
+        &quot;&quot;&quot;
+        self.t_radiative = t_radiative
+        self.dilution_factor = dilution_factor
+        self.abundance = abundance
+        self.number_density = number_density
+        self.ion_number_density = ion_number_density
+        self.level_number_density = level_number_density
+
+<div class="viewcode-block" id="BaseShellInfo.shells_data">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.BaseShellInfo.shells_data">[docs]</a>
+    def shells_data(self):
+        &quot;&quot;&quot;Generates shells data in a form that can be used by a table widget
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe containing Rad. Temp. and W against each shell of
+            simulation model
+        &quot;&quot;&quot;
+        shells_temp_w = pd.DataFrame(
+            {
+                &quot;Rad. Temp.&quot;: self.t_radiative,
+                &quot;Dilution Factor&quot;: self.dilution_factor,
+            }
+        )
+        shells_temp_w.index = range(1, len(self.t_radiative) + 1)  # Shells start at 1
+        shells_temp_w.index.name = &quot;Shell No.&quot;
+        return shells_temp_w.map(lambda x: f&quot;{x:.6e}&quot;)</div>
+
+
+<div class="viewcode-block" id="BaseShellInfo.element_count">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.BaseShellInfo.element_count">[docs]</a>
+    def element_count(self, shell_num):
+        &quot;&quot;&quot;Generates fractional abundance of elements present in a specific shell
+
+        Parameters
+        ----------
+        shell_num : int
+            Shell number (starts from 1)
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe with element symbol and fractional abundance
+        &quot;&quot;&quot;
+        element_count_data = self.abundance[shell_num - 1].copy()
+        element_count_data.index.name = &quot;Z&quot;
+        element_count_data = element_count_data.fillna(0)
+        return pd.DataFrame(
+            {
+                &quot;Element&quot;: element_count_data.index.map(atomic_number2element_symbol),
+                f&quot;Frac. Ab. (Shell {shell_num})&quot;: element_count_data.map(&quot;{:.6e}&quot;.format),
+            }
+        )</div>
+
+
+<div class="viewcode-block" id="BaseShellInfo.ion_count">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.BaseShellInfo.ion_count">[docs]</a>
+    def ion_count(self, atomic_num, shell_num):
+        &quot;&quot;&quot;Generates fractional abundance of ions for a specific element and shell
+
+        Parameters
+        ----------
+        atomic_num : int
+            Atomic number of element
+        shell_num : int
+            Shell number (starts from 1)
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe with ion species and fractional abundance
+        &quot;&quot;&quot;
+        ion_num_density = self.ion_number_density[shell_num - 1].loc[atomic_num]
+        element_num_density = self.number_density.loc[atomic_num, shell_num - 1]
+        ion_count_data = ion_num_density / element_num_density  # Normalization
+        ion_count_data.index.name = &quot;Ion&quot;
+        ion_count_data = ion_count_data.fillna(0)
+        return pd.DataFrame(
+            {
+                &quot;Species&quot;: ion_count_data.index.map(
+                    lambda x: species_tuple_to_string((atomic_num, x))
+                ),
+                f&quot;Frac. Ab. (Z={atomic_num})&quot;: ion_count_data.map(&quot;{:.6e}&quot;.format),
+            }
+        )</div>
+
+
+<div class="viewcode-block" id="BaseShellInfo.level_count">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.BaseShellInfo.level_count">[docs]</a>
+    def level_count(self, ion, atomic_num, shell_num):
+        &quot;&quot;&quot;Generates fractional abundance of levels for a specific ion, element, and shell
+
+        Parameters
+        ----------
+        ion : int
+            Ion number (starts from 0)
+        atomic_num : int
+            Atomic number of element
+        shell_num : int
+            Shell number (starts from 1)
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe with fractional abundance per level
+        &quot;&quot;&quot;
+        level_num_density = self.level_number_density[shell_num - 1].loc[atomic_num, ion]
+        ion_num_density = self.ion_number_density[shell_num - 1].loc[atomic_num, ion]
+        level_count_data = level_num_density / ion_num_density  # Normalization
+        level_count_data.index.name = &quot;Level&quot;
+        level_count_data.name = f&quot;Frac. Ab. (Ion={ion})&quot;
+        level_count_data = level_count_data.fillna(0)
+        return level_count_data.map(&quot;{:.6e}&quot;.format).to_frame()</div>
+</div>
+
+
+
+<div class="viewcode-block" id="SimulationShellInfo">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.SimulationShellInfo">[docs]</a>
+class SimulationShellInfo(BaseShellInfo):
+    &quot;&quot;&quot;Shell info from a TARDIS Simulation object&quot;&quot;&quot;
+
+    def __init__(self, sim_model):
+        &quot;&quot;&quot;Initialize with a TARDIS Simulation object
+
+        Parameters
+        ----------
+        sim_model : tardis.simulation.Simulation
+            TARDIS Simulation object
+        &quot;&quot;&quot;
+        super().__init__(
+            sim_model.simulation_state.t_radiative,
+            sim_model.simulation_state.dilution_factor,
+            sim_model.simulation_state.abundance,
+            sim_model.plasma.number_density,
+            sim_model.plasma.ion_number_density,
+            sim_model.plasma.level_number_density,
+        )</div>
+
+
+
+<div class="viewcode-block" id="HDFShellInfo">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.HDFShellInfo">[docs]</a>
+class HDFShellInfo(BaseShellInfo):
+    &quot;&quot;&quot;Shell info from a simulation HDF file&quot;&quot;&quot;
+
+    def __init__(self, hdf_fpath):
+        &quot;&quot;&quot;Initialize with a simulation HDF file
+
+        Parameters
+        ----------
+        hdf_fpath : str
+            Path to a simulation HDF file
+        &quot;&quot;&quot;
+        with pd.HDFStore(hdf_fpath, &quot;r&quot;) as sim_data:
+            super().__init__(
+                sim_data[&quot;/simulation/simulation_state/t_radiative&quot;],
+                sim_data[&quot;/simulation/simulation_state/dilution_factor&quot;],
+                sim_data[&quot;/simulation/simulation_state/abundance&quot;],
+                sim_data[&quot;/simulation/plasma/number_density&quot;],
+                sim_data[&quot;/simulation/plasma/ion_number_density&quot;],
+                sim_data[&quot;/simulation/plasma/level_number_density&quot;],
+            )</div>
+
+
+
+<div class="viewcode-block" id="ShellInfoWidget">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget">[docs]</a>
+class ShellInfoWidget:
+    &quot;&quot;&quot;The Shell Info Widget to explore abundances in different shells.
+    It consists of four interlinked table widgets - shells table; element count,
+    ion count and level count tables - allowing to explore fractional abundances
+    all the way from elements, to ions, to levels by clicking on the rows of
+    tables.
+    &quot;&quot;&quot;
+
+    def _apply_tabulator_styles(self, tabulator):
+        &quot;&quot;&quot;
+        Apply consistent styles and alignment to a Tabulator widget.
+
+        Parameters
+        ----------
+        tabulator : panel.widgets.Tabulator
+            The tabulator widget to style.
+        &quot;&quot;&quot;
+        tabulator.styles = TABLE_STYLES
+        tabulator.text_align = &quot;center&quot;
+        tabulator.header_align = &quot;center&quot;
+
+        # helper method to create Tabulator widgets with defaults
+    def _create_tabulator(self, df, widths, titles=None, **kwargs):
+        &quot;&quot;&quot;
+        Create a Tabulator widget with pre-set common arguments.
+        
+        This helper method creates a standardized tabulator widget with consistent
+        styling and behavior.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The data to display in the tabulator.
+        widths : dict
+            Dictionary mapping column names to column widths.
+        titles : dict, optional
+            Dictionary mapping column names to display titles (default: None).
+        **kwargs : dict
+            Additional keyword arguments to pass to the Tabulator constructor.
+
+        Returns
+        -------
+        panel.widgets.Tabulator
+            Configured tabulator widget.
+        &quot;&quot;&quot;
+        defaults = {
+            &quot;layout&quot;: &quot;fit_data&quot;,
+            &quot;selectable&quot;: 1,
+            &quot;styles&quot;: TABLE_STYLES,
+            &quot;text_align&quot;: &quot;center&quot;,
+            &quot;header_align&quot;: &quot;center&quot;,
+        }
+        if titles:
+            defaults[&quot;titles&quot;] = titles
+        defaults.update(kwargs)
+        return pn.widgets.Tabulator(df, widths=widths, **defaults)
+
+    def __init__(self, shell_info_data):
+        &quot;&quot;&quot;
+        Initialize the Shell Info Widget with simulation data.
+        
+        Sets up the four interconnected tables and establishes event handlers
+        for selection changes.
+
+        Parameters
+        ----------
+        shell_info_data : BaseShellInfo or subclass
+            The shell information data source to use for populating tables.
+        &quot;&quot;&quot;
+        self.data = shell_info_data
+
+        # Shells table
+        shells_df = self.data.shells_data()
+        self.shells_title = pn.pane.Markdown(&quot;### Shells&quot;, margin=(0, 0, 5, 0), styles=TITLE_STYLES)
+        self.shells_table = self._create_tabulator(
+            shells_df,
+            widths={&quot;Shell No.&quot;: 80, &quot;Rad. Temp.&quot;: 120, &quot;Dilution Factor&quot;: 120},
+            titles={&quot;Shell No.&quot;: &quot;Shell No.&quot;, &quot;Rad. Temp.&quot;: &quot;Rad. Temp. (K)&quot;, &quot;Dilution Factor&quot;: &quot;W&quot;}
+        )
+
+        # Element count table (Shell 1 initially)
+        element_df = self.data.element_count(1)
+        self.element_title = pn.pane.Markdown(&quot;### Elements (Shell 1)&quot;, margin=(0, 0, 5, 0), styles=TITLE_STYLES)
+        self.element_count_table = self._create_tabulator(
+            element_df,
+            widths={&quot;Element&quot;: 100, &quot;Frac. Ab. (Shell 1)&quot;: 140},
+        )
+
+        # Ion count table (initially empty, but ensure data is populated on selection)
+        self.ion_title = pn.pane.Markdown(&quot;### Ions (No Selection)&quot;, margin=(0, 0, 5, 0), styles=TITLE_STYLES)
+        self.ion_count_table = self._create_tabulator(
+            pd.DataFrame(columns=[&quot;Species&quot;, &quot;Frac. Ab.&quot;]),
+            widths={&quot;Species&quot;: 140, &quot;Frac. Ab.&quot;: 140},
+        )
+
+        # Level count table (initially empty, but ensure data is populated on selection)
+        self.level_title = pn.pane.Markdown(&quot;### Levels (No Selection)&quot;, margin=(0, 0, 5, 0), styles=TITLE_STYLES)
+        self.level_count_table = self._create_tabulator(
+            pd.DataFrame(columns=[&quot;Level&quot;, &quot;Frac. Ab.&quot;]),
+            widths={&quot;Level&quot;: 100, &quot;Frac. Ab.&quot;: 180},
+        )
+
+        # Bind events
+        self.shells_table.param.watch(self.update_element_count_table, &quot;selection&quot;)
+        self.element_count_table.param.watch(self.update_ion_count_table, &quot;selection&quot;)
+        self.ion_count_table.param.watch(self.update_level_count_table, &quot;selection&quot;)
+
+        # Notes with compact styling
+        self.notes = pn.pane.HTML(
+            &quot;&quot;&quot;
+            &lt;div style=&quot;font-size: 12px; padding: 5px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 3px; color: #333;&quot;&gt;
+                &lt;b&gt;Frac. Ab.&lt;/b&gt; denotes &lt;i&gt;Fractional Abundances&lt;/i&gt; (sum to 1)&lt;br&gt;
+                &lt;b&gt;W&lt;/b&gt; denotes &lt;i&gt;Dilution Factor&lt;/i&gt;&lt;br&gt;
+                &lt;b&gt;Radiative Temp.&lt;/b&gt; is in Kelvin
+            &lt;/div&gt;
+            &quot;&quot;&quot;,
+            width=350,
+        )
+
+        # Improved layout with compact, no-scroll design
+        self.layout = pn.Column(
+            pn.pane.Markdown(&quot;# TARDIS Shell Info Explorer&quot;, styles={&#39;font-size&#39;: &#39;20px&#39;, &#39;font-weight&#39;: &#39;bold&#39;, &#39;margin-bottom&#39;: &#39;10px&#39;, &#39;color&#39;: &#39;#333&#39;}),
+            self.notes,
+            pn.Row(
+                pn.Column(self.shells_title, self.shells_table, styles={&#39;padding&#39;: &#39;5px&#39;, &#39;border&#39;: &#39;1px solid #ddd&#39;}, width=320),
+                pn.Column(self.element_title, self.element_count_table, styles={&#39;padding&#39;: &#39;5px&#39;, &#39;border&#39;: &#39;1px solid #ddd&#39;}, width=240),
+                pn.Column(self.ion_title, self.ion_count_table, styles={&#39;padding&#39;: &#39;5px&#39;, &#39;border&#39;: &#39;1px solid #ddd&#39;}, width=280),
+                pn.Column(self.level_title, self.level_count_table, styles={&#39;padding&#39;: &#39;5px&#39;, &#39;border&#39;: &#39;1px solid #ddd&#39;}, width=280),
+                styles={&#39;margin&#39;: &#39;10px&#39;, &#39;padding&#39;: &#39;10px&#39;, &#39;background-color&#39;: &#39;#fff&#39;, &#39;border&#39;: &#39;1px solid #ddd&#39;, &#39;border-radius&#39;: &#39;3px&#39;},
+                sizing_mode=&quot;scale_both&quot;,  # Scales to fit the screen without scrolling
+            ),
+            sizing_mode=&quot;scale_both&quot;,
+            styles=CONTAINER_STYLES,
+        )
+
+        # Initial selection for shells table only if data exists
+        if not shells_df.empty:
+            self.shells_table.selection = [0]
+
+<div class="viewcode-block" id="ShellInfoWidget.update_element_count_table">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table">[docs]</a>
+    def update_element_count_table(self, event):
+        &quot;&quot;&quot;
+        Update element table based on shell selection.
+        
+        This event handler updates the element table when a shell is selected in 
+        the shells table. It also triggers downstream updates.
+
+        Parameters
+        ----------
+        event : param.Event
+            The event containing the new selection information.
+        &quot;&quot;&quot;
+        selected_rows = event.new
+        if selected_rows:
+            shell_num = selected_rows[0] + 1
+            element_df = self.data.element_count(shell_num)
+            self.element_count_table.value = element_df
+            self.element_title.object = f&quot;### Elements (Shell {shell_num})&quot;
+            self.element_count_table.widths = {
+                &quot;Element&quot;: 100,
+                f&quot;Frac. Ab. (Shell {shell_num})&quot;: 140,
+            }
+            self._apply_tabulator_styles(self.element_count_table)
+
+            if not element_df.empty:
+                self.element_count_table.selection = [0]
+            else:
+                self.element_count_table.selection = []
+                self.update_ion_count_table(None)
+        else:
+            self.element_count_table.value = pd.DataFrame(columns=[&quot;Element&quot;, &quot;Frac. Ab.&quot;])
+            self.element_title.object = &quot;### Elements (No Shell Selected)&quot;
+            self.element_count_table.selection = []
+            self.update_ion_count_table(None)</div>
+
+
+<div class="viewcode-block" id="ShellInfoWidget.update_ion_count_table">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table">[docs]</a>
+    def update_ion_count_table(self, event):
+        &quot;&quot;&quot;
+        Update ion table based on element selection.
+        
+        This event handler updates the ion table when an element is selected in 
+        the element count table. It also triggers downstream updates.
+
+        Parameters
+        ----------
+        event : param.Event or None
+            The event containing the new selection information, or None if called directly.
+        &quot;&quot;&quot;
+        if event and self.shells_table.selection:
+            selected_rows = event.new
+            shell_num = self.shells_table.selection[0] + 1
+            if selected_rows:
+                atomic_num = self.element_count_table.value.index[selected_rows[0]]
+                ion_df = self.data.ion_count(atomic_num, shell_num)
+                self.ion_count_table.value = ion_df
+                self.ion_title.object = f&quot;### Ions (Z={atomic_num}, Shell {shell_num})&quot;
+                self.ion_count_table.widths = {
+                    &quot;Species&quot;: 140,
+                    f&quot;Frac. Ab. (Z={atomic_num})&quot;: 140,
+                }
+                self._apply_tabulator_styles(self.ion_count_table)
+
+                if not ion_df.empty:
+                    self.ion_count_table.selection = [0]
+                else:
+                    self.ion_count_table.selection = []
+                    self.update_level_count_table(None)
+            else:
+                self.ion_count_table.value = pd.DataFrame(columns=[&quot;Species&quot;, &quot;Frac. Ab.&quot;])
+                self.ion_title.object = &quot;### Ions (No Element Selected)&quot;
+                self.ion_count_table.selection = []
+                self.update_level_count_table(None)
+        else:
+            self.ion_count_table.value = pd.DataFrame(columns=[&quot;Species&quot;, &quot;Frac. Ab.&quot;])
+            self.ion_title.object = &quot;### Ions (No Selection)&quot;
+            self.ion_count_table.selection = []
+            self.update_level_count_table(None)</div>
+
+
+<div class="viewcode-block" id="ShellInfoWidget.update_level_count_table">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table">[docs]</a>
+    def update_level_count_table(self, event):
+        &quot;&quot;&quot;
+        Update level table based on ion selection.
+        
+        This event handler updates the level table when an ion is selected in 
+        the ion count table.
+
+        Parameters
+        ----------
+        event : param.Event or None
+            The event containing the new selection information, or None if called directly.
+        &quot;&quot;&quot;
+        if event and self.shells_table.selection and self.element_count_table.selection:
+            selected_rows = event.new
+            shell_num = self.shells_table.selection[0] + 1
+            atomic_num = self.element_count_table.value.index[self.element_count_table.selection[0]]
+            if selected_rows:
+                ion = self.ion_count_table.value.index[selected_rows[0]]
+                level_df = self.data.level_count(ion, atomic_num, shell_num)
+                self.level_count_table.value = level_df
+                self.level_title.object = f&quot;### Levels (Ion={ion}, Z={atomic_num}, Shell {shell_num})&quot;
+                self.level_count_table.widths = {
+                    &quot;Level&quot;: 100,
+                    f&quot;Frac. Ab. (Ion={ion})&quot;: 180,
+                }
+                self._apply_tabulator_styles(self.level_count_table)
+
+                if not level_df.empty:
+                    self.level_count_table.selection = [0]
+                else:
+                    self.level_count_table.selection = []
+            else:
+                self.level_count_table.value = pd.DataFrame(columns=[&quot;Level&quot;, &quot;Frac. Ab.&quot;])
+                self.level_title.object = &quot;### Levels (No Ion Selected)&quot;
+                self.level_count_table.selection = []
+        else:
+            self.level_count_table.value = pd.DataFrame(columns=[&quot;Level&quot;, &quot;Frac. Ab.&quot;])
+            self.level_title.object = &quot;### Levels (No Selection)&quot;
+            self.level_count_table.selection = []</div>
+
+
+<div class="viewcode-block" id="ShellInfoWidget.get_panel">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.get_panel">[docs]</a>
+    def get_panel(self):
+        &quot;&quot;&quot;Return the Panel object for display&quot;&quot;&quot;
+        return self.layout</div>
+
+
+<div class="viewcode-block" id="ShellInfoWidget.display">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.display">[docs]</a>
+    def display(self):
+        &quot;&quot;&quot;
+        Display the widget in the current context.
+        
+        In notebook contexts, returns the Panel object for display.
+        In non-notebook contexts, serves the Panel application.
+
+        Returns
+        -------
+        panel.Column or None
+            The main layout if in a notebook context, None otherwise.
+        &quot;&quot;&quot;        
+        if is_notebook():
+            return self.get_panel()
+        else:
+            pn.serve(self.get_panel())</div>
+</div>
+
+
+<div class="viewcode-block" id="shell_info_from_simulation">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_simulation">[docs]</a>
+def shell_info_from_simulation(sim_model):
+    &quot;&quot;&quot;Create shell info widget from a TARDIS simulation object
+    Parameters
+    ----------
+    sim_model : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+    Returns
+    -------
+    ShellInfoWidget
+    &quot;&quot;&quot;
+    shell_info_data = SimulationShellInfo(sim_model)
+    return ShellInfoWidget(shell_info_data)</div>
+
+
+
+<div class="viewcode-block" id="shell_info_from_hdf">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_hdf">[docs]</a>
+def shell_info_from_hdf(hdf_fpath):
+    &quot;&quot;&quot;Create shell info widget from a simulation HDF file
+    Parameters
+    ----------
+    hdf_fpath : str
+        A valid path to a simulation HDF file (HDF file must be created
+        from a TARDIS Simulation object using :code:`to_hdf` method with
+        default arguments)
+    Returns
+    -------
+    ShellInfoWidget
+    &quot;&quot;&quot;
+    shell_info_data = HDFShellInfo(hdf_fpath)
+    return ShellInfoWidget(shell_info_data)</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 03 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

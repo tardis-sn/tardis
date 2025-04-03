@@ -1,0 +1,7 @@
+tardis.opacities.macro\_atom.macroatom\_solver module
+=====================================================
+
+.. automodule:: tardis.opacities.macro_atom.macroatom_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:

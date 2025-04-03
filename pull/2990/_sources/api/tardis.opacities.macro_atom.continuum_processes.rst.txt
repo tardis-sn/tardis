@@ -1,0 +1,18 @@
+tardis.opacities.macro\_atom.continuum\_processes package
+=========================================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob
+
+Module contents
+---------------
+
+.. automodule:: tardis.opacities.macro_atom.continuum_processes
+   :members:
+   :undoc-members:
+   :show-inheritance:
