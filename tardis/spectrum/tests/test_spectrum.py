@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 from astropy import units as u
 from numpy.testing import assert_almost_equal
-
+from unittest.mock import patch, mock_open, MagicMock
 from tardis import constants as c
 from tardis.spectrum.spectrum import (
     TARDISSpectrum,
@@ -136,6 +136,31 @@ def test_f_nu_to_f_lambda(spectrum):
     )
 
 
+def test_from_hdf(spectrum):
+    mock_store = MagicMock()
+    mock_freq_data = spectrum._frequency
+    mock_luminosity_data = spectrum.luminosity
+
+    mock_store.__getitem__.side_effect = lambda key: {
+        '/tardis_spectrum/_frequency': pd.Series(mock_freq_data),
+        '/tardis_spectrum/luminosity': pd.Series(mock_luminosity_data),
+        '/test/tardis_spectrum/scalars': {"distance": getattr(spectrum, "distance", None)}
+    }[key]
+
+    mock_context = MagicMock()
+    mock_context.__enter__.return_value = mock_store
+    mock_context.__exit__.return_value = None
+
+    with patch('pandas.HDFStore', return_value=mock_context) as mock_hdf_store:
+        result = spectrum.from_hdf('test_file.h5')
+        mock_hdf_store.assert_called_once_with('test_file.h5', mode='r')
+
+        np.testing.assert_array_equal(spectrum.frequency, result.frequency)
+        np.testing.assert_array_equal(spectrum.luminosity, result.luminosity)
+
+    with pytest.raises(FileNotFoundError):
+        result = spectrum.from_hdf("non_existing_path.hdf")
+        
 ###
 # Save and Load
 ###
