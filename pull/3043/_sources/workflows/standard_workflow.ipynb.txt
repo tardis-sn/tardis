@@ -15,6 +15,13 @@
    ]
   },
   {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This workflow produces the full suite of standard TARIDS outputs, including plots, logging information, and stored data. It is useful for users who want access to detailed output for analysis."
+   ]
+  },
+  {
    "cell_type": "code",
    "execution_count": null,
    "metadata": {},
