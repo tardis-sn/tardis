@@ -172,7 +172,7 @@ class TARDISSpectrum(HDFWriterMixin):
                 return final_obj
             
         except FileNotFoundError as e:
-            print(f"File not found: {e}")
+            raise FileNotFoundError(f"File not found: {e}")
 
     def to_ascii(self, fname, mode="luminosity_density"):
         if mode == "luminosity_density":

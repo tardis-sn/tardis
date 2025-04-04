@@ -158,6 +158,9 @@ def test_from_hdf(spectrum):
         np.testing.assert_array_equal(spectrum.frequency, result.frequency)
         np.testing.assert_array_equal(spectrum.luminosity, result.luminosity)
 
+    with pytest.raises(FileNotFoundError):
+        result = spectrum.from_hdf("non_existing_path.hdf")
+        
 ###
 # Save and Load
 ###
