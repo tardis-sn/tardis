@@ -158,11 +158,11 @@ class SDECPlotter:
 
         for mode in ["real", "virtual"]:
             plotter.spectrum[mode] = plotter.get_spectrum_data(mode, sim)
-            packet_data = plotter.get_packet_data(transport_state, mode)
+            packet_data = pu.get_packet_data(transport_state, mode)
             plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
-        
+
         # Call this after packets_df is populated
-        plotter.process_line_interactions()
+        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
         return plotter
 
     @classmethod
