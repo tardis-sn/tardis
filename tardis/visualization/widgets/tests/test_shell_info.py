@@ -1,6 +1,8 @@
 import pytest
 import numpy as np
+import pandas as pd
 import pandas.testing as pdt
+import panel as pn
 
 from tardis.tests.test_util import monkeysession
 from tardis.visualization.widgets.shell_info import (
@@ -8,11 +10,13 @@ from tardis.visualization.widgets.shell_info import (
     SimulationShellInfo,
     HDFShellInfo,
     ShellInfoWidget,
+    TABLE_STYLES,
 )
 
 
 @pytest.fixture(scope="class")
 def base_shell_info(simulation_verysimple):
+
     return BaseShellInfo(
         simulation_verysimple.simulation_state.t_radiative,
         simulation_verysimple.simulation_state.dilution_factor,
@@ -38,6 +42,7 @@ def hdf_shell_info(hdf_file_path, simulation_verysimple):
 
 class TestBaseShellInfo:
     def test_shells_data(self, base_shell_info, simulation_verysimple):
+
         shells_data = base_shell_info.shells_data()
         assert shells_data.shape == (
             len(simulation_verysimple.simulation_state.t_radiative),
@@ -56,6 +61,7 @@ class TestBaseShellInfo:
     def test_element_count_data(
         self, base_shell_info, simulation_verysimple, shell_num
     ):
+
         element_count_data = base_shell_info.element_count(1)
         assert element_count_data.shape == (
             len(
@@ -72,6 +78,7 @@ class TestBaseShellInfo:
     def test_ion_count_data(
         self, base_shell_info, simulation_verysimple, atomic_num, shell_num
     ):
+
         ion_count_data = base_shell_info.ion_count(atomic_num, shell_num)
         sim_ion_number_density = (
             simulation_verysimple.plasma.ion_number_density[shell_num - 1].loc[
@@ -100,6 +107,7 @@ class TestBaseShellInfo:
         atomic_num,
         shell_num,
     ):
+
         level_count_data = base_shell_info.level_count(
             ion_num, atomic_num, shell_num
         )
@@ -124,6 +132,7 @@ class TestSimulationShellInfo(TestBaseShellInfo):
     # Override the base_shell_info fixture to use value of simulation_shell_info fixture
     @pytest.fixture
     def base_shell_info(self, simulation_shell_info):
+
         return simulation_shell_info
 
 
@@ -131,6 +140,7 @@ class TestHDFShellInfo(TestBaseShellInfo):
     # Override the base_shell_info fixture to use value of hdf_shell_info fixture
     @pytest.fixture
     def base_shell_info(self, hdf_shell_info):
+
         return hdf_shell_info
 
 
@@ -142,6 +152,7 @@ class TestShellInfoWidget:
 
     @pytest.fixture(scope="class")
     def shell_info_widget(self, base_shell_info, monkeysession):
+
         shell_info_widget = ShellInfoWidget(base_shell_info)
         monkeysession.setattr(
             "tardis.visualization.widgets.shell_info.is_notebook", lambda: True
@@ -153,6 +164,7 @@ class TestShellInfoWidget:
     def test_selection_on_shells_table(
         self, base_shell_info, shell_info_widget
     ):
+
         shell_info_widget.shells_table.change_selection([self.select_shell_num])
 
         expected_element_count = base_shell_info.element_count(
@@ -181,6 +193,7 @@ class TestShellInfoWidget:
     def test_selection_on_element_count_table(
         self, base_shell_info, shell_info_widget
     ):
+
         shell_info_widget.element_count_table.change_selection(
             [self.select_atomic_num]
         )
@@ -204,6 +217,7 @@ class TestShellInfoWidget:
     def test_selection_on_ion_count_table(
         self, base_shell_info, shell_info_widget
     ):
+
         shell_info_widget.ion_count_table.change_selection(
             [self.select_ion_num]
         )
@@ -214,3 +228,59 @@ class TestShellInfoWidget:
         pdt.assert_frame_equal(
             expected_level_count, shell_info_widget.level_count_table.df
         )
+
+    def test_widget_styling(self, shell_info_widget):
+
+        assert shell_info_widget.shells_table.style == TABLE_STYLES
+        assert shell_info_widget.element_count_table.style == TABLE_STYLES
+        assert shell_info_widget.ion_count_table.style == TABLE_STYLES
+        assert shell_info_widget.level_count_table.style == TABLE_STYLES
+
+    def test_create_tabulator_table(self, shell_info_widget):
+
+        test_df = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
+        tabulator = shell_info_widget._create_tabulator(
+            test_df,
+            widths={"A": 100, "B": 150},
+            titles={"A": "column A", "B": "Column B"}
+        )
+        assert tabulator.value.equals(test_df)
+        assert tabulator.widths == {"A": 100, "B": 150}
+        assert tabulator.titles == {"A": "column A", "B": "Column B"}
+
+    def test_update_with_empty_selection(self, shell_info_widget):
+
+        # set empty selection
+        shell_info_widget.shells_table.selection = []
+
+        #Trigger update
+        shell_info_widget.update_element_count_table(None)
+        
+        #Check the element table is properly reset
+        assert "No Shell Selected" in shell_info_widget.element_title.object
+        assert shell_info_widget.element_count_table.value.empty
+
+        #Checking ion table is also reset
+        assert "No Selection" in shell_info_widget.ion_title.object
+        assert shell_info_widget.ion_count_table.value.empty
+
+        #Checking level table is also reset
+        assert "No Selection" in shell_info_widget.level_title.object
+        assert shell_info_widget.level_count_table.value.empty
+
+    def test_widget_layout(self, shell_info_widget):
+
+        layout = shell_info_widget.layout
+        assert isinstance(layout, pn.Column)
+        assert len(layout) > 0
+
+        #check that title is present
+        assert any(isinstance(item, pn.pane.Markdown) and "TARDIS" in str(item.object) for item in layout.objects)
+
+    def test_get_panel(self, shell_info_widget):
+ 
+        panel = shell_info_widget.get_panel()
+        assert panel is shell_info_widget.layout
+
+
+
