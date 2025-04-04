@@ -392,7 +392,7 @@ def generate_worflows_page(app):
                 notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
 
     title = "Workflows\n*********\n"
-    description = "The following pages contain the TARDIS workflows:"
+    description = "The following pages contain the TARDIS workflows:\n\n These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives."
 
     with open("workflows.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
