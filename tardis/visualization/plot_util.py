@@ -1,7 +1,13 @@
 """Utility functions to be used in plotting."""
 
 import re
+
+import astropy.units as u
 import numpy as np
+
+from tardis.visualization.tools.visualization_data import (
+    VisualizationData,
+)
 
 
 def axis_label_in_latex(label_text, unit, only_text=True):
@@ -79,3 +85,122 @@ def to_rgb255_string(color_tuple):
     """
     color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
     return f"rgb{color_tuple_255}"
+
+def create_packet_data_dict_from_simulation(sim):
+    """
+    Create a dictionary containing virtual and real packet data based on simulation state.
+
+    Parameters
+    ----------
+    sim : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+
+    Returns
+    -------
+    dict
+        Dictionary containing 'virtual' and 'real' SimulationPacketData instances
+    """
+    packet_data = {
+        "real": VisualizationData.from_simulation(sim, "real")
+    }
+    if sim.transport.transport_state.virt_logging:
+        packet_data["virtual"] = VisualizationData.from_simulation(sim, "virtual")
+    else:
+        packet_data["virtual"] = None
+
+    return packet_data
+
+def create_packet_data_dict_from_hdf(hdf_fpath, packets_mode=None):
+    """
+    Create a dictionary containing virtual and real packet data from HDF file.
+
+    Parameters
+    ----------
+    hdf_fpath : str
+        Valid path to the HDF file where simulation is saved
+    packets_mode : {'virtual', 'real', None}
+        Mode of packets to be considered. If None, both modes are returned.
+
+    Returns
+    -------
+    dict
+        Dictionary containing 'virtual' and 'real' SimulationPacketData instances
+    """
+    if packets_mode not in [None, "virtual", "real"]:
+        raise ValueError(
+            "Invalid value passed to packets_mode. Only "
+            "allowed values are 'virtual', 'real' or None"
+        )
+    if packets_mode == "virtual":
+        return {
+            "virtual": VisualizationData.from_hdf(hdf_fpath, "virtual"),
+            "real": None
+        }
+    if packets_mode == "real":
+        return {
+            "virtual": None,
+            "real": VisualizationData.from_hdf(hdf_fpath, "real")
+        }
+    return {
+        "virtual": VisualizationData.from_hdf(hdf_fpath, "virtual"),
+        "real": VisualizationData.from_hdf(hdf_fpath, "real")
+    }
+
+
+def get_packet_data(transport_state, packets_mode):
+    """Get packet data from transport state based on mode."""
+    if packets_mode == "virtual":
+        vpacket_tracker = transport_state.vpacket_tracker
+        return {
+            'last_interaction_type': vpacket_tracker.last_interaction_type,
+            'last_line_interaction_in_id': vpacket_tracker.last_interaction_in_id,
+            'last_line_interaction_out_id': vpacket_tracker.last_interaction_out_id,
+            'last_line_interaction_in_nu': vpacket_tracker.last_interaction_in_nu,
+            'last_interaction_in_r': vpacket_tracker.last_interaction_in_r,
+            'nus': u.Quantity(vpacket_tracker.nus, "Hz"),
+            'energies': u.Quantity(vpacket_tracker.energies, "erg"),
+            'lambdas': u.Quantity(vpacket_tracker.nus, "Hz").to("angstrom", u.spectral()),
+        }
+    # real packets
+    mask = transport_state.emitted_packet_mask
+    packet_nus = u.Quantity(transport_state.packet_collection.output_nus[mask], u.Hz)
+    return {
+        'last_interaction_type': transport_state.last_interaction_type[mask],
+        'last_line_interaction_in_id': transport_state.last_line_interaction_in_id[mask],
+        'last_line_interaction_out_id': transport_state.last_line_interaction_out_id[mask],
+        'last_line_interaction_in_nu': transport_state.last_interaction_in_nu[mask],
+        'last_interaction_in_r': transport_state.last_interaction_in_r[mask],
+        'nus': packet_nus,
+        'energies': transport_state.packet_collection.output_energies[mask],
+        'lambdas': packet_nus.to("angstrom", u.spectral()),
+    }
+
+def process_line_interactions(packet_data, lines_df):
+    """Process line interactions and create line interaction dataframe for both packet modes."""
+    for packets_mode in ["real", "virtual"]:
+        packets_df = packet_data[packets_mode]["packets_df"]
+
+        if packets_df is not None:
+            # Create dataframe of packets that experience line interaction
+            line_mask = (packets_df["last_interaction_type"] > -1) & (
+                packets_df["last_line_interaction_in_id"] > -1
+            )
+            packet_data[packets_mode]["packets_df_line_interaction"] = packets_df.loc[line_mask].copy()
+
+            # Add columns for atomic number of last interaction out
+            packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_atom"] = (
+                lines_df["atomic_number"]
+                .iloc[packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
+                .to_numpy()
+            )
+
+            # Add columns for the species ID of last interaction
+            packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_species"] = (
+                lines_df["atomic_number"]
+                .iloc[packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
+                .to_numpy()
+                * 100
+                + lines_df["ion_number"]
+                .iloc[packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
+                .to_numpy()
+            )
