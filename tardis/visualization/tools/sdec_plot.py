@@ -80,72 +80,12 @@ class SDECPlotter:
 
         for mode in ["real", "virtual"]:
             plotter.spectrum[mode] = plotter.get_spectrum_data(mode, sim)
-            packet_data = plotter.get_packet_data(transport_state, mode)
+            packet_data = pu.get_packet_data(transport_state, mode)
             plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
-        
+
         # Call this after packets_df is populated
-        plotter.process_line_interactions()
+        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
         return plotter
-
-    
-    def get_packet_data(self, transport_state, packets_mode):
-        """Get packet data from transport state based on mode."""
-        if packets_mode == "virtual":
-            vpacket_tracker = transport_state.vpacket_tracker
-            return {
-                'last_interaction_type': vpacket_tracker.last_interaction_type,
-                'last_line_interaction_in_id': vpacket_tracker.last_interaction_in_id,
-                'last_line_interaction_out_id': vpacket_tracker.last_interaction_out_id,
-                'last_line_interaction_in_nu': vpacket_tracker.last_interaction_in_nu,
-                'last_interaction_in_r': vpacket_tracker.last_interaction_in_r,
-                'nus': u.Quantity(vpacket_tracker.nus, "Hz"),
-                'energies': u.Quantity(vpacket_tracker.energies, "erg"),
-                'lambdas': u.Quantity(vpacket_tracker.nus, "Hz").to("angstrom", u.spectral()),
-            }
-        else:  # real packets
-            mask = transport_state.emitted_packet_mask
-            packet_nus = u.Quantity(transport_state.packet_collection.output_nus[mask], u.Hz)
-            return {
-                'last_interaction_type': transport_state.last_interaction_type[mask],
-                'last_line_interaction_in_id': transport_state.last_line_interaction_in_id[mask],
-                'last_line_interaction_out_id': transport_state.last_line_interaction_out_id[mask],
-                'last_line_interaction_in_nu': transport_state.last_interaction_in_nu[mask],
-                'last_interaction_in_r': transport_state.last_interaction_in_r[mask],
-                'nus': packet_nus,
-                'energies': transport_state.packet_collection.output_energies[mask],
-                'lambdas': packet_nus.to("angstrom", u.spectral()),
-            }
-
-
-    def process_line_interactions(self):
-        """Process line interactions and create line interaction dataframe for both packet modes."""
-        for packets_mode in ["real", "virtual"]:
-            packets_df = self.packet_data[packets_mode]["packets_df"]
-            
-            if packets_df is not None:
-                # Create dataframe of packets that experience line interaction
-                line_mask = (packets_df["last_interaction_type"] > -1) & (
-                    packets_df["last_line_interaction_in_id"] > -1
-                )
-                self.packet_data[packets_mode]["packets_df_line_interaction"] = packets_df.loc[line_mask].copy()
-
-                # Add columns for atomic number of last interaction out
-                self.packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_atom"] = (
-                    self.lines_df["atomic_number"]
-                    .iloc[self.packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
-                    .to_numpy()
-                )
-
-                # Add columns for the species ID of last interaction
-                self.packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_species"] = (
-                    self.lines_df["atomic_number"]
-                    .iloc[self.packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
-                    .to_numpy()
-                    * 100
-                    + self.lines_df["ion_number"]
-                    .iloc[self.packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
-                    .to_numpy()
-                )
 
 
     def get_spectrum_data(self, packets_mode, sim):
