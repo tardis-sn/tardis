@@ -42,7 +42,7 @@ clean:
 	-rm -rf generated
 
 html:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html -j $(NCORES)
+	-$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html -j $(NCORES) -W --keep-going
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
