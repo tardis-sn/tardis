@@ -9,13 +9,11 @@ import pandas as pd
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
-# import panel as pn
-# if not pn.extension._loaded and 'GITHUB_ACTIONS' not in os.environ:
-#     pn.extension(comms="ipywidgets")
-# else:
-#     pn.extension()
-
-pn.extension()
+import panel as pn
+if 'GITHUB_ACTIONS' not in os.environ:
+    pn.extension(comms="ipywidgets")
+else:
+    pn.extension()
 
 @lru_cache(maxsize=1)
 def get_environment():
