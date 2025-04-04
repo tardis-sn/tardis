@@ -1,6 +1,11 @@
 ## Changelog
 
-### release-2025.03.23 (2025/03/22 21:06)
+### release-2025.03.30 (2025/03/29 21:08)
+- [3030](https://github.com/tardis-sn/tardis/pull/3030) BugFix: Utility workflow and Clean Docs workflow (3030) (@atharva-2001)
+- [3025](https://github.com/tardis-sn/tardis/pull/3025) Remove Deprecated Astropy `TestRunner` (3025) (@atharva-2001)
+- [3002](https://github.com/tardis-sn/tardis/pull/3002) Flatten macroatom (3002) (@jvshields)
+- [3028](https://github.com/tardis-sn/tardis/pull/3028) Post-release 2025.03.23 (3028) (@tardis-bot)
+### release-2025.03.23 (2025/03/21 13:34)
 - [3016](https://github.com/tardis-sn/tardis/pull/3016) Workflow Label Pipeline and Fixes (3016) (@atharva-2001)
 - [3022](https://github.com/tardis-sn/tardis/pull/3022) add final integrated tau property to v_inner workflow (3022) (@jvshields)
 - [2981](https://github.com/tardis-sn/tardis/pull/2981) v_inner_solver store plasma state fxn (2981) (@erinvisser)

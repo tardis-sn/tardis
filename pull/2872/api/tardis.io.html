@@ -105,6 +105,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -113,7 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -267,16 +268,7 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_csvy"><code class="docutils literal notranslate"><span class="pre">parse_composition_from_csvy()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html">tardis.io.model.parse_density_configuration module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.calculate_density_after_time"><code class="docutils literal notranslate"><span class="pre">calculate_density_after_time()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.calculate_exponential_density"><code class="docutils literal notranslate"><span class="pre">calculate_exponential_density()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.calculate_power_law_density"><code class="docutils literal notranslate"><span class="pre">calculate_power_law_density()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.parse_density_from_config"><code class="docutils literal notranslate"><span class="pre">parse_density_from_config()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.parse_density_from_csvy"><code class="docutils literal notranslate"><span class="pre">parse_density_from_csvy()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.parse_density_section_config"><code class="docutils literal notranslate"><span class="pre">parse_density_section_config()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.parse_density_section_csvy"><code class="docutils literal notranslate"><span class="pre">parse_density_section_csvy()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html">tardis.io.model.parse_density_configuration module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_geometry_configuration.html">tardis.io.model.parse_geometry_configuration module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_mass_fraction_configuration.html">tardis.io.model.parse_mass_fraction_configuration module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_packet_source_configuration.html">tardis.io.model.parse_packet_source_configuration module</a><ul>
@@ -284,13 +276,7 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_packet_source_configuration.html#tardis.io.model.parse_packet_source_configuration.parse_packet_source_from_config"><code class="docutils literal notranslate"><span class="pre">parse_packet_source_from_config()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_radiation_field_configuration.html">tardis.io.model.parse_radiation_field_configuration module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_radiation_field_configuration.html#tardis.io.model.parse_radiation_field_configuration.calculate_geometric_dilution_factor"><code class="docutils literal notranslate"><span class="pre">calculate_geometric_dilution_factor()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_radiation_field_configuration.html#tardis.io.model.parse_radiation_field_configuration.calculate_t_radiative_from_t_inner"><code class="docutils literal notranslate"><span class="pre">calculate_t_radiative_from_t_inner()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_radiation_field_configuration.html#tardis.io.model.parse_radiation_field_configuration.parse_radiation_field_state_from_config"><code class="docutils literal notranslate"><span class="pre">parse_radiation_field_state_from_config()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_radiation_field_configuration.html#tardis.io.model.parse_radiation_field_configuration.parse_radiation_field_state_from_csvy"><code class="docutils literal notranslate"><span class="pre">parse_radiation_field_state_from_csvy()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_radiation_field_configuration.html">tardis.io.model.parse_radiation_field_configuration module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_simulation_state.html">tardis.io.model.parse_simulation_state module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_simulation_state.html#tardis.io.model.parse_simulation_state.parse_simulation_state"><code class="docutils literal notranslate"><span class="pre">parse_simulation_state()</span></code></a></li>
 </ul>
@@ -360,7 +346,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Apr 2025.
+      <span class="lastupdated">Last updated on 04 Apr 2025.
       </span></p>
   </div>
 
