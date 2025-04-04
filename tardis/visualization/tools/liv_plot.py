@@ -21,7 +21,7 @@ class LIVPlotter:
     Plotting interface for the last interaction velocity plot.
     """
 
-    def __init__(self, data, sim):
+    def __init__(self):
         """
         Initialize the plotter with required data from the simulation.
 
@@ -32,9 +32,14 @@ class LIVPlotter:
             for both packet modes (real, virtual).
 
         """
-        self.data = data
-        self.simulation_state = sim.simulation_state
-        self.sdec_plotter = sdec.SDECPlotter(data, sim)
+        self.packet_data = {
+            "real": {"packets_df": None, "packets_df_line_interaction": None},
+            "virtual": {"packets_df": None, "packets_df_line_interaction": None},
+        }
+        self.lines_df = None
+        self.simulation_state = None
+        self.time_explosion = None
+        self.sdec_plotter = None
 
     @classmethod
     def from_simulation(cls, sim):
@@ -50,7 +55,18 @@ class LIVPlotter:
         -------
         LIVPlotter
         """
-        return cls(pu.create_packet_data_dict_from_simulation(sim), sim=sim)
+        plotter = cls()
+        plotter.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index("line_id")
+        plotter.simulation_state = sim.simulation_state
+        plotter.time_explosion = sim.plasma.time_explosion
+        transport_state = sim.transport.transport_state
+        plotter.sdec_plotter = sdec.SDECPlotter.from_simulation(sim)
+        for mode in ["real", "virtual"]:
+            packet_data = pu.get_packet_data(transport_state, mode)
+            plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
+        # Call this after packets_df is populated
+        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
+        return plotter
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
@@ -96,8 +112,8 @@ class LIVPlotter:
 
         if nelements:
             interaction_counts = (
-                self.data[packets_mode]
-                .packets_df_line_interaction["last_line_interaction_species"]
+                self.packet_data[packets_mode]
+                ["packets_df_line_interaction"]["last_line_interaction_species"]
                 .value_counts()
             )
             interaction_counts.index = interaction_counts.index // 100
@@ -170,8 +186,8 @@ class LIVPlotter:
             Packet mode, either 'virtual' or 'real'.
         """
         groups = (
-            self.data[packets_mode]
-            .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
+            self.packet_data[packets_mode]
+            ["packets_df_line_interaction"].loc[self.packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_species")
         )
 
@@ -180,7 +196,7 @@ class LIVPlotter:
         species_not_wvl_range = []
         species_counter = 0
 
-        time_explosion = self.data[packets_mode].time_explosion
+        time_explosion = self.time_explosion
 
         for specie_list in self._species_mapped.values():
             full_v_last = []
@@ -259,8 +275,8 @@ class LIVPlotter:
         if species_list is None:
             # Extract all unique elements from the packets data
             species_in_model = np.unique(
-                self.data[packets_mode]
-                .packets_df_line_interaction["last_line_interaction_species"]
+                self.packet_data[packets_mode]
+                ["packets_df_line_interaction"]["last_line_interaction_species"]
                 .values
             )
             species_list = [
@@ -269,8 +285,8 @@ class LIVPlotter:
             ]
         self._parse_species_list(species_list, packets_mode, nelements)
         species_in_model = np.unique(
-            self.data[packets_mode]
-            .packets_df_line_interaction["last_line_interaction_species"]
+            self.packet_data[packets_mode]
+            ["packets_df_line_interaction"]["last_line_interaction_species"]
             .values
         )
         if self._species_list is None or not self._species_list:
@@ -287,7 +303,7 @@ class LIVPlotter:
 
         if packet_wvl_range is None:
             self.packet_nu_line_range_mask = np.ones(
-                self.data[packets_mode].packets_df_line_interaction.shape[0],
+                self.packet_data[packets_mode]["packets_df_line_interaction"].shape[0],
                 dtype=bool,
             )
         else:
@@ -296,10 +312,10 @@ class LIVPlotter:
                 for value in packet_wvl_range
             ]
             self.packet_nu_line_range_mask = (
-                self.data[packets_mode].packets_df_line_interaction["nus"]
+                self.packet_data[packets_mode]["packets_df_line_interaction"]["nus"]
                 >= packet_nu_range[1]
             ) & (
-                self.data[packets_mode].packets_df_line_interaction["nus"]
+                self.packet_data[packets_mode]["packets_df_line_interaction"]["nus"]
                 <= packet_nu_range[0]
             )
 
