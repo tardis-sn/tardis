@@ -38,7 +38,7 @@ class NLTEExcitationData:
         for species in nlte_excitation_species:
             lines_idx = np.where(
                 (self.lines.atomic_number == species[0])
-                & (self.lines.ion_number == species[1])
+                & (self.lines.ion_charge == species[1])
             )
             self.lines_idx[species] = lines_idx
             self.lines_level_number_lower[

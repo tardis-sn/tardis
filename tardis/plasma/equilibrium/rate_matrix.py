@@ -76,7 +76,7 @@ class RateMatrix:
         rates_df = sum(rates_df_list)
 
         grouped_rates_df = rates_df.groupby(
-            level=("atomic_number", "ion_number")
+            level=("atomic_number", "ion_charge")
         )
 
         rate_matrices = pd.DataFrame(
