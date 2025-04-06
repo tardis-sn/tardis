@@ -37,7 +37,7 @@ class LIVPlotter:
             "virtual": {"packets_df": None, "packets_df_line_interaction": None},
         }
         self.lines_df = None
-        self.simulation_state = None
+        self.velocity = None
         self.time_explosion = None
         self.sdec_plotter = None
 
@@ -57,7 +57,7 @@ class LIVPlotter:
         """
         plotter = cls()
         plotter.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index("line_id")
-        plotter.simulation_state = sim.simulation_state
+        plotter.velocity = sim.simulation_state.velocity
         plotter.time_explosion = sim.plasma.time_explosion
         transport_state = sim.transport.transport_state
         plotter.sdec_plotter = sdec.SDECPlotter.from_simulation(sim)
@@ -82,7 +82,21 @@ class LIVPlotter:
         -------
         LIVPlotter
         """
-        return cls(pu.create_packet_data_dict_from_hdf(hdf_fpath))
+        plotter = cls()
+        plotter.sdec_plotter = sdec.SDECPlotter.from_hdf(hdf_fpath)
+        with pd.HDFStore(hdf_fpath, "r") as hdf:
+            plotter.lines_df = hdf["/simulation/plasma/lines"].reset_index().set_index("line_id")
+            plotter.time_explosion = hdf["/simulation/plasma/scalars"]["time_explosion"] * u.s
+            velocity = hdf["/simulation/simulation_state/velocity"] * (u.cm / u.s)
+            plotter.velocity = velocity
+            for mode in ["real", "virtual"]:
+                packet_data = pu.extract_packet_data_hdf(hdf, mode)
+                plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
+
+        # Call this after packets_df is populated
+        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
+
+        return plotter
 
     def _parse_species_list(self, species_list, packets_mode, nelements=None):
         """
@@ -320,8 +334,7 @@ class LIVPlotter:
             )
 
         self._generate_plot_data(packets_mode)
-        velocity = self.simulation_state.velocity
-        bin_edges = (velocity).to("km/s")
+        bin_edges = (self.velocity).to("km/s")
 
         if num_bins:
             if num_bins < 1:
