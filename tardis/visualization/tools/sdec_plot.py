@@ -24,6 +24,7 @@ from tardis.visualization import plot_util as pu
 
 logger = logging.getLogger(__name__)
 
+
 class SDECPlotter:
     """
     Plotting interface for Spectral element DEComposition (SDEC) Plot.
@@ -154,7 +155,9 @@ class SDECPlotter:
 
         transport_state = sim.transport.transport_state
 
-        plotter.time_of_simulation = transport_state.packet_collection.time_of_simulation * u.s
+        plotter.time_of_simulation = (
+            transport_state.packet_collection.time_of_simulation * u.s
+        )
 
         for mode in ["real", "virtual"]:
             plotter.spectrum[mode] = plotter.get_spectrum_data(mode, sim)
@@ -304,20 +307,20 @@ class SDECPlotter:
         if packets_mode == "virtual":
             return {
                 "spectrum_delta_frequency": sim.spectrum_solver.spectrum_virtual_packets.delta_frequency,
-                "spectrum_frequency_bins":sim.spectrum_solver.spectrum_virtual_packets._frequency,
-                "spectrum_luminosity_density_lambda":sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
-                "spectrum_wavelength":sim.spectrum_solver.spectrum_virtual_packets.wavelength,
+                "spectrum_frequency_bins": sim.spectrum_solver.spectrum_virtual_packets._frequency,
+                "spectrum_luminosity_density_lambda": sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
+                "spectrum_wavelength": sim.spectrum_solver.spectrum_virtual_packets.wavelength,
             }
         else:  # real packets
             return {
-               "spectrum_delta_frequency":sim.spectrum_solver.spectrum_real_packets.delta_frequency,
-                "spectrum_frequency_bins":sim.spectrum_solver.spectrum_real_packets._frequency,
-                "spectrum_luminosity_density_lambda":sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
-                "spectrum_wavelength":sim.spectrum_solver.spectrum_real_packets.wavelength,    
-            } 
+                "spectrum_delta_frequency": sim.spectrum_solver.spectrum_real_packets.delta_frequency,
+                "spectrum_frequency_bins": sim.spectrum_solver.spectrum_real_packets._frequency,
+                "spectrum_luminosity_density_lambda": sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
+                "spectrum_wavelength": sim.spectrum_solver.spectrum_real_packets.wavelength,
+            }
 
     @classmethod
-    def from_hdf(cls, hdf_fpath, packets_mode=None):
+    def from_hdf(cls, hdf_fpath):
         """
         Create an instance of SDECPlotter from a simulation HDF file.
 
@@ -335,65 +338,58 @@ class SDECPlotter:
         """
         plotter = cls()
         with pd.HDFStore(hdf_fpath, "r") as hdf:
-            plotter.lines_df = hdf["/simulation/plasma/lines"].reset_index().set_index("line_id")
-            plotter.r_inner = u.Quantity(hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm")
-            plotter.t_inner = u.Quantity(hdf["/simulation/simulation_state/scalars"].t_inner, "K")
-            plotter.time_of_simulation = u.Quantity(hdf["/simulation/transport/transport_state/scalars"].time_of_simulation, "s")
+            plotter.lines_df = (
+                hdf["/simulation/plasma/lines"]
+                .reset_index()
+                .set_index("line_id")
+            )
+            plotter.r_inner = u.Quantity(
+                hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
+            )
+            plotter.t_inner = u.Quantity(
+                hdf["/simulation/simulation_state/scalars"].t_inner, "K"
+            )
+            plotter.time_of_simulation = u.Quantity(
+                hdf[
+                    "/simulation/transport/transport_state/scalars"
+                ].time_of_simulation,
+                "s",
+            )
 
             for mode in ["real", "virtual"]:
-                plotter.spectrum = {mode: plotter.extract_spectrum_data_hdf(hdf, mode)}
-                packet_data = plotter.extract_packet_data_hdf(hdf, mode)
-                plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
-        
+                plotter.spectrum = {
+                    mode: plotter.extract_spectrum_data_hdf(hdf, mode)
+                }
+                packet_data = pu.extract_packet_data_hdf(hdf, mode)
+                plotter.packet_data[mode]["packets_df"] = pd.DataFrame(
+                    packet_data
+                )
+
         # Call this after packets_df is populated
-        plotter.process_line_interactions()
+        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
 
         return plotter
-    
 
     def extract_spectrum_data_hdf(hdf, packets_mode):
         """Extract spectrum data from HDF."""
-        spectrum_prefix = f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+        spectrum_prefix = (
+            f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+        )
         return {
-            "spectrum_delta_frequency": u.Quantity(hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"),
-            "spectrum_frequency_bins": u.Quantity(hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"),
+            "spectrum_delta_frequency": u.Quantity(
+                hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"
+            ),
+            "spectrum_frequency_bins": u.Quantity(
+                hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"
+            ),
             "spectrum_luminosity_density_lambda": u.Quantity(
-                hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(), "erg / s cm"
+                hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(),
+                "erg / s cm",
             ).to("erg / s AA"),
-            "spectrum_wavelength": u.Quantity(hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm").to("AA"),
+            "spectrum_wavelength": u.Quantity(
+                hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
+            ).to("AA"),
         }
-
-
-    def extract_packet_data_hdf(hdf, packets_mode):
-        """Extract packet data from HDF."""
-        if packets_mode == "virtual":
-            packet_prefix = "/simulation/transport/transport_state/virt_packet"
-            return {
-                "last_interaction_type": hdf[f"{packet_prefix}_last_interaction_type"],
-                "last_line_interaction_in_id": hdf[f"{packet_prefix}_last_line_interaction_in_id"],
-                "last_line_interaction_out_id": hdf[f"{packet_prefix}_last_line_interaction_out_id"],
-                "last_line_interaction_in_nu": u.Quantity(hdf[f"{packet_prefix}_last_interaction_in_nu"].to_numpy(), "Hz"),
-                "last_interaction_in_r": u.Quantity(hdf[f"{packet_prefix}_last_interaction_in_r"].to_numpy(), "cm"),
-                "packet_nus": u.Quantity(hdf[f"{packet_prefix}_nus"].to_numpy(), "Hz"),
-                "packet_energies": u.Quantity(hdf[f"{packet_prefix}_energies"].to_numpy(), "erg"),
-            }
-        else:  # real packets
-            emitted_packet_mask = hdf["/simulation/transport/transport_state/emitted_packet_mask"].to_numpy()
-            packet_prefix = "/simulation/transport/transport_state"
-            return {
-                "last_interaction_type": hdf[f"{packet_prefix}/last_interaction_type"].to_numpy()[emitted_packet_mask],
-                "last_line_interaction_in_id": hdf[f"{packet_prefix}/last_line_interaction_in_id"].to_numpy()[emitted_packet_mask],
-                "last_line_interaction_out_id": hdf[f"{packet_prefix}/last_line_interaction_out_id"].to_numpy()[emitted_packet_mask],
-                "last_line_interaction_in_nu": u.Quantity(
-                    hdf[f"{packet_prefix}/last_interaction_in_nu"].to_numpy()[emitted_packet_mask], "Hz"
-                ),
-                "last_interaction_in_r": u.Quantity(
-                    hdf[f"{packet_prefix}/last_interaction_in_r"].to_numpy()[emitted_packet_mask], "cm"
-                ),
-                "packet_nus": u.Quantity(hdf[f"{packet_prefix}/output_nu"].to_numpy()[emitted_packet_mask], "Hz"),
-                "packet_energies": u.Quantity(hdf[f"{packet_prefix}/output_energy"].to_numpy()[emitted_packet_mask], "erg"),
-            }
-
 
     def _parse_species_list(self, species_list):
         """
@@ -968,7 +964,6 @@ class SDECPlotter:
         ).to("erg / (AA s)")
 
         return L_lambda_ph / self.lum_to_flux
-
 
     def generate_plot_mpl(
         self,

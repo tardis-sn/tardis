@@ -637,3 +637,33 @@ def process_line_interactions(packet_data, lines_df):
                 .iloc[packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
                 .to_numpy()
             )
+
+def extract_packet_data_hdf(hdf, packets_mode):
+    """Extract packet data from HDF."""
+    if packets_mode == "virtual":
+        packet_prefix = "/simulation/transport/transport_state/virt_packet"
+        return {
+            "last_interaction_type": hdf[f"{packet_prefix}_last_interaction_type"],
+            "last_line_interaction_in_id": hdf[f"{packet_prefix}_last_line_interaction_in_id"],
+            "last_line_interaction_out_id": hdf[f"{packet_prefix}_last_line_interaction_out_id"],
+            "last_line_interaction_in_nu": u.Quantity(hdf[f"{packet_prefix}_last_interaction_in_nu"].to_numpy(), "Hz"),
+            "last_interaction_in_r": u.Quantity(hdf[f"{packet_prefix}_last_interaction_in_r"].to_numpy(), "cm"),
+            "packet_nus": u.Quantity(hdf[f"{packet_prefix}_nus"].to_numpy(), "Hz"),
+            "packet_energies": u.Quantity(hdf[f"{packet_prefix}_energies"].to_numpy(), "erg"),
+        }
+    else:  # real packets
+        emitted_packet_mask = hdf["/simulation/transport/transport_state/emitted_packet_mask"].to_numpy()
+        packet_prefix = "/simulation/transport/transport_state"
+        return {
+            "last_interaction_type": hdf[f"{packet_prefix}/last_interaction_type"].to_numpy()[emitted_packet_mask],
+            "last_line_interaction_in_id": hdf[f"{packet_prefix}/last_line_interaction_in_id"].to_numpy()[emitted_packet_mask],
+            "last_line_interaction_out_id": hdf[f"{packet_prefix}/last_line_interaction_out_id"].to_numpy()[emitted_packet_mask],
+            "last_line_interaction_in_nu": u.Quantity(
+                hdf[f"{packet_prefix}/last_interaction_in_nu"].to_numpy()[emitted_packet_mask], "Hz"
+            ),
+            "last_interaction_in_r": u.Quantity(
+                hdf[f"{packet_prefix}/last_interaction_in_r"].to_numpy()[emitted_packet_mask], "cm"
+            ),
+            "packet_nus": u.Quantity(hdf[f"{packet_prefix}/output_nu"].to_numpy()[emitted_packet_mask], "Hz"),
+            "packet_energies": u.Quantity(hdf[f"{packet_prefix}/output_energy"].to_numpy()[emitted_packet_mask], "erg"),
+        }
