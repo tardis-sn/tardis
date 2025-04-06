@@ -1,0 +1,128 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow\n",
+    "from tardis.io.configuration.config_reader import Configuration"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "config = Configuration.from_yaml('../tardis_example.yml')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This code modifies the TARDIS example configuration to include convergence information for the inner boundary velocity solver.\n",
+    "Note that the number of shells is increased and the starting velocity is reduced to provide more granularity and a wider search window, respectively."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "from astropy import units as u\n",
+    "\n",
+    "config.montecarlo.convergence_strategy['v_inner_boundary'] = {\n",
+    "    'damping_constant' : 0.5,\n",
+    "    'threshold' : 0.01,\n",
+    "    'type' : 'damped'\n",
+    "    }\n",
+    "\n",
+    "config.montecarlo.convergence_strategy.stop_if_converged = True\n",
+    "config.model.structure.velocity.start = 5000 * u.km/u.s # Larger window over which to search\n",
+    "config.model.structure.velocity.num = 50 # Increase number of shells\n",
+    "\n",
+    "workflow = InnerVelocitySolverWorkflow(\n",
+    "    config, tau=2.0/3,\n",
+    "    mean_optical_depth=\"rosseland\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "workflow.run()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "spectrum = workflow.spectrum_solver.spectrum_real_packets\n",
+    "spectrum_virtual = workflow.spectrum_solver.spectrum_virtual_packets\n",
+    "spectrum_integrated = workflow.spectrum_solver.spectrum_integrated"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "plt.figure(figsize=(10, 6.5))\n",
+    "\n",
+    "spectrum.plot(label=\"Normal packets\")\n",
+    "spectrum_virtual.plot(label=\"Virtual packets\")\n",
+    "spectrum_integrated.plot(label='Formal integral')\n",
+    "\n",
+    "plt.xlim(500, 9000)\n",
+    "plt.title(\"TARDIS example model spectrum\")\n",
+    "plt.xlabel(r\"Wavelength [$\\AA$]\")\n",
+    "plt.ylabel(r\"Luminosity density [erg/s/$\\AA$]\")\n",
+    "plt.legend()\n",
+    "plt.show()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "tardis",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
