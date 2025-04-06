@@ -27,6 +27,7 @@ from tardis.visualization import plot_util as pu
 
 logger = logging.getLogger(__name__)
 
+
 class SDECPlotter:
     """
     Plotting interface for Spectral element DEComposition (SDEC) Plot.
@@ -47,7 +48,10 @@ class SDECPlotter:
         """
         self.packet_data = {
             "real": {"packets_df": None, "packets_df_line_interaction": None},
-            "virtual": {"packets_df": None, "packets_df_line_interaction": None},
+            "virtual": {
+                "packets_df": None,
+                "packets_df_line_interaction": None,
+            },
         }
         self.spectrum = {"virtual": None, "real": None}
         self.lines_df = None
@@ -70,13 +74,17 @@ class SDECPlotter:
         SDECPlotter
         """
         plotter = cls()
-        plotter.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index("line_id")
+        plotter.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
+            "line_id"
+        )
         plotter.t_inner = sim.simulation_state.packet_source.temperature
         plotter.r_inner = sim.simulation_state.geometry.r_inner_active
 
         transport_state = sim.transport.transport_state
 
-        plotter.time_of_simulation = transport_state.packet_collection.time_of_simulation * u.s
+        plotter.time_of_simulation = (
+            transport_state.packet_collection.time_of_simulation * u.s
+        )
 
         for mode in ["real", "virtual"]:
             plotter.spectrum[mode] = plotter.get_spectrum_data(mode, sim)
@@ -87,26 +95,25 @@ class SDECPlotter:
         pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
         return plotter
 
-
     def get_spectrum_data(self, packets_mode, sim):
         """Get spectrum data from simulation based on mode."""
         if packets_mode == "virtual":
             return {
                 "spectrum_delta_frequency": sim.spectrum_solver.spectrum_virtual_packets.delta_frequency,
-                "spectrum_frequency_bins":sim.spectrum_solver.spectrum_virtual_packets._frequency,
-                "spectrum_luminosity_density_lambda":sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
-                "spectrum_wavelength":sim.spectrum_solver.spectrum_virtual_packets.wavelength,
+                "spectrum_frequency_bins": sim.spectrum_solver.spectrum_virtual_packets._frequency,
+                "spectrum_luminosity_density_lambda": sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
+                "spectrum_wavelength": sim.spectrum_solver.spectrum_virtual_packets.wavelength,
             }
         else:  # real packets
             return {
-               "spectrum_delta_frequency":sim.spectrum_solver.spectrum_real_packets.delta_frequency,
-                "spectrum_frequency_bins":sim.spectrum_solver.spectrum_real_packets._frequency,
-                "spectrum_luminosity_density_lambda":sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
-                "spectrum_wavelength":sim.spectrum_solver.spectrum_real_packets.wavelength,    
-            } 
+                "spectrum_delta_frequency": sim.spectrum_solver.spectrum_real_packets.delta_frequency,
+                "spectrum_frequency_bins": sim.spectrum_solver.spectrum_real_packets._frequency,
+                "spectrum_luminosity_density_lambda": sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
+                "spectrum_wavelength": sim.spectrum_solver.spectrum_real_packets.wavelength,
+            }
 
     @classmethod
-    def from_hdf(cls, hdf_fpath, packets_mode=None):
+    def from_hdf(cls, hdf_fpath):
         """
         Create an instance of SDECPlotter from a simulation HDF file.
 
@@ -124,65 +131,58 @@ class SDECPlotter:
         """
         plotter = cls()
         with pd.HDFStore(hdf_fpath, "r") as hdf:
-            plotter.lines_df = hdf["/simulation/plasma/lines"].reset_index().set_index("line_id")
-            plotter.r_inner = u.Quantity(hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm")
-            plotter.t_inner = u.Quantity(hdf["/simulation/simulation_state/scalars"].t_inner, "K")
-            plotter.time_of_simulation = u.Quantity(hdf["/simulation/transport/transport_state/scalars"].time_of_simulation, "s")
+            plotter.lines_df = (
+                hdf["/simulation/plasma/lines"]
+                .reset_index()
+                .set_index("line_id")
+            )
+            plotter.r_inner = u.Quantity(
+                hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
+            )
+            plotter.t_inner = u.Quantity(
+                hdf["/simulation/simulation_state/scalars"].t_inner, "K"
+            )
+            plotter.time_of_simulation = u.Quantity(
+                hdf[
+                    "/simulation/transport/transport_state/scalars"
+                ].time_of_simulation,
+                "s",
+            )
 
             for mode in ["real", "virtual"]:
-                plotter.spectrum = {mode: plotter.extract_spectrum_data_hdf(hdf, mode)}
-                packet_data = plotter.extract_packet_data_hdf(hdf, mode)
-                plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
-        
+                plotter.spectrum = {
+                    mode: plotter.extract_spectrum_data_hdf(hdf, mode)
+                }
+                packet_data = pu.extract_packet_data_hdf(hdf, mode)
+                plotter.packet_data[mode]["packets_df"] = pd.DataFrame(
+                    packet_data
+                )
+
         # Call this after packets_df is populated
-        plotter.process_line_interactions()
+        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
 
         return plotter
-    
 
     def extract_spectrum_data_hdf(hdf, packets_mode):
         """Extract spectrum data from HDF."""
-        spectrum_prefix = f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+        spectrum_prefix = (
+            f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+        )
         return {
-            "spectrum_delta_frequency": u.Quantity(hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"),
-            "spectrum_frequency_bins": u.Quantity(hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"),
+            "spectrum_delta_frequency": u.Quantity(
+                hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"
+            ),
+            "spectrum_frequency_bins": u.Quantity(
+                hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"
+            ),
             "spectrum_luminosity_density_lambda": u.Quantity(
-                hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(), "erg / s cm"
+                hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(),
+                "erg / s cm",
             ).to("erg / s AA"),
-            "spectrum_wavelength": u.Quantity(hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm").to("AA"),
+            "spectrum_wavelength": u.Quantity(
+                hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
+            ).to("AA"),
         }
-
-
-    def extract_packet_data_hdf(hdf, packets_mode):
-        """Extract packet data from HDF."""
-        if packets_mode == "virtual":
-            packet_prefix = "/simulation/transport/transport_state/virt_packet"
-            return {
-                "last_interaction_type": hdf[f"{packet_prefix}_last_interaction_type"],
-                "last_line_interaction_in_id": hdf[f"{packet_prefix}_last_line_interaction_in_id"],
-                "last_line_interaction_out_id": hdf[f"{packet_prefix}_last_line_interaction_out_id"],
-                "last_line_interaction_in_nu": u.Quantity(hdf[f"{packet_prefix}_last_interaction_in_nu"].to_numpy(), "Hz"),
-                "last_interaction_in_r": u.Quantity(hdf[f"{packet_prefix}_last_interaction_in_r"].to_numpy(), "cm"),
-                "packet_nus": u.Quantity(hdf[f"{packet_prefix}_nus"].to_numpy(), "Hz"),
-                "packet_energies": u.Quantity(hdf[f"{packet_prefix}_energies"].to_numpy(), "erg"),
-            }
-        else:  # real packets
-            emitted_packet_mask = hdf["/simulation/transport/transport_state/emitted_packet_mask"].to_numpy()
-            packet_prefix = "/simulation/transport/transport_state"
-            return {
-                "last_interaction_type": hdf[f"{packet_prefix}/last_interaction_type"].to_numpy()[emitted_packet_mask],
-                "last_line_interaction_in_id": hdf[f"{packet_prefix}/last_line_interaction_in_id"].to_numpy()[emitted_packet_mask],
-                "last_line_interaction_out_id": hdf[f"{packet_prefix}/last_line_interaction_out_id"].to_numpy()[emitted_packet_mask],
-                "last_line_interaction_in_nu": u.Quantity(
-                    hdf[f"{packet_prefix}/last_interaction_in_nu"].to_numpy()[emitted_packet_mask], "Hz"
-                ),
-                "last_interaction_in_r": u.Quantity(
-                    hdf[f"{packet_prefix}/last_interaction_in_r"].to_numpy()[emitted_packet_mask], "cm"
-                ),
-                "packet_nus": u.Quantity(hdf[f"{packet_prefix}/output_nu"].to_numpy()[emitted_packet_mask], "Hz"),
-                "packet_energies": u.Quantity(hdf[f"{packet_prefix}/output_energy"].to_numpy()[emitted_packet_mask], "erg"),
-            }
-
 
     def _parse_species_list(self, species_list):
         """
@@ -310,7 +310,10 @@ class SDECPlotter:
                 "allowed values are 'virtual' or 'real'"
             )
 
-        if packets_mode == "virtual" and self.packet_data[packets_mode]["packets_df"] is None:
+        if (
+            packets_mode == "virtual"
+            and self.packet_data[packets_mode]["packets_df"] is None
+        ):
             raise ValueError(
                 "SDECPlotter doesn't have any data for virtual packets population and SDEC "
                 "plot for the same was requested. Either set virtual_packet_logging: True "
@@ -321,9 +324,15 @@ class SDECPlotter:
 
         # Store the plottable range of each spectrum property which is
         # same as entire range, initially
-        self.plot_frequency_bins = self.spectrum[packets_mode]["spectrum_frequency_bins"]
-        self.plot_wavelength = self.spectrum[packets_mode]["spectrum_wavelength"]
-        self.plot_frequency = self.spectrum[packets_mode]["spectrum_frequency_bins"][:-1]
+        self.plot_frequency_bins = self.spectrum[packets_mode][
+            "spectrum_frequency_bins"
+        ]
+        self.plot_wavelength = self.spectrum[packets_mode][
+            "spectrum_wavelength"
+        ]
+        self.plot_frequency = self.spectrum[packets_mode][
+            "spectrum_frequency_bins"
+        ][:-1]
 
         # Filter their plottable range based on packet_wvl_range specified
         if packet_wvl_range is not None:
@@ -558,24 +567,33 @@ class SDECPlotter:
         # Calculate masks to be applied on packets data based on packet_wvl_range
         if packet_wvl_range is None:
             self.packet_nu_range_mask = np.ones(
-                self.packet_data[packets_mode]["packets_df"].shape[0], dtype=bool
+                self.packet_data[packets_mode]["packets_df"].shape[0],
+                dtype=bool,
             )
             self.packet_nu_line_range_mask = np.ones(
-                self.packet_data[packets_mode]["packets_df_line_interaction"].shape[0],
+                self.packet_data[packets_mode][
+                    "packets_df_line_interaction"
+                ].shape[0],
                 dtype=bool,
             )
         else:
             packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
             self.packet_nu_range_mask = (
-                self.packet_data[packets_mode]["packets_df"]["nus"] < packet_nu_range[0]
-            ) & (
-                self.packet_data[packets_mode]["packets_df"]["nus"] > packet_nu_range[1]
-            )
-            self.packet_nu_line_range_mask = (
-                self.packet_data[packets_mode]["packets_df_line_interaction"]["nus"]
+                self.packet_data[packets_mode]["packets_df"]["nus"]
                 < packet_nu_range[0]
             ) & (
-                self.packet_data[packets_mode]["packets_df_line_interaction"]["nus"]
+                self.packet_data[packets_mode]["packets_df"]["nus"]
+                > packet_nu_range[1]
+            )
+            self.packet_nu_line_range_mask = (
+                self.packet_data[packets_mode]["packets_df_line_interaction"][
+                    "nus"
+                ]
+                < packet_nu_range[0]
+            ) & (
+                self.packet_data[packets_mode]["packets_df_line_interaction"][
+                    "nus"
+                ]
                 > packet_nu_range[1]
             )
 
@@ -592,9 +610,9 @@ class SDECPlotter:
         # Contribution of packets which experienced no interaction ------------
         # Mask to select packets with no interaction
         mask_noint = (
-            self.packet_data[packets_mode]["packets_df"]["last_interaction_type"][
-                self.packet_nu_range_mask
-            ]
+            self.packet_data[packets_mode]["packets_df"][
+                "last_interaction_type"
+            ][self.packet_nu_range_mask]
             == -1
         )
 
@@ -623,14 +641,14 @@ class SDECPlotter:
 
         # Contribution of packets which only experienced electron scattering ---
         mask_escatter = (
-           self.packet_data[packets_mode]["packets_df"]["last_interaction_type"][
-                self.packet_nu_range_mask
-            ]
+            self.packet_data[packets_mode]["packets_df"][
+                "last_interaction_type"
+            ][self.packet_nu_range_mask]
             == 1
         ) & (
-            self.packet_data[packets_mode]["packets_df"]["last_line_interaction_in_id"][
-                self.packet_nu_range_mask
-            ]
+            self.packet_data[packets_mode]["packets_df"][
+                "last_line_interaction_in_id"
+            ][self.packet_nu_range_mask]
             == -1
         )
         hist_escatter = np.histogram(
@@ -658,14 +676,14 @@ class SDECPlotter:
         # or if species_list is requested then group by species id
         if self._species_list is None:
             packets_df_grouped = (
-                self.packet_data[packets_mode]
-                ["packets_df_line_interaction"].loc[self.packet_nu_line_range_mask]
+                self.packet_data[packets_mode]["packets_df_line_interaction"]
+                .loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_atom")
             )
         else:
             packets_df_grouped = (
-                self.packet_data[packets_mode]
-                ["packets_df_line_interaction"].loc[self.packet_nu_line_range_mask]
+                self.packet_data[packets_mode]["packets_df_line_interaction"]
+                .loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_species")
             )
 
@@ -723,7 +741,9 @@ class SDECPlotter:
         # Calculate masks to be applied on packets data based on packet_wvl_range
         if packet_wvl_range is None:
             self.packet_nu_line_range_mask = np.ones(
-                self.packet_data[packets_mode]["packets_df_line_interaction"].shape[0],
+                self.packet_data[packets_mode][
+                    "packets_df_line_interaction"
+                ].shape[0],
                 dtype=bool,
             )
         else:
@@ -747,14 +767,14 @@ class SDECPlotter:
         # or if species_list is requested then group by species id
         if self._species_list is None:
             packets_df_grouped = (
-                self.packet_data[packets_mode]
-                ["packets_df_line_interaction"].loc[self.packet_nu_line_range_mask]
+                self.packet_data[packets_mode]["packets_df_line_interaction"]
+                .loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_atom")
             )
         else:
             packets_df_grouped = (
-                self.packet_data[packets_mode]
-                ["packets_df_line_interaction"].loc[self.packet_nu_line_range_mask]
+                self.packet_data[packets_mode]["packets_df_line_interaction"]
+                .loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_species")
             )
 
@@ -815,7 +835,6 @@ class SDECPlotter:
         ).to("erg / (AA s)")
 
         return L_lambda_ph / self.lum_to_flux
-
 
     def generate_plot_mpl(
         self,
