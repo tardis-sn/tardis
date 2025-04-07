@@ -14,6 +14,13 @@ from tardis.util.base import (
     species_string_to_tuple,
 )
 
+from tardis.util.base import (
+    element_symbol2atomic_number,
+    int_to_roman,
+    roman_to_int,
+    species_string_to_tuple,
+)
+
 
 def axis_label_in_latex(label_text, unit, only_text=True):
     """
@@ -731,3 +738,100 @@ def extract_packet_data_hdf(hdf, packets_mode):
                 "erg",
             ),
         }
+
+
+def parse_species_list_util(species_list):
+    """
+    Parse user requested species list and create list of species ids to be used.
+
+    Parameters
+    ----------
+    species_list : list of species to plot
+        List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
+        Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
+        (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
+
+    """
+    if species_list is not None:
+        # check if there are any digits in the species list. If there are, then exit.
+        # species_list should only contain species in the Roman numeral
+        # format, e.g. Si II, and each ion must contain a space
+        if any(char.isdigit() for char in " ".join(species_list)) is True:
+            raise ValueError(
+                "All species must be in Roman numeral form, e.g. Si II"
+            )
+        else:
+            full_species_list = []
+            species_mapped = {}
+            for species in species_list:
+                # check if a hyphen is present. If it is, then it indicates a
+                # range of ions. Add each ion in that range to the list as a new entry
+                if "-" in species:
+                    # split the string on spaces. First thing in the list is then the element
+                    parts = species.split(" ")
+                    element = parts[0]
+                    ion_range = parts[-1]
+                    # Next thing is the ion range
+                    # convert the requested ions into numerals
+                    range_parts = [
+                        part.strip() for part in ion_range.split("-")
+                    ]
+                    first_ion_numeral = roman_to_int(range_parts[0])
+                    second_ion_numeral = roman_to_int(range_parts[-1])
+                    # add each ion between the two requested into the species list
+                    for ion_number in np.arange(
+                        first_ion_numeral, second_ion_numeral + 1
+                    ):
+                        full_species_list.append(
+                            f"{element} {int_to_roman(ion_number)}"
+                        )
+                else:
+                    # Otherwise it's either an element or ion so just add to the list
+                    full_species_list.append(species)
+
+            # full_species_list is now a list containing each individual species requested
+            # e.g. it parses species_list = [Si I - V] into species_list = [Si I, Si II, Si III, Si IV, Si V]
+            requested_species_ids = []
+            keep_colour = []
+
+            # go through each of the requested species. Check whether it is
+            # an element or ion (ions have spaces). If it is an element,
+            # add all possible ions to the ions list. Otherwise just add
+            # the requested ion
+            for species in full_species_list:
+                if " " in species:
+                    species_id = (
+                        species_string_to_tuple(species)[0],
+                        species_string_to_tuple(species)[1],
+                    )
+                    requested_species_ids.append([species_id])
+                    species_mapped[species_id] = [species_id]
+                else:
+                    atomic_number = element_symbol2atomic_number(species)
+                    species_ids = [
+                        (atomic_number, ion_number)
+                        for ion_number in np.arange(atomic_number)
+                    ]
+                    requested_species_ids.append(species_ids)
+                    species_mapped[(atomic_number, 0)] = species_ids
+                    # add the atomic number to a list so you know that this element should
+                    # have all species in the same colour, i.e. it was requested like
+                    # species_list = [Si]
+                    keep_colour.append(atomic_number)
+            requested_species_ids = [
+                species_id
+                for temp_list in requested_species_ids
+                for species_id in temp_list
+            ]
+            species_mapped_result = species_mapped
+            species_list_result = requested_species_ids
+            keep_colour_result = keep_colour
+    else:
+        species_list_result = None
+
+    return (
+        species_mapped_result,
+        species_list_result,
+        keep_colour_result,
+        full_species_list,
+    )
