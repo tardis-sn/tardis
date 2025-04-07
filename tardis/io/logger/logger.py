@@ -9,7 +9,6 @@ import pandas as pd
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
-import panel as pn
 if 'GITHUB_ACTIONS' not in os.environ:
     pn.extension(comms="ipywidgets")
 else:
@@ -94,18 +93,14 @@ class AsyncEmitLogHandler(logging.Handler):
             stream_handler.emit(record)
             return
 
-        # if isinstance(record.msg, pd.DataFrame):
-            # html_output = record.msg.to_html(
-            #     border=0.1,
-            # )
-            # pass
-
-        # else:
-        log_entry = self.format(record)
-        clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
-        html_output = self._format_html_output(clean_log_entry, record)
-            
-        self._emit_to_widget(record.levelno, html_output)
+        if isinstance(record.msg, pd.DataFrame):
+            html_output = record.msg.to_html(border=0.1)
+            self._emit_to_widget(record.levelno, html_output)
+        else:
+            log_entry = self.format(record)
+            clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
+            html_output = self._format_html_output(clean_log_entry, record)
+            self._emit_to_widget(record.levelno, html_output)
 
     @staticmethod
     def _remove_ansi_escape_sequences(text):
