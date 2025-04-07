@@ -141,8 +141,10 @@ import pandas as pd
 PYTHON_WARNINGS_LOGGER = logging.getLogger(&quot;py.warnings&quot;)
 
 import panel as pn
-if not pn.extension._loaded:
+if &#39;GITHUB_ACTIONS&#39; not in os.environ:
     pn.extension(comms=&quot;ipywidgets&quot;)
+else:
+    pn.extension()
 
 <div class="viewcode-block" id="get_environment">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.get_environment">[docs]</a>
@@ -236,15 +238,16 @@ class AsyncEmitLogHandler(logging.Handler):
             stream_handler.emit(record)
             return
 
-        if isinstance(record.msg, pd.DataFrame):
-            html_output = record.msg.to_html(
-                border=0.1,
-            )
+        # if isinstance(record.msg, pd.DataFrame):
+            # html_output = record.msg.to_html(
+            #     border=0.1,
+            # )
+            # pass
 
-        else:
-            log_entry = self.format(record)
-            clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
-            html_output = self._format_html_output(clean_log_entry, record)
+        # else:
+        log_entry = self.format(record)
+        clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
+        html_output = self._format_html_output(clean_log_entry, record)
             
         self._emit_to_widget(record.levelno, html_output)</div>
 
@@ -428,7 +431,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 04 Apr 2025.
+      <span class="lastupdated">Last updated on 07 Apr 2025.
       </span></p>
   </div>
 
