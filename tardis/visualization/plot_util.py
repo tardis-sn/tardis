@@ -14,10 +14,6 @@ from tardis.util.base import (
     species_string_to_tuple,
 )
 
-from tardis.visualization.tools.visualization_data import (
-    VisualizationData,
-)
-
 
 def axis_label_in_latex(label_text, unit, only_text=True):
     """
@@ -585,28 +581,39 @@ def get_packet_data(transport_state, packets_mode):
     if packets_mode == "virtual":
         vpacket_tracker = transport_state.vpacket_tracker
         return {
-            'last_interaction_type': vpacket_tracker.last_interaction_type,
-            'last_line_interaction_in_id': vpacket_tracker.last_interaction_in_id,
-            'last_line_interaction_out_id': vpacket_tracker.last_interaction_out_id,
-            'last_line_interaction_in_nu': vpacket_tracker.last_interaction_in_nu,
-            'last_interaction_in_r': vpacket_tracker.last_interaction_in_r,
-            'nus': u.Quantity(vpacket_tracker.nus, "Hz"),
-            'energies': u.Quantity(vpacket_tracker.energies, "erg"),
-            'lambdas': u.Quantity(vpacket_tracker.nus, "Hz").to("angstrom", u.spectral()),
+            "last_interaction_type": vpacket_tracker.last_interaction_type,
+            "last_line_interaction_in_id": vpacket_tracker.last_interaction_in_id,
+            "last_line_interaction_out_id": vpacket_tracker.last_interaction_out_id,
+            "last_line_interaction_in_nu": vpacket_tracker.last_interaction_in_nu,
+            "last_interaction_in_r": vpacket_tracker.last_interaction_in_r,
+            "nus": u.Quantity(vpacket_tracker.nus, "Hz"),
+            "energies": u.Quantity(vpacket_tracker.energies, "erg"),
+            "lambdas": u.Quantity(vpacket_tracker.nus, "Hz").to(
+                "angstrom", u.spectral()
+            ),
         }
     # real packets
     mask = transport_state.emitted_packet_mask
-    packet_nus = u.Quantity(transport_state.packet_collection.output_nus[mask], u.Hz)
+    packet_nus = u.Quantity(
+        transport_state.packet_collection.output_nus[mask], u.Hz
+    )
     return {
-        'last_interaction_type': transport_state.last_interaction_type[mask],
-        'last_line_interaction_in_id': transport_state.last_line_interaction_in_id[mask],
-        'last_line_interaction_out_id': transport_state.last_line_interaction_out_id[mask],
-        'last_line_interaction_in_nu': transport_state.last_interaction_in_nu[mask],
-        'last_interaction_in_r': transport_state.last_interaction_in_r[mask],
-        'nus': packet_nus,
-        'energies': transport_state.packet_collection.output_energies[mask],
-        'lambdas': packet_nus.to("angstrom", u.spectral()),
+        "last_interaction_type": transport_state.last_interaction_type[mask],
+        "last_line_interaction_in_id": transport_state.last_line_interaction_in_id[
+            mask
+        ],
+        "last_line_interaction_out_id": transport_state.last_line_interaction_out_id[
+            mask
+        ],
+        "last_line_interaction_in_nu": transport_state.last_interaction_in_nu[
+            mask
+        ],
+        "last_interaction_in_r": transport_state.last_interaction_in_r[mask],
+        "nus": packet_nus,
+        "energies": transport_state.packet_collection.output_energies[mask],
+        "lambdas": packet_nus.to("angstrom", u.spectral()),
     }
+
 
 def process_line_interactions(packet_data, lines_df):
     """Process line interactions and create line interaction dataframe for both packet modes."""
@@ -618,52 +625,109 @@ def process_line_interactions(packet_data, lines_df):
             line_mask = (packets_df["last_interaction_type"] > -1) & (
                 packets_df["last_line_interaction_in_id"] > -1
             )
-            packet_data[packets_mode]["packets_df_line_interaction"] = packets_df.loc[line_mask].copy()
+            packet_data[packets_mode]["packets_df_line_interaction"] = (
+                packets_df.loc[line_mask].copy()
+            )
 
             # Add columns for atomic number of last interaction out
-            packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_atom"] = (
+            packet_data[packets_mode]["packets_df_line_interaction"][
+                "last_line_interaction_atom"
+            ] = (
                 lines_df["atomic_number"]
-                .iloc[packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
+                .iloc[
+                    packet_data[packets_mode]["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
+                ]
                 .to_numpy()
             )
 
             # Add columns for the species ID of last interaction
-            packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_species"] = (
+            packet_data[packets_mode]["packets_df_line_interaction"][
+                "last_line_interaction_species"
+            ] = (
                 lines_df["atomic_number"]
-                .iloc[packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
+                .iloc[
+                    packet_data[packets_mode]["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
+                ]
                 .to_numpy()
                 * 100
                 + lines_df["ion_number"]
-                .iloc[packet_data[packets_mode]["packets_df_line_interaction"]["last_line_interaction_out_id"]]
+                .iloc[
+                    packet_data[packets_mode]["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
+                ]
                 .to_numpy()
             )
+
 
 def extract_packet_data_hdf(hdf, packets_mode):
     """Extract packet data from HDF."""
     if packets_mode == "virtual":
         packet_prefix = "/simulation/transport/transport_state/virt_packet"
         return {
-            "last_interaction_type": hdf[f"{packet_prefix}_last_interaction_type"],
-            "last_line_interaction_in_id": hdf[f"{packet_prefix}_last_line_interaction_in_id"],
-            "last_line_interaction_out_id": hdf[f"{packet_prefix}_last_line_interaction_out_id"],
-            "last_line_interaction_in_nu": u.Quantity(hdf[f"{packet_prefix}_last_interaction_in_nu"].to_numpy(), "Hz"),
-            "last_interaction_in_r": u.Quantity(hdf[f"{packet_prefix}_last_interaction_in_r"].to_numpy(), "cm"),
-            "packet_nus": u.Quantity(hdf[f"{packet_prefix}_nus"].to_numpy(), "Hz"),
-            "packet_energies": u.Quantity(hdf[f"{packet_prefix}_energies"].to_numpy(), "erg"),
-        }
-    else:  # real packets
-        emitted_packet_mask = hdf["/simulation/transport/transport_state/emitted_packet_mask"].to_numpy()
-        packet_prefix = "/simulation/transport/transport_state"
-        return {
-            "last_interaction_type": hdf[f"{packet_prefix}/last_interaction_type"].to_numpy()[emitted_packet_mask],
-            "last_line_interaction_in_id": hdf[f"{packet_prefix}/last_line_interaction_in_id"].to_numpy()[emitted_packet_mask],
-            "last_line_interaction_out_id": hdf[f"{packet_prefix}/last_line_interaction_out_id"].to_numpy()[emitted_packet_mask],
+            "last_interaction_type": hdf[
+                f"{packet_prefix}_last_interaction_type"
+            ],
+            "last_line_interaction_in_id": hdf[
+                f"{packet_prefix}_last_line_interaction_in_id"
+            ],
+            "last_line_interaction_out_id": hdf[
+                f"{packet_prefix}_last_line_interaction_out_id"
+            ],
             "last_line_interaction_in_nu": u.Quantity(
-                hdf[f"{packet_prefix}/last_interaction_in_nu"].to_numpy()[emitted_packet_mask], "Hz"
+                hdf[f"{packet_prefix}_last_interaction_in_nu"].to_numpy(), "Hz"
             ),
             "last_interaction_in_r": u.Quantity(
-                hdf[f"{packet_prefix}/last_interaction_in_r"].to_numpy()[emitted_packet_mask], "cm"
+                hdf[f"{packet_prefix}_last_interaction_in_r"].to_numpy(), "cm"
             ),
-            "packet_nus": u.Quantity(hdf[f"{packet_prefix}/output_nu"].to_numpy()[emitted_packet_mask], "Hz"),
-            "packet_energies": u.Quantity(hdf[f"{packet_prefix}/output_energy"].to_numpy()[emitted_packet_mask], "erg"),
+            "packet_nus": u.Quantity(
+                hdf[f"{packet_prefix}_nus"].to_numpy(), "Hz"
+            ),
+            "packet_energies": u.Quantity(
+                hdf[f"{packet_prefix}_energies"].to_numpy(), "erg"
+            ),
+        }
+    else:  # real packets
+        emitted_packet_mask = hdf[
+            "/simulation/transport/transport_state/emitted_packet_mask"
+        ].to_numpy()
+        packet_prefix = "/simulation/transport/transport_state"
+        return {
+            "last_interaction_type": hdf[
+                f"{packet_prefix}/last_interaction_type"
+            ].to_numpy()[emitted_packet_mask],
+            "last_line_interaction_in_id": hdf[
+                f"{packet_prefix}/last_line_interaction_in_id"
+            ].to_numpy()[emitted_packet_mask],
+            "last_line_interaction_out_id": hdf[
+                f"{packet_prefix}/last_line_interaction_out_id"
+            ].to_numpy()[emitted_packet_mask],
+            "last_line_interaction_in_nu": u.Quantity(
+                hdf[f"{packet_prefix}/last_interaction_in_nu"].to_numpy()[
+                    emitted_packet_mask
+                ],
+                "Hz",
+            ),
+            "last_interaction_in_r": u.Quantity(
+                hdf[f"{packet_prefix}/last_interaction_in_r"].to_numpy()[
+                    emitted_packet_mask
+                ],
+                "cm",
+            ),
+            "packet_nus": u.Quantity(
+                hdf[f"{packet_prefix}/output_nu"].to_numpy()[
+                    emitted_packet_mask
+                ],
+                "Hz",
+            ),
+            "packet_energies": u.Quantity(
+                hdf[f"{packet_prefix}/output_energy"].to_numpy()[
+                    emitted_packet_mask
+                ],
+                "erg",
+            ),
         }
