@@ -94,16 +94,16 @@ class AsyncEmitLogHandler(logging.Handler):
             stream_handler.emit(record)
             return
 
-        if isinstance(record.msg, pd.DataFrame):
+        # if isinstance(record.msg, pd.DataFrame):
             # html_output = record.msg.to_html(
             #     border=0.1,
             # )
-            pass
+            # pass
 
-        else:
-            log_entry = self.format(record)
-            clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
-            html_output = self._format_html_output(clean_log_entry, record)
+        # else:
+        log_entry = self.format(record)
+        clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
+        html_output = self._format_html_output(clean_log_entry, record)
             
         self._emit_to_widget(record.levelno, html_output)
 
