@@ -197,80 +197,23 @@ class SDECPlotter:
 
         """
         if species_list is not None:
-            # check if there are any digits in the species list. If there are, then exit.
-            # species_list should only contain species in the Roman numeral
-            # format, e.g. Si II, and each ion must contain a space
-            if any(char.isdigit() for char in " ".join(species_list)) is True:
-                raise ValueError(
-                    "All species must be in Roman numeral form, e.g. Si II"
-                )
-            else:
-                full_species_list = []
-                species_mapped = {}
-                for species in species_list:
-                    # check if a hyphen is present. If it is, then it indicates a
-                    # range of ions. Add each ion in that range to the list as a new entry
-                    if "-" in species:
-                        # split the string on spaces. First thing in the list is then the element
-                        element = species.split(" ")[0]
-                        # Next thing is the ion range
-                        # convert the requested ions into numerals
-                        first_ion_numeral = roman_to_int(
-                            species.split(" ")[-1].split("-")[0]
-                        )
-                        second_ion_numeral = roman_to_int(
-                            species.split(" ")[-1].split("-")[-1]
-                        )
-                        # add each ion between the two requested into the species list
-                        for ion_number in np.arange(
-                            first_ion_numeral, second_ion_numeral + 1
-                        ):
-                            full_species_list.append(
-                                f"{element} {int_to_roman(ion_number)}"
-                            )
-                    else:
-                        # Otherwise it's either an element or ion so just add to the list
-                        full_species_list.append(species)
+            (
+                species_mapped_tuples,
+                requested_species_ids_tuples,
+                keep_colour,
+                full_species_list,
+            ) = pu.parse_species_list_util(species_list)
+            self._full_species_list = full_species_list
+            self._species_list = [
+                atomic_num * 100 + ion_num
+                for atomic_num, ion_num in requested_species_ids_tuples
+            ]
 
-                # full_species_list is now a list containing each individual species requested
-                # e.g. it parses species_list = [Si I - V] into species_list = [Si I, Si II, Si III, Si IV, Si V]
-                self._full_species_list = full_species_list
-                requested_species_ids = []
-                keep_colour = []
-
-                # go through each of the requested species. Check whether it is
-                # an element or ion (ions have spaces). If it is an element,
-                # add all possible ions to the ions list. Otherwise just add
-                # the requested ion
-                for species in full_species_list:
-                    if " " in species:
-                        species_id = (
-                            species_string_to_tuple(species)[0] * 100
-                            + species_string_to_tuple(species)[1]
-                        )
-                        requested_species_ids.append([species_id])
-                        species_mapped[species_id] = [species_id]
-                    else:
-                        atomic_number = element_symbol2atomic_number(species)
-                        species_ids = [
-                            atomic_number * 100 + ion_number
-                            for ion_number in np.arange(atomic_number)
-                        ]
-                        requested_species_ids.append(species_ids)
-                        species_mapped[atomic_number * 100] = species_ids
-                        # add the atomic number to a list so you know that this element should
-                        # have all species in the same colour, i.e. it was requested like
-                        # species_list = [Si]
-                        keep_colour.append(atomic_number)
-                requested_species_ids = [
-                    species_id
-                    for temp_list in requested_species_ids
-                    for species_id in temp_list
-                ]
-
-                self._species_mapped = species_mapped
-                self._species_list = requested_species_ids
-                self._keep_colour = keep_colour
+            self._species_mapped = {
+                (k[0] * 100 + k[1]): [v[0] * 100 + v[1] for v in values]
+                for k, values in species_mapped_tuples.items()
+            }
+            self._keep_colour = keep_colour
         else:
             self._species_list = None
 
