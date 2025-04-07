@@ -449,7 +449,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.beta_sobolev = None
             macro_atom_state = None
 
-        opacity_state = self.opacity.legacy_solve(self.plasma)
+        opacity_state = self.opacity.solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 macro_atom_state = MacroAtomState.from_legacy_plasma(
