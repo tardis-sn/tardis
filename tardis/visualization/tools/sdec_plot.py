@@ -87,30 +87,13 @@ class SDECPlotter:
         )
 
         for mode in ["real", "virtual"]:
-            plotter.spectrum[mode] = plotter.get_spectrum_data(mode, sim)
+            plotter.spectrum[mode] = pu.get_spectrum_data(mode, sim)
             packet_data = pu.get_packet_data(transport_state, mode)
             plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
 
         # Call this after packets_df is populated
         pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
         return plotter
-
-    def get_spectrum_data(self, packets_mode, sim):
-        """Get spectrum data from simulation based on mode."""
-        if packets_mode == "virtual":
-            return {
-                "spectrum_delta_frequency": sim.spectrum_solver.spectrum_virtual_packets.delta_frequency,
-                "spectrum_frequency_bins": sim.spectrum_solver.spectrum_virtual_packets._frequency,
-                "spectrum_luminosity_density_lambda": sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
-                "spectrum_wavelength": sim.spectrum_solver.spectrum_virtual_packets.wavelength,
-            }
-        else:  # real packets
-            return {
-                "spectrum_delta_frequency": sim.spectrum_solver.spectrum_real_packets.delta_frequency,
-                "spectrum_frequency_bins": sim.spectrum_solver.spectrum_real_packets._frequency,
-                "spectrum_luminosity_density_lambda": sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
-                "spectrum_wavelength": sim.spectrum_solver.spectrum_real_packets.wavelength,
-            }
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
@@ -151,7 +134,7 @@ class SDECPlotter:
 
             for mode in ["real", "virtual"]:
                 plotter.spectrum = {
-                    mode: plotter.extract_spectrum_data_hdf(hdf, mode)
+                    mode: pu.extract_spectrum_data_hdf(hdf, mode)
                 }
                 packet_data = pu.extract_packet_data_hdf(hdf, mode)
                 plotter.packet_data[mode]["packets_df"] = pd.DataFrame(
@@ -162,27 +145,6 @@ class SDECPlotter:
         pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
 
         return plotter
-
-    def extract_spectrum_data_hdf(hdf, packets_mode):
-        """Extract spectrum data from HDF."""
-        spectrum_prefix = (
-            f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
-        )
-        return {
-            "spectrum_delta_frequency": u.Quantity(
-                hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"
-            ),
-            "spectrum_frequency_bins": u.Quantity(
-                hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"
-            ),
-            "spectrum_luminosity_density_lambda": u.Quantity(
-                hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(),
-                "erg / s cm",
-            ).to("erg / s AA"),
-            "spectrum_wavelength": u.Quantity(
-                hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
-            ).to("AA"),
-        }
 
     def _parse_species_list(self, species_list):
         """
@@ -765,7 +727,6 @@ class SDECPlotter:
             Luminosity density lambda (or Flux) of photosphere (inner boundary
             of TARDIS simulation)
         """
-
         bb_lam = BlackBody(
             self.t_inner,
             scale=1.0 * u.erg / (u.cm**2 * u.AA * u.s * u.sr),
