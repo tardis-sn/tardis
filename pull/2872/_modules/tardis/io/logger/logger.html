@@ -140,25 +140,46 @@ import pandas as pd
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger(&quot;py.warnings&quot;)
 
+# During the sphinx build, we don&#39;t need the ipywidgets comms.
 if &#39;GITHUB_ACTIONS&#39; not in os.environ:
     pn.extension(comms=&quot;ipywidgets&quot;)
 else:
     pn.extension()
 
+
 <div class="viewcode-block" id="get_environment">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.get_environment">[docs]</a>
-@lru_cache(maxsize=1)
 def get_environment():
-    &quot;&quot;&quot;Determine the execution environment&quot;&quot;&quot;
+    &quot;&quot;&quot;Determine the execution environment.
+    
+    Panel behaves differently in vscode and jupyter. In jupyter, the logger widget&#39;s display handle
+    has to be updated after each log entry. In vscode, this is not needed.
+
+    Returns
+    -------
+    str
+        The environment name.
+    &quot;&quot;&quot;
     if any(x for x in (&#39;VSCODE_PID&#39;, &#39;VSCODE&#39;) if x in os.environ):
         return &#39;vscode&#39;
     return &#39;jupyter&#39;</div>
 
 
-
 <div class="viewcode-block" id="create_output_widget">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.create_output_widget">[docs]</a>
 def create_output_widget(height=300):
+    &quot;&quot;&quot;Create an HTML pane for logging output.
+    
+    Parameters
+    ----------
+    height : int, optional
+        The height of the pane in pixels.
+        
+    Returns
+    -------
+    panel.pane.HTML
+        A Panel HTML pane configured for logging output.
+    &quot;&quot;&quot;
     return pn.pane.HTML(
         &quot;&quot;,
         height=height,
@@ -192,6 +213,19 @@ LOGGER_WIDGET = pn.Tabs(
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig">[docs]</a>
 @dataclass
 class LoggingConfig:
+    &quot;&quot;&quot;Logging configuration.
+    
+    Attributes
+    ----------
+    LEVELS : dict
+        The logging levels.
+    COLORS : dict
+        The logging colors.
+    DEFAULT_LEVEL : str
+        The default logging level.
+    DEFAULT_SPECIFIC_STATE : bool
+        The default specific log level state.
+    &quot;&quot;&quot;
     LEVELS: dict = field(default_factory=lambda: {
         &quot;NOTSET&quot;: logging.NOTSET,
         &quot;DEBUG&quot;: logging.DEBUG,
@@ -219,6 +253,23 @@ LOGGING_LEVELS = LoggingConfig().LEVELS
 <div class="viewcode-block" id="AsyncEmitLogHandler">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.AsyncEmitLogHandler">[docs]</a>
 class AsyncEmitLogHandler(logging.Handler):
+    &quot;&quot;&quot;Asynchronous log handler for logging to a widget.
+    
+    Handles the formatting and display of log messages in Panel widgets.
+    
+    Parameters
+    ----------
+    log_outputs : dict
+        Dictionary of Panel HTML panes for different log levels.
+    colors : dict
+        Dictionary mapping log levels to display colors.
+    display_widget : bool, optional
+        Whether to display logs in the widget. Defaults to True.
+    display_handle : IPython.display.DisplayHandle, optional
+        Handle for updating the display in Jupyter environment.
+    logger_widget : panel.Tabs, optional
+        The Panel Tabs widget containing the log outputs.
+    &quot;&quot;&quot;
     def __init__(self, log_outputs, colors, display_widget=True, display_handle=None, logger_widget=None):
         super().__init__()
         self.log_outputs = log_outputs
@@ -231,6 +282,13 @@ class AsyncEmitLogHandler(logging.Handler):
 <div class="viewcode-block" id="AsyncEmitLogHandler.emit">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.AsyncEmitLogHandler.emit">[docs]</a>
     def emit(self, record):
+        &quot;&quot;&quot;Process and emit a log record.
+        
+        Parameters
+        ----------
+        record : logging.LogRecord
+            The log record to process and display.
+        &quot;&quot;&quot;
         if not self.display_widget or self.display_handle is None:
             stream_handler = logging.StreamHandler()
             stream_handler.setFormatter(logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;))
@@ -249,12 +307,36 @@ class AsyncEmitLogHandler(logging.Handler):
 
     @staticmethod
     def _remove_ansi_escape_sequences(text):
-        &quot;&quot;&quot;Remove ANSI escape sequences from string.&quot;&quot;&quot;
+        &quot;&quot;&quot;Remove ANSI escape sequences from string.
+        
+        Parameters
+        ----------
+        text : str
+            The text containing ANSI escape sequences.
+            
+        Returns
+        -------
+        str
+            Cleaned text with ANSI escape sequences removed.
+        &quot;&quot;&quot;
         ansi_escape = re.compile(r&quot;\x1B[@-_][0-?]*[ -/]*[@-~]&quot;)
         return ansi_escape.sub(&quot;&quot;, text)
 
     def _format_html_output(self, log_entry, record):
-        &quot;&quot;&quot;Format log entry as HTML with appropriate styling.&quot;&quot;&quot;
+        &quot;&quot;&quot;Format log entry as HTML with appropriate styling.
+        
+        Parameters
+        ----------
+        log_entry : str
+            The log entry text to format.
+        record : logging.LogRecord
+            The log record containing level information.
+            
+        Returns
+        -------
+        str
+            HTML-formatted log entry.
+        &quot;&quot;&quot;
         color = self.colors.get(record.levelno, self.colors[&quot;default&quot;])
         parts = log_entry.split(&quot; &quot;, 2)
         if len(parts) &gt; 2:
@@ -263,7 +345,19 @@ class AsyncEmitLogHandler(logging.Handler):
         return log_entry
 
     def _emit_to_widget(self, level, html_output):
-        &quot;&quot;&quot;Handles the widget updates.&quot;&quot;&quot;
+        &quot;&quot;&quot;Handles the widget updates.
+        
+        Updates the appropriate log output widgets based on the log level
+        and updates the display handle in Jupyter environments. Updates happen automatically
+        in the vscode environment.
+        
+        Parameters
+        ----------
+        level : int
+            The logging level (e.g., logging.INFO, logging.ERROR).
+        html_output : str
+            The HTML-formatted log message.
+        &quot;&quot;&quot;
         level_to_output = {
             logging.WARNING: &quot;WARNING/ERROR&quot;,
             logging.ERROR: &quot;WARNING/ERROR&quot;,
@@ -291,6 +385,19 @@ class AsyncEmitLogHandler(logging.Handler):
 <div class="viewcode-block" id="TARDISLogger">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger">[docs]</a>
 class TARDISLogger:
+    &quot;&quot;&quot;Main logger class for TARDIS.
+    
+    Handles configuration of logging levels, filters, and outputs.
+    
+    Parameters
+    ----------
+    display_handle : IPython.display.DisplayHandle, optional
+        Handle for updating the display in Jupyter environment.
+    logger_widget : panel.Tabs, optional
+        The Panel Tabs widget containing the log outputs.
+    log_outputs : dict, optional
+        Dictionary of Panel HTML panes for different log levels.
+    &quot;&quot;&quot;
     def __init__(self, display_handle=None, logger_widget=None, log_outputs=None):
         self.config = LoggingConfig()
         self.logger = logging.getLogger(&quot;tardis&quot;)
@@ -301,6 +408,22 @@ class TARDISLogger:
 <div class="viewcode-block" id="TARDISLogger.configure_logging">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.configure_logging">[docs]</a>
     def configure_logging(self, log_level, tardis_config, specific_log_level=None):
+        &quot;&quot;&quot;Configure the logging level and filtering for TARDIS loggers.
+        
+        Parameters
+        ----------
+        log_level : str
+            The logging level to use (e.g., &quot;INFO&quot;, &quot;DEBUG&quot;).
+        tardis_config : dict
+            Configuration dictionary containing debug settings.
+        specific_log_level : bool, optional
+            Whether to enable specific log level filtering.
+            
+        Raises
+        ------
+        ValueError
+            If an invalid log_level is provided.
+        &quot;&quot;&quot;
         if &quot;debug&quot; in tardis_config:
             specific_log_level = tardis_config[&quot;debug&quot;].get(
                 &quot;specific_log_level&quot;, specific_log_level
@@ -353,13 +476,12 @@ class TARDISLogger:
 <div class="viewcode-block" id="TARDISLogger.setup_widget_logging">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.setup_widget_logging">[docs]</a>
     def setup_widget_logging(self, display_widget=True):
-        &quot;&quot;&quot;
-        Set up widget-based logging interface.
+        &quot;&quot;&quot;Set up widget-based logging interface.
 
         Parameters
         ----------
         display_widget : bool, optional
-            Whether to display the widget in GUI environments (default: True)
+            Whether to display the widget in GUI environments. Default is True.
         &quot;&quot;&quot;
         self.widget_handler = AsyncEmitLogHandler(
             log_outputs=self.log_outputs,
@@ -376,7 +498,11 @@ class TARDISLogger:
 
 
     def _configure_handlers(self):
-        &quot;&quot;&quot;Configure logging handlers.&quot;&quot;&quot;
+        &quot;&quot;&quot;Configure logging handlers.
+        
+        Removes existing handlers and adds the widget handler to the
+        TARDIS logger and Python warnings logger.
+        &quot;&quot;&quot;
         logging.captureWarnings(True)
 
         for logger in [self.logger, logging.getLogger()]:
@@ -390,13 +516,31 @@ class TARDISLogger:
 <div class="viewcode-block" id="LogFilter">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LogFilter">[docs]</a>
 class LogFilter:
-    &quot;&quot;&quot;Filter for controlling which log levels are displayed.&quot;&quot;&quot;
+    &quot;&quot;&quot;Filter for controlling which log levels are displayed.
+    
+    Parameters
+    ----------
+    log_levels : list
+        List of logging levels to allow through the filter.
+    &quot;&quot;&quot;
     def __init__(self, log_levels):
         self.log_levels = log_levels
 
 <div class="viewcode-block" id="LogFilter.filter">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LogFilter.filter">[docs]</a>
     def filter(self, log_record):
+        &quot;&quot;&quot;Determine if a log record should be displayed.
+        
+        Parameters
+        ----------
+        log_record : logging.LogRecord
+            The log record to evaluate.
+            
+        Returns
+        -------
+        bool
+            True if the record&#39;s level is in the allowed levels, False otherwise.
+        &quot;&quot;&quot;
         return log_record.levelno in self.log_levels</div>
 </div>
 
@@ -404,6 +548,28 @@ class LogFilter:
 <div class="viewcode-block" id="logging_state">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.logging_state">[docs]</a>
 def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
+    &quot;&quot;&quot;Configure and initialize the TARDIS logging system.
+    
+    Sets up the logging environment, configures log levels, and displays
+    the logging widget if requested.
+    
+    Parameters
+    ----------
+    log_level : str
+        The logging level to use (e.g., &quot;INFO&quot;, &quot;DEBUG&quot;).
+    tardis_config : dict
+        Configuration dictionary containing debug settings.
+    specific_log_level : bool, optional
+        Whether to enable specific log level filtering.
+    display_logging_widget : bool, optional
+        Whether to display the logging widget. Default is True.
+        
+    Returns
+    -------
+    panel.Tabs or None
+        The logger widget if display_logging_widget is True and in a
+        supported environment, otherwise None.
+    &quot;&quot;&quot;
     if display_logging_widget and ENVIRONMENT == &#39;jupyter&#39;:
         display_handle = display(LOGGER_WIDGET.embed(), display_id=&quot;logger_widget&quot;)
     elif display_logging_widget:
