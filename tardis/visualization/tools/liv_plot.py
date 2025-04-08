@@ -119,10 +119,28 @@ class LIVPlotter:
             If species list contains invalid entries.
 
         """
-        self.sdec_plotter._parse_species_list(species_list)
-        self._species_list = self.sdec_plotter._species_list
-        self._species_mapped = self.sdec_plotter._species_mapped
-        self._keep_colour = self.sdec_plotter._keep_colour
+        if species_list is not None:
+            (
+                species_mapped_tuples,
+                requested_species_ids_tuples,
+                keep_colour,
+                full_species_list,
+            ) = pu.parse_species_list_util(species_list)
+            self._full_species_list = full_species_list
+            self._species_list = [
+                atomic_num * 100 + ion_num
+                for atomic_num, ion_num in requested_species_ids_tuples
+            ]
+
+            self._species_mapped = {
+                (k[0] * 100 + k[1]): [v[0] * 100 + v[1] for v in values]
+                for k, values in species_mapped_tuples.items()
+            }
+            self._keep_colour = keep_colour
+        else:
+            self._species_list = None
+            self._species_mapped = None
+            self._keep_colour = None
 
         if nelements:
             interaction_counts = (
@@ -140,33 +158,6 @@ class LIVPlotter:
                 for element in top_elements
             ]
             self._parse_species_list(top_species_list, packets_mode)
-
-    def _make_colorbar_labels(self):
-        """
-        Generate labels for the colorbar based on species.
-
-        If a species list is provided, uses that to generate labels.
-        Otherwise, generates labels from the species in the model.
-        """
-        if self._species_list is None:
-            species_name = [
-                atomic_number2element_symbol(atomic_num)
-                for atomic_num in self.species
-            ]
-        else:
-            species_name = []
-            for species_key, species_ids in self._species_mapped.items():
-                if any(species in self.species for species in species_ids):
-                    if species_key % 100 == 0:
-                        label = atomic_number2element_symbol(species_key // 100)
-                    else:
-                        atomic_number = species_key // 100
-                        ion_number = species_key % 100
-                        ion_numeral = int_to_roman(ion_number + 1)
-                        label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
-                    species_name.append(label)
-
-        self._species_name = species_name
 
     def _make_colorbar_colors(self):
         """
@@ -311,7 +302,7 @@ class LIVPlotter:
         if len(self.species) == 0:
             raise ValueError("No valid species found for plotting.")
 
-        self._make_colorbar_labels()
+        self._species_name = pu.make_colorbar_labels(self.species, self._species_list, self._species_mapped)
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         self._make_colorbar_colors()
 

@@ -216,6 +216,8 @@ class SDECPlotter:
             self._keep_colour = keep_colour
         else:
             self._species_list = None
+            self._species_mapped = None
+            self._keep_colour = None
 
     def _calculate_plotting_data(
         self, packets_mode, packet_wvl_range, distance, nelements
@@ -867,7 +869,7 @@ class SDECPlotter:
             self.ax = ax
 
         # Get the labels in the color bar. This determines the number of unique colors
-        self._make_colorbar_labels()
+        self._species_name = pu.make_colorbar_labels(self.species, self._species_list, self._species_mapped)
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unqie colors
@@ -1096,39 +1098,6 @@ class SDECPlotter:
 
         cbar.set_ticklabels(self._species_name)
 
-    def _make_colorbar_labels(self):
-        """Get the labels for the species in the colorbar."""
-        if self._species_list is None:
-            # If species_list is none then the labels are just elements
-            species_name = [
-                atomic_number2element_symbol(atomic_num)
-                for atomic_num in self.species
-            ]
-        else:
-            species_name = []
-            for species in self.species:
-                # Go through each species requested
-                ion_number = species % 100
-                atomic_number = (species - ion_number) / 100
-
-                ion_numeral = int_to_roman(ion_number + 1)
-                atomic_symbol = atomic_number2element_symbol(atomic_number)
-
-                # if the element was requested, and not a specific ion, then
-                # add the element symbol to the label list
-                if (atomic_number in self._keep_colour) & (
-                    atomic_symbol not in species_name
-                ):
-                    # compiling the label, and adding it to the list
-                    label = f"{atomic_symbol}"
-                    species_name.append(label)
-                elif atomic_number not in self._keep_colour:
-                    # otherwise add the ion to the label list
-                    label = f"{atomic_symbol} {ion_numeral}"
-                    species_name.append(label)
-
-        self._species_name = species_name
-
     def _make_colorbar_colors(self):
         """Get the colours for the species to be plotted."""
         # the colours depends on the species present in the model and what's requested
@@ -1267,7 +1236,7 @@ class SDECPlotter:
             self.fig = fig
 
         # Get the labels in the color bar. This determines the number of unique colors
-        self._make_colorbar_labels()
+        self._species_name = pu.make_colorbar_labels(self.species, self._species_list, self._species_mapped)
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unique colors
