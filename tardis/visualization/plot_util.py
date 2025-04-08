@@ -847,8 +847,7 @@ def make_colorbar_labels(species, species_list=None, species_mapped=None):
     """
     if species_list is None:
         species_name = [
-            atomic_number2element_symbol(atomic_num)
-            for atomic_num in species
+            atomic_number2element_symbol(atomic_num) for atomic_num in species
         ]
     else:
         species_name = []
@@ -864,3 +863,45 @@ def make_colorbar_labels(species, species_list=None, species_mapped=None):
                 species_name.append(label)
 
     return species_name
+
+
+def get_spectrum_data(packets_mode, sim):
+    """Get spectrum data from simulation based on mode."""
+    packets_type = f"spectrum_{packets_mode}_packets"
+
+    return {
+        "spectrum_delta_frequency": getattr(
+            sim.spectrum_solver, packets_type
+        ).delta_frequency,
+        "spectrum_frequency_bins": getattr(
+            sim.spectrum_solver, packets_type
+        )._frequency,
+        "spectrum_luminosity_density_lambda": getattr(
+            sim.spectrum_solver, packets_type
+        ).luminosity_density_lambda,
+        "spectrum_wavelength": getattr(
+            sim.spectrum_solver, packets_type
+        ).wavelength,
+    }
+
+
+def extract_spectrum_data_hdf(hdf, packets_mode):
+    """Extract spectrum data from HDF."""
+    spectrum_prefix = (
+        f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+    )
+    return {
+        "spectrum_delta_frequency": u.Quantity(
+            hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"
+        ),
+        "spectrum_frequency_bins": u.Quantity(
+            hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"
+        ),
+        "spectrum_luminosity_density_lambda": u.Quantity(
+            hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(),
+            "erg / s cm",
+        ).to("erg / s AA"),
+        "spectrum_wavelength": u.Quantity(
+            hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
+        ).to("AA"),
+    }

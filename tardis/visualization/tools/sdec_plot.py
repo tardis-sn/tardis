@@ -160,7 +160,7 @@ class SDECPlotter:
         )
 
         for mode in ["real", "virtual"]:
-            plotter.spectrum[mode] = plotter.get_spectrum_data(mode, sim)
+            plotter.spectrum[mode] = pu.get_spectrum_data(mode, sim)
             packet_data = pu.get_packet_data(transport_state, mode)
             plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
 
@@ -209,38 +209,6 @@ class SDECPlotter:
 
         return plotter
 
-        plotter = cls()
-
-        with pd.HDFStore(hdf_fpath, "r") as hdf:
-            plotter.t_inner = u.Quantity(
-                hdf["/simulation/simulation_state/scalars"].t_inner, "K"
-            )
-            plotter.r_inner = u.Quantity(
-                hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
-            )
-            plotter.lines_df = (
-                hdf["/simulation/plasma/lines"]
-                .reset_index()
-                .set_index("line_id")
-            )
-            plotter.time_of_simulation = u.Quantity(
-                hdf[
-                    "/simulation/transport/transport_state/scalars"
-                ].time_of_simulation,
-                "s",
-            )
-            # Load spectrum data
-            spectrum_prefix = f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
-            plotter.spectrum = plotter._load_spectrum_from_hdf(hdf, spectrum_prefix)
-
-            # Load packet data
-            packet_data = plotter._load_packet_data_from_hdf(hdf, packets_mode)
-            plotter.packets_df = pd.DataFrame(packet_data)
-
-            # Process line interactions
-            plotter._process_line_interactions()
-
-        return plotter
 
     def _get_packet_data(self, transport_state, packets_mode):
         """Get packet data from transport state based on mode."""
@@ -275,7 +243,6 @@ class SDECPlotter:
         """Process line interactions and create line interaction dataframe for both packet modes."""
         for packets_mode in ["real", "virtual"]:
             packets_df = self.packet_data[packets_mode]["packets_df"]
-            
             if packets_df is not None:
                 # Create dataframe of packets that experience line interaction
                 line_mask = (packets_df["last_interaction_type"] > -1) & (
@@ -358,7 +325,7 @@ class SDECPlotter:
 
             for mode in ["real", "virtual"]:
                 plotter.spectrum = {
-                    mode: plotter.extract_spectrum_data_hdf(hdf, mode)
+                    mode: pu.extract_spectrum_data_hdf(hdf, mode)
                 }
                 packet_data = pu.extract_packet_data_hdf(hdf, mode)
                 plotter.packet_data[mode]["packets_df"] = pd.DataFrame(
@@ -369,27 +336,6 @@ class SDECPlotter:
         pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
 
         return plotter
-
-    def extract_spectrum_data_hdf(hdf, packets_mode):
-        """Extract spectrum data from HDF."""
-        spectrum_prefix = (
-            f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
-        )
-        return {
-            "spectrum_delta_frequency": u.Quantity(
-                hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"
-            ),
-            "spectrum_frequency_bins": u.Quantity(
-                hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"
-            ),
-            "spectrum_luminosity_density_lambda": u.Quantity(
-                hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(),
-                "erg / s cm",
-            ).to("erg / s AA"),
-            "spectrum_wavelength": u.Quantity(
-                hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
-            ).to("AA"),
-        }
 
     def _parse_species_list(self, species_list):
         """
@@ -949,7 +895,6 @@ class SDECPlotter:
             Luminosity density lambda (or Flux) of photosphere (inner boundary
             of TARDIS simulation)
         """
-
         bb_lam = BlackBody(
             self.t_inner,
             scale=1.0 * u.erg / (u.cm**2 * u.AA * u.s * u.sr),
