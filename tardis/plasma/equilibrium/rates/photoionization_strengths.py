@@ -351,8 +351,8 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
 
         correction_factor = (
             1
-            - (lte_level_population * ion_population)
-            / (lte_ion_population * level_population)
+            - (ion_population / lte_ion_population).values
+            * (lte_level_population / level_population)
             * photoionization_boltzmann_factor
         )
 
