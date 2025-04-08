@@ -119,9 +119,10 @@ class IonRateMatrix:
         self,
         radiation_field,
         thermal_electron_energy_distribution,
-        level_number_density,
-        ion_number_density,
-        saha_factor,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
     ):
         """Compute the ionization rate matrix in the
         case where the radiation field is not estimated.
@@ -146,36 +147,14 @@ class IonRateMatrix:
             A DataFrame of rate matrices indexed by atomic number and ion number,
             with each column being a cell.
         """
-        ion_rates_df_list = self.ion_rate_solver.solve(
+        ion_rates_df = self.ion_rate_solver.solve(
             radiation_field,
             thermal_electron_energy_distribution,
-            level_number_density,
-            ion_number_density,
-            saha_factor,
+            lte_level_population,
+            level_population,
+            lte_ion_population,
+            ion_population,
         )
-
-        # Extract all indexes
-        all_indexes = set()
-        for df in ion_rates_df_list:
-            all_indexes.update(df.index)
-
-        # Create a union of all indexes
-        all_indexes = sorted(all_indexes)
-
-        # Reindex each dataframe to ensure consistent indices
-        ion_rates_df_list = [
-            df.reindex(all_indexes, fill_value=0) for df in ion_rates_df_list
-        ]
-
-        ion_rates_df = sum(ion_rates_df_list)
-
-        # Ionization rates R_ik connect level i to ion k, level i + j where j is
-        # the number of levels in ion k-1. Thus photoionization rates can be summed
-        # with radiative rates.
-        # But we don't know which level in the next ion the electron goes to?
-        # Seems that they could be treated as the LTE level number density, see
-        # Mihalas 2014 eq 9.84 and discussion
-        # Chris Fontes says not to bother if the data doesn't include dest. levels
 
         grouped_rates_summed = ion_rates_df.groupby(
             level=(
