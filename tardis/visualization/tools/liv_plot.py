@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
-import tardis.visualization.tools.sdec_plot as sdec
 from tardis.util.base import (
     atomic_number2element_symbol,
     int_to_roman,
@@ -27,9 +26,6 @@ class LIVPlotter:
 
         Parameters
         ----------
-        data : dict of SDECData
-            Dictionary to store data required for last interaction velocity plot,
-            for both packet modes (real, virtual).
 
         """
         self.packet_data = {
@@ -39,7 +35,6 @@ class LIVPlotter:
         self.lines_df = None
         self.velocity = None
         self.time_explosion = None
-        self.sdec_plotter = None
 
     @classmethod
     def from_simulation(cls, sim):
@@ -60,7 +55,6 @@ class LIVPlotter:
         plotter.velocity = sim.simulation_state.velocity
         plotter.time_explosion = sim.plasma.time_explosion
         transport_state = sim.transport.transport_state
-        plotter.sdec_plotter = sdec.SDECPlotter.from_simulation(sim)
         for mode in ["real", "virtual"]:
             packet_data = pu.get_packet_data(transport_state, mode)
             plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
@@ -83,7 +77,6 @@ class LIVPlotter:
         LIVPlotter
         """
         plotter = cls()
-        plotter.sdec_plotter = sdec.SDECPlotter.from_hdf(hdf_fpath)
         with pd.HDFStore(hdf_fpath, "r") as hdf:
             plotter.lines_df = hdf["/simulation/plasma/lines"].reset_index().set_index("line_id")
             plotter.time_explosion = hdf["/simulation/plasma/scalars"]["time_explosion"] * u.s
