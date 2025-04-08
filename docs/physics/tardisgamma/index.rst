@@ -12,4 +12,5 @@ The code can also be used to study the :math:`\gamma`-ray spectra and energy dep
 
 .. toctree::
     packetinitialization
+    opacities
     decayenergy
