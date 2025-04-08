@@ -15,6 +15,7 @@ from tardis.util.base import (
 )
 
 from tardis.util.base import (
+    atomic_number2element_symbol,
     element_symbol2atomic_number,
     int_to_roman,
     roman_to_int,
@@ -835,3 +836,31 @@ def parse_species_list_util(species_list):
         keep_colour_result,
         full_species_list,
     )
+
+
+def make_colorbar_labels(species, species_list=None, species_mapped=None):
+    """
+    Generate labels for the colorbar based on species.
+
+    If a species list is provided, uses that to generate labels.
+    Otherwise, generates labels from the species in the model.
+    """
+    if species_list is None:
+        species_name = [
+            atomic_number2element_symbol(atomic_num)
+            for atomic_num in species
+        ]
+    else:
+        species_name = []
+        for species_key, species_ids in species_mapped.items():
+            if any(spec_id in species for spec_id in species_ids):
+                if species_key % 100 == 0:
+                    label = atomic_number2element_symbol(species_key // 100)
+                else:
+                    atomic_number = species_key // 100
+                    ion_number = species_key % 100
+                    ion_numeral = int_to_roman(ion_number + 1)
+                    label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
+                species_name.append(label)
+
+    return species_name
