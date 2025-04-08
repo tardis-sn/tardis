@@ -385,11 +385,11 @@ def generate_how_to_guides_page(app):
 def generate_worflows_page(app):
     "Create workflows.rst"
     notebooks = ""
+    workflows_path = Path("workflows")
 
-    for root, dirs, fnames in os.walk("workflows/"):
-        for fname in fnames:
-            if 'workflow' in fname and fname.endswith(".ipynb") and "checkpoint" not in fname:
-                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+    for notebook in workflows_path.rglob("*.ipynb"):
+        if "workflow" in notebook.name and "checkpoint" not in notebook.name:
+            notebooks += f"\n* :doc:`{notebook.with_suffix('').as_posix()}`" 
 
     title = "Workflows\n*********\n"
     description = "The following pages contain the TARDIS workflows:\n\n These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives."
