@@ -30,11 +30,13 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="tardis.io.logger.montecarlo_tracking module" href="tardis.io.logger.montecarlo_tracking.html" />
-    <link rel="prev" title="tardis.io.logger.colored_logger module" href="tardis.io.logger.colored_logger.html" />
+    <link rel="prev" title="tardis.io.logger package" href="tardis.io.logger.html" />
     <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -161,82 +163,239 @@
   <section id="module-tardis.io.logger.logger">
 <span id="tardis-io-logger-logger-module"></span><h1>tardis.io.logger.logger module<a class="headerlink" href="#module-tardis.io.logger.logger" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="tardis.io.logger.logger.FilterLog">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">FilterLog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_level</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#FilterLog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.FilterLog" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Filter Log Class for Filtering Logging Output
-to a particular level</p>
+<dt class="sig sig-object py" id="tardis.io.logger.logger.AsyncEmitLogHandler">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">AsyncEmitLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#AsyncEmitLogHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.AsyncEmitLogHandler" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Handler" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
+<p>Asynchronous log handler for logging to a widget.</p>
+<p>Handles the formatting and display of log messages in Panel widgets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>log_level</strong><span class="classifier">logging object</span></dt><dd><p>allows to have a filter for the
-particular log_level</p>
+<dt><strong>log_outputs</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of Panel HTML panes for different log levels.</p>
+</dd>
+<dt><strong>colors</strong><span class="classifier">dict</span></dt><dd><p>Dictionary mapping log levels to display colors.</p>
+</dd>
+<dt><strong>display_widget</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to display logs in the widget. Defaults to True.</p>
+</dd>
+<dt><strong>display_handle</strong><span class="classifier">IPython.display.DisplayHandle, optional</span></dt><dd><p>Handle for updating the display in Jupyter environment.</p>
+</dd>
+<dt><strong>logger_widget</strong><span class="classifier">panel.Tabs, optional</span></dt><dd><p>The Panel Tabs widget containing the log outputs.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Initializes the instance - basically setting the formatter to None
+and the filter list to empty.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.AsyncEmitLogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#AsyncEmitLogHandler.emit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.AsyncEmitLogHandler.emit" title="Link to this definition">¶</a></dt>
+<dd><p>Process and emit a log record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>record</strong><span class="classifier">logging.LogRecord</span></dt><dd><p>The log record to process and display.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.LogFilter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">LogFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_levels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#LogFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.LogFilter" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Filter for controlling which log levels are displayed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>log_levels</strong><span class="classifier">list</span></dt><dd><p>List of logging levels to allow through the filter.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="tardis.io.logger.logger.FilterLog.filter">
-<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#FilterLog.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.FilterLog.filter" title="Link to this definition">¶</a></dt>
-<dd><p>filter() allows to set the logging level for
-all the record that are being parsed &amp; hence remove those
-which are not of the particular level</p>
+<dt class="sig sig-object py" id="tardis.io.logger.logger.LogFilter.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#LogFilter.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.LogFilter.filter" title="Link to this definition">¶</a></dt>
+<dd><p>Determine if a log record should be displayed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>log_record</strong><span class="classifier">logging.record</span></dt><dd><p>which the paricular record upon which the
-filter will be applied</p>
+<dt><strong>log_record</strong><span class="classifier">logging.LogRecord</span></dt><dd><p>The log record to evaluate.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>boolean</strong><span class="classifier">True, if the current log_record has the</span></dt><dd><p>level that of the specified log_level
-False, if the current log_record doesn’t have the
-same log_level as the specified one</p>
+<dt>bool</dt><dd><p>True if the record’s level is in the allowed levels, False otherwise.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.LoggingConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">LoggingConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LEVELS:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">COLORS:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#LoggingConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.LoggingConfig" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Logging configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>LEVELS</strong><span class="classifier">dict</span></dt><dd><p>The logging levels.</p>
+</dd>
+<dt><strong>COLORS</strong><span class="classifier">dict</span></dt><dd><p>The logging colors.</p>
+</dd>
+<dt><strong>DEFAULT_LEVEL</strong><span class="classifier">str</span></dt><dd><p>The default logging level.</p>
+</dd>
+<dt><strong>DEFAULT_SPECIFIC_STATE</strong><span class="classifier">bool</span></dt><dd><p>The default specific log level state.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.LoggingConfig.COLORS">
+<span class="sig-name descname"><span class="pre">COLORS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></em><a class="headerlink" href="#tardis.io.logger.logger.LoggingConfig.COLORS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.LoggingConfig.DEFAULT_LEVEL">
+<span class="sig-name descname"><span class="pre">DEFAULT_LEVEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INFO'</span></em><a class="headerlink" href="#tardis.io.logger.logger.LoggingConfig.DEFAULT_LEVEL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.LoggingConfig.DEFAULT_SPECIFIC_STATE">
+<span class="sig-name descname"><span class="pre">DEFAULT_SPECIFIC_STATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#tardis.io.logger.logger.LoggingConfig.DEFAULT_SPECIFIC_STATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.LoggingConfig.LEVELS">
+<span class="sig-name descname"><span class="pre">LEVELS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></em><a class="headerlink" href="#tardis.io.logger.logger.LoggingConfig.LEVELS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.TARDISLogger">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">TARDISLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#TARDISLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.TARDISLogger" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Main logger class for TARDIS.</p>
+<p>Handles configuration of logging levels, filters, and outputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>display_handle</strong><span class="classifier">IPython.display.DisplayHandle, optional</span></dt><dd><p>Handle for updating the display in Jupyter environment.</p>
+</dd>
+<dt><strong>logger_widget</strong><span class="classifier">panel.Tabs, optional</span></dt><dd><p>The Panel Tabs widget containing the log outputs.</p>
+</dd>
+<dt><strong>log_outputs</strong><span class="classifier">dict, optional</span></dt><dd><p>Dictionary of Panel HTML panes for different log levels.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.TARDISLogger.configure_logging">
+<span class="sig-name descname"><span class="pre">configure_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tardis_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#TARDISLogger.configure_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.TARDISLogger.configure_logging" title="Link to this definition">¶</a></dt>
+<dd><p>Configure the logging level and filtering for TARDIS loggers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>log_level</strong><span class="classifier">str</span></dt><dd><p>The logging level to use (e.g., “INFO”, “DEBUG”).</p>
+</dd>
+<dt><strong>tardis_config</strong><span class="classifier">dict</span></dt><dd><p>Configuration dictionary containing debug settings.</p>
+</dd>
+<dt><strong>specific_log_level</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to enable specific log level filtering.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>If an invalid log_level is provided.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.TARDISLogger.setup_widget_logging">
+<span class="sig-name descname"><span class="pre">setup_widget_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#TARDISLogger.setup_widget_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.TARDISLogger.setup_widget_logging" title="Link to this definition">¶</a></dt>
+<dd><p>Set up widget-based logging interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>display_widget</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to display the widget in GUI environments. Default is True.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.create_output_widget">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">create_output_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#create_output_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.create_output_widget" title="Link to this definition">¶</a></dt>
+<dd><p>Create an HTML pane for logging output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>height</strong><span class="classifier">int, optional</span></dt><dd><p>The height of the pane in pixels.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>panel.pane.HTML</dt><dd><p>A Panel HTML pane configured for logging output.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.get_environment">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">get_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#get_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.get_environment" title="Link to this definition">¶</a></dt>
+<dd><p>Determine the execution environment.</p>
+<p>Panel behaves differently in vscode and jupyter. In jupyter, the logger widget’s display handle
+has to be updated after each log entry. In vscode, this is not needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>The environment name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.logger.logger.logging_state">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">logging_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tardis_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_log_level</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#logging_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.logging_state" title="Link to this definition">¶</a></dt>
-<dd><p>Function to set the logging configuration for the simulation output
-Called from within run_tardis()
-Configured via functional arguments passed through run_tardis() - log_level &amp; specific_log_level
-Configured via YAML parameters under <code class="xref py py-obj docutils literal notranslate"><span class="pre">debug</span></code> section - log_level &amp; specific_log_level</p>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">logging_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tardis_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_logging_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#logging_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.logging_state" title="Link to this definition">¶</a></dt>
+<dd><p>Configure and initialize the TARDIS logging system.</p>
+<p>Sets up the logging environment, configures log levels, and displays
+the logging widget if requested.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>log_level: str</strong></dt><dd><p>Allows to input the log level for the simulation
-Uses Python logging framework to determine the messages that will be output</p>
+<dt><strong>log_level</strong><span class="classifier">str</span></dt><dd><p>The logging level to use (e.g., “INFO”, “DEBUG”).</p>
 </dd>
-<dt><strong>specific_log_level: boolean</strong></dt><dd><p>Allows to set specific logging levels. Logs of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">log_level</span></code> level would be output.</p>
+<dt><strong>tardis_config</strong><span class="classifier">dict</span></dt><dd><p>Configuration dictionary containing debug settings.</p>
 </dd>
-</dl>
+<dt><strong>specific_log_level</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to enable specific log level filtering.</p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.io.logger.logger.tardis_logger">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">tardis_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#tardis_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.tardis_logger" title="Link to this definition">¶</a></dt>
-<dd><p>Generates the list of the loggers which are derived from TARDIS
-All loggers which are of the form <code class="xref py py-obj docutils literal notranslate"><span class="pre">tardis.module_name</span></code> are added to the list</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>list_for_loggers</strong><span class="classifier">list</span></dt><dd><p>List for storing the loggers derived from TARDIS</p>
+<dt><strong>display_logging_widget</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to display the logging widget. Default is True.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>list_for_loggers</strong><span class="classifier">list</span></dt><dd></dd>
+<dt>panel.Tabs or None</dt><dd><p>The logger widget if display_logging_widget is True and in a
+supported environment, otherwise None.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -248,7 +407,7 @@ All loggers which are of the form <code class="xref py py-obj docutils literal n
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tardis.io.logger.colored_logger.html" class="btn btn-neutral float-left" title="tardis.io.logger.colored_logger module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.io.logger.html" class="btn btn-neutral float-left" title="tardis.io.logger package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="tardis.io.logger.montecarlo_tracking.html" class="btn btn-neutral float-right" title="tardis.io.logger.montecarlo_tracking module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -256,7 +415,7 @@ All loggers which are of the form <code class="xref py py-obj docutils literal n
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 04 Apr 2025.
+      <span class="lastupdated">Last updated on 10 Apr 2025.
       </span></p>
   </div>
 

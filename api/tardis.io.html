@@ -30,6 +30,8 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -228,16 +230,14 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.io.logger.html">tardis.io.logger package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.colored_logger.html">tardis.io.logger.colored_logger module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.ColoredFormatter"><code class="docutils literal notranslate"><span class="pre">ColoredFormatter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.ColoredLogger"><code class="docutils literal notranslate"><span class="pre">ColoredLogger</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.formatter_message"><code class="docutils literal notranslate"><span class="pre">formatter_message()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html">tardis.io.logger.logger module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.FilterLog"><code class="docutils literal notranslate"><span class="pre">FilterLog</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.AsyncEmitLogHandler"><code class="docutils literal notranslate"><span class="pre">AsyncEmitLogHandler</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.LogFilter"><code class="docutils literal notranslate"><span class="pre">LogFilter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig"><code class="docutils literal notranslate"><span class="pre">LoggingConfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger"><code class="docutils literal notranslate"><span class="pre">TARDISLogger</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.create_output_widget"><code class="docutils literal notranslate"><span class="pre">create_output_widget()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.get_environment"><code class="docutils literal notranslate"><span class="pre">get_environment()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.logging_state"><code class="docutils literal notranslate"><span class="pre">logging_state()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.tardis_logger"><code class="docutils literal notranslate"><span class="pre">tardis_logger()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.montecarlo_tracking.html">tardis.io.logger.montecarlo_tracking module</a><ul>
@@ -263,7 +263,11 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_atom_data.html#tardis.io.model.parse_atom_data.parse_atom_data"><code class="docutils literal notranslate"><span class="pre">parse_atom_data()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html">tardis.io.model.parse_composition_configuration module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html">tardis.io.model.parse_composition_configuration module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_config"><code class="docutils literal notranslate"><span class="pre">parse_composition_from_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_csvy"><code class="docutils literal notranslate"><span class="pre">parse_composition_from_csvy()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html">tardis.io.model.parse_density_configuration module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_geometry_configuration.html">tardis.io.model.parse_geometry_configuration module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_mass_fraction_configuration.html">tardis.io.model.parse_mass_fraction_configuration module</a></li>
@@ -342,7 +346,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 04 Apr 2025.
+      <span class="lastupdated">Last updated on 10 Apr 2025.
       </span></p>
   </div>
 
