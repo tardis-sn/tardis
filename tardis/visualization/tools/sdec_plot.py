@@ -54,7 +54,6 @@ class SDECPlotter:
             },
         }
         self.spectrum = {"virtual": None, "real": None}
-        self.lines_df = None
         self.t_inner = None
         self.r_inner = None
         self.time_of_simulation = None
@@ -74,25 +73,19 @@ class SDECPlotter:
         SDECPlotter
         """
         plotter = cls()
-        plotter.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
-            "line_id"
-        )
         plotter.t_inner = sim.simulation_state.packet_source.temperature
         plotter.r_inner = sim.simulation_state.geometry.r_inner_active
-
-        transport_state = sim.transport.transport_state
-
         plotter.time_of_simulation = (
-            transport_state.packet_collection.time_of_simulation * u.s
+            sim.transport.transport_state.packet_collection.time_of_simulation
+            * u.s
         )
 
         for mode in ["real", "virtual"]:
             plotter.spectrum[mode] = pu.get_spectrum_data(mode, sim)
-            packet_data = pu.get_packet_data(transport_state, mode)
-            plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                sim, mode
+            )
 
-        # Call this after packets_df is populated
-        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
         return plotter
 
     @classmethod
@@ -114,11 +107,6 @@ class SDECPlotter:
         """
         plotter = cls()
         with pd.HDFStore(hdf_fpath, "r") as hdf:
-            plotter.lines_df = (
-                hdf["/simulation/plasma/lines"]
-                .reset_index()
-                .set_index("line_id")
-            )
             plotter.r_inner = u.Quantity(
                 hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
             )
@@ -136,13 +124,7 @@ class SDECPlotter:
                 plotter.spectrum = {
                     mode: pu.extract_spectrum_data_hdf(hdf, mode)
                 }
-                packet_data = pu.extract_packet_data_hdf(hdf, mode)
-                plotter.packet_data[mode]["packets_df"] = pd.DataFrame(
-                    packet_data
-                )
-
-        # Call this after packets_df is populated
-        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
+                plotter.packet_data[mode]=  pu.extract_and_process_packet_data_hdf(hdf, mode)
 
         return plotter
 
@@ -492,6 +474,11 @@ class SDECPlotter:
                 self.packet_data[packets_mode]["packets_df"]["nus"]
                 > packet_nu_range[1]
             )
+            print("packet mode", self.packet_data[packets_mode])
+            print(
+                "packets_df_line_interaction",
+                self.packet_data[packets_mode]["packets_df_line_interaction"],
+            )
             self.packet_nu_line_range_mask = (
                 self.packet_data[packets_mode]["packets_df_line_interaction"][
                     "nus"
@@ -830,7 +817,9 @@ class SDECPlotter:
             self.ax = ax
 
         # Get the labels in the color bar. This determines the number of unique colors
-        self._species_name = pu.make_colorbar_labels(self.species, self._species_list, self._species_mapped)
+        self._species_name = pu.make_colorbar_labels(
+            self.species, self._species_list, self._species_mapped
+        )
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unqie colors
@@ -1197,7 +1186,9 @@ class SDECPlotter:
             self.fig = fig
 
         # Get the labels in the color bar. This determines the number of unique colors
-        self._species_name = pu.make_colorbar_labels(self.species, self._species_list, self._species_mapped)
+        self._species_name = pu.make_colorbar_labels(
+            self.species, self._species_list, self._species_mapped
+        )
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unique colors
