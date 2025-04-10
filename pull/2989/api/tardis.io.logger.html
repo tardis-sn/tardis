@@ -33,10 +33,12 @@
       <script src="../_static/ServiceHandler.js"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="tardis.io.logger.colored_logger module" href="tardis.io.logger.colored_logger.html" />
+    <link rel="next" title="tardis.io.logger.logger module" href="tardis.io.logger.logger.html" />
     <link rel="prev" title="tardis.io.configuration.config_validator module" href="tardis.io.configuration.config_validator.html" />
     <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
 
@@ -167,25 +169,30 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tardis.io.logger.colored_logger.html">tardis.io.logger.colored_logger module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.ColoredFormatter"><code class="docutils literal notranslate"><span class="pre">ColoredFormatter</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.ColoredFormatter.format"><code class="docutils literal notranslate"><span class="pre">ColoredFormatter.format()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.ColoredLogger"><code class="docutils literal notranslate"><span class="pre">ColoredLogger</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.ColoredLogger.COLOR_FORMAT"><code class="docutils literal notranslate"><span class="pre">ColoredLogger.COLOR_FORMAT</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.formatter_message"><code class="docutils literal notranslate"><span class="pre">formatter_message()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.io.logger.logger.html">tardis.io.logger.logger module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.FilterLog"><code class="docutils literal notranslate"><span class="pre">FilterLog</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.FilterLog.filter"><code class="docutils literal notranslate"><span class="pre">FilterLog.filter()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.AsyncEmitLogHandler"><code class="docutils literal notranslate"><span class="pre">AsyncEmitLogHandler</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.AsyncEmitLogHandler.emit"><code class="docutils literal notranslate"><span class="pre">AsyncEmitLogHandler.emit()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.LogFilter"><code class="docutils literal notranslate"><span class="pre">LogFilter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.LogFilter.filter"><code class="docutils literal notranslate"><span class="pre">LogFilter.filter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig"><code class="docutils literal notranslate"><span class="pre">LoggingConfig</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig.COLORS"><code class="docutils literal notranslate"><span class="pre">LoggingConfig.COLORS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig.DEFAULT_LEVEL"><code class="docutils literal notranslate"><span class="pre">LoggingConfig.DEFAULT_LEVEL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig.DEFAULT_SPECIFIC_STATE"><code class="docutils literal notranslate"><span class="pre">LoggingConfig.DEFAULT_SPECIFIC_STATE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig.LEVELS"><code class="docutils literal notranslate"><span class="pre">LoggingConfig.LEVELS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger"><code class="docutils literal notranslate"><span class="pre">TARDISLogger</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.configure_logging"><code class="docutils literal notranslate"><span class="pre">TARDISLogger.configure_logging()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.setup_widget_logging"><code class="docutils literal notranslate"><span class="pre">TARDISLogger.setup_widget_logging()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.create_output_widget"><code class="docutils literal notranslate"><span class="pre">create_output_widget()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.get_environment"><code class="docutils literal notranslate"><span class="pre">get_environment()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.logging_state"><code class="docutils literal notranslate"><span class="pre">logging_state()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="tardis.io.logger.logger.html#tardis.io.logger.logger.tardis_logger"><code class="docutils literal notranslate"><span class="pre">tardis_logger()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.io.logger.montecarlo_tracking.html">tardis.io.logger.montecarlo_tracking module</a><ul>
@@ -206,14 +213,14 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tardis.io.configuration.config_validator.html" class="btn btn-neutral float-left" title="tardis.io.configuration.config_validator module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tardis.io.logger.colored_logger.html" class="btn btn-neutral float-right" title="tardis.io.logger.colored_logger module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tardis.io.logger.logger.html" class="btn btn-neutral float-right" title="tardis.io.logger.logger module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Apr 2025.
+      <span class="lastupdated">Last updated on 10 Apr 2025.
       </span></p>
   </div>
 

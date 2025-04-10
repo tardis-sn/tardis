@@ -37,6 +37,8 @@
       <script src="https://cdn.holoviz.org/panel/1.6.1/dist/panel.min.js"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -786,40 +788,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             index=np.arange(len(t_rad)),
             columns=[&quot;t_rad&quot;, &quot;next_t_rad&quot;, &quot;w&quot;, &quot;next_w&quot;],
         )
-        plasma_state_log[&quot;t_rad&quot;] = t_rad
-        plasma_state_log[&quot;next_t_rad&quot;] = next_t_rad
+        plasma_state_log[&quot;t_rad&quot;] = t_rad.value
+        plasma_state_log[&quot;next_t_rad&quot;] = next_t_rad.value
         plasma_state_log[&quot;w&quot;] = dilution_factor
         plasma_state_log[&quot;next_w&quot;] = next_dilution_factor
         plasma_state_log.columns.name = &quot;Shell No.&quot;
-
-        if is_notebook():
-            logger.info(&quot;\n\tPlasma stratification:&quot;)
-
-            # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
-            if logger.level &lt;= logging.INFO:
-                if not logger.filters:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            &quot;{:.3g}&quot;
-                        )
-                    )
-                elif logger.filters[0].log_level == 20:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            &quot;{:.3g}&quot;
-                        )
-                    )
-        else:
-            output_df = &quot;&quot;
-            plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
-                float_format=lambda x: f&quot;{x:.3g}&quot;,
-                justify=&quot;center&quot;,
-            )
-            for value in plasma_output.split(&quot;\n&quot;):
-                output_df = output_df + f&quot;\t{value}\n&quot;
-            logger.info(&quot;\n\tPlasma stratification:&quot;)
-            logger.info(f&quot;\n{output_df}&quot;)
-
+        logger.info(plasma_state_log.iloc[::log_sampling])
         logger.info(
             f&quot;\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n&quot;
         )</div>
@@ -1041,7 +1015,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Apr 2025.
+      <span class="lastupdated">Last updated on 10 Apr 2025.
       </span></p>
   </div>
 

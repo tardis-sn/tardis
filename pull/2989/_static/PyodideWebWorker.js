@@ -1,4 +1,4 @@
-importScripts("https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js");
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js");
 
 const QUEUE = [];
 
@@ -36,7 +36,7 @@ async function loadApplication(cell_id, path) {
   self.pyodide.globals.set("sendStderr", sendStderr);
   console.log("Loaded!");
   await self.pyodide.loadPackage("micropip");
-  const packages = ['panel', 'h5py'];
+  const packages = ['panel', 'pandas'];
   if (path != null) {
     for (const key of Object.keys(REQUIRES)) {
       if (path.replace('.html', '').endsWith(key.replace('.md', ''))) {
