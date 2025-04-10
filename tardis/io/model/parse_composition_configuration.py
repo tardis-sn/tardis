@@ -32,16 +32,14 @@ def parse_composition_from_config(atom_data, config, time_explosion, geometry):
     """
     density, electron_densities = parse_density_from_config(config)
 
-    (
-        nuclide_mass_fractions,
-        raw_isotope_mass_fractions,
-    ) = parse_mass_fractions_from_config(config, geometry, time_explosion)
+    (nuclide_mass_fractions) = parse_mass_fractions_from_config(
+        config, geometry, time_explosion
+    )
 
     return (
         Composition(
             density,
             nuclide_mass_fractions,
-            raw_isotope_mass_fractions,
             atom_data.atom_data.mass.copy(),
         ),
         electron_densities,
@@ -86,15 +84,11 @@ def parse_composition_from_csvy(
         csvy_model_config, csvy_model_data, time_explosion
     )
 
-    (
-        nuclide_mass_fractions,
-        raw_isotope_mass_fractions,
-    ) = parse_mass_fractions_from_csvy(
+    (nuclide_mass_fractions) = parse_mass_fractions_from_csvy(
         csvy_model_config, csvy_model_data, geometry, time_explosion
     )
     return Composition(
         density,
         nuclide_mass_fractions,
-        raw_isotope_mass_fractions,
         atom_data.atom_data.mass.copy(),
     )
