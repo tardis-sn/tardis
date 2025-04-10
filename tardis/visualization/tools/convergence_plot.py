@@ -90,6 +90,7 @@ class ConvergencePlots(object):
         self.luminosities = ["Emitted", "Absorbed", "Requested"]
         self.plasma_plot = None
         self.t_inner_luminosities_plot = None
+        self.display_handle = None
 
         if "plasma_plot_config" in kwargs:
             self.plasma_plot_config = kwargs["plasma_plot_config"]
@@ -314,10 +315,11 @@ class ConvergencePlots(object):
         self.create_t_inner_luminosities_plot()
 
         if display_plot:
-            display(
+            self.display_handle = display(
                 widgets.VBox(
                     [self.plasma_plot, self.t_inner_luminosities_plot],
-                )
+                ),
+                display_id="convergence_plots"
             )
 
     def update_plasma_plots(self):
@@ -430,6 +432,11 @@ class ConvergencePlots(object):
 
             self.update_plasma_plots()
             self.update_t_inner_luminosities_plot()
+            self.display_handle.update(
+                widgets.VBox(
+                    [self.plasma_plot, self.t_inner_luminosities_plot],
+                )
+            )
 
             # data property for plasma plots needs to be
             # updated after the last iteration because new traces have been added
