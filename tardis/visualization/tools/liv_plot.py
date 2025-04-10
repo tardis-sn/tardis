@@ -30,7 +30,10 @@ class LIVPlotter:
         """
         self.packet_data = {
             "real": {"packets_df": None, "packets_df_line_interaction": None},
-            "virtual": {"packets_df": None, "packets_df_line_interaction": None},
+            "virtual": {
+                "packets_df": None,
+                "packets_df_line_interaction": None,
+            },
         }
         self.lines_df = None
         self.velocity = None
@@ -51,15 +54,13 @@ class LIVPlotter:
         LIVPlotter
         """
         plotter = cls()
-        plotter.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index("line_id")
         plotter.velocity = sim.simulation_state.velocity
         plotter.time_explosion = sim.plasma.time_explosion
-        transport_state = sim.transport.transport_state
         for mode in ["real", "virtual"]:
-            packet_data = pu.get_packet_data(transport_state, mode)
-            plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
-        # Call this after packets_df is populated
-        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                sim, mode
+            )
+
         return plotter
 
     @classmethod
@@ -78,16 +79,16 @@ class LIVPlotter:
         """
         plotter = cls()
         with pd.HDFStore(hdf_fpath, "r") as hdf:
-            plotter.lines_df = hdf["/simulation/plasma/lines"].reset_index().set_index("line_id")
-            plotter.time_explosion = hdf["/simulation/plasma/scalars"]["time_explosion"] * u.s
-            velocity = hdf["/simulation/simulation_state/velocity"] * (u.cm / u.s)
-            plotter.velocity = velocity
+            plotter.time_explosion = (
+                hdf["/simulation/plasma/scalars"]["time_explosion"] * u.s
+            )
+            plotter.velocity = hdf["/simulation/simulation_state/velocity"] * (
+                u.cm / u.s
+            )
             for mode in ["real", "virtual"]:
-                packet_data = pu.extract_packet_data_hdf(hdf, mode)
-                plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
-
-        # Call this after packets_df is populated
-        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
+                plotter.packet_data[mode] = (
+                    pu.extract_and_process_packet_data_hdf(hdf, mode)
+                )
 
         return plotter
 
@@ -136,11 +137,9 @@ class LIVPlotter:
             self._keep_colour = None
 
         if nelements:
-            interaction_counts = (
-                self.packet_data[packets_mode]
-                ["packets_df_line_interaction"]["last_line_interaction_species"]
-                .value_counts()
-            )
+            interaction_counts = self.packet_data[packets_mode][
+                "packets_df_line_interaction"
+            ]["last_line_interaction_species"].value_counts()
             interaction_counts.index = interaction_counts.index // 100
             element_counts = interaction_counts.groupby(
                 interaction_counts.index
@@ -184,8 +183,8 @@ class LIVPlotter:
             Packet mode, either 'virtual' or 'real'.
         """
         groups = (
-            self.packet_data[packets_mode]
-            ["packets_df_line_interaction"].loc[self.packet_nu_line_range_mask]
+            self.packet_data[packets_mode]["packets_df_line_interaction"]
+            .loc[self.packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_species")
         )
 
@@ -273,9 +272,9 @@ class LIVPlotter:
         if species_list is None:
             # Extract all unique elements from the packets data
             species_in_model = np.unique(
-                self.packet_data[packets_mode]
-                ["packets_df_line_interaction"]["last_line_interaction_species"]
-                .values
+                self.packet_data[packets_mode]["packets_df_line_interaction"][
+                    "last_line_interaction_species"
+                ].values
             )
             species_list = [
                 f"{atomic_number2element_symbol(specie // 100)}"
@@ -283,9 +282,9 @@ class LIVPlotter:
             ]
         self._parse_species_list(species_list, packets_mode, nelements)
         species_in_model = np.unique(
-            self.packet_data[packets_mode]
-            ["packets_df_line_interaction"]["last_line_interaction_species"]
-            .values
+            self.packet_data[packets_mode]["packets_df_line_interaction"][
+                "last_line_interaction_species"
+            ].values
         )
         if self._species_list is None or not self._species_list:
             raise ValueError("No species provided for plotting.")
@@ -295,13 +294,17 @@ class LIVPlotter:
         if len(self.species) == 0:
             raise ValueError("No valid species found for plotting.")
 
-        self._species_name = pu.make_colorbar_labels(self.species, self._species_list, self._species_mapped)
+        self._species_name = pu.make_colorbar_labels(
+            self.species, self._species_list, self._species_mapped
+        )
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         self._make_colorbar_colors()
 
         if packet_wvl_range is None:
             self.packet_nu_line_range_mask = np.ones(
-                self.packet_data[packets_mode]["packets_df_line_interaction"].shape[0],
+                self.packet_data[packets_mode][
+                    "packets_df_line_interaction"
+                ].shape[0],
                 dtype=bool,
             )
         else:
@@ -310,10 +313,14 @@ class LIVPlotter:
                 for value in packet_wvl_range
             ]
             self.packet_nu_line_range_mask = (
-                self.packet_data[packets_mode]["packets_df_line_interaction"]["nus"]
+                self.packet_data[packets_mode]["packets_df_line_interaction"][
+                    "nus"
+                ]
                 >= packet_nu_range[1]
             ) & (
-                self.packet_data[packets_mode]["packets_df_line_interaction"]["nus"]
+                self.packet_data[packets_mode]["packets_df_line_interaction"][
+                    "nus"
+                ]
                 <= packet_nu_range[0]
             )
 
