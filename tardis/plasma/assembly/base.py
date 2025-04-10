@@ -39,7 +39,7 @@ def map_species_from_string(species):
 def convert_species_to_multi_index(species_strs):
     return pd.MultiIndex.from_tuples(
         map_species_from_string(species_strs),
-        names=["atomic_number", "ion_number"],
+        names=["atomic_number", "ion_charge"],
     )
 
 
