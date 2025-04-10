@@ -1,4 +1,4 @@
-atom_data: kurucz_cd23_chianti_H_He.h5
+atom_data: kurucz_cd23_chianti_H_He_latest.h5
 model:
   abundances:
     Si: 1.0
