@@ -1,5 +1,8 @@
 # Ruff configuration file adapted from astropy
 extend = "pyproject.toml"
+
+extend-exclude = ["conda-osx-arm64.lock", "conda-linux-64.lock", "conda-lock.yml"]
+
 lint.ignore = [
     # NOTE: to find a good code to fix, run:
     # ruff --select="ALL" --statistics astropy/<subpackage>
@@ -214,8 +217,6 @@ lint.ignore = [
 lint.unfixable = [
     "E711"  # NoneComparison. Hard to fix b/c numpy has it's own None.
 ]
-
-exclude = ["conda-osx-arm64.lock", "conda-linux-64.lock", "conda-lock.yml"]
 
 [lint.extend-per-file-ignores]
 "docs/*" = []
