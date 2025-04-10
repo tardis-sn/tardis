@@ -156,16 +156,16 @@ class SDECPlotter:
         transport_state = sim.transport.transport_state
 
         plotter.time_of_simulation = (
-            transport_state.packet_collection.time_of_simulation * u.s
+            sim.transport.transport_state.packet_collection.time_of_simulation
+            * u.s
         )
 
         for mode in ["real", "virtual"]:
             plotter.spectrum[mode] = pu.get_spectrum_data(mode, sim)
-            packet_data = pu.get_packet_data(transport_state, mode)
-            plotter.packet_data[mode]["packets_df"] = pd.DataFrame(packet_data)
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                sim, mode
+            )
 
-        # Call this after packets_df is populated
-        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
         return plotter
 
     @classmethod
@@ -305,11 +305,6 @@ class SDECPlotter:
         """
         plotter = cls()
         with pd.HDFStore(hdf_fpath, "r") as hdf:
-            plotter.lines_df = (
-                hdf["/simulation/plasma/lines"]
-                .reset_index()
-                .set_index("line_id")
-            )
             plotter.r_inner = u.Quantity(
                 hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
             )
@@ -327,13 +322,7 @@ class SDECPlotter:
                 plotter.spectrum = {
                     mode: pu.extract_spectrum_data_hdf(hdf, mode)
                 }
-                packet_data = pu.extract_packet_data_hdf(hdf, mode)
-                plotter.packet_data[mode]["packets_df"] = pd.DataFrame(
-                    packet_data
-                )
-
-        # Call this after packets_df is populated
-        pu.process_line_interactions(plotter.packet_data, plotter.lines_df)
+                plotter.packet_data[mode]=  pu.extract_and_process_packet_data_hdf(hdf, mode)
 
         return plotter
 
