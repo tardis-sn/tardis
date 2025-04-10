@@ -1,10 +1,9 @@
 name: utility
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - 'master'
-    types: [opened, labeled, synchronize, ready_for_review]
 
 jobs:
   git-lfs-pull-label:
@@ -49,24 +48,39 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Extract PR author email
-        id: extract_email
-        run: echo "author_email=$(git log $PR_BASE_SHA..HEAD --pretty='%aE' | sort -u)" >> $GITHUB_OUTPUT
+          fetch-depth: 0
+      
+      - name: Check if author email exists in orcid.csv
+        run: |
+          echo "PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}"
+          grep "$(git log $PR_BASE_SHA..HEAD --pretty='%aE' | sort -u)" .orcid.csv
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
-      - name: Check if author email exists in orcid.csv
-        run: grep -q "$(echo '${{ steps.extract_email.outputs.author_email }}' | tr -d '\n')" .orcid.csv
-        continue-on-error: true
-        id: orcid_check
+      - name: Error message
+        run: |
+          echo "Author email not found in .orcid.csv"
+          echo "Author email: $(git log $PR_BASE_SHA..HEAD --pretty='%aE' | sort -u)"
+        if: failure()
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      
+      - name: Find comment
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: Please add your email and ORCID ID
+        if: always()
 
       - name: Create comment
-        if: steps.orcid_check.outcome == 'failure'
+        if: failure()
         uses: peter-evans/create-or-update-comment@v4
         with:
-          token: ${{ secrets.BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
           body: |
             *\*beep\* \*bop\**
 
@@ -82,4 +96,4 @@ jobs:
             ```
             email,orcid
             your.email@example.com,0000-0000-0000-0000
-            ``` 
+            ```
