@@ -1,7 +1,7 @@
 name: utility
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -97,3 +97,9 @@ jobs:
             email,orcid
             your.email@example.com,0000-0000-0000-0000
             ```
+
+  pip_tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+    with:
+      pip_git: true
