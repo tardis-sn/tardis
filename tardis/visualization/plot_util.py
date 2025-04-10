@@ -1,7 +1,17 @@
 """Utility functions to be used in plotting."""
 
 import re
+
+import astropy.units as u
 import numpy as np
+
+from tardis.util.base import (
+    atomic_number2element_symbol,
+    element_symbol2atomic_number,
+    int_to_roman,
+    roman_to_int,
+    species_string_to_tuple,
+)
 
 
 def axis_label_in_latex(label_text, unit, only_text=True):
@@ -79,3 +89,326 @@ def to_rgb255_string(color_tuple):
     """
     color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
     return f"rgb{color_tuple_255}"
+
+
+def get_packet_data(transport_state, packets_mode):
+    """Get packet data from transport state based on mode."""
+    if packets_mode == "virtual":
+        vpacket_tracker = transport_state.vpacket_tracker
+        return {
+            "last_interaction_type": vpacket_tracker.last_interaction_type,
+            "last_line_interaction_in_id": vpacket_tracker.last_interaction_in_id,
+            "last_line_interaction_out_id": vpacket_tracker.last_interaction_out_id,
+            "last_line_interaction_in_nu": vpacket_tracker.last_interaction_in_nu,
+            "last_interaction_in_r": vpacket_tracker.last_interaction_in_r,
+            "nus": u.Quantity(vpacket_tracker.nus, "Hz"),
+            "energies": u.Quantity(vpacket_tracker.energies, "erg"),
+            "lambdas": u.Quantity(vpacket_tracker.nus, "Hz").to(
+                "angstrom", u.spectral()
+            ),
+        }
+    # real packets
+    mask = transport_state.emitted_packet_mask
+    packet_nus = u.Quantity(
+        transport_state.packet_collection.output_nus[mask], u.Hz
+    )
+    return {
+        "last_interaction_type": transport_state.last_interaction_type[mask],
+        "last_line_interaction_in_id": transport_state.last_line_interaction_in_id[
+            mask
+        ],
+        "last_line_interaction_out_id": transport_state.last_line_interaction_out_id[
+            mask
+        ],
+        "last_line_interaction_in_nu": transport_state.last_interaction_in_nu[
+            mask
+        ],
+        "last_interaction_in_r": transport_state.last_interaction_in_r[mask],
+        "nus": packet_nus,
+        "energies": transport_state.packet_collection.output_energies[mask],
+        "lambdas": packet_nus.to("angstrom", u.spectral()),
+    }
+
+
+def process_line_interactions(packet_data, lines_df):
+    """Process line interactions and create line interaction dataframe for both packet modes."""
+    for packets_mode in ["real", "virtual"]:
+        packets_df = packet_data[packets_mode]["packets_df"]
+
+        if packets_df is not None:
+            # Create dataframe of packets that experience line interaction
+            line_mask = (packets_df["last_interaction_type"] > -1) & (
+                packets_df["last_line_interaction_in_id"] > -1
+            )
+            packet_data[packets_mode]["packets_df_line_interaction"] = (
+                packets_df.loc[line_mask].copy()
+            )
+
+            # Add columns for atomic number of last interaction out
+            packet_data[packets_mode]["packets_df_line_interaction"][
+                "last_line_interaction_atom"
+            ] = (
+                lines_df["atomic_number"]
+                .iloc[
+                    packet_data[packets_mode]["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
+                ]
+                .to_numpy()
+            )
+
+            # Add columns for the species ID of last interaction
+            packet_data[packets_mode]["packets_df_line_interaction"][
+                "last_line_interaction_species"
+            ] = (
+                lines_df["atomic_number"]
+                .iloc[
+                    packet_data[packets_mode]["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
+                ]
+                .to_numpy()
+                * 100
+                + lines_df["ion_number"]
+                .iloc[
+                    packet_data[packets_mode]["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
+                ]
+                .to_numpy()
+            )
+
+
+def extract_packet_data_hdf(hdf, packets_mode):
+    """Extract packet data from HDF."""
+    if packets_mode == "virtual":
+        packet_prefix = "/simulation/transport/transport_state/virt_packet"
+        return {
+            "last_interaction_type": hdf[
+                f"{packet_prefix}_last_interaction_type"
+            ],
+            "last_line_interaction_in_id": hdf[
+                f"{packet_prefix}_last_line_interaction_in_id"
+            ],
+            "last_line_interaction_out_id": hdf[
+                f"{packet_prefix}_last_line_interaction_out_id"
+            ],
+            "last_line_interaction_in_nu": u.Quantity(
+                hdf[f"{packet_prefix}_last_interaction_in_nu"].to_numpy(), "Hz"
+            ),
+            "last_interaction_in_r": u.Quantity(
+                hdf[f"{packet_prefix}_last_interaction_in_r"].to_numpy(), "cm"
+            ),
+            "packet_nus": u.Quantity(
+                hdf[f"{packet_prefix}_nus"].to_numpy(), "Hz"
+            ),
+            "packet_energies": u.Quantity(
+                hdf[f"{packet_prefix}_energies"].to_numpy(), "erg"
+            ),
+        }
+    else:  # real packets
+        emitted_packet_mask = hdf[
+            "/simulation/transport/transport_state/emitted_packet_mask"
+        ].to_numpy()
+        packet_prefix = "/simulation/transport/transport_state"
+        return {
+            "last_interaction_type": hdf[
+                f"{packet_prefix}/last_interaction_type"
+            ].to_numpy()[emitted_packet_mask],
+            "last_line_interaction_in_id": hdf[
+                f"{packet_prefix}/last_line_interaction_in_id"
+            ].to_numpy()[emitted_packet_mask],
+            "last_line_interaction_out_id": hdf[
+                f"{packet_prefix}/last_line_interaction_out_id"
+            ].to_numpy()[emitted_packet_mask],
+            "last_line_interaction_in_nu": u.Quantity(
+                hdf[f"{packet_prefix}/last_interaction_in_nu"].to_numpy()[
+                    emitted_packet_mask
+                ],
+                "Hz",
+            ),
+            "last_interaction_in_r": u.Quantity(
+                hdf[f"{packet_prefix}/last_interaction_in_r"].to_numpy()[
+                    emitted_packet_mask
+                ],
+                "cm",
+            ),
+            "packet_nus": u.Quantity(
+                hdf[f"{packet_prefix}/output_nu"].to_numpy()[
+                    emitted_packet_mask
+                ],
+                "Hz",
+            ),
+            "packet_energies": u.Quantity(
+                hdf[f"{packet_prefix}/output_energy"].to_numpy()[
+                    emitted_packet_mask
+                ],
+                "erg",
+            ),
+        }
+
+
+def parse_species_list_util(species_list):
+    """
+    Parse user requested species list and create list of species ids to be used.
+
+    Parameters
+    ----------
+    species_list : list of species to plot
+        List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
+        Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
+        (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
+
+    """
+    if species_list is not None:
+        # check if there are any digits in the species list. If there are, then exit.
+        # species_list should only contain species in the Roman numeral
+        # format, e.g. Si II, and each ion must contain a space
+        if any(char.isdigit() for char in " ".join(species_list)) is True:
+            raise ValueError(
+                "All species must be in Roman numeral form, e.g. Si II"
+            )
+        else:
+            full_species_list = []
+            species_mapped = {}
+            for species in species_list:
+                # check if a hyphen is present. If it is, then it indicates a
+                # range of ions. Add each ion in that range to the list as a new entry
+                if "-" in species:
+                    # split the string on spaces. First thing in the list is then the element
+                    parts = species.split(" ")
+                    element = parts[0]
+                    ion_range = parts[-1]
+                    # Next thing is the ion range
+                    # convert the requested ions into numerals
+                    range_parts = [
+                        part.strip() for part in ion_range.split("-")
+                    ]
+                    first_ion_numeral = roman_to_int(range_parts[0])
+                    second_ion_numeral = roman_to_int(range_parts[-1])
+                    # add each ion between the two requested into the species list
+                    for ion_number in np.arange(
+                        first_ion_numeral, second_ion_numeral + 1
+                    ):
+                        full_species_list.append(
+                            f"{element} {int_to_roman(ion_number)}"
+                        )
+                else:
+                    # Otherwise it's either an element or ion so just add to the list
+                    full_species_list.append(species)
+
+            # full_species_list is now a list containing each individual species requested
+            # e.g. it parses species_list = [Si I - V] into species_list = [Si I, Si II, Si III, Si IV, Si V]
+            requested_species_ids = []
+            keep_colour = []
+
+            # go through each of the requested species. Check whether it is
+            # an element or ion (ions have spaces). If it is an element,
+            # add all possible ions to the ions list. Otherwise just add
+            # the requested ion
+            for species in full_species_list:
+                if " " in species:
+                    species_id = (
+                        species_string_to_tuple(species)[0],
+                        species_string_to_tuple(species)[1],
+                    )
+                    requested_species_ids.append([species_id])
+                    species_mapped[species_id] = [species_id]
+                else:
+                    atomic_number = element_symbol2atomic_number(species)
+                    species_ids = [
+                        (atomic_number, ion_number)
+                        for ion_number in np.arange(atomic_number)
+                    ]
+                    requested_species_ids.append(species_ids)
+                    species_mapped[(atomic_number, 0)] = species_ids
+                    # add the atomic number to a list so you know that this element should
+                    # have all species in the same colour, i.e. it was requested like
+                    # species_list = [Si]
+                    keep_colour.append(atomic_number)
+            requested_species_ids = [
+                species_id
+                for temp_list in requested_species_ids
+                for species_id in temp_list
+            ]
+            species_mapped_result = species_mapped
+            species_list_result = requested_species_ids
+            keep_colour_result = keep_colour
+    else:
+        species_list_result = None
+
+    return (
+        species_mapped_result,
+        species_list_result,
+        keep_colour_result,
+        full_species_list,
+    )
+
+
+def make_colorbar_labels(species, species_list=None, species_mapped=None):
+    """
+    Generate labels for the colorbar based on species.
+
+    If a species list is provided, uses that to generate labels.
+    Otherwise, generates labels from the species in the model.
+    """
+    if species_list is None:
+        species_name = [
+            atomic_number2element_symbol(atomic_num) for atomic_num in species
+        ]
+    else:
+        species_name = []
+        for species_key, species_ids in species_mapped.items():
+            if any(spec_id in species for spec_id in species_ids):
+                if species_key % 100 == 0:
+                    label = atomic_number2element_symbol(species_key // 100)
+                else:
+                    atomic_number = species_key // 100
+                    ion_number = species_key % 100
+                    ion_numeral = int_to_roman(ion_number + 1)
+                    label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
+                species_name.append(label)
+
+    return species_name
+
+
+def get_spectrum_data(packets_mode, sim):
+    """Get spectrum data from simulation based on mode."""
+    packets_type = f"spectrum_{packets_mode}_packets"
+
+    return {
+        "spectrum_delta_frequency": getattr(
+            sim.spectrum_solver, packets_type
+        ).delta_frequency,
+        "spectrum_frequency_bins": getattr(
+            sim.spectrum_solver, packets_type
+        )._frequency,
+        "spectrum_luminosity_density_lambda": getattr(
+            sim.spectrum_solver, packets_type
+        ).luminosity_density_lambda,
+        "spectrum_wavelength": getattr(
+            sim.spectrum_solver, packets_type
+        ).wavelength,
+    }
+
+
+def extract_spectrum_data_hdf(hdf, packets_mode):
+    """Extract spectrum data from HDF."""
+    spectrum_prefix = (
+        f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+    )
+    return {
+        "spectrum_delta_frequency": u.Quantity(
+            hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"
+        ),
+        "spectrum_frequency_bins": u.Quantity(
+            hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"
+        ),
+        "spectrum_luminosity_density_lambda": u.Quantity(
+            hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(),
+            "erg / s cm",
+        ).to("erg / s AA"),
+        "spectrum_wavelength": u.Quantity(
+            hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
+        ).to("AA"),
+    }
