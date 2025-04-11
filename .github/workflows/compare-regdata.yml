@@ -5,7 +5,7 @@
 name: compare-regdata
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - master
     types:
@@ -55,6 +55,21 @@ jobs:
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
+      - name: Free Disk Space (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          
+          # other packages
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+
       - uses: actions/checkout@v4
 
       - name: Setup LFS
@@ -124,7 +139,7 @@ jobs:
 
   deploy-comparison:
     needs: tests
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: main
@@ -149,7 +164,7 @@ jobs:
 
       - name: Set destination directory
         run: |
-          if [[ $EVENT == pull_request_target ]]; then
+          if [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
           else
             echo "DEST_DIR=commit/$GITHUB_SHA" >> $GITHUB_ENV
