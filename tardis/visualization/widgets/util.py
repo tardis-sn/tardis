@@ -11,6 +11,29 @@ logger = logging.getLogger(__name__)
 
 pn.extension('tabulator')
 
+def get_table_width(table):
+    """Extract width from table safely, handling various formats."""
+    try:
+        width = getattr(table, 'width', 800)
+        if isinstance(width, str):
+            if width.endswith('px'):
+                return int(width[:-2])
+        elif isinstance(width, (int, float)):
+            return int(width)
+    except (AttributeError, ValueError):
+        pass
+    return 800  # Default width
+
+def update_and_resize(self, value):
+    """Update the label value and resize based on table width."""
+    self.widget.children[1].value = str(value)
+    
+    table_width = get_table_width(self.target_table)
+    
+    # Distribute the table width according to proportions
+    self.widget.children[0].layout.width = f"{table_width * self.table_col_widths[0]/100}px"
+    self.widget.children[1].layout.width = f"{table_width * self.table_col_widths[1]/100}px"
+
 def create_table_widget(
     data, col_widths, table_options=None, changeable_col=None
 ):
