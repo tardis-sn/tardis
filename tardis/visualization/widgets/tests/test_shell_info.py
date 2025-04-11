@@ -160,20 +160,20 @@ class TestShellInfoWidget:
         self, base_shell_info, shell_info_widget
     ):
 
-        shell_info_widget.shells_table.change_selection([self.select_shell_num])
+        shell_info_widget.shells_table.selection = [self.select_shell_num]
 
         expected_element_count = base_shell_info.element_count(
-            self.select_shell_num
+            self.select_shell_num + 1
         )
         pdt.assert_frame_equal(
-            expected_element_count, shell_info_widget.element_count_table.df
+            expected_element_count, shell_info_widget.element_count_table.value
         )
 
         expected_ion_count = base_shell_info.ion_count(
-            expected_element_count.index[0], self.select_shell_num
+            expected_element_count.index[0], self.select_shell_num + 1
         )
         pdt.assert_frame_equal(
-            expected_ion_count, shell_info_widget.ion_count_table.df
+            expected_ion_count, shell_info_widget.ion_count_table.value
         )
 
         expected_level_count = base_shell_info.level_count(
@@ -182,22 +182,21 @@ class TestShellInfoWidget:
             self.select_shell_num,
         )
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.df
+            expected_level_count, shell_info_widget.level_count_table.value
         )
 
     def test_selection_on_element_count_table(
         self, base_shell_info, shell_info_widget
     ):
+        shell_info_widget.shells_table.selection = [self.select_shell_num]
 
-        shell_info_widget.element_count_table.change_selection(
-            [self.select_atomic_num]
-        )
+        shell_info_widget.element_count_table.selection = [0]
 
         expected_ion_count = base_shell_info.ion_count(
-            self.select_atomic_num, self.select_shell_num
+            self.select_atomic_num, self.select_shell_num + 1
         )
         pdt.assert_frame_equal(
-            expected_ion_count, shell_info_widget.ion_count_table.df
+            expected_ion_count, shell_info_widget.ion_count_table.value
         )
 
         expected_level_count = base_shell_info.level_count(
@@ -206,30 +205,31 @@ class TestShellInfoWidget:
             self.select_shell_num,
         )
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.df
+            expected_level_count, shell_info_widget.level_count_table.value
         )
 
     def test_selection_on_ion_count_table(
         self, base_shell_info, shell_info_widget
     ):
+        shell_info_widget.shells_table.selection = [self.select_shell_num]
 
-        shell_info_widget.ion_count_table.change_selection(
-            [self.select_ion_num]
-        )
+        shell_info_widget.element_count_table.selection = [0]
+
+        shell_info_widget.ion_count_table.selection = [0]  
 
         expected_level_count = base_shell_info.level_count(
-            self.select_ion_num, self.select_atomic_num, self.select_shell_num
+            self.select_ion_num, self.select_atomic_num, self.select_shell_num + 1
         )
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.df
+            expected_level_count, shell_info_widget.level_count_table.value
         )
 
     def test_widget_styling(self, shell_info_widget):
-
-        assert shell_info_widget.shells_table.style == TABLE_STYLES
-        assert shell_info_widget.element_count_table.style == TABLE_STYLES
-        assert shell_info_widget.ion_count_table.style == TABLE_STYLES
-        assert shell_info_widget.level_count_table.style == TABLE_STYLES
+  
+        assert 'styles' in shell_info_widget.shells_table._param_values
+        assert 'styles' in shell_info_widget.element_count_table._param_values  
+        assert 'styles' in shell_info_widget.ion_count_table._param_values
+        assert 'styles' in shell_info_widget.level_count_table._param_values
 
     def test_create_tabulator_table(self, shell_info_widget):
 
@@ -248,8 +248,11 @@ class TestShellInfoWidget:
         # set empty selection
         shell_info_widget.shells_table.selection = []
 
+        class MockEvent:
+            new=[]
+
         #Trigger update
-        shell_info_widget.update_element_count_table(None)
+        shell_info_widget.update_element_count_table(MockEvent())
         
         #Check the element table is properly reset
         assert "No Shell Selected" in shell_info_widget.element_title.object

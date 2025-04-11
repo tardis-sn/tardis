@@ -195,7 +195,7 @@ class TestLineInfoWidgetEvents:
 
         pd.testing.assert_frame_equal(
             expected_species_interactions,
-            line_info_widget.species_interactions_table.df,
+            line_info_widget.species_interactions_table.value,
         )
 
         expected_last_line_counts = line_info_widget.get_last_line_counts(
@@ -210,7 +210,7 @@ class TestLineInfoWidgetEvents:
 
         pd.testing.assert_frame_equal(
             expected_last_line_counts,
-            line_info_widget.last_line_counts_table.df,
+            line_info_widget.last_line_counts_table.value,
         )
 
         if selected_wavelength_range in [None, [16200, 16300]]:
@@ -247,7 +247,7 @@ class TestLineInfoWidgetEvents:
 
         pd.testing.assert_frame_equal(
             expected_species_interactions,
-            line_info_widget.species_interactions_table.df,
+            line_info_widget.species_interactions_table.value,
         )
 
         expected_last_line_counts = line_info_widget.get_last_line_counts(
@@ -260,7 +260,7 @@ class TestLineInfoWidgetEvents:
 
         pd.testing.assert_frame_equal(
             expected_last_line_counts,
-            line_info_widget.last_line_counts_table.df,
+            line_info_widget.last_line_counts_table.value,
         )
 
         if selected_wavelength_range in [None, [16200, 16300]]:
@@ -280,11 +280,10 @@ class TestLineInfoWidgetEvents:
 
         for (
             selected_species
-        ) in line_info_widget.species_interactions_table.df.index:
+        ) in line_info_widget.species_interactions_table.value.index:
             # Select row in species_interactions_table
-            line_info_widget.species_interactions_table.change_selection(
-                [selected_species]
-            )
+            line_info_widget.species_interactions_table.selection = [selected_species]
+            
 
             if bool(selected_species) is False:
                 # When selected_species is a falsy value due to empty
@@ -303,7 +302,7 @@ class TestLineInfoWidgetEvents:
 
             pd.testing.assert_frame_equal(
                 expected_last_line_counts,
-                line_info_widget.last_line_counts_table.df,
+                line_info_widget.last_line_counts_table.value,
             )
 
             if selected_species is None:
@@ -332,12 +331,12 @@ class TestLineInfoWidgetEvents:
         # For testing changes in last_line_counts_table data,
         # we're only considering the 1st row (0th index species)
         # in species_interactions_table
-        if not line_info_widget.last_line_counts_table.df.all(axis=None):
+        if line_info_widget.last_line_counts_table.df.all(axis=None) == False:
             species0 = None
         else:
-            species0 = line_info_widget.species_interactions_table.df.index[0]
+            species0 = line_info_widget.species_interactions_table.value.index[0]
             # Select 1st row in species_interaction_table, if not selected
-            line_info_widget.species_interactions_table.change_selection(
+            line_info_widget.species_interactions_table.selection(
                 [species0]
             )
 
@@ -351,7 +350,7 @@ class TestLineInfoWidgetEvents:
 
         pd.testing.assert_frame_equal(
             expected_last_line_counts,
-            line_info_widget.last_line_counts_table.df,
+            line_info_widget.last_line_counts_table.value,
         )
 
         if species0 is None:
