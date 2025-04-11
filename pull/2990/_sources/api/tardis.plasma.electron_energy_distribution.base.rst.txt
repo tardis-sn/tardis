@@ -3,5 +3,5 @@ tardis.plasma.electron\_energy\_distribution.base module
 
 .. automodule:: tardis.plasma.electron_energy_distribution.base
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

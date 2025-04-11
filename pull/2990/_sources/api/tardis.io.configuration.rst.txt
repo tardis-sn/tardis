@@ -16,5 +16,5 @@ Module contents
 
 .. automodule:: tardis.io.configuration
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

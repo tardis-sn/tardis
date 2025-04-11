@@ -18,5 +18,5 @@ Module contents
 
 .. automodule:: tardis.visualization.widgets
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

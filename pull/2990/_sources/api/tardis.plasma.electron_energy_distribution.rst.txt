@@ -14,5 +14,5 @@ Module contents
 
 .. automodule:: tardis.plasma.electron_energy_distribution
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

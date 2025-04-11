@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -14,24 +16,22 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.visualization.widgets.shell_info module &mdash; tardis</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -52,9 +52,6 @@
           <a href="../index.html" class="icon icon-home">
             tardis
           </a>
-              <div class="version">
-                latest
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -108,6 +105,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -116,7 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -166,7 +164,7 @@
 <span id="tardis-visualization-widgets-shell-info-module"></span><h1>tardis.visualization.widgets.shell_info module<a class="headerlink" href="#module-tardis.visualization.widgets.shell_info" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.BaseShellInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">BaseShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_radiative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilution_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abundance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">BaseShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_radiative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilution_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abundance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The simulation information that is used by shell info widget</p>
 <p>Initialize the object with all simulation properties in use</p>
@@ -277,7 +275,7 @@ simulation model</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.HDFShellInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">HDFShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#HDFShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.HDFShellInfo" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">HDFShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#HDFShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.HDFShellInfo" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#tardis.visualization.widgets.shell_info.BaseShellInfo" title="tardis.visualization.widgets.shell_info.BaseShellInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseShellInfo</span></code></a></p>
 <p>Shell info from a simulation HDF file</p>
 <p>Initialize with a simulation HDF file</p>
@@ -293,7 +291,7 @@ simulation model</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">ShellInfoWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shell_info_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">ShellInfoWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shell_info_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The Shell Info Widget to explore abundances in different shells.
 It consists of four interlinked table widgets - shells table; element count,
@@ -385,7 +383,7 @@ the ion count table.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.SimulationShellInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">SimulationShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#SimulationShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.SimulationShellInfo" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">SimulationShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#SimulationShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.SimulationShellInfo" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#tardis.visualization.widgets.shell_info.BaseShellInfo" title="tardis.visualization.widgets.shell_info.BaseShellInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseShellInfo</span></code></a></p>
 <p>Shell info from a TARDIS Simulation object</p>
 <p>Initialize with a TARDIS Simulation object</p>
@@ -447,7 +445,7 @@ sim_model : tardis.simulation.Simulation</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Apr 2025.
+      <span class="lastupdated">Last updated on 11 Apr 2025.
       </span></p>
   </div>
 

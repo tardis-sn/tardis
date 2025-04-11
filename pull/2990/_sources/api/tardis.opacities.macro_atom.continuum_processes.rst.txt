@@ -14,5 +14,5 @@ Module contents
 
 .. automodule:: tardis.opacities.macro_atom.continuum_processes
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

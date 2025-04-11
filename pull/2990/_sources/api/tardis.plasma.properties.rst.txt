@@ -36,5 +36,5 @@ Module contents
 
 .. automodule:: tardis.plasma.properties
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

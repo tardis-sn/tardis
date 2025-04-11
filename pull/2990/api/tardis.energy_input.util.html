@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -14,26 +16,24 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.energy_input.util module &mdash; tardis</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -54,9 +54,6 @@
           <a href="../index.html" class="icon icon-home">
             tardis
           </a>
-              <div class="version">
-                latest
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -110,6 +107,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -118,7 +116,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -376,18 +374,14 @@ at array[i] &lt; array &lt;= vec[i+1]</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.energy_input.util.klein_nishina">
 <span class="sig-prename descclassname"><span class="pre">tardis.energy_input.util.</span></span><span class="sig-name descname"><span class="pre">klein_nishina</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_C</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/util.html#klein_nishina"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.util.klein_nishina" title="Link to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Calculates the Klein-Nishina equation</p>
+<dd><p>Calculates the Klein-Nishina equation</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Klein%E2%80%93Nishina_formula">https://en.wikipedia.org/wiki/Klein%E2%80%93Nishina_formula</a></p>
 <div class="math notranslate nohighlight">
 \[\]</div>
-</div></blockquote>
 <p>rac{r_e}{2} [1 + kappa (1 - cos      heta_C)]^{-2} left( 1 + cos^2 heta_C + 
 rac{kappa^2 (1 - cos        heta_C)^2}{1 + kappa(1 - cos  heta_C)}
 ight)</p>
-<blockquote>
-<div><p>where <span class="math notranslate nohighlight">\(\kappa = E / (m_e c^2)\)</span></p>
-</div></blockquote>
+<p>where <span class="math notranslate nohighlight">\(\kappa = E / (m_e c^2)\)</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -531,7 +525,7 @@ ight)</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Apr 2025.
+      <span class="lastupdated">Last updated on 11 Apr 2025.
       </span></p>
   </div>
 

@@ -3,5 +3,5 @@ tardis.plasma.equilibrium.rates.radiative\_rates module
 
 .. automodule:: tardis.plasma.equilibrium.rates.radiative_rates
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
