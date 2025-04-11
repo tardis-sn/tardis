@@ -336,9 +336,7 @@ class TestLineInfoWidgetEvents:
         else:
             species0 = line_info_widget.species_interactions_table.value.index[0]
             # Select 1st row in species_interaction_table, if not selected
-            line_info_widget.species_interactions_table.selection(
-                [species0]
-            )
+            line_info_widget.species_interactions_table.selection = [species0]
 
         expected_last_line_counts = line_info_widget.get_last_line_counts(
             selected_species=species0,
