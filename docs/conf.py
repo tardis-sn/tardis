@@ -369,11 +369,11 @@ from shutil import copyfile
 def generate_tutorials_page(app):
     """Create tutorials.rst"""
     notebooks = ""
+    io_path = Path("io")
 
-    for root, dirs, fnames in os.walk("io/"):
-        for fname in fnames:
-            if fname.startswith("tutorial_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
-                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+    for notebook in io_path.rglob("*.ipynb"):
+        if "tutorial_" in notebook.name and "checkpoint" not in notebook.name:
+            notebooks += f"\n* :doc:`{notebook.with_suffix('').as_posix()}`"
 
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
@@ -384,18 +384,17 @@ def generate_tutorials_page(app):
 def generate_how_to_guides_page(app):
     """Create how_to_guides.rst"""
     notebooks = ""
+    io_path = Path("io")
 
-    for root, dirs, fnames in os.walk("io/"):
-        for fname in fnames:
-            if fname.startswith("how_to_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
-                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+    for notebook in io_path.rglob("*.ipynb"):
+        if "how_to_" in notebook.name and "checkpoint" not in notebook.name:
+            notebooks += f"\n* :doc:`{notebook.with_suffix('').as_posix()}`"
 
     title = "How-To Guides\n*********\n"
     description = "The following pages contain the TARDIS how-to guides:"
 
     with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
-
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     """Exclude specific functions/methods from the documentation"""
