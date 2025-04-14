@@ -1,0 +1,7 @@
+tardis.io.atom\_data.nlte\_data module
+======================================
+
+.. automodule:: tardis.io.atom_data.nlte_data
+   :members:
+   :undoc-members:
+   :show-inheritance:

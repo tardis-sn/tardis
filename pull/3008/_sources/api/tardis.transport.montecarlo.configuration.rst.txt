@@ -1,0 +1,20 @@
+tardis.transport.montecarlo.configuration package
+=================================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.transport.montecarlo.configuration.base
+   tardis.transport.montecarlo.configuration.constants
+   tardis.transport.montecarlo.configuration.montecarlo_globals
+
+Module contents
+---------------
+
+.. automodule:: tardis.transport.montecarlo.configuration
+   :members:
+   :undoc-members:
+   :show-inheritance:

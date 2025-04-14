@@ -1,0 +1,27 @@
+tardis.model package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.model.geometry
+   tardis.model.matter
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.model.base
+
+Module contents
+---------------
+
+.. automodule:: tardis.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
