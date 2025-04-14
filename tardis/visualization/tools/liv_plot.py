@@ -23,10 +23,6 @@ class LIVPlotter:
     def __init__(self):
         """
         Initialize the plotter with required data from the simulation.
-
-        Parameters
-        ----------
-
         """
         self.packet_data = {
             "real": {"packets_df": None, "packets_df_line_interaction": None},
@@ -35,7 +31,6 @@ class LIVPlotter:
                 "packets_df_line_interaction": None,
             },
         }
-        self.lines_df = None
         self.velocity = None
         self.time_explosion = None
 

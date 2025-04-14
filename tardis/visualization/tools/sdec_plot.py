@@ -39,12 +39,6 @@ class SDECPlotter:
     def __init__(self):
         """
         Initialize the SDECPlotter with required data of simulation model.
-
-        Parameters
-        ----------
-        data : dict of SimulationPacketData
-            Dictionary to store data required for SDEC plot, for both packet
-            modes i.e. real and virtual
         """
         self.packet_data = {
             "real": {"packets_df": None, "packets_df_line_interaction": None},
@@ -124,7 +118,9 @@ class SDECPlotter:
                 plotter.spectrum = {
                     mode: pu.extract_spectrum_data_hdf(hdf, mode)
                 }
-                plotter.packet_data[mode]=  pu.extract_and_process_packet_data_hdf(hdf, mode)
+                plotter.packet_data[mode] = (
+                    pu.extract_and_process_packet_data_hdf(hdf, mode)
+                )
 
         return plotter
 
