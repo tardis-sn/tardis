@@ -322,7 +322,9 @@ class SDECPlotter:
                 plotter.spectrum = {
                     mode: pu.extract_spectrum_data_hdf(hdf, mode)
                 }
-                plotter.packet_data[mode]=  pu.extract_and_process_packet_data_hdf(hdf, mode)
+                plotter.packet_data[mode] = (
+                    pu.extract_and_process_packet_data_hdf(hdf, mode)
+                )
 
         return plotter
 

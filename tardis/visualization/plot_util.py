@@ -699,7 +699,34 @@ def process_line_interactions(packet_data, lines_df):
 
 
 def extract_and_process_packet_data_hdf(hdf, packets_mode):
-    """Extract packet data from HDF."""
+    """
+    Extract and process packet data from an HDF file.
+
+    This function retrieves packet data from an HDF file and processes it
+    based on the specified packet mode (either "virtual" or "real"). The
+    extracted data is organized into a dictionary and further processed
+    to include line interaction information.
+
+    Parameters
+    ----------
+    hdf : h5py.File or dict-like
+        The HDF file object containing the simulation data.
+    packets_mode : str
+        The mode of packets to process. Can be "virtual" for virtual packets
+        or any other value for real packets.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the processed packet data.
+
+    Raises
+    ------
+    KeyError
+        If required keys are missing in the HDF file.
+    ValueError
+        If an invalid `packets_mode` is provided.
+    """
     lines_df = (
         hdf["/simulation/plasma/lines"].reset_index().set_index("line_id")
     )
@@ -775,15 +802,37 @@ def extract_and_process_packet_data_hdf(hdf, packets_mode):
 
 def parse_species_list_util(species_list):
     """
-    Parse user requested species list and create list of species ids to be used.
+    Parse user-requested species list and create list of species IDs to be used.
+
+    The function interprets element or ion names and ion ranges, converting them
+    into (Z, ion) tuples, where Z is the atomic number and `ion` is the zero-based ionization stage.
 
     Parameters
     ----------
-    species_list : list of species to plot
-        List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
-        Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
-        (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
+    species_list : list of str
+        List of species that the user wants to show in distinct colors.
+        Species can be given as:
+        - An ion (e.g. 'Fe II')
+        - An element (e.g. 'Ca')
+        - A range of ions (e.g. 'Si I - V')
+        - A combination of the above (e.g. ['Si II', 'Fe I - III', 'Ca'])
 
+    Returns
+    -------
+    species_mapped_result : dict
+        Dictionary mapping (Z, ion) to lists of (Z, ion) tuples.
+    species_list_result : list of tuple
+        Flattened list of all (Z, ion) tuples to be used.
+    keep_colour_result : list of int
+        Atomic numbers of elements that should be grouped by color.
+    full_species_list : list of str
+        Expanded list of user-requested species in string format.
+
+    Examples
+    --------
+    'Fe II'        -> [(26, 1)]
+    'Ca'           -> [(20, 0), (20, 1), ..., (20, 19)]
+    'Si I - V'     -> [(14, 0), (14, 1), (14, 2), (14, 3), (14, 4)]
     """
     if species_list is not None:
         # check if there are any digits in the species list. If there are, then exit.
@@ -874,8 +923,19 @@ def make_colorbar_labels(species, species_list=None, species_mapped=None):
     """
     Generate labels for the colorbar based on species.
 
-    If a species list is provided, uses that to generate labels.
-    Otherwise, generates labels from the species in the model.
+    Parameters
+    ----------
+    species : list of int
+        List of species identifiers (Z * 100 + ion) or atomic numbers.
+    species_list : list, optional
+        Optional list of species to filter against.
+    species_mapped : dict, optional
+        Mapping from species key (Z * 100 + ion) to lists of species IDs.
+
+    Returns
+    -------
+    list of str
+        List of formatted species labels
     """
     if species_list is None:
         species_name = [
@@ -898,7 +958,29 @@ def make_colorbar_labels(species, species_list=None, species_mapped=None):
 
 
 def get_spectrum_data(packets_mode, sim):
-    """Get spectrum data from simulation based on mode."""
+    """
+    Get spectrum data from simulation based on mode.
+
+    Parameters
+    ----------
+    packets_mode : str
+        Packet mode to extract spectrum data for (e.g., 'real', 'virtual').
+    sim : Simulation
+        Simulation object containing the spectrum solver and data.
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+        - "spectrum_delta_frequency" : Quantity
+            Frequency bin width in Hz.
+        - "spectrum_frequency_bins" : Quantity
+            Frequency bin edges in Hz.
+        - "spectrum_luminosity_density_lambda" : Quantity
+            Luminosity density in erg / s / Å.
+        - "spectrum_wavelength" : Quantity
+            Wavelength values in Å.
+    """
     packets_type = f"spectrum_{packets_mode}_packets"
 
     return {
@@ -918,7 +1000,29 @@ def get_spectrum_data(packets_mode, sim):
 
 
 def extract_spectrum_data_hdf(hdf, packets_mode):
-    """Extract spectrum data from HDF."""
+    """
+    Extract spectrum data from HDF5.
+
+    Parameters
+    ----------
+    hdf : h5py.File
+        Open HDF5 file containing simulation output.
+    packets_mode : str
+        Packet mode to extract spectrum data for (e.g., 'real', 'virtual').
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+        - "spectrum_delta_frequency" : Quantity
+            Frequency bin width in Hz.
+        - "spectrum_frequency_bins" : Quantity
+            Frequency bin edges in Hz.
+        - "spectrum_luminosity_density_lambda" : Quantity
+            Luminosity density in erg / s / Å.
+        - "spectrum_wavelength" : Quantity
+            Wavelength values in Å.
+    """
     spectrum_prefix = (
         f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
     )
