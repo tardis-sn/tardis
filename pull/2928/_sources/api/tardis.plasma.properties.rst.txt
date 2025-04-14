@@ -1,0 +1,40 @@
+tardis.plasma.properties package
+================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.plasma.properties.continuum_processes
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.plasma.properties.atomic
+   tardis.plasma.properties.base
+   tardis.plasma.properties.general
+   tardis.plasma.properties.helium_nlte
+   tardis.plasma.properties.ion_population
+   tardis.plasma.properties.legacy_property_collections
+   tardis.plasma.properties.level_population
+   tardis.plasma.properties.nlte
+   tardis.plasma.properties.nlte_excitation_data
+   tardis.plasma.properties.nlte_rate_equation_solver
+   tardis.plasma.properties.partition_function
+   tardis.plasma.properties.plasma_input
+   tardis.plasma.properties.property_collections
+   tardis.plasma.properties.radiative_properties
+   tardis.plasma.properties.rate_matrix_index
+
+Module contents
+---------------
+
+.. automodule:: tardis.plasma.properties
+   :members:
+   :show-inheritance:
+   :undoc-members:
