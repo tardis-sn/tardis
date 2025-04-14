@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.plasma.properties.radiative_properties &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.plasma.properties.radiative_properties</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.plasma.properties.radiative_properties</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import numpy as np
+import pandas as pd
+from astropy import units as u
+
+from tardis import constants as const
+from tardis.opacities.macro_atom.base import TransitionProbabilities
+from tardis.plasma.properties.base import (
+    ProcessingPlasmaProperty,
+    TransitionProbabilitiesProperty,
+)
+
+logger = logging.getLogger(__name__)
+
+__all__ = [
+    &quot;StimulatedEmissionFactor&quot;,
+    &quot;RawRadBoundBoundTransProbs&quot;,
+]
+
+C_EINSTEIN = (
+    4.0 * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)
+).value  # See tardis/docs/physics/plasma/macroatom.rst
+
+
+<div class="viewcode-block" id="StimulatedEmissionFactor">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor">[docs]</a>
+class StimulatedEmissionFactor(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    stimulated_emission_factor : Numpy Array, dtype float
+         Indexed by lines, columns as zones.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;stimulated_emission_factor&quot;,)
+    latex_formula = (r&quot;1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}&quot;,)
+
+    def __init__(self, plasma_parent=None, nlte_species=None):
+        super().__init__(plasma_parent)
+        self._g_upper = None
+        self._g_lower = None
+        self.nlte_species = nlte_species
+
+<div class="viewcode-block" id="StimulatedEmissionFactor.get_g_lower">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_lower">[docs]</a>
+    def get_g_lower(self, g, lines_lower_level_index):
+        if self._g_lower is None:
+            g_lower = np.array(
+                g.iloc[lines_lower_level_index], dtype=np.float64
+            )
+            self._g_lower = g_lower[np.newaxis].T
+        return self._g_lower</div>
+
+
+<div class="viewcode-block" id="StimulatedEmissionFactor.get_g_upper">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_upper">[docs]</a>
+    def get_g_upper(self, g, lines_upper_level_index):
+        if self._g_upper is None:
+            g_upper = np.array(
+                g.iloc[lines_upper_level_index], dtype=np.float64
+            )
+            self._g_upper = g_upper[np.newaxis].T
+        return self._g_upper</div>
+
+
+<div class="viewcode-block" id="StimulatedEmissionFactor.get_metastable_upper">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_metastable_upper">[docs]</a>
+    def get_metastable_upper(self, metastability, lines_upper_level_index):
+        if getattr(self, &quot;_meta_stable_upper&quot;, None) is None:
+            self._meta_stable_upper = metastability.values[
+                lines_upper_level_index
+            ][np.newaxis].T
+        return self._meta_stable_upper</div>
+
+
+<div class="viewcode-block" id="StimulatedEmissionFactor.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.calculate">[docs]</a>
+    def calculate(
+        self,
+        g,
+        level_number_density,
+        lines_lower_level_index,
+        lines_upper_level_index,
+        metastability,
+        lines,
+    ):
+        n_lower = level_number_density.values.take(
+            lines_lower_level_index, axis=0, mode=&quot;raise&quot;
+        )
+        n_upper = level_number_density.values.take(
+            lines_upper_level_index, axis=0, mode=&quot;raise&quot;
+        )
+        g_lower = self.get_g_lower(g, lines_lower_level_index)
+        g_upper = self.get_g_upper(g, lines_upper_level_index)
+        meta_stable_upper = self.get_metastable_upper(
+            metastability, lines_upper_level_index
+        )
+
+        # In theory the factor should be 1 for n_lower = 0, but in practice the opacity is reduced to 0 anyway
+        stimulated_emission_factor = np.zeros(n_lower.shape, dtype=np.float64)
+
+        n_lower_zero_mask = n_lower == 0.0
+        stimulated_emission_factor[~n_lower_zero_mask] = 1 - (
+            (g_lower * n_upper)[~n_lower_zero_mask]
+            / (g_upper * n_lower)[~n_lower_zero_mask]
+        )
+
+        # the following line probably can be removed as well
+        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = (
+            0.0
+        )
+        stimulated_emission_factor[
+            meta_stable_upper &amp; (stimulated_emission_factor &lt; 0)
+        ] = 0.0
+        if self.nlte_species:
+            nlte_lines_mask = (
+                lines.reset_index()
+                .apply(
+                    lambda row: (row.atomic_number, row.ion_number)
+                    in self.nlte_species,
+                    axis=1,
+                )
+                .values
+            )
+            stimulated_emission_factor[
+                (stimulated_emission_factor &lt; 0) &amp; nlte_lines_mask[np.newaxis].T
+            ] = 0.0
+        return stimulated_emission_factor</div>
+</div>
+
+
+
+<div class="viewcode-block" id="RawRadBoundBoundTransProbs">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs">[docs]</a>
+class RawRadBoundBoundTransProbs(
+    TransitionProbabilities, TransitionProbabilitiesProperty
+):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    p_rad_bb : pandas.DataFrame, dtype float
+        Unnormalized transition probabilities for radiative bound-bound
+        transitions
+    &quot;&quot;&quot;
+
+    outputs = (&quot;p_rad_bb&quot;,)
+    transition_probabilities_outputs = (&quot;p_rad_bb&quot;,)
+
+    def __init__(self, plasma_parent):
+        super().__init__(plasma_parent)
+        self.normalize = False
+
+<div class="viewcode-block" id="RawRadBoundBoundTransProbs.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs.calculate">[docs]</a>
+    def calculate(
+        self,
+        atomic_data,
+        beta_sobolev,
+        j_blues,
+        stimulated_emission_factor,
+        tau_sobolevs,
+        continuum_interaction_species,
+    ):
+        p_rad_bb = super().calculate(
+            atomic_data,
+            beta_sobolev,
+            j_blues,
+            stimulated_emission_factor,
+            tau_sobolevs,
+        )
+        transition_type = atomic_data.macro_atom_data.transition_type.replace(
+            1, 0
+        )
+        index = pd.MultiIndex.from_arrays(
+            [
+                atomic_data.macro_atom_data.source_level_idx,
+                atomic_data.macro_atom_data.destination_level_idx,
+                transition_type,
+            ]
+        )
+        mask_continuum_species = pd.MultiIndex.from_arrays(
+            [
+                atomic_data.macro_atom_data.atomic_number,
+                atomic_data.macro_atom_data.ion_number,
+            ]
+        ).isin(continuum_interaction_species)
+        p_rad_bb = p_rad_bb.set_index(index, drop=True)[mask_continuum_species]
+        # To obtain energy-flow rates in cgs from the precomputed transition
+        # probabilities in the atomic data, we have to multiply by the
+        # constant C_EINSTEIN and convert from eV to erg.
+        # See tardis/docs/physics/plasma/macroatom.rst
+        p_rad_bb = p_rad_bb * C_EINSTEIN * u.eV.to(u.erg)
+        return p_rad_bb</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 14 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
