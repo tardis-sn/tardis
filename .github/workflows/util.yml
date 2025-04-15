@@ -1,7 +1,7 @@
 name: utility
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -51,20 +51,14 @@ jobs:
           fetch-depth: 0
       
       - name: Check if author email exists in orcid.csv
+        id: check_orcid
+        continue-on-error: true
         run: |
           echo "PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}"
           grep "$(git log $PR_BASE_SHA..HEAD --pretty='%aE' | sort -u)" .orcid.csv
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
-      - name: Error message
-        run: |
-          echo "Author email not found in .orcid.csv"
-          echo "Author email: $(git log $PR_BASE_SHA..HEAD --pretty='%aE' | sort -u)"
-        if: failure()
-        env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-      
       - name: Find comment
         uses: peter-evans/find-comment@v1
         id: fc
@@ -74,7 +68,7 @@ jobs:
         if: always()
 
       - name: Create comment
-        if: failure()
+        if: steps.check_orcid.outcome == 'failure'
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
