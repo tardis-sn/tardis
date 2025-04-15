@@ -17,6 +17,7 @@ def run_tardis(
     log_level=None,
     specific_log_level=None,
     show_progress_bars=True,
+    display_logging_widget=True,
     **kwargs,
 ):
     """
@@ -56,6 +57,9 @@ def run_tardis(
         Option to enable tardis convergence plots.
     show_progress_bars : bool, default: True, optional
         Option to enable the progress bar.
+    display_widget : bool, default: True, optional
+        Option to display the logging widget in Jupyter/VSCode environments.
+        If False, logs will be printed normally instead.
     **kwargs : dict, optional
         Optional keyword arguments including those
         supported by :obj:`tardis.visualization.tools.convergence_plot.ConvergencePlots`.
@@ -88,7 +92,7 @@ def run_tardis(
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
 
-    logging_state(log_level, tardis_config, specific_log_level)
+    logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
 
     if atom_data is not None:
         try:

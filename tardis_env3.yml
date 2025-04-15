@@ -36,8 +36,12 @@ dependencies:
   - notebook
   - matplotlib-base
   - ipywidgets
-  - plotly
-  - anywidget # for plotly FigureWidget
+  - plotly==5.22.0 # pinned since new version doesn't show convergence plots in sphinx
+  - anywidget # plotly figurewidget plots
+  - panel
+  - watchfiles
+  - pyviz::nbsite # https://panel.holoviz.org/how_to/wasm/sphinx.html
+  - jupyter_bokeh # to make panel work in vscode
   - pip:
       - qgridnext
 

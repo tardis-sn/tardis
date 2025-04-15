@@ -17,7 +17,7 @@
         "origin/master",
         "HEAD"
     ],
-    "environment_type": "mamba",
+    "environment_type": "conda",
     "show_commit_url": "https://github.com/tardis-sn/tardis/commit/",
     "conda_environment_file": "tardis_env3.yml",
     "benchmark_dir": "benchmarks",
