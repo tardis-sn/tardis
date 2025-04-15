@@ -155,17 +155,6 @@ def tardis_regression_path(request):
         )
 
 
-@pytest.fixture(scope="session")
-def tardis_snapshot_path(request):
-    tardis_snapshot_path = request.config.getoption("--tardis-snapshot-data")
-    if tardis_snapshot_path is None:
-        pytest.skip("--tardis-snapshot-data was not specified")
-    else:
-        return Path(
-            os.path.expandvars(os.path.expanduser(tardis_snapshot_path))
-        )
-
-
 @pytest.fixture(scope="function")
 def tardis_config_verysimple():
     return yaml_load_file(
@@ -229,6 +218,13 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.last_no_of_packets = 4000
+    sim.run_final()
+    return sim
+
+@pytest.fixture(scope="session")
+def simulation_verysimple_default(config_verysimple, atomic_dataset):
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.run_final()
     return sim
 
