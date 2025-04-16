@@ -56,7 +56,6 @@ class TestLineInfoWidgetData:
     def test_get_middle_half_edges(self, line_info_widget, wavelength_range, filter_mode):
         arr = np.array([0, 1, 2, 3, 4])
         res = line_info_widget.get_middle_half_edges(arr)
-        arr = np.sort(arr)
         expected_res = [(arr[-1] - arr[0]) / 4 + arr[1], (arr[-1] - arr[0]) * 3 / 4 + arr[1]]
         assert res == expected_res
 
