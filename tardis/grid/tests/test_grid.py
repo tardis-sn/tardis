@@ -20,8 +20,8 @@ def test_grid(atomic_dataset):
     }
 
     df = pd.read_csv(dfpath)
-    g = grid.tardisGrid(configFile=ymlpath, gridFrame=df)
-    g2 = grid.tardisGrid.from_axes(configFile=ymlpath, axesdict=axesdict)
+    g = grid.TardisGrid(configFile=ymlpath, gridFrame=df)
+    g2 = grid.TardisGrid.from_axes(configFile=ymlpath, axesdict=axesdict)
 
     # Check that grid attribute has the right shape
     assert g.grid.shape == df.shape

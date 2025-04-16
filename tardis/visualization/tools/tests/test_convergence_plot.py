@@ -22,7 +22,7 @@ def convergence_plots(request):
     return convergence_plots
 
 
-@pytest.fixture()
+@pytest.fixture
 def fetch_luminosity_data(convergence_plots):
     """Prepare data for t_inner and luminosity plot."""
     for item in [2] * convergence_plots.iterations:
@@ -67,8 +67,8 @@ def test_fetch_data(convergence_plots):
 
 def test_build(convergence_plots):
     """Test if convergence plots are instances of plotly.graph_objs.FigureWidget() and have appropriate number of traces."""
-    assert type(convergence_plots.plasma_plot) == go.FigureWidget
-    assert type(convergence_plots.t_inner_luminosities_plot) == go.FigureWidget
+    assert isinstance(convergence_plots.plasma_plot, go.FigureWidget)
+    assert isinstance(convergence_plots.t_inner_luminosities_plot, go.FigureWidget)
 
     # check number of traces
     assert len(convergence_plots.t_inner_luminosities_plot.data) == 5

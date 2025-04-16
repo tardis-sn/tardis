@@ -1,5 +1,5 @@
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.io.util import HDFWriterMixin
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 class MacroAtomState(HDFWriterMixin):
@@ -56,7 +56,7 @@ class MacroAtomState(HDFWriterMixin):
 
         Parameters
         ----------
-        plasma : tarids.plasma.BasePlasma
+        plasma : tardis.plasma.BasePlasma
             legacy base plasma
 
         Returns

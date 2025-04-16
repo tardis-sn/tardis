@@ -244,13 +244,13 @@ class LastLineInteraction:
             print(
                 "Line_in"
                 f"({len(event.ind)}/{self.current_no_packets})"
-                f":\n{self.last_line_list_in.ix[event.ind]}"
+                f":\n{self.last_line_list_in.iloc[event.ind]}"
             )
             print("\n\n")
             print(
                 "Line_out"
                 f"({len(event.ind)}/{self.current_no_packets})"
-                f":\n{self.last_line_list_in.ix[event.ind]}"
+                f":\n{self.last_line_list_in.iloc[event.ind]}"
             )
             print("^" * 80)
 
@@ -306,7 +306,7 @@ class TARDISHistory:
 
         for iter in iterations:
             t_inners.append(
-                hdf_store[f"model{iter:03d}/configuration"].ix["t_inner"]
+                hdf_store[f"model{iter:03d}/configuration"].iloc["t_inner"]
             )
         hdf_store.close()
 
@@ -435,7 +435,7 @@ class TARDISHistory:
         t_rads = self.load_t_rads(iteration)
         beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:, 0])
 
-        species_levels = self.levels.ix[species]
+        species_levels = self.levels.iloc[species]
 
         relative_lte_level_populations = (
             species_levels.g.values[np.newaxis].T
@@ -451,14 +451,14 @@ class TARDISHistory:
         t_rads = self.load_t_rads(iteration)
         beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:, 0])
 
-        species_levels = self.levels.ix[species]
-        species_level_populations = self.load_level_populations(iteration).ix[
+        species_levels = self.levels.iloc[species]
+        species_level_populations = self.load_level_populations(iteration).iloc[
             species
         ]
         departure_coefficient = (
-            (species_level_populations.values * species_levels.g.ix[0])
+            (species_level_populations.values * species_levels.g.iloc[0])
             / (
-                species_level_populations.ix[0].values
+                species_level_populations.iloc[0].values
                 * species_levels.g.values[np.newaxis].T
             )
         ) * np.exp(beta_rads * species_levels.energy.values[np.newaxis].T)

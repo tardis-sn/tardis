@@ -45,7 +45,7 @@ Mission Statement
     (supernovae, kilonovae, etc.) for research and education purposes. 
     We aim to build up a diverse group of researchers and developers 
     using an open-community model that emphasizes interdisciplinary 
-    research and science reproducibility.*
+    research and science reproducibility.* 
 
 .. toctree::
     :maxdepth: 2
@@ -68,9 +68,19 @@ Mission Statement
     io/configuration/index
     io/model/index
     io/optional/index
-    io/visualization/index
     io/output/index
     io/grid/TardisGridTutorial
+
+
+.. toctree::
+    :maxdepth: 3
+    :caption: Analysing Tardis Outputs
+    :hidden:
+
+    analysing_tardis_outputs/visualization/index
+    analysing_tardis_outputs/spectrum/index
+    analysing_tardis_outputs/liv_plot_notebook.ipynb
+
 
 .. toctree::
     :maxdepth: 2

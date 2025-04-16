@@ -32,7 +32,7 @@ def _set_tardis_config_property(tardis_config, key, value):
     setattr(tmp_dict, keyitems[-1], value)
 
 
-class tardisGrid:
+class TardisGrid:
     """
     A class that stores a grid of TARDIS parameters and
     facilitates running large numbers of simulations
