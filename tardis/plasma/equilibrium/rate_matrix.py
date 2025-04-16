@@ -184,11 +184,16 @@ class IonRateMatrix:
                             ),
                         ),
                     ),
-                    shape=(ion_states, ion_states),
+                    shape=(ion_states, ion_states + 1),
                 )
                 matrix_array = matrix.toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
-                matrix_array[0, :] = np.arange(0, ion_states)
+                charge_conservation_row = np.hstack(
+                    (np.arange(0, ion_states), -1)
+                )
+                matrix_array = np.vstack(
+                    (charge_conservation_row, matrix_array)
+                )
                 rate_matrices.loc[atomic_number, shell] = matrix_array
 
         rate_matrices.index.names = ["atomic_number"]
