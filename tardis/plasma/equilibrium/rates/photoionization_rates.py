@@ -114,13 +114,25 @@ class AnalyticPhotoionizationRateSolver:
             ion_population,
         )
 
+        recombination_rate_coeff = (
+            self.spontaneous_recombination_rate_coeff_solver.solve(
+                electron_energy_distribution.temperature
+            )
+        )
+
         photoionization_rate = photoionization_rate_coeff * level_population
+
+        recombination_rate = recombination_rate_coeff * level_population
 
         photoionization_rate = self.__reindex_ionization_rate_dataframe(
             photoionization_rate, recombination=False
         )
 
-        return photoionization_rate
+        recombination_rate = self.__reindex_ionization_rate_dataframe(
+            recombination_rate, recombination=True
+        )
+
+        return photoionization_rate, recombination_rate
 
 
 class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):

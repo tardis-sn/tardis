@@ -111,9 +111,9 @@ class RateMatrix:
 class IonRateMatrix:
     def __init__(
         self,
-        ion_rate_solver,
+        radiative_ionization_rate_solver,
     ):
-        self.ion_rate_solver = ion_rate_solver
+        self.radiative_ionization_rate_solver = radiative_ionization_rate_solver
 
     def solve(
         self,
@@ -147,16 +147,18 @@ class IonRateMatrix:
             A DataFrame of rate matrices indexed by atomic number and ion number,
             with each column being a cell.
         """
-        ion_rates_df = self.ion_rate_solver.solve(
-            radiation_field,
-            thermal_electron_energy_distribution,
-            lte_level_population,
-            level_population,
-            lte_ion_population,
-            ion_population,
+        ion_rates_df, recomb_rates_df = (
+            self.radiative_ionization_rate_solver.solve(
+                radiation_field,
+                thermal_electron_energy_distribution,
+                lte_level_population,
+                level_population,
+                lte_ion_population,
+                ion_population,
+            )
         )
 
-        grouped_rates_summed = ion_rates_df.groupby(
+        ion_rates_total = ion_rates_df.groupby(
             level=(
                 "atomic_number",
                 "ion_number",
@@ -165,28 +167,60 @@ class IonRateMatrix:
             )
         ).sum()
 
-        grouped_rates_df = grouped_rates_summed.groupby(level=("atomic_number"))
+        recomb_rates_total = recomb_rates_df.groupby(
+            level=(
+                "atomic_number",
+                "ion_number",
+                "ion_number_source",
+                "ion_number_destination",
+            )
+        ).sum()
 
-        rate_matrices = pd.DataFrame(
-            index=grouped_rates_df.groups.keys(), columns=ion_rates_df.columns
+        grouped_ion_rates_df = ion_rates_total.groupby(level=("atomic_number"))
+        grouped_recomb_rates_df = recomb_rates_total.groupby(
+            level=("atomic_number")
         )
 
-        for atomic_number, rates in grouped_rates_df:
+        rate_matrices = pd.DataFrame(
+            index=grouped_ion_rates_df.groups.keys(),
+            columns=ion_rates_df.columns,
+        )
+
+        for (atomic_number, ion_rates), (atomic_number, recomb_rates) in zip(
+            grouped_ion_rates_df, grouped_recomb_rates_df
+        ):
             ion_states = atomic_number + 1
-            for shell in range(len(rates.columns)):
-                matrix = coo_matrix(
+            for shell in range(len(ion_rates.columns)):
+                ion_matrix = coo_matrix(
                     (
-                        rates[shell],
+                        ion_rates[shell],
                         (
-                            rates.index.get_level_values("ion_number_source"),
-                            rates.index.get_level_values(
+                            ion_rates.index.get_level_values(
+                                "ion_number_source"
+                            ),
+                            ion_rates.index.get_level_values(
                                 "ion_number_destination"
                             ),
                         ),
                     ),
                     shape=(ion_states, ion_states + 1),
                 )
-                matrix_array = matrix.toarray()
+                recomb_matrix = coo_matrix(
+                    (
+                        recomb_rates[shell],
+                        (
+                            recomb_rates.index.get_level_values(
+                                "ion_number_source"
+                            ),
+                            recomb_rates.index.get_level_values(
+                                "ion_number_destination"
+                            ),
+                        ),
+                    ),
+                    shape=(ion_states, ion_states + 1),
+                )
+
+                matrix_array = (ion_matrix + recomb_matrix).toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
                 charge_conservation_row = np.hstack(
                     (np.arange(0, ion_states), -1)
