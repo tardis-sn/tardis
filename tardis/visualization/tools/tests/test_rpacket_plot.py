@@ -11,7 +11,7 @@ from tardis.visualization import RPacketPlotter
 class TestRPacketPlotter:
     """Test the RPacketPlotter class."""
 
-    def test_from_simulation(self, simulation_rpacket_tracking):
+    def test_from_simulation(self, simulation_rpacket_tracking, simulation_verysimple_vpacket_tracking):
         """
         Test for the from_simulation method.
 
@@ -34,11 +34,9 @@ class TestRPacketPlotter:
 
         assert rpacket_plotter_change.no_of_packets == 15
 
-        temp_store = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df
-        del simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df
+        # Simulation without rpacket_df is used to test the attribute error case. 
         with pytest.raises(AttributeError):
-            RPacketPlotter.from_simulation(simulation_rpacket_tracking)
-        simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df = temp_store
+            RPacketPlotter.from_simulation(simulation_verysimple_vpacket_tracking)
 
 
     def test_get_coordinates_with_theta_init(self, simulation_rpacket_tracking):
