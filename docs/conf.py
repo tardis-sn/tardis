@@ -396,6 +396,20 @@ def generate_how_to_guides_page(app):
     with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
+def generate_worflows_page(app):
+    "Create workflows.rst"
+    notebooks = ""
+    workflows_path = Path("workflows")
+
+    for notebook in workflows_path.rglob("*.ipynb"):
+        if "workflow" in notebook.name and "checkpoint" not in notebook.name:
+            notebooks += f"\n* :doc:`{notebook.with_suffix('').as_posix()}`" 
+
+    title = "Workflows\n*********\n"
+    description = "The following pages contain the TARDIS workflows:\n\n These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives."
+
+    with open("workflows.rst", mode="wt", encoding="utf-8") as f:
+        f.write(f"{title}\n{description}\n{notebooks}")
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     """Exclude specific functions/methods from the documentation"""
@@ -435,5 +449,6 @@ def create_redirect_files(app, docname):
 def setup(app):
     app.connect("builder-inited", generate_tutorials_page)
     app.connect("builder-inited", generate_how_to_guides_page)
+    app.connect("builder-inited", generate_worflows_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)
