@@ -326,20 +326,20 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
         Tuple of 2 values indicated atomic number and number of
         electrons missing
     roman_numerals : bool, optional(default = TRUE)
-        Indicates whether the returned ion number is in roman numerals
+        Indicates whether the returned ion charge is in roman numerals
 
     Returns
     -------
-    element_symbol, roman_ion_number : str
+    element_symbol, roman_ion_charge : str
         Returns corresponding string representation of given tuple
     """
-    atomic_number, ion_number = species_tuple
+    atomic_number, ion_charge = species_tuple
     element_symbol = ATOMIC_NUMBER2SYMBOL[atomic_number]
     if roman_numerals:
-        roman_ion_number = int_to_roman(ion_number + 1)
-        return f"{str(element_symbol)} {roman_ion_number}"
+        roman_ion_charge = int_to_roman(ion_charge + 1)
+        return f"{str(element_symbol)} {roman_ion_charge}"
     else:
-        return f"{element_symbol} {ion_number:d}"
+        return f"{element_symbol} {ion_charge:d}"
 
 
 def species_string_to_tuple(species_string):
@@ -353,8 +353,8 @@ def species_string_to_tuple(species_string):
 
     Returns
     -------
-    atomic_number, ion_number : tuple
-        Returns tuple of length 2 indicating atomic number and ion number
+    atomic_number, ion_charge : tuple
+        Returns tuple of length 2 indicating atomic number and ion charge
 
     Raises
     ------
@@ -362,12 +362,12 @@ def species_string_to_tuple(species_string):
         If the inputted string does not match the species format
     """
     try:
-        element_symbol, ion_number_string = re.match(
+        element_symbol, ion_charge_string = re.match(
             r"^(\w+)\s*(\d+)", species_string
         ).groups()
     except AttributeError:
         try:
-            element_symbol, ion_number_string = species_string.split()
+            element_symbol, ion_charge_string = species_string.split()
         except ValueError:
             raise MalformedSpeciesError(
                 f'Species string "{species_string}" is not of format <element_symbol><number>'
@@ -377,24 +377,24 @@ def species_string_to_tuple(species_string):
     atomic_number = element_symbol2atomic_number(element_symbol)
 
     try:
-        ion_number = roman_to_int(ion_number_string)
+        ion_charge = roman_to_int(ion_charge_string)
     except ValueError:
         logger.debug(
             "Ion Number does not contain a Roman Numeral. Checking for integer value"
         )
         try:
-            ion_number = int(ion_number_string)
+            ion_charge = int(ion_charge_string)
         except ValueError:
             raise MalformedSpeciesError(
-                f"Given ion number ('{ion_number_string}') could not be parsed"
+                f"Given ion number ('{ion_charge_string}') could not be parsed"
             )
 
-    if ion_number - 1 > atomic_number:
+    if ion_charge - 1 > atomic_number:
         raise ValueError(
-            "Species given does not exist: ion number > atomic number"
+            "Species given does not exist: ion charge > atomic number"
         )
 
-    return atomic_number, ion_number - 1
+    return atomic_number, ion_charge - 1
 
 
 def parse_quantity(quantity_string):

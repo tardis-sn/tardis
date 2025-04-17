@@ -52,8 +52,8 @@ class CollisionalIonizationSeaton:
             np.sqrt(electron_temperature), axis=1
         )
 
-        ion_number = coll_ion_coeff.index.get_level_values("ion_number").values
-        coll_ion_coeff[ion_number == 0] *= 0.1
-        coll_ion_coeff[ion_number == 1] *= 0.2
-        coll_ion_coeff[ion_number >= 2] *= 0.3
+        ion_charge = coll_ion_coeff.index.get_level_values("ion_charge").values
+        coll_ion_coeff[ion_charge == 0] *= 0.1
+        coll_ion_coeff[ion_charge == 1] *= 0.2
+        coll_ion_coeff[ion_charge >= 2] *= 0.3
         return coll_ion_coeff
