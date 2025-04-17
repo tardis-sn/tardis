@@ -6,7 +6,6 @@ import pandas as pd
 import pytest
 from astropy import units as u
 from numpy.testing import assert_almost_equal
-from unittest.mock import patch, mock_open, MagicMock
 from tardis import constants as c
 from tardis.spectrum.spectrum import (
     TARDISSpectrum,
