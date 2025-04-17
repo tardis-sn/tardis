@@ -440,6 +440,9 @@ def parse_species_list_util(species_list):
             keep_colour_result = keep_colour
     else:
         species_list_result = None
+        species_mapped_result = None
+        keep_colour_result = None
+        full_species_list = None
 
     return (
         species_mapped_result,

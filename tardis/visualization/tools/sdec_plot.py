@@ -470,11 +470,6 @@ class SDECPlotter:
                 self.packet_data[packets_mode]["packets_df"]["nus"]
                 > packet_nu_range[1]
             )
-            print("packet mode", self.packet_data[packets_mode])
-            print(
-                "packets_df_line_interaction",
-                self.packet_data[packets_mode]["packets_df_line_interaction"],
-            )
             self.packet_nu_line_range_mask = (
                 self.packet_data[packets_mode]["packets_df_line_interaction"][
                     "nus"
@@ -811,7 +806,10 @@ class SDECPlotter:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
         else:
             self.ax = ax
-
+        
+        print("species", self.species)
+        print("species_lsit", self._species_list)
+        print("mapped", self._species_mapped)
         # Get the labels in the color bar. This determines the number of unique colors
         self._species_name = pu.make_colorbar_labels(
             self.species, self._species_list, self._species_mapped
