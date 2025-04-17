@@ -136,6 +136,17 @@ def test_f_nu_to_f_lambda(spectrum):
     )
 
 
+def test_from_hdf(spectrum, hdf_file_path):
+    spectrum.to_hdf(hdf_file_path, overwrite=True)
+    expected = spectrum.from_hdf(hdf_file_path)
+
+    np.testing.assert_equal(spectrum.luminosity, expected.luminosity)
+    np.testing.assert_equal(spectrum.frequency, expected.frequency)
+
+    with pytest.raises(FileNotFoundError):
+        result = spectrum.from_hdf("non_existing_path.hdf")
+
+        
 ###
 # Save and Load
 ###
