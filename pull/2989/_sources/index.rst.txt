@@ -55,6 +55,7 @@ Mission Statement
     quickstart
     tutorials
     how_to_guides
+    workflows
     faq
     API <api/modules>
     embed
