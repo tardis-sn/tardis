@@ -1,16 +1,16 @@
 import logging
+
+import astropy.units as u
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
-import astropy.units as u
+import plotly.graph_objects as go
 
+import tardis.visualization.tools.sdec_plot as sdec
 from tardis.util.base import (
     atomic_number2element_symbol,
     int_to_roman,
 )
-import tardis.visualization.tools.sdec_plot as sdec
 from tardis.visualization import plot_util as pu
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,6 @@ class LIVPlotter:
         velocity : astropy.units.Quantity
             Velocity array from the simulation.
         """
-
         self.data = data
         self.time_explosion = time_explosion
         self.velocity = velocity
@@ -57,7 +56,6 @@ class LIVPlotter:
         -------
         LIVPlotter
         """
-
         return cls(
             dict(
                 virtual=sdec.SDECData.from_simulation(sim, "virtual"),
