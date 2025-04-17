@@ -15,7 +15,6 @@ from tardis.visualization.plot_util import (
 
 class TestPlotUtil:
     """Test utility functions used in plotting."""
-
     species_list = [["Si II", "Ca II", "C", "Fe I-V"]]
     packets_mode = ["real", "virtual"]
 
