@@ -2,11 +2,12 @@
 
 import asyncio
 import logging
-
 import ipywidgets as ipw
+import panel as pn
 
 logger = logging.getLogger(__name__)
 
+pn.extension('tabulator')
 
 def create_table_widget(
     data, col_widths, table_options=None, changeable_col=None
@@ -35,7 +36,7 @@ def create_table_widget(
         column in dataframe :code:`data` as an integer, and :code:`other_names`
         to specify all possible names changeable column will get as a list
         of strings. Default value :code:`None` indicates that there is no
-        changable column.
+        changeable column.
 
     Returns
     -------
@@ -110,6 +111,112 @@ def create_table_widget(
         grid_options=grid_options,
         column_options=column_options,
         column_definitions=column_widths_definitions,
+    )
+
+def create_table_widget_shell_info(
+    data, col_widths, table_options=None, changeable_col=None
+):
+    """
+    Create an interactive table widget using Panel's Tabulator, supporting
+    data display, interaction, and optional column name changes.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Data you want to display in table widget
+    col_widths : list
+        A list containing the desired widths of each column of data in order (including
+        the index as 1st column). The widths can be any non-negative numbers, and they
+        will be normalized to sum to 100 for setting the column widths.
+    table_options : dict, optional
+        A dictionary specifying configuration options for the Tabulator widget.
+        Overrides the default options where applicable.
+    changeable_col : dict, optional
+        A dictionary specifying the information about column that may change its name when
+        the data updates. It must contain two keys:
+        - :code:`index`: The index of the column in the DataFrame :code:`data`.
+        - :code:`other_names`: A list of possible new names for the column.
+
+    Returns
+    -------
+    panel.widgets.Tabulator
+        An interactive Tabulator table widget displaying the DataFrame.
+
+    Raises
+    ------
+    ValueError
+        If the length of :code:`col_widths` does not match the number of
+        columns + 1 (for the index), or if any column width is negative.
+    ValueError
+        If :code:`changeable_col` does not contain both 'index' and 'other_names' keys.
+    """
+    if len(col_widths) != data.shape[1] + 1:
+        raise ValueError(
+            "Size of column widths list do not match with "
+            "number of columns + 1 (index) in dataframe"
+        )
+    if any(w < 0 for w in col_widths):
+        raise ValueError(
+            "Column widths must be non-negative"
+        )
+
+    total = sum(col_widths)
+    if total == 0:
+        normalized_widths = [100 / len(col_widths)] * len(col_widths)
+    else:
+        normalized_widths = [w * 100 / total for w in col_widths]
+
+    # Default Tabulator options
+    tabulator_options = {
+        'layout': 'fit_data_fill',
+        'pagination': None,
+        'selectable': 1,
+    }
+    num_rows = data.shape[0]
+    if num_rows > 20:
+        tabulator_options['height'] = 550
+    else:
+        tabulator_options['height'] = None
+    if table_options:
+        tabulator_options.update(table_options)
+
+    # Define widths for columns (including index)
+    widths = {data.index.name or 'index': f'{normalized_widths[0]}%'}  # Handle case where index.name is None
+    widths.update({col: f'{normalized_widths[i+1]}%' for i, col in enumerate(data.columns)})
+    custom_css = """
+    .tabulator-header {
+        height: auto !important;
+        min-height: 40px;  /* Ensure enough height for headers */
+        white-space: normal;  /* Allow wrapping if needed */
+        overflow: visible !important;  /* Prevent clipping */
+        text-overflow: clip;  /* Prevent truncation */
+    }
+    .tabulator-col-title {
+        white-space: normal;  /* Allow wrapping */
+        overflow: visible !important;
+        text-overflow: clip;
+        padding: 4px;  /* Add padding for readability */
+    }
+    .tabulator-tableholder {
+        overflow-y: auto !important;  /* Ensure scrollbar works */
+    }
+    """
+
+    if changeable_col:
+        if not {"index", "other_names"}.issubset(set(changeable_col.keys())):
+            raise ValueError(
+                "Changeable column dictionary does not contain "
+                "'index' or 'other_names' key"
+            )
+
+    return pn.widgets.Tabulator(
+        data,
+        **tabulator_options,
+        widths=widths,
+        stylesheets=[
+            ":host {--mdc-ripple-color: transparent;}",
+            custom_css
+        ]
     )
 
 
@@ -211,7 +318,7 @@ class TableSummaryLabel:
         Returns
         -------
         ipywidgets.Box
-            Widget containing all componets of label
+            Widget containing all components of label
         """
         # WARNING: Use dictionary instead of ipw.Layout for specifying layout
         # of ipywidgets, otherwise there will be unintended behavior
@@ -237,7 +344,6 @@ class TableSummaryLabel:
                 justify_content="flex-start",
             ),
         )
-
 
 class Timer:
     """Timer to implement debouncing using an asynchronous loop.

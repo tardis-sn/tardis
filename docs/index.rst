@@ -58,6 +58,7 @@ Mission Statement
     workflows
     faq
     API <api/modules>
+    embed
 
 
 .. toctree::

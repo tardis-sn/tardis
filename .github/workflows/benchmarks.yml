@@ -75,6 +75,7 @@ jobs:
             bash
           create-args: >-
             python
+            panel
             asv=0.6.4
             mamba
             libmambapy<2.0
