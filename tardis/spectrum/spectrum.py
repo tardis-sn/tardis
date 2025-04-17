@@ -152,6 +152,7 @@ class TARDISSpectrum(HDFWriterMixin):
         else:
             warnings.warn(f"Did not find plotting mode {mode}, doing nothing.")
 
+    @classmethod
     def from_hdf(self,hdf_path):
         """
         Retrieves the class object from the hdf path provided. 
