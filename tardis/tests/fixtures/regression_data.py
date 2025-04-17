@@ -36,12 +36,9 @@ class RegressionData:
 
     @property
     def fname_prefix(self):
-        double_under = re.compile(r"[:\[\]{}]")
-        no_space = re.compile(r'[,"\']')  # quotes and commas
-
-        name = double_under.sub("__", self.test_name)
-        name = no_space.sub("", name)
-        return name
+        name = re.sub(r"[^a-zA-Z0-9]+", "_", self.test_name)
+        sanitized_name = name.strip("_")
+        return sanitized_name
 
     @property
     def relative_regression_data_dir(self):
