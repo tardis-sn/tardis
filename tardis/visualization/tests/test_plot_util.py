@@ -51,11 +51,7 @@ def simulation_simple(request, config_verysimple, atomic_dataset):
         config_verysimple,
         atom_data=atomic_data,
     )
-    regression_data = RegressionData(request)
-    hdf_store = regression_data.sync_hdf_store(sim)
-
-    yield (sim, hdf_store)
-    hdf_store.close()
+    return sim
 
 
 class TestPlotUtil:
@@ -109,11 +105,10 @@ class TestPlotUtil:
     
     @pytest.mark.parametrize("packets_mode", ["real", "virtual"])
     def test_extract_and_process_packet_data(self, simulation_simple, packets_mode):
-        sim, _ = simulation_simple
-        actual_data = extract_and_process_packet_data(sim, packets_mode)
+        actual_data = extract_and_process_packet_data(simulation_simple, packets_mode)
 
-        transport_state = sim.transport.transport_state
-        lines_df = sim.plasma.atomic_data.lines.reset_index().set_index("line_id")
+        transport_state = simulation_simple.transport.transport_state
+        lines_df = simulation_simple.plasma.atomic_data.lines.reset_index().set_index("line_id")
 
         if packets_mode == "virtual":
             vpt = transport_state.vpacket_tracker
@@ -211,22 +206,21 @@ class TestPlotUtil:
 
     @pytest.mark.parametrize("packets_mode", ["real", "virtual"])
     def test_get_spectrum_data(self, simulation_simple, packets_mode):
-        sim, _ = simulation_simple
-        actual_data = get_spectrum_data(packets_mode, sim)
+        actual_data = get_spectrum_data(packets_mode, simulation_simple)
         packets_type = f"spectrum_{packets_mode}_packets"
 
         expected_data = {
             "spectrum_delta_frequency": getattr(
-                sim.spectrum_solver, packets_type
+                simulation_simple.spectrum_solver, packets_type
             ).delta_frequency,
             "spectrum_frequency_bins": getattr(
-                sim.spectrum_solver, packets_type
+                simulation_simple.spectrum_solver, packets_type
             )._frequency,
             "spectrum_luminosity_density_lambda": getattr(
-                sim.spectrum_solver, packets_type
+                simulation_simple.spectrum_solver, packets_type
             ).luminosity_density_lambda,
             "spectrum_wavelength": getattr(
-                sim.spectrum_solver, packets_type
+                simulation_simple.spectrum_solver, packets_type
             ).wavelength,
         }
 
