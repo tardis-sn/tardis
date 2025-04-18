@@ -1,14 +1,9 @@
 import pytest
 import pandas as pd
 import numpy as np
-from copy import deepcopy
-from tardis.base import run_tardis
 import astropy.units as u
-from pathlib import Path
-from tardis.simulation.base import Simulation
-from tardis.io.configuration.config_reader import Configuration
 
-from tardis.tests.fixtures.regression_data import RegressionData
+from tardis.tests.fixtures.regression_data import PlotDataHDF
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
     get_mid_point_idx,
@@ -17,43 +12,6 @@ from tardis.visualization.plot_util import (
     parse_species_list_util,
     get_spectrum_data,
 )
-from tardis.io.util import HDFWriterMixin
-
-
-class PlotDataHDF(HDFWriterMixin):
-    def __init__(self, **kwargs):
-        self.hdf_properties = []
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-            self.hdf_properties.append(key)
-
-@pytest.fixture(scope="class")
-def simulation_simple(request, config_verysimple, atomic_dataset):
-    """
-    Fixture to create a simple TARDIS simulation.
-
-    Parameters:
-    -----------
-    config_verysimple: A basic TARDIS configuration object.
-    atomic_dataset: An atomic dataset to use in the simulation.
-
-    Returns:
-    --------
-    A TARDIS simulation object.
-    """
-    config_verysimple.montecarlo.iterations = 3
-    config_verysimple.montecarlo.no_of_packets = 4000
-    config_verysimple.montecarlo.last_no_of_packets = -1
-    config_verysimple.spectrum.virtual.virtual_packet_logging = True
-    config_verysimple.montecarlo.no_of_virtual_packets = 1
-    atomic_data = deepcopy(atomic_dataset)
-    sim = run_tardis(
-        config_verysimple,
-        atom_data=atomic_data,
-    )
-    return sim
-
-
 class TestPlotUtil:
     """Test utility functions used in plotting."""
     species_list = [["Si II", "Ca II", "C", "Fe I-V"]]
@@ -188,9 +146,7 @@ class TestPlotUtil:
 
         return PlotDataHDF(**property_group)
 
-    def test_parse_species_list_util(self, request, generate_parse_species_hdf):
-        regression_data = RegressionData(request)
-
+    def test_parse_species_list_util(self, regression_data, generate_parse_species_hdf):
         expected = regression_data.sync_hdf_store(generate_parse_species_hdf)
 
         for key in ["species_mapped", "species_list", "keep_colour", "full_species_list"]:
