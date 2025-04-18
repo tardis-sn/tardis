@@ -16,8 +16,8 @@ from tardis.util.base import (
 )
 from tardis.visualization import plot_util as pu
 from tardis.visualization.widgets.util import (
-    TableSummaryLabel,
     create_table_widget,
+    TableSummaryLabel,
 )
 
 
