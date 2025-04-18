@@ -34,7 +34,7 @@ def update_and_resize(self, value):
     self.widget.children[0].layout.width = f"{table_width * self.table_col_widths[0]/100}px"
     self.widget.children[1].layout.width = f"{table_width * self.table_col_widths[1]/100}px"
 
-def create_table_widget(
+def create_table_widget_shell_info(
     data, col_widths, table_options=None, changeable_col=None
 ):
     """
@@ -75,62 +75,70 @@ def create_table_widget(
             "Size of column widths list do not match with "
             "number of columns + 1 (index) in dataframe"
         )
-
-    # Note: Since forceFitColumns is enabled by default in grid_options,
-    # the column widths (when all specified) get applied in proportions,
-    # despite their original unit is px thus it's better they sum to 100
-    if sum(col_widths) != 100:
+    if any(w < 0 for w in col_widths):
         raise ValueError(
-            "Column widths are not proportions of 100 (i.e. "
-            "they do not sum to 100)"
+            "Column widths must be non-negative"
         )
+
+    total = sum(col_widths)
+    if total == 0:
+        normalized_widths = [100 / len(col_widths)] * len(col_widths)
+    else:
+        normalized_widths = [w * 100 / total for w in col_widths]
     
         # Convert qgrid-style options to Tabulator options
     tabulator_options = {
-        "sortable": False,
-        "selectable": False,
-        "show_index": True,
+        'layout': 'fit_data_fill',
+        'pagination': None,
+        'selectable': 1,
     }
     
-    # Handle pagination options
+    num_rows = data.shape[0]
+    if num_rows > 20:
+        tabulator_options['height'] = 550
+    else:
+        tabulator_options['height'] = None
     if table_options:
-        if "maxVisibleRows" in table_options:
-            tabulator_options["pagination"] = "local"
-            tabulator_options["page_size"] = table_options["maxVisibleRows"]
-        if "editable" in table_options:
-            tabulator_options["selectable"] = table_options["editable"]
-        if "sortable" in table_options:
-            tabulator_options["sortable"] = table_options["sortable"]
-        if "filterable" in table_options:
-            # Panel's Tabulator doesn't have a direct filterable option
-            # But we can add filters to each column
-            pass
+        tabulator_options.update(table_options)
 
-    # Use default width for better responsiveness (units in pixels)
-    default_width = 800
+    # Define widths for columns (including index)
+    widths = {data.index.name or 'index': f'{normalized_widths[0]}%'}  # Handle case where index.name is None
+    widths.update({col: f'{normalized_widths[i+1]}%' for i, col in enumerate(data.columns)})
+    custom_css = """
+    .tabulator-header {
+        height: auto !important;
+        min-height: 40px;  /* Ensure enough height for headers */
+        white-space: normal;  /* Allow wrapping if needed */
+        overflow: visible !important;  /* Prevent clipping */
+        text-overflow: clip;  /* Prevent truncation */
+    }
+    .tabulator-col-title {
+        white-space: normal;  /* Allow wrapping */
+        overflow: visible !important;
+        text-overflow: clip;
+        padding: 4px;  /* Add padding for readability */
+    }
+    .tabulator-tableholder {
+        overflow-y: auto !important;  /* Ensure scrollbar works */
+    }
+    """
 
-    # Preparing dictionary that defines column widths
-    column_widths = {}
-    cols_with_index = [data.index.name] + data.columns.to_list()
-    for col_name, width_prop in zip(cols_with_index, col_widths):
-        column_widths[col_name] = int(width_prop / 100 * default_width)
+    if changeable_col:
+        if not {"index", "other_names"}.issubset(set(changeable_col.keys())):
+            raise ValueError(
+                "Changeable column dictionary does not contain "
+                "'index' or 'other_names' key"
+            )
 
-    # We also need to define widths for different names of changeable column
-    # Handle changeable column if specified
-    if changeable_col and {"index", "other_names"}.issubset(set(changeable_col.keys())):
-        changeable_width = col_widths[changeable_col["index"]]
-        for col_name in changeable_col["other_names"]:
-            column_widths[col_name] = int(changeable_width / 100 * default_width)
-
-    # Create the table widget using Panel's Tabulator
-    tabulator = pn.widgets.Tabulator(
+    return pn.widgets.Tabulator(
         data,
-        widths=column_widths,
-        width=default_width,
-        **tabulator_options
+        **tabulator_options,
+        widths=widths,
+        stylesheets=[
+            ":host {--mdc-ripple-color: transparent;}",
+            custom_css
+        ]
     )
-    
-    return tabulator
 
 
 
