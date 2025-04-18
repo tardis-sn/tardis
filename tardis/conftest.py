@@ -11,6 +11,7 @@ from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
 from tardis.tests.fixtures.regression_data import regression_data
+from tardis.util.base import packet_pbar, iterations_pbar
 
 # ensuring that regression_data is not removed by ruff
 assert regression_data is not None
@@ -267,3 +268,7 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
         show_convergence_plots=False,
     )
     return sim
+
+def pytest_sessionfinish(session, exitstatus):
+    packet_pbar.close()
+    iterations_pbar.close()

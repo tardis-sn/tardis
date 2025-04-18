@@ -445,6 +445,16 @@ def create_redirect_files(app, docname):
             with open(old_html_fpath, "w") as f:
                 f.write(new_content)
 
+def cleanup_zmq_resources(app, exception):
+    """Clean up ZMQ resources to prevent 'zmq gc socket requested during shutdown' errors."""
+    print(app, exception)
+    try:
+        import zmq
+        context = zmq.Context.instance()
+        context.term()
+    except Exception as e:
+        print(f"Warning: Could not clean up ZMQ resources: {e}")
+    
 
 def setup(app):
     app.connect("builder-inited", generate_tutorials_page)
@@ -452,3 +462,4 @@ def setup(app):
     app.connect("builder-inited", generate_worflows_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)
+    app.connect("build-finished", cleanup_zmq_resources)
