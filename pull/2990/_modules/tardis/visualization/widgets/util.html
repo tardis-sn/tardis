@@ -208,6 +208,7 @@ def create_table_widget(
         Table widget object
     &quot;&quot;&quot;
 
+
     # Check whether passed col_widths list is correct or not
     if len(col_widths) != data.shape[1] + 1:
         raise ValueError(
@@ -225,24 +226,34 @@ def create_table_widget(
     else:
         normalized_widths = [w * 100 / total for w in col_widths]
     
-        # Convert qgrid-style options to Tabulator options
+    # Convert QGrid-style options to Tabulator options
     tabulator_options = {
         &#39;layout&#39;: &#39;fit_data_fill&#39;,
         &#39;pagination&#39;: None,
         &#39;selectable&#39;: 1,
     }
     
-    num_rows = data.shape[0]
-    if num_rows &gt; 20:
-        tabulator_options[&#39;height&#39;] = 550
-    else:
-        tabulator_options[&#39;height&#39;] = None
+    # Handle QGrid-specific options that need adaptation for Tabulator
     if table_options:
+        # Handle maxVisibleRows from QGrid -&gt; appropriate sizing in Tabulator
+        if &#39;maxVisibleRows&#39; in table_options:
+            max_rows = table_options.pop(&#39;maxVisibleRows&#39;)
+            tabulator_options[&#39;height&#39;] = max_rows * 30  # Approximate row height
+            
+        # Add any remaining compatible options
         tabulator_options.update(table_options)
+    else:
+        # Default sizing based on row count
+        num_rows = data.shape[0]
+        if num_rows &gt; 20:
+            tabulator_options[&#39;height&#39;] = 550
+        else:
+            tabulator_options[&#39;height&#39;] = None
 
     # Define widths for columns (including index)
     widths = {data.index.name or &#39;index&#39;: f&#39;{normalized_widths[0]}%&#39;}  # Handle case where index.name is None
     widths.update({col: f&#39;{normalized_widths[i+1]}%&#39; for i, col in enumerate(data.columns)})
+    
     custom_css = &quot;&quot;&quot;
     .tabulator-header {
         height: auto !important;
@@ -269,7 +280,8 @@ def create_table_widget(
                 &quot;&#39;index&#39; or &#39;other_names&#39; key&quot;
             )
 
-    return pn.widgets.Tabulator(
+    # Create the Tabulator with appropriate compatibility methods
+    tabulator = pn.widgets.Tabulator(
         data,
         **tabulator_options,
         widths=widths,
@@ -277,8 +289,14 @@ def create_table_widget(
             &quot;:host {--mdc-ripple-color: transparent;}&quot;,
             custom_css
         ]
-    )</div>
+    )
+    
+    # Add compatibility properties and methods for QGrid-style access
+    # Only implemented as needed based on the errors
+    tabulator._param_values = getattr(tabulator, &#39;_param_pane&#39;, {})
 
+    # Return the enhanced widget
+    return tabulator</div>
 
 
 
