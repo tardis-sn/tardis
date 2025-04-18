@@ -34,7 +34,7 @@ def update_and_resize(self, value):
     self.widget.children[0].layout.width = f"{table_width * self.table_col_widths[0]/100}px"
     self.widget.children[1].layout.width = f"{table_width * self.table_col_widths[1]/100}px"
 
-def create_table_widget_shell_info(
+def create_table_widget(
     data, col_widths, table_options=None, changeable_col=None
 ):
     """
