@@ -173,3 +173,22 @@ def regression_data(request):
     yield regression_data_instance
     if regression_data_instance.hdf_store_object is not None and regression_data_instance.hdf_store_object.is_open:
         regression_data_instance.hdf_store_object.close()
+
+class PlotDataHDF(HDFWriterMixin):
+    """
+    A class that writes plot data to HDF5 format using the HDFWriterMixin.
+    """
+
+    def __init__(self, **kwargs):
+        """
+        Initializes PlotDataHDF with arbitrary keyword arguments,
+        storing them as attributes and adding their names to hdf_properties.
+
+        Parameters:
+        -----------
+        **kwargs: Arbitrary keyword arguments representing properties to save.
+        """
+        self.hdf_properties = []
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+            self.hdf_properties.append(key)
