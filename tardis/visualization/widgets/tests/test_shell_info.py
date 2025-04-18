@@ -240,10 +240,14 @@ class TestShellInfoWidget:
 
     def test_widget_styling(self, shell_info_widget):
   
-        assert 'styles' in shell_info_widget.shells_table._param_values
-        assert 'styles' in shell_info_widget.element_count_table._param_values  
-        assert 'styles' in shell_info_widget.ion_count_table._param_values
-        assert 'styles' in shell_info_widget.level_count_table._param_values
+        assert shell_info_widget.shells_table.stylesheets is not None
+        assert shell_info_widget.element_count_table.stylesheets is not None  
+        assert shell_info_widget.ion_count_table.stylesheets is not None
+        assert shell_info_widget.level_count_table.stylesheets is not None
+    
+        # Check the panel layout styling 
+        assert 'styles' in shell_info_widget.layout[1].param
+        assert 'background-color' in shell_info_widget.layout[1].styles
 
     def test_create_tabulator_table(self, shell_info_widget):
 

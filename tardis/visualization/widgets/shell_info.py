@@ -398,10 +398,16 @@ class ShellInfoWidget:
         event : param.Event
             The event containing the new selection information.
         """
-        selected_rows = event.new
+        selected_rows = event.new if hasattr(event, 'new') else []
         if selected_rows:
             shell_num = selected_rows[0] + 1
             element_df = self.data.element_count(shell_num)
+
+            if isinstance(element_df, pd.DataFrame):
+            # Force consistent numeric formatting
+                for col in element_df.select_dtypes(include=['float64']).columns:
+                    element_df[col] = pd.to_numeric(element_df[col], errors='coerce')
+          
             self.element_count_table.value = element_df
             self.element_title.object = f"### Elements (Shell {shell_num})"
             self.element_count_table.widths = {
