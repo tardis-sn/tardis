@@ -1,0 +1,610 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.transport.montecarlo.packet_source &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.transport.montecarlo.packet_source</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.transport.montecarlo.packet_source</h1><div class="highlight"><pre>
+<span></span>import abc
+
+import numexpr as ne
+import numpy as np
+from astropy import units as u
+
+from tardis import constants as const
+from tardis.io.util import HDFWriterMixin
+from tardis.transport.montecarlo.packet_collections import (
+    PacketCollection,
+)
+
+
+<div class="viewcode-block" id="BasePacketSource">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource">[docs]</a>
+class BasePacketSource(abc.ABC):
+    &quot;&quot;&quot;
+    Abstract base packet source
+
+    Parameters
+    ----------
+    base_seed : int
+        Base Seed for random number generator
+    legacy_secondary_seed : int
+        Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
+    &quot;&quot;&quot;
+
+    # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
+    # otherwise, each packet would not have its own seed. Here, we set the max
+    # seed val to the maximum allowed by numpy.
+    MAX_SEED_VAL = 2**32 - 1
+
+    def __init__(
+        self, base_seed=None, legacy_mode_enabled=False, legacy_second_seed=None
+    ):
+        self.base_seed = base_seed
+        self.legacy_mode_enabled = legacy_mode_enabled
+        if self.legacy_mode_enabled and legacy_second_seed is not None:
+            np.random.seed(legacy_second_seed)
+        else:
+            np.random.seed(self.base_seed)
+
+    def _reseed(self, seed):
+        self.rng = np.random.default_rng(seed=seed)
+
+<div class="viewcode-block" id="BasePacketSource.create_packet_radii">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource.create_packet_radii">[docs]</a>
+    @abc.abstractmethod
+    def create_packet_radii(self, no_of_packets, *args, **kwargs):
+        pass</div>
+
+
+<div class="viewcode-block" id="BasePacketSource.create_packet_nus">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource.create_packet_nus">[docs]</a>
+    @abc.abstractmethod
+    def create_packet_nus(self, no_of_packets, *args, **kwargs):
+        pass</div>
+
+
+<div class="viewcode-block" id="BasePacketSource.create_packet_mus">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource.create_packet_mus">[docs]</a>
+    @abc.abstractmethod
+    def create_packet_mus(self, no_of_packets, *args, **kwargs):
+        pass</div>
+
+
+<div class="viewcode-block" id="BasePacketSource.create_packet_energies">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource.create_packet_energies">[docs]</a>
+    @abc.abstractmethod
+    def create_packet_energies(self, no_of_packets, *args, **kwargs):
+        pass</div>
+
+
+<div class="viewcode-block" id="BasePacketSource.create_packets">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource.create_packets">[docs]</a>
+    def create_packets(self, no_of_packets, seed_offset=0, *args, **kwargs):
+        &quot;&quot;&quot;Generate packet properties as arrays
+
+        Parameters
+        ----------
+        no_of_packets : int
+            Number of packets
+
+        Returns
+        -------
+        array
+            Packet radii
+        array
+            Packet frequencies
+        array
+            Packet directions
+        array
+            Packet energies
+        &quot;&quot;&quot;
+        # the iteration (passed as seed_offset) is added each time to preserve randomness
+        # across different simulations with the same temperature,
+        # for example. We seed the random module instead of the numpy module
+        # because we call random.sample, which references a different internal
+        # state than in the numpy.random module.
+        self._reseed(self.base_seed + seed_offset)
+        packet_seeds = self.rng.choice(
+            self.MAX_SEED_VAL, no_of_packets, replace=True
+        )
+
+        radii = self.create_packet_radii(no_of_packets, *args, **kwargs).value
+        nus = self.create_packet_nus(no_of_packets, *args, **kwargs).value
+        mus = self.create_packet_mus(no_of_packets, *args, **kwargs)
+        energies = self.create_packet_energies(
+            no_of_packets, *args, **kwargs
+        ).value
+        # Check if all arrays have the same length
+        assert (
+            len(radii) == len(nus) == len(mus) == len(energies) == no_of_packets
+        )
+        radiation_field_luminosity = self.calculate_radfield_luminosity().value
+        return PacketCollection(
+            radii,
+            nus,
+            mus,
+            energies,
+            packet_seeds,
+            radiation_field_luminosity,
+        )</div>
+
+
+<div class="viewcode-block" id="BasePacketSource.calculate_radfield_luminosity">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource.calculate_radfield_luminosity">[docs]</a>
+    def calculate_radfield_luminosity(self):
+        &quot;&quot;&quot;
+        Calculate inner luminosity.
+
+        Parameters
+        ----------
+        model : model.SimulationState
+
+        Returns
+        -------
+        astropy.units.Quantity
+        &quot;&quot;&quot;
+        return (
+            4
+            * np.pi
+            * const.sigma_sb
+            * self.radius**2
+            * self.temperature**4
+        ).to(&quot;erg/s&quot;)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="BlackBodySimpleSource">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource">[docs]</a>
+class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
+    &quot;&quot;&quot;
+    Simple packet source that generates Blackbody packets for the Montecarlo
+    part.
+
+    Parameters
+    ----------
+    radius : astropy.units.Quantity
+        Initial packet radius
+    temperature : astropy.units.Quantity
+        Absolute Temperature.
+    base_seed : int
+        Base Seed for random number generator
+    legacy_secondary_seed : int
+        Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
+    &quot;&quot;&quot;
+
+    hdf_properties = [&quot;radius&quot;, &quot;temperature&quot;, &quot;base_seed&quot;]
+    hdf_name = &quot;black_body_simple_source&quot;
+
+<div class="viewcode-block" id="BlackBodySimpleSource.from_simulation_state">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource.from_simulation_state">[docs]</a>
+    @classmethod
+    def from_simulation_state(cls, simulation_state, *args, **kwargs):
+        return cls(
+            simulation_state.r_inner[0],
+            simulation_state.t_inner,
+            *args,
+            **kwargs,
+        )</div>
+
+
+    def __init__(self, radius=None, temperature=None, **kwargs):
+        self.radius = radius
+        self.temperature = temperature
+        super().__init__(**kwargs)
+
+<div class="viewcode-block" id="BlackBodySimpleSource.create_packets">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource.create_packets">[docs]</a>
+    def create_packets(self, no_of_packets, *args, **kwargs):
+        if self.radius is None or self.temperature is None:
+            raise ValueError(&quot;Black body Radius or Temperature isn&#39;t set&quot;)
+        return super().create_packets(no_of_packets, *args, **kwargs)</div>
+
+
+<div class="viewcode-block" id="BlackBodySimpleSource.create_packet_radii">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource.create_packet_radii">[docs]</a>
+    def create_packet_radii(self, no_of_packets):
+        &quot;&quot;&quot;
+        Create packet radii
+
+        Parameters
+        ----------
+        no_of_packets : int
+            number of packets to be created
+
+        Returns
+        -------
+        Radii for packets
+            numpy.ndarray
+        &quot;&quot;&quot;
+        return np.ones(no_of_packets) * self.radius.cgs</div>
+
+
+<div class="viewcode-block" id="BlackBodySimpleSource.create_packet_nus">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource.create_packet_nus">[docs]</a>
+    def create_packet_nus(self, no_of_packets, l_samples=1000):
+        &quot;&quot;&quot;
+        Create packet :math:`\\nu` distributed using the algorithm described in
+        Bjorkman &amp; Wood 2001 (page 4) which references
+        Carter &amp; Cashwell 1975:
+        First, generate a uniform random number, :math:`\\xi_0 \\in [0, 1]` and
+        determine the minimum value of
+        :math:`l, l_{\\rm min}`, that satisfies the condition
+        .. math::
+            \\sum_{i=1}^{l} i^{-4} \\ge {{\\pi^4}\\over{90}} m_0 \\;.
+        Next obtain four additional uniform random numbers (in the range 0
+        to 1) :math:`\\xi_1, \\xi_2, \\xi_3, {\\rm and } \\xi_4`.
+        Finally, the packet frequency is given by
+        .. math::
+            x = -\\ln{(\\xi_1\\xi_2\\xi_3\\xi_4)}/l_{\\rm min}\\;.
+        where :math:`x=h\\nu/kT`
+
+        Parameters
+        ----------
+        no_of_packets : int
+        l_samples : int
+            number of l_samples needed in the algorithm
+
+        Returns
+        -------
+        array of frequencies
+            numpy.ndarray
+        &quot;&quot;&quot;
+        l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
+        l_coef = np.pi**4 / 90.0
+
+        # For testing purposes
+        if self.legacy_mode_enabled:
+            xis = np.random.random((5, no_of_packets))
+        else:
+            xis = self.rng.random((5, no_of_packets))
+
+        l = l_array.searchsorted(xis[0] * l_coef) + 1.0
+        xis_prod = np.prod(xis[1:], 0)
+        x = ne.evaluate(&quot;-log(xis_prod)/l&quot;)
+
+        return (x * (const.k_B * self.temperature) / const.h).cgs</div>
+
+
+<div class="viewcode-block" id="BlackBodySimpleSource.create_packet_mus">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource.create_packet_mus">[docs]</a>
+    def create_packet_mus(self, no_of_packets):
+        &quot;&quot;&quot;
+        Create zero-limb-darkening packet :math:`\\mu` distributed
+        according to :math:`\\mu=\\sqrt{z}, z \\isin [0, 1]`
+
+        Parameters
+        ----------
+        no_of_packets : int
+            number of packets to be created
+
+        Returns
+        -------
+        Directions for packets
+            numpy.ndarray
+        &quot;&quot;&quot;
+        # For testing purposes
+        if self.legacy_mode_enabled:
+            return np.sqrt(np.random.random(no_of_packets))
+        else:
+            return np.sqrt(self.rng.random(no_of_packets))</div>
+
+
+<div class="viewcode-block" id="BlackBodySimpleSource.create_packet_energies">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource.create_packet_energies">[docs]</a>
+    def create_packet_energies(self, no_of_packets):
+        &quot;&quot;&quot;
+        Uniformly distribute energy in arbitrary units where the ensemble of
+        packets has energy of 1.
+
+        Parameters
+        ----------
+        no_of_packets : int
+            number of packets
+
+        Returns
+        -------
+        energies for packets
+            numpy.ndarray
+        &quot;&quot;&quot;
+        return np.ones(no_of_packets) / no_of_packets * u.erg</div>
+
+
+<div class="viewcode-block" id="BlackBodySimpleSource.set_temperature_from_luminosity">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource.set_temperature_from_luminosity">[docs]</a>
+    def set_temperature_from_luminosity(self, luminosity: u.Quantity):
+        &quot;&quot;&quot;
+        Set blackbody packet source temperature from luminosity
+
+        Parameters
+        ----------
+        luminosity : u.Quantity
+
+        &quot;&quot;&quot;
+        self.temperature = (
+            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
+            ** 0.25
+        ).to(&quot;K&quot;)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="BlackBodySimpleSourceRelativistic">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSourceRelativistic">[docs]</a>
+class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
+    &quot;&quot;&quot;
+    Simple packet source that generates Blackbody packets for the Montecarlo
+    part.
+
+    Parameters
+    ----------
+    time_explosion : astropy.units.Quantity
+        Time elapsed since explosion
+    radius : astropy.units.Quantity
+        Initial packet radius
+    temperature : astropy.units.Quantity
+        Absolute Temperature.
+    base_seed : int
+        Base Seed for random number generator
+    legacy_secondary_seed : int
+        Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
+    &quot;&quot;&quot;
+
+    hdf_properties = [&quot;time_explosion&quot;, &quot;radius&quot;, &quot;temperature&quot;, &quot;base_seed&quot;]
+
+<div class="viewcode-block" id="BlackBodySimpleSourceRelativistic.from_simulation_state">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSourceRelativistic.from_simulation_state">[docs]</a>
+    @classmethod
+    def from_simulation_state(cls, simulation_state, *args, **kwargs):
+        return cls(
+            simulation_state.time_explosion,
+            simulation_state.r_inner[0],
+            simulation_state.t_inner,
+            *args,
+            **kwargs,
+        )</div>
+
+
+    def __init__(self, time_explosion=None, **kwargs):
+        self.time_explosion = time_explosion
+        super().__init__(**kwargs)
+
+<div class="viewcode-block" id="BlackBodySimpleSourceRelativistic.create_packets">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSourceRelativistic.create_packets">[docs]</a>
+    def create_packets(self, no_of_packets, *args, **kwargs):
+        &quot;&quot;&quot;Generate relativistic black-body packet properties as arrays
+
+        Parameters
+        ----------
+        no_of_packets : int
+            Number of packets
+
+        Returns
+        -------
+        array
+            Packet radii
+        array
+            Packet frequencies
+        array
+            Packet directions
+        array
+            Packet energies
+        &quot;&quot;&quot;
+        if self.radius is None or self.time_explosion is None:
+            raise ValueError(&quot;Black body Radius or Time of Explosion isn&#39;t set&quot;)
+        self.beta = (self.radius / self.time_explosion) / const.c
+        return super().create_packets(no_of_packets, *args, **kwargs)</div>
+
+
+<div class="viewcode-block" id="BlackBodySimpleSourceRelativistic.create_packet_mus">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSourceRelativistic.create_packet_mus">[docs]</a>
+    def create_packet_mus(self, no_of_packets):
+        &quot;&quot;&quot;
+        Create zero-limb-darkening packet :math:`\\mu^\\prime` distributed
+        according to :math:`\\mu^\\prime=2 \\frac{\\mu^\\prime + \\beta}{2 \\beta + 1}`.
+        The complicated distribution is due to the fact that the inner boundary
+        on which the packets are initialized is not comoving with the material.
+
+        Parameters
+        ----------
+        no_of_packets : int
+            number of packets to be created
+
+        Returns
+        -------
+        Directions for packets
+            numpy.ndarray
+        &quot;&quot;&quot;
+        z = self.rng.random(no_of_packets)
+        beta = self.beta
+        return -beta + np.sqrt(beta**2 + 2 * beta * z + z)</div>
+
+
+<div class="viewcode-block" id="BlackBodySimpleSourceRelativistic.create_packet_energies">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSourceRelativistic.create_packet_energies">[docs]</a>
+    def create_packet_energies(self, no_of_packets):
+        &quot;&quot;&quot;
+        Uniformly distribute energy in arbitrary units where the ensemble of
+        packets has energy of 1 multiplied by relativistic correction factors.
+
+        Parameters
+        ----------
+        no_of_packets : int
+            number of packets
+
+        Returns
+        -------
+        energies for packets
+            numpy.ndarray
+        &quot;&quot;&quot;
+        beta = self.beta
+        gamma = 1.0 / np.sqrt(1 - beta**2)
+        static_inner_boundary2cmf_factor = (2 * beta + 1) / (1 - beta**2)
+        energies = np.ones(no_of_packets) / no_of_packets
+        # In principle, the factor gamma should be applied to the time of
+        # simulation to account for time dilation between the lab and comoving
+        # frame. However, all relevant quantities (luminosities, estimators, ...)
+        # are calculated as ratios of packet energies and the time of simulation.
+        # Thus, we can absorb the factor gamma in the packet energies, which is
+        # more convenient.
+        return energies * static_inner_boundary2cmf_factor / gamma * u.erg</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 20 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
