@@ -62,6 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
 </ul>
@@ -73,11 +74,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -235,14 +236,12 @@ class LoggingConfig:
         &quot;CRITICAL&quot;: logging.CRITICAL,
     })
 
-    # Fixed: Changed to include explicit string keys for log levels
-    # instead of using logging level constants as keys
     COLORS: dict = field(default_factory=lambda: {
-        &quot;INFO&quot;: &quot;#D3D3D3&quot;,
-        &quot;WARNING&quot;: &quot;orange&quot;,
-        &quot;ERROR&quot;: &quot;red&quot;,
-        &quot;CRITICAL&quot;: &quot;orange&quot;,
-        &quot;DEBUG&quot;: &quot;blue&quot;,
+        logging.INFO: &quot;#D3D3D3&quot;,
+        logging.WARNING: &quot;orange&quot;,
+        logging.ERROR: &quot;red&quot;,
+        logging.CRITICAL: &quot;orange&quot;,
+        logging.DEBUG: &quot;blue&quot;,
         &quot;default&quot;: &quot;black&quot;,
     })
 
@@ -275,7 +274,6 @@ class AsyncEmitLogHandler(logging.Handler):
     def __init__(self, log_outputs, colors, display_widget=True, display_handle=None, logger_widget=None):
         super().__init__()
         self.log_outputs = log_outputs
-        # Fixed: Convert numeric log levels to string names for color lookup
         self.colors = colors
         self.environment = get_environment()
         self.display_widget = display_widget
@@ -340,8 +338,7 @@ class AsyncEmitLogHandler(logging.Handler):
         str
             HTML-formatted log entry.
         &quot;&quot;&quot;
-        # Fixed: Use record.levelname instead of record.levelno for color lookup
-        color = self.colors.get(record.levelname, self.colors[&quot;default&quot;])
+        color = self.colors.get(record.levelno, self.colors[&quot;default&quot;])
         parts = log_entry.split(&quot; &quot;, 2)
         if len(parts) &gt; 2:
             prefix, levelname, message = parts
@@ -362,18 +359,17 @@ class AsyncEmitLogHandler(logging.Handler):
         html_output : str
             The HTML-formatted log message.
         &quot;&quot;&quot;
-        def level_to_key(level):
-            return {
-                logging.WARNING: &quot;WARNING/ERROR&quot;,
-                logging.ERROR: &quot;WARNING/ERROR&quot;,
-                logging.INFO: &quot;INFO&quot;,
-                logging.DEBUG: &quot;DEBUG&quot;
-            }.get(level)
+        level_to_output = {
+            logging.WARNING: &quot;WARNING/ERROR&quot;,
+            logging.ERROR: &quot;WARNING/ERROR&quot;,
+            logging.INFO: &quot;INFO&quot;,
+            logging.DEBUG: &quot;DEBUG&quot;
+        }
 
         html_wrapped = f&quot;&lt;div style=&#39;margin: 0;&#39;&gt;{html_output}&lt;/div&gt;&quot;
 
         # Update specific level output
-        output_key = level_to_key(level)
+        output_key = level_to_output.get(level)
         if output_key:
             current = self.log_outputs[output_key].object or &quot;&quot;
             self.log_outputs[output_key].object = current + &quot;\n&quot; + html_wrapped if current else html_wrapped
@@ -586,6 +582,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     logger.setup_widget_logging(display_widget=display_logging_widget)
     return LOGGER_WIDGET if (display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]) else None</div>
 
+ 
 </pre></div>
 
            </div>
