@@ -235,12 +235,14 @@ class LoggingConfig:
         &quot;CRITICAL&quot;: logging.CRITICAL,
     })
 
+    # Fixed: Changed to include explicit string keys for log levels
+    # instead of using logging level constants as keys
     COLORS: dict = field(default_factory=lambda: {
-        logging.INFO: &quot;#D3D3D3&quot;,
-        logging.WARNING: &quot;orange&quot;,
-        logging.ERROR: &quot;red&quot;,
-        logging.CRITICAL: &quot;orange&quot;,
-        logging.DEBUG: &quot;blue&quot;,
+        &quot;INFO&quot;: &quot;#D3D3D3&quot;,
+        &quot;WARNING&quot;: &quot;orange&quot;,
+        &quot;ERROR&quot;: &quot;red&quot;,
+        &quot;CRITICAL&quot;: &quot;orange&quot;,
+        &quot;DEBUG&quot;: &quot;blue&quot;,
         &quot;default&quot;: &quot;black&quot;,
     })
 
@@ -273,6 +275,7 @@ class AsyncEmitLogHandler(logging.Handler):
     def __init__(self, log_outputs, colors, display_widget=True, display_handle=None, logger_widget=None):
         super().__init__()
         self.log_outputs = log_outputs
+        # Fixed: Convert numeric log levels to string names for color lookup
         self.colors = colors
         self.environment = get_environment()
         self.display_widget = display_widget
@@ -337,7 +340,8 @@ class AsyncEmitLogHandler(logging.Handler):
         str
             HTML-formatted log entry.
         &quot;&quot;&quot;
-        color = self.colors.get(record.levelno, self.colors[&quot;default&quot;])
+        # Fixed: Use record.levelname instead of record.levelno for color lookup
+        color = self.colors.get(record.levelname, self.colors[&quot;default&quot;])
         parts = log_entry.split(&quot; &quot;, 2)
         if len(parts) &gt; 2:
             prefix, levelname, message = parts
@@ -358,17 +362,18 @@ class AsyncEmitLogHandler(logging.Handler):
         html_output : str
             The HTML-formatted log message.
         &quot;&quot;&quot;
-        level_to_output = {
-            logging.WARNING: &quot;WARNING/ERROR&quot;,
-            logging.ERROR: &quot;WARNING/ERROR&quot;,
-            logging.INFO: &quot;INFO&quot;,
-            logging.DEBUG: &quot;DEBUG&quot;
-        }
+        def level_to_key(level):
+            return {
+                logging.WARNING: &quot;WARNING/ERROR&quot;,
+                logging.ERROR: &quot;WARNING/ERROR&quot;,
+                logging.INFO: &quot;INFO&quot;,
+                logging.DEBUG: &quot;DEBUG&quot;
+            }.get(level)
 
         html_wrapped = f&quot;&lt;div style=&#39;margin: 0;&#39;&gt;{html_output}&lt;/div&gt;&quot;
 
         # Update specific level output
-        output_key = level_to_output.get(level)
+        output_key = level_to_key(level)
         if output_key:
             current = self.log_outputs[output_key].object or &quot;&quot;
             self.log_outputs[output_key].object = current + &quot;\n&quot; + html_wrapped if current else html_wrapped
@@ -581,7 +586,6 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     logger.setup_widget_logging(display_widget=display_logging_widget)
     return LOGGER_WIDGET if (display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]) else None</div>
 
- 
 </pre></div>
 
            </div>
