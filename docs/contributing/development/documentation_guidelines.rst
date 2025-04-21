@@ -28,6 +28,11 @@ Often, code examples can help explain concepts better. The TARDIS utilizes `Jupy
 
 TARDIS uses the `nbsphinx <https://nbsphinx.readthedocs.io/>`_ extension to turn these notebooks into HTML pages in the documentation. During a documentation build, nbsphinx runs all notebooks in the documentation with cleared output and places their output in the HTML. **Thus, notebook output must always be cleared before it is submitted** to ensure that the notebooks are run by nbsphinx. Running these notebooks during the documentation build helps ensure that the documentation is kept up-to-date, as notebook output will reflect the current state of the TARDIS code. Additionally, if updates in the code are inconsistent with the documentation, the documentation build will return an error, alerting TARDIS developers to the inconsistency.
 
+.. note::
+    **Clearing notebook outputs:** In **VS Code** (left), use the "Clear All Outputs" option from the command palette. In **JupyterLab** (right), use the *Edit > Clear Outputs of All Cells* menu.
+    
+    .. image:: images/clear_cell_outputs.png
+
 An added benefit of IPYNB documentation is the ability to have interactive tutorials. All notebooks in the TARDIS documentation feature a button at the top encouraging users to launch the interactive version of the notebook (see the previously mentioned examples). This directs users to the TARDIS repository on `Binder <https://mybinder.org/>`_, where the notebook can be run using an online Jupyter kernel. Additionally, all notebooks in the Input/Output section of the documentation are automatically linked to on the :doc:`../../tutorials` page.
 
 
