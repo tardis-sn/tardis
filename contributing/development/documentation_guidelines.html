@@ -77,11 +77,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -169,7 +169,13 @@
 <section id="ipynb-documentation">
 <h3>IPYNB Documentation<a class="headerlink" href="#ipynb-documentation" title="Link to this heading">¶</a></h3>
 <p>Often, code examples can help explain concepts better. The TARDIS utilizes <a class="reference external" href="https://jupyter.org/">Jupyter notebooks</a> (<code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> file extension) to demonstrate features of the code package within our documentation. See <a class="reference internal" href="../../quickstart.html"><span class="doc">Quickstart for TARDIS</span></a> or <a class="reference internal" href="../../physics/montecarlo/initialization.html"><span class="doc">Energy Packet Initialization</span></a> for good examples.</p>
-<p>TARDIS uses the <a class="reference external" href="https://nbsphinx.readthedocs.io/">nbsphinx</a> extension to turn these notebooks into HTML pages in the documentation. During a documentation build, nbsphinx runs all notebooks in the documentation with cleared output and places their output in the HTML. <strong>Thus, notebook output must always be cleared before it is submitted</strong> to ensure that the notebooks are run by nbsphinx. Running these notebooks during the documentation build helps ensure that the documentation is kept up-to-date, as notebook output will reflect the current state of the TARDIS code. Additionally, if updates in the code are inconsistent with the documentation, the documentation build will return an error, alerting TARDIS developers to the inconsistency.</p>
+<p>TARDIS uses the <a class="reference external" href="https://nbsphinx.readthedocs.io/">nbsphinx</a> extension to turn these notebooks into HTML pages in the documentation. During a documentation build, nbsphinx runs all notebooks in the documentation with cleared output and places their output in the HTML. <strong>Thus, notebook output must always be cleared before it is submitted</strong> to ensure that the notebooks are run by nbsphinx.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Clearing notebook outputs:</strong> In <strong>VS Code</strong> (left), use the “Clear All Outputs” option from the command palette. In <strong>JupyterLab</strong> (right), use the <em>Edit &gt; Clear Outputs of All Cells</em> menu.</p>
+<img alt="../../_images/clear_cell_outputs.png" src="../../_images/clear_cell_outputs.png" />
+</div>
+<p>Running these notebooks during the documentation build helps ensure that the documentation is kept up-to-date, as notebook output will reflect the current state of the TARDIS code. Additionally, if updates in the code are inconsistent with the documentation, the documentation build will return an error, alerting TARDIS developers to the inconsistency.</p>
 <p>An added benefit of IPYNB documentation is the ability to have interactive tutorials. All notebooks in the TARDIS documentation feature a button at the top encouraging users to launch the interactive version of the notebook (see the previously mentioned examples). This directs users to the TARDIS repository on <a class="reference external" href="https://mybinder.org/">Binder</a>, where the notebook can be run using an online Jupyter kernel. Additionally, all notebooks in the Input/Output section of the documentation are automatically linked to on the <a class="reference internal" href="../../tutorials.html"><span class="doc">Tutorials</span></a> page.</p>
 </section>
 <section id="including-your-page-in-the-tardis-documentation">
@@ -236,7 +242,7 @@ make html
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 20 Apr 2025.
+      <span class="lastupdated">Last updated on 21 Apr 2025.
       </span></p>
   </div>
 
