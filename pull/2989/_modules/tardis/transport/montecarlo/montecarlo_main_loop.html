@@ -83,11 +83,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -237,16 +237,16 @@ def montecarlo_main_loop(
 
     for i in prange(no_of_packets):
         thread_id = get_thread_id()
-        # if show_progress_bars:
-        #     if thread_id == main_thread_id:
-        #         with objmode:
-        #             update_amount = 1 * n_threads
-        #             update_packet_pbar(
-        #                 update_amount,
-        #                 current_iteration=iteration,
-        #                 no_of_packets=no_of_packets,
-        #                 total_iterations=total_iterations,
-        #             )
+        if show_progress_bars:
+            if thread_id == main_thread_id:
+                with objmode:
+                    update_amount = 1 * n_threads
+                    update_packet_pbar(
+                        update_amount,
+                        current_iteration=iteration,
+                        no_of_packets=no_of_packets,
+                        total_iterations=total_iterations,
+                    )
 
         r_packet = RPacket(
             packet_collection.initial_radii[i],
@@ -341,7 +341,7 @@ def montecarlo_main_loop(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Apr 2025.
+      <span class="lastupdated">Last updated on 21 Apr 2025.
       </span></p>
   </div>
 
