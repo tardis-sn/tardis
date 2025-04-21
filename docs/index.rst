@@ -74,12 +74,12 @@ Mission Statement
 
 .. toctree::
     :maxdepth: 3
-    :caption: Analysing Tardis Outputs
+    :caption: Analyzing Tardis
     :hidden:
 
-    analysing_tardis_outputs/visualization/index
-    analysing_tardis_outputs/spectrum/index
-    analysing_tardis_outputs/liv_plot_notebook.ipynb
+    analyzing_tardis/visualization/index
+    analyzing_tardis/spectrum/index
+    analyzing_tardis/liv_plot_notebook.ipynb
 
 
 .. toctree::
