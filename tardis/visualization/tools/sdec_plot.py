@@ -987,10 +987,7 @@ class SDECPlotter:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
         else:
             self.ax = ax
-        
-        print("species", self.species)
-        print("species_lsit", self._species_list)
-        print("mapped", self._species_mapped)
+
         # Get the labels in the color bar. This determines the number of unique colors
         self._species_name = pu.make_colorbar_labels(
             self.species, self._species_list, self._species_mapped
