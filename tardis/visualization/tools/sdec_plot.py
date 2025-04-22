@@ -18,10 +18,7 @@ from astropy.modeling.models import BlackBody
 
 from tardis.util.base import (
     atomic_number2element_symbol,
-    element_symbol2atomic_number,
     int_to_roman,
-    roman_to_int,
-    species_string_to_tuple,
 )
 from tardis.visualization import plot_util as pu
 
@@ -426,6 +423,101 @@ class SDECPlotter:
             / self.lum_to_flux
         )
 
+    def _create_wavelength_mask(
+        self, packets_mode, packet_wvl_range, df_key, column_name
+    ):
+        """
+        Create mask for packets based on wavelength range.
+
+        Parameters
+        ----------
+        packets_mode : str
+            'virtual' or 'real' packets mode
+        packet_wvl_range : astropy.Quantity or None
+            Wavelength range to filter packets
+        df_key : str
+            Key for the dataframe in packet_data ('packets_df' or 'packets_df_line_interaction')
+        column_name : str
+            Column name to filter on ('nus' or 'last_line_interaction_in_nu')
+
+        Returns
+        -------
+        np.array
+            Boolean mask for packets in the specified wavelength range
+        """
+        if packet_wvl_range is None:
+            return np.ones(
+                self.packet_data[packets_mode][df_key].shape[0],
+                dtype=bool,
+            )
+
+        packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
+        df = self.packet_data[packets_mode][df_key]
+
+        return (df[column_name] < packet_nu_range[0]) & (
+            df[column_name] > packet_nu_range[1]
+        )
+
+    def _calculate_grouped_luminosities(
+        self, packets_mode, mask, nu_column, luminosities_df
+    ):
+        """
+        Calculate luminosities for element interactions and populate DataFrame.
+
+        Parameters
+        ----------
+        packets_mode : str
+            'virtual' or 'real' packets mode
+        mask : np.array
+            Boolean mask for wavelength filtering
+        nu_column : str
+            Column name containing frequency values
+        luminosities_df : pd.DataFrame
+            DataFrame to store results
+
+        Returns
+        -------
+        tuple
+            (updated luminosities_df, array of species identifiers)
+        """
+        # Group packets_df by atomic number of elements with which packets
+        # had their last emission (interaction out)
+        # or if species_list is requested then group by species id
+        groupby_column = (
+            "last_line_interaction_atom"
+            if self._species_list is None
+            else "last_line_interaction_species"
+        )
+        # Group the packets
+        grouped = (
+            self.packet_data[packets_mode]["packets_df_line_interaction"]
+            .loc[mask]
+            .groupby(by=groupby_column)
+        )
+        # Calculate luminosities for each group
+        for identifier, group in grouped:
+            weights = (
+                group["energies"] / self.lum_to_flux / self.time_of_simulation
+            )
+            hist = np.histogram(
+                group[nu_column],
+                bins=self.plot_frequency_bins.value,
+                weights=weights,
+                density=False,
+            )
+
+            L_nu = (
+                hist[0]
+                * u.erg
+                / u.s
+                / self.spectrum[packets_mode]["spectrum_delta_frequency"]
+            )
+            luminosities_df[identifier] = (
+                L_nu * self.plot_frequency / self.plot_wavelength
+            ).value
+
+        return luminosities_df, np.array(list(grouped.groups.keys()))
+
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         """
         Calculate luminosities for the emission part of SDEC plot.
@@ -450,37 +542,18 @@ class SDECPlotter:
             wavelength range interacted
         """
         # Calculate masks to be applied on packets data based on packet_wvl_range
-        if packet_wvl_range is None:
-            self.packet_nu_range_mask = np.ones(
-                self.packet_data[packets_mode]["packets_df"].shape[0],
-                dtype=bool,
-            )
-            self.packet_nu_line_range_mask = np.ones(
-                self.packet_data[packets_mode][
-                    "packets_df_line_interaction"
-                ].shape[0],
-                dtype=bool,
-            )
-        else:
-            packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
-            self.packet_nu_range_mask = (
-                self.packet_data[packets_mode]["packets_df"]["nus"]
-                < packet_nu_range[0]
-            ) & (
-                self.packet_data[packets_mode]["packets_df"]["nus"]
-                > packet_nu_range[1]
-            )
-            self.packet_nu_line_range_mask = (
-                self.packet_data[packets_mode]["packets_df_line_interaction"][
-                    "nus"
-                ]
-                < packet_nu_range[0]
-            ) & (
-                self.packet_data[packets_mode]["packets_df_line_interaction"][
-                    "nus"
-                ]
-                > packet_nu_range[1]
-            )
+        self.packet_nu_range_mask = self._create_wavelength_mask(
+            packets_mode,
+            packet_wvl_range,
+            df_key="packets_df",
+            column_name="nus",
+        )
+        self.packet_nu_line_range_mask = self._create_wavelength_mask(
+            packets_mode,
+            packet_wvl_range,
+            df_key="packets_df_line_interaction",
+            column_name="nus",
+        )
 
         # Histogram weights are packet luminosities or flux
         weights = (
@@ -492,7 +565,7 @@ class SDECPlotter:
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
-        # Contribution of packets which experienced no interaction ------------
+        # Contribution of packets which experienced no interaction
         # Mask to select packets with no interaction
         mask_noint = (
             self.packet_data[packets_mode]["packets_df"][
@@ -556,50 +629,12 @@ class SDECPlotter:
         )
         luminosities_df["escatter"] = L_lambda_escatter.value
 
-        # Group packets_df by atomic number of elements with which packets
-        # had their last emission (interaction out)
-        # or if species_list is requested then group by species id
-        if self._species_list is None:
-            packets_df_grouped = (
-                self.packet_data[packets_mode]["packets_df_line_interaction"]
-                .loc[self.packet_nu_line_range_mask]
-                .groupby(by="last_line_interaction_atom")
-            )
-        else:
-            packets_df_grouped = (
-                self.packet_data[packets_mode]["packets_df_line_interaction"]
-                .loc[self.packet_nu_line_range_mask]
-                .groupby(by="last_line_interaction_species")
-            )
-
-        # Contribution of each species with which packets interacted ----------
-        for identifier, group in packets_df_grouped:
-            # Histogram of specific species
-            hist_el = np.histogram(
-                group["nus"],
-                bins=self.plot_frequency_bins.value,
-                weights=group["energies"]
-                / self.lum_to_flux
-                / self.time_of_simulation,
-            )
-
-            # Convert to luminosity density lambda
-            L_nu_el = (
-                hist_el[0]
-                * u.erg
-                / u.s
-                / self.spectrum[packets_mode]["spectrum_delta_frequency"]
-            )
-            L_lambda_el = L_nu_el * self.plot_frequency / self.plot_wavelength
-
-            luminosities_df[identifier] = L_lambda_el.value
-
-        # Create an array of the species with which packets interacted
-        emission_species_present = np.array(
-            list(packets_df_grouped.groups.keys())
+        return self._calculate_grouped_luminosities(
+            packets_mode=packets_mode,
+            mask=self.packet_nu_line_range_mask,
+            nu_column="nus",
+            luminosities_df=luminosities_df,
         )
-
-        return luminosities_df, emission_species_present
 
     def _calculate_absorption_luminosities(
         self, packets_mode, packet_wvl_range
@@ -624,71 +659,21 @@ class SDECPlotter:
             each element present
         """
         # Calculate masks to be applied on packets data based on packet_wvl_range
-        if packet_wvl_range is None:
-            self.packet_nu_line_range_mask = np.ones(
-                self.packet_data[packets_mode][
-                    "packets_df_line_interaction"
-                ].shape[0],
-                dtype=bool,
-            )
-        else:
-            packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
-            self.packet_nu_line_range_mask = (
-                self.packet_data[packets_mode]["packets_df_line_interaction"][
-                    "last_line_interaction_in_nu"
-                ]
-                < packet_nu_range[0]
-            ) & (
-                self.packet_data[packets_mode]["packets_df_line_interaction"][
-                    "last_line_interaction_in_nu"
-                ]
-                > packet_nu_range[1]
-            )
+        self.packet_nu_line_range_mask = self._create_wavelength_mask(
+            packets_mode,
+            packet_wvl_range,
+            df_key="packets_df_line_interaction",
+            column_name="last_line_interaction_in_nu",
+        )
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
-        # Group packets_df by atomic number of elements with which packets
-        # had their last absorption (interaction in)
-        # or if species_list is requested then group by species id
-        if self._species_list is None:
-            packets_df_grouped = (
-                self.packet_data[packets_mode]["packets_df_line_interaction"]
-                .loc[self.packet_nu_line_range_mask]
-                .groupby(by="last_line_interaction_atom")
-            )
-        else:
-            packets_df_grouped = (
-                self.packet_data[packets_mode]["packets_df_line_interaction"]
-                .loc[self.packet_nu_line_range_mask]
-                .groupby(by="last_line_interaction_species")
-            )
-
-        for identifier, group in packets_df_grouped:
-            # Histogram of specific species
-            hist_el = np.histogram(
-                group["last_line_interaction_in_nu"],
-                bins=self.plot_frequency_bins.value,
-                weights=group["energies"]
-                / self.lum_to_flux
-                / self.time_of_simulation,
-            )
-
-            # Convert to luminosity density lambda
-            L_nu_el = (
-                hist_el[0]
-                * u.erg
-                / u.s
-                / self.spectrum[packets_mode]["spectrum_delta_frequency"]
-            )
-            L_lambda_el = L_nu_el * self.plot_frequency / self.plot_wavelength
-
-            luminosities_df[identifier] = L_lambda_el.value
-
-        absorption_species_present = np.array(
-            list(packets_df_grouped.groups.keys())
+        return self._calculate_grouped_luminosities(
+            packets_mode=packets_mode,
+            mask=self.packet_nu_line_range_mask,
+            nu_column="last_line_interaction_in_nu",
+            luminosities_df=luminosities_df,
         )
-
-        return luminosities_df, absorption_species_present
 
     def _calculate_photosphere_luminosity(self, packets_mode):
         """
@@ -806,10 +791,7 @@ class SDECPlotter:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
         else:
             self.ax = ax
-        
-        print("species", self.species)
-        print("species_lsit", self._species_list)
-        print("mapped", self._species_mapped)
+
         # Get the labels in the color bar. This determines the number of unique colors
         self._species_name = pu.make_colorbar_labels(
             self.species, self._species_list, self._species_mapped
