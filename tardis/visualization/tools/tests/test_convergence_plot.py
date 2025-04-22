@@ -9,9 +9,12 @@ from astropy import units as u
 
 from tardis import run_tardis
 from tardis.visualization.tools.convergence_plot import (
-    ConvergencePlots,
-    transition_colors,
+    ConvergencePlots
 )
+from collections import defaultdict
+import plotly.graph_objects as go
+from astropy import units as u
+import tardis.visualization.plot_util as pu
 
 
 @pytest.fixture(scope="module", params=[0, 1, 2])
@@ -38,7 +41,7 @@ def fetch_luminosity_data(convergence_plots):
 def test_transition_colors():
     """Test whether the object returned by the transition_colors function is a list of appropriate length."""
     iterations = 3
-    colors = transition_colors(length=iterations)
+    colors = pu.get_hex_color_strings(length=iterations)
     assert type(colors) == list
     assert len(colors) == iterations
 

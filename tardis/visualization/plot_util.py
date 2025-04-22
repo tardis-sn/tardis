@@ -93,15 +93,15 @@ def to_rgb255_string(color_tuple):
     color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
     return f"rgb{color_tuple_255}"
 
-def get_hex_color_strings(no_of_colors, cmap_name="jet"):
+def get_hex_color_strings(length, name="jet"):
     """
     Generate a list of hex color strings from a discrete colormap.
 
     Parameters
     ----------
-    no_of_colors : int
+    length : int
         Number of discrete colors to extract from the colormap.
-    cmap_name : str, optional
+    name : str, optional
         Name of the Matplotlib colormap to use (default is 'jet').
 
     Returns
@@ -109,7 +109,7 @@ def get_hex_color_strings(no_of_colors, cmap_name="jet"):
     list of str
         List of hex color strings (['#ff0000', '#00ff00', '#0000ff'])
     """
-    cmap = plt.get_cmap(cmap_name, no_of_colors)
+    cmap = plt.get_cmap(name, length)
     return [mcolors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]
 
 

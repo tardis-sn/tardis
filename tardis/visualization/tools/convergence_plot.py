@@ -16,37 +16,14 @@ from traitlets import TraitError
 # labels on the convergence plots not rendering correctly.
 import plotly
 from IPython.display import display, HTML
+import tardis.visualization.plot_util as pu
 
 plotly.offline.init_notebook_mode(connected=True)
 # mathjax needs to be loaded for latex labels to render correctly
 # see https://github.com/tardis-sn/tardis/issues/2446
 display(HTML('<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'))
 
-
-def transition_colors(length, name="jet"):
-    """
-    Create colorscale for convergence plots, returns a list of colors.
-
-    Parameters
-    ----------
-    length : int
-        The length of the colorscale.
-    name : string, default: 'jet', optional
-        Name of the colorscale.
-
-    Returns
-    -------
-    colors: list
-    """
-    cmap = mpl.pyplot.get_cmap(name, length)
-    colors = []
-    for i in range(cmap.N):
-        rgb = cmap(i)[:3]
-        colors.append(mpl.colors.rgb2hex(rgb))
-    return colors
-
-
-class ConvergencePlots:
+class ConvergencePlots(object):
     """
     Create and update convergence plots for visualizing convergence of the simulation.
 
@@ -100,17 +77,17 @@ class ConvergencePlots:
             ]
 
         if "plasma_cmap" in kwargs:
-            self.plasma_colorscale = transition_colors(
+            self.plasma_colorscale = pu.get_hex_color_strings(
                 name=kwargs["plasma_cmap"], length=self.iterations
             )
         else:
             # default color scale is jet
-            self.plasma_colorscale = transition_colors(length=self.iterations)
+            self.plasma_colorscale = pu.get_hex_color_strings(length=self.iterations)
 
         if "t_inner_luminosities_colors" in kwargs:
             # use cmap if string
             if type(kwargs["t_inner_luminosities_colors"]) == str:
-                self.t_inner_luminosities_colors = transition_colors(
+                self.t_inner_luminosities_colors = pu.get_hex_color_strings(
                     length=5,
                     name=kwargs["t_inner_luminosities_colors"],
                 )

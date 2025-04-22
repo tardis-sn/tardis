@@ -32,6 +32,7 @@ from tardis.util.base import (
     quantity_linspace,
 )
 from tardis.visualization.tools.convergence_plot import transition_colors
+import tardis.visualization.plot_util as pu 
 from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
@@ -700,7 +701,7 @@ class CustomAbundanceWidget:
 
     def update_line_color(self):
         """Update line color in the plot according to colormap."""
-        colorscale = transition_colors(self.no_of_elements, self.plot_cmap)
+        colorscale = pu.get_hex_color_strings(self.no_of_elements, self.plot_cmap)
         for i in range(self.no_of_elements):
             self.fig.data[2 + i].line.color = colorscale[i]
 
