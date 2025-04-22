@@ -930,23 +930,7 @@ class SDECPlotter:
                 )
             except KeyError:
                 # Add notifications that this species was not in the emission df
-                if self._species_list is None:
-                    info_msg = (
-                        f"{atomic_number2element_symbol(identifier)}"
-                        f" is not in the emitted packets; skipping"
-                    )
-                    logger.info(info_msg)
-                else:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-
-                    info_msg = (
-                        f"{atomic_number2element_symbol(atomic_number)}"
-                        f"{int_to_roman(ion_number + 1)}"
-                        f" is not in the emitted packets; skipping"
-                    )
-                    logger.info(info_msg)
+                self._log_missing_species(identifier, "emitted")
 
     def _plot_absorption_mpl(self):
         """Plot absorption part of the SDEC Plot using matplotlib."""
@@ -988,23 +972,7 @@ class SDECPlotter:
 
             except KeyError:
                 # Add notifications that this species was not in the emission df
-                if self._species_list is None:
-                    info_msg = (
-                        f"{atomic_number2element_symbol(identifier)}"
-                        f" is not in the absorbed packets; skipping"
-                    )
-                    logger.info(info_msg)
-                else:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-
-                    info_msg = (
-                        f"{atomic_number2element_symbol(atomic_number)}"
-                        f"{int_to_roman(ion_number + 1)}"
-                        f" is not in the absorbed packets; skipping"
-                    )
-                    logger.info(info_msg)
+                self._log_missing_species(identifier, "absorbed")
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
@@ -1320,23 +1288,7 @@ class SDECPlotter:
                 )
             except KeyError:
                 # Add notifications that this species was not in the emission df
-                if self._species_list is None:
-                    info_msg = (
-                        f"{atomic_number2element_symbol(identifier)}"
-                        f" is not in the emitted packets; skipping"
-                    )
-                    logger.info(info_msg)
-                else:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-
-                    info_msg = (
-                        f"{atomic_number2element_symbol(atomic_number)}"
-                        f"{int_to_roman(ion_number + 1)}"
-                        f" is not in the emitted packets; skipping"
-                    )
-                    logger.info(info_msg)
+                self._log_missing_species(identifier, "emitted")
 
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
@@ -1379,24 +1331,8 @@ class SDECPlotter:
                 )
 
             except KeyError:
-                # Add notifications that this species was not in the emission df
-                if self._species_list is None:
-                    info_msg = (
-                        f"{atomic_number2element_symbol(identifier)}"
-                        f" is not in the absorbed packets; skipping"
-                    )
-                    logger.info(info_msg)
-                else:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-
-                    info_msg = (
-                        f"{atomic_number2element_symbol(atomic_number)}"
-                        f"{int_to_roman(ion_number + 1)}"
-                        f" is not in the absorbed packets; skipping"
-                    )
-                    logger.info(info_msg)
+                # Add notifications that this species was not in the df
+                self._log_missing_species(identifier, "absorbed")
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
@@ -1447,3 +1383,22 @@ class SDECPlotter:
                 marker=dict(color=[0], opacity=0, **coloraxis_options),
             )
         )
+
+    def _log_missing_species(self, identifier, is_absorption):
+        interaction_type = "absorbed" if is_absorption else "emitted"
+        if self._species_list is None:
+            info_msg = (
+                f"{atomic_number2element_symbol(identifier)}"
+                f" is not in the {interaction_type} packets; skipping"
+            )
+        else:
+            # Get the ion number and atomic number for each species
+            ion_number = identifier % 100
+            atomic_number = (identifier - ion_number) / 100
+
+            info_msg = (
+                f"{atomic_number2element_symbol(atomic_number)}"
+                f"{int_to_roman(ion_number + 1)}"
+                f" is not in the {interaction_type} packets; skipping"
+            )
+        logger.info(info_msg)
