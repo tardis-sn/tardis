@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -14,26 +16,24 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packet Propagation &mdash; tardis</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -54,9 +54,6 @@
           <a href="../../index.html" class="icon icon-home">
             tardis
           </a>
-              <div class="version">
-                latest
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -70,6 +67,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
 </ul>
@@ -81,10 +79,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul class="current">
@@ -113,7 +112,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -180,7 +179,8 @@ curved trajectories are included.</p>
 </div>
 <p>In spherical geometry, this propagation process may be illustrated by the
 following sketch (taken from <span id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>):</p>
-<a class="reference internal image-reference" href="../../_images/spherical_symmetry.png"><img alt="../../_images/spherical_symmetry.png" src="../../_images/spherical_symmetry.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../_images/spherical_symmetry.png"><img alt="../../_images/spherical_symmetry.png" src="../../_images/spherical_symmetry.png" style="width: 500px;" />
+</a>
 <p>The packet starts the propagation at <span class="math notranslate nohighlight">\(r_i\)</span> along the direction
 <span class="math notranslate nohighlight">\(\mu_i\)</span>. After covering a distance <span class="math notranslate nohighlight">\(l\)</span>, the packet is now located
 at</p>
@@ -210,7 +210,8 @@ are shown, being divided by the light blue lines. The boundaries of the computat
 computed during the simulation setup (refer back to <a class="reference internal" href="../setup/model.html"><span class="doc">Model</span></a>). As TARDIS is a time-independent code, meaning
 that it calculates the spectra at an instant in time (namely at the time <span class="math notranslate nohighlight">\(t_\mathrm{explosion}\)</span>), the radii of
 the boundaries (both of the computational domain and of the cells) do not change throughout the simulation.</p>
-<a class="reference internal image-reference" href="../../_images/expansion_animation.gif"><img alt="../../_images/expansion_animation.gif" src="../../_images/expansion_animation.gif" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../_images/expansion_animation.gif"><img alt="../../_images/expansion_animation.gif" src="../../_images/expansion_animation.gif" style="width: 500px;" />
+</a>
 </section>
 <section id="reference-frames">
 <span id="referenceframes"></span><h2>Reference Frames<a class="headerlink" href="#reference-frames" title="Link to this heading">¶</a></h2>
@@ -258,15 +259,17 @@ distance to the next radial shell is tracked to predict when the packet crosses
 into a new shell. The following figures summarize the calculations
 of these distances:</p>
 <p>The calculations for the distance to the outer cell boundary:</p>
-<a class="reference internal image-reference" href="../../_images/d_outer.png"><img alt="../../_images/d_outer.png" src="../../_images/d_outer.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../_images/d_outer.png"><img alt="../../_images/d_outer.png" src="../../_images/d_outer.png" style="width: 500px;" />
+</a>
 <p>The calculations for the distance to the inner cell boundary:</p>
-<a class="reference internal image-reference" href="../../_images/d_inner.png"><img alt="../../_images/d_inner.png" src="../../_images/d_inner.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../_images/d_inner.png"><img alt="../../_images/d_inner.png" src="../../_images/d_inner.png" style="width: 500px;" />
+</a>
 <p>Special care is taken at the edges of the computational
 domain. If a packet crosses back into the photosphere, it is discarded. Its
 propagation is stopped and it is no longer considered. Instead, processing the
 next packet of the population is started. Similarly, the propagation is stopped
 if the packet escapes through the outer surface of the domain. However, in this
-case the packet contributes to the final emergent spectrum (see <a class="reference internal" href="../../analysing_tardis_outputs/spectrum/index.html#spectrum"><span class="std std-ref">Spectrum
+case the packet contributes to the final emergent spectrum (see <a class="reference internal" href="../../analyzing_tardis/spectrum/index.html#spectrum"><span class="std std-ref">Spectrum
 Formation</span></a>).</p>
 <p>When a packet is moved into a new cell, as mentioned before, it is moved to the location at which it crosses the
 boundary, the plasma properties are recalculated, and the propagation direction of the packet is updated (using
@@ -350,7 +353,8 @@ which the accumulated optical depth reaches the randomly generated interaction o
 <span class="math notranslate nohighlight">\(\tau_\mathrm{interaction}\)</span> determines the type of interaction the packet performs and at which location in
 the spatial mesh, as shown with the example cases in the sketch below (taken from <span id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>, adapted from
 <span id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):</p>
-<a class="reference internal image-reference" href="../../_images/optical_depth_summation.png"><img alt="../../_images/optical_depth_summation.png" src="../../_images/optical_depth_summation.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../../_images/optical_depth_summation.png"><img alt="../../_images/optical_depth_summation.png" src="../../_images/optical_depth_summation.png" style="width: 500px;" />
+</a>
 <p>Three possible cases are highlighted in the above diagram, with the dotted lines showing the (randomly assigned)
 optical depth <span class="math notranslate nohighlight">\(\tau_\mathrm{interaction}\)</span> at which the packet interacts. In case I, the interaction optical
 depth value is reached on one of the path segments between successive Sobolev
@@ -424,7 +428,7 @@ radiation field emitted by the photosphere in the following way:</p>
 </li>
 </ul>
 <p>The following flow chart summarizes this process again:</p>
-<div class="graphviz"><object data="../../_images/graphviz-cd6cd8e2ec9e7376e28d81029e7dbc8feb94c663.svg" type="image/svg+xml" class="graphviz">
+<div class="graphviz"><object data="../../_images/graphviz-92b26f870c406bb7b9f1108157cd8181cf69667b.svg" type="image/svg+xml" class="graphviz">
 <p class="warning">digraph {
   start[shape=&quot;box&quot;, style=rounded, label=&quot;Start&quot;];
   end[shape=&quot;box&quot;, style=rounded, label=&quot;End&quot;];
@@ -479,7 +483,7 @@ radiation field emitted by the photosphere in the following way:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 19 Apr 2025.
+      <span class="lastupdated">Last updated on 22 Apr 2025.
       </span></p>
   </div>
 

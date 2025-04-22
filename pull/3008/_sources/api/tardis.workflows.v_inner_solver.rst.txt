@@ -3,5 +3,5 @@ tardis.workflows.v\_inner\_solver module
 
 .. automodule:: tardis.workflows.v_inner_solver
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

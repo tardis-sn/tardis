@@ -14,5 +14,5 @@ Module contents
 
 .. automodule:: tardis.plasma.radiation_field
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

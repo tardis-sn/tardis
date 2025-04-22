@@ -3,5 +3,5 @@ tardis.plasma.equilibrium.rate\_matrix module
 
 .. automodule:: tardis.plasma.equilibrium.rate_matrix
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -13,27 +15,25 @@
     </script>
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TARDIS gamma \(\gamma\) &mdash; tardis</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+  <title>TARDIS-High Energy &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -54,9 +54,6 @@
           <a href="../../index.html" class="icon icon-home">
             tardis
           </a>
-              <div class="version">
-                latest
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -70,6 +67,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
 </ul>
@@ -81,10 +79,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul class="current">
@@ -93,8 +92,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TARDIS-High Energy</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="packetinitialization.html">Packet Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opacities.html">Sources of Opacity</a></li>
 </ul>
 </li>
 </ul>
@@ -128,7 +128,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></li>
+      <li class="breadcrumb-item active">TARDIS-High Energy</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/physics/tardisgamma/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -138,13 +138,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tardis-gamma-gamma">
-<h1>TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span><a class="headerlink" href="#tardis-gamma-gamma" title="Link to this heading">¶</a></h1>
-<p>This code module simulates the propagation of <span class="math notranslate nohighlight">\(\gamma\)</span>-ray photons through the ejecta and can be used to study high energy phenomenon within the ejecta as well as the energy deposition of <span class="math notranslate nohighlight">\(\gamma\)</span>-rays and positrons.</p>
-<p>Type Ia supernovae produce a large amount of energy from <span class="math notranslate nohighlight">\(\gamma\)</span>-rays produced from the radioactive decay of <sup>56</sup> Ni and <sup>56</sup> Co. These photons often are not able to escape the ejecta until later times in the supernova when the density decreases. Once the <span class="math notranslate nohighlight">\(\gamma\)</span>-rays are able to escape they can provide information about the mass and distribution of radioactive isotopes created in the supernova.</p>
+  <section id="tardis-high-energy">
+<h1>TARDIS-High Energy<a class="headerlink" href="#tardis-high-energy" title="Link to this heading">¶</a></h1>
+<p>This code module simulates the propagation of high energy photons through the ejecta and can be used to study the transport of high energy photons within the ejecta as well as the energy deposition of high energy photons and positrons.</p>
+<p>Thermonuclear supernovae are powered by the radioactive decay of <sup>56</sup> Ni and <sup>56</sup> Co. The photons produced by the radioactive decay often are not able to escape the ejecta until later times in the supernova when the density decreases. Once the high energy photons are able to escape they can provide information about the mass and distribution of radioactive isotopes created in the supernova.</p>
+<p>The code can also be used to study the <span class="math notranslate nohighlight">\(\gamma\)</span>-ray spectra and energy deposited by radioactive isotopes in radioactively powered transients.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="packetinitialization.html">Packet Initialization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opacities.html">Sources of Opacity</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opacities.html#Pair-Creation">Pair Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opacities.html#Compton-Scattering">Compton Scattering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opacities.html#Photoabsorption">Photoabsorption</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -161,7 +168,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 19 Apr 2025.
+      <span class="lastupdated">Last updated on 22 Apr 2025.
       </span></p>
   </div>
 

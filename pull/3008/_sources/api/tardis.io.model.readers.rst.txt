@@ -23,5 +23,5 @@ Module contents
 
 .. automodule:: tardis.io.model.readers
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -14,5 +14,5 @@ Module contents
 
 .. automodule:: tardis.grid
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

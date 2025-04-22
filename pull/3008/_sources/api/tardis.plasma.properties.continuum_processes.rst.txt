@@ -17,5 +17,5 @@ Module contents
 
 .. automodule:: tardis.plasma.properties.continuum_processes
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

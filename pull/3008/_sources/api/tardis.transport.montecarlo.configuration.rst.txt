@@ -16,5 +16,5 @@ Module contents
 
 .. automodule:: tardis.transport.montecarlo.configuration
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
