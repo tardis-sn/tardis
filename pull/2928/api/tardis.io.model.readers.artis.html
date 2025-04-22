@@ -30,6 +30,8 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -63,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
@@ -99,11 +102,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -112,7 +115,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -161,27 +164,122 @@
              
   <section id="module-tardis.io.model.readers.artis">
 <span id="tardis-io-model-readers-artis-module"></span><h1>tardis.io.model.readers.artis module<a class="headerlink" href="#module-tardis.io.model.readers.artis" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.io.model.readers.artis.ArtisModelData">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.artis.</span></span><span class="sig-name descname"><span class="pre">ArtisModelData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_of_model:</span> <span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity:</span> <span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_density:</span> <span class="pre">astropy.units.quantity.Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_fractions:</span> <span class="pre">pandas.core.frame.DataFrame</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/artis.html#ArtisModelData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.artis.ArtisModelData" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.io.model.readers.artis.ArtisModelData.mass_fractions">
+<span class="sig-name descname"><span class="pre">mass_fractions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tardis.io.model.readers.artis.ArtisModelData.mass_fractions" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.io.model.readers.artis.ArtisModelData.mean_density">
+<span class="sig-name descname"><span class="pre">mean_density</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.0)"><span class="pre">Quantity</span></a></em><a class="headerlink" href="#tardis.io.model.readers.artis.ArtisModelData.mean_density" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.io.model.readers.artis.ArtisModelData.time_of_model">
+<span class="sig-name descname"><span class="pre">time_of_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.0)"><span class="pre">Quantity</span></a></em><a class="headerlink" href="#tardis.io.model.readers.artis.ArtisModelData.time_of_model" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.io.model.readers.artis.ArtisModelData.to_geometry">
+<span class="sig-name descname"><span class="pre">to_geometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/artis.html#ArtisModelData.to_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.artis.ArtisModelData.to_geometry" title="Link to this definition">¶</a></dt>
+<dd><p>Construct a HomologousRadial1DGeometry object from this ArtisModelData.</p>
+<p>We create v_inner and v_outer by treating the velocity array as boundary
+points for the shells. The time_of_model is used as the time_explosion.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.io.model.readers.artis.ArtisModelData.velocity">
+<span class="sig-name descname"><span class="pre">velocity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#tardis.io.model.readers.artis.ArtisModelData.velocity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.readers.artis.read_artis_density">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.artis.</span></span><span class="sig-name descname"><span class="pre">read_artis_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/artis.html#read_artis_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.artis.read_artis_density" title="Link to this definition">¶</a></dt>
-<dd><p>Reading a density file of the following structure (example; lines starting with a hash will be ignored):
-The first density describes the mean density in the center of the model and is not used.
-5
-#index velocity [km/s] log10(density) [log10(g/cm^3)]
-0 1.1e4 1.6e8
-1 1.2e4 1.7e8</p>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.artis.</span></span><span class="sig-name descname"><span class="pre">read_artis_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legacy_return</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/artis.html#read_artis_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.artis.read_artis_density" title="Link to this definition">¶</a></dt>
+<dd><p>Read an ARTIS density file.</p>
+<dl class="simple">
+<dt>The file is expected to have:</dt><dd><ul class="simple">
+<li><p>First line: number of shells (ignored beyond reading the integer).</p></li>
+<li><p>Second line: time of the model in days, which is then converted to seconds.</p></li>
+<li><p>Remaining lines: columns containing cell_id, velocity (km/s), log10(density),
+and mass fractions of Ni56, Co56, Fe52, and Cr48.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>fname</strong><span class="classifier">str</span></dt><dd><p>filename or path with filename</p>
+<dt><strong>fname</strong><span class="classifier">str</span></dt><dd><p>Path to the ARTIS density file.</p>
+</dd>
+<dt><strong>legacy_return</strong><span class="classifier">bool, optional (default: True)</span></dt><dd><p>If True, returns (time_of_model, velocity, mean_density).
+If False, returns (time_of_model, velocity, mean_density, isotope_mass_fractions).</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>time_of_model</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>time at which the model is valid</p>
+<dt><strong>time_of_model</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>The time at which the model is valid, in seconds.</p>
 </dd>
-<dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>data frame containing index, velocity (in km/s) and density</p>
+<dt><strong>velocity</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>The velocity array in cm/s.</p>
+</dd>
+<dt><strong>mean_density</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>The array of mean densities in g/cm^3, excluding the first (central) value.</p>
+</dd>
+<dt><strong>isotope_mass_fractions</strong><span class="classifier">pandas.DataFrame, optional</span></dt><dd><p>Mass fractions for Ni56, Co56, Fe52, and Cr48 if legacy_return=False.
+The DataFrame has a MultiIndex of (Z, A) for rows and the cell_id for columns.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The first density (i.e., the center of the model) is not used in the returned arrays.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.readers.artis.read_artis_mass_fractions">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.artis.</span></span><span class="sig-name descname"><span class="pre">read_artis_mass_fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/artis.html#read_artis_mass_fractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.artis.read_artis_mass_fractions" title="Link to this definition">¶</a></dt>
+<dd><p>Reads mass fractions from an ARTIS abundance file.</p>
+<p>The file must have shell indices in the first column, followed by
+columns for each element. Each row generally corresponds to one shell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fname</strong><span class="classifier">str</span></dt><dd><p>Path to the ARTIS abundance file.</p>
+</dd>
+<dt><strong>normalize</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, normalizes each row so the sum of mass fractions is 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>A DataFrame with ‘atomic_number’ as its index and ‘cell_index’
+as columns, holding the mass fractions for each element and shell.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.readers.artis.read_artis_model">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.artis.</span></span><span class="sig-name descname"><span class="pre">read_artis_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abundance_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/artis.html#read_artis_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.artis.read_artis_model" title="Link to this definition">¶</a></dt>
+<dd><p>Read density and abundance files, combine them, and return a single model dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>density_fname</strong><span class="classifier">str</span></dt><dd><p>Path to the ARTIS density file.</p>
+</dd>
+<dt><strong>abundance_fname</strong><span class="classifier">str</span></dt><dd><p>Path to the ARTIS abundance file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ArtisModelData</dt><dd><p>Combined data with time_of_model, velocity, mean_density, and mass_fractions.</p>
 </dd>
 </dl>
 </dd>
@@ -202,7 +300,7 @@ The first density describes the mean density in the center of the model and is n
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Apr 2025.
+      <span class="lastupdated">Last updated on 22 Apr 2025.
       </span></p>
   </div>
 

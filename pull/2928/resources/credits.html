@@ -30,6 +30,8 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -63,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
 </ul>
@@ -74,11 +77,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -87,7 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -134,7 +137,7 @@
              
   <section id="credits-publication-policies">
 <span id="tardiscredits"></span><h1>Credits &amp; Publication Policies<a class="headerlink" href="#credits-publication-policies" title="Link to this heading">¶</a></h1>
-<p><a class="reference external" href="https://doi.org/10.5281/zenodo.15107213"><img alt="DOI_BADGE" src="https://img.shields.io/badge/DOI-10.5281/zenodo.15107213-blue" /></a></p>
+<p><a class="reference external" href="https://doi.org/10.5281/zenodo.15250022"><img alt="DOI_BADGE" src="https://img.shields.io/badge/DOI-10.5281/zenodo.15250022-blue" /></a></p>
 <p>We provide TARDIS as a free, open-source tool. If you are using it, please
 adhere to a few policies and acknowledge the TARDIS Team.</p>
 <section id="publication-policies">
@@ -143,7 +146,7 @@ adhere to a few policies and acknowledge the TARDIS Team.</p>
 it.  Please cite <a class="reference external" href="http://adsabs.harvard.edu/abs/2014MNRAS.440..387K">Kerzendorf &amp; Sim 2014</a>  in the text and add the
 following paragraph to the Acknowledgement section:</p>
 <pre class="literal-block">This research made use of \textsc{tardis}, a community-developed software package for spectral
-synthesis in supernovae \citep{2014MNRAS.440..387K, kerzendorf_2025_15107213}. The
+synthesis in supernovae \citep{2014MNRAS.440..387K, kerzendorf_2025_15250022}. The
 development of \textsc{tardis} received support from GitHub, the Google Summer of Code
 initiative, and from ESA's Summer of Code in Space program. \textsc{tardis} is a fiscally
 sponsored project of NumFOCUS. \textsc{tardis} makes extensive use of Astropy and Pyne.</pre>
@@ -189,7 +192,7 @@ to the Acknowledgement.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@software</span><span class="p">{</span><span class="nl">kerzendorf_2025_15107213</span><span class="p">,</span>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@software</span><span class="p">{</span><span class="nl">kerzendorf_2025_15250022</span><span class="p">,</span>
 <span class="w">  </span><span class="na">author</span><span class="w">       </span><span class="p">=</span><span class="w"> </span><span class="s">{Kerzendorf, Wolfgang and</span>
 <span class="s">                  Sim, Stuart and</span>
 <span class="s">                  Vogl, Christian and</span>
@@ -297,13 +300,13 @@ to the Acknowledgement.</p>
 <span class="s">                  Nayak U, Ashwin and</span>
 <span class="s">                  Kumar, Atul and</span>
 <span class="s">                  Kharkar, Atharwa}</span><span class="p">,</span>
-<span class="w">  </span><span class="na">title</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="s">{tardis-sn/tardis: TARDIS v2025.03.30}</span><span class="p">,</span>
-<span class="w">  </span><span class="na">month</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="nv">mar</span><span class="p">,</span>
+<span class="w">  </span><span class="na">title</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="s">{tardis-sn/tardis: TARDIS v2025.04.20}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">month</span><span class="w">        </span><span class="p">=</span><span class="w"> </span><span class="nv">apr</span><span class="p">,</span>
 <span class="w">  </span><span class="na">year</span><span class="w">         </span><span class="p">=</span><span class="w"> </span><span class="m">2025</span><span class="p">,</span>
 <span class="w">  </span><span class="na">publisher</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="s">{Zenodo}</span><span class="p">,</span>
-<span class="w">  </span><span class="na">version</span><span class="w">      </span><span class="p">=</span><span class="w"> </span><span class="s">{release-2025.03.30}</span><span class="p">,</span>
-<span class="w">  </span><span class="na">doi</span><span class="w">          </span><span class="p">=</span><span class="w"> </span><span class="s">{10.5281/zenodo.15107213}</span><span class="p">,</span>
-<span class="w">  </span><span class="na">url</span><span class="w">          </span><span class="p">=</span><span class="w"> </span><span class="s">{https://doi.org/10.5281/zenodo.15107213}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">version</span><span class="w">      </span><span class="p">=</span><span class="w"> </span><span class="s">{release-2025.04.20}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">doi</span><span class="w">          </span><span class="p">=</span><span class="w"> </span><span class="s">{10.5281/zenodo.15250022}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">url</span><span class="w">          </span><span class="p">=</span><span class="w"> </span><span class="s">{https://doi.org/10.5281/zenodo.15250022}</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -322,7 +325,7 @@ to the Acknowledgement.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Apr 2025.
+      <span class="lastupdated">Last updated on 22 Apr 2025.
       </span></p>
   </div>
 

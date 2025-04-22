@@ -30,6 +30,8 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -62,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
 </ul>
@@ -73,11 +76,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -86,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
@@ -138,9 +141,29 @@
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
 <div class="docutils container" id="id1">
 <div role="list" class="citation-list">
+<div class="citation" id="id27" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Hub69<span class="fn-bracket">]</span></span>
+<p>J. H. Hubbell. Photon cross sections, attenuation coefficients, and energy absorption coefficients from 10 kev to 100 gev. <em>NSRDS-NBS</em>, 1969.</p>
+</div>
 <div class="citation" id="id25" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>JR76<span class="fn-bracket">]</span></span>
 <p>J. M Jauch and F Rohrlich. <em>The Theory of Photons and Electrons: the Relativistic Quantum Field Theory of Charged Particles with Spin One-half</em>. Springer Berlin Heidelberg, Berlin, Heidelberg, 1976. ISBN 978-3-642-80951-4 978-3-642-80953-8. OCLC: 840300942. URL: <a class="reference external" href="https://doi.org/10.1007/978-3-642-80951-4">https://doi.org/10.1007/978-3-642-80951-4</a> (visited on 2022-07-27).</p>
+</div>
+<div class="citation" id="id31" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>KS09<span class="fn-bracket">]</span></span>
+<p>M. Kromer and S. A. Sim. Time-dependent three-dimensional spectrum synthesis for type ia supernovae. <em>Monthly Notices of the Royal Astronomical Society</em>, 398(4):1809–1826, October 2009. URL: <a class="reference external" href="http://dx.doi.org/10.1111/j.1365-2966.2009.15256.x">http://dx.doi.org/10.1111/j.1365-2966.2009.15256.x</a>, <a class="reference external" href="https://doi.org/10.1111/j.1365-2966.2009.15256.x">doi:10.1111/j.1365-2966.2009.15256.x</a>.</p>
+</div>
+<div class="citation" id="id30" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Sim07<span class="fn-bracket">]</span></span>
+<p>S. A. Sim. Multidimensional simulations of radiative transfer in type ia supernovae. <em>Monthly Notices of the Royal Astronomical Society</em>, 375(1):154–162, February 2007. URL: <a class="reference external" href="http://dx.doi.org/10.1111/j.1365-2966.2006.11271.x">http://dx.doi.org/10.1111/j.1365-2966.2006.11271.x</a>, <a class="reference external" href="https://doi.org/10.1111/j.1365-2966.2006.11271.x">doi:10.1111/j.1365-2966.2006.11271.x</a>.</p>
+</div>
+<div class="citation" id="id29" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Vei73<span class="fn-bracket">]</span></span>
+<p>Wm.J. Veigele. Photon cross sections from 0.1 kev to 1 mev for elements z = 1 to z = 94. <em>Atomic Data and Nuclear Data Tables</em>, 5(1):51–111, 1973. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0092640X73800154">https://www.sciencedirect.com/science/article/pii/S0092640X73800154</a>, <a class="reference external" href="https://doi.org/https://doi.org/10.1016/S0092-640X(73)80015-4">doi:https://doi.org/10.1016/S0092-640X(73)80015-4</a>.</p>
+</div>
+<div class="citation" id="id32" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Wei95<span class="fn-bracket">]</span></span>
+<p>Steven Weinberg. <em>The Quantum Theory of Fields</em>. Cambridge University Press, 1995.</p>
 </div>
 <div class="citation" id="id23" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>WSP20<span class="fn-bracket">]</span></span>
@@ -149,6 +172,10 @@
 <div class="citation" id="id2" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>AbbottLucy85<span class="fn-bracket">]</span></span>
 <p>D. C. Abbott and L. B. Lucy. Multiline transfer and the dynamics of stellar winds. <em>Astrophysical Journal</em>, 288:679–693, January 1985. <a class="reference external" href="https://doi.org/10.1086/162834">doi:10.1086/162834</a>.</p>
+</div>
+<div class="citation" id="id28" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>AmbwaniSutherland88<span class="fn-bracket">]</span></span>
+<p>Kailash Ambwani and Peter Sutherland. Gamma-Ray Spectra and Energy Deposition for Type IA Supernovae. <em>\apj </em>, 325:820, February 1988. <a class="reference external" href="https://doi.org/10.1086/166052">doi:10.1086/166052</a>.</p>
 </div>
 <div class="citation" id="id3" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>BjorkmanWood01<span class="fn-bracket">]</span></span>
@@ -245,7 +272,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Apr 2025.
+      <span class="lastupdated">Last updated on 22 Apr 2025.
       </span></p>
   </div>
 
