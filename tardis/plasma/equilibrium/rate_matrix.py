@@ -123,6 +123,7 @@ class IonRateMatrix:
         level_population,
         lte_ion_population,
         ion_population,
+        charge_conservation=False,
     ):
         """Compute the ionization rate matrix in the
         case where the radiation field is not estimated.
@@ -203,7 +204,7 @@ class IonRateMatrix:
                             ),
                         ),
                     ),
-                    shape=(ion_states, ion_states + 1),
+                    shape=(ion_states, ion_states),
                 )
                 recomb_matrix = coo_matrix(
                     (
@@ -217,17 +218,20 @@ class IonRateMatrix:
                             ),
                         ),
                     ),
-                    shape=(ion_states, ion_states + 1),
+                    shape=(ion_states, ion_states),
                 )
 
                 matrix_array = (ion_matrix + recomb_matrix).toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
-                charge_conservation_row = np.hstack(
-                    (np.arange(0, ion_states), -1)
-                )
-                matrix_array = np.vstack(
-                    (charge_conservation_row, matrix_array)
-                )
+                matrix_array[0, :] = 1
+                if charge_conservation:
+                    charge_conservation_row = np.hstack(
+                        (np.arange(0, ion_states), -1)
+                    )
+                    matrix_array = np.pad(matrix_array, ((0, 0), (0, 1)))
+                    matrix_array = np.vstack(
+                        (charge_conservation_row, matrix_array)
+                    )
                 rate_matrices.loc[atomic_number, shell] = matrix_array
 
         rate_matrices.index.names = ["atomic_number"]

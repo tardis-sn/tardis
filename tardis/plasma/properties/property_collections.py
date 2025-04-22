@@ -34,6 +34,12 @@ basic_properties = PlasmaPropertyCollection(
         StimulatedEmissionFactor,
         SelectedAtoms,
         ElectronTemperature,
+        ThermalLevelBoltzmannFactorLTE,
+        ThermalLTEPartitionFunction,
+        BetaElectron,
+        ThermalGElectron,
+        ThermalPhiSahaLTE,
+        SahaFactor,
     ]
 )
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])

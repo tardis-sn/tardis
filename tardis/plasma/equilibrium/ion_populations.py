@@ -31,11 +31,11 @@ class IonPopulationSolver:
             The normalized, per-ion population.
         """
         normalized_ion_population = np.zeros(rates_matrix.shape[0])
-        normalized_ion_population[0] = 1.0
+        normalized_ion_population[1] = 1.0
         normalized_ion_population = np.linalg.solve(
             rates_matrix, normalized_ion_population
         )
-        return normalized_ion_population
+        return normalized_ion_population[:-1]
 
     def solve(self):
         """Solves the normalized ion population values from the rate matrices.
