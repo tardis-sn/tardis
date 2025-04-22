@@ -320,7 +320,8 @@ nbsite_pyodide_conf = {
 
 html_js_files = [
     DEFAULT_EMBED_REQUIREJS_URL,
-    "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"
+    "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"
 ]
 
 # -- Turn on nitpicky mode for sphinx (to warn about references not found) ----
