@@ -9,6 +9,53 @@ class CollisionalIonizationRateSolver:
     def __init__(self, photoionization_cross_sections):
         self.photoionization_cross_sections = photoionization_cross_sections
 
+    @staticmethod
+    def __reindex_ionization_rate_dataframe(
+        rate_dataframe, recombination=False
+    ):
+        rate_dataframe.index.names = [
+            "atomic_number",
+            "ion_number",
+            "level_number_source",
+        ]
+
+        rate_dataframe = rate_dataframe.reset_index()
+
+        if recombination:
+            rate_dataframe["ion_number_destination"] = rate_dataframe[
+                "ion_number"
+            ]
+            rate_dataframe["ion_number_source"] = (
+                rate_dataframe["ion_number"] + 1
+            )
+        else:
+            rate_dataframe["ion_number_source"] = rate_dataframe["ion_number"]
+            rate_dataframe["ion_number_destination"] = (
+                rate_dataframe["ion_number"] + 1
+            )
+
+        # ionized electrons are assumed to leave the ion in the ground state for now
+        rate_dataframe["level_number_destination"] = 0
+
+        not_fully_ionized_mask = (
+            rate_dataframe["atomic_number"] != rate_dataframe["ion_number"]
+        )
+
+        rate_dataframe = rate_dataframe[not_fully_ionized_mask]
+
+        rate_dataframe = rate_dataframe.set_index(
+            [
+                "atomic_number",
+                "ion_number",
+                "ion_number_source",
+                "ion_number_destination",
+                "level_number_source",
+                "level_number_destination",
+            ]
+        )
+
+        return rate_dataframe
+
     def solve(self, electron_temperature, saha_factor, approximation="seaton"):
         """Solve the collisional ionization and recombination rates.
 
@@ -45,6 +92,16 @@ class CollisionalIonizationRateSolver:
         # Inverse of the ionization rate for equilibrium
         collision_recombination_rates = collision_ionization_rates.multiply(
             saha_factor.loc[collision_ionization_rates.index]
+        )
+
+        collision_ionization_rates = self.__reindex_ionization_rate_dataframe(
+            collision_ionization_rates, recombination=False
+        )
+
+        collision_recombination_rates = (
+            self.__reindex_ionization_rate_dataframe(
+                collision_recombination_rates, recombination=True
+            )
         )
 
         return collision_ionization_rates, collision_recombination_rates
