@@ -1,25 +1,24 @@
 """Class to create and display Line Info Widget."""
 
-import re
 
-from astropy import units as u
+import ipywidgets as ipw
 import numpy as np
 import pandas as pd
+from astropy import units as u
 from plotly import graph_objects as go
 from plotly.callbacks import BoxSelector
-import ipywidgets as ipw
 
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import (
-    species_tuple_to_string,
-    species_string_to_tuple,
     is_notebook,
-)
-from tardis.visualization.widgets.util import (
-    create_table_widget,
-    TableSummaryLabel,
+    species_string_to_tuple,
+    species_tuple_to_string,
 )
 from tardis.visualization import plot_util as pu
+from tardis.visualization.widgets.util import (
+    TableSummaryLabel,
+    create_table_widget,
+)
 
 
 class LineInfoWidget:
@@ -303,7 +302,7 @@ class LineInfoWidget:
 
                 assert (
                     current_last_lines_in.empty & current_last_lines_out.empty
-                    == False
+                    is False
                 )
 
             except (KeyError, AssertionError):  # selected_species is invalid
