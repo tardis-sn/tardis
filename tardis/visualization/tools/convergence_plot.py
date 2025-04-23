@@ -19,7 +19,9 @@ import plotly
 from IPython.display import display, HTML
 
 plotly.offline.init_notebook_mode(connected=True)
-
+# mathjax needs to be loaded for latex labels to render correctly
+# see https://github.com/tardis-sn/tardis/issues/2446
+display(HTML('<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'))
 
 
 def transition_colors(length, name="jet"):
