@@ -152,6 +152,7 @@ class SDECPlotter:
             }
             self._keep_colour = keep_colour
         else:
+            self._full_species_list = None
             self._species_list = None
             self._species_mapped = None
             self._keep_colour = None
