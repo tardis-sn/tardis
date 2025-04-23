@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tardis.tests.fixtures.regression_data import PlotDataHDF
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
     extract_and_process_packet_data,
@@ -152,51 +151,43 @@ class TestPlotUtil:
             expected_df_line_interaction.reset_index(drop=True),
         )
 
-    @pytest.fixture(scope="function")
-    def generate_parse_species_hdf(self):
-        (
-            species_mapped_result,
-            species_list_result,
-            keep_colour_result,
-            full_species_list,
-        ) = parse_species_list_util(self.species_list[0])
-
-        plot_object = np.array(
-            [
-                list(item)
-                for sublist in species_mapped_result.values()
-                for item in sublist
-            ]
-        )
-
-        property_group = {
-            "species_mapped": plot_object,
-            "species_list": np.array(species_list_result),
-            "keep_colour": np.array(keep_colour_result),
-            "full_species_list": np.array(full_species_list),
-        }
-
-        return PlotDataHDF(**property_group)
-
-    def test_parse_species_list_util(
-        self, regression_data, generate_parse_species_hdf
+    @pytest.mark.parametrize(
+        "input_species, expected_species_mapped, expected_species_list, expected_keep_colour, expected_full_species_list",
+        [
+            (
+                ["Fe II", "Ca", "Si I - V"],
+                {
+                    (26, 1): [(26, 1)],
+                    (20, 0): [(20, np.int64(i)) for i in range(20)],
+                    (14, 4): [(14, 4)]
+                },
+                [(26, 1)] + [(20, np.int64(i)) for i in range(20)] + [(14, 4)],
+                [20],
+                ["Fe II", "Ca", "Si V"],
+            )
+        ],
+    )
+    def test_parse_species_list_util(self,
+        input_species,
+        expected_species_mapped,
+        expected_species_list,
+        expected_keep_colour,
+        expected_full_species_list,
     ):
-        expected = regression_data.sync_hdf_store(generate_parse_species_hdf)
-
-        for key in [
-            "species_mapped",
-            "species_list",
-            "keep_colour",
-            "full_species_list",
-        ]:
-            expected_values = expected.get("plot_data_hdf/" + key)
-            actual_values = getattr(generate_parse_species_hdf, key)
-
-            if key in ["species_list", "full_species_list"]:
-                np.testing.assert_array_equal(expected_values, actual_values)
-            else:
-                np.testing.assert_allclose(expected_values, actual_values)
-        expected.close()
+        species_mapped_result, species_list_result, keep_colour_result, full_species_list_result = parse_species_list_util(input_species)
+        assert set(species_mapped_result.keys()) == set(expected_species_mapped.keys())
+        for key in expected_species_mapped:
+            assert key in species_mapped_result
+            np.testing.assert_array_equal(
+                species_mapped_result[key], expected_species_mapped[key]
+            )
+        np.testing.assert_array_equal(
+            species_list_result, expected_species_list
+        )
+        np.testing.assert_array_equal(
+            keep_colour_result, expected_keep_colour
+        )
+        assert full_species_list_result == expected_full_species_list
 
     @pytest.mark.parametrize("packets_mode", ["real", "virtual"])
     def test_get_spectrum_data(self, simulation_simple, packets_mode):
