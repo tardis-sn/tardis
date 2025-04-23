@@ -75,7 +75,7 @@ def test_read_csv_composition_with_skip_rows(csv_composition_fname):
     from tardis.io.model.readers.util import read_csv_isotope_mass_fractions
 
     index, abundances, isotope_abundance = read_csv_isotope_mass_fractions(
-        csv_composition_fname, skip_rows=1
+        csv_composition_fname, skip_rows = []
     )
 
     assert np.isclose(abundances.loc[6, 8], 0.5, atol=1.0e-12)
