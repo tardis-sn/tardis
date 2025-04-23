@@ -369,11 +369,11 @@ from shutil import copyfile
 def generate_tutorials_page(app):
     """Create tutorials.rst"""
     notebooks = ""
+    io_path = Path("io")
 
-    for root, dirs, fnames in os.walk("io/"):
-        for fname in fnames:
-            if fname.startswith("tutorial_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
-                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+    for notebook in io_path.rglob("*.ipynb"):
+        if "tutorial_" in notebook.name and "checkpoint" not in notebook.name:
+            notebooks += f"\n* :doc:`{notebook.stem}`"
 
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
@@ -384,11 +384,11 @@ def generate_tutorials_page(app):
 def generate_how_to_guides_page(app):
     """Create how_to_guides.rst"""
     notebooks = ""
+    io_path = Path("io")
 
-    for root, dirs, fnames in os.walk("io/"):
-        for fname in fnames:
-            if fname.startswith("how_to_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
-                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+    for notebook in io_path.rglob("*.ipynb"):
+        if "how_to_" in notebook.name and "checkpoint" not in notebook.name:
+            notebooks += f"\n* :doc:`{notebook.stem}`"
 
     title = "How-To Guides\n*********\n"
     description = "The following pages contain the TARDIS how-to guides:"
@@ -403,7 +403,7 @@ def generate_worflows_page(app):
 
     for notebook in workflows_path.rglob("*.ipynb"):
         if "workflow" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.with_suffix('').as_posix()}`" 
+            notebooks += f"\n* :doc:`{notebook.stem}`" 
 
     title = "Workflows\n*********\n"
     description = "The following pages contain the TARDIS workflows:\n\n These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives."
