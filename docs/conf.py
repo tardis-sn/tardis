@@ -373,7 +373,7 @@ def generate_tutorials_page(app):
 
     for notebook in io_path.rglob("*.ipynb"):
         if "tutorial_" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.with_suffix('').as_posix()}`"
+            notebooks += f"\n* :doc:`{notebook.stem}`"
 
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
@@ -388,7 +388,7 @@ def generate_how_to_guides_page(app):
 
     for notebook in io_path.rglob("*.ipynb"):
         if "how_to_" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.with_suffix('').as_posix()}`"
+            notebooks += f"\n* :doc:`{notebook.stem}`"
 
     title = "How-To Guides\n*********\n"
     description = "The following pages contain the TARDIS how-to guides:"
