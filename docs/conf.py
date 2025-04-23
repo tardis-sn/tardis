@@ -403,7 +403,7 @@ def generate_worflows_page(app):
 
     for notebook in workflows_path.rglob("*.ipynb"):
         if "workflow" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.with_suffix('').as_posix()}`" 
+            notebooks += f"\n* :doc:`{notebook.stem}`" 
 
     title = "Workflows\n*********\n"
     description = "The following pages contain the TARDIS workflows:\n\n These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives."
