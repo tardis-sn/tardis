@@ -1,15 +1,14 @@
 """Tests for custom abundance widget."""
 from pathlib import Path
-import pytest
-import tardis
+
 import numpy as np
 import numpy.testing as npt
+import pytest
 
-from tardis.tests.test_util import monkeysession
 from tardis.visualization.widgets.custom_abundance import (
+    CustomAbundanceWidget,
     CustomAbundanceWidgetData,
     CustomYAML,
-    CustomAbundanceWidget,
 )
 
 
@@ -153,8 +152,8 @@ class TestCustomAbundanceWidget:
             caw.irs_shell_range.value = (1, 20)
 
             assert caw.shell_no == caw.irs_shell_range.value[0]
-            assert caw.btn_next.disabled == True
-            assert caw.btn_prev.disabled == True
+            assert caw.btn_next.disabled is True
+            assert caw.btn_prev.disabled is True
         else:
             caw.shell_no = 20
             caw.update_bar_diagonal()
@@ -222,7 +221,7 @@ class TestCustomAbundanceWidget:
                 line = caw.fig.data[2 + i].y[start_no - 1 : end_no]
                 unique_v = set(line)
                 assert len(unique_v) == 1
-                unique_v = float("{:.3g}".format(list(unique_v)[0]))
+                unique_v = float(f"{list(unique_v)[0]:.3g}")
                 assert unique_v == v
         else:
             for i, item in enumerate(caw.input_items):

@@ -1,16 +1,15 @@
 """Convergence Plots to see the convergence of the simulation in real time."""
 
 from collections import defaultdict
-import matplotlib.cm as cm
-import matplotlib.colors as clr
+from contextlib import suppress
+
+import ipywidgets as widgets
+import matplotlib as mpl
 import numpy as np
 import plotly.graph_objects as go
-from IPython.display import display
-import matplotlib as mpl
-import ipywidgets as widgets
-from contextlib import suppress
-from traitlets import TraitError
 from astropy import units as u
+from IPython.display import display
+from traitlets import TraitError
 
 
 # Added the below as a (temporary) workaround to the latex
@@ -47,7 +46,7 @@ def transition_colors(length, name="jet"):
     return colors
 
 
-class ConvergencePlots(object):
+class ConvergencePlots:
     """
     Create and update convergence plots for visualizing convergence of the simulation.
 

@@ -1,10 +1,12 @@
 """Tests for RPacketPlotter Plots"""
 
 import math
+
 import astropy.units as u
-import pytest
 import numpy as np
 import numpy.testing as npt
+import pytest
+
 from tardis.visualization import RPacketPlotter
 
 
