@@ -151,10 +151,8 @@ from astropy import units as u
 import plotly
 from IPython.display import display, HTML
 
-plotly.offline.init_notebook_mode()
-# display(HTML(
-#     &#39;&lt;script type=&quot;text/javascript&quot; async src=&quot;https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG&quot;&gt;&lt;/script&gt;&#39;
-# ))
+plotly.offline.init_notebook_mode(connected=True)
+
 
 
 <div class="viewcode-block" id="transition_colors">
@@ -633,7 +631,7 @@ class ConvergencePlots(object):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 22 Apr 2025.
+      <span class="lastupdated">Last updated on 23 Apr 2025.
       </span></p>
   </div>
 
