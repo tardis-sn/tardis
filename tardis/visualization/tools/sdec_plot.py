@@ -518,6 +518,38 @@ class SDECPlotter:
 
         return luminosities_df, np.array(list(grouped.groups.keys()))
 
+    def _calculate_luminosity_contribution(
+        self, packets_mode, mask, contribution_name, luminosities_df
+    ):
+        """Calculate luminosity contribution for packets matching the specified mask."""
+        # Histogram weights are packet luminosities or flux
+        weights = (
+            self.packet_data[packets_mode]["packets_df"]["energies"][
+                self.packet_nu_range_mask
+            ]
+            / self.lum_to_flux
+        ) / self.time_of_simulation
+
+        # Calculate weighted histogram
+        hist = np.histogram(
+            self.packet_data[packets_mode]["packets_df"]["nus"][
+                self.packet_nu_range_mask
+            ][mask],
+            bins=self.plot_frequency_bins.value,
+            weights=weights[mask],
+            density=False,
+        )
+        # Convert histogram (luminosity values) to luminosity density lambda
+        L_nu = (
+            hist[0]
+            * u.erg
+            / u.s
+            / self.spectrum[packets_mode]["spectrum_delta_frequency"]
+        )
+        L_lambda = L_nu * self.plot_frequency / self.plot_wavelength
+        # Update dataframe
+        luminosities_df[contribution_name] = L_lambda.value
+
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         """
         Calculate luminosities for the emission part of SDEC plot.
@@ -555,14 +587,6 @@ class SDECPlotter:
             column_name="nus",
         )
 
-        # Histogram weights are packet luminosities or flux
-        weights = (
-            self.packet_data[packets_mode]["packets_df"]["energies"][
-                self.packet_nu_range_mask
-            ]
-            / self.lum_to_flux
-        ) / self.time_of_simulation
-
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
         # Contribution of packets which experienced no interaction
@@ -573,29 +597,9 @@ class SDECPlotter:
             ][self.packet_nu_range_mask]
             == -1
         )
-
-        # Calculate weighted histogram of packet frequencies for
-        # plottable range of frequency bins
-        hist_noint = np.histogram(
-            self.packet_data[packets_mode]["packets_df"]["nus"][
-                self.packet_nu_range_mask
-            ][mask_noint],
-            bins=self.plot_frequency_bins.value,
-            weights=weights[mask_noint],
-            density=False,
+        self._calculate_luminosity_contribution(
+            packets_mode, mask_noint, "noint", luminosities_df
         )
-
-        # Convert histogram (luminosity values) to luminosity density lambda
-        L_nu_noint = (
-            hist_noint[0]
-            * u.erg
-            / u.s
-            / self.spectrum[packets_mode]["spectrum_delta_frequency"]
-        )
-        L_lambda_noint = L_nu_noint * self.plot_frequency / self.plot_wavelength
-
-        # Save it in df
-        luminosities_df["noint"] = L_lambda_noint.value
 
         # Contribution of packets which only experienced electron scattering ---
         mask_escatter = (
@@ -609,25 +613,9 @@ class SDECPlotter:
             ][self.packet_nu_range_mask]
             == -1
         )
-        hist_escatter = np.histogram(
-            self.packet_data[packets_mode]["packets_df"]["nus"][
-                self.packet_nu_range_mask
-            ][mask_escatter],
-            bins=self.plot_frequency_bins.value,
-            weights=weights[mask_escatter],
-            density=False,
+        self._calculate_luminosity_contribution(
+            packets_mode, mask_escatter, "escatter", luminosities_df
         )
-
-        L_nu_escatter = (
-            hist_escatter[0]
-            * u.erg
-            / u.s
-            / self.spectrum[packets_mode]["spectrum_delta_frequency"]
-        )
-        L_lambda_escatter = (
-            L_nu_escatter * self.plot_frequency / self.plot_wavelength
-        )
-        luminosities_df["escatter"] = L_lambda_escatter.value
 
         return self._calculate_grouped_luminosities(
             packets_mode=packets_mode,
