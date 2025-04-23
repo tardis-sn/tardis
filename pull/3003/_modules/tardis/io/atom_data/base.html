@@ -1,0 +1,932 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.io.atom_data.base &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.io.atom_data.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.io.atom_data.base</h1><div class="highlight"><pre>
+<span></span>import logging
+from dataclasses import dataclass
+
+import numpy as np
+import pandas as pd
+from astropy.units import Quantity
+
+from tardis import constants as const
+from tardis.io.atom_data.collision_data import (
+    ChiantiCollisionData,
+    CMFGENCollisionData,
+)
+from tardis.io.atom_data.macro_atom_data import MacroAtomData
+from tardis.io.atom_data.nlte_data import NLTEData
+from tardis.io.atom_data.util import resolve_atom_data_fname
+from tardis.plasma.properties.continuum_processes.rates import (
+    get_ground_state_multi_index,
+)
+
+
+<div class="viewcode-block" id="AtomDataNotPreparedError">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomDataNotPreparedError">[docs]</a>
+class AtomDataNotPreparedError(Exception):
+    pass</div>
+
+
+
+<div class="viewcode-block" id="AtomDataMissingError">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomDataMissingError">[docs]</a>
+class AtomDataMissingError(Exception):
+    pass</div>
+
+
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="AtomData">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData">[docs]</a>
+class AtomData:
+    &quot;&quot;&quot;
+    Class for storing atomic data
+
+    Parameters
+    ----------
+    atom_data : pandas.DataFrame
+    A DataFrame containing the *basic atomic data* with:
+        index : atomic_number
+        columns : symbol, name, mass[u].
+
+    ionization_data : pandas.DataFrame
+    A DataFrame containing the *ionization data* with:
+        index : atomic_number, ion_number
+        columns : ionization_energy[eV].
+    It is important to note here is that `ion_number` describes the *final ion state*
+    e.g. H I - H II is described with ion=1
+
+    levels : pandas.DataFrame
+    A DataFrame containing the *levels data* with:
+        index : numerical index
+        columns : atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
+
+    lines : pandas.DataFrame
+    A DataFrame containing the *lines data* with:
+        index : numerical index
+        columns : line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
+        wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
+
+    macro_atom_data :
+    A DataFrame containing the *macro atom data* with:
+        index : numerical index
+        columns : atomic_number, ion_number, source_level_number, destination_level_number,
+        transition_line_id, transition_type, transition_probability;
+
+    macro_atom_references :
+    A DataFrame containing  the *macro atom references* with:
+        index : numerical index
+        columns : atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
+    Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
+
+    collision_data : (pandas.DataFrame, np.array)
+    A DataFrame containing the *electron collisions data* with:
+        index : atomic_number, ion_number, level_number_lower, level_number_upper
+        columns : e_col_id, delta_e, g_ratio, c_ul;
+
+    collision_data_temperatures : np.array
+        An array with the collision temperatures.
+
+    zeta_data :
+    A DataFrame containing the *zeta data* for the
+    nebular ionization calculation
+    (i.e., the fraction of recombinations that go directly to the
+    ground state) with:
+        index : atomic_number, ion_charge
+        columns : temperatures[K]
+
+    synpp_refs : ?
+
+    photoionization_data : pandas.DataFrame
+    A DataFrame containing the *photoionization data* with:
+        index : numerical index
+        columns : atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
+
+    two_photon_data : pandas.DataFrame
+    A DataFrame containing the *two photon decay data* with:
+        index: atomic_number, ion_number, level_number_lower, level_number_upper
+        columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
+
+    decay_radiation_data : pandas.DataFrame
+    A dataframe containing the *decay radiation data* with:
+        index: Isotope names
+        columns: atomic_number, element, Rad energy, Rad intensity decay mode.
+        Curated from nndc
+
+    linelist_atoms : pandas.DataFrame
+    A DataFrame containing a linelist of input atoms
+
+    linelist_molecules : pandas.DataFrame
+    A DataFrame containing a linelist of input molecules
+
+    molecule_data : MolecularData
+    A class containing the *molecular data* with:
+        equilibrium_constants, partition_functions, dissociation_energies
+
+
+    Attributes
+    ----------
+    prepared : bool
+    atom_data : pandas.DataFrame
+    ionization_data : pandas.DataFrame
+    macro_atom_data_all : pandas.DataFrame
+    macro_atom_references_all : pandas.DataFrame
+    collision_data : pandas.DataFrame
+    collision_data_temperatures : numpy.array
+    zeta_data : pandas.DataFrame
+    synpp_refs : pandas.DataFrame
+    photoionization_data : pandas.DataFrame
+    two_photon_data : pandas.DataFrame
+    decay_radiation_data : pandas.DataFrame
+    linelist_atoms : pandas.DataFrame
+    linelist_molecules : pandas.DataFrame
+    molecule_data : MolecularData
+
+    Methods
+    -------
+    from_hdf:
+        Function to read the atom data from a TARDIS atom HDF Store
+    prepare_atom_data:
+        Prepares the atom data to set the lines, levels and if requested macro
+        atom data.  This function mainly cuts the `levels` and `lines` by
+        discarding any data that is not needed (any data for atoms that are not
+        needed
+
+    Notes
+    -----
+    1. The units of some columns are given in the square brackets. They are **NOT** the parts of columns&#39; names!
+    &quot;&quot;&quot;
+
+    hdf_names = [
+        &quot;atom_data&quot;,
+        &quot;ionization_data&quot;,
+        &quot;levels&quot;,
+        &quot;lines&quot;,
+        &quot;macro_atom_data&quot;,
+        &quot;macro_atom_references&quot;,
+        &quot;zeta_data&quot;,
+        &quot;collision_data&quot;,
+        &quot;collision_data_temperatures&quot;,
+        &quot;synpp_refs&quot;,
+        &quot;photoionization_data&quot;,
+        &quot;yg_data&quot;,
+        &quot;two_photon_data&quot;,
+        &quot;linelist_atoms&quot;,
+        &quot;linelist_molecules&quot;,
+        &quot;decay_radiation_data&quot;,
+    ]
+
+    # List of tuples of the related dataframes.
+    # Either all or none of the related dataframes must be given
+    related_groups = [
+        (&quot;macro_atom_data_all&quot;, &quot;macro_atom_references_all&quot;),
+    ]
+
+<div class="viewcode-block" id="AtomData.from_hdf">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.from_hdf">[docs]</a>
+    @classmethod
+    def from_hdf(cls, fname=None):
+        &quot;&quot;&quot;
+        Function to read the atom data from a TARDIS atom HDF Store
+
+        Parameters
+        ----------
+        fname : Path, optional
+            Path to the HDFStore file or name of known atom data file
+            (default: None)
+        &quot;&quot;&quot;
+        dataframes = {}
+        nonavailable = []
+
+        fname = resolve_atom_data_fname(fname)
+
+        with pd.HDFStore(fname, &quot;r&quot;) as store:
+            for name in cls.hdf_names:
+                try:
+                    dataframes[name] = store.select(name)
+                except KeyError:
+                    logger.debug(f&quot;Dataframe does not contain {name} column&quot;)
+                    nonavailable.append(name)
+
+            if &quot;metadata&quot; in store:
+                carsus_version_str = (
+                    store[&quot;metadata&quot;].loc[(&quot;format&quot;, &quot;version&quot;)].value
+                )
+                carsus_version = tuple(map(int, carsus_version_str.split(&quot;.&quot;)))
+                # Checks for various collisional data from Carsus files
+                if &quot;collisions_data&quot; in store:
+                    try:
+                        if carsus_version == (1, 0):
+                            dataframes[&quot;collision_data_temperatures&quot;] = store[
+                                &quot;collisions_metadata&quot;
+                            ].temperatures
+                        if &quot;cmfgen&quot; in store[&quot;collisions_metadata&quot;].dataset:
+                            dataframes[&quot;yg_data&quot;] = store[&quot;collisions_data&quot;]
+                            dataframes[&quot;collision_data&quot;] = &quot;dummy value&quot;
+                        elif &quot;chianti&quot; in store[&quot;collisions_metadata&quot;].dataset:
+                            dataframes[&quot;collision_data&quot;] = store[
+                                &quot;collisions_data&quot;
+                            ]
+                        else:
+                            raise KeyError(
+                                &quot;Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File&quot;
+                            )
+                    except KeyError as e:
+                        logger.warning(
+                            &quot;Atomic Data is not a Valid Carsus Atomic Data File&quot;
+                        )
+                        raise
+                dataframes[&quot;levels&quot;] = store[&quot;levels_data&quot;]
+                dataframes[&quot;lines&quot;] = store[&quot;lines_data&quot;]
+                if carsus_version != (1, 0) and carsus_version != (2, 0):
+                    raise ValueError(
+                        f&quot;Current carsus version, {carsus_version}, is not supported.&quot;
+                    )
+            if &quot;linelist_atoms&quot; in store:
+                dataframes[&quot;linelist_atoms&quot;] = store[&quot;linelist_atoms&quot;]
+            if &quot;linelist_molecules&quot; in store:
+                dataframes[&quot;linelist_molecules&quot;] = store[&quot;linelist_molecules&quot;]
+
+            if &quot;molecules&quot; in store:
+                molecule_data = MoleculeData(
+                    store[&quot;molecules/equilibrium_constants&quot;],
+                    store[&quot;molecules/partition_functions&quot;],
+                    store[&quot;molecules/dissociation_energies&quot;],
+                )
+            else:
+                molecule_data = None
+
+            atom_data = cls(**dataframes, molecule_data=molecule_data)
+
+            atom_data.uuid1 = cls.get_attributes_from_store(store, &quot;uuid1&quot;)
+            atom_data.md5 = cls.get_attributes_from_store(store, &quot;md5&quot;)
+            atom_data.version = cls.get_attributes_from_store(
+                store, &quot;database_version&quot;
+            )
+
+            # TODO: strore data sources as attributes in carsus
+
+            logger.info(
+                f&quot;Reading Atom Data with: UUID = {atom_data.uuid1} MD5  = {atom_data.md5} &quot;
+            )
+            if nonavailable:
+                logger.info(
+                    &quot;Non provided Atomic Data: {}&quot;.format(
+                        &quot;, &quot;.join(nonavailable)
+                    )
+                )
+
+        return atom_data</div>
+
+
+    def __init__(
+        self,
+        atom_data,
+        ionization_data,
+        levels=None,
+        lines=None,
+        macro_atom_data=None,
+        macro_atom_references=None,
+        zeta_data=None,
+        collision_data=None,
+        collision_data_temperatures=None,
+        synpp_refs=None,
+        photoionization_data=None,
+        yg_data=None,
+        two_photon_data=None,
+        linelist_atoms=None,
+        linelist_molecules=None,
+        decay_radiation_data=None,
+        molecule_data=None,
+    ):
+        self.prepared = False
+
+        # CONVERT VALUES TO CGS UNITS
+
+        # Convert atomic masses to CGS
+        # We have to use constants.u because astropy uses
+        # different values for the unit u and the constant.
+        # This is changed in later versions of astropy (
+        # the value of constants.u is used in all cases)
+        atom_data.loc[:, &quot;mass&quot;] = atom_data[&quot;mass&quot;].values * const.u.cgs.value
+
+        # Convert ionization energies to CGS
+        ionization_data = ionization_data.squeeze()
+        ionization_data[:] = Quantity(ionization_data[:], &quot;eV&quot;).cgs.value
+
+        # Convert energy to CGS
+        levels.loc[:, &quot;energy&quot;] = Quantity(
+            levels[&quot;energy&quot;].values, &quot;eV&quot;
+        ).cgs.value
+
+        # Create a new columns with wavelengths in the CGS units
+        lines[&quot;wavelength_cm&quot;] = Quantity(
+            lines[&quot;wavelength&quot;], &quot;angstrom&quot;
+        ).cgs.value
+
+        # SET ATTRIBUTES
+
+        self.atom_data = atom_data
+        self.ionization_data = ionization_data
+        self.levels = levels
+        # Cast to float so that Numba can use the values in numpy functions
+        self.levels.energy = self.levels.energy.astype(np.float64)
+        self.lines = lines
+
+        collected_macro_atom_data = MacroAtomData(
+            macro_atom_data, macro_atom_references
+        )
+
+        # Rename these (drop &quot;_all&quot;) when `prepare_atom_data` is removed!
+        self.macro_atom_data_all = (
+            collected_macro_atom_data.transition_probability_data
+        )
+        self.macro_atom_references_all = (
+            collected_macro_atom_data.block_reference_data
+        )
+
+        self.zeta_data = zeta_data
+
+        chianti_collision_data = ChiantiCollisionData(
+            collision_data, collision_data_temperatures
+        )
+
+        cmfgen_collision_data = CMFGENCollisionData(
+            yg_data, collision_data_temperatures
+        )
+
+        self.collision_data = chianti_collision_data.data
+        self.collision_data_temperatures = chianti_collision_data.temperatures
+
+        self.synpp_refs = synpp_refs
+
+        self.photoionization_data = photoionization_data
+
+        self.yg_data = cmfgen_collision_data.data
+
+        self.two_photon_data = two_photon_data
+
+        if linelist_atoms is not None:
+            self.linelist_atoms = linelist_atoms
+        if linelist_molecules is not None:
+            self.linelist_molecules = linelist_molecules
+
+        if molecule_data is not None:
+            self.molecule_data = molecule_data
+
+        if decay_radiation_data is not None:
+            self.decay_radiation_data = decay_radiation_data
+        self._check_related()
+
+        # ADDITIONAL ATTRIBUTES
+
+        self.selected_atomic_numbers = None
+        self.nlte_data = None
+        self.photo_ion_block_references = None
+        self.photo_ion_unique_index = None
+        self.lines_upper2macro_reference_idx = None
+        self.lines_lower2macro_reference_idx = None
+
+        # VERSIONING
+
+        self.uuid1 = None
+        self.md5 = None
+        self.version = None
+
+    def _check_related(self):
+        &quot;&quot;&quot;
+        Check that either all or none of the related dataframes are given.
+        &quot;&quot;&quot;
+        for group in self.related_groups:
+            check_list = [name for name in group if getattr(self, name) is None]
+
+            if len(check_list) != 0 and len(check_list) != len(group):
+                raise AtomDataMissingError(
+                    f&#39;The following dataframes from the related group [{&quot;, &quot;.join(group)}]&#39;
+                    f&#39;were not given: {&quot;, &quot;.join(check_list)}&#39;
+                )
+
+<div class="viewcode-block" id="AtomData.prepare_atom_data">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_atom_data">[docs]</a>
+    def prepare_atom_data(
+        self,
+        selected_atomic_numbers,
+        line_interaction_type,
+        nlte_species,
+        continuum_interaction_species,
+    ):
+        &quot;&quot;&quot;
+        Prepares the atom data to set the lines, levels and if requested macro
+        atom data.  This function mainly cuts the `levels` and `lines` by
+        discarding any data that is not needed (any data for atoms that are not
+        needed
+
+        Parameters
+        ----------
+        selected_atoms : set
+            set of selected atom numbers, e.g. set([14, 26])
+        line_interaction_type : str
+            can be &#39;scatter&#39;, &#39;downbranch&#39; or &#39;macroatom&#39;
+        &quot;&quot;&quot;
+        if not self.prepared:
+            self.prepared = True
+        else:
+            raise AtomDataNotPreparedError(&quot;AtomData was already prepared&quot;)
+        self.selected_atomic_numbers = selected_atomic_numbers
+
+        self._check_selected_atomic_numbers()
+
+        # cutting levels_lines
+        self.prepare_lines()
+        (
+            tmp_lines_lower2level_idx,
+            tmp_lines_upper2level_idx,
+        ) = self.prepare_line_level_indexes()
+
+        self.prepare_macro_atom_data(
+            line_interaction_type,
+            tmp_lines_lower2level_idx,
+            tmp_lines_upper2level_idx,
+        )
+        if len(continuum_interaction_species) &gt; 0:
+            self.prepare_continuum_interaction_data(
+                continuum_interaction_species
+            )
+
+        self.nlte_data = NLTEData(self, nlte_species)</div>
+
+
+<div class="viewcode-block" id="AtomData.prepare_lines">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_lines">[docs]</a>
+    def prepare_lines(self):
+        &quot;&quot;&quot;Prepare line data&quot;&quot;&quot;
+        self.lines = self.lines[
+            self.lines.index.isin(
+                self.selected_atomic_numbers, level=&quot;atomic_number&quot;
+            )
+        ]
+        # see https://github.com/numpy/numpy/issues/27725#issuecomment-2465471648
+        # with kind=&quot;stable&quot; the returned array will maintain the relative order of a values which compare as equal.
+        # this is important especially after numpy v2 release
+        # https://numpy.org/doc/stable/release/2.0.0-notes.html#minor-changes-in-behavior-of-sorting-functions
+        self.lines = self.lines.sort_values(by=[&quot;wavelength&quot;, &quot;line_id&quot;], kind=&quot;stable&quot;)</div>
+
+
+<div class="viewcode-block" id="AtomData.prepare_line_level_indexes">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_line_level_indexes">[docs]</a>
+    def prepare_line_level_indexes(self):
+        levels_index = pd.Series(
+            np.arange(len(self.levels), dtype=int), index=self.levels.index
+        )
+
+        tmp_lines_lower2level_idx = self.lines.index.droplevel(
+            &quot;level_number_upper&quot;
+        )
+
+        self.lines_lower2level_idx = (
+            levels_index.loc[tmp_lines_lower2level_idx].astype(np.int64).values
+        )
+
+        tmp_lines_upper2level_idx = self.lines.index.droplevel(
+            &quot;level_number_lower&quot;
+        )
+
+        self.lines_upper2level_idx = (
+            levels_index.loc[tmp_lines_upper2level_idx].astype(np.int64).values
+        )
+
+        return tmp_lines_lower2level_idx, tmp_lines_upper2level_idx</div>
+
+
+<div class="viewcode-block" id="AtomData.prepare_continuum_interaction_data">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_continuum_interaction_data">[docs]</a>
+    def prepare_continuum_interaction_data(self, continuum_interaction_species):
+        &quot;&quot;&quot;
+        Prepares the atom data for the continuum interaction
+
+        Parameters
+        ----------
+        continuum_interaction : ContinuumInteraction
+            The continuum interaction object
+        &quot;&quot;&quot;
+        # photoionization_data = atomic_data.photoionization_data.set_index(
+        #    [&quot;atomic_number&quot;, &quot;ion_number&quot;, &quot;level_number&quot;]
+        # )
+        mask_selected_species = self.photoionization_data.index.droplevel(
+            &quot;level_number&quot;
+        ).isin(continuum_interaction_species)
+        self.photoionization_data = self.photoionization_data[
+            mask_selected_species
+        ]
+        self.photo_ion_block_references = np.pad(
+            self.photoionization_data.nu.groupby(level=[0, 1, 2])
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+        self.photo_ion_unique_index = self.photoionization_data.index.unique()
+        nu_ion_threshold = (
+            self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
+        )
+
+        source_idx = self.macro_atom_references.loc[
+            self.photo_ion_unique_index
+        ].references_idx
+        destination_idx = self.macro_atom_references.loc[
+            get_ground_state_multi_index(self.photo_ion_unique_index)
+        ].references_idx
+        photo_ion_levels_idx = pd.DataFrame(
+            {
+                &quot;source_level_idx&quot;: source_idx.values,
+                &quot;destination_level_idx&quot;: destination_idx.values,
+            },
+            index=self.photo_ion_unique_index,
+        )
+
+        self.level2continuum_edge_idx = pd.Series(
+            np.arange(len(nu_ion_threshold)),
+            nu_ion_threshold.sort_values(ascending=False).index,
+            name=&quot;continuum_idx&quot;,
+        )
+
+        level_idxs2continuum_idx = photo_ion_levels_idx.copy()
+        level_idxs2continuum_idx[&quot;continuum_idx&quot;] = (
+            self.level2continuum_edge_idx
+        )
+        self.level_idxs2continuum_idx = level_idxs2continuum_idx.set_index(
+            [&quot;source_level_idx&quot;, &quot;destination_level_idx&quot;]
+        )</div>
+
+
+<div class="viewcode-block" id="AtomData.prepare_macro_atom_data">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_macro_atom_data">[docs]</a>
+    def prepare_macro_atom_data(
+        self,
+        line_interaction_type,
+        tmp_lines_lower2level_idx,
+        tmp_lines_upper2level_idx,
+    ):
+        if (
+            self.macro_atom_data_all is not None
+            and not line_interaction_type == &quot;scatter&quot;
+        ):
+            self.macro_atom_data = self.macro_atom_data_all.loc[
+                self.macro_atom_data_all[&quot;atomic_number&quot;].isin(
+                    self.selected_atomic_numbers
+                )
+            ].copy()
+
+            self.macro_atom_references = self.macro_atom_references_all[
+                self.macro_atom_references_all.index.isin(
+                    self.selected_atomic_numbers, level=&quot;atomic_number&quot;
+                )
+            ].copy()
+
+            if line_interaction_type == &quot;downbranch&quot;:
+                self.macro_atom_data = self.macro_atom_data.loc[
+                    self.macro_atom_data[&quot;transition_type&quot;] == -1
+                ]
+                self.macro_atom_references = self.macro_atom_references.loc[
+                    self.macro_atom_references[&quot;count_down&quot;] &gt; 0
+                ]
+                self.macro_atom_references.loc[:, &quot;count_total&quot;] = (
+                    self.macro_atom_references[&quot;count_down&quot;]
+                )
+                self.macro_atom_references.loc[:, &quot;block_references&quot;] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references[&quot;count_down&quot;].values[
+                                    :-1
+                                ]
+                            ),
+                        )
+                    )
+                )
+
+            elif line_interaction_type == &quot;macroatom&quot;:
+                self.macro_atom_references.loc[:, &quot;block_references&quot;] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references[
+                                    &quot;count_total&quot;
+                                ].values[:-1]
+                            ),
+                        )
+                    )
+                )
+
+            self.macro_atom_references.loc[:, &quot;references_idx&quot;] = np.arange(
+                len(self.macro_atom_references)
+            )
+
+            lines_index = pd.Series(
+                np.arange(len(self.lines), dtype=int),
+                index=self.lines.set_index(&quot;line_id&quot;).index,
+            )
+
+            self.macro_atom_data.loc[:, &quot;lines_idx&quot;] = lines_index.loc[
+                self.macro_atom_data[&quot;transition_line_id&quot;]
+            ].values
+
+            self.lines_upper2macro_reference_idx = (
+                self.macro_atom_references.loc[
+                    tmp_lines_upper2level_idx, &quot;references_idx&quot;
+                ]
+                .astype(np.int64)
+                .values
+            )
+
+            if line_interaction_type == &quot;macroatom&quot;:
+                self.lines_lower2macro_reference_idx = (
+                    self.macro_atom_references.loc[
+                        tmp_lines_lower2level_idx, &quot;references_idx&quot;
+                    ]
+                    .astype(np.int64)
+                    .values
+                )
+                # Sets all
+                tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays(
+                    [
+                        self.macro_atom_data[&quot;atomic_number&quot;],
+                        self.macro_atom_data[&quot;ion_number&quot;],
+                        self.macro_atom_data[&quot;destination_level_number&quot;],
+                    ]
+                )
+
+                tmp_macro_source_level_idx = pd.MultiIndex.from_arrays(
+                    [
+                        self.macro_atom_data[&quot;atomic_number&quot;],
+                        self.macro_atom_data[&quot;ion_number&quot;],
+                        self.macro_atom_data[&quot;source_level_number&quot;],
+                    ]
+                )
+
+                self.macro_atom_data.loc[:, &quot;destination_level_idx&quot;] = (
+                    self.macro_atom_references.loc[
+                        tmp_macro_destination_level_idx, &quot;references_idx&quot;
+                    ]
+                    .astype(np.int64)
+                    .values
+                )
+
+                self.macro_atom_data.loc[:, &quot;source_level_idx&quot;] = (
+                    self.macro_atom_references.loc[
+                        tmp_macro_source_level_idx, &quot;references_idx&quot;
+                    ]
+                    .astype(np.int64)
+                    .values
+                )
+
+            elif line_interaction_type == &quot;downbranch&quot;:
+                # Sets all the destination levels to -1 to indicate that they
+                # are not used in downbranch calculations
+                self.macro_atom_data.loc[:, &quot;destination_level_idx&quot;] = -1
+
+            if self.yg_data is not None:
+                self.yg_data = self.yg_data.reindex(
+                    self.selected_atomic_numbers, level=0
+                )</div>
+
+
+    def _check_selected_atomic_numbers(self):
+        selected_atomic_numbers = self.selected_atomic_numbers
+        available_atomic_numbers = np.unique(
+            self.ionization_data.index.get_level_values(0)
+        )
+        atomic_number_check = np.isin(
+            selected_atomic_numbers, available_atomic_numbers
+        )
+
+        if not all(atomic_number_check):
+            missing_atom_mask = np.logical_not(atomic_number_check)
+            missing_atomic_numbers = selected_atomic_numbers[missing_atom_mask]
+            missing_numbers_str = &quot;,&quot;.join(missing_atomic_numbers.astype(&quot;str&quot;))
+
+            msg = f&quot;For atomic numbers {missing_numbers_str} there is no atomic data.&quot;
+            raise AtomDataMissingError(msg)
+
+    def __repr__(self):
+        return f&quot;&lt;Atomic Data UUID={self.uuid1} MD5={self.md5} Lines={self.lines.line_id.count():d} Levels={self.levels.energy.count():d}&gt;&quot;
+
+<div class="viewcode-block" id="AtomData.get_attributes_from_store">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.get_attributes_from_store">[docs]</a>
+    def get_attributes_from_store(store, store_key):
+        &quot;&quot;&quot;Gets atom_data attributes, throws error and sets to None
+        if they are not available.
+
+        Parameters
+        ----------
+        store : pd.HDFStore
+            Data source
+        store_key : str
+            HDFStore value to check
+        &quot;&quot;&quot;
+        try:
+            attribute = store.root._v_attrs[store_key]
+            if hasattr(attribute, &quot;decode&quot;):
+                attribute = attribute.decode(&quot;ascii&quot;)
+        except KeyError:
+            logger.debug(
+                f&quot;{store_key} not available for Atom Data. Setting value to None&quot;
+            )
+            attribute = None
+
+        return attribute</div>
+</div>
+
+
+
+<div class="viewcode-block" id="MoleculeData">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.MoleculeData">[docs]</a>
+@dataclass
+class MoleculeData:
+    &quot;&quot;&quot;
+    Class to hold molecular data. Held by the AtomData object.
+
+    equilibrium_constants : pandas.DataFrame
+    A DataFrame containing the *molecular equilibrium constants* with:
+        index: molecule
+        columns: temperatures
+
+    partition_functions : pandas.DataFrame
+    A DataFrame containing the *molecular partition functions* with:
+        index: molecule
+        columns: temperatures
+
+    dissociation_energies : pandas.DataFrame
+    A DataFrame containing the *molecular dissociation energies* with:
+        index: molecule
+
+    &quot;&quot;&quot;
+
+    equilibrium_constants: pd.DataFrame
+    partition_functions: pd.DataFrame
+    dissociation_energies: pd.DataFrame</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 23 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nebular Plasma &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="NLTE treatment" href="nlte.html" />
+    <link rel="prev" title="LTE Plasma" href="lte_plasma.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Setting Up the Simulation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../setup_example.html">Setup Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Plasma</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="index.html#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#the-plasma-graph">The Plasma Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#updating-the-plasma">Updating the Plasma</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#plasma-calculations">Plasma Calculations</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="lte_plasma.html">LTE Plasma</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Nebular Plasma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nlte.html">NLTE treatment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="helium_nlte.html">Helium NLTE</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#sobolev-optical-depth">Sobolev optical depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#macro-atom-line-interaction-treatment">Macro Atom Line Interaction Treatment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Setting Up the Simulation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Plasma</a></li>
+      <li class="breadcrumb-item active">Nebular Plasma</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/physics/setup/plasma/nebular_plasma.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="nebular-plasma">
+<span id="id1"></span><h1>Nebular Plasma<a class="headerlink" href="#nebular-plasma" title="Link to this heading">¶</a></h1>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">NebularPlasma</span></code> class is a more complex description of the Plasma state than the <code class="xref py py-obj docutils literal notranslate"><span class="pre">LTEPlasma</span></code>. It takes a dilution factor
+(W) into account, which deals with the dilution of the radiation field due to geometric, line-blocking and other effects.</p>
+<p>The calculations follow the same steps as <code class="xref py py-obj docutils literal notranslate"><span class="pre">LTEPlasma</span></code>; however, the calculations are different and often take into account
+if a particular level is <a class="reference internal" href="../../../resources/zreferences.html#term-Meta-Stable"><span class="xref std std-term">meta-stable</span></a> or not.
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">NebularPlasma</span></code> will start calculating the <a class="reference external" href="http://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)">partition functions</a>.</p>
+<div class="math notranslate nohighlight">
+\[Z_{i,j} = \underbrace{\sum_{k=0}^{max(k)_{i,j}} g_k \times e^{-E_k / (k_\textrm{b} T)}}_\textrm{metastable levels} +
+        \underbrace{W\times\sum_{k=0}^{max(k)_{i,j}} g_k \times e^{-E_k / (k_\textrm{b} T)}}_\textrm{non-metastable levels}\]</div>
+<p>where Z is the partition function, g is the degeneracy factor, E the energy of the level, T the temperature of the radiation field
+and W the dilution factor.</p>
+<p>The next step is to calculate the ionization balance using the <a class="reference external" href="http://en.wikipedia.org/wiki/Saha_ionization_equation">Saha ionization equation</a>
+and then calculate the number density of the ions (and an electron number density) in a second step.
+In the first step, we calculate the ionization balance using the LTE approximation (<span class="math notranslate nohighlight">\(\Phi_{i, j}(\textrm{LTE})\)</span>). Then we adjust the ionization balance using
+two factors: <span class="math notranslate nohighlight">\(\zeta\)</span> and <span class="math notranslate nohighlight">\(\delta\)</span>.</p>
+<section id="calculating-zeta">
+<span id="calc-zeta-label"></span><h2>Calculating Zeta<a class="headerlink" href="#calculating-zeta" title="Link to this heading">¶</a></h2>
+<p><span class="math notranslate nohighlight">\(\zeta\)</span> is read in for specific temperatures and then interpolated for the target temperature.</p>
+</section>
+<section id="calculating-delta">
+<h2>Calculating Delta<a class="headerlink" href="#calculating-delta" title="Link to this heading">¶</a></h2>
+<p><span class="math notranslate nohighlight">\(\delta\)</span> is a radiation field correction factors which is calculated according to Mazzali &amp; Lucy 1993 (<span id="id2">[<a class="reference internal" href="../../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>; henceforth ML93)</p>
+<p>In ML93, the radiation field correction factor is denoted as <span class="math notranslate nohighlight">\(\delta\)</span> and is calculated in Formula 15 &amp; 20.</p>
+<p>The radiation correction factor changes according to a ionization energy threshold <span class="math notranslate nohighlight">\(\chi_\textrm{T}\)</span>
+and the species ionization threshold (from the ground state) <span class="math notranslate nohighlight">\(\chi_0\)</span>.</p>
+<p><strong>For</strong> <span class="math notranslate nohighlight">\(\chi_\textrm{T} \ge \chi_0\)</span></p>
+<div class="math notranslate nohighlight">
+\[\delta = \frac{T_\textrm{e}}{b_1 W T_\textrm{R}} \exp(\frac{\chi_\textrm{T}}{k T_\textrm{R}} -
+\frac{\chi_0}{k T_\textrm{e}})\]</div>
+<p><strong>For</strong> <span class="math notranslate nohighlight">\(\chi_\textrm{T} &lt; \chi_0\)</span></p>
+<div class="math notranslate nohighlight">
+\[\delta = 1 - \exp(\frac{\chi_\textrm{T}}{k T_\textrm{R}} - \frac{\chi_0}{k T_\textrm{R}}) +
+\frac{T_\textrm{e}}{b_1 W T_\textrm{R}} \exp(\frac{\chi_\textrm{T}}{k T_\textrm{R}} -
+\frac{\chi_0}{k T_\textrm{e}}),\]</div>
+<p>where <span class="math notranslate nohighlight">\(T_\textrm{R}\)</span> is the radiation field temperature, <span class="math notranslate nohighlight">\(T_\textrm{e}\)</span> is the electron temperature and W is the
+dilution factor.</p>
+<p>Now, we can calculate the ionization balance using equation 14 in <span id="id3">[<a class="reference internal" href="../../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\begin{split}\Phi_{i,j} &amp;= \frac{N_{i, j+1} n_e}{N_{i, j}} \\\end{split}\\\begin{split}\Phi_{i, j} &amp;= W \times[\delta \zeta + W ( 1 - \zeta)] \left(\frac{T_\textrm{e}}{T_\textrm{R}}\right)^{1/2}
+\Phi_{i, j}(\textrm{LTE}) \\\end{split}\end{aligned}\end{align} \]</div>
+<p>In the last step, we calculate the ion number densities according using the methods in <code class="xref py py-class docutils literal notranslate"><span class="pre">LTEPlasma</span></code></p>
+<p>Finally, we calculate the level populations (<code class="xref py py-func docutils literal notranslate"><span class="pre">NebularPlasma.calculate_level_populations()</span></code>),
+by using the calculated ion species number densities:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}N_{i, j, k}(\textrm{not metastable}) &amp;= W\frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k} \\
+N_{i, j, k}(\textrm{metastable}) &amp;= \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k} \\\end{split}\]</div>
+<p>This concludes the calculation of the nebular plasma. In the code, the next step is calculating the <span class="math notranslate nohighlight">\(\tau_\textrm{Sobolev}\)</span> using
+the quantities calculated here.</p>
+</section>
+<section id="example-calculations">
+<h2>Example Calculations<a class="headerlink" href="#example-calculations" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="lte_plasma.html" class="btn btn-neutral float-left" title="LTE Plasma" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nlte.html" class="btn btn-neutral float-right" title="NLTE treatment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 23 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
