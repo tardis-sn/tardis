@@ -241,6 +241,7 @@ class PanelWidgetLogHandler(logging.Handler):
         """
         super().close()
         if self.stream_handler:
+            self.stream_handler.flush()
             self.stream_handler.close()
             self.stream_handler = None
 
