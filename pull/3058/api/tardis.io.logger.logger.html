@@ -164,46 +164,6 @@
   <section id="module-tardis.io.logger.logger">
 <span id="tardis-io-logger-logger-module"></span><h1>tardis.io.logger.logger module<a class="headerlink" href="#module-tardis.io.logger.logger" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="tardis.io.logger.logger.AsyncEmitLogHandler">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">AsyncEmitLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#AsyncEmitLogHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.AsyncEmitLogHandler" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Handler" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
-<p>Asynchronous log handler for logging to a widget.</p>
-<p>Handles the formatting and display of log messages in Panel widgets.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>log_outputs</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of Panel HTML panes for different log levels.</p>
-</dd>
-<dt><strong>colors</strong><span class="classifier">dict</span></dt><dd><p>Dictionary mapping log levels to display colors.</p>
-</dd>
-<dt><strong>display_widget</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to display logs in the widget. Defaults to True.</p>
-</dd>
-<dt><strong>display_handle</strong><span class="classifier">IPython.display.DisplayHandle, optional</span></dt><dd><p>Handle for updating the display in Jupyter environment.</p>
-</dd>
-<dt><strong>logger_widget</strong><span class="classifier">panel.Tabs, optional</span></dt><dd><p>The Panel Tabs widget containing the log outputs.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p>Initializes the instance - basically setting the formatter to None
-and the filter list to empty.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.io.logger.logger.AsyncEmitLogHandler.emit">
-<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#AsyncEmitLogHandler.emit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.AsyncEmitLogHandler.emit" title="Link to this definition">¶</a></dt>
-<dd><p>Process and emit a log record.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>record</strong><span class="classifier">logging.LogRecord</span></dt><dd><p>The log record to process and display.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="tardis.io.logger.logger.LogFilter">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">LogFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_levels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#LogFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.LogFilter" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
@@ -276,6 +236,46 @@ and the filter list to empty.</p>
 <dt class="sig sig-object py" id="tardis.io.logger.logger.LoggingConfig.LEVELS">
 <span class="sig-name descname"><span class="pre">LEVELS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></em><a class="headerlink" href="#tardis.io.logger.logger.LoggingConfig.LEVELS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.PanelWidgetLogHandler">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">PanelWidgetLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#PanelWidgetLogHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.PanelWidgetLogHandler" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Handler" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
+<p>Log handler for logging to a widget.</p>
+<p>Handles the formatting and display of log messages in Panel widgets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>log_outputs</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of Panel HTML panes for different log levels.</p>
+</dd>
+<dt><strong>colors</strong><span class="classifier">dict</span></dt><dd><p>Dictionary mapping log levels to display colors.</p>
+</dd>
+<dt><strong>display_widget</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to display logs in the widget. Defaults to True.</p>
+</dd>
+<dt><strong>display_handle</strong><span class="classifier">IPython.display.DisplayHandle, optional</span></dt><dd><p>Handle for updating the display in Jupyter environment.</p>
+</dd>
+<dt><strong>logger_widget</strong><span class="classifier">panel.Tabs, optional</span></dt><dd><p>The Panel Tabs widget containing the log outputs.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Initializes the instance - basically setting the formatter to None
+and the filter list to empty.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.io.logger.logger.PanelWidgetLogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#PanelWidgetLogHandler.emit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.PanelWidgetLogHandler.emit" title="Link to this definition">¶</a></dt>
+<dd><p>Process and emit a log record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>record</strong><span class="classifier">logging.LogRecord</span></dt><dd><p>The log record to process and display.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
