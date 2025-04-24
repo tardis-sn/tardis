@@ -605,24 +605,24 @@ class LineInfoWidget:
             self.FILTER_MODES[self.filter_mode_buttons.index],
         )
 
-    def _species_intrctn_selection_handler(self, event, qgrid_widget):
+    def _species_intrctn_selection_handler(self, event):
         """
-        Event handler for selection in species_interactions_table.
+        Event handler for selection in species_interactions_table (Panel Tabulator).
 
-        This method has the expected signature of the function passed to
-        :code:`handler` argument of :code:`on_selection` method of qgrid.QgridWidget
-        as explained in `their docs <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
+        Parameters
+        ----------
+        event : param.Event
+            The event containing the new selection information.
         """
-        # Don't execute function if no row was selected implicitly (by api)
-        if event["new"] == [] and event["source"] == "api":
-            return
-
-        # Get species from the selected row in species_interactions_table
-        species_selected = self.species_interactions_table.df.index[
-            event["new"][0]
-        ]
-        if species_selected == "":  # when species_interactions_table is empty
+        selected = event.new
+        if not selected:
             species_selected = None
+        else:
+            # Panel Tabulator selection is a list of row indices
+            idx = selected[0]
+            species_selected = self.species_interactions_table.value.index[idx]
+            if species_selected == "":
+                species_selected = None
 
         self._update_last_line_counts(
             species_selected,
@@ -686,8 +686,8 @@ class LineInfoWidget:
             self.filter_mode_buttons.observe(
                 self._filter_mode_toggle_handler, names="index"
             )
-            self.species_interactions_table.on(
-                "selection_changed", self._species_intrctn_selection_handler
+            self.species_interactions_table.param.watch(
+                self._species_intrctn_selection_handler, "selection"
             )
             self.group_mode_dropdown.observe(
                 self._group_mode_dropdown_handler, names="index"
