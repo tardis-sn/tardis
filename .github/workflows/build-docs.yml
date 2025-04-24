@@ -136,7 +136,7 @@ jobs:
         run: |
           pip install sphinxcontrib-googleanalytics
 
-      - name: Build documentation for ${{ matrix.folder }}
+      - name: Setup documentation structure for ${{ matrix.folder }}
         run: |
           # Prepare base directory structure
           mkdir -p temp_docs/
@@ -153,6 +153,17 @@ jobs:
           cp docs/quickstart.ipynb temp_docs/ || true
           cp docs/multiindex_isotope_decay_data.ipynb temp_docs/ || true
           cp docs/io/tardis_example.yml temp_docs/ || true
+          
+          # Always copy _static and _templates folders
+          if [ -d "docs/_static" ]; then
+            mkdir -p temp_docs/_static
+            cp -r docs/_static/* temp_docs/_static/ 2>/dev/null || true
+          fi
+          
+          if [ -d "docs/_templates" ]; then
+            mkdir -p temp_docs/_templates
+            cp -r docs/_templates/* temp_docs/_templates/ 2>/dev/null || true
+          fi
           
           # Create nested directory structure if needed
           if [[ "${{ matrix.folder }}" == io/* ]]; then
@@ -183,9 +194,31 @@ jobs:
             # For non-io folders (_static, _templates)
             cp -r docs/${{ matrix.folder }} temp_docs/
           fi
-          
-          # Build the documentation
-          cd temp_docs/ && make html NCORES=auto
         env:
           MATRIX_FOLDER: ${{ matrix.folder }}
+          
+      - name: List contents of temp_docs directory
+        run: |
+          echo "======= CONTENTS OF TEMP_DOCS ======="
+          find temp_docs -type f | sort
+          echo "\n======= DIRECTORY STRUCTURE ======="
+          find temp_docs -type d | sort
+          
+      - name: Build documentation
+        run: |
+          cd temp_docs/ && make html NCORES=auto
+          
+      - name: Print Sphinx error logs
+        if: failure()
+        run: |
+          echo "======= SPHINX ERROR LOGS ======="
+          for errfile in /tmp/sphinx-err-*; do
+            if [ -f "$errfile" ]; then
+              echo "Contents of $errfile:"
+              cat "$errfile"
+              echo "\n----------------------\n"
+            else
+              echo "No Sphinx error files found"
+            fi
+          done
 
