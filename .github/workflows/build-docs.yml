@@ -95,8 +95,6 @@ jobs:
       fail-fast: false
       matrix:
         folder: [
-          '_static',
-          '_templates',
           'io/configuration',
           'io/grid',
           'io/hdf',
