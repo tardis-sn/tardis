@@ -149,6 +149,7 @@ class AsyncEmitLogHandler(logging.Handler):
             stream_handler = logging.StreamHandler()
             stream_handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
             stream_handler.emit(record)
+            stream_handler.close()
             return
 
         if isinstance(record.msg, pd.DataFrame):
