@@ -13,6 +13,10 @@ pn.extension('tabulator')
 
 def get_table_width(table):
     """Extract width from table safely, handling various formats."""
+    # If table is a string or non-object type, return default width
+    if isinstance(table, (str, int, float, bool)) or table is None:
+        return 800
+        
     try:
         width = getattr(table, 'width', 800)
         if isinstance(width, str):

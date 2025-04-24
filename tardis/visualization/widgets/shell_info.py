@@ -329,17 +329,24 @@ class ShellInfoWidget:
             </div>
             """,
             width=350,
+            styles={'background-color': '#f5f5f5'}
         )
+
+        # Apply styles to all tables initially
+        self._apply_tabulator_styles(self.shells_table)
+        self._apply_tabulator_styles(self.element_count_table)
+        self._apply_tabulator_styles(self.ion_count_table)
+        self._apply_tabulator_styles(self.level_count_table)
 
         # Improved layout with compact, no-scroll design
         self.layout = pn.Column(
             pn.pane.Markdown("# TARDIS Shell Info Explorer", styles={'font-size': '20px', 'font-weight': 'bold', 'margin-bottom': '10px', 'color': '#333'}),
             self.notes,
             pn.Row(
-                pn.Column(self.shells_title, self.shells_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=320),
-                pn.Column(self.element_title, self.element_count_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=240),
-                pn.Column(self.ion_title, self.ion_count_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=280),
-                pn.Column(self.level_title, self.level_count_table, styles={'padding': '5px', 'border': '1px solid #ddd'}, width=280),
+                pn.Column(self.shells_title, self.shells_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=320),
+                pn.Column(self.element_title, self.element_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=240),
+                pn.Column(self.ion_title, self.ion_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=280),
+                pn.Column(self.level_title, self.level_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=280),
                 styles={'margin': '10px', 'padding': '10px', 'background-color': '#fff', 'border': '1px solid #ddd', 'border-radius': '3px'},
                 sizing_mode="scale_both",  # Scales to fit the screen without scrolling
             ),
