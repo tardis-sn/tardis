@@ -9,20 +9,16 @@ on:
     branches:
       - master
 
-  pull_request:
+  pull_request_target:
     branches:
-      - '*'
+      - master
 
-  # pull_request_target:
-  #   branches:
-  #     - master
-
-  #   types:
-  #     - opened
-  #     - reopened
-  #     - synchronize
-  #     - labeled # requires the `build-docs` label
-  #     - ready_for_review
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled # requires the `build-docs` label
+      - ready_for_review
 
   workflow_dispatch: # manual trigger
 
@@ -31,9 +27,9 @@ env:
   DEPLOY_BRANCH: gh-pages # deployed docs branch
   HDF5_USE_FILE_LOCKING: "FALSE" # disable file locking
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -87,22 +83,9 @@ jobs:
         continue-on-error: true
 
   build-docs:
-    name: Build docs (${{ matrix.folder }})
     runs-on: ubuntu-latest
-    # needs: [test-cache, check-for-changes]
-    # if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
-    strategy:
-      fail-fast: false
-      matrix:
-        folder: [
-          'io/configuration',
-          'io/grid',
-          'io/hdf',
-          'io/images',
-          'io/model',
-          'io/optional',
-          'io/output'
-        ]
+    needs: [test-cache, check-for-changes]
+    if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     steps:
       - uses: actions/checkout@v4
         if: github.event_name != 'pull_request_target'
@@ -134,89 +117,103 @@ jobs:
         run: |
           pip install sphinxcontrib-googleanalytics
 
-      - name: Setup documentation structure for ${{ matrix.folder }}
-        run: |
-          # Prepare base directory structure
-          mkdir -p temp_docs/
-          cp docs/conf.py temp_docs/
-          cp docs/index.rst temp_docs/
-          cp docs/faq.rst temp_docs/
-          cp docs/installation.rst temp_docs/
-          cp docs/make.bat temp_docs/
-          cp docs/Makefile temp_docs/
-          cp docs/tardis.bib temp_docs/
-          cp docs/tardis_example.yml temp_docs/
-          cp docs/tardis_logo.ico temp_docs/
-          cp docs/tutorials.rst temp_docs/
-          cp docs/quickstart.ipynb temp_docs/ || true
-          cp docs/multiindex_isotope_decay_data.ipynb temp_docs/ || true
-          cp docs/io/tardis_example.yml temp_docs/ || true
-          
-          # Always copy _static and _templates folders
-          if [ -d "docs/_static" ]; then
-            mkdir -p temp_docs/_static
-            cp -r docs/_static/* temp_docs/_static/ 2>/dev/null || true
-          fi
-          
-          if [ -d "docs/_templates" ]; then
-            mkdir -p temp_docs/_templates
-            cp -r docs/_templates/* temp_docs/_templates/ 2>/dev/null || true
-          fi
-          
-          # Create nested directory structure if needed
-          if [[ "${{ matrix.folder }}" == io/* ]]; then
-            # Extract subfolder name
-            SUBFOLDER=$(echo "${{ matrix.folder }}" | sed 's|io/||')
-            echo "Processing IO subfolder: $SUBFOLDER"
-            
-            # Create io directory and copy any io-related files
-            mkdir -p temp_docs/io
-            find docs/io -maxdepth 1 -type f -exec cp {} temp_docs/io/ \;
-            
-            # Ensure we have at least an index.rst
-            if [ ! -f temp_docs/io/index.rst ]; then
-              echo "Creating placeholder index.rst for io folder"
-              echo "==========\nIO Module\n==========\n\n.. toctree::\n   :maxdepth: 2\n\n   $SUBFOLDER/index\n" > temp_docs/io/index.rst
-            fi
-            
-            # Copy just the specific subfolder
-            mkdir -p temp_docs/io/$SUBFOLDER
-            cp -r docs/io/$SUBFOLDER/* temp_docs/io/$SUBFOLDER/ 2>/dev/null || true
-            
-            # Create placeholder index.rst in subfolder if it doesn't exist
-            if [ ! -f temp_docs/io/$SUBFOLDER/index.rst ]; then
-              echo "Creating placeholder index.rst for io/$SUBFOLDER"
-              echo "======================\n$SUBFOLDER Documentation\n======================\n\n.. toctree::\n   :maxdepth: 2\n\n" > temp_docs/io/$SUBFOLDER/index.rst
-            fi
-          else
-            # For non-io folders (_static, _templates)
-            cp -r docs/${{ matrix.folder }} temp_docs/
-          fi
-        env:
-          MATRIX_FOLDER: ${{ matrix.folder }}
-          
-      - name: List contents of temp_docs directory
-        run: |
-          echo "======= CONTENTS OF TEMP_DOCS ======="
-          find temp_docs -type f | sort
-          echo "\n======= DIRECTORY STRUCTURE ======="
-          find temp_docs -type d | sort
-          
       - name: Build documentation
-        run: |
-          cd temp_docs/ && make html NCORES=auto
-          
-      - name: Print Sphinx error logs
-        if: failure()
-        run: |
-          echo "======= SPHINX ERROR LOGS ======="
-          for errfile in /tmp/sphinx-err-*; do
-            if [ -f "$errfile" ]; then
-              echo "Contents of $errfile:"
-              cat "$errfile"
-              echo "\n----------------------\n"
-            else
-              echo "No Sphinx error files found"
-            fi
-          done
+        run: cd docs/ && make html NCORES=auto
 
+      - name: Set destination directory
+        run: |
+          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+          if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
+
+            if [[ $BRANCH == $DEFAULT ]]; then
+              echo "DEST_DIR=" >> $GITHUB_ENV
+            else
+              echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
+            fi
+
+          elif [[ $EVENT == pull_request_target ]]; then
+            echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
+
+          else
+            echo "Unexpected event trigger $EVENT"
+            exit 1
+
+          fi
+
+          cat $GITHUB_ENV
+        env:
+          DEFAULT: ${{ github.event.repository.default_branch }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.number }}
+
+      - name: Set clean branch option
+        run: |
+          if [[ $EVENT == workflow_dispatch ]]; then
+            echo "CLEAN_BRANCH=true" >> $GITHUB_ENV
+
+          else
+            echo "CLEAN_BRANCH=false" >> $GITHUB_ENV
+
+          fi
+
+          cat $GITHUB_ENV
+        env:
+          EVENT: ${{ github.event_name }}
+
+      - name: Deploy ${{ env.DEST_DIR }}
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.BOT_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
+          publish_dir: ./docs/_build/html
+          destination_dir: ${{ env.DEST_DIR }}
+          keep_files: true
+          force_orphan: ${{ env.CLEAN_BRANCH }}
+          user_name: "TARDIS Bot"
+          user_email: "tardis.sn.bot@gmail.com"
+
+      - name: Find comment
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.number }}
+          body-includes: Hi, human.
+        if: always() && github.event_name == 'pull_request_target'
+
+      - name: Post comment (success)
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
+
+            [**Click here**](${{ env.URL }}) to see your results.
+        env:
+          URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ github.event.number }}/index.html
+        if: success() && github.event_name == 'pull_request_target'
+
+      - name: Post comment (failure)
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **`${{ github.workflow }}`** workflow has **failed** :x:
+
+            [**Click here**](${{ env.URL }}) to see the build log.
+        env:
+          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+        if: failure() && github.event_name == 'pull_request_target'
