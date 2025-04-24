@@ -235,6 +235,14 @@ class PanelWidgetLogHandler(logging.Handler):
         # Update Jupyter display if in jupyter environment
         if self.environment == 'jupyter' and self.display_handle is not None:
             self.display_handle.update(self.logger_widget)
+    
+    def close(self):
+        """Close the log handler.
+        """
+        super().close()
+        if self.stream_handler:
+            self.stream_handler.close()
+            self.stream_handler = None
 
 
 class TARDISLogger:
