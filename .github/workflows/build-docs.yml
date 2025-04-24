@@ -13,16 +13,16 @@ on:
     branches:
       - '*'
 
-  pull_request_target:
-    branches:
-      - master
+  # pull_request_target:
+  #   branches:
+  #     - master
 
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - labeled # requires the `build-docs` label
-      - ready_for_review
+  #   types:
+  #     - opened
+  #     - reopened
+  #     - synchronize
+  #     - labeled # requires the `build-docs` label
+  #     - ready_for_review
 
   workflow_dispatch: # manual trigger
 
@@ -31,9 +31,9 @@ env:
   DEPLOY_BRANCH: gh-pages # deployed docs branch
   HDF5_USE_FILE_LOCKING: "FALSE" # disable file locking
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#   cancel-in-progress: true
 
 defaults:
   run:
