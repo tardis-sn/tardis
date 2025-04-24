@@ -1,6 +1,6 @@
+from pathlib import Path
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import os
 from .config import PLOTLY_COLORS, SPECTRUM_KEYS
 from .data_processing import calculate_residuals
 
@@ -94,10 +94,12 @@ def plot_combined_analysis_plotly(all_data, spectrum_keys, output_dir, commit_ha
                 fig.update_yaxes(title_text="Residual (%)", row=row, col=col)
             fig.update_xaxes(title_text="Wavelength (Å)", row=row, col=col)
 
-    file_name = os.path.join(output_dir, "combined_analysis.html")
+    output_path = Path(output_dir)
+    file_name = output_path / "combined_analysis.html"
+    
     try:
-        os.makedirs(os.path.dirname(file_name), exist_ok=True)
-        fig.write_html(file_name)
+        file_name.parent.mkdir(parents=True, exist_ok=True)
+        fig.write_html(str(file_name))
         print(f"Saved combined analysis plot as {file_name}")
     except Exception as e:
         print(f"Failed to save {file_name}: {e}")

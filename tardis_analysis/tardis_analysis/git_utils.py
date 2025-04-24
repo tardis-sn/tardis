@@ -1,11 +1,14 @@
 import subprocess
-import os
+from pathlib import Path
 from git import Repo
 
 def process_commits(tardis_repo_path, regression_data_repo_path, branch, target_file, commits_input=None, n=10):
-    target_file_path = os.path.join(regression_data_repo_path, target_file)
-    tardis_repo = Repo(tardis_repo_path)
-    regression_repo = Repo(regression_data_repo_path)
+    tardis_path = Path(tardis_repo_path)
+    regression_path = Path(regression_data_repo_path)
+    target_file_path = regression_path / target_file
+    
+    tardis_repo = Repo(tardis_path)
+    regression_repo = Repo(regression_path)
 
     original_head = regression_repo.head.commit.hexsha
     print(f"Original HEAD of regression data repo: {original_head}")
@@ -46,23 +49,26 @@ def process_commits(tardis_repo_path, regression_data_repo_path, branch, target_
         cmd = [
             "python", "-m", "pytest",
             "tardis/spectrum/tests/test_spectrum_solver.py",
-            f"--tardis-regression-data={regression_data_repo_path}",
+            f"--tardis-regression-data={regression_path}",
             "--generate-reference",
-            "-x"
+            "-x",
+            "--disable-warnings"
         ]
         print(f"Running pytest command: {' '.join(cmd)}")
         try:
-            current_dir = os.getcwd()  
-            os.chdir(tardis_repo_path)  
-            print(f"Current directory: {os.getcwd()}")
-            result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-            os.chdir(current_dir)  
+            result = subprocess.run(
+                cmd,
+                check=True,
+                capture_output=True,
+                text=True,
+                cwd=tardis_path 
+            )
             print("Pytest stdout:")
             print(result.stdout)
             print("Pytest stderr:")
             print(result.stderr)
 
-            if not os.path.exists(target_file_path):
+            if not target_file_path.exists():
                 print(f"Error: HDF5 file {target_file_path} was not generated.")
                 continue
 
@@ -86,4 +92,4 @@ def process_commits(tardis_repo_path, regression_data_repo_path, branch, target_
     for hash in regression_commits:
         print(hash)
 
-    return processed_commits, regression_commits, original_head, target_file_path
+    return processed_commits, regression_commits, original_head, str(target_file_path)

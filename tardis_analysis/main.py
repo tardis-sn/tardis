@@ -1,6 +1,6 @@
 print("Starting script...")
 import argparse
-import os
+from pathlib import Path
 from git import Repo
 from tardis_analysis.git_utils import process_commits
 from tardis_analysis.data_processing import load_h5_data
@@ -19,12 +19,12 @@ def main():
     
     args = parser.parse_args()
 
-    tardis_repo_path = args.tardis_repo
-    regression_data_repo_path = args.regression_data_repo
+    tardis_repo_path = Path(args.tardis_repo)
+    regression_data_repo_path = Path(args.regression_data_repo)
     branch = args.branch
     n = args.n
     target_file = args.target_file
-    output_dir = args.output_dir if args.output_dir else os.path.join(tardis_repo_path, "comparison_plots")
+    output_dir = Path(args.output_dir) if args.output_dir else tardis_repo_path / "comparison_plots"
 
     if args.commits:
         processed_commits, regression_commits, original_head, target_file_path = process_commits(
@@ -53,7 +53,7 @@ def main():
     regression_repo.git.reset('--hard', original_head)
     regression_repo.git.checkout('main')
 
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     plot_combined_analysis_plotly(commit_data, SPECTRUM_KEYS, output_dir, commit_hashes=processed_commits)
 
