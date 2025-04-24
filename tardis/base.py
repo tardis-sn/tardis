@@ -103,9 +103,6 @@ def run_tardis(
             )
             atom_data = atom_data
 
-    if show_progress_bars:
-        logger.warning("Packet Progress bars are disabled after the environment upgrade. Please see issue https://github.com/tardis-sn/tardis/issues/3038 for more information.")
-
     simulation = Simulation.from_config(
         tardis_config,
         packet_source=packet_source,

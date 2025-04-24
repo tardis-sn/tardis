@@ -110,8 +110,8 @@ class LoggingConfig:
 
 LOGGING_LEVELS = LoggingConfig().LEVELS
 
-class AsyncEmitLogHandler(logging.Handler):
-    """Asynchronous log handler for logging to a widget.
+class PanelWidgetLogHandler(logging.Handler):
+    """Log handler for logging to a widget.
     
     Handles the formatting and display of log messages in Panel widgets.
     
@@ -136,6 +136,9 @@ class AsyncEmitLogHandler(logging.Handler):
         self.display_widget = display_widget
         self.display_handle = display_handle
         self.logger_widget = logger_widget
+        if not self.display_widget or self.display_handle is None:
+            self.stream_handler = logging.StreamHandler()
+            self.stream_handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
 
     def emit(self, record):
         """Process and emit a log record.
@@ -146,10 +149,7 @@ class AsyncEmitLogHandler(logging.Handler):
             The log record to process and display.
         """
         if not self.display_widget or self.display_handle is None:
-            stream_handler = logging.StreamHandler()
-            stream_handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
-            stream_handler.emit(record)
-            stream_handler.close()
+            self.stream_handler.emit(record)
             return
 
         if isinstance(record.msg, pd.DataFrame):
@@ -331,7 +331,7 @@ class TARDISLogger:
         display_widget : bool, optional
             Whether to display the widget in GUI environments. Default is True.
         """
-        self.widget_handler = AsyncEmitLogHandler(
+        self.widget_handler = PanelWidgetLogHandler(
             log_outputs=self.log_outputs,
             colors=self.config.COLORS,
             display_widget=display_widget,
