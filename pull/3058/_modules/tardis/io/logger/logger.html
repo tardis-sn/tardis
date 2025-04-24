@@ -279,6 +279,7 @@ class PanelWidgetLogHandler(logging.Handler):
         self.display_widget = display_widget
         self.display_handle = display_handle
         self.logger_widget = logger_widget
+        self.stream_handler = None
         if not self.display_widget or self.display_handle is None:
             self.stream_handler = logging.StreamHandler()
             self.stream_handler.setFormatter(logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;))
@@ -524,7 +525,17 @@ class TARDISLogger:
                 logger.removeHandler(handler)
 
         self.logger.addHandler(self.widget_handler)
-        PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)</div>
+        PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
+    
+<div class="viewcode-block" id="TARDISLogger.remove_widget_handler">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.remove_widget_handler">[docs]</a>
+    def remove_widget_handler(self):
+        &quot;&quot;&quot;Remove the widget handler from the logger.
+        &quot;&quot;&quot;
+        self.logger.removeHandler(self.widget_handler)
+        PYTHON_WARNINGS_LOGGER.removeHandler(self.widget_handler)
+        self.widget_handler.close()</div>
+</div>
 
 
 <div class="viewcode-block" id="LogFilter">
@@ -590,12 +601,11 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         display_handle = display(LOGGER_WIDGET, display_id=&quot;logger_widget&quot;)
     else:
         display_handle = None
-    logger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
-    logger.configure_logging(log_level, tardis_config, specific_log_level)
-    logger.setup_widget_logging(display_widget=display_logging_widget)
-    return LOGGER_WIDGET if (display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]) else None</div>
+    tardislogger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
+    tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
+    tardislogger.setup_widget_logging(display_widget=display_logging_widget)
+    return LOGGER_WIDGET, tardislogger if (display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]) else None</div>
 
- 
 </pre></div>
 
            </div>
