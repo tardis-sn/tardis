@@ -12,6 +12,7 @@ from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 import tardis
+import tardis.visualization.plot_util as pu
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
@@ -31,8 +32,6 @@ from tardis.util.base import (
     is_valid_nuclide_or_elem,
     quantity_linspace,
 )
-from tardis.visualization.tools.convergence_plot import transition_colors
-import tardis.visualization.plot_util as pu 
 from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
