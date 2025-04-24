@@ -674,9 +674,9 @@ class LineInfoWidget:
         if not is_notebook():
             print("Please use a notebook to display the widget")
         else:
-            # Set widths of widgets
-            self.species_interactions_table.layout.width = "350px"
-            self.last_line_counts_table.layout.width = "450px"
+            # Set widths of widgets (Panel Tabulator uses .width, not .layout.width)
+            self.species_interactions_table.width = 350
+            self.last_line_counts_table.width = 450
             self.total_packets_label.update_and_resize(0)
             self.group_mode_dropdown.layout.width = "auto"
 
