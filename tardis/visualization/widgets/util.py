@@ -25,7 +25,19 @@ def get_table_width(table):
     return 800  # Default width
 
 def update_and_resize(self, value):
-    """Update the label value and resize based on table width."""
+    """
+    Update the label value and resize it as per the size of target table.
+
+    Resizing is done in such a way so as to match the width of components
+    of label with columns of target table, making it look like another row.
+    This method should be called whenever there is any update in data or
+    layout of target table.
+
+    Parameters
+    ----------
+    value : int
+        Value to be shown in label
+    """
     self.widget.children[1].value = str(value)
     
     table_width = get_table_width(self.target_table)

@@ -1,11 +1,14 @@
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
+import pytest
+import panel as pn
 
 from tardis.visualization.widgets.shell_info import (
     BaseShellInfo,
     HDFShellInfo,
     ShellInfoWidget,
+    SimulationShellInfo,
 )
 
 
