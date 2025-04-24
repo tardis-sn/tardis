@@ -92,7 +92,7 @@ def run_tardis(
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
 
-    logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
+    logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
 
     if atom_data is not None:
         try:
@@ -117,5 +117,7 @@ def run_tardis(
 
     simulation.run_convergence()
     simulation.run_final()
+    if logger_widget:
+        tardislogger.remove_widget_handler()
 
     return simulation

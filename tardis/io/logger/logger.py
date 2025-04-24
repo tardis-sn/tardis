@@ -136,6 +136,7 @@ class PanelWidgetLogHandler(logging.Handler):
         self.display_widget = display_widget
         self.display_handle = display_handle
         self.logger_widget = logger_widget
+        self.stream_handler = None
         if not self.display_widget or self.display_handle is None:
             self.stream_handler = logging.StreamHandler()
             self.stream_handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
@@ -367,6 +368,13 @@ class TARDISLogger:
 
         self.logger.addHandler(self.widget_handler)
         PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
+    
+    def remove_widget_handler(self):
+        """Remove the widget handler from the logger.
+        """
+        self.logger.removeHandler(self.widget_handler)
+        PYTHON_WARNINGS_LOGGER.removeHandler(self.widget_handler)
+        self.widget_handler.close()
 
 class LogFilter:
     """Filter for controlling which log levels are displayed.
@@ -423,8 +431,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         display_handle = display(LOGGER_WIDGET, display_id="logger_widget")
     else:
         display_handle = None
-    logger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
-    logger.configure_logging(log_level, tardis_config, specific_log_level)
-    logger.setup_widget_logging(display_widget=display_logging_widget)
-    return LOGGER_WIDGET if (display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']) else None
- 
+    tardislogger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
+    tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
+    tardislogger.setup_widget_logging(display_widget=display_logging_widget)
+    return LOGGER_WIDGET, tardislogger if (display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']) else None
