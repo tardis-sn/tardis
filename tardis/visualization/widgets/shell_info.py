@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-import ipywidgets as ipw
-import pandas as pd
-
-from tardis.util.base import (
-    atomic_number2element_symbol,
-    is_notebook,
-    species_tuple_to_string,
-)
-from tardis.visualization.widgets.util import create_table_widget
-
-=======
 from tardis import run_tardis
 from tardis.io.atom_data import download_atom_data
 from tardis.util.base import (
@@ -22,7 +10,7 @@ import numpy as np
 import panel as pn
 
 pn.extension('tabulator')
->>>>>>> 69644cd932 (GSoC Panel Objective 1)
+
 
 # Centralized style dictionaries
 TABLE_STYLES = {
@@ -359,32 +347,9 @@ class ShellInfoWidget:
             styles=CONTAINER_STYLES,
         )
 
-<<<<<<< HEAD
-        # Creating the level count table widget
-        self.level_count_table = create_table_widget(
-            self.data.level_count(
-                self.ion_count_table.df.index[0],
-                self.element_count_table.df.index[0],
-                self.shells_table.df.index[0],
-            ),
-            [30, 70],
-            changeable_col={
-                "index": -1,
-                # Ion values range from 0 to max atomic_num present in
-                # element count table
-                "other_names": [
-                    f"Frac. Ab. (Ion={ion})"
-                    for ion in range(
-                        self.element_count_table.df.index.max() + 1
-                    )
-                ],
-            },
-        )
-=======
         # Initial selection for shells table only if data exists
         if not shells_df.empty:
             self.shells_table.selection = [0]
->>>>>>> 69644cd932 (GSoC Panel Objective 1)
 
     def update_element_count_table(self, event):
         """
