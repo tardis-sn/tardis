@@ -7,6 +7,10 @@ name: docs
 on:
   push:
     branches:
+      - master
+
+  pull_request:
+    branches:
       - '*'
 
   pull_request_target:
@@ -84,8 +88,8 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-latest
-    needs: [test-cache, check-for-changes]
-    if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
+    # needs: [test-cache, check-for-changes]
+    # if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     strategy:
       fail-fast: false
       matrix:
