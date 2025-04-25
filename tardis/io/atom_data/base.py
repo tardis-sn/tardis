@@ -455,7 +455,6 @@ class AtomData:
                 self.selected_atomic_numbers, level="atomic_number"
             )
         ]
-        self.lines = self.lines[~self.lines.index.isna().any(axis=1)]
         # see https://github.com/numpy/numpy/issues/27725#issuecomment-2465471648
         # with kind="stable" the returned array will maintain the relative order of a values which compare as equal.
         # this is important especially after numpy v2 release
@@ -562,131 +561,125 @@ class AtomData:
 
             if "ion_number" in self.macro_atom_data.index.names:
                 self.macro_atom_data.index = self.macro_atom_data.index.rename("ion_charge", level="ion_number")
-            # Drop rows with NaN in index after renaming
-            if self.macro_atom_data is not None:
-                self.macro_atom_data = self.macro_atom_data[~self.macro_atom_data.index.isna().any(axis=1)]
 
-        self.macro_atom_references = self.macro_atom_references_all[
-            self.macro_atom_references_all.index.isin(
-                self.selected_atomic_numbers, level="atomic_number"
-            )
-        ].copy()
-        # Drop rows with NaN in index after filtering
-        if self.macro_atom_references is not None:
-            self.macro_atom_references = self.macro_atom_references[~self.macro_atom_references.index.isna().any(axis=1)]
+            self.macro_atom_references = self.macro_atom_references_all[
+                self.macro_atom_references_all.index.isin(
+                    self.selected_atomic_numbers, level="atomic_number"
+                )
+            ].copy()
 
-        if line_interaction_type == "downbranch":
-            self.macro_atom_data = self.macro_atom_data.loc[
-                self.macro_atom_data["transition_type"] == -1
-            ]
-            self.macro_atom_references = self.macro_atom_references.loc[
-                self.macro_atom_references["count_down"] > 0
-            ]
-            self.macro_atom_references.loc[:, "count_total"] = (
-                self.macro_atom_references["count_down"]
-            )
-            self.macro_atom_references.loc[:, "block_references"] = (
-                np.hstack(
-                    (
-                        0,
-                        np.cumsum(
-                            self.macro_atom_references["count_down"].values[
-                                :-1
-                            ]
-                        ),
+            if line_interaction_type == "downbranch":
+                self.macro_atom_data = self.macro_atom_data.loc[
+                    self.macro_atom_data["transition_type"] == -1
+                ]
+                self.macro_atom_references = self.macro_atom_references.loc[
+                    self.macro_atom_references["count_down"] > 0
+                ]
+                self.macro_atom_references.loc[:, "count_total"] = (
+                    self.macro_atom_references["count_down"]
+                )
+                self.macro_atom_references.loc[:, "block_references"] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references["count_down"].values[
+                                    :-1
+                                ]
+                            ),
+                        )
                     )
                 )
-            )
 
-        elif line_interaction_type == "macroatom":
-            self.macro_atom_references.loc[:, "block_references"] = (
-                np.hstack(
-                    (
-                        0,
-                        np.cumsum(
-                            self.macro_atom_references[
-                                "count_total"
-                            ].values[:-1]
-                        ),
+            elif line_interaction_type == "macroatom":
+                self.macro_atom_references.loc[:, "block_references"] = (
+                    np.hstack(
+                        (
+                            0,
+                            np.cumsum(
+                                self.macro_atom_references[
+                                    "count_total"
+                                ].values[:-1]
+                            ),
+                        )
                     )
                 )
+
+            self.macro_atom_references.loc[:, "references_idx"] = np.arange(
+                len(self.macro_atom_references)
             )
 
-        self.macro_atom_references.loc[:, "references_idx"] = np.arange(
-            len(self.macro_atom_references)
-        )
+            lines_index = pd.Series(
+                np.arange(len(self.lines), dtype=int),
+                index=self.lines.set_index("line_id").index,
+            )
 
-        lines_index = pd.Series(
-            np.arange(len(self.lines), dtype=int),
-            index=self.lines.set_index("line_id").index,
-        )
+            self.macro_atom_data.loc[:, "lines_idx"] = lines_index.loc[
+                self.macro_atom_data["transition_line_id"]
+            ].values
 
-        self.macro_atom_data.loc[:, "lines_idx"] = lines_index.loc[
-            self.macro_atom_data["transition_line_id"]
-        ].values
-
-        self.lines_upper2macro_reference_idx = (
-            self.macro_atom_references.loc[
-                tmp_lines_upper2level_idx, "references_idx"
-            ]
-            .astype(np.int64)
-            .values
-        )
-
-        if line_interaction_type == "macroatom":
-            self.lines_lower2macro_reference_idx = (
+            self.lines_upper2macro_reference_idx = (
                 self.macro_atom_references.loc[
-                    tmp_lines_lower2level_idx, "references_idx"
-                ]
-                .astype(np.int64)
-                .values
-            )
-            # Sets all
-            tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays(
-                [
-                    self.macro_atom_data["atomic_number"],
-                    self.macro_atom_data["ion_charge"],
-                    self.macro_atom_data["destination_level_number"],
-                ],
-                names=["atomic_number", "ion_charge", "level_number"]  
-
-            )
-
-            tmp_macro_source_level_idx = pd.MultiIndex.from_arrays(
-                [
-                    self.macro_atom_data["atomic_number"],
-                    self.macro_atom_data["ion_charge"],
-                    self.macro_atom_data["source_level_number"],
-                ],
-                names=["atomic_number", "ion_charge", "level_number"]  
-
-            )
-
-            self.macro_atom_data.loc[:, "destination_level_idx"] = (
-                self.macro_atom_references.loc[
-                    tmp_macro_destination_level_idx, "references_idx"
+                    tmp_lines_upper2level_idx, "references_idx"
                 ]
                 .astype(np.int64)
                 .values
             )
 
-            self.macro_atom_data.loc[:, "source_level_idx"] = (
-                self.macro_atom_references.loc[
-                    tmp_macro_source_level_idx, "references_idx"
-                ]
-                .astype(np.int64)
-                .values
-            )
+            if line_interaction_type == "macroatom":
+                self.lines_lower2macro_reference_idx = (
+                    self.macro_atom_references.loc[
+                        tmp_lines_lower2level_idx, "references_idx"
+                    ]
+                    .astype(np.int64)
+                    .values
+                )
+                # Sets all
+                tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays(
+                    [
+                        self.macro_atom_data["atomic_number"],
+                        self.macro_atom_data["ion_charge"],
+                        self.macro_atom_data["destination_level_number"],
+                    ],
+                    names=["atomic_number", "ion_charge", "level_number"]  
 
-        elif line_interaction_type == "downbranch":
-            # Sets all the destination levels to -1 to indicate that they
-            # are not used in downbranch calculations
-            self.macro_atom_data.loc[:, "destination_level_idx"] = -1
+                )
 
-        if self.yg_data is not None:
-            self.yg_data = self.yg_data.reindex(
-                self.selected_atomic_numbers, level=0
-            )
+                tmp_macro_source_level_idx = pd.MultiIndex.from_arrays(
+                    [
+                        self.macro_atom_data["atomic_number"],
+                        self.macro_atom_data["ion_charge"],
+                        self.macro_atom_data["source_level_number"],
+                    ],
+                    names=["atomic_number", "ion_charge", "level_number"]  
+
+                )
+
+                self.macro_atom_data.loc[:, "destination_level_idx"] = (
+                    self.macro_atom_references.loc[
+                        tmp_macro_destination_level_idx, "references_idx"
+                    ]
+                    .astype(np.int64)
+                    .values
+                )
+
+                self.macro_atom_data.loc[:, "source_level_idx"] = (
+                    self.macro_atom_references.loc[
+                        tmp_macro_source_level_idx, "references_idx"
+                    ]
+                    .astype(np.int64)
+                    .values
+                )
+
+            elif line_interaction_type == "downbranch":
+                # Sets all the destination levels to -1 to indicate that they
+                # are not used in downbranch calculations
+                self.macro_atom_data.loc[:, "destination_level_idx"] = -1
+
+            if self.yg_data is not None:
+                self.yg_data = self.yg_data.reindex(
+                    self.selected_atomic_numbers, level=0
+                )
 
     def _check_selected_atomic_numbers(self):
         selected_atomic_numbers = self.selected_atomic_numbers
