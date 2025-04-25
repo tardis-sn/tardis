@@ -381,6 +381,13 @@ class AtomData:
         self.md5 = None
         self.version = None
 
+        # Ensure all relevant DataFrames have ion_charge as index level name
+        for df_name in ["levels", "lines", "ionization_data", "macro_atom_data", "macro_atom_references", "photoionization_data"]:
+            df = getattr(self, df_name, None)
+            if df is not None and hasattr(df, "index") and "ion_number" in df.index.names:
+                df.index = df.index.rename("ion_charge", level="ion_number")
+                setattr(self, df_name, df)
+
     def _check_related(self):
         """
         Check that either all or none of the related dataframes are given.
@@ -552,7 +559,6 @@ class AtomData:
 
             self.macro_atom_data = self.macro_atom_data.rename(columns={"ion_number": "ion_charge"})
 
-            # Rename index level from 'ion_number' to 'ion_charge' if present
             if "ion_number" in self.macro_atom_data.index.names:
                 self.macro_atom_data.index = self.macro_atom_data.index.rename("ion_charge", level="ion_number")
 
