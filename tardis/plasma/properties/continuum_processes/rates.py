@@ -104,7 +104,8 @@ def get_ground_state_multi_index(multi_index_full):
     atomic_number = multi_index_full.get_level_values(0)
     ion_charge = multi_index_full.get_level_values(1) + 1
     level_number = np.zeros_like(ion_charge)
-    return pd.MultiIndex.from_arrays([atomic_number, ion_charge, level_number])
+    return pd.MultiIndex.from_arrays([atomic_number, ion_charge, level_number],
+                                     names=["atomic_number", "ion_charge", "level_number"]) 
 
 
 def cooling_rate_series2dataframe(cooling_rate_series, destination_level_idx):
@@ -612,7 +613,7 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
 
     @staticmethod
     def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
-        ion_charge = ion_number_density.index.get_level_values("ion_number").values
+        ion_charge = ion_number_density.index.get_level_values("ion_charge").values
         factor = (
             electron_densities
             * ion_number_density.multiply(ion_charge**2, axis=0).sum()
@@ -759,7 +760,7 @@ class CollIonRateCoeffSeaton(ProcessingPlasmaProperty):
         coll_ion_coeff = factor.multiply(coll_ion_coeff, axis=0)
         coll_ion_coeff = coll_ion_coeff.divide(np.sqrt(t_electrons), axis=1)
 
-        ion_charge = coll_ion_coeff.index.get_level_values("ion_number").values
+        ion_charge = coll_ion_coeff.index.get_level_values("ion_charge").values
         coll_ion_coeff[ion_charge == 0] *= 0.1
         coll_ion_coeff[ion_charge == 1] *= 0.2
         coll_ion_coeff[ion_charge >= 2] *= 0.3

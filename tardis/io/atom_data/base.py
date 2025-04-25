@@ -382,7 +382,7 @@ class AtomData:
         self.version = None
 
         # Ensure all relevant DataFrames have ion_charge as index level name
-        for df_name in ["levels", "lines", "ionization_data", "macro_atom_data", "macro_atom_references", "photoionization_data"]:
+        for df_name in ["levels", "lines", "ionization_data", "macro_atom_data", "macro_atom_references", "photoionization_data", "yg_data"]:
             df = getattr(self, df_name, None)
             if df is not None and hasattr(df, "index") and "ion_number" in df.index.names:
                 df.index = df.index.rename("ion_charge", level="ion_number")

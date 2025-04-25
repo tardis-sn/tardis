@@ -17,6 +17,24 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
+def standardize_index_names(index):
+    """
+    Standardize MultiIndex names by converting 'ion_number' to 'ion_charge' if needed.
+    
+    Parameters
+    ----------
+    index : pandas.MultiIndex
+        The index to standardize
+        
+    Returns
+    -------
+    pandas.MultiIndex
+        Standardized index with consistent naming
+    """
+    if isinstance(index, pd.MultiIndex) and 'ion_number' in index.names:
+        return index.rename({'ion_number': 'ion_charge'})
+    return index
+
 
 class BasePlasmaProperty(metaclass=ABCMeta):
     """

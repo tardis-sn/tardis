@@ -675,6 +675,13 @@ class YgData(ProcessingPlasmaProperty):
                 "Tardis does not support continuum interactions for atomic data sources that do not contain yg_data"
             )
 
+        # Ensure we're consistently using ion_charge in indices
+        if hasattr(yg_data.index, 'names') and 'ion_number' in yg_data.index.names:
+            yg_data.index = yg_data.index.rename('ion_charge', level='ion_number')
+        
+        if hasattr(continuum_interaction_species, 'names') and 'ion_number' in continuum_interaction_species.names:
+            continuum_interaction_species = continuum_interaction_species.rename('ion_charge', level='ion_number')
+
         mask_selected_species = yg_data.index.droplevel(
             ["level_number_lower", "level_number_upper"]
         ).isin(continuum_interaction_species)
@@ -688,26 +695,53 @@ class YgData(ProcessingPlasmaProperty):
 
         yg_data = yg_data.combine_first(approximate_yg_data)
 
-        energies = atomic_data.levels.energy
         index = yg_data.index
-        lu_index = index.droplevel("level_number_lower")
-        ll_index = index.droplevel("level_number_upper")
+        
+        # Create clean MultiIndex for energy lookups - handling only level_number_lower/upper
+        def clean_index_for_lookup(idx, level_name):
+            atomic_number = idx.get_level_values('atomic_number')
+            ion_charge = idx.get_level_values('ion_charge')
+            level_number = idx.get_level_values(level_name)
+            
+            # Create proper 3-level MultiIndex
+            return pd.MultiIndex.from_arrays(
+                [atomic_number, ion_charge, level_number],
+                names=['atomic_number', 'ion_charge', 'level_number']
+            )
+        
+        # Create proper indices for upper and lower level lookups
+        ll_index = clean_index_for_lookup(index, 'level_number_lower')
+        lu_index = clean_index_for_lookup(index, 'level_number_upper')
+        
+        # Get the energies and calculate the energy differences
+        energies = atomic_data.levels.energy
         delta_E = energies.loc[lu_index].values - energies.loc[ll_index].values
         delta_E = pd.Series(delta_E, index=index)
 
-        source_idx = atomic_data.macro_atom_references.loc[
-            ll_index
-        ].references_idx
-        destination_idx = atomic_data.macro_atom_references.loc[
-            lu_index
-        ].references_idx
+        # Get the macro atom indices
+        source_idx = atomic_data.macro_atom_references.loc[ll_index].references_idx
+        destination_idx = atomic_data.macro_atom_references.loc[lu_index].references_idx
+        
+        # Create a clean index without level_number_lower/upper for the result
+        result_index = pd.MultiIndex.from_arrays(
+            [
+                index.get_level_values('atomic_number'),
+                index.get_level_values('ion_charge'),
+                index.get_level_values('level_number_lower'),
+                index.get_level_values('level_number_upper')
+            ],
+            names=['atomic_number', 'ion_charge', 'level_number_lower', 'level_number_upper']
+        )
+        
+        # Create the final yg_idx DataFrame
         yg_idx = pd.DataFrame(
             {
                 "source_level_idx": source_idx.values,
                 "destination_level_idx": destination_idx.values,
             },
-            index=index,
+            index=result_index,
         )
+        
         return yg_data, t_yg, index, delta_E, yg_idx
 
     @classmethod
