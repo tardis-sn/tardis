@@ -552,6 +552,10 @@ class AtomData:
 
             self.macro_atom_data = self.macro_atom_data.rename(columns={"ion_number": "ion_charge"})
 
+            # Rename index level from 'ion_number' to 'ion_charge' if present
+            if "ion_number" in self.macro_atom_data.index.names:
+                self.macro_atom_data.index = self.macro_atom_data.index.rename("ion_charge", level="ion_number")
+
             self.macro_atom_references = self.macro_atom_references_all[
                 self.macro_atom_references_all.index.isin(
                     self.selected_atomic_numbers, level="atomic_number"
