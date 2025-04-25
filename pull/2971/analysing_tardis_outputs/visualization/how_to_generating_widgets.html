@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Generate Data Exploration Widgets &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Physics Walkthrough Introduction" href="../../physics/intro/index.html" />
+    <link rel="prev" title="How to Generate Custom Abundance Widget" href="how_to_abundance_widget.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Visualization Tools &amp; Widgets</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#tardis-visualization-tools">TARDIS Visualization Tools</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#tardis-widgets-graphical-user-interfaces">TARDIS Widgets (Graphical User Interfaces)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="using_widgets.html">Using TARDIS Widgets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="how_to_abundance_widget.html">Generating Custom Abundance Widget</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Generating Data Exploration Widgets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Warning">Warning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Shell-Info-Widget">Shell Info Widget</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Line-Info-Widget">Line Info Widget</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Energy-Level-Diagram">Energy Level Diagram</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Visualization Tools &amp; Widgets</a></li>
+      <li class="breadcrumb-item active">How to Generate Data Exploration Widgets</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/analysing_tardis_outputs/visualization/how_to_generating_widgets.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/analysing_tardis_outputs/visualization/how_to_generating_widgets.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><section id="How-to-Generate-Data-Exploration-Widgets">
+<h1>How to Generate Data Exploration Widgets<a class="headerlink" href="#How-to-Generate-Data-Exploration-Widgets" title="Link to this heading">¶</a></h1>
+<p>A demonstration of how to generate TARDIS widgets that allows you to <strong>explore simulation data within Jupyter Notebook with ease</strong>!</p>
+<p>This notebook is a quickstart how-to guide, but more details on each widget (and its features) is given in the <a class="reference external" href="https://tardis-sn.github.io/tardis/io/visualization/using_widgets.html">Using TARDIS Widgets</a> section of the documentation.</p>
+<section id="Warning">
+<h2>Warning<a class="headerlink" href="#Warning" title="Link to this heading">¶</a></h2>
+<p>You must install <code class="docutils literal notranslate"><span class="pre">qgridnext</span></code> inside your tardis environment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qgridnext</span></code> for the widgets to function.</p>
+<p>First create and run a simulation that we can use to generate widgets (more details about running simulation in <a class="reference external" href="https://tardis-sn.github.io/tardis/quickstart/quickstart.html">Quickstart</a> section):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tardis</span> <span class="kn">import</span> <span class="n">run_tardis</span>
+<span class="kn">from</span> <span class="nn">tardis.io.atom_data</span> <span class="kn">import</span> <span class="n">download_atom_data</span>
+
+<span class="c1"># We download the atomic data needed to run the simulation</span>
+<span class="n">download_atom_data</span><span class="p">(</span><span class="s2">&quot;kurucz_cd23_chianti_H_He&quot;</span><span class="p">)</span>
+
+<span class="n">sim</span> <span class="o">=</span> <span class="n">run_tardis</span><span class="p">(</span><span class="s2">&quot;tardis_example.yml&quot;</span><span class="p">,</span> <span class="n">virtual_packet_logging</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "249c822c710e42c08ccafcbcb80fde09", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "e69e6acc16ab4e35a578e53d08c6d539", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Atomic Data kurucz_cd23_chianti_H_He already exists in /home/afullard/Downloads/tardis-data/kurucz_cd23_chianti_H_He.h5. Will not download - override with force_download=True.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.io.model.parse_atom_data</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Reading Atomic Data from kurucz_cd23_chianti_H_He.h5 (<span class="ansi-bold">parse_atom_data.py</span>:40)
+[<span class="ansi-bold">tardis.io.atom_data.util</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Atom Data kurucz_cd23_chianti_H_He.h5 not found in local path.
+        Exists in TARDIS Data repo /home/afullard/Downloads/tardis-data/kurucz_cd23_chianti_H_He.h5 (<span class="ansi-bold">util.py</span>:36)
+[<span class="ansi-bold">tardis.io.atom_data.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Reading Atom Data with: UUID = 6f7b09e887a311e7a06b246e96350010 MD5  = 864f1753714343c41f99cb065710cace  (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.io.atom_data.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Non provided Atomic Data: synpp_refs, photoionization_data, yg_data, two_photon_data, linelist_atoms, linelist_molecules (<span class="ansi-bold">base.py</span>:266)
+[<span class="ansi-bold">tardis.io.model.parse_density_configuration</span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]
+        Number of density points larger than number of shells. Assuming inner point irrelevant (<span class="ansi-bold">parse_density_configuration.py</span>:114)
+[<span class="ansi-bold">tardis.model.matter.decay</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Decaying abundances for 1123200.0 seconds (<span class="ansi-bold">decay.py</span>:101)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 1 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]
+        /home/afullard/tardis/tardis/transport/montecarlo/montecarlo_main_loop.py:123: NumbaTypeSafetyWarning: <span class="ansi-bold">unsafe cast from uint64 to int64. Precision may be lost.</span>
+  vpacket_collection = vpacket_collections[i]
+ (<span class="ansi-bold">warnings.py</span>:112)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1e008796934f446385fa088552215991", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "39e4c502e52f455b9086c831ef47d824", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 7.942e+42 erg / s
+        Luminosity absorbed  = 2.659e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_bac1d">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_bac1d_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_bac1d_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_bac1d_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_bac1d_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_bac1d_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_bac1d_row0_col0" class="data row0 col0" >9.93e+03 K</td>
+      <td id="T_bac1d_row0_col1" class="data row0 col1" >1.01e+04 K</td>
+      <td id="T_bac1d_row0_col2" class="data row0 col2" >0.4</td>
+      <td id="T_bac1d_row0_col3" class="data row0 col3" >0.507</td>
+    </tr>
+    <tr>
+      <th id="T_bac1d_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_bac1d_row1_col0" class="data row1 col0" >9.85e+03 K</td>
+      <td id="T_bac1d_row1_col1" class="data row1 col1" >1.02e+04 K</td>
+      <td id="T_bac1d_row1_col2" class="data row1 col2" >0.211</td>
+      <td id="T_bac1d_row1_col3" class="data row1 col3" >0.197</td>
+    </tr>
+    <tr>
+      <th id="T_bac1d_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_bac1d_row2_col0" class="data row2 col0" >9.78e+03 K</td>
+      <td id="T_bac1d_row2_col1" class="data row2 col1" >1.01e+04 K</td>
+      <td id="T_bac1d_row2_col2" class="data row2 col2" >0.143</td>
+      <td id="T_bac1d_row2_col3" class="data row2 col3" >0.117</td>
+    </tr>
+    <tr>
+      <th id="T_bac1d_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_bac1d_row3_col0" class="data row3 col0" >9.71e+03 K</td>
+      <td id="T_bac1d_row3_col1" class="data row3 col1" >9.87e+03 K</td>
+      <td id="T_bac1d_row3_col2" class="data row3 col2" >0.105</td>
+      <td id="T_bac1d_row3_col3" class="data row3 col3" >0.0869</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 9933.952 K
+        Expected t_inner for next iteration = 10703.212 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 2 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.071e+43 erg / s
+        Luminosity absorbed  = 3.576e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_f0e95">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_f0e95_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_f0e95_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_f0e95_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_f0e95_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_f0e95_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_f0e95_row0_col0" class="data row0 col0" >1.01e+04 K</td>
+      <td id="T_f0e95_row0_col1" class="data row0 col1" >1.08e+04 K</td>
+      <td id="T_f0e95_row0_col2" class="data row0 col2" >0.507</td>
+      <td id="T_f0e95_row0_col3" class="data row0 col3" >0.525</td>
+    </tr>
+    <tr>
+      <th id="T_f0e95_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_f0e95_row1_col0" class="data row1 col0" >1.02e+04 K</td>
+      <td id="T_f0e95_row1_col1" class="data row1 col1" >1.1e+04 K</td>
+      <td id="T_f0e95_row1_col2" class="data row1 col2" >0.197</td>
+      <td id="T_f0e95_row1_col3" class="data row1 col3" >0.203</td>
+    </tr>
+    <tr>
+      <th id="T_f0e95_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_f0e95_row2_col0" class="data row2 col0" >1.01e+04 K</td>
+      <td id="T_f0e95_row2_col1" class="data row2 col1" >1.08e+04 K</td>
+      <td id="T_f0e95_row2_col2" class="data row2 col2" >0.117</td>
+      <td id="T_f0e95_row2_col3" class="data row2 col3" >0.125</td>
+    </tr>
+    <tr>
+      <th id="T_f0e95_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_f0e95_row3_col0" class="data row3 col0" >9.87e+03 K</td>
+      <td id="T_f0e95_row3_col1" class="data row3 col1" >1.05e+04 K</td>
+      <td id="T_f0e95_row3_col2" class="data row3 col2" >0.0869</td>
+      <td id="T_f0e95_row3_col3" class="data row3 col3" >0.0933</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10703.212 K
+        Expected t_inner for next iteration = 10673.712 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 3 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.074e+43 erg / s
+        Luminosity absorbed  = 3.391e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 1/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_52eca">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_52eca_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_52eca_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_52eca_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_52eca_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_52eca_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_52eca_row0_col0" class="data row0 col0" >1.08e+04 K</td>
+      <td id="T_52eca_row0_col1" class="data row0 col1" >1.1e+04 K</td>
+      <td id="T_52eca_row0_col2" class="data row0 col2" >0.525</td>
+      <td id="T_52eca_row0_col3" class="data row0 col3" >0.483</td>
+    </tr>
+    <tr>
+      <th id="T_52eca_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_52eca_row1_col0" class="data row1 col0" >1.1e+04 K</td>
+      <td id="T_52eca_row1_col1" class="data row1 col1" >1.12e+04 K</td>
+      <td id="T_52eca_row1_col2" class="data row1 col2" >0.203</td>
+      <td id="T_52eca_row1_col3" class="data row1 col3" >0.189</td>
+    </tr>
+    <tr>
+      <th id="T_52eca_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_52eca_row2_col0" class="data row2 col0" >1.08e+04 K</td>
+      <td id="T_52eca_row2_col1" class="data row2 col1" >1.1e+04 K</td>
+      <td id="T_52eca_row2_col2" class="data row2 col2" >0.125</td>
+      <td id="T_52eca_row2_col3" class="data row2 col3" >0.118</td>
+    </tr>
+    <tr>
+      <th id="T_52eca_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_52eca_row3_col0" class="data row3 col0" >1.05e+04 K</td>
+      <td id="T_52eca_row3_col1" class="data row3 col1" >1.06e+04 K</td>
+      <td id="T_52eca_row3_col2" class="data row3 col2" >0.0933</td>
+      <td id="T_52eca_row3_col3" class="data row3 col3" >0.0895</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10673.712 K
+        Expected t_inner for next iteration = 10635.953 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 4 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.058e+43 erg / s
+        Luminosity absorbed  = 3.352e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 2/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_9f639">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_9f639_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_9f639_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_9f639_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_9f639_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_9f639_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_9f639_row0_col0" class="data row0 col0" >1.1e+04 K</td>
+      <td id="T_9f639_row0_col1" class="data row0 col1" >1.1e+04 K</td>
+      <td id="T_9f639_row0_col2" class="data row0 col2" >0.483</td>
+      <td id="T_9f639_row0_col3" class="data row0 col3" >0.469</td>
+    </tr>
+    <tr>
+      <th id="T_9f639_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_9f639_row1_col0" class="data row1 col0" >1.12e+04 K</td>
+      <td id="T_9f639_row1_col1" class="data row1 col1" >1.12e+04 K</td>
+      <td id="T_9f639_row1_col2" class="data row1 col2" >0.189</td>
+      <td id="T_9f639_row1_col3" class="data row1 col3" >0.182</td>
+    </tr>
+    <tr>
+      <th id="T_9f639_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_9f639_row2_col0" class="data row2 col0" >1.1e+04 K</td>
+      <td id="T_9f639_row2_col1" class="data row2 col1" >1.1e+04 K</td>
+      <td id="T_9f639_row2_col2" class="data row2 col2" >0.118</td>
+      <td id="T_9f639_row2_col3" class="data row2 col3" >0.113</td>
+    </tr>
+    <tr>
+      <th id="T_9f639_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_9f639_row3_col0" class="data row3 col0" >1.06e+04 K</td>
+      <td id="T_9f639_row3_col1" class="data row3 col1" >1.07e+04 K</td>
+      <td id="T_9f639_row3_col2" class="data row3 col2" >0.0895</td>
+      <td id="T_9f639_row3_col3" class="data row3 col3" >0.0861</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10635.953 K
+        Expected t_inner for next iteration = 10638.407 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 5 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.055e+43 erg / s
+        Luminosity absorbed  = 3.399e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 3/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_40b08">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_40b08_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_40b08_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_40b08_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_40b08_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_40b08_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_40b08_row0_col0" class="data row0 col0" >1.1e+04 K</td>
+      <td id="T_40b08_row0_col1" class="data row0 col1" >1.1e+04 K</td>
+      <td id="T_40b08_row0_col2" class="data row0 col2" >0.469</td>
+      <td id="T_40b08_row0_col3" class="data row0 col3" >0.479</td>
+    </tr>
+    <tr>
+      <th id="T_40b08_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_40b08_row1_col0" class="data row1 col0" >1.12e+04 K</td>
+      <td id="T_40b08_row1_col1" class="data row1 col1" >1.13e+04 K</td>
+      <td id="T_40b08_row1_col2" class="data row1 col2" >0.182</td>
+      <td id="T_40b08_row1_col3" class="data row1 col3" >0.178</td>
+    </tr>
+    <tr>
+      <th id="T_40b08_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_40b08_row2_col0" class="data row2 col0" >1.1e+04 K</td>
+      <td id="T_40b08_row2_col1" class="data row2 col1" >1.1e+04 K</td>
+      <td id="T_40b08_row2_col2" class="data row2 col2" >0.113</td>
+      <td id="T_40b08_row2_col3" class="data row2 col3" >0.113</td>
+    </tr>
+    <tr>
+      <th id="T_40b08_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_40b08_row3_col0" class="data row3 col0" >1.07e+04 K</td>
+      <td id="T_40b08_row3_col1" class="data row3 col1" >1.07e+04 K</td>
+      <td id="T_40b08_row3_col2" class="data row3 col2" >0.0861</td>
+      <td id="T_40b08_row3_col3" class="data row3 col3" >0.0839</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10638.407 K
+        Expected t_inner for next iteration = 10650.202 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 6 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.061e+43 erg / s
+        Luminosity absorbed  = 3.398e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 4/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_8ee52">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_8ee52_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_8ee52_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_8ee52_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_8ee52_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_8ee52_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_8ee52_row0_col0" class="data row0 col0" >1.1e+04 K</td>
+      <td id="T_8ee52_row0_col1" class="data row0 col1" >1.1e+04 K</td>
+      <td id="T_8ee52_row0_col2" class="data row0 col2" >0.479</td>
+      <td id="T_8ee52_row0_col3" class="data row0 col3" >0.47</td>
+    </tr>
+    <tr>
+      <th id="T_8ee52_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_8ee52_row1_col0" class="data row1 col0" >1.13e+04 K</td>
+      <td id="T_8ee52_row1_col1" class="data row1 col1" >1.12e+04 K</td>
+      <td id="T_8ee52_row1_col2" class="data row1 col2" >0.178</td>
+      <td id="T_8ee52_row1_col3" class="data row1 col3" >0.185</td>
+    </tr>
+    <tr>
+      <th id="T_8ee52_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_8ee52_row2_col0" class="data row2 col0" >1.1e+04 K</td>
+      <td id="T_8ee52_row2_col1" class="data row2 col1" >1.11e+04 K</td>
+      <td id="T_8ee52_row2_col2" class="data row2 col2" >0.113</td>
+      <td id="T_8ee52_row2_col3" class="data row2 col3" >0.112</td>
+    </tr>
+    <tr>
+      <th id="T_8ee52_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_8ee52_row3_col0" class="data row3 col0" >1.07e+04 K</td>
+      <td id="T_8ee52_row3_col1" class="data row3 col1" >1.07e+04 K</td>
+      <td id="T_8ee52_row3_col2" class="data row3 col2" >0.0839</td>
+      <td id="T_8ee52_row3_col3" class="data row3 col3" >0.0856</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10650.202 K
+        Expected t_inner for next iteration = 10645.955 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 7 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.061e+43 erg / s
+        Luminosity absorbed  = 3.382e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 5/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_2589d">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_2589d_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_2589d_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_2589d_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_2589d_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_2589d_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_2589d_row0_col0" class="data row0 col0" >1.1e+04 K</td>
+      <td id="T_2589d_row0_col1" class="data row0 col1" >1.1e+04 K</td>
+      <td id="T_2589d_row0_col2" class="data row0 col2" >0.47</td>
+      <td id="T_2589d_row0_col3" class="data row0 col3" >0.47</td>
+    </tr>
+    <tr>
+      <th id="T_2589d_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_2589d_row1_col0" class="data row1 col0" >1.12e+04 K</td>
+      <td id="T_2589d_row1_col1" class="data row1 col1" >1.13e+04 K</td>
+      <td id="T_2589d_row1_col2" class="data row1 col2" >0.185</td>
+      <td id="T_2589d_row1_col3" class="data row1 col3" >0.178</td>
+    </tr>
+    <tr>
+      <th id="T_2589d_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_2589d_row2_col0" class="data row2 col0" >1.11e+04 K</td>
+      <td id="T_2589d_row2_col1" class="data row2 col1" >1.11e+04 K</td>
+      <td id="T_2589d_row2_col2" class="data row2 col2" >0.112</td>
+      <td id="T_2589d_row2_col3" class="data row2 col3" >0.112</td>
+    </tr>
+    <tr>
+      <th id="T_2589d_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_2589d_row3_col0" class="data row3 col0" >1.07e+04 K</td>
+      <td id="T_2589d_row3_col1" class="data row3 col1" >1.07e+04 K</td>
+      <td id="T_2589d_row3_col2" class="data row3 col2" >0.0856</td>
+      <td id="T_2589d_row3_col3" class="data row3 col3" >0.086</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10645.955 K
+        Expected t_inner for next iteration = 10642.050 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 8 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.062e+43 erg / s
+        Luminosity absorbed  = 3.350e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 6/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_24f4f">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_24f4f_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_24f4f_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_24f4f_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_24f4f_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_24f4f_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_24f4f_row0_col0" class="data row0 col0" >1.1e+04 K</td>
+      <td id="T_24f4f_row0_col1" class="data row0 col1" >1.11e+04 K</td>
+      <td id="T_24f4f_row0_col2" class="data row0 col2" >0.47</td>
+      <td id="T_24f4f_row0_col3" class="data row0 col3" >0.472</td>
+    </tr>
+    <tr>
+      <th id="T_24f4f_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_24f4f_row1_col0" class="data row1 col0" >1.13e+04 K</td>
+      <td id="T_24f4f_row1_col1" class="data row1 col1" >1.14e+04 K</td>
+      <td id="T_24f4f_row1_col2" class="data row1 col2" >0.178</td>
+      <td id="T_24f4f_row1_col3" class="data row1 col3" >0.175</td>
+    </tr>
+    <tr>
+      <th id="T_24f4f_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_24f4f_row2_col0" class="data row2 col0" >1.11e+04 K</td>
+      <td id="T_24f4f_row2_col1" class="data row2 col1" >1.11e+04 K</td>
+      <td id="T_24f4f_row2_col2" class="data row2 col2" >0.112</td>
+      <td id="T_24f4f_row2_col3" class="data row2 col3" >0.111</td>
+    </tr>
+    <tr>
+      <th id="T_24f4f_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_24f4f_row3_col0" class="data row3 col0" >1.07e+04 K</td>
+      <td id="T_24f4f_row3_col1" class="data row3 col1" >1.07e+04 K</td>
+      <td id="T_24f4f_row3_col2" class="data row3 col2" >0.086</td>
+      <td id="T_24f4f_row3_col3" class="data row3 col3" >0.084</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10642.050 K
+        Expected t_inner for next iteration = 10636.106 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 9 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.052e+43 erg / s
+        Luminosity absorbed  = 3.411e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 7/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_62369">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_62369_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_62369_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_62369_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_62369_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_62369_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_62369_row0_col0" class="data row0 col0" >1.11e+04 K</td>
+      <td id="T_62369_row0_col1" class="data row0 col1" >1.11e+04 K</td>
+      <td id="T_62369_row0_col2" class="data row0 col2" >0.472</td>
+      <td id="T_62369_row0_col3" class="data row0 col3" >0.469</td>
+    </tr>
+    <tr>
+      <th id="T_62369_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_62369_row1_col0" class="data row1 col0" >1.14e+04 K</td>
+      <td id="T_62369_row1_col1" class="data row1 col1" >1.15e+04 K</td>
+      <td id="T_62369_row1_col2" class="data row1 col2" >0.175</td>
+      <td id="T_62369_row1_col3" class="data row1 col3" >0.17</td>
+    </tr>
+    <tr>
+      <th id="T_62369_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_62369_row2_col0" class="data row2 col0" >1.11e+04 K</td>
+      <td id="T_62369_row2_col1" class="data row2 col1" >1.11e+04 K</td>
+      <td id="T_62369_row2_col2" class="data row2 col2" >0.111</td>
+      <td id="T_62369_row2_col3" class="data row2 col3" >0.109</td>
+    </tr>
+    <tr>
+      <th id="T_62369_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_62369_row3_col0" class="data row3 col0" >1.07e+04 K</td>
+      <td id="T_62369_row3_col1" class="data row3 col1" >1.08e+04 K</td>
+      <td id="T_62369_row3_col2" class="data row3 col2" >0.084</td>
+      <td id="T_62369_row3_col3" class="data row3 col3" >0.0822</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10636.106 K
+        Expected t_inner for next iteration = 10654.313 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 10 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.070e+43 erg / s
+        Luminosity absorbed  = 3.335e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 8/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_8589d">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_8589d_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_8589d_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_8589d_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_8589d_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_8589d_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_8589d_row0_col0" class="data row0 col0" >1.11e+04 K</td>
+      <td id="T_8589d_row0_col1" class="data row0 col1" >1.1e+04 K</td>
+      <td id="T_8589d_row0_col2" class="data row0 col2" >0.469</td>
+      <td id="T_8589d_row0_col3" class="data row0 col3" >0.475</td>
+    </tr>
+    <tr>
+      <th id="T_8589d_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_8589d_row1_col0" class="data row1 col0" >1.15e+04 K</td>
+      <td id="T_8589d_row1_col1" class="data row1 col1" >1.14e+04 K</td>
+      <td id="T_8589d_row1_col2" class="data row1 col2" >0.17</td>
+      <td id="T_8589d_row1_col3" class="data row1 col3" >0.177</td>
+    </tr>
+    <tr>
+      <th id="T_8589d_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_8589d_row2_col0" class="data row2 col0" >1.11e+04 K</td>
+      <td id="T_8589d_row2_col1" class="data row2 col1" >1.11e+04 K</td>
+      <td id="T_8589d_row2_col2" class="data row2 col2" >0.109</td>
+      <td id="T_8589d_row2_col3" class="data row2 col3" >0.112</td>
+    </tr>
+    <tr>
+      <th id="T_8589d_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_8589d_row3_col0" class="data row3 col0" >1.08e+04 K</td>
+      <td id="T_8589d_row3_col1" class="data row3 col1" >1.06e+04 K</td>
+      <td id="T_8589d_row3_col2" class="data row3 col2" >0.0822</td>
+      <td id="T_8589d_row3_col3" class="data row3 col3" >0.0878</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10654.313 K
+        Expected t_inner for next iteration = 10628.190 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 11 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.053e+43 erg / s
+        Luminosity absorbed  = 3.363e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 9/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_eb87c">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_eb87c_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_eb87c_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_eb87c_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_eb87c_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_eb87c_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_eb87c_row0_col0" class="data row0 col0" >1.1e+04 K</td>
+      <td id="T_eb87c_row0_col1" class="data row0 col1" >1.1e+04 K</td>
+      <td id="T_eb87c_row0_col2" class="data row0 col2" >0.475</td>
+      <td id="T_eb87c_row0_col3" class="data row0 col3" >0.472</td>
+    </tr>
+    <tr>
+      <th id="T_eb87c_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_eb87c_row1_col0" class="data row1 col0" >1.14e+04 K</td>
+      <td id="T_eb87c_row1_col1" class="data row1 col1" >1.12e+04 K</td>
+      <td id="T_eb87c_row1_col2" class="data row1 col2" >0.177</td>
+      <td id="T_eb87c_row1_col3" class="data row1 col3" >0.184</td>
+    </tr>
+    <tr>
+      <th id="T_eb87c_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_eb87c_row2_col0" class="data row2 col0" >1.11e+04 K</td>
+      <td id="T_eb87c_row2_col1" class="data row2 col1" >1.1e+04 K</td>
+      <td id="T_eb87c_row2_col2" class="data row2 col2" >0.112</td>
+      <td id="T_eb87c_row2_col3" class="data row2 col3" >0.114</td>
+    </tr>
+    <tr>
+      <th id="T_eb87c_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_eb87c_row3_col0" class="data row3 col0" >1.06e+04 K</td>
+      <td id="T_eb87c_row3_col1" class="data row3 col1" >1.06e+04 K</td>
+      <td id="T_eb87c_row3_col2" class="data row3 col2" >0.0878</td>
+      <td id="T_eb87c_row3_col3" class="data row3 col3" >0.0859</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10628.190 K
+        Expected t_inner for next iteration = 10644.054 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 12 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.056e+43 erg / s
+        Luminosity absorbed  = 3.420e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 10/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_efdef">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_efdef_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_efdef_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_efdef_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_efdef_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_efdef_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_efdef_row0_col0" class="data row0 col0" >1.1e+04 K</td>
+      <td id="T_efdef_row0_col1" class="data row0 col1" >1.11e+04 K</td>
+      <td id="T_efdef_row0_col2" class="data row0 col2" >0.472</td>
+      <td id="T_efdef_row0_col3" class="data row0 col3" >0.467</td>
+    </tr>
+    <tr>
+      <th id="T_efdef_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_efdef_row1_col0" class="data row1 col0" >1.12e+04 K</td>
+      <td id="T_efdef_row1_col1" class="data row1 col1" >1.13e+04 K</td>
+      <td id="T_efdef_row1_col2" class="data row1 col2" >0.184</td>
+      <td id="T_efdef_row1_col3" class="data row1 col3" >0.176</td>
+    </tr>
+    <tr>
+      <th id="T_efdef_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_efdef_row2_col0" class="data row2 col0" >1.1e+04 K</td>
+      <td id="T_efdef_row2_col1" class="data row2 col1" >1.11e+04 K</td>
+      <td id="T_efdef_row2_col2" class="data row2 col2" >0.114</td>
+      <td id="T_efdef_row2_col3" class="data row2 col3" >0.11</td>
+    </tr>
+    <tr>
+      <th id="T_efdef_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_efdef_row3_col0" class="data row3 col0" >1.06e+04 K</td>
+      <td id="T_efdef_row3_col1" class="data row3 col1" >1.08e+04 K</td>
+      <td id="T_efdef_row3_col2" class="data row3 col2" >0.0859</td>
+      <td id="T_efdef_row3_col3" class="data row3 col3" >0.0821</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10644.054 K
+        Expected t_inner for next iteration = 10653.543 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 13 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.062e+43 erg / s
+        Luminosity absorbed  = 3.406e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 11/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_aa15a">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_aa15a_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_aa15a_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_aa15a_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_aa15a_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_aa15a_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_aa15a_row0_col0" class="data row0 col0" >1.11e+04 K</td>
+      <td id="T_aa15a_row0_col1" class="data row0 col1" >1.11e+04 K</td>
+      <td id="T_aa15a_row0_col2" class="data row0 col2" >0.467</td>
+      <td id="T_aa15a_row0_col3" class="data row0 col3" >0.466</td>
+    </tr>
+    <tr>
+      <th id="T_aa15a_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_aa15a_row1_col0" class="data row1 col0" >1.13e+04 K</td>
+      <td id="T_aa15a_row1_col1" class="data row1 col1" >1.13e+04 K</td>
+      <td id="T_aa15a_row1_col2" class="data row1 col2" >0.176</td>
+      <td id="T_aa15a_row1_col3" class="data row1 col3" >0.18</td>
+    </tr>
+    <tr>
+      <th id="T_aa15a_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_aa15a_row2_col0" class="data row2 col0" >1.11e+04 K</td>
+      <td id="T_aa15a_row2_col1" class="data row2 col1" >1.11e+04 K</td>
+      <td id="T_aa15a_row2_col2" class="data row2 col2" >0.11</td>
+      <td id="T_aa15a_row2_col3" class="data row2 col3" >0.111</td>
+    </tr>
+    <tr>
+      <th id="T_aa15a_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_aa15a_row3_col0" class="data row3 col0" >1.08e+04 K</td>
+      <td id="T_aa15a_row3_col1" class="data row3 col1" >1.08e+04 K</td>
+      <td id="T_aa15a_row3_col2" class="data row3 col2" >0.0821</td>
+      <td id="T_aa15a_row3_col3" class="data row3 col3" >0.0841</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10653.543 K
+        Expected t_inner for next iteration = 10647.277 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 14 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.063e+43 erg / s
+        Luminosity absorbed  = 3.369e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 12/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_770a1">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_770a1_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_770a1_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_770a1_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_770a1_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_770a1_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_770a1_row0_col0" class="data row0 col0" >1.11e+04 K</td>
+      <td id="T_770a1_row0_col1" class="data row0 col1" >1.11e+04 K</td>
+      <td id="T_770a1_row0_col2" class="data row0 col2" >0.466</td>
+      <td id="T_770a1_row0_col3" class="data row0 col3" >0.469</td>
+    </tr>
+    <tr>
+      <th id="T_770a1_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_770a1_row1_col0" class="data row1 col0" >1.13e+04 K</td>
+      <td id="T_770a1_row1_col1" class="data row1 col1" >1.13e+04 K</td>
+      <td id="T_770a1_row1_col2" class="data row1 col2" >0.18</td>
+      <td id="T_770a1_row1_col3" class="data row1 col3" >0.182</td>
+    </tr>
+    <tr>
+      <th id="T_770a1_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_770a1_row2_col0" class="data row2 col0" >1.11e+04 K</td>
+      <td id="T_770a1_row2_col1" class="data row2 col1" >1.1e+04 K</td>
+      <td id="T_770a1_row2_col2" class="data row2 col2" >0.111</td>
+      <td id="T_770a1_row2_col3" class="data row2 col3" >0.113</td>
+    </tr>
+    <tr>
+      <th id="T_770a1_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_770a1_row3_col0" class="data row3 col0" >1.08e+04 K</td>
+      <td id="T_770a1_row3_col1" class="data row3 col1" >1.07e+04 K</td>
+      <td id="T_770a1_row3_col2" class="data row3 col2" >0.0841</td>
+      <td id="T_770a1_row3_col3" class="data row3 col3" >0.0854</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10647.277 K
+        Expected t_inner for next iteration = 10638.875 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 15 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.053e+43 erg / s
+        Luminosity absorbed  = 3.417e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 13/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_4dc2e">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_4dc2e_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_4dc2e_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_4dc2e_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_4dc2e_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_4dc2e_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_4dc2e_row0_col0" class="data row0 col0" >1.11e+04 K</td>
+      <td id="T_4dc2e_row0_col1" class="data row0 col1" >1.1e+04 K</td>
+      <td id="T_4dc2e_row0_col2" class="data row0 col2" >0.469</td>
+      <td id="T_4dc2e_row0_col3" class="data row0 col3" >0.484</td>
+    </tr>
+    <tr>
+      <th id="T_4dc2e_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_4dc2e_row1_col0" class="data row1 col0" >1.13e+04 K</td>
+      <td id="T_4dc2e_row1_col1" class="data row1 col1" >1.13e+04 K</td>
+      <td id="T_4dc2e_row1_col2" class="data row1 col2" >0.182</td>
+      <td id="T_4dc2e_row1_col3" class="data row1 col3" >0.181</td>
+    </tr>
+    <tr>
+      <th id="T_4dc2e_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_4dc2e_row2_col0" class="data row2 col0" >1.1e+04 K</td>
+      <td id="T_4dc2e_row2_col1" class="data row2 col1" >1.1e+04 K</td>
+      <td id="T_4dc2e_row2_col2" class="data row2 col2" >0.113</td>
+      <td id="T_4dc2e_row2_col3" class="data row2 col3" >0.113</td>
+    </tr>
+    <tr>
+      <th id="T_4dc2e_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_4dc2e_row3_col0" class="data row3 col0" >1.07e+04 K</td>
+      <td id="T_4dc2e_row3_col1" class="data row3 col1" >1.07e+04 K</td>
+      <td id="T_4dc2e_row3_col2" class="data row3 col2" >0.0854</td>
+      <td id="T_4dc2e_row3_col3" class="data row3 col3" >0.0858</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10638.875 K
+        Expected t_inner for next iteration = 10655.125 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 16 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.059e+43 erg / s
+        Luminosity absorbed  = 3.445e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 14/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_5fbc5">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_5fbc5_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_5fbc5_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_5fbc5_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_5fbc5_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_5fbc5_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_5fbc5_row0_col0" class="data row0 col0" >1.1e+04 K</td>
+      <td id="T_5fbc5_row0_col1" class="data row0 col1" >1.1e+04 K</td>
+      <td id="T_5fbc5_row0_col2" class="data row0 col2" >0.484</td>
+      <td id="T_5fbc5_row0_col3" class="data row0 col3" >0.472</td>
+    </tr>
+    <tr>
+      <th id="T_5fbc5_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_5fbc5_row1_col0" class="data row1 col0" >1.13e+04 K</td>
+      <td id="T_5fbc5_row1_col1" class="data row1 col1" >1.13e+04 K</td>
+      <td id="T_5fbc5_row1_col2" class="data row1 col2" >0.181</td>
+      <td id="T_5fbc5_row1_col3" class="data row1 col3" >0.177</td>
+    </tr>
+    <tr>
+      <th id="T_5fbc5_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_5fbc5_row2_col0" class="data row2 col0" >1.1e+04 K</td>
+      <td id="T_5fbc5_row2_col1" class="data row2 col1" >1.1e+04 K</td>
+      <td id="T_5fbc5_row2_col2" class="data row2 col2" >0.113</td>
+      <td id="T_5fbc5_row2_col3" class="data row2 col3" >0.113</td>
+    </tr>
+    <tr>
+      <th id="T_5fbc5_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_5fbc5_row3_col0" class="data row3 col0" >1.07e+04 K</td>
+      <td id="T_5fbc5_row3_col1" class="data row3 col1" >1.06e+04 K</td>
+      <td id="T_5fbc5_row3_col2" class="data row3 col2" >0.0858</td>
+      <td id="T_5fbc5_row3_col3" class="data row3 col3" >0.0858</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10655.125 K
+        Expected t_inner for next iteration = 10655.561 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 17 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.067e+43 erg / s
+        Luminosity absorbed  = 3.372e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 15/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_cae19">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_cae19_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_cae19_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_cae19_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_cae19_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_cae19_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_cae19_row0_col0" class="data row0 col0" >1.1e+04 K</td>
+      <td id="T_cae19_row0_col1" class="data row0 col1" >1.11e+04 K</td>
+      <td id="T_cae19_row0_col2" class="data row0 col2" >0.472</td>
+      <td id="T_cae19_row0_col3" class="data row0 col3" >0.468</td>
+    </tr>
+    <tr>
+      <th id="T_cae19_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_cae19_row1_col0" class="data row1 col0" >1.13e+04 K</td>
+      <td id="T_cae19_row1_col1" class="data row1 col1" >1.14e+04 K</td>
+      <td id="T_cae19_row1_col2" class="data row1 col2" >0.177</td>
+      <td id="T_cae19_row1_col3" class="data row1 col3" >0.175</td>
+    </tr>
+    <tr>
+      <th id="T_cae19_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_cae19_row2_col0" class="data row2 col0" >1.1e+04 K</td>
+      <td id="T_cae19_row2_col1" class="data row2 col1" >1.11e+04 K</td>
+      <td id="T_cae19_row2_col2" class="data row2 col2" >0.113</td>
+      <td id="T_cae19_row2_col3" class="data row2 col3" >0.11</td>
+    </tr>
+    <tr>
+      <th id="T_cae19_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_cae19_row3_col0" class="data row3 col0" >1.06e+04 K</td>
+      <td id="T_cae19_row3_col1" class="data row3 col1" >1.08e+04 K</td>
+      <td id="T_cae19_row3_col2" class="data row3 col2" >0.0858</td>
+      <td id="T_cae19_row3_col3" class="data row3 col3" >0.0816</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10655.561 K
+        Expected t_inner for next iteration = 10636.536 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 18 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.057e+43 erg / s
+        Luminosity absorbed  = 3.365e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 16/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_52967">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_52967_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_52967_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_52967_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_52967_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_52967_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_52967_row0_col0" class="data row0 col0" >1.11e+04 K</td>
+      <td id="T_52967_row0_col1" class="data row0 col1" >1.11e+04 K</td>
+      <td id="T_52967_row0_col2" class="data row0 col2" >0.468</td>
+      <td id="T_52967_row0_col3" class="data row0 col3" >0.464</td>
+    </tr>
+    <tr>
+      <th id="T_52967_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_52967_row1_col0" class="data row1 col0" >1.14e+04 K</td>
+      <td id="T_52967_row1_col1" class="data row1 col1" >1.13e+04 K</td>
+      <td id="T_52967_row1_col2" class="data row1 col2" >0.175</td>
+      <td id="T_52967_row1_col3" class="data row1 col3" >0.177</td>
+    </tr>
+    <tr>
+      <th id="T_52967_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_52967_row2_col0" class="data row2 col0" >1.11e+04 K</td>
+      <td id="T_52967_row2_col1" class="data row2 col1" >1.1e+04 K</td>
+      <td id="T_52967_row2_col2" class="data row2 col2" >0.11</td>
+      <td id="T_52967_row2_col3" class="data row2 col3" >0.113</td>
+    </tr>
+    <tr>
+      <th id="T_52967_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_52967_row3_col0" class="data row3 col0" >1.08e+04 K</td>
+      <td id="T_52967_row3_col1" class="data row3 col1" >1.07e+04 K</td>
+      <td id="T_52967_row3_col2" class="data row3 col2" >0.0816</td>
+      <td id="T_52967_row3_col3" class="data row3 col3" >0.0848</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10636.536 K
+        Expected t_inner for next iteration = 10641.692 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 19 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.056e+43 erg / s
+        Luminosity absorbed  = 3.405e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+        Iteration converged 17/4 consecutive times. (<span class="ansi-bold">base.py</span>:262)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Plasma stratification: (<span class="ansi-bold">base.py</span>:631)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_52f90">
+  <thead>
+    <tr>
+      <th class="index_name level0" >Shell No.</th>
+      <th id="T_52f90_level0_col0" class="col_heading level0 col0" >t_rad</th>
+      <th id="T_52f90_level0_col1" class="col_heading level0 col1" >next_t_rad</th>
+      <th id="T_52f90_level0_col2" class="col_heading level0 col2" >w</th>
+      <th id="T_52f90_level0_col3" class="col_heading level0 col3" >next_w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_52f90_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_52f90_row0_col0" class="data row0 col0" >1.11e+04 K</td>
+      <td id="T_52f90_row0_col1" class="data row0 col1" >1.11e+04 K</td>
+      <td id="T_52f90_row0_col2" class="data row0 col2" >0.464</td>
+      <td id="T_52f90_row0_col3" class="data row0 col3" >0.466</td>
+    </tr>
+    <tr>
+      <th id="T_52f90_level0_row1" class="row_heading level0 row1" >5</th>
+      <td id="T_52f90_row1_col0" class="data row1 col0" >1.13e+04 K</td>
+      <td id="T_52f90_row1_col1" class="data row1 col1" >1.13e+04 K</td>
+      <td id="T_52f90_row1_col2" class="data row1 col2" >0.177</td>
+      <td id="T_52f90_row1_col3" class="data row1 col3" >0.177</td>
+    </tr>
+    <tr>
+      <th id="T_52f90_level0_row2" class="row_heading level0 row2" >10</th>
+      <td id="T_52f90_row2_col0" class="data row2 col0" >1.1e+04 K</td>
+      <td id="T_52f90_row2_col1" class="data row2 col1" >1.11e+04 K</td>
+      <td id="T_52f90_row2_col2" class="data row2 col2" >0.113</td>
+      <td id="T_52f90_row2_col3" class="data row2 col3" >0.111</td>
+    </tr>
+    <tr>
+      <th id="T_52f90_level0_row3" class="row_heading level0 row3" >15</th>
+      <td id="T_52f90_row3_col0" class="data row3 col0" >1.07e+04 K</td>
+      <td id="T_52f90_row3_col1" class="data row3 col1" >1.07e+04 K</td>
+      <td id="T_52f90_row3_col2" class="data row3 col2" >0.0848</td>
+      <td id="T_52f90_row3_col3" class="data row3 col3" >0.0853</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Current t_inner = 10641.692 K
+        Expected t_inner for next iteration = 10650.463 K
+ (<span class="ansi-bold">base.py</span>:658)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Simulation finished in 19 iterations
+        Simulation took 29.04 s
+ (<span class="ansi-bold">base.py</span>:548)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Starting iteration 20 of 20 (<span class="ansi-bold">base.py</span>:450)
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]
+
+        Luminosity emitted   = 1.061e+43 erg / s
+        Luminosity absorbed  = 3.401e+42 erg / s
+        Luminosity requested = 1.059e+43 erg / s
+ (<span class="ansi-bold">base.py</span>:663)
+</pre></div></div>
+</div>
+<p>Now, import functions &amp; class to create widgets from <code class="docutils literal notranslate"><span class="pre">visualization</span></code> subpackage:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tardis.visualization</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">shell_info_from_simulation</span><span class="p">,</span>
+    <span class="n">shell_info_from_hdf</span><span class="p">,</span>
+    <span class="n">LineInfoWidget</span><span class="p">,</span>
+    <span class="n">GrotrianWidget</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Shell-Info-Widget">
+<h2>Shell Info Widget<a class="headerlink" href="#Shell-Info-Widget" title="Link to this heading">¶</a></h2>
+<p>This widget allows you to explore chemical abundances of each shell - all the way from elements to ions to levels - by just clicking on the rows you want to explore!</p>
+<p>There are two ways in which you can generate the widget:</p>
+<section id="Using-a-Simulation-object">
+<h3>Using a Simulation object<a class="headerlink" href="#Using-a-Simulation-object" title="Link to this heading">¶</a></h3>
+<p>We will use the simulation object we created in the beginning, <code class="docutils literal notranslate"><span class="pre">sim</span></code> to generate shell info widget. Then simply display it to start using.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shell_info_widget</span> <span class="o">=</span> <span class="n">shell_info_from_simulation</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">shell_info_widget</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>You can interact with the widget produced in output above (which won’t be visible if you’re viewing this notebook in our docs as an html page) like this:</p>
+<p><img alt="Shell Info Widget Demo" src="../../_images/shell_info_widget_demo.gif" /></p>
+<p>Use the button at the top of this page to run the notebook in interactively to use the widgets!</p>
+</section>
+<section id="Using-a-saved-simulation-(HDF-file)">
+<h3>Using a saved simulation (HDF file)<a class="headerlink" href="#Using-a-saved-simulation-(HDF-file)" title="Link to this heading">¶</a></h3>
+<p>Alternatively, if you have a TARDIS simulation model saved on your disk as an HDF file, you can also use it to generate the shell info widget.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell_info_widget = shell_info_from_hdf(&#39;demo.h5&#39;)</span>
+<span class="c1"># shell_info_widget.display()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Line-Info-Widget">
+<h2>Line Info Widget<a class="headerlink" href="#Line-Info-Widget" title="Link to this heading">¶</a></h2>
+<p>This widget lets you explore the atomic lines responsible for producing features in the simulated spectrum.</p>
+<p>You can select any wavelength range in the spectrum interactively to display a table giving the fraction of packets that experienced their last interaction with each species. Using toggle buttons, you can specify whether to filter the selected range by the emitted or absorbed wavelengths of packets. Clicking on a row in the species table, shows packet counts for each last line interaction of the selected species, which can be grouped in several ways.</p>
+<p>To generate line info widget, we will again use the simulation object <code class="docutils literal notranslate"><span class="pre">sim</span></code> and then display the widget:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">line_info_widget</span> <span class="o">=</span> <span class="n">LineInfoWidget</span><span class="o">.</span><span class="n">from_simulation</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">line_info_widget</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>You can interact with this widget (which again won’t be visible if you’re viewing this notebook in our docs as an html page) like this:</p>
+<p><img alt="Line Info Widget Demo" src="../../_images/line_info_widget_demo.gif" /></p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note</p>
+<p>The virtual packet logging capability must be active in order to produce virtual packets’ spectrum in <code class="docutils literal notranslate"><span class="pre">Line</span> <span class="pre">Info</span> <span class="pre">Widget</span></code>. Thus, make sure to set <code class="docutils literal notranslate"><span class="pre">virtual_packet_logging:</span> <span class="pre">True</span></code> in your configuration file. It should be added under <code class="docutils literal notranslate"><span class="pre">virtual</span></code> property of <code class="docutils literal notranslate"><span class="pre">spectrum</span></code> property, as described in <a class="reference external" href="https://tardis-sn.github.io/tardis/using/components/configuration/configuration.html#spectrum">configuration schema</a>.</p>
+</div>
+</section>
+<section id="Energy-Level-Diagram">
+<h2>Energy Level Diagram<a class="headerlink" href="#Energy-Level-Diagram" title="Link to this heading">¶</a></h2>
+<p>This widget lets you explore and visualize the various level populations and line interactions in a simulation in the form of an Energy Level Diagram.</p>
+<p>You can select any ion present in the simulation and filter the transitions by wavelength or model shell to display an energy level diagram, where:</p>
+<ul class="simple">
+<li><p>The horizontal lines represent the energy levels. The thickness of each line shows the relative population of that energy level, with thicker lines being more populated.</p></li>
+<li><p>The arrows represent the line interactions between levels, with the arrow direction giving the direction of the transition. The thickness of each arrow also shows the number of packets that underwent the transition while the wavelength is given by the color.</p></li>
+</ul>
+<p>In addition, you can also select between linear- and log-scaling for the y-axis (which represents the energy of each level) and the maximum number of levels to display, beginning from the lowest energy levels.</p>
+<p>To generate the energy level diagram, we will again use the simulation object <code class="docutils literal notranslate"><span class="pre">sim</span></code> and then display the widget:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energy_level_widget</span> <span class="o">=</span> <span class="n">GrotrianWidget</span><span class="o">.</span><span class="n">from_simulation</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+<span class="n">energy_level_widget</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>You can interact with this widget (which again won’t be visible if you’re viewing this notebook in our docs as an html page) like this:</p>
+<p><img alt="Energy Level Diagram Demo" src="../../_images/energy_level_widget_options.gif" /></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="how_to_abundance_widget.html" class="btn btn-neutral float-left" title="How to Generate Custom Abundance Widget" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../physics/intro/index.html" class="btn btn-neutral float-right" title="Physics Walkthrough Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 25 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

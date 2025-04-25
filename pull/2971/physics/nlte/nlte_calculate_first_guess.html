@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NLTE Calculate First Guess &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.1/dist/embed-amd.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tardisgamma/index.html">TARDIS gamma <span class="math notranslate nohighlight">\(\gamma\)</span></a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">NLTE Calculate First Guess</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/physics/nlte/nlte_calculate_first_guess.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/physics/nlte/nlte_calculate_first_guess.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><section id="NLTE-Calculate-First-Guess">
+<h1>NLTE Calculate First Guess<a class="headerlink" href="#NLTE-Calculate-First-Guess" title="Link to this heading">¶</a></h1>
+<p>This notebook demonstrates how to use the <code class="docutils literal notranslate"><span class="pre">calculate_first_guess</span></code> function from the <code class="docutils literal notranslate"><span class="pre">tardis.plasma.properties.nlte_rate_equation_solver</span></code> module.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">tardis.io.atom_data</span> <span class="kn">import</span> <span class="n">download_atom_data</span>
+<span class="kn">from</span> <span class="nn">tardis.io.atom_data</span> <span class="kn">import</span> <span class="n">AtomData</span>
+<span class="kn">from</span> <span class="nn">tardis.plasma.properties.nlte_rate_equation_solver</span> <span class="kn">import</span> <span class="n">calculate_first_guess</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He&#39;</span><span class="p">)</span>
+<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Atomic Data kurucz_cd23_chianti_H_He already exists in /home/rudraksh-nalbalwar/Downloads/tardis-data/kurucz_cd23_chianti_H_He.h5. Will not download - override with force_download=True.
+</pre></div></div>
+</div>
+<section id="Define-Input-Parameters">
+<h2>Define Input Parameters<a class="headerlink" href="#Define-Input-Parameters" title="Link to this heading">¶</a></h2>
+<p>Define the input parameters required for the calculate_first_guess function.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;atomic_number&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+<span class="n">number_density</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;atomic_number&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">electron_density</span> <span class="o">=</span> <span class="n">number_density</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.1</span>
+<span class="n">rate_matrix_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">([</span><span class="n">atomic_numbers</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+<section id="first-guess-using-singly-ionized-method">
+<h3>first guess using singly ionized method<a class="headerlink" href="#first-guess-using-singly-ionized-method" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">first_guess_singly_ionized</span> <span class="o">=</span> <span class="n">calculate_first_guess</span><span class="p">(</span>
+    <span class="n">rate_matrix_index</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">,</span> <span class="n">number_density</span><span class="p">,</span> <span class="n">electron_density</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;singly_ionized&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">first_guess_singly_ionized</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[   0.    26.     0.     0.    75.     0.     0.   126.     0.     0.
+   86.     0.     0.    98.     0.     0.  1039.     0.     0.   664.
+    0.     0.   749.     0.     0.   784.     0.     0.   831.     0.
+    0.   387.     0.     0.   914.     0.     0.   663.     0.     0.
+  960.     0.     0.   495.     0.     0.   385.     0.     0.   508.
+    0.     0.   700.     0.     0.   228.     0.     0.   727.     0.
+    0.   770.     0.     0.  1106.     0.     0.  1444.     0.     0.
+ 1732.     0.     0.  1700.     0.     0.  3006.     0.     0.  1721.
+    0.     0.  2204.     0.     0.   339.     0.     0.   339.  2480.6]
+</pre></div></div>
+</div>
+</section>
+<section id="First-guess-using-previous-solution-method">
+<h3>First guess using previous solution method<a class="headerlink" href="#First-guess-using-previous-solution-method" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">previous_solution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rate_matrix_index</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e8</span>
+<span class="n">first_guess_previous_solution</span> <span class="o">=</span> <span class="n">calculate_first_guess</span><span class="p">(</span>
+    <span class="n">rate_matrix_index</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">,</span> <span class="n">number_density</span><span class="p">,</span> <span class="n">electron_density</span><span class="p">,</span> <span class="n">previous_solution</span><span class="o">=</span><span class="n">previous_solution</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;previous_solution&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">first_guess_previous_solution</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08 1.0000e+08
+ 2.4806e+03]
+</pre></div></div>
+</div>
+</section>
+<section id="First-guess-using-lu-decomposition-method">
+<h3>First guess using lu decomposition method<a class="headerlink" href="#First-guess-using-lu-decomposition-method" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">first_guess_lu_decomposition</span> <span class="o">=</span> <span class="n">calculate_first_guess</span><span class="p">(</span>
+    <span class="n">rate_matrix_index</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">,</span> <span class="n">number_density</span><span class="p">,</span> <span class="n">electron_density</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lu_decomposition&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">first_guess_lu_decomposition</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[2.32987902e-01 2.74412259e+01 9.92916041e-01 0.00000000e+00
+ 7.63118258e+01 0.00000000e+00 1.58707115e+01 1.24877690e+02
+ 3.22300854e+00 0.00000000e+00 7.67136250e+01 0.00000000e+00
+ 0.00000000e+00 9.47913547e+01 1.68033430e+00 4.82109250e+00
+ 1.04592859e+03 0.00000000e+00 1.17749287e+00 6.78813157e+02
+ 0.00000000e+00 0.00000000e+00 7.48209795e+02 7.00660937e+00
+ 0.00000000e+00 7.74401474e+02 5.73876515e-01 0.00000000e+00
+ 8.34889387e+02 2.61805974e+00 2.12954185e+00 3.95541743e+02
+ 7.94318657e+00 7.74750855e+00 9.15987243e+02 0.00000000e+00
+ 3.35375095e+00 6.66238068e+02 1.02978218e+00 0.00000000e+00
+ 9.63864695e+02 0.00000000e+00 0.00000000e+00 4.92368078e+02
+ 0.00000000e+00 1.05035019e+01 3.87139193e+02 0.00000000e+00
+ 7.92375792e-01 5.12380370e+02 0.00000000e+00 1.50385150e+00
+ 6.96672924e+02 3.37401429e+00 0.00000000e+00 2.28418137e+02
+ 5.11055905e+00 7.05108206e+00 7.27860631e+02 0.00000000e+00
+ 4.07883068e+00 7.72821022e+02 0.00000000e+00 0.00000000e+00
+ 1.11571145e+03 1.16396043e+01 5.87958267e+00 1.44860784e+03
+ 0.00000000e+00 0.00000000e+00 1.72798770e+03 0.00000000e+00
+ 8.30306840e+00 1.69511867e+03 1.03882021e+01 0.00000000e+00
+ 3.00167801e+03 0.00000000e+00 4.73004352e+00 1.72851062e+03
+ 0.00000000e+00 3.61641612e+00 2.20461933e+03 2.06106349e+00
+ 4.82126610e+00 3.30253584e+02 0.00000000e+00 8.37362685e+00
+ 3.39726051e+02 2.48060000e+03]
+</pre></div></div>
+</div>
+</section>
+<section id="First-guess-using-auto-method">
+<h3>First guess using auto method<a class="headerlink" href="#First-guess-using-auto-method" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">first_guess_auto</span> <span class="o">=</span> <span class="n">calculate_first_guess</span><span class="p">(</span>
+    <span class="n">rate_matrix_index</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">,</span> <span class="n">number_density</span><span class="p">,</span> <span class="n">electron_density</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">first_guess_auto</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+using lu_decomposition
+[2.32987902e-01 2.74412259e+01 9.92916041e-01 0.00000000e+00
+ 7.63118258e+01 0.00000000e+00 1.58707115e+01 1.24877690e+02
+ 3.22300854e+00 0.00000000e+00 7.67136250e+01 0.00000000e+00
+ 0.00000000e+00 9.47913547e+01 1.68033430e+00 4.82109250e+00
+ 1.04592859e+03 0.00000000e+00 1.17749287e+00 6.78813157e+02
+ 0.00000000e+00 0.00000000e+00 7.48209795e+02 7.00660937e+00
+ 0.00000000e+00 7.74401474e+02 5.73876515e-01 0.00000000e+00
+ 8.34889387e+02 2.61805974e+00 2.12954185e+00 3.95541743e+02
+ 7.94318657e+00 7.74750855e+00 9.15987243e+02 0.00000000e+00
+ 3.35375095e+00 6.66238068e+02 1.02978218e+00 0.00000000e+00
+ 9.63864695e+02 0.00000000e+00 0.00000000e+00 4.92368078e+02
+ 0.00000000e+00 1.05035019e+01 3.87139193e+02 0.00000000e+00
+ 7.92375792e-01 5.12380370e+02 0.00000000e+00 1.50385150e+00
+ 6.96672924e+02 3.37401429e+00 0.00000000e+00 2.28418137e+02
+ 5.11055905e+00 7.05108206e+00 7.27860631e+02 0.00000000e+00
+ 4.07883068e+00 7.72821022e+02 0.00000000e+00 0.00000000e+00
+ 1.11571145e+03 1.16396043e+01 5.87958267e+00 1.44860784e+03
+ 0.00000000e+00 0.00000000e+00 1.72798770e+03 0.00000000e+00
+ 8.30306840e+00 1.69511867e+03 1.03882021e+01 0.00000000e+00
+ 3.00167801e+03 0.00000000e+00 4.73004352e+00 1.72851062e+03
+ 0.00000000e+00 3.61641612e+00 2.20461933e+03 2.06106349e+00
+ 4.82126610e+00 3.30253584e+02 0.00000000e+00 8.37362685e+00
+ 3.39726051e+02 2.48060000e+03]
+</pre></div></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 25 Apr 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
