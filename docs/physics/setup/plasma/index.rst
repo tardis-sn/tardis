@@ -30,7 +30,7 @@ Each TARDIS plasma possesses an array of plasma properties, which are used to ca
  * `HeliumNLTE`: (`helium_population`,)
 
 but some have two or more, e.g.
- * `IonNumberDensity`: (`ion_charge_density`, `electron_densities`)
+ * `IonNumberDensity`: (`ion_number_density`, `electron_densities`)
  * `Levels`: (`levels`, `excitation_energy`, `metastability`, `g`)
 
 Every property has a `calculate` function that returns the values of its outputs. The arguments required for that function become the property inputs. TARDIS will raise an error if it does not have all of the required inputs for a particular property. It will also raise an error if there is an output loop, i.e. if two properties are dependent on each other. Some different properties share output names; for example, `PhiSahaLTE` and `PhiSahaNebular` both have an output called `phi`. That is because the `phi` value is calculated differently depending on the ionization method selected, but once calculated, both values interact in the same way with the rest of the plasma. TARDIS will import only one of the `phi` properties when initialising the plasma.

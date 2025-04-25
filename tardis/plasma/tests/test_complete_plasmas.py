@@ -106,7 +106,7 @@ class TestPlasma:
         "delta",
         "previous_electron_densities",
         "phi",
-        "ion_charge_density",
+        "ion_number_density",
         "electron_densities",
     ]
     level_population_properties = ["level_number_density"]

@@ -18,7 +18,7 @@ class BaseShellInfo:
         dilution_factor,
         abundance,
         number_density,
-        ion_charge_density,
+        ion_number_density,
         level_number_density,
     ):
         """Initialize the object with all simulation properties in use
@@ -35,7 +35,7 @@ class BaseShellInfo:
         number_density : pandas.DataFrame
             Number densities of elements where row labels are atomic number and
             column labels are shell numbers
-        ion_charge_density : pandas.DataFrame
+        ion_number_density : pandas.DataFrame
             Number densities of ions where rows are multi-indexed with (atomic
             number, ion charge) and column labels are shell number
         level_number_density : pandas.DataFrame
@@ -46,7 +46,7 @@ class BaseShellInfo:
         self.dilution_factor = dilution_factor
         self.abundance = abundance
         self.number_density = number_density
-        self.ion_charge1_density = ion_charge_density
+        self.ion_charge1_density = ion_number_density
         self.level_number_density = level_number_density
 
     def shells_data(self):
@@ -120,7 +120,7 @@ class BaseShellInfo:
             Dataframe containing ion specie and fractional abundance for a
             specific element, against each ion number
         """
-        ion_num_density = self.ion_charge_density[shell_num - 1].loc[atomic_num]
+        ion_num_density = self.ion_number_density[shell_num - 1].loc[atomic_num]
         element_num_density = self.number_density.loc[atomic_num, shell_num - 1]
         ion_count_data = ion_num_density / element_num_density  # Normalization
         ion_count_data.index.name = "Ion"
@@ -160,7 +160,7 @@ class BaseShellInfo:
         level_num_density = self.level_number_density[shell_num - 1].loc[
             atomic_num, ion
         ]
-        ion_num_density = self.ion_charge_density[shell_num - 1].loc[
+        ion_num_density = self.ion_number_density[shell_num - 1].loc[
             atomic_num, ion
         ]
         level_count_data = level_num_density / ion_num_density  # Normalization
@@ -188,7 +188,7 @@ class SimulationShellInfo(BaseShellInfo):
             sim_model.simulation_state.dilution_factor,
             sim_model.simulation_state.abundance,
             sim_model.plasma.number_density,
-            sim_model.plasma.ion_charge_density,
+            sim_model.plasma.ion_number_density,
             sim_model.plasma.level_number_density,
         )
 
@@ -214,7 +214,7 @@ class HDFShellInfo(BaseShellInfo):
                 sim_data["/simulation/simulation_state/dilution_factor"],
                 sim_data["/simulation/simulation_state/abundance"],
                 sim_data["/simulation/plasma/number_density"],
-                sim_data["/simulation/plasma/ion_charge_density"],
+                sim_data["/simulation/plasma/ion_number_density"],
                 sim_data["/simulation/plasma/level_number_density"],
             )
 

@@ -134,7 +134,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
 
     def calculate(
         self,
-        ion_charge_density,
+        ion_number_density,
         electron_densities,
         t_electrons,
         w,
@@ -160,7 +160,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
             with open(
                 f"He_NLTE_Files/shellconditions_{zone}.txt", "w"
             ) as output_file:
-                output_file.write(ion_charge_density.loc[2].sum()[zone])
+                output_file.write(ion_number_density.loc[2].sum()[zone])
                 output_file.write(electron_densities[zone])
                 output_file.write(t_electrons[zone])
                 output_file.write(self.heating_rate_data[zone])
@@ -177,7 +177,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                 for element in range(1, 31):
                     try:
                         number_density = (
-                            ion_charge_density[zone].loc[element].sum()
+                            ion_number_density[zone].loc[element].sum()
                         )
                     except:
                         number_density = 0.0
@@ -274,7 +274,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         )
         unnormalised = helium_population.sum()
         normalised = helium_population.mul(
-            ion_charge_density.loc[2].sum() / unnormalised
+            ion_number_density.loc[2].sum() / unnormalised
         )
         helium_population.update(normalised)
         return helium_population

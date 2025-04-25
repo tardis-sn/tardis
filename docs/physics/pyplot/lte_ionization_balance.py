@@ -38,7 +38,7 @@ lte_plasma = None
 lte_plasma.update_radiationfield([10000], [1.0])
 
 # Initializing a dataframe to store the ion populations  and level populations for the different temperatures
-ion_charge_densities = pd.DataFrame(index=lte_plasma.ion_populations.index)
+ion_number_densities = pd.DataFrame(index=lte_plasma.ion_populations.index)
 level_populations = pd.DataFrame(
     index=lte_plasma.level_populations.loc[14, 1].index
 )
@@ -51,7 +51,7 @@ for t_rad in t_rads:
     si_number_density = lte_plasma.number_densities.get_value(14, 0)
     # Normalizing the ion populations
     ion_density = lte_plasma.ion_populations / si_number_density
-    ion_charge_densities[t_rad] = ion_density
+    ion_number_densities[t_rad] = ion_density
 
     # normalizing the level_populations for Si II
     current_level_population = lte_plasma.level_populations[0].loc[
@@ -66,7 +66,7 @@ for t_rad in t_rads:
 ion_colors = ["b", "g", "r", "k"]
 
 for ion_charge in [0, 1, 2, 3]:
-    current_ion_density = ion_charge_densities.loc[14, ion_charge]
+    current_ion_density = ion_number_densities.loc[14, ion_charge]
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,

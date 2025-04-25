@@ -22,7 +22,7 @@ NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE = 1e-6  # Arbitrary toleran
 
 
 class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
-    outputs = ("ion_charge_density", "electron_densities")
+    outputs = ("ion_number_density", "electron_densities")
 
     def __init__(
         self,
@@ -112,7 +112,7 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
         )  # dropping the n_e index, as rate_matrix_index's first index is (atomic_numbers, "n_e")
 
         index = rate_matrix_index.droplevel("level_number").drop("n_e")
-        ion_charge_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
+        ion_number_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
         electron_densities = pd.Series(0.0, index=phi.columns)
         ion_Charge = index.get_level_values("ion_charge")
 
@@ -148,7 +148,7 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
             )
             assert solution.success, "No solution for NLTE population equation found or solver takes too long to converge"
             (
-                ion_charge_density[shell],
+                ion_number_density[shell],
                 electron_densities[shell],
             ) = check_negative_population(
                 pd.Series(solution.x[:-1], index=index),
@@ -160,7 +160,7 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
             # after removing negative populations
             assert (
                 np.abs(
-                    np.sum(ion_Charge * ion_charge_density[shell])
+                    np.sum(ion_Charge * ion_number_density[shell])
                     - electron_densities[shell]
                 )
                 / electron_densities[shell]
@@ -169,11 +169,11 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
 
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
 
-        return ion_charge_density, electron_densities
+        return ion_number_density, electron_densities
 
 
 class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
-    outputs = ("ion_charge_density", "electron_densities")
+    outputs = ("ion_number_density", "electron_densities")
 
     def __init__(
         self,
@@ -264,7 +264,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
 
         index = rate_matrix_index.droplevel("level_number")
         electron_densities = initial_electron_densities.copy()
-        ion_charge_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
+        ion_number_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
         ion_Charge = index.get_level_values("ion_charge")
 
         # Ordering of loops is important to allow for
@@ -302,10 +302,10 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
                 delta_ion, delta_electron = self.calculate_lu_solver_delta(
                     ion_solution,
                     electron_solution,
-                    ion_charge_density[shell],
+                    ion_number_density[shell],
                     electron_densities[shell],
                 )
-                ion_charge_density[shell] = ion_solution
+                ion_number_density[shell] = ion_solution
                 electron_densities[shell] = electron_solution
                 if (
                     np.all(np.abs(delta_ion) < NLTE_POPULATION_SOLVER_TOLERANCE)
@@ -326,11 +326,11 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
 
         logger.info("NLTE ionization solver finished")
 
-        return ion_charge_density, electron_densities
+        return ion_number_density, electron_densities
 
     @staticmethod
     def calculate_lu_solver_delta(
-        ion_solution, electron_solution, ion_charge_density, electron_densities
+        ion_solution, electron_solution, ion_number_density, electron_densities
     ):
         """Calculates relative change between new solution and old value.
 
@@ -354,7 +354,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
         assert (
             electron_solution >= 0.0
         ), "Negative electron density found, this should not happen."
-        delta_ion = (ion_charge_density - ion_solution) / ion_solution
+        delta_ion = (ion_number_density - ion_solution) / ion_solution
         delta_electron = (
             electron_densities - electron_solution
         ) / electron_solution
@@ -362,7 +362,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
 
 
 def check_negative_population(
-    ion_charge_density, electron_densities, number_density, ion_Charge
+    ion_number_density, electron_densities, number_density, ion_Charge
 ):
     """
     Checks if negative populations are present in the solution. If the relative
@@ -372,7 +372,7 @@ def check_negative_population(
 
     Parameters
     ----------
-    ion_charge_density : pandas.Series
+    ion_number_density : pandas.Series
         Number density with NLTE ionization treatment.
     electron_densities : float
         Electron density with NLTE ionization treatment.
@@ -383,7 +383,7 @@ def check_negative_population(
 
     Returns
     -------
-    ion_charge_density : pandas.Series
+    ion_number_density : pandas.Series
         Number density with NLTE ionization treatment.
     electron_densities : float
         Electron density with NLTE ionization treatment.
@@ -402,25 +402,25 @@ def check_negative_population(
             # to large to be numerical.
             continue
         else:
-            for ion_charge in ion_charge_density.loc[atom_number].index:
-                if (ion_charge_density.loc[atom_number, ion_charge] < 0.0) and (
-                    ion_charge_density.loc[atom_number, ion_charge]
+            for ion_charge in ion_number_density.loc[atom_number].index:
+                if (ion_number_density.loc[atom_number, ion_charge] < 0.0) and (
+                    ion_number_density.loc[atom_number, ion_charge]
                     / number_density.loc[atom_number]
                     > NLTE_POPULATION_NEGATIVE_RELATIVE_POPULATION_TOLERANCE
                 ):
-                    ion_charge_density.loc[atom_number, ion_charge] = 0.0
+                    ion_number_density.loc[atom_number, ion_charge] = 0.0
 
     assert np.greater_equal(
-        ion_charge_density, 0.0
+        ion_number_density, 0.0
     ).all(), "Negative ion number density found, solver failed."
 
     if electron_densities is None:
         # For the root solver, we don't want to recalculate the electron density
-        electron_densities = np.sum(ion_Charge * ion_charge_density)
+        electron_densities = np.sum(ion_Charge * ion_number_density)
     assert (
         electron_densities >= 0.0
     ), "Negative electron density found, solver failed."
-    return ion_charge_density, electron_densities
+    return ion_number_density, electron_densities
 
 
 def prepare_ion_recomb_coefficients_nlte_ion(

@@ -851,7 +851,7 @@ class ShellInfo(QtWidgets.QDialog):
         """Called when a header in the first column is clicked to show
         ion populations."""
         self.current_atom_index = self.table1_data.index.values.tolist()[index]
-        self.table2_data = self.parent.model.plasma.ion_charge_density[
+        self.table2_data = self.parent.model.plasma.ion_number_density[
             self.shell_index
         ].ix[self.current_atom_index]
         self.ionsdata = self.createTable(

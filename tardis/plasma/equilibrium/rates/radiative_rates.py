@@ -58,15 +58,15 @@ class RadiativeRatesSolver:
         rates_df = rates_df.reset_index()
 
         # Add the new columns by duplicating the ion_charge column
-        rates_df["ion_charge_source"] = rates_df["ion_charge"]
-        rates_df["ion_charge_destination"] = rates_df["ion_charge"]
+        rates_df["ion_number_source"] = rates_df["ion_charge"]
+        rates_df["ion_number_destination"] = rates_df["ion_charge"]
 
         rates_df = rates_df.set_index(
             [
                 "atomic_number",
                 "ion_charge",
-                "ion_charge_source",
-                "ion_charge_destination",
+                "ion_number_source",
+                "ion_number_destination",
                 "level_number_source",
                 "level_number_destination",
             ]

@@ -300,11 +300,11 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
         gamma,
         alpha_stim,
         electron_densities,
-        ion_charge_density,
+        ion_number_density,
         level_number_density,
     ):
         n_k_index = get_ion_multi_index(alpha_stim.index)
-        n_k = ion_charge_density.loc[n_k_index].values
+        n_k = ion_number_density.loc[n_k_index].values
         n_i = level_number_density.loc[alpha_stim.index].values
         gamma_corr = gamma - (alpha_stim * n_k / n_i).multiply(
             electron_densities
@@ -600,9 +600,9 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
     transition_probabilities_outputs = ("cool_rate_ff",)
     latex_name = (r"C^{\textrm{ff}}",)
 
-    def calculate(self, ion_charge_density, electron_densities, t_electrons):
+    def calculate(self, ion_number_density, electron_densities, t_electrons):
         ff_cooling_factor = self._calculate_ff_cooling_factor(
-            ion_charge_density, electron_densities
+            ion_number_density, electron_densities
         )
         cool_rate_ff = F_K * np.sqrt(t_electrons) * ff_cooling_factor
         cool_rate_ff = cooling_rate_series2dataframe(
@@ -611,11 +611,11 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
         return cool_rate_ff, ff_cooling_factor.values
 
     @staticmethod
-    def _calculate_ff_cooling_factor(ion_charge_density, electron_densities):
-        ion_charge = ion_charge_density.index.get_level_values(1).values
+    def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
+        ion_charge = ion_number_density.index.get_level_values(1).values
         factor = (
             electron_densities
-            * ion_charge_density.multiply(ion_charge**2, axis=0).sum()
+            * ion_number_density.multiply(ion_charge**2, axis=0).sum()
         )
         return factor
 
@@ -667,11 +667,11 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
         self,
         c_fb_sp,
         electron_densities,
-        ion_charge_density,
+        ion_number_density,
         level2continuum_idx,
     ):
         next_ion_stage_index = get_ion_multi_index(c_fb_sp.index)
-        n_k = ion_charge_density.loc[next_ion_stage_index]
+        n_k = ion_number_density.loc[next_ion_stage_index]
 
         cool_rate_fb = c_fb_sp.multiply(electron_densities, axis=1) * n_k.values
         cool_rate_fb_tot = cooling_rate_series2dataframe(
@@ -699,13 +699,13 @@ class LevelNumberDensityLTE(ProcessingPlasmaProperty):
     latex_name = (r"n_{\textrm{i}}^*",)
 
     # TODO: only do this for continuum species
-    def calculate(self, electron_densities, phi_ik, ion_charge_density):
+    def calculate(self, electron_densities, phi_ik, ion_number_density):
         next_higher_ion_index = get_ion_multi_index(
             phi_ik.index, next_higher=True
         )
         # TODO: Check that n_k is correct (and not n_k*)
         lte_level_number_density = (
-            phi_ik * ion_charge_density.loc[next_higher_ion_index].values
+            phi_ik * ion_number_density.loc[next_higher_ion_index].values
         ).multiply(electron_densities, axis=1)
         return lte_level_number_density
 

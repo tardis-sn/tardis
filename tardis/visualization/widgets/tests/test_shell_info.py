@@ -17,7 +17,7 @@ def base_shell_info(simulation_verysimple):
         simulation_verysimple.simulation_state.dilution_factor,
         simulation_verysimple.simulation_state.abundance,
         simulation_verysimple.plasma.number_density,
-        simulation_verysimple.plasma.ion_charge_density,
+        simulation_verysimple.plasma.ion_number_density,
         simulation_verysimple.plasma.level_number_density,
     )
 
@@ -72,8 +72,8 @@ class TestBaseShellInfo:
         self, base_shell_info, simulation_verysimple, atomic_num, shell_num
     ):
         ion_count_data = base_shell_info.ion_count(atomic_num, shell_num)
-        sim_ion_charge_density = (
-            simulation_verysimple.plasma.ion_charge_density[shell_num - 1].loc[
+        sim_ion_number_density = (
+            simulation_verysimple.plasma.ion_number_density[shell_num - 1].loc[
                 atomic_num
             ]
         )
@@ -82,10 +82,10 @@ class TestBaseShellInfo:
                 atomic_num, shell_num - 1
             ]
         )
-        assert ion_count_data.shape == (len(sim_ion_charge_density), 2)
+        assert ion_count_data.shape == (len(sim_ion_number_density), 2)
         assert np.allclose(
             ion_count_data.iloc[:, -1].map(np.float64),
-            sim_ion_charge_density / sim_element_number_density,
+            sim_ion_number_density / sim_element_number_density,
         )
 
     @pytest.mark.parametrize(
@@ -107,15 +107,15 @@ class TestBaseShellInfo:
                 shell_num - 1
             ].loc[atomic_num, ion_num]
         )
-        sim_ion_charge_density = (
-            simulation_verysimple.plasma.ion_charge_density[shell_num - 1].loc[
+        sim_ion_number_density = (
+            simulation_verysimple.plasma.ion_number_density[shell_num - 1].loc[
                 atomic_num, ion_num
             ]
         )
         assert level_count_data.shape == (len(sim_level_number_density), 1)
         assert np.allclose(
             level_count_data.iloc[:, 0].map(np.float64),
-            sim_level_number_density / sim_ion_charge_density,
+            sim_level_number_density / sim_ion_number_density,
         )
 
 

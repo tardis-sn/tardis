@@ -284,21 +284,21 @@ def test_critical_case_dilution_factor_1_root(
     nlte_raw_plasma_dilution_factor_1_root,
 ):
     """Check that the LTE and NLTE solution agree for dilution_factor=1.0."""
-    ion_charge_density_nlte = (
-        nlte_raw_plasma_dilution_factor_1_root.ion_charge_density.values
+    ion_number_density_nlte = (
+        nlte_raw_plasma_dilution_factor_1_root.ion_number_density.values
     )
-    # ion_charge_density_nlte[np.abs(ion_charge_density_nlte) < 1e-10] = 0.0
+    # ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_1_root)
-    ion_charge_density_lte = ind.calculate(
+    ion_number_density_lte = ind.calculate(
         nlte_raw_plasma_dilution_factor_1_root.thermal_phi_lte,
         nlte_raw_plasma_dilution_factor_1_root.partition_function,
         nlte_raw_plasma_dilution_factor_1_root.number_density,
     )[0]
 
     npt.assert_allclose(
-        ion_charge_density_lte,
-        ion_charge_density_nlte,
+        ion_number_density_lte,
+        ion_number_density_nlte,
         atol=1e-10,  # seems fair for the test
         rtol=1e-2,
     )
@@ -308,25 +308,25 @@ def test_critical_case_dilution_factor_1_lu(
     nlte_raw_plasma_dilution_factor_1_lu,
 ):
     """Check that the LTE and NLTE solution agree for dilution_factor=1.0."""
-    ion_charge_density_nlte = (
-        nlte_raw_plasma_dilution_factor_1_lu.ion_charge_density.values
+    ion_number_density_nlte = (
+        nlte_raw_plasma_dilution_factor_1_lu.ion_number_density.values
     )
-    # ion_charge_density_nlte[np.abs(ion_charge_density_nlte) < 1e-10] = 0.0
+    # ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_1_lu)
-    ion_charge_density_lte = ind.calculate(
+    ion_number_density_lte = ind.calculate(
         nlte_raw_plasma_dilution_factor_1_lu.thermal_phi_lte,
         nlte_raw_plasma_dilution_factor_1_lu.partition_function,
         nlte_raw_plasma_dilution_factor_1_lu.number_density,
     )[0]
 
-    ion_charge_density_lte = ion_charge_density_lte.values
-    ion_charge_density_lte[
-        ion_charge_density_lte < 1e-10
+    ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte[
+        ion_number_density_lte < 1e-10
     ] = 0.0  # getting rid of small numbers.
     npt.assert_allclose(
-        ion_charge_density_lte,
-        ion_charge_density_nlte,
+        ion_number_density_lte,
+        ion_number_density_nlte,
         atol=1e-10,  # seems fair for the test
         rtol=1e-2,
     )
@@ -339,7 +339,7 @@ def test_critical_case_dilution_factor_0_root(
     nlte_solver = NLTEPopulationSolverRoot(
         nlte_raw_plasma_dilution_factor_0_root
     )
-    ion_charge_density_nlte = nlte_solver.calculate(
+    ion_number_density_nlte = nlte_solver.calculate(
         nlte_raw_plasma_dilution_factor_0_root.gamma,
         0.0,  # to test collisions only, we set the radiative recombination rate to 0
         nlte_raw_plasma_dilution_factor_0_root.alpha_stim,
@@ -353,19 +353,19 @@ def test_critical_case_dilution_factor_0_root(
         nlte_raw_plasma_dilution_factor_0_root.number_density,
         nlte_raw_plasma_dilution_factor_0_root.nlte_excitation_species,
     )[0]
-    ion_charge_density_nlte = ion_charge_density_nlte.values
-    # ion_charge_density_nlte[np.abs(ion_charge_density_nlte) < 1e-10] = 0.0
+    ion_number_density_nlte = ion_number_density_nlte.values
+    # ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_0_root)
-    ion_charge_density_lte = ind.calculate(
+    ion_number_density_lte = ind.calculate(
         nlte_raw_plasma_dilution_factor_0_root.thermal_phi_lte,
         nlte_raw_plasma_dilution_factor_0_root.partition_function,
         nlte_raw_plasma_dilution_factor_0_root.number_density,
     )[0]
 
-    ion_charge_density_lte = ion_charge_density_lte.values
+    ion_number_density_lte = ion_number_density_lte.values
     npt.assert_allclose(
-        ion_charge_density_lte, ion_charge_density_nlte, rtol=1e-2, atol=1e-10
+        ion_number_density_lte, ion_number_density_nlte, rtol=1e-2, atol=1e-10
     )
 
 
@@ -375,7 +375,7 @@ def test_critical_case_dilution_factor_0_lu(
 ):
     """Check that the LTE and NLTE solution agree for dilution_factor=0.0."""
     nlte_solver = NLTEPopulationSolverLU(nlte_raw_plasma_dilution_factor_0_lu)
-    ion_charge_density_nlte = nlte_solver.calculate(
+    ion_number_density_nlte = nlte_solver.calculate(
         nlte_raw_plasma_dilution_factor_0_lu.gamma,
         0.0,  # to test collisions only, we set the radiative recombination rate to 0
         nlte_raw_plasma_dilution_factor_0_lu.alpha_stim,
@@ -389,23 +389,23 @@ def test_critical_case_dilution_factor_0_lu(
         nlte_raw_plasma_dilution_factor_0_lu.number_density,
         nlte_raw_plasma_dilution_factor_0_lu.nlte_excitation_species,
     )[0]
-    ion_charge_density_nlte = ion_charge_density_nlte.values
-    # ion_charge_density_nlte[np.abs(ion_charge_density_nlte) < 1e-10] = 0.0
+    ion_number_density_nlte = ion_number_density_nlte.values
+    # ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_0_lu)
-    ion_charge_density_lte = ind.calculate(
+    ion_number_density_lte = ind.calculate(
         nlte_raw_plasma_dilution_factor_0_lu.thermal_phi_lte,
         nlte_raw_plasma_dilution_factor_0_lu.partition_function,
         nlte_raw_plasma_dilution_factor_0_lu.number_density,
     )[0]
 
-    ion_charge_density_lte = ion_charge_density_lte.values
-    ion_charge_density_lte[
-        ion_charge_density_lte < 1e-10
+    ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte[
+        ion_number_density_lte < 1e-10
     ] = 0.0  # getting rid of small numbers.
     npt.assert_allclose(
-        ion_charge_density_lte,
-        ion_charge_density_nlte,
+        ion_number_density_lte,
+        ion_number_density_nlte,
         rtol=1e-2,
         atol=1e-10,
     )
