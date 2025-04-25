@@ -455,7 +455,10 @@ class AtomData:
                 self.selected_atomic_numbers, level="atomic_number"
             )
         ]
-        self.lines = self.lines[~self.lines.index.isna().any(axis=1)]
+        # Remove rows where any MultiIndex level is NaN
+        for level in self.lines.index.names:
+            level_values = self.lines.index.get_level_values(level)
+            self.lines = self.lines[~pd.isna(level_values)]
         # see https://github.com/numpy/numpy/issues/27725#issuecomment-2465471648
         # with kind="stable" the returned array will maintain the relative order of a values which compare as equal.
         # this is important especially after numpy v2 release
