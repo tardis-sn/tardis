@@ -114,7 +114,7 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
         index = rate_matrix_index.droplevel("level_number").drop("n_e")
         ion_number_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
         electron_densities = pd.Series(0.0, index=phi.columns)
-        ion_Charge = index.get_level_values("ion_number")
+        ion_Charge = index.get_level_values("ion_charge")
 
         for shell in phi.columns:
             solution_vector = calculate_balance_vector(
@@ -265,7 +265,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
         index = rate_matrix_index.droplevel("level_number")
         electron_densities = initial_electron_densities.copy()
         ion_number_density = pd.DataFrame(0.0, index=index, columns=phi.columns)
-        ion_Charge = index.get_level_values("ion_number")
+        ion_Charge = index.get_level_values("ion_charge")
 
         # Ordering of loops is important to allow for
         # easier parallelization in the future

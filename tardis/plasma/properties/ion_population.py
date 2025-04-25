@@ -354,7 +354,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                     self.ion_zero_threshold,
                 )
                 ion_Charge = ion_number_density.index.get_level_values(
-                    1
+                    "ion_charge"
                 ).values
                 ion_Charge = ion_Charge.reshape((ion_Charge.shape[0], 1))
                 new_n_electron = (ion_number_density.values * ion_Charge).sum(

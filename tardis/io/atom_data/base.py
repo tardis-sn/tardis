@@ -552,7 +552,6 @@ class AtomData:
 
             self.macro_atom_data = self.macro_atom_data.rename(columns={"ion_number": "ion_charge"})
 
-
             self.macro_atom_references = self.macro_atom_references_all[
                 self.macro_atom_references_all.index.isin(
                     self.selected_atomic_numbers, level="atomic_number"
@@ -631,7 +630,9 @@ class AtomData:
                         self.macro_atom_data["atomic_number"],
                         self.macro_atom_data["ion_charge"],
                         self.macro_atom_data["destination_level_number"],
-                    ]
+                    ],
+                    names=["atomic_number", "ion_charge", "level_number"]  
+
                 )
 
                 tmp_macro_source_level_idx = pd.MultiIndex.from_arrays(
@@ -639,7 +640,9 @@ class AtomData:
                         self.macro_atom_data["atomic_number"],
                         self.macro_atom_data["ion_charge"],
                         self.macro_atom_data["source_level_number"],
-                    ]
+                    ],
+                    names=["atomic_number", "ion_charge", "level_number"]  
+
                 )
 
                 self.macro_atom_data.loc[:, "destination_level_idx"] = (
