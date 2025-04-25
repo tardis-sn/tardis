@@ -550,6 +550,9 @@ class AtomData:
                 )
             ].copy()
 
+            self.macro_atom_data = self.macro_atom_data.rename(columns={"ion_number": "ion_charge"})
+
+
             self.macro_atom_references = self.macro_atom_references_all[
                 self.macro_atom_references_all.index.isin(
                     self.selected_atomic_numbers, level="atomic_number"
