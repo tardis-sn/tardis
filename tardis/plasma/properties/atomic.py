@@ -144,7 +144,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     photo_ion_index : pandas.MultiIndex, dtype int
         Atomic, ion and level numbers for which photoionization data exists.
     level2continuum_idx : pandas.Series, dtype int
-        Maps a level MultiIndex (atomic_number, ioharge, level_number) to
+        Maps a level MultiIndex (atomic_number, ion_charge, level_number) to
         the continuum_idx of the corresponding bound-free continuum (which are
         sorted by decreasing frequency).
     level_idxs2continuum_idx : pandas.DataFrame, dtype int
