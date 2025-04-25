@@ -122,7 +122,11 @@ class AnalyticPhotoionizationRateSolver:
 
         photoionization_rate = photoionization_rate_coeff * level_population
 
-        recombination_rate = recombination_rate_coeff * level_population
+        recombination_rate = (
+            recombination_rate_coeff
+            * level_population
+            * electron_energy_distribution.number_density
+        )
 
         photoionization_rate = self.__reindex_ionization_rate_dataframe(
             photoionization_rate, recombination=False

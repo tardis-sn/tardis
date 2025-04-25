@@ -210,7 +210,7 @@ class IonRateMatrix:
 
         collisional_ionization_rates_df, collision_recombination_rates_df = (
             self.collisional_ionization_rate_solver.solve(
-                thermal_electron_energy_distribution.temperature, saha_factor
+                thermal_electron_energy_distribution, saha_factor
             )
         )
 
