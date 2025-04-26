@@ -1,3 +1,7 @@
+import numpy as np
+import pandas as pd
+import panel as pn
+
 from tardis.base import run_tardis
 from tardis.io.atom_data.atom_web_download import download_atom_data
 from tardis.util.base import (
@@ -5,12 +9,7 @@ from tardis.util.base import (
     is_notebook,
     species_tuple_to_string,
 )
-
 from tardis.visualization.widgets.util import create_table_widget_shell_info
-
-import pandas as pd
-import numpy as np
-import panel as pn
 
 pn.extension('tabulator')
 
