@@ -54,83 +54,70 @@ def create_table_widget(
     data, col_widths, table_options=None, changeable_col=None
 ):
     """
-    Create table widget object which supports interaction and updating the data.
+    Create an interactive table widget using Panel's Tabulator, supporting
+    data display, interaction, and optional column name changes.
 
     Parameters
     ----------
     data : pandas.DataFrame
         Data you want to display in table widget
     col_widths : list
-        A list containing width of each column of data in order (including
-        the index as 1st column). The width values must be proportions of
-        100 i.e. they must sum to 100.
+        A list containing the desired widths of each column of data in order (including
+        the index as 1st column). The widths can be any non-negative numbers, and they
+        will be normalized to sum to 100 for setting the column widths.
     table_options : dict, optional
-        A dictionary to specify options to use when creating interactive table
-        widget (same as :grid_options: of qgrid, specified in Notes section of
-        their `API documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.show_grid>_`).
-        Invalid keys will have no effect and valid keys will override or add to
-        the options used by this function.
+        A dictionary specifying configuration options for the Tabulator widget.
+        Overrides the default options where applicable.
     changeable_col : dict, optional
-        A dictionary to specify the information about column which will
-        change its name when data in generated table widget updates. It
-        must have two keys - :code:`index` to specify index of changeable
-        column in dataframe :code:`data` as an integer, and :code:`other_names`
-        to specify all possible names changeable column will get as a list
-        of strings. Default value :code:`None` indicates that there is no
-        changable column.
+        A dictionary specifying the information about column that may change its name when
+        the data updates. It must contain two keys:
+        - :code:`index`: The index of the column in the DataFrame :code:`data`.
+        - :code:`other_names`: A list of possible new names for the column.
 
     Returns
     -------
     panel.widgets.Tabulator
-        Table widget object
+        An interactive Tabulator table widget displaying the DataFrame.
+
+    Raises
+    ------
+    ValueError
+        If the length of :code:`col_widths` does not match the number of
+        columns + 1 (for the index), or if any column width is negative.
+    ValueError
+        If :code:`changeable_col` does not contain both 'index' and 'other_names' keys.
     """
-
-
-    # Check whether passed col_widths list is correct or not
     if len(col_widths) != data.shape[1] + 1:
         raise ValueError(
             "Size of column widths list do not match with "
             "number of columns + 1 (index) in dataframe"
         )
     if any(w < 0 for w in col_widths):
-        raise ValueError(
-            "Column widths must be non-negative"
-        )
+        raise ValueError("Column widths must be non-negative")
 
     total = sum(col_widths)
     if total == 0:
         normalized_widths = [100 / len(col_widths)] * len(col_widths)
     else:
         normalized_widths = [w * 100 / total for w in col_widths]
-    
-    # Convert QGrid-style options to Tabulator options
+
+    # Default Tabulator options
     tabulator_options = {
         'layout': 'fit_data_fill',
         'pagination': None,
         'selectable': 1,
     }
-    
-    # Handle QGrid-specific options that need adaptation for Tabulator
-    if table_options:
-        # Handle maxVisibleRows from QGrid -> appropriate sizing in Tabulator
-        if 'maxVisibleRows' in table_options:
-            max_rows = table_options.pop('maxVisibleRows')
-            tabulator_options['height'] = max_rows * 30  # Approximate row height
-            
-        # Add any remaining compatible options
-        tabulator_options.update(table_options)
+    num_rows = data.shape[0]
+    if num_rows > 20:
+        tabulator_options['height'] = 550
     else:
-        # Default sizing based on row count
-        num_rows = data.shape[0]
-        if num_rows > 20:
-            tabulator_options['height'] = 550
-        else:
-            tabulator_options['height'] = None
+        tabulator_options['height'] = None
+    if table_options:
+        tabulator_options.update(table_options)
 
     # Define widths for columns (including index)
     widths = {data.index.name or 'index': f'{normalized_widths[0]}%'}  # Handle case where index.name is None
     widths.update({col: f'{normalized_widths[i+1]}%' for i, col in enumerate(data.columns)})
-    
     custom_css = """
     .tabulator-header {
         height: auto !important;
@@ -157,8 +144,7 @@ def create_table_widget(
                 "'index' or 'other_names' key"
             )
 
-    # Create the Tabulator with appropriate compatibility methods
-    tabulator = pn.widgets.Tabulator(
+    return pn.widgets.Tabulator(
         data,
         **tabulator_options,
         widths=widths,
@@ -167,13 +153,6 @@ def create_table_widget(
             custom_css
         ]
     )
-    
-    # Add compatibility properties and methods for QGrid-style access
-    # Only implemented as needed based on the errors
-    tabulator._param_values = getattr(tabulator, '_param_pane', {})
-
-    # Return the enhanced widget
-    return tabulator
 
 
 class TableSummaryLabel:

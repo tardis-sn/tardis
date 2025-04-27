@@ -343,10 +343,10 @@ class ShellInfoWidget:
             pn.pane.Markdown("# TARDIS Shell Info Explorer", styles={'font-size': '20px', 'font-weight': 'bold', 'margin-bottom': '10px', 'color': '#333'}),
             self.notes,
             pn.Row(
-                pn.Column(self.shells_title, self.shells_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=320),
-                pn.Column(self.element_title, self.element_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=240),
-                pn.Column(self.ion_title, self.ion_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=280),
-                pn.Column(self.level_title, self.level_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=280),
+                pn.Column(self.shells_title, self.shells_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
+                pn.Column(self.element_title, self.element_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
+                pn.Column(self.ion_title, self.ion_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
+                pn.Column(self.level_title, self.level_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
                 styles={'margin': '10px', 'padding': '10px', 'background-color': '#fff', 'border': '1px solid #ddd', 'border-radius': '3px'},
                 sizing_mode="scale_both",  # Scales to fit the screen without scrolling
             ),
