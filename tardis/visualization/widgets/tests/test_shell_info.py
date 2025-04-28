@@ -166,7 +166,7 @@ class TestShellInfoWidget:
         shell_info_widget.shells_table.selection = [self.select_shell_num - 1]
 
         expected_element_count = base_shell_info.element_count(
-            self.select_shell_num
+            self.select_shell_num, format_for_display=False
         )
         pdt.assert_frame_equal(
             expected_element_count, shell_info_widget.element_count_table.value
@@ -175,7 +175,7 @@ class TestShellInfoWidget:
         atomic_num0 = shell_info_widget.element_count_table.value.index[0]
 
         expected_ion_count = base_shell_info.ion_count(
-            atomic_num0, self.select_shell_num
+            atomic_num0, self.select_shell_num, format_for_display=False
         )
         pdt.assert_frame_equal(
             expected_ion_count, shell_info_widget.ion_count_table.value
@@ -187,6 +187,7 @@ class TestShellInfoWidget:
             ion0,
             atomic_num0,
             self.select_shell_num,
+            format_for_display=False
         )
         pdt.assert_frame_equal(
             expected_level_count, shell_info_widget.level_count_table.value
@@ -202,9 +203,8 @@ class TestShellInfoWidget:
         pos = shell_info_widget.element_count_table.value.index.get_loc(atomic_num)
         shell_info_widget.element_count_table.selection = [pos]
 
-
         expected_ion_count = base_shell_info.ion_count(
-            atomic_num, self.select_shell_num
+            atomic_num, self.select_shell_num, format_for_display=False
         )
         pdt.assert_frame_equal(
             expected_ion_count, shell_info_widget.ion_count_table.value
@@ -215,6 +215,7 @@ class TestShellInfoWidget:
             ion0,
             atomic_num,
             self.select_shell_num,
+            format_for_display=False
         )
         pdt.assert_frame_equal(
             expected_level_count, shell_info_widget.level_count_table.value
@@ -235,7 +236,7 @@ class TestShellInfoWidget:
         shell_info_widget.ion_count_table.selection = [pos] 
      
         expected_level_count = base_shell_info.level_count(
-            ion_num, atomic_num, self.select_shell_num
+            ion_num, atomic_num, self.select_shell_num, format_for_display=False
         )
         pdt.assert_frame_equal(
             expected_level_count, shell_info_widget.level_count_table.value

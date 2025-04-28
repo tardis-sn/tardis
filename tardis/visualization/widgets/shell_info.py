@@ -267,11 +267,12 @@ class ShellInfoWidget:
             Configured tabulator widget.
         """
         defaults = {
-            "layout": "fit_data",
+            "layout": "fit_data_table",
             "selectable": 1,
             "styles": TABLE_STYLES,
             "text_align": "center",
             "header_align": "center",
+            "height": 600,
         }
         if titles:
             defaults["titles"] = titles
@@ -357,9 +358,9 @@ class ShellInfoWidget:
                 pn.Column(self.ion_title, self.ion_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
                 pn.Column(self.level_title, self.level_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
                 styles={'margin': '10px', 'padding': '10px', 'background-color': '#fff', 'border': '1px solid #ddd', 'border-radius': '3px'},
-                sizing_mode="scale_both",  # Scales to fit the screen without scrolling
+                sizing_mode="stretch_width", 
             ),
-            sizing_mode="scale_both",
+            sizing_mode="stretch_width",
             styles=CONTAINER_STYLES,
         )
 
