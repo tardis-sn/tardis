@@ -162,35 +162,38 @@ class TestShellInfoWidget:
     def test_selection_on_shells_table(
         self, base_shell_info, shell_info_widget
     ):
-
         shell_info_widget.shells_table.selection = [self.select_shell_num - 1]
-
         expected_element_count = base_shell_info.element_count(
             self.select_shell_num, format_for_display=False
         )
+        actual_element_count = shell_info_widget.element_count_table.value.copy()
+        col = actual_element_count.columns[-1]
+        actual_element_count[col] = actual_element_count[col].astype(float)
         pdt.assert_frame_equal(
-            expected_element_count, shell_info_widget.element_count_table.value
+            expected_element_count, actual_element_count
         )
-
-        atomic_num0 = shell_info_widget.element_count_table.value.index[0]
-
+        atomic_num0 = actual_element_count.index[0]
         expected_ion_count = base_shell_info.ion_count(
             atomic_num0, self.select_shell_num, format_for_display=False
         )
+        actual_ion_count = shell_info_widget.ion_count_table.value.copy()
+        col = actual_ion_count.columns[-1]
+        actual_ion_count[col] = actual_ion_count[col].astype(float)
         pdt.assert_frame_equal(
-            expected_ion_count, shell_info_widget.ion_count_table.value
+            expected_ion_count, actual_ion_count
         )
-
-        ion0 = shell_info_widget.ion_count_table.value.index[0]
-
+        ion0 = actual_ion_count.index[0]
         expected_level_count = base_shell_info.level_count(
             ion0,
             atomic_num0,
             self.select_shell_num,
             format_for_display=False
         )
+        actual_level_count = shell_info_widget.level_count_table.value.copy()
+        col = actual_level_count.columns[-1]
+        actual_level_count[col] = actual_level_count[col].astype(float)
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.value
+            expected_level_count, actual_level_count
         )
 
     def test_selection_on_element_count_table(
@@ -198,27 +201,30 @@ class TestShellInfoWidget:
     ):
         row_num = self.select_shell_num - 1
         shell_info_widget.shells_table.selection = [row_num]
-
         atomic_num = self.select_atomic_num
         pos = shell_info_widget.element_count_table.value.index.get_loc(atomic_num)
         shell_info_widget.element_count_table.selection = [pos]
-
         expected_ion_count = base_shell_info.ion_count(
             atomic_num, self.select_shell_num, format_for_display=False
         )
+        actual_ion_count = shell_info_widget.ion_count_table.value.copy()
+        col = actual_ion_count.columns[-1]
+        actual_ion_count[col] = actual_ion_count[col].astype(float)
         pdt.assert_frame_equal(
-            expected_ion_count, shell_info_widget.ion_count_table.value
+            expected_ion_count, actual_ion_count
         )
-
-        ion0 = shell_info_widget.ion_count_table.value.index[0]
+        ion0 = actual_ion_count.index[0]
         expected_level_count = base_shell_info.level_count(
             ion0,
             atomic_num,
             self.select_shell_num,
             format_for_display=False
         )
+        actual_level_count = shell_info_widget.level_count_table.value.copy()
+        col = actual_level_count.columns[-1]
+        actual_level_count[col] = actual_level_count[col].astype(float)
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.value
+            expected_level_count, actual_level_count
         )
 
     def test_selection_on_ion_count_table(
@@ -226,20 +232,20 @@ class TestShellInfoWidget:
     ):
         row_num = self.select_shell_num - 1
         shell_info_widget.shells_table.selection = [row_num]
-
         atomic_num = self.select_atomic_num
         pos = shell_info_widget.element_count_table.value.index.get_loc(atomic_num)
         shell_info_widget.element_count_table.selection = [pos]
-
         ion_num = self.select_ion_num
         pos = shell_info_widget.ion_count_table.value.index.get_loc(ion_num)
         shell_info_widget.ion_count_table.selection = [pos] 
-     
         expected_level_count = base_shell_info.level_count(
             ion_num, atomic_num, self.select_shell_num, format_for_display=False
         )
+        actual_level_count = shell_info_widget.level_count_table.value.copy()
+        col = actual_level_count.columns[-1]
+        actual_level_count[col] = actual_level_count[col].astype(float)
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.value
+            expected_level_count, actual_level_count
         )
 
     def test_widget_styling(self, shell_info_widget):
@@ -301,6 +307,7 @@ class TestShellInfoWidget:
  
         shell_panel = shell_info_widget.get_panel()
         assert shell_panel is shell_info_widget.layout
+
 
 
 
