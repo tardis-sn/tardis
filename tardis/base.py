@@ -92,7 +92,7 @@ def run_tardis(
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
 
-    logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
+    logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
 
     if atom_data is not None:
         try:
@@ -102,9 +102,6 @@ def run_tardis(
                 "Atom Data Cannot be Read from HDF. Setting to Default Atom Data"
             )
             atom_data = atom_data
-
-    if show_progress_bars:
-        logger.warning("Packet Progress bars are disabled after the environment upgrade. Please see issue https://github.com/tardis-sn/tardis/issues/3038 for more information.")
 
     simulation = Simulation.from_config(
         tardis_config,
@@ -120,5 +117,7 @@ def run_tardis(
 
     simulation.run_convergence()
     simulation.run_final()
-
+    if logger_widget:
+        tardislogger.remove_widget_handler()
+        tardislogger.setup_stream_handler()
     return simulation
