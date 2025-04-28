@@ -1,11 +1,13 @@
 import logging
 import os
 import re
+import sys
 from dataclasses import dataclass, field
 import panel as pn
 from IPython.display import display
 from functools import lru_cache
 import pandas as pd
+from tardis.io.logger.colored_logger import ColoredFormatter
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
@@ -375,6 +377,15 @@ class TARDISLogger:
         self.logger.removeHandler(self.widget_handler)
         PYTHON_WARNINGS_LOGGER.removeHandler(self.widget_handler)
         self.widget_handler.close()
+        
+    def setup_stream_handler(self):
+        """Set up notebook-based logging after widget handler is removed.
+        """
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setFormatter(ColoredFormatter())
+        
+        self.logger.addHandler(stream_handler)
+        PYTHON_WARNINGS_LOGGER.addHandler(stream_handler)
 
 class LogFilter:
     """Filter for controlling which log levels are displayed.
