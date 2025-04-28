@@ -11,45 +11,6 @@ logger = logging.getLogger(__name__)
 
 pn.extension('tabulator')
 
-def get_table_width(table):
-    """Extract width from table safely, handling various formats."""
-    # If table is a string or non-object type, return default width
-    if isinstance(table, (str, int, float, bool)) or table is None:
-        return 800
-        
-    try:
-        width = getattr(table, 'width', 800)
-        if isinstance(width, str):
-            if width.endswith('px'):
-                return int(width[:-2])
-        elif isinstance(width, (int, float)):
-            return int(width)
-    except (AttributeError, ValueError):
-        pass
-    return 800  # Default width
-
-def update_and_resize(self, value):
-    """
-    Update the label value and resize it as per the size of target table.
-
-    Resizing is done in such a way so as to match the width of components
-    of label with columns of target table, making it look like another row.
-    This method should be called whenever there is any update in data or
-    layout of target table.
-
-    Parameters
-    ----------
-    value : int
-        Value to be shown in label
-    """
-    self.widget.children[1].value = str(value)
-    
-    table_width = get_table_width(self.target_table)
-    
-    # Distribute the table width according to proportions
-    self.widget.children[0].layout.width = f"{table_width * self.table_col_widths[0]/100}px"
-    self.widget.children[1].layout.width = f"{table_width * self.table_col_widths[1]/100}px"
-
 def create_table_widget(
     data, col_widths, table_options=None, changeable_col=None
 ):
@@ -289,68 +250,34 @@ class TableSummaryLabel:
 
 
 class Timer:
-    """Timer to implement debouncing using an asynchronous loop.
-
-    Notes
-    -----
-    This class is reproduced from ipywidgets documentation, for more information
-    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debounce
-    """
-
-    def __init__(self, timeout, callback):
-        """Initialize the Timer with delay time and delayed function.
-
-        Parameters
-        ----------
-            timeout : float
-            callback : function
-        """
-        self._timeout = timeout
+    """Implements a simple asynchronous timer for debouncing callbacks."""
+    def __init__(self, delay, callback):
+        self._delay = delay
         self._callback = callback
+        self._task = None
 
-    async def _job(self):
-        await asyncio.sleep(self._timeout)
+    async def _run(self):
+        await asyncio.sleep(self._delay)
         self._callback()
 
     def start(self):
-        self._task = asyncio.ensure_future(self._job())
+        self._task = asyncio.ensure_future(self._run())
 
     def cancel(self):
-        self._task.cancel()
+        if self._task:
+            self._task.cancel()
 
 
-def debounce(wait):
-    """Decorator that will postpone a function's execution until after
-     `wait` seconds have elapsed since the last time it was invoked.
-
-    Parameters
-    ----------
-        wait : float
-
-    Returns
-    -------
-        function
-
-    Notes
-    -----
-    This decorator is reproduced from ipywidgets documentation, for more information
-    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debounce
-    """
-
-    def decorator(fn):
-        timer = None
-
+def debounce(wait_time):
+    """Decorator to delay function execution until after wait_time seconds have passed since last call."""
+    def wrapper(func):
+        timer_ref = {'timer': None}
         def debounced(*args, **kwargs):
-            nonlocal timer
-
-            def call_it():
-                fn(*args, **kwargs)
-
-            if timer is not None:
-                timer.cancel()
-            timer = Timer(wait, call_it)
-            timer.start()
-
+            def trigger():
+                func(*args, **kwargs)
+            if timer_ref['timer'] is not None:
+                timer_ref['timer'].cancel()
+            timer_ref['timer'] = Timer(wait_time, trigger)
+            timer_ref['timer'].start()
         return debounced
-
-    return decorator
+    return wrapper
