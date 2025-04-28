@@ -43,7 +43,7 @@ jobs:
       
       - name: Show entire output pull request
         if: github.event_name == 'pull_request_target'
-        run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD -- | grep -v -E '\.(lock|yml|rst)$') | tee ruff_full.txt
+        run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD -- | grep -E '\.py$') | tee ruff_full.txt
 
       - name: Show statistics push
         if: github.event_name == 'push'
