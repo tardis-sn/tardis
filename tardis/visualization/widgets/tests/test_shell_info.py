@@ -299,8 +299,8 @@ class TestShellInfoWidget:
 
     def test_get_panel(self, shell_info_widget):
  
-        panel = shell_info_widget.get_panel()
-        assert panel is shell_info_widget.layout
+        shell_panel = shell_info_widget.get_panel()
+        assert shell_panel is shell_info_widget.layout
 
 
 
