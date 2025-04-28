@@ -30,8 +30,3 @@ runs:
           environment-name: tardis
           cache-environment: true
           cache-downloads: true
-
-      - name: Install Panel in Conda environment
-        run: |
-          micromamba install -n tardis -c conda-forge panel=1.6.1
-        shell: bash
