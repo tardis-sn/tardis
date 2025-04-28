@@ -1,6 +1,13 @@
 ## Changelog
 
-### release-2025.04.20 (2025/04/19 21:08)
+### release-2025.04.27 (2025/04/26 21:11)
+- [2846](https://github.com/tardis-sn/tardis/pull/2846) Ruff `tardis/visualization` (2846) (@atharva-2001)
+- [3051](https://github.com/tardis-sn/tardis/pull/3051) Rewrote .rst generating functions with pathlib logic for simplification (3051) (@erinvisser)
+- [3008](https://github.com/tardis-sn/tardis/pull/3008) Fix labels accross spectral notebooks (3008) (@KasukabeDefenceForce)
+- [3055](https://github.com/tardis-sn/tardis/pull/3055) Progress Bar Fixes (3055) (@atharva-2001)
+- [3057](https://github.com/tardis-sn/tardis/pull/3057) Rename analzing tardis outputs to analyzing TARDIS (3057) (@KasukabeDefenceForce)
+- [3056](https://github.com/tardis-sn/tardis/pull/3056) Post-release 2025.04.20 (3056) (@tardis-bot)
+### release-2025.04.20 (2025/04/16 13:29)
 - [3043](https://github.com/tardis-sn/tardis/pull/3043) Add workflows to documentation (3043) (@erinvisser)
 - [3041](https://github.com/tardis-sn/tardis/pull/3041) Build Docs and Other Workflow Fixes (3041) (@atharva-2001)
 - [2977](https://github.com/tardis-sn/tardis/pull/2977) Fixture fixes (2977) (@atharva-2001)
