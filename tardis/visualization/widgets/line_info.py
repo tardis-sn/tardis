@@ -16,8 +16,8 @@ from tardis.util.base import (
 )
 from tardis.visualization import plot_util as pu
 from tardis.visualization.widgets.util import (
-    create_table_widget,
     TableSummaryLabel,
+    create_table_widget,
 )
 
 
@@ -605,24 +605,24 @@ class LineInfoWidget:
             self.FILTER_MODES[self.filter_mode_buttons.index],
         )
 
-    def _species_intrctn_selection_handler(self, event):
+    def _species_intrctn_selection_handler(self, event, qgrid_widget):
         """
-        Event handler for selection in species_interactions_table (Panel Tabulator).
+        Event handler for selection in species_interactions_table.
 
-        Parameters
-        ----------
-        event : param.Event
-            The event containing the new selection information.
+        This method has the expected signature of the function passed to
+        :code:`handler` argument of :code:`on_selection` method of qgrid.QgridWidget
+        as explained in `their docs <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
         """
-        selected = event.new
-        if not selected:
+        # Don't execute function if no row was selected implicitly (by api)
+        if event["new"] == [] and event["source"] == "api":
+            return
+
+        # Get species from the selected row in species_interactions_table
+        species_selected = self.species_interactions_table.df.index[
+            event["new"][0]
+        ]
+        if species_selected == "":  # when species_interactions_table is empty
             species_selected = None
-        else:
-            # Panel Tabulator selection is a list of row indices
-            idx = selected[0]
-            species_selected = self.species_interactions_table.value.index[idx]
-            if species_selected == "":
-                species_selected = None
 
         self._update_last_line_counts(
             species_selected,
@@ -674,9 +674,9 @@ class LineInfoWidget:
         if not is_notebook():
             print("Please use a notebook to display the widget")
         else:
-            # Set widths of widgets (Panel Tabulator uses .width, not .layout.width)
-            self.species_interactions_table.width = 350
-            self.last_line_counts_table.width = 450
+            # Set widths of widgets
+            self.species_interactions_table.layout.width = "350px"
+            self.last_line_counts_table.layout.width = "450px"
             self.total_packets_label.update_and_resize(0)
             self.group_mode_dropdown.layout.width = "auto"
 
@@ -686,8 +686,8 @@ class LineInfoWidget:
             self.filter_mode_buttons.observe(
                 self._filter_mode_toggle_handler, names="index"
             )
-            self.species_interactions_table.param.watch(
-                self._species_intrctn_selection_handler, "selection"
+            self.species_interactions_table.on(
+                "selection_changed", self._species_intrctn_selection_handler
             )
             self.group_mode_dropdown.observe(
                 self._group_mode_dropdown_handler, names="index"
