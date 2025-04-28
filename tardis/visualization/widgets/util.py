@@ -11,7 +11,121 @@ logger = logging.getLogger(__name__)
 
 pn.extension('tabulator')
 
+def _check_changeable_col(changeable_col):
+    """Helper to check changeable_col keys."""
+    if changeable_col and not {"index", "other_names"}.issubset(set(changeable_col.keys())):
+        raise ValueError(
+            "Changeable column dictionary does not contain 'index' or 'other_names' key"
+        )
+
+
+def _validate_column_widths(data, col_widths):
+    """Helper to validate column widths against data."""
+    # Check whether passed col_widths list is correct or not
+    if len(col_widths) != data.shape[1] + 1:
+        raise ValueError(
+            "Size of column widths list do not match with "
+            "number of columns + 1 (index) in dataframe"
+        )
+
+    if sum(col_widths) != 100:
+        raise ValueError(
+            "Column widths are not proportions of 100 (i.e. "
+            "they do not sum to 100)"
+        )
+
+
+def _prepare_column_definitions(data, col_widths, changeable_col):
+    """Helper to prepare column definitions for the table widget."""
+    cols_with_index = [data.index.name] + data.columns.to_list()
+    column_widths_definitions = {
+        col_name: {"width": col_width}
+        for col_name, col_width in zip(cols_with_index, col_widths)
+    }
+
+    if changeable_col:
+        if {"index", "other_names"}.issubset(set(changeable_col.keys())):
+            column_widths_definitions.update(
+                {
+                    col_name: {"width": col_widths[changeable_col["index"]]}
+                    for col_name in changeable_col["other_names"]
+                }
+            )
+
+    return column_widths_definitions
+
+
 def create_table_widget(
+    data, col_widths, table_options=None, changeable_col=None
+):
+    """
+    Create table widget object which supports interaction and updating the data.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Data you want to display in table widget
+    col_widths : list
+        A list containing width of each column of data in order (including
+        the index as 1st column). The width values must be proportions of
+        100 i.e. they must sum to 100.
+    table_options : dict, optional
+        A dictionary to specify options to use when creating interactive table
+        widget (same as :grid_options: of qgrid, specified in Notes section of
+        their `API documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.show_grid>_`).
+        Invalid keys will have no effect and valid keys will override or add to
+        the options used by this function.
+    changeable_col : dict, optional
+        A dictionary to specify the information about column which will
+        change its name when data in generated table widget updates. It
+        must have two keys - :code:`index` to specify index of changeable
+        column in dataframe :code:`data` as an integer, and :code:`other_names`
+        to specify all possible names changeable column will get as a list
+        of strings. Default value :code:`None` indicates that there is no
+        changeable column.
+
+    Returns
+    -------
+    qgrid.QgridWidget
+        Table widget object
+    """
+    try:
+        import qgridnext
+    except ModuleNotFoundError as e:
+        logger.exception(
+            "qgridnext must be installed via pip for widgets to work.\n \
+            Run 'pip install qgridnext' inside your tardis environment.\n \
+            Falling back to qgrid"
+        )
+        import qgrid as qgridnext
+
+    grid_options = {
+        "sortable": False,
+        "filterable": False,
+        "editable": False,
+        "minVisibleRows": 2,
+    }
+    if table_options:
+        grid_options.update(table_options)
+
+    column_options = {
+        "minWidth": None,
+    }
+
+    _validate_column_widths(data, col_widths)
+    _check_changeable_col(changeable_col)
+
+    col_defs = _prepare_column_definitions(data, col_widths, changeable_col)
+
+    return qgridnext.show_grid(
+        data,
+        grid_options=grid_options,
+        column_options=column_options,
+        column_definitions=col_defs,
+    )
+
+
+def create_table_widget_shell_info(
     data, col_widths, table_options=None, changeable_col=None
 ):
     """
@@ -48,13 +162,13 @@ def create_table_widget(
     ValueError
         If :code:`changeable_col` does not contain both 'index' and 'other_names' keys.
     """
-    if len(col_widths) != data.shape[1] + 1:
-        raise ValueError(
-            "Size of column widths list do not match with "
-            "number of columns + 1 (index) in dataframe"
-        )
+    _validate_column_widths(data, col_widths)
+    _check_changeable_col(changeable_col)
+
     if any(w < 0 for w in col_widths):
-        raise ValueError("Column widths must be non-negative")
+        raise ValueError(
+            "Column widths must be non-negative"
+        )
 
     total = sum(col_widths)
     if total == 0:
@@ -76,8 +190,7 @@ def create_table_widget(
     if table_options:
         tabulator_options.update(table_options)
 
-    # Define widths for columns (including index)
-    widths = {data.index.name or 'index': f'{normalized_widths[0]}%'}  # Handle case where index.name is None
+    widths = {data.index.name or 'index': f'{normalized_widths[0]}%'}  
     widths.update({col: f'{normalized_widths[i+1]}%' for i, col in enumerate(data.columns)})
     custom_css = """
     .tabulator-header {
@@ -98,13 +211,6 @@ def create_table_widget(
     }
     """
 
-    if changeable_col:
-        if not {"index", "other_names"}.issubset(set(changeable_col.keys())):
-            raise ValueError(
-                "Changeable column dictionary does not contain "
-                "'index' or 'other_names' key"
-            )
-
     return pn.widgets.Tabulator(
         data,
         **tabulator_options,
@@ -118,7 +224,7 @@ def create_table_widget(
 
 class TableSummaryLabel:
     """
-    Label like widget to show summary of a Panel table widget.
+    Label like widget to show summary of a qgrid table widget.
 
     Also handles aligning the label with the table columns exactly like a
     summary row.
@@ -170,42 +276,34 @@ class TableSummaryLabel:
         value : int
             Value to be shown in label
 
-
         Notes
         -----
-        The width resizing operation is adapted for Panel Tabulator tables.
+        The width resizing operation is highly dependent on qgrid tables'
+        layout. So it may not remain precise if there happens any CSS change
+        in upcoming versions of qgrid.
         """
         self.widget.children[1].value = str(value)
 
         try:
-            # Get the width of the Panel Tabulator widget
-            table_width = self.target_table.width
-            
-            # Convert to integer if it's a string with 'px'
-            if isinstance(table_width, str) and table_width.endswith('px'):
-                table_width = int(table_width.rstrip('px'))
-            elif not isinstance(table_width, (int, float)):
-                # Use a default width if not defined
-                table_width = 800
-                
+            table_width = int(self.target_table.layout.width.rstrip("px"))
         except AttributeError:
             logger.warning(
-                "target_table doesn't have a width attribute, label "
+                "target_table doesn't have any fixed width defined, label "
                 "cannot be resized!",
                 exc_info=1,
             )
             return
 
-        # Check if pagination is enabled
-        has_pagination = getattr(self.target_table, 'pagination', None) == 'local'
-        pagination_height = 30 if has_pagination else 0
-        
-        # Panel's Tabulator handles scrollbars differently than qgrid
-        # No need to subtract scrollbar width explicitly
-        
-        # Distribute the table width in proportions of column width to label components
-        self.widget.children[0].layout.width = f"{(table_width) * self.table_col_widths[0]/100}px"
-        self.widget.children[1].layout.width = f"{(table_width) * self.table_col_widths[1]/100}px"
+        max_rows_allowed = self.target_table.grid_options["maxVisibleRows"]
+        if len(self.target_table.df) > max_rows_allowed:
+            table_width -= 12  
+
+        self.widget.children[
+            0
+        ].layout.width = f"{(table_width) * self.table_col_widths[0]/100}px"
+        self.widget.children[
+            1
+        ].layout.width = f"{(table_width) * self.table_col_widths[1]/100}px"
 
     def _create(self, key, value):
         """
@@ -221,14 +319,12 @@ class TableSummaryLabel:
         Returns
         -------
         ipywidgets.Box
-            Widget containing all componets of label
+            Widget containing all components of label
         """
-        # WARNING: Use dictionary instead of ipw.Layout for specifying layout
-        # of ipywidgets, otherwise there will be unintended behavior
         component_layout_options = dict(
-            flex="0 0 auto",  # to prevent shrinking of flex-items
-            padding="0px 2px",  # match with header
-            margin="0px",  # remove default 1px margin
+            flex="0 0 auto",  
+            padding="0px 2px",  
+            margin="0px",  
         )
 
         return ipw.Box(
@@ -248,36 +344,69 @@ class TableSummaryLabel:
             ),
         )
 
-
 class Timer:
-    """Implements a simple asynchronous timer for debouncing callbacks."""
-    def __init__(self, delay, callback):
-        self._delay = delay
-        self._callback = callback
-        self._task = None
+    """Timer to implement debouncing using an asynchronous loop.
 
-    async def _run(self):
-        await asyncio.sleep(self._delay)
+    Notes
+    -----
+    This class is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debounce
+    """
+
+    def __init__(self, timeout, callback):
+        """Initialize the Timer with delay time and delayed function.
+
+        Parameters
+        ----------
+            timeout : float
+            callback : function
+        """
+        self._timeout = timeout
+        self._callback = callback
+
+    async def _job(self):
+        await asyncio.sleep(self._timeout)
         self._callback()
 
     def start(self):
-        self._task = asyncio.ensure_future(self._run())
+        self._task = asyncio.ensure_future(self._job())
 
     def cancel(self):
-        if self._task:
-            self._task.cancel()
+        self._task.cancel()
 
 
-def debounce(wait_time):
-    """Decorator to delay function execution until after wait_time seconds have passed since last call."""
-    def wrapper(func):
-        timer_ref = {'timer': None}
+def debounce(wait):
+    """Decorator that will postpone a function's execution until after
+     `wait` seconds have elapsed since the last time it was invoked.
+
+    Parameters
+    ----------
+        wait : float
+
+    Returns
+    -------
+        function
+
+    Notes
+    -----
+    This decorator is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debounce
+    """
+
+    def decorator(fn):
+        timer = None
+
         def debounced(*args, **kwargs):
-            def trigger():
-                func(*args, **kwargs)
-            if timer_ref['timer'] is not None:
-                timer_ref['timer'].cancel()
-            timer_ref['timer'] = Timer(wait_time, trigger)
-            timer_ref['timer'].start()
+            nonlocal timer
+
+            def call_it():
+                fn(*args, **kwargs)
+
+            if timer is not None:
+                timer.cancel()
+            timer = Timer(wait, call_it)
+            timer.start()
+
         return debounced
-    return wrapper
+
+    return decorator
