@@ -91,7 +91,7 @@ class BaseShellInfo:
         shells_temp_w.index.name = "Shell No."
         return shells_temp_w.map(lambda x: f"{x:.6e}")
 
-    def element_count(self, shell_num):
+    def element_count(self, shell_num, format_for_display=True):
         """Generates fractional abundance of elements present in a specific shell
 
         Parameters
@@ -107,14 +107,17 @@ class BaseShellInfo:
         element_count_data = self.abundance[shell_num - 1].copy()
         element_count_data.index.name = "Z"
         element_count_data = element_count_data.fillna(0)
-        return pd.DataFrame(
+        df = pd.DataFrame(
             {
                 "Element": element_count_data.index.map(atomic_number2element_symbol),
-                f"Frac. Ab. (Shell {shell_num})": element_count_data.map("{:.6e}".format),
+                f"Frac. Ab. (Shell {shell_num})": element_count_data,
             }
         )
+        if format_for_display:
+            df[f"Frac. Ab. (Shell {shell_num})"] = df[f"Frac. Ab. (Shell {shell_num})"].map("{:.6e}".format)
+        return df
 
-    def ion_count(self, atomic_num, shell_num):
+    def ion_count(self, atomic_num, shell_num, format_for_display=True):
         """Generates fractional abundance of ions for a specific element and shell
 
         Parameters
@@ -134,16 +137,19 @@ class BaseShellInfo:
         ion_count_data = ion_num_density / element_num_density  # Normalization
         ion_count_data.index.name = "Ion"
         ion_count_data = ion_count_data.fillna(0)
-        return pd.DataFrame(
+        df = pd.DataFrame(
             {
                 "Species": ion_count_data.index.map(
                     lambda x: species_tuple_to_string((atomic_num, x))
                 ),
-                f"Frac. Ab. (Z={atomic_num})": ion_count_data.map("{:.6e}".format),
+                f"Frac. Ab. (Z={atomic_num})": ion_count_data,
             }
         )
+        if format_for_display:
+            df[f"Frac. Ab. (Z={atomic_num})"] = df[f"Frac. Ab. (Z={atomic_num})"].map("{:.6e}".format)
+        return df
 
-    def level_count(self, ion, atomic_num, shell_num):
+    def level_count(self, ion, atomic_num, shell_num, format_for_display=True):
         """Generates fractional abundance of levels for a specific ion, element, and shell
 
         Parameters
@@ -166,7 +172,10 @@ class BaseShellInfo:
         level_count_data.index.name = "Level"
         level_count_data.name = f"Frac. Ab. (Ion={ion})"
         level_count_data = level_count_data.fillna(0)
-        return level_count_data.map("{:.6e}".format).to_frame()
+        df = level_count_data.to_frame()
+        if format_for_display:
+            df[df.columns[0]] = df[df.columns[0]].map("{:.6e}".format)
+        return df
 
 
 class SimulationShellInfo(BaseShellInfo):
