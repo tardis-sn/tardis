@@ -48,6 +48,21 @@ class SDECPlotter:
         self.t_inner = None
         self.r_inner = None
         self.time_of_simulation = None
+        self._default_scatter_kwargs = {
+            "mode": "none",
+            "hovertemplate": "(%{x:.2f}, %{y:.3g})",
+        }
+
+        self._predefined_traces = {
+            "emission": {
+                "noint": {"name": "No interaction", "fillcolor": "#4C4C4C"},
+                "escatter": {"name": "Electron Scatter Only", "fillcolor": "#8F8F8F", "hoverlabel": {"namelength": -1}},
+                "other": {"name": "Other elements", "fillcolor": "#C2C2C2"},
+            },
+            "absorption": {
+                "other": {"name": "Other elements", "fillcolor": "#C2C2C2"},
+            }
+        }
 
         self.lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
             "line_id"
@@ -506,7 +521,7 @@ class SDECPlotter:
         elif self._species_list is not None:
             # Compare the species present in the model to those in the requested list
             # Mask out those that aren't in the model
-            mask = np.in1d(
+            mask = np.isin(
                 np.array(list(sorted_list.keys())), self._species_list
             )
             # If species_list is included then create a new column which is the sum
@@ -528,7 +543,7 @@ class SDECPlotter:
             temp = list(self._species_list)
             temp.append("noint")
             temp.append("escatter")
-            mask = np.in1d(
+            mask = np.isin(
                 np.array(list(self.emission_luminosities_df.keys())), temp
             )
             # If species_list is included then create a new column which is the sum
@@ -549,7 +564,7 @@ class SDECPlotter:
             )
 
             temp = list(self._species_list)
-            mask = np.in1d(
+            mask = np.isin(
                 np.array(list(self.absorption_luminosities_df.keys())), temp
             )
             # If species_list is included then create a new column which is the sum
@@ -757,6 +772,42 @@ class SDECPlotter:
         L_lambda = L_nu * self.plot_frequency / self.plot_wavelength
         # Update dataframe
         luminosities_df[contribution_name] = L_lambda.value
+
+    def _plot_traces(self, df, group_name, predefined_traces, invert_y=False):
+        """Generic helper to plot traces."""
+        # By specifying a common stackgroup, plotly will itself add up
+        # luminosities, in order, to created stacked area chart
+        base_kwargs = {
+            "x": df.index,
+            "stackgroup": group_name,
+            **self._default_scatter_kwargs,
+        }
+
+        # Plot predefined traces first
+        for colname, trace_info in predefined_traces.items():
+            if colname in df.columns:
+                y_data = df[colname] * (-1 if invert_y else 1)
+                self.fig.add_trace(go.Scatter(
+                    y=y_data,
+                    **trace_info,
+                    **base_kwargs,
+                ))
+
+        # Plot species-specific traces
+        for (species_counter, identifier), species_name in zip(
+            enumerate(self.species), self._species_name
+        ):
+            try:
+                y_data = df[identifier] * (-1 if invert_y else 1)
+                self.fig.add_trace(go.Scatter(
+                    y=y_data,
+                    name=f"{species_name} {'Absorption' if invert_y else 'Emission'}",
+                    fillcolor=pu.to_rgb255_string(self._color_list[species_counter]),
+                    hoverlabel={"namelength": -1},
+                    **base_kwargs,
+                ))
+            except KeyError:
+                self._log_missing_species(identifier, "absorbed" if invert_y else "emitted")
 
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         """
@@ -1022,9 +1073,6 @@ class SDECPlotter:
                     """
                 )
 
-            observed_spectrum_wavelength = None
-            observed_spectrum_flux = None
-
             # Convert to wavelength and luminosity units
             observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
             observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
@@ -1050,15 +1098,17 @@ class SDECPlotter:
         self.ax.legend(fontsize=12)
         self.ax.set_xlabel(r"Wavelength $[\mathrm{\AA}]$", fontsize=12)
         if distance is not None:  # Set y-axis label for flux
-            self.ax.set_ylabel(
-                r"$F_{\lambda}$ [erg $\mathrm{s^{-1}}$ $\mathrm{cm^{-2}}$ $\mathrm{\AA^{-1}}$]",
-                fontsize=12,
+            ylabel = pu.axis_label_in_latex(
+                "F_{\\lambda}", u.Unit("erg/(s cm**2 AA)"), only_text=False
             )
         else:  # Set y-axis label for luminosity
-            self.ax.set_ylabel(
-                r"$L_{\lambda}$ [erg $\mathrm{s^{-1}}$ $\mathrm{\AA^{-1}}$]",
-                fontsize=12,
+            ylabel = pu.axis_label_in_latex(
+                "L_{\\lambda}", u.Unit("erg/(s AA)"), only_text=False
             )
+        self.ax.set_ylabel(
+            ylabel,
+            fontsize=12,
+        )
 
         return plt.gca()
 
@@ -1365,9 +1415,6 @@ class SDECPlotter:
                     """
                 )
 
-            observed_spectrum_wavelength = None
-            observed_spectrum_flux = None
-
             # Convert to wavelength and luminosity units
             observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
             observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
@@ -1420,115 +1467,21 @@ class SDECPlotter:
 
     def _plot_emission_ply(self):
         """Plot emission part of the SDEC Plot using plotly."""
-        # By specifying a common stackgroup, plotly will itself add up
-        # luminosities, in order, to created stacked area chart
-        self.fig.add_trace(
-            go.Scatter(
-                x=self.emission_luminosities_df.index,
-                y=self.emission_luminosities_df.noint,
-                mode="none",
-                name="No interaction",
-                fillcolor="#4C4C4C",
-                stackgroup="emission",
-                hovertemplate="(%{x:.2f}, %{y:.3g})",
-            )
+        self._plot_traces(
+            df=self.emission_luminosities_df,
+            group_name="emission",
+            predefined_traces=self._predefined_traces["emission"],
+            invert_y=False,
         )
-
-        self.fig.add_trace(
-            go.Scatter(
-                x=self.emission_luminosities_df.index,
-                y=self.emission_luminosities_df.escatter,
-                mode="none",
-                name="Electron Scatter Only",
-                fillcolor="#8F8F8F",
-                stackgroup="emission",
-                hoverlabel={"namelength": -1},
-                hovertemplate="(%{x:.2f}, %{y:.3g})",
-            )
-        )
-
-        # If 'other' column exists then plot as silver
-        if "other" in self.emission_luminosities_df.keys():
-            self.fig.add_trace(
-                go.Scatter(
-                    x=self.emission_luminosities_df.index,
-                    y=self.emission_luminosities_df.other,
-                    mode="none",
-                    name="Other elements",
-                    fillcolor="#C2C2C2",
-                    stackgroup="emission",
-                    hovertemplate="(%{x:.2f}, %{y:.3g})",
-                )
-            )
-
-        # Contribution from each element
-        for (species_counter, identifier), species_name in zip(
-            enumerate(self.species), self._species_name
-        ):
-            try:
-                self.fig.add_trace(
-                    go.Scatter(
-                        x=self.emission_luminosities_df.index,
-                        y=self.emission_luminosities_df[identifier],
-                        mode="none",
-                        name=species_name + " Emission",
-                        hovertemplate=f"<b>{species_name:s} Emission<br>"  # noqa: ISC003
-                        + "(%{x:.2f}, %{y:.3g})<extra></extra>",
-                        fillcolor=pu.to_rgb255_string(
-                            self._color_list[species_counter]
-                        ),
-                        stackgroup="emission",
-                        showlegend=False,
-                        hoverlabel={"namelength": -1},
-                    )
-                )
-            except KeyError:
-                # Add notifications that this species was not in the emission df
-                self._log_missing_species(identifier, "emitted")
 
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
-        # If 'other' column exists then plot as silver
-        if "other" in self.absorption_luminosities_df.keys():
-            self.fig.add_trace(
-                go.Scatter(
-                    x=self.absorption_luminosities_df.index,
-                    # to plot absorption luminosities along negative y-axis
-                    y=self.absorption_luminosities_df.other * -1,
-                    mode="none",
-                    name="Other elements",
-                    fillcolor="#C2C2C2",
-                    stackgroup="absorption",
-                    showlegend=False,
-                    hovertemplate="(%{x:.2f}, %{y:.3g})",
-                )
-            )
-
-        for (species_counter, identifier), species_name in zip(
-            enumerate(self.species), self._species_name
-        ):
-            try:
-                self.fig.add_trace(
-                    go.Scatter(
-                        x=self.absorption_luminosities_df.index,
-                        # to plot absorption luminosities along negative y-axis
-                        y=self.absorption_luminosities_df[identifier] * -1,
-                        mode="none",
-                        name=species_name + " Absorption",
-                        hovertemplate=f"<b>{species_name:s} Absorption<br>"  # noqa: ISC003
-                        + "(%{x:.2f}, %{y:.3g})<extra></extra>",
-                        fillcolor=pu.to_rgb255_string(
-                            self._color_list[species_counter]
-                        ),
-                        stackgroup="absorption",
-                        showlegend=False,
-                        hoverlabel={"namelength": -1},
-                    )
-                )
-
-            except KeyError:
-                # Add notifications that this species was not in the df
-                self._log_missing_species(identifier, "absorbed")
+        self._plot_traces(
+            df=self.absorption_luminosities_df,
+            group_name="absorption",
+            predefined_traces=self._predefined_traces["absorption"],
+            invert_y=True,
+        )
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""

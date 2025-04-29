@@ -220,6 +220,41 @@ class LIVPlotter:
                 species_not_wvl_range,
             )
 
+    def _create_wavelength_mask(
+            self, packets_mode, packet_wvl_range, df_key, column_name
+        ):
+            """
+            Create mask for packets based on wavelength range.
+
+            Parameters
+            ----------
+            packets_mode : str
+                'virtual' or 'real' packets mode
+            packet_wvl_range : astropy.Quantity or None
+                Wavelength range to filter packets
+            df_key : str
+                Key for the dataframe in packet_data ('packets_df' or 'packets_df_line_interaction')
+            column_name : str
+                Column name to filter on ('nus' or 'last_line_interaction_in_nu')
+
+            Returns
+            -------
+            np.array
+                Boolean mask for packets in the specified wavelength range
+            """
+            if packet_wvl_range is None:
+                return np.ones(
+                    self.packet_data[packets_mode][df_key].shape[0],
+                    dtype=bool,
+                )
+
+            packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
+            df = self.packet_data[packets_mode][df_key]
+
+            return (df[column_name] < packet_nu_range[0]) & (
+                df[column_name] > packet_nu_range[1]
+        )
+
     def _prepare_plot_data(
         self,
         packets_mode,
@@ -264,23 +299,18 @@ class LIVPlotter:
             If no species are provided for plotting, or if no valid species are
             found in the model.
         """
-        if species_list is None:
-            # Extract all unique elements from the packets data
-            species_in_model = np.unique(
-                self.packet_data[packets_mode]["packets_df_line_interaction"][
-                    "last_line_interaction_species"
-                ].values
-            )
-            species_list = [
-                f"{atomic_number2element_symbol(specie // 100)}"
-                for specie in species_in_model
-            ]
-        self._parse_species_list(species_list, packets_mode, nelements)
+        # Extract all unique elements from the packets data
         species_in_model = np.unique(
             self.packet_data[packets_mode]["packets_df_line_interaction"][
                 "last_line_interaction_species"
             ].values
         )
+        if species_list is None:
+            species_list = [
+                f"{atomic_number2element_symbol(specie // 100)}"
+                for specie in species_in_model
+            ]
+        self._parse_species_list(species_list, packets_mode, nelements)
         if self._species_list is None or not self._species_list:
             raise ValueError("No species provided for plotting.")
         msk = np.isin(self._species_list, species_in_model)
@@ -295,29 +325,12 @@ class LIVPlotter:
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         self._make_colorbar_colors()
 
-        if packet_wvl_range is None:
-            self.packet_nu_line_range_mask = np.ones(
-                self.packet_data[packets_mode][
-                    "packets_df_line_interaction"
-                ].shape[0],
-                dtype=bool,
-            )
-        else:
-            packet_nu_range = [
-                value.to("Hz", equivalencies=u.spectral())
-                for value in packet_wvl_range
-            ]
-            self.packet_nu_line_range_mask = (
-                self.packet_data[packets_mode]["packets_df_line_interaction"][
-                    "nus"
-                ]
-                >= packet_nu_range[1]
-            ) & (
-                self.packet_data[packets_mode]["packets_df_line_interaction"][
-                    "nus"
-                ]
-                <= packet_nu_range[0]
-            )
+        self.packet_nu_line_range_mask = self._create_wavelength_mask(
+            packets_mode,
+            packet_wvl_range,
+            df_key="packets_df_line_interaction",
+            column_name="nus",
+        )
 
         self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to("km/s")
