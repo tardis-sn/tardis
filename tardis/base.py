@@ -117,7 +117,7 @@ def run_tardis(
 
     simulation.run_convergence()
     simulation.run_final()
-    if logger_widget:
+    if logger_widget and tardislogger:
         tardislogger.remove_widget_handler()
         tardislogger.setup_stream_handler()
     return simulation
