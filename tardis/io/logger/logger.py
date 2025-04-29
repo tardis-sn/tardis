@@ -15,7 +15,7 @@ PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
 def get_environment():
     """Determine the execution environment.
-    
+
     Panel behaves differently in vscode and jupyter. In jupyter, the logger widget's display handle
     has to be updated after each log entry. In vscode, this is not needed.
 
@@ -30,12 +30,12 @@ def get_environment():
 
 def create_output_widget(height=300):
     """Create an HTML pane for logging output.
-    
+
     Parameters
     ----------
     height : int, optional
         The height of the pane in pixels.
-        
+
     Returns
     -------
     panel.pane.HTML
@@ -58,7 +58,7 @@ def create_output_widget(height=300):
 
 def initialize_widget_components():
     """Initialize and return the widget components.
-    
+
 
     Returns
     -------
@@ -92,7 +92,7 @@ def initialize_widget_components():
 @dataclass
 class LoggingConfig:
     """Logging configuration.
-    
+
     Attributes
     ----------
     LEVELS : dict
@@ -130,9 +130,9 @@ LOGGING_LEVELS = LoggingConfig().LEVELS
 
 class PanelWidgetLogHandler(logging.Handler):
     """Log handler for logging to a widget.
-    
+
     Handles the formatting and display of log messages in Panel widgets.
-    
+
     Parameters
     ----------
     log_outputs : dict
@@ -162,7 +162,7 @@ class PanelWidgetLogHandler(logging.Handler):
 
     def emit(self, record):
         """Process and emit a log record.
-        
+
         Parameters
         ----------
         record : logging.LogRecord
@@ -184,12 +184,12 @@ class PanelWidgetLogHandler(logging.Handler):
     @staticmethod
     def _remove_ansi_escape_sequences(text):
         """Remove ANSI escape sequences from string.
-        
+
         Parameters
         ----------
         text : str
             The text containing ANSI escape sequences.
-            
+
         Returns
         -------
         str
@@ -200,14 +200,14 @@ class PanelWidgetLogHandler(logging.Handler):
 
     def _format_html_output(self, log_entry, record):
         """Format log entry as HTML with appropriate styling.
-        
+
         Parameters
         ----------
         log_entry : str
             The log entry text to format.
         record : logging.LogRecord
             The log record containing level information.
-            
+
         Returns
         -------
         str
@@ -222,11 +222,11 @@ class PanelWidgetLogHandler(logging.Handler):
 
     def _emit_to_widget(self, level, html_output):
         """Handles the widget updates.
-        
+
         Updates the appropriate log output widgets based on the log level
         and updates the display handle in Jupyter environments. Updates happen automatically
         in the vscode environment.
-        
+
         Parameters
         ----------
         level : int
@@ -272,9 +272,9 @@ class PanelWidgetLogHandler(logging.Handler):
 
 class TARDISLogger:
     """Main logger class for TARDIS.
-    
+
     Handles configuration of logging levels, filters, and outputs.
-    
+
     Parameters
     ----------
     display_handle : IPython.display.DisplayHandle, optional
@@ -294,7 +294,7 @@ class TARDISLogger:
 
     def configure_logging(self, log_level, tardis_config, specific_log_level=None):
         """Configure the logging level and filtering for TARDIS loggers.
-        
+
         Parameters
         ----------
         log_level : str
@@ -303,7 +303,7 @@ class TARDISLogger:
             Configuration dictionary containing debug settings.
         specific_log_level : bool, optional
             Whether to enable specific log level filtering.
-            
+
         Raises
         ------
         ValueError
@@ -380,7 +380,7 @@ class TARDISLogger:
 
     def _configure_handlers(self):
         """Configure logging handlers.
-        
+
         Removes existing handlers and adds the widget handler to the
         TARDIS logger and Python warnings logger.
         """
@@ -412,7 +412,7 @@ class TARDISLogger:
 
 class LogFilter:
     """Filter for controlling which log levels are displayed.
-    
+
     Parameters
     ----------
     log_levels : list
@@ -424,12 +424,12 @@ class LogFilter:
 
     def filter(self, log_record):
         """Determine if a log record should be displayed.
-        
+
         Parameters
         ----------
         log_record : logging.LogRecord
             The log record to evaluate.
-            
+
         Returns
         -------
         bool
@@ -439,10 +439,10 @@ class LogFilter:
 
 def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
     """Configure and initialize the TARDIS logging system.
-    
+
     Sets up the logging environment, configures log levels, and displays
     the logging widget if requested.
-    
+
     Parameters
     ----------
     log_level : str
@@ -453,7 +453,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         Whether to enable specific log level filtering.
     display_logging_widget : bool, optional
         Whether to display the logging widget. Default is True.
-        
+
     Returns
     -------
     tuple or None
