@@ -36,7 +36,27 @@ def _validate_column_widths(data, col_widths):
 
 
 def _prepare_column_definitions(data, col_widths, changeable_col):
-    """Helper to prepare column definitions for the table widget."""
+    """
+    Helper to prepare column definitions for the table widget.
+    
+    Creates column width definitions for each column in the dataframe, including
+    special handling for changeable columns if specified.
+    
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        The dataframe containing the data to be displayed
+    col_widths : list
+        List of width values for each column (including index)
+    changeable_col : dict or None
+        Dictionary specifying column that can change names, with 'index' and
+        'other_names' keys
+        
+    Returns
+    -------
+    dict
+        Dictionary mapping column names to their width definitions
+    """
     cols_with_index = [data.index.name] + data.columns.to_list()
     column_widths_definitions = {
         col_name: {"width": col_width}
