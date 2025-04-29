@@ -12,7 +12,23 @@ logger = logging.getLogger(__name__)
 pn.extension('tabulator')
 
 def _check_changeable_col(changeable_col):
-    """Helper to check changeable_col keys."""
+    """
+    Helper function to validate the changeable_col dictionary structure.
+    
+    Checks that the changeable_col dictionary contains both required keys:
+    'index' and 'other_names'.
+    
+    Parameters
+    ----------
+    changeable_col : dict or None
+        Dictionary specifying a column that can change names. If not None,
+        it must have 'index' and 'other_names' keys.
+        
+    Raises
+    ------
+    ValueError
+        If changeable_col is provided but doesn't contain both required keys.
+    """
     if changeable_col and not {"index", "other_names"}.issubset(set(changeable_col.keys())):
         raise ValueError(
             "Changeable column dictionary does not contain 'index' or 'other_names' key"
@@ -20,7 +36,26 @@ def _check_changeable_col(changeable_col):
 
 
 def _validate_column_widths(data, col_widths):
-    """Helper to validate column widths against data."""
+    """
+    Helper function to validate column width specifications.
+    
+    Ensures that the column widths match the number of columns in the data
+    and that they sum to 100 (as they are percentages).
+    
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        The dataframe containing the data to be displayed
+    col_widths : list
+        List of width values for each column (including index)
+        
+    Raises
+    ------
+    ValueError
+        If the length of col_widths doesn't match number of columns + 1
+    ValueError
+        If the sum of column widths is not exactly 100
+    """
     # Check whether passed col_widths list is correct or not
     if len(col_widths) != data.shape[1] + 1:
         raise ValueError(
@@ -365,7 +400,11 @@ class TableSummaryLabel:
         )
 
 class Timer:
-    """Timer to implement debouncing using an asynchronous loop.
+    """
+    Timer to implement debouncing using an asynchronous loop.
+    
+    A utility class that manages delayed execution of callbacks using
+    asyncio, primarily for debouncing widget events.
 
     Notes
     -----
@@ -374,38 +413,65 @@ class Timer:
     """
 
     def __init__(self, timeout, callback):
-        """Initialize the Timer with delay time and delayed function.
+        """
+        Initialize the Timer with delay time and delayed function.
 
         Parameters
         ----------
-            timeout : float
-            callback : function
+        timeout : float
+            The time in seconds to wait before executing the callback
+        callback : callable
+            The function to call after the timeout period
         """
         self._timeout = timeout
         self._callback = callback
 
     async def _job(self):
+        """
+        Asynchronous job that waits for the timeout and then executes the callback.
+        
+        This is an internal method used by the Timer class to handle the
+        asyncio task scheduling.
+        """
         await asyncio.sleep(self._timeout)
         self._callback()
 
     def start(self):
+        """
+        Start the timer.
+        
+        Creates and schedules an asyncio task that will execute the callback
+        after the specified timeout period.
+        """
         self._task = asyncio.ensure_future(self._job())
 
     def cancel(self):
+        """
+        Cancel the timer.
+        
+        Stops the scheduled callback from being executed if the timer is
+        still running.
+        """
         self._task.cancel()
 
 
 def debounce(wait):
-    """Decorator that will postpone a function's execution until after
-     `wait` seconds have elapsed since the last time it was invoked.
+    """
+    Decorator that postpones a function's execution until after wait seconds
+    have elapsed since the last time it was invoked.
+    
+    This is useful for reducing the rate of execution of functions that would
+    otherwise be called too frequently, such as resize handlers or input handlers.
 
     Parameters
     ----------
-        wait : float
+    wait : float
+        The time in seconds to wait after the last call before executing the function
 
     Returns
     -------
-        function
+    callable
+        A decorator function that can be applied to another function to debounce it
 
     Notes
     -----
