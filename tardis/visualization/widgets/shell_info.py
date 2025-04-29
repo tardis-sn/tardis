@@ -71,6 +71,24 @@ class BaseShellInfo:
         self.number_density = number_density
         self.ion_number_density = ion_number_density
         self.level_number_density = level_number_density
+        
+    def _normalize_data(self, data):
+        """Helper method to normalize data to ensure sum is 1.0
+        
+        Parameters
+        ----------
+        data : pandas.Series
+            Data to normalize
+            
+        Returns
+        -------
+        pandas.Series
+            Normalized data that sums to 1.0
+        """
+        data = data.astype(np.float64)
+        if data.sum() > 0:
+            data = data / data.sum()
+        return data.fillna(0).round(7)
 
     def shells_data(self):
         """Generates shells data in a form that can be used by a table widget
@@ -134,9 +152,15 @@ class BaseShellInfo:
         """
         ion_num_density = self.ion_number_density[shell_num - 1].loc[atomic_num]
         element_num_density = self.number_density.loc[atomic_num, shell_num - 1]
-        ion_count_data = ion_num_density / element_num_density  # Normalization
+        
+        # Compute the ratio directly using numpy for consistent results
+        ion_count_data = (ion_num_density / element_num_density).astype(np.float64)
+        
+        # Normalize to ensure sum is 1.0 if values are present
+        ion_count_data = self._normalize_data(ion_count_data)
+            
         ion_count_data.index.name = "Ion"
-        ion_count_data = ion_count_data.fillna(0)
+        
         df = pd.DataFrame(
             {
                 "Species": ion_count_data.index.map(
@@ -168,10 +192,16 @@ class BaseShellInfo:
         """
         level_num_density = self.level_number_density[shell_num - 1].loc[atomic_num, ion]
         ion_num_density = self.ion_number_density[shell_num - 1].loc[atomic_num, ion]
-        level_count_data = level_num_density / ion_num_density  # Normalization
+        
+        # Compute the ratio directly using numpy for consistent results
+        level_count_data = (level_num_density / ion_num_density).astype(np.float64)
+        
+        # Normalize to ensure sum is 1.0 if values are present
+        level_count_data = self._normalize_data(level_count_data)
+            
         level_count_data.index.name = "Level"
         level_count_data.name = f"Frac. Ab. (Ion={ion})"
-        level_count_data = level_count_data.fillna(0)
+        
         df = level_count_data.to_frame()
         if format_for_display:
             df[df.columns[0]] = df[df.columns[0]].map("{:.6e}".format)
@@ -242,7 +272,39 @@ class ShellInfoWidget:
         tabulator.text_align = "center"
         tabulator.header_align = "center"
 
-        # helper method to create Tabulator widgets with defaults
+    def _apply_styles_to_all_tables(self):
+        """
+        Apply consistent styles to all tabulator tables in the widget.
+        """
+        for table in [self.shells_table, self.element_count_table, 
+                     self.ion_count_table, self.level_count_table]:
+            self._apply_tabulator_styles(table)
+
+    def _reset_table(self, table, title_widget, title_text, columns, selection_callback=None):
+        """
+        Reset a table to an empty state with default columns.
+        
+        Parameters
+        ----------
+        table : panel.widgets.Tabulator
+            The table to reset
+        title_widget : panel.pane.Markdown
+            The title widget to update
+        title_text : str
+            The new title text
+        columns : list
+            Column names for the empty dataframe
+        selection_callback : function, optional
+            Callback to trigger for downstream updates
+        """
+        table.value = pd.DataFrame(columns=columns)
+        title_widget.object = title_text
+        table.selection = []
+        
+        if selection_callback is not None:
+            selection_callback(None)
+
+    # helper method to create Tabulator widgets with defaults
     def _create_tabulator(self, df, widths, titles=None, **kwargs):
         """
         Create a Tabulator widget with pre-set common arguments.
@@ -278,6 +340,35 @@ class ShellInfoWidget:
             defaults["titles"] = titles
         defaults.update(kwargs)
         return pn.widgets.Tabulator(df, widths=widths, **defaults)
+
+    def _create_table_column(self, title_widget, table_widget, width=260):
+        """
+        Create a consistent column layout for a table and its title.
+        
+        Parameters
+        ----------
+        title_widget : panel.pane.Markdown
+            The title widget for the table
+        table_widget : panel.widgets.Tabulator
+            The table widget
+        width : int, optional
+            Width of the column in pixels, default: 260
+            
+        Returns
+        -------
+        panel.Column
+            A column containing the title and table with consistent styling
+        """
+        return pn.Column(
+            title_widget, 
+            table_widget, 
+            styles={
+                'padding': '5px', 
+                'border': '1px solid #ddd', 
+                'background-color': '#f9f9f9'
+            }, 
+            width=width
+        )
 
     def __init__(self, shell_info_data):
         """
@@ -343,21 +434,27 @@ class ShellInfoWidget:
         )
 
         # Apply styles to all tables initially
-        self._apply_tabulator_styles(self.shells_table)
-        self._apply_tabulator_styles(self.element_count_table)
-        self._apply_tabulator_styles(self.ion_count_table)
-        self._apply_tabulator_styles(self.level_count_table)
+        self._apply_styles_to_all_tables()
 
         # Improved layout with compact, no-scroll design
         self.layout = pn.Column(
-            pn.pane.Markdown("# TARDIS Shell Info Explorer", styles={'font-size': '20px', 'font-weight': 'bold', 'margin-bottom': '10px', 'color': '#333'}),
+            pn.pane.Markdown(
+                "# TARDIS Shell Info Explorer", 
+                styles={'font-size': '20px', 'font-weight': 'bold', 'margin-bottom': '10px', 'color': '#333'}
+            ),
             self.notes,
             pn.Row(
-                pn.Column(self.shells_title, self.shells_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
-                pn.Column(self.element_title, self.element_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
-                pn.Column(self.ion_title, self.ion_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
-                pn.Column(self.level_title, self.level_count_table, styles={'padding': '5px', 'border': '1px solid #ddd', 'background-color': '#f9f9f9'}, width=260),
-                styles={'margin': '10px', 'padding': '10px', 'background-color': '#fff', 'border': '1px solid #ddd', 'border-radius': '3px'},
+                self._create_table_column(self.shells_title, self.shells_table),
+                self._create_table_column(self.element_title, self.element_count_table),
+                self._create_table_column(self.ion_title, self.ion_count_table),
+                self._create_table_column(self.level_title, self.level_count_table),
+                styles={
+                    'margin': '10px', 
+                    'padding': '10px', 
+                    'background-color': '#fff', 
+                    'border': '1px solid #ddd', 
+                    'border-radius': '3px'
+                },
                 sizing_mode="stretch_width", 
             ),
             sizing_mode="stretch_width",
@@ -386,7 +483,7 @@ class ShellInfoWidget:
             element_df = self.data.element_count(shell_num)
 
             if isinstance(element_df, pd.DataFrame):
-            # Force consistent numeric formatting
+                # Force consistent numeric formatting
                 for col in element_df.select_dtypes(include=['float64']).columns:
                     element_df[col] = pd.to_numeric(element_df[col], errors='coerce')
           
@@ -404,10 +501,13 @@ class ShellInfoWidget:
                 self.element_count_table.selection = []
                 self.update_ion_count_table(None)
         else:
-            self.element_count_table.value = pd.DataFrame(columns=["Element", "Frac. Ab."])
-            self.element_title.object = "### Elements (No Shell Selected)"
-            self.element_count_table.selection = []
-            self.update_ion_count_table(None)
+            self._reset_table(
+                self.element_count_table, 
+                self.element_title, 
+                "### Elements (No Shell Selected)", 
+                ["Element", "Frac. Ab."],
+                self.update_ion_count_table
+            )
 
     def update_ion_count_table(self, event):
         """
@@ -441,15 +541,21 @@ class ShellInfoWidget:
                     self.ion_count_table.selection = []
                     self.update_level_count_table(None)
             else:
-                self.ion_count_table.value = pd.DataFrame(columns=["Species", "Frac. Ab."])
-                self.ion_title.object = "### Ions (No Element Selected)"
-                self.ion_count_table.selection = []
-                self.update_level_count_table(None)
+                self._reset_table(
+                    self.ion_count_table, 
+                    self.ion_title, 
+                    "### Ions (No Element Selected)", 
+                    ["Species", "Frac. Ab."],
+                    self.update_level_count_table
+                )
         else:
-            self.ion_count_table.value = pd.DataFrame(columns=["Species", "Frac. Ab."])
-            self.ion_title.object = "### Ions (No Selection)"
-            self.ion_count_table.selection = []
-            self.update_level_count_table(None)
+            self._reset_table(
+                self.ion_count_table, 
+                self.ion_title, 
+                "### Ions (No Selection)", 
+                ["Species", "Frac. Ab."],
+                self.update_level_count_table
+            )
 
     def update_level_count_table(self, event):
         """
@@ -483,13 +589,19 @@ class ShellInfoWidget:
                 else:
                     self.level_count_table.selection = []
             else:
-                self.level_count_table.value = pd.DataFrame(columns=["Level", "Frac. Ab."])
-                self.level_title.object = "### Levels (No Ion Selected)"
-                self.level_count_table.selection = []
+                self._reset_table(
+                    self.level_count_table, 
+                    self.level_title, 
+                    "### Levels (No Ion Selected)", 
+                    ["Level", "Frac. Ab."]
+                )
         else:
-            self.level_count_table.value = pd.DataFrame(columns=["Level", "Frac. Ab."])
-            self.level_title.object = "### Levels (No Selection)"
-            self.level_count_table.selection = []
+            self._reset_table(
+                self.level_count_table, 
+                self.level_title, 
+                "### Levels (No Selection)", 
+                ["Level", "Frac. Ab."]
+            )
 
     def get_panel(self):
         """Return the Panel object for display"""
