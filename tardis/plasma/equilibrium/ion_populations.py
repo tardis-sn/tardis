@@ -3,18 +3,16 @@ import pandas as pd
 
 
 class IonPopulationSolver:
-    def __init__(self, rates_matrices: pd.DataFrame, ions: pd.DataFrame):
+    def __init__(self, rate_matrix_solver, ions: pd.DataFrame):
         """Solve the normalized ion population values from the rate matrices.
 
         Parameters
         ----------
-        rates_matrices : pd.DataFrame
-            DataFrame of rate matrices indexed by atomic number,
-            with each column being a cell.
+        rate_matrix_solver :
         ions : pd.DataFrame
             DataFrame of ions present.
         """
-        self.rates_matrices = rates_matrices
+        self.rate_matrix_solver = rate_matrix_solver
         self.ions = ions
 
     def __calculate_ion_population(self, rates_matrix: np.ndarray):
@@ -37,7 +35,16 @@ class IonPopulationSolver:
         )
         return normalized_ion_population[:-1]
 
-    def solve(self):
+    def solve(
+        self,
+        radiation_field,
+        thermal_electron_energy_distribution,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
+        charge_conservation,
+    ):
         """Solves the normalized ion population values from the rate matrices.
 
         Returns
@@ -46,24 +53,75 @@ class IonPopulationSolver:
             Normalized ion population values indexed by atomic number, ion
             number and ion number. Columns are cells.
         """
-        normalized_ion_populations = pd.DataFrame(
-            index=pd.MultiIndex.from_tuples(self.ions),
-            columns=self.rates_matrices.columns,
-            dtype=np.float64,
+
+        # this is the i level in Lucy 2003
+        lower_ion_level_index = (
+            lte_level_population.index.get_level_values("ion_number") == 0
         )
 
-        # try converting the set of vectors into a single 2D array and then applying index
-        for species_id in self.rates_matrices.index:
-            # TODO: resolve the chained assignment here. Maybe an intermediate df
-            # is needed
+        # this is the k level in Lucy 2003
+        upper_ion_population_index = (
+            lte_ion_population.index.get_level_values("ion_number") >= 1
+        )
 
-            solved_matrices = self.rates_matrices.loc[species_id].apply(
+        self.rates_matrices = self.rate_matrix_solver.solve(
+            radiation_field,
+            thermal_electron_energy_distribution,
+            lte_level_population.loc[lower_ion_level_index],
+            level_population.loc[lower_ion_level_index],
+            lte_ion_population.loc[upper_ion_population_index],
+            ion_population.loc[upper_ion_population_index],
+            charge_conservation,
+        )
+
+        iteration = 0
+        electron_densities = 1
+        total_population = ion_population.sum()
+
+        while iteration < 10:
+            normalized_ion_population = ion_population / ion_population.sum()
+
+            self.rates_matrices = self.rate_matrix_solver.solve(
+                radiation_field,
+                thermal_electron_energy_distribution,
+                lte_level_population.loc[lower_ion_level_index],
+                level_population.loc[lower_ion_level_index],
+                lte_ion_population.loc[upper_ion_population_index],
+                ion_population.loc[upper_ion_population_index],
+                charge_conservation,
+            )
+            solved_matrices = self.rates_matrices.map(
                 lambda rates_matrix: self.__calculate_ion_population(
                     rates_matrix
                 )
             )
-            normalized_ion_populations.loc[species_id, :] = np.vstack(
-                solved_matrices.values
-            ).T
 
-        return normalized_ion_populations
+            ion_population_solution = pd.DataFrame(
+                np.vstack(solved_matrices.values[0]).T,
+                index=ion_population.index,
+            )
+
+            if (ion_population_solution < 0).any().any():
+                ion_population_solution[ion_population_solution < 0] = 0.0
+
+            electron_population_solution = ion_population_solution.sum()
+
+            delta_ion = (
+                normalized_ion_population - ion_population_solution
+            ) / ion_population_solution
+            delta_electron = (
+                electron_densities - electron_population_solution
+            ) / electron_population_solution
+
+            if (
+                np.all(np.abs(delta_ion) < 1e-8).any().any()
+                and (np.abs(delta_electron) < 1e-8).any().any()
+            ):
+                break
+
+            ion_population = ion_population_solution
+            electron_densities = electron_population_solution
+
+            iteration += 1
+
+        return ion_population_solution
