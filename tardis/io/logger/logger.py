@@ -3,10 +3,12 @@ import os
 import re
 import sys
 from dataclasses import dataclass, field
+
 import pandas as pd
-from tardis.io.logger.colored_logger import ColoredFormatter
 import panel as pn
 from IPython.display import display
+
+from tardis.io.logger.colored_logger import ColoredFormatter
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
@@ -62,29 +64,29 @@ def initialize_widget_components():
     -------
     tuple
         A tuple containing (environment, log_outputs, logger_widget)
-    """    
+    """
     if 'GITHUB_ACTIONS' not in os.environ:
         pn.extension(comms="ipywidgets")
     else:
         pn.extension()
-    
+
     environment = get_environment()
-    
+
     log_outputs = {
         "WARNING/ERROR": create_output_widget(),
         "INFO": create_output_widget(),
         "DEBUG": create_output_widget(),
         "ALL": create_output_widget(),
     }
-    
+
     tab_order = ["ALL", "WARNING/ERROR", "INFO", "DEBUG"]
-    
+
     logger_widget = pn.Tabs(
         *[(title, log_outputs[title]) for title in tab_order],
         height=350,
         sizing_mode='stretch_width'
     )
-    
+
     return environment, log_outputs, logger_widget
 
 @dataclass
@@ -102,6 +104,7 @@ class LoggingConfig:
     DEFAULT_SPECIFIC_STATE : bool
         The default specific log level state.
     """
+
     LEVELS: dict = field(default_factory=lambda: {
         "NOTSET": logging.NOTSET,
         "DEBUG": logging.DEBUG,
@@ -143,6 +146,7 @@ class PanelWidgetLogHandler(logging.Handler):
     logger_widget : panel.Tabs, optional
         The Panel Tabs widget containing the log outputs.
     """
+
     def __init__(self, log_outputs, colors, display_widget=True, display_handle=None, logger_widget=None):
         super().__init__()
         self.log_outputs = log_outputs
@@ -232,7 +236,7 @@ class PanelWidgetLogHandler(logging.Handler):
         """
         if not self.log_outputs:
             return
-            
+
         level_to_output = {
             logging.WARNING: "WARNING/ERROR",
             logging.ERROR: "WARNING/ERROR",
@@ -255,7 +259,7 @@ class PanelWidgetLogHandler(logging.Handler):
         # Update Jupyter display if in jupyter environment
         if self.environment == 'jupyter' and self.display_handle is not None and self.logger_widget is not None:
             self.display_handle.update(self.logger_widget)
-    
+
     def close(self):
         """Close the log handler.
         """
@@ -280,6 +284,7 @@ class TARDISLogger:
     log_outputs : dict, optional
         Dictionary of Panel HTML panes for different log levels.
     """
+
     def __init__(self, display_handle=None, logger_widget=None, log_outputs=None):
         self.config = LoggingConfig()
         self.logger = logging.getLogger("tardis")
@@ -387,7 +392,7 @@ class TARDISLogger:
 
         self.logger.addHandler(self.widget_handler)
         PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
-    
+
     def remove_widget_handler(self):
         """Remove the widget handler from the logger.
         """
@@ -395,13 +400,13 @@ class TARDISLogger:
             self.logger.removeHandler(self.widget_handler)
             PYTHON_WARNINGS_LOGGER.removeHandler(self.widget_handler)
             self.widget_handler.close()
-        
+
     def setup_stream_handler(self):
         """Set up notebook-based logging after widget handler is removed.
         """
         stream_handler = logging.StreamHandler(sys.stdout)
         stream_handler.setFormatter(ColoredFormatter())
-        
+
         self.logger.addHandler(stream_handler)
         PYTHON_WARNINGS_LOGGER.addHandler(stream_handler)
 
@@ -413,6 +418,7 @@ class LogFilter:
     log_levels : list
         List of logging levels to allow through the filter.
     """
+
     def __init__(self, log_levels):
         self.log_levels = log_levels
 
@@ -457,20 +463,19 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     display_handle = None
     log_outputs = None
     environment = get_environment()
-    
+
     if display_logging_widget:
         environment, log_outputs, logger_widget = initialize_widget_components()
-        
+
         if environment == 'jupyter':
             display_handle = display(logger_widget.embed(), display_id="logger_widget")
         else:
             display_handle = display(logger_widget, display_id="logger_widget")
-            
+
     tardislogger = TARDISLogger(display_handle=display_handle, logger_widget=logger_widget, log_outputs=log_outputs)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
     tardislogger.setup_widget_logging(display_widget=display_logging_widget)
-    
+
     if display_logging_widget and environment in ['jupyter', 'vscode']:
         return logger_widget, tardislogger
-    else:
-        return None, tardislogger
+    return None, tardislogger
