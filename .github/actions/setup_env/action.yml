@@ -24,7 +24,7 @@ runs:
         
       - uses: mamba-org/setup-micromamba@v2
         with:
-          environment-file: conda-${{ inputs.os-label }}.lock
+          environment-file: tardis_carsus_env_merge/conda-${{ inputs.os-label }}.lock
           cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
           cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
           environment-name: tardis
