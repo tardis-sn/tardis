@@ -89,27 +89,27 @@ class TestBaseShellInfo:
         )
 
     @pytest.mark.parametrize(
-        ("ion_num", "atomic_num", "shell_num"), [(2, 12, 1), (3, 20, 20)]
+        ("ion", "atomic_num", "shell_num"), [(2, 12, 1), (3, 20, 20)]
     )
     def test_level_count_data(
         self,
         base_shell_info,
         simulation_verysimple,
-        ion_num,
+        ion,
         atomic_num,
         shell_num,
     ):
         level_count_data = base_shell_info.level_count(
-            ion_num, atomic_num, shell_num
+            ion, atomic_num, shell_num
         )
         sim_level_number_density = (
             simulation_verysimple.plasma.level_number_density[
                 shell_num - 1
-            ].loc[atomic_num, ion_num]
+            ].loc[atomic_num, ion]
         )
         sim_ion_number_density = (
             simulation_verysimple.plasma.ion_number_density[shell_num - 1].loc[
-                atomic_num, ion_num
+                atomic_num, ion
             ]
         )
         assert level_count_data.shape == (len(sim_level_number_density), 1)

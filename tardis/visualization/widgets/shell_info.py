@@ -40,13 +40,13 @@ class BaseShellInfo:
             number, ion charge) and column labels are shell number
         level_number_density : pandas.DataFrame
             Number densities of levels where rows are multi-indexed with (atomic
-            number, ion number, level number) and column labels are shell number
+            number, ion charge, level number) and column labels are shell number
         """
         self.t_radiative = t_radiative
         self.dilution_factor = dilution_factor
         self.abundance = abundance
         self.number_density = number_density
-        self.ion_charge1_density = ion_number_density
+        self.ion_number_density = ion_number_density
         self.level_number_density = level_number_density
 
     def shells_data(self):
@@ -143,7 +143,7 @@ class BaseShellInfo:
         Parameters
         ----------
         ion : int
-            Ion number (note: starts from 0, same what is used by simulation
+            Ion charge (note: starts from 0, same what is used by simulation
             model)
         atomic_num : int
             Atomic number of element
@@ -209,15 +209,52 @@ class HDFShellInfo(BaseShellInfo):
             default arguments)
         """
         with pd.HDFStore(hdf_fpath, "r") as sim_data:
+            # Read data
+            t_radiative = sim_data["/simulation/simulation_state/t_radiative"]
+            dilution_factor = sim_data["/simulation/simulation_state/dilution_factor"]
+            abundance = sim_data["/simulation/simulation_state/abundance"]
+            number_density = sim_data["/simulation/plasma/number_density"]
+            ion_number_density = sim_data["/simulation/plasma/ion_number_density"]
+            level_number_density = sim_data["/simulation/plasma/level_number_density"]
+            
+            # Fix MultiIndex names (convert ion_number to ion_charge)
+            if isinstance(ion_number_density.index, pd.MultiIndex) and 'ion_number' in ion_number_density.index.names:
+                names = list(ion_number_density.index.names)
+                names[names.index('ion_number')] = 'ion_charge'
+                ion_number_density.index.names = names
+            
+            if isinstance(level_number_density.index, pd.MultiIndex) and 'ion_number' in level_number_density.index.names:
+                names = list(level_number_density.index.names)
+                names[names.index('ion_number')] = 'ion_charge'
+                level_number_density.index.names = names
+            
+            # Handle shape mismatches
+            expected_columns = max(number_density.shape[1], 20)
+            
+            if ion_number_density.shape[1] == 1 and expected_columns > 1:
+                # Replicate the single column across expected width
+                ion_number_density = pd.DataFrame(
+                    np.tile(ion_number_density.values, (1, expected_columns)),
+                    index=ion_number_density.index,
+                    columns=range(expected_columns)
+                )
+            
+            if level_number_density.shape[1] == 1 and expected_columns > 1:
+                # Replicate the single column across expected width
+                level_number_density = pd.DataFrame(
+                    np.tile(level_number_density.values, (1, expected_columns)),
+                    index=level_number_density.index,
+                    columns=range(expected_columns)
+                )
+            
             super().__init__(
-                sim_data["/simulation/simulation_state/t_radiative"],
-                sim_data["/simulation/simulation_state/dilution_factor"],
-                sim_data["/simulation/simulation_state/abundance"],
-                sim_data["/simulation/plasma/number_density"],
-                sim_data["/simulation/plasma/ion_number_density"],
-                sim_data["/simulation/plasma/level_number_density"],
+                t_radiative,
+                dilution_factor,
+                abundance,
+                number_density,
+                ion_number_density,
+                level_number_density,
             )
-
 
 class ShellInfoWidget:
     """The Shell Info Widget to explore abundances in different shells.
@@ -290,9 +327,9 @@ class ShellInfoWidget:
                 # Ion values range from 0 to max atomic_num present in
                 # element count table
                 "other_names": [
-                    f"Frac. Ab. (Ion={ion})"
-                    for ion in range(
-                        self.element_count_table.df.index.max() + 1
+                    f"Frac. Ab. (Ion={ion_charge})"
+                    for ion_charge in range(
+                        0, self.element_count_table.df.index.max() + 1
                     )
                 ],
             },
