@@ -56,12 +56,16 @@ class SDECPlotter:
         self._predefined_traces = {
             "emission": {
                 "noint": {"name": "No interaction", "fillcolor": "#4C4C4C"},
-                "escatter": {"name": "Electron Scatter Only", "fillcolor": "#8F8F8F", "hoverlabel": {"namelength": -1}},
+                "escatter": {
+                    "name": "Electron Scatter Only",
+                    "fillcolor": "#8F8F8F",
+                    "hoverlabel": {"namelength": -1},
+                },
                 "other": {"name": "Other elements", "fillcolor": "#C2C2C2"},
             },
             "absorption": {
                 "other": {"name": "Other elements", "fillcolor": "#C2C2C2"},
-            }
+            },
         }
 
     @classmethod
@@ -276,8 +280,7 @@ class SDECPlotter:
                     "to plot luminosities instead of flux, set distance=None "
                     "or don't specify distance parameter in the function call."
                 )
-            else:
-                self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
+            self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
         # Calculate luminosities to be shown in plot
         (
@@ -579,11 +582,13 @@ class SDECPlotter:
         for colname, trace_info in predefined_traces.items():
             if colname in df.columns:
                 y_data = df[colname] * (-1 if invert_y else 1)
-                self.fig.add_trace(go.Scatter(
-                    y=y_data,
-                    **trace_info,
-                    **base_kwargs,
-                ))
+                self.fig.add_trace(
+                    go.Scatter(
+                        y=y_data,
+                        **trace_info,
+                        **base_kwargs,
+                    )
+                )
 
         # Plot species-specific traces
         for (species_counter, identifier), species_name in zip(
@@ -591,15 +596,21 @@ class SDECPlotter:
         ):
             try:
                 y_data = df[identifier] * (-1 if invert_y else 1)
-                self.fig.add_trace(go.Scatter(
-                    y=y_data,
-                    name=f"{species_name} {'Absorption' if invert_y else 'Emission'}",
-                    fillcolor=pu.to_rgb255_string(self._color_list[species_counter]),
-                    hoverlabel={"namelength": -1},
-                    **base_kwargs,
-                ))
+                self.fig.add_trace(
+                    go.Scatter(
+                        y=y_data,
+                        name=f"{species_name} {'Absorption' if invert_y else 'Emission'}",
+                        fillcolor=pu.to_rgb255_string(
+                            self._color_list[species_counter]
+                        ),
+                        hoverlabel={"namelength": -1},
+                        **base_kwargs,
+                    )
+                )
             except KeyError:
-                self._log_missing_species(identifier, "absorbed" if invert_y else "emitted")
+                self._log_missing_species(
+                    identifier, "absorbed" if invert_y else "emitted"
+                )
 
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         """
@@ -1032,52 +1043,27 @@ class SDECPlotter:
 
     def _make_colorbar_colors(self):
         """Get the colours for the species to be plotted."""
-        # the colours depends on the species present in the model and what's requested
-        # some species need to be shown in the same colour, so the exact colours have to be
-        # worked out
-
         color_list = []
-
-        # Colors for each element
-        # Create new variables to keep track of the last atomic number that was plotted
-        # This is used when plotting species in case an element was given in the list
-        # This is to ensure that all ions of that element are grouped together
-        # ii is to track the colour index
-        # e.g. if Si is given in species_list, this is to ensure Si I, Si II, etc. all have the same colour
-        color_counter = 0
-        previous_atomic_number = 0
-        for species_counter, identifier in enumerate(self.species):
+        # - For elements in self._keep_colour, all ionization states share the same color
+        #   (e.g., Si I, Si II, Si III all get the same color if Si's atomic number is in self._keep_colour)
+        # - For elements not in self._keep_colour, each ionization state gets a new color
+        for i, identifier in enumerate(self.species):
             if self._species_list is not None:
-                # Get the ion number and atomic number for each species
-                ion_number = identifier % 100
-                atomic_number = (identifier - ion_number) / 100
-                if previous_atomic_number == 0:
-                    # If this is the first species being plotted, then take note of the atomic number
-                    # don't update the colour index
-                    previous_atomic_number = atomic_number
-                elif previous_atomic_number in self._keep_colour:
-                    # If the atomic number is in the list of elements that should all be plotted in the same colour
-                    # then don't update the colour index if this element has been plotted already
-                    if previous_atomic_number == atomic_number:
-                        previous_atomic_number = atomic_number
-                    else:
-                        # Otherwise, increase the colour counter by one, because this is a new element
-                        color_counter = color_counter + 1
-                        previous_atomic_number = atomic_number
-                else:
-                    # If this is just a normal species that was requested then increment the colour index
-                    color_counter = color_counter + 1
-                    previous_atomic_number = atomic_number
-                # Calculate the colour of this species
+                color_counter = 0
+                atomic_number = identifier // 100
+                # For any element after the first one
+                if i > 0:
+                    previous_atomic_number = self.species[i-1] // 100
+                    # Increment color when:
+                    # 1. We encounter a new element, OR
+                    # 2. The previous element isn't in the keep_colour list
+                    if previous_atomic_number != atomic_number or previous_atomic_number not in self._keep_colour:
+                        color_counter += 1
+
                 color = self.cmap(color_counter / len(self._species_name))
-
             else:
-                # If you're not using species list then this is just a fraction based on the total
-                # number of columns in the dataframe
-                color = self.cmap(species_counter / len(self.species))
-
+                color = self.cmap(i / len(self.species))
             color_list.append(color)
-
         self._color_list = color_list
 
     def generate_plot_ply(
@@ -1334,9 +1320,7 @@ class SDECPlotter:
             )
         else:
             # Get the ion number and atomic number for each species
-            ion_number = identifier % 100
-            atomic_number = (identifier - ion_number) / 100
-
+            atomic_number, ion_number = divmod(identifier, 100) # (quotient, remainder)
             info_msg = (
                 f"{atomic_number2element_symbol(atomic_number)}"
                 f"{int_to_roman(ion_number + 1)}"
