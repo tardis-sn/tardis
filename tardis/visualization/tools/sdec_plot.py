@@ -235,6 +235,9 @@ class SDECPlotter:
             "spectrum_frequency_bins"
         ][:-1]
 
+        self.packet_wvl_range_mask = np.ones(
+            self.plot_wavelength.size, dtype=bool
+        )
         # Filter their plottable range based on packet_wvl_range specified
         if packet_wvl_range is not None:
             packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
@@ -262,18 +265,13 @@ class SDECPlotter:
             self.plot_frequency = self.plot_frequency[
                 self.packet_wvl_range_mask
             ]
-        else:
-            self.packet_wvl_range_mask = np.ones(
-                self.plot_wavelength.size, dtype=bool
-            )
 
         # Make sure number of bin edges are always one more than wavelengths
         assert self.plot_frequency_bins.size == self.plot_wavelength.size + 1
 
         # Calculate the area term to convert luminosity to flux
-        if distance is None:
-            self.lum_to_flux = 1  # so that this term will have no effect
-        else:
+        self.lum_to_flux = 1  # default to 1 if distance is none so that this term will have no effect
+        if distance is not None:
             if distance <= 0:
                 raise ValueError(
                     "distance passed must be greater than 0. If you intended "
@@ -1053,11 +1051,14 @@ class SDECPlotter:
                 atomic_number = identifier // 100
                 # For any element after the first one
                 if i > 0:
-                    previous_atomic_number = self.species[i-1] // 100
+                    previous_atomic_number = self.species[i - 1] // 100
                     # Increment color when:
                     # 1. We encounter a new element, OR
                     # 2. The previous element isn't in the keep_colour list
-                    if previous_atomic_number != atomic_number or previous_atomic_number not in self._keep_colour:
+                    if (
+                        previous_atomic_number != atomic_number
+                        or previous_atomic_number not in self._keep_colour
+                    ):
                         color_counter += 1
 
                 color = self.cmap(color_counter / len(self._species_name))
@@ -1136,6 +1137,10 @@ class SDECPlotter:
                 "Both nelements and species_list were requested. Species_list takes priority; nelements is ignored"
             )
 
+        hover_props = {
+            "hoverlabel": {"namelength": -1},
+            "hovertemplate": "(%{x:.2f}, %{y:.3g})",
+        }
         # Parse the requested species list
         self._parse_species_list(species_list=species_list)
 
@@ -1178,8 +1183,7 @@ class SDECPlotter:
                         "width": 1,
                     },
                     name=f"{packets_mode.capitalize()} Spectrum",
-                    hovertemplate="(%{x:.2f}, %{y:.3g})",
-                    hoverlabel={"namelength": -1},
+                    **hover_props,
                 )
             )
 
@@ -1202,8 +1206,7 @@ class SDECPlotter:
                 y=observed_spectrum_flux.value,
                 name="Observed Spectrum",
                 line={"color": "black", "width": 1.2},
-                hoverlabel={"namelength": -1},
-                hovertemplate="(%{x:.2f}, %{y:.3g})",
+                **hover_props,
             )
 
         # Plot photosphere
@@ -1215,8 +1218,7 @@ class SDECPlotter:
                     mode="lines",
                     line={"width": 1.5, "color": "red", "dash": "dash"},
                     name="Blackbody Photosphere",
-                    hoverlabel={"namelength": -1},
-                    hovertemplate="(%{x:.2f}, %{y:.3g})",
+                    **hover_props,
                 )
             )
 
@@ -1320,7 +1322,9 @@ class SDECPlotter:
             )
         else:
             # Get the ion number and atomic number for each species
-            atomic_number, ion_number = divmod(identifier, 100) # (quotient, remainder)
+            atomic_number, ion_number = divmod(
+                identifier, 100
+            )  # (quotient, remainder)
             info_msg = (
                 f"{atomic_number2element_symbol(atomic_number)}"
                 f"{int_to_roman(ion_number + 1)}"
