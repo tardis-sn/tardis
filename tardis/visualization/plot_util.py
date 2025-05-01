@@ -554,3 +554,39 @@ def extract_spectrum_data_hdf(hdf, packets_mode):
             hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
         ).to("AA"),
     }
+
+
+def create_wavelength_mask(
+    packet_data, packets_mode, packet_wvl_range, df_key, column_name
+):
+    """
+    Create mask for packets based on wavelength range.
+
+    Parameters
+    ----------
+    packets_mode : str
+        'virtual' or 'real' packets mode
+    packet_wvl_range : astropy.Quantity or None
+        Wavelength range to filter packets
+    df_key : str
+        Key for the dataframe in packet_data ('packets_df' or 'packets_df_line_interaction')
+    column_name : str
+        Column name to filter on ('nus' or 'last_line_interaction_in_nu')
+
+    Returns
+    -------
+    np.array
+        Boolean mask for packets in the specified wavelength range
+    """
+    if packet_wvl_range is None:
+        return np.ones(
+            packet_data[packets_mode][df_key].shape[0],
+            dtype=bool,
+        )
+
+    packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
+    df = packet_data[packets_mode][df_key]
+
+    return (df[column_name] < packet_nu_range[0]) & (
+        df[column_name] > packet_nu_range[1]
+    )
