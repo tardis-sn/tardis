@@ -237,7 +237,7 @@ class SDECPlotter:
 
         self.packet_wvl_range_mask = np.ones(
             self.plot_wavelength.size, dtype=bool
-        )
+        )  # default value
         # Filter their plottable range based on packet_wvl_range specified
         if packet_wvl_range is not None:
             packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
@@ -312,132 +312,74 @@ class SDECPlotter:
         if nelements is None and self._species_list is None:
             self.species = np.array(list(self.total_luminosities_df.keys()))
         elif self._species_list is not None:
-            # Compare the species present in the model to those in the requested list
-            # Mask out those that aren't in the model
-            mask = np.isin(
-                np.array(list(sorted_list.keys())), self._species_list
-            )
-            # If species_list is included then create a new column which is the sum
-            # of all other species i.e. those that aren't in the requested list
-            self.total_luminosities_df.insert(
-                loc=0,
-                column="other",
-                value=self.total_luminosities_df[sorted_list.keys()[~mask]].sum(
-                    axis=1
-                ),
-            )
-            # Then drop all of the individual columns for species included in 'other'
-            self.total_luminosities_df = self.total_luminosities_df.drop(
-                sorted_list.keys()[~mask], axis=1
-            )
-            # Repeat this for the emission and absorption dfs
-            # This will require creating a temporary list that includes 'noint' and 'escatter'
-            # packets, because you don't want them dropped or included in 'other'
-            temp = list(self._species_list)
-            temp.append("noint")
-            temp.append("escatter")
-            mask = np.isin(
-                np.array(list(self.emission_luminosities_df.keys())), temp
-            )
-            # If species_list is included then create a new column which is the sum
-            # of all other species i.e. those that aren't in the requested list
-            self.emission_luminosities_df.insert(
-                loc=0,
-                column="other",
-                value=self.emission_luminosities_df[
-                    self.emission_luminosities_df.keys()[~mask]
-                ].sum(axis=1),
-            )
-            # Need to add a new value to the mask array for the 'other' column just added
-            mask = np.insert(mask, 0, True)
-            # Then drop all of the individual columns for species included in 'other'
-            self.emission_luminosities_df = self.emission_luminosities_df.drop(
-                self.emission_luminosities_df.keys()[~mask],
-                axis=1,
-            )
+            sorted_keys = list(sorted_list.keys())
+            keys_to_keep = [
+                key for key in sorted_keys if key in self._species_list
+            ]
 
-            temp = list(self._species_list)
-            mask = np.isin(
-                np.array(list(self.absorption_luminosities_df.keys())), temp
-            )
-            # If species_list is included then create a new column which is the sum
-            # of all other species i.e. those that aren't in the requested list
-            self.absorption_luminosities_df.insert(
-                loc=0,
-                column="other",
-                value=self.absorption_luminosities_df[
-                    self.absorption_luminosities_df.keys()[~mask]
-                ].sum(axis=1),
-            )
-            # Need to add a new value to the mask array for the 'other' column just added
-            mask = np.insert(mask, 0, True)
-            # Then drop all of the individual columns for species included in 'other'
-            self.absorption_luminosities_df = (
-                self.absorption_luminosities_df.drop(
-                    self.absorption_luminosities_df.keys()[~mask],
-                    axis=1,
+            df_map = {
+                "total_luminosities_df": keys_to_keep,
+                "emission_luminosities_df": list(self._species_list)
+                + ["noint", "escatter"],
+                "absorption_luminosities_df": self._species_list,
+            }
+
+            for df_name, keys in df_map.items():
+                setattr(
+                    self,
+                    df_name,
+                    self.process_dataframe(getattr(self, df_name), keys),
                 )
-            )
 
-            # Get the list of species in the model
-            # Index from 1: to avoid the 'other' column
             self.species = np.sort(self.total_luminosities_df.keys()[1:])
 
-        else:
-            # If nelements is included then create a new column which is the sum
-            # of all other elements, i.e. those that aren't in the top contributing nelements
-            self.total_luminosities_df.insert(
-                loc=0,
-                column="other",
-                value=self.total_luminosities_df[
-                    sorted_list.keys()[nelements:]
-                ].sum(axis=1),
-            )
-            # Then drop all of the individual columns for elements included in 'other'
-            self.total_luminosities_df = self.total_luminosities_df.drop(
-                sorted_list.keys()[nelements:], axis=1
-            )
-            # If nelements is included then create a new column which is the sum
-            # of all other elements, i.e. those that aren't in the top contributing nelements
-            self.emission_luminosities_df.insert(
-                loc=2,
-                column="other",
-                value=self.emission_luminosities_df[
-                    sorted_list.keys()[nelements:]
-                ].sum(axis=1),
-            )
-            # Then drop all of the individual columns for elements included in 'other'
-            self.emission_luminosities_df = self.emission_luminosities_df.drop(
-                sorted_list.keys()[nelements:], axis=1
-            )
-            # If nelements is included then create a new column which is the sum
-            # of all other elements, i.e. those that aren't in the top contributing nelements
-            self.absorption_luminosities_df.insert(
-                loc=2,
-                column="other",
-                value=self.absorption_luminosities_df[
-                    sorted_list.keys()[nelements:]
-                ].sum(axis=1),
-            )
-            # Then drop all of the individual columns for elements included in 'other'
-            self.absorption_luminosities_df = (
-                self.absorption_luminosities_df.drop(
-                    sorted_list.keys()[nelements:], axis=1
+        else:  # nelements is not None
+            top_n_keys = list(sorted_list.keys())[:nelements]
+
+            for df_name in [
+                "total_luminosities_df",
+                "emission_luminosities_df",
+                "absorption_luminosities_df",
+            ]:
+                other_pos = 2 if df_name != "total_luminosities_df" else None
+                kwargs = (
+                    {"other_column_position": other_pos}
+                    if other_pos is not None
+                    else {}
                 )
-            )
-            # Get the list of species in the model
-            # Index from 1: to avoid the 'other' column
+
+                setattr(
+                    self,
+                    df_name,
+                    self.process_dataframe(
+                        getattr(self, df_name), top_n_keys, **kwargs
+                    ),
+                )
+
             self.species = np.sort(self.total_luminosities_df.keys()[1:])
 
-        self.photosphere_luminosity = self._calculate_photosphere_luminosity(
-            packets_mode=packets_mode
-        )
+        self.photosphere_luminosity = self._calculate_photosphere_luminosity()
         self.modeled_spectrum_luminosity = (
             self.spectrum[packets_mode]["spectrum_luminosity_density_lambda"][
                 self.packet_wvl_range_mask
             ]
             / self.lum_to_flux
         )
+
+    def process_dataframe(self, df, keys_to_include, other_column_position=0):
+        mask = np.isin(np.array(list(df.keys())), keys_to_include)
+        excluded_keys = df.keys()[~mask]
+        if (
+            len(excluded_keys) > 0
+        ):
+            df.insert(
+                loc=other_column_position,
+                column="other",
+                value=df[excluded_keys].sum(axis=1),
+            )
+            # Drop all of the individual columns for keys included in 'other'
+            df = df.drop(excluded_keys, axis=1)
+        return df
 
     def _calculate_grouped_luminosities(
         self, packets_mode, mask, nu_column, luminosities_df
@@ -691,14 +633,9 @@ class SDECPlotter:
             luminosities_df=luminosities_df,
         )
 
-    def _calculate_photosphere_luminosity(self, packets_mode):
+    def _calculate_photosphere_luminosity(self):
         """
         Calculate blackbody luminosity of the photosphere.
-
-        Parameters
-        ----------
-        packets_mode : {'virtual', 'real'}
-            Mode of packets to be considered, either real or virtual
 
         Returns
         -------
