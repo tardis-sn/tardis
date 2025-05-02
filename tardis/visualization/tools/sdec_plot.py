@@ -411,13 +411,11 @@ class SDECPlotter:
             if self._species_list is None
             else "last_line_interaction_species"
         )
-        # Group the packets
         grouped = (
             self.packet_data[packets_mode]["packets_df_line_interaction"]
             .loc[mask]
             .groupby(by=groupby_column)
         )
-        # Calculate luminosities for each group
         for identifier, group in grouped:
             weights = (
                 group["energies"] / self.lum_to_flux / self.time_of_simulation
@@ -452,8 +450,6 @@ class SDECPlotter:
             ]
             / self.lum_to_flux
         ) / self.time_of_simulation
-
-        # Calculate weighted histogram
         hist = np.histogram(
             self.packet_data[packets_mode]["packets_df"]["nus"][
                 self.packet_nu_range_mask
@@ -462,7 +458,6 @@ class SDECPlotter:
             weights=weights[mask],
             density=False,
         )
-        # Convert histogram (luminosity values) to luminosity density lambda
         L_nu = (
             hist[0]
             * u.erg
@@ -470,7 +465,6 @@ class SDECPlotter:
             / self.spectrum[packets_mode]["spectrum_delta_frequency"]
         )
         L_lambda = L_nu * self.plot_frequency / self.plot_wavelength
-        # Update dataframe
         luminosities_df[contribution_name] = L_lambda.value
 
     def _plot_traces(self, df, group_name, predefined_traces, invert_y=False):
@@ -540,7 +534,6 @@ class SDECPlotter:
             Atomic numbers of the elements with which packets of specified
             wavelength range interacted
         """
-        # Calculate masks to be applied on packets data based on packet_wvl_range
         self.packet_nu_range_mask = pu.create_wavelength_mask(
             self.packet_data,
             packets_mode,
@@ -615,7 +608,6 @@ class SDECPlotter:
             Dataframe containing luminosities contributed by absorption with
             each element present
         """
-        # Calculate masks to be applied on packets data based on packet_wvl_range
         self.packet_nu_line_range_mask = pu.create_wavelength_mask(
             self.packet_data,
             packets_mode,
@@ -958,7 +950,7 @@ class SDECPlotter:
                 if i > 0:
                     previous_atomic_number = self.species[i - 1] // 100
                     # Increment color when:
-                    # 1. We encounter a new element, OR
+                    # 1. There is a new element, OR
                     # 2. The previous element isn't in the keep_colour list
                     if (
                         previous_atomic_number != atomic_number

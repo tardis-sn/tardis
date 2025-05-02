@@ -458,11 +458,10 @@ def make_colorbar_labels(species, species_list=None, species_mapped=None):
         species_name = []
         for species_key, species_ids in species_mapped.items():
             if any(spec_id in species for spec_id in species_ids):
-                if species_key % 100 == 0:
-                    label = atomic_number2element_symbol(species_key // 100)
+                atomic_number, ion_number = divmod(species_key, 100)
+                if ion_number == 0:
+                    label = atomic_number2element_symbol(atomic_number)
                 else:
-                    atomic_number = species_key // 100
-                    ion_number = species_key % 100
                     ion_numeral = int_to_roman(ion_number + 1)
                     label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
                 species_name.append(label)

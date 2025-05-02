@@ -195,8 +195,7 @@ class LIVPlotter:
             for specie in specie_list:
                 if specie in self.species:
                     if specie not in groups.groups:
-                        atomic_number = specie // 100
-                        ion_number = specie % 100
+                        atomic_number, ion_number = divmod(specie, 100)
                         ion_numeral = int_to_roman(ion_number + 1)
                         label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
                         species_not_wvl_range.append(label)
@@ -304,7 +303,7 @@ class LIVPlotter:
         if num_bins:
             if num_bins < 1:
                 raise ValueError("Number of bins must be positive")
-            elif num_bins > len(bin_edges) - 1:
+            if num_bins > len(bin_edges) - 1:
                 logger.warning(
                     "Number of bins must be less than or equal to number of shells. Plotting with number of bins equals to number of shells."
                 )
