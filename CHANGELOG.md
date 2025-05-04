@@ -1,6 +1,11 @@
 ## Changelog
 
-### release-2025.04.27 (2025/04/26 21:11)
+### release-2025.05.04 (2025/05/03 21:08)
+- [3003](https://github.com/tardis-sn/tardis/pull/3003) Add Rpacket plot notebook under analysing tardis outputs (3003) (@KasukabeDefenceForce)
+- [2928](https://github.com/tardis-sn/tardis/pull/2928) Cleanup SDECPlotter and LIVPlotter class (2928) (@KasukabeDefenceForce)
+- [3058](https://github.com/tardis-sn/tardis/pull/3058) Docs build and logger widget fixes (3058) (@atharva-2001)
+- [3060](https://github.com/tardis-sn/tardis/pull/3060) Post-release 2025.04.27 (3060) (@tardis-bot)
+### release-2025.04.27 (2025/04/23 13:15)
 - [2846](https://github.com/tardis-sn/tardis/pull/2846) Ruff `tardis/visualization` (2846) (@atharva-2001)
 - [3051](https://github.com/tardis-sn/tardis/pull/3051) Rewrote .rst generating functions with pathlib logic for simplification (3051) (@erinvisser)
 - [3008](https://github.com/tardis-sn/tardis/pull/3008) Fix labels accross spectral notebooks (3008) (@KasukabeDefenceForce)
