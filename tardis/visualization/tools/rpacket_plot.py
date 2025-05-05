@@ -1,5 +1,4 @@
 import logging
-import math
 
 import astropy.units as u
 import numpy as np
@@ -389,14 +388,14 @@ class RPacketPlotter:
                 prev_r = r_track[step_no - 1]
                 prev_mu = mu_track[step_no - 1]
 
-                acos_mu = math.acos(prev_mu)
-                sin_term = prev_r * math.sin(acos_mu) / curr_r
+                acos_mu = np.acos(prev_mu)
+                sin_term = prev_r * np.sin(acos_mu) / curr_r
                 new_theta = theta[-1] + acos_mu
 
                 if curr_r < prev_r:
-                    new_theta = new_theta - math.pi + math.asin(sin_term)
+                    new_theta = new_theta - np.pi + np.asin(sin_term)
                 else:
-                    new_theta += math.asin(-1 * sin_term)
+                    new_theta += np.asin(-1 * sin_term)
                 theta.append(new_theta)
 
         # converting the thetas into x and y coordinates using radius as radius*cos(theta) and radius*sin(theta) respectively
@@ -431,7 +430,7 @@ class RPacketPlotter:
             array of array containing x coordinates, y coordinates and the interactions for multiple packets
         """
         # for plotting packets at equal intervals throught the circle, we choose thetas distributed uniformly
-        thetas = np.linspace(0, 2 * math.pi, self.no_of_packets + 1)
+        thetas = np.linspace(0, 2 * np.pi, self.no_of_packets + 1)
         all_rpackets_x_coords = []
         all_rpackets_y_coords = []
         all_rpackets_interactions_coords = []
