@@ -53,7 +53,6 @@ class IonPopulationSolver:
             Normalized ion population values indexed by atomic number, ion
             number and ion number. Columns are cells.
         """
-
         # this is the i level in Lucy 2003
         lower_ion_level_index = (
             lte_level_population.index.get_level_values("ion_number") == 0
@@ -76,7 +75,6 @@ class IonPopulationSolver:
 
         iteration = 0
         electron_densities = 1
-        total_population = ion_population.sum()
 
         while iteration < 10:
             normalized_ion_population = ion_population / ion_population.sum()

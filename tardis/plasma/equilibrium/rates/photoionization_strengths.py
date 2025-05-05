@@ -349,6 +349,8 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
             axis=0,
         )
 
+        # need to handle He and up. They have extra ionization states that
+        # break the indexing.
         correction_factor = (
             1
             - (ion_population / lte_ion_population).values
