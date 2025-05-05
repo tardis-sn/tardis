@@ -41,7 +41,6 @@ def create_output_widget(height=300):
     panel.pane.HTML
         A Panel HTML pane configured for logging output.
     """
-    import panel as pn
     return pn.pane.HTML(
         "",
         height=height,
