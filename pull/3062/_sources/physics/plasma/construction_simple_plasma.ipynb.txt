@@ -1,0 +1,220 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Constructing a simple thermal plasma"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/Users/wkerzend/python/tardis/tardis/__init__.py:20: UserWarning: Astropy is already imported externally. Astropy should be imported after TARDIS.\n",
+      "  warnings.warn(\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "adc8142e04de4ac4ad9fb6d9eba83286",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Iterations:          0/? [00:00<?, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "36b88ed7168e46c8864e17b0107f8f71",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Packets:             0/? [00:00<?, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "from astropy import units as u\n",
+    "\n",
+    "from tardis.io.atom_data import AtomData\n",
+    "from tardis.plasma.assembly.base import PlasmaSolverFactory\n",
+    "from tardis.plasma.radiation_field import DilutePlanckianRadiationField\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In the default configuration the plasma solver assumes the conditions for a Local Thermodynamic Equilibrium meaning a planckian radiation field and a maxwellian electron velocity distribution at the same templerature"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "NO_OF_CELLS = 1000\n",
+    "temperatures_rad = np.ones(NO_OF_CELLS) * 10000 * u.K\n",
+    "dilution_factor = np.ones(NO_OF_CELLS) * 0.1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "d_radfield = DilutePlanckianRadiationField(temperature=temperatures_rad, dilution_factor=dilution_factor)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "base_density = 1e-15 * u.Unit('g/cm^3')\n",
+    "number_densities = pd.DataFrame(columns=range(NO_OF_CELLS), index=[1,26,28])\n",
+    "number_densities.values[:] = 0.5 * (base_density / u.u).to(1/u.cm**3).value\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "atom_data = AtomData.from_hdf('kurucz_cd23_chianti_H_He.h5')\n",
+    "plasma_solver_factory = PlasmaSolverFactory(atom_data, selected_atomic_numbers=[1,26,28])\n",
+    "plasma_solver_factory.setup_factory()\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>atomic_number</th>\n",
+       "      <th>ion_number</th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th rowspan=\"2\" valign=\"top\">1</th>\n",
+       "      <th>0</th>\n",
+       "      <td>2.245918e-04</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>3.011070e+08</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th rowspan=\"3\" valign=\"top\">2</th>\n",
+       "      <th>0</th>\n",
+       "      <td>1.405189e-15</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>2.206015e-03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>3.011070e+08</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                     0\n",
+       "atomic_number ion_number              \n",
+       "1             0           2.245918e-04\n",
+       "              1           3.011070e+08\n",
+       "2             0           1.405189e-15\n",
+       "              1           2.206015e-03\n",
+       "              2           3.011070e+08"
+      ]
+     },
+     "execution_count": 36,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "plasma_solver.ion_number_density"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
