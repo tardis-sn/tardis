@@ -77,6 +77,35 @@ class RPacketPlotter:
             ),
         )
 
+        self.play_button = {
+            "args": [
+                None,
+                {
+                    "frame": {"duration": 500, "redraw": False},
+                    "fromcurrent": True,
+                    "transition": {
+                        "duration": 300,
+                        "easing": "quadratic-in-out",
+                    },
+                },
+            ],
+            "label": "Play",
+            "method": "animate",
+        }
+
+        self.pause_button = {
+            "args": [
+                [None],
+                {
+                    "frame": {"duration": 0, "redraw": False},
+                    "mode": "immediate",
+                    "transition": {"duration": 0},
+                },
+            ],
+            "label": "Pause",
+            "method": "animate",
+        }
+
     @classmethod
     def from_simulation(cls, sim, no_of_packets=15):
         """
@@ -97,18 +126,16 @@ class RPacketPlotter:
         if hasattr(sim.transport.transport_state, "rpacket_tracker_df"):
             if sim.last_no_of_packets >= no_of_packets:
                 return cls(sim, no_of_packets)
-            else:
-                logger.warning(
-                    """
+            logger.warning(
+                """
                 no_of_packets specified are more than the actual no of packets in the model. Using all packets in the model.
                 """
-                )
-                return cls(sim, sim.last_no_of_packets)
-        else:
-            raise AttributeError(
-                """ There is no attribute named rpacket_tracker in the simulation object passed. Try enabling the
-                rpacket tracking in the configuration. To enable rpacket tracking see: https://tardis-sn.github.io/tardis/io/output/rpacket_tracking.html#How-to-Setup-the-Tracking-for-the-RPackets?"""
             )
+            return cls(sim, sim.last_no_of_packets)
+        raise AttributeError(
+            """ There is no attribute named rpacket_tracker in the simulation object passed. Try enabling the
+                rpacket tracking in the configuration. To enable rpacket tracking see: https://tardis-sn.github.io/tardis/io/output/rpacket_tracking.html#How-to-Setup-the-Tracking-for-the-RPackets?"""
+        )
 
     def generate_plot(self, theme="light"):
         """
@@ -149,40 +176,35 @@ class RPacketPlotter:
         ) = self.get_equal_array_size(
             rpacket_x, rpacket_y, rpacket_interactions
         )
+
+        axis_props = dict(
+            range=[-1.1 * v_shells[-1], 1.1 * v_shells[-1]],
+            title="Velocity (km/s)",
+            exponentformat="none",
+            color=self.theme_colors[theme]["color"],
+            linecolor=self.theme_colors[theme]["linecolor"],
+            gridcolor=self.theme_colors[theme]["gridcolor"],
+            zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
+        )
         # Set axes properties
-        self.fig.update_xaxes(
-            scaleanchor="y",
-            scaleratio=1,
-            range=[-1.1 * v_shells[-1], 1.1 * v_shells[-1]],
-            title="Velocity (km/s)",
-            exponentformat="none",
-            color=self.theme_colors[theme]["color"],
-            linecolor=self.theme_colors[theme]["linecolor"],
-            gridcolor=self.theme_colors[theme]["gridcolor"],
-            zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
-        )
-        self.fig.update_yaxes(
-            range=[-1.1 * v_shells[-1], 1.1 * v_shells[-1]],
-            title="Velocity (km/s)",
-            exponentformat="none",
-            color=self.theme_colors[theme]["color"],
-            linecolor=self.theme_colors[theme]["linecolor"],
-            gridcolor=self.theme_colors[theme]["gridcolor"],
-            zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
-        )
+        self.fig.update_xaxes(scaleanchor="y", scaleratio=1, **axis_props)
+        self.fig.update_yaxes(**axis_props)
 
         # adding the shells and photosphere
         for shell_no in range(len(self.sim.simulation_state.radius.value)):
+            shape_props = dict(
+                type="circle",
+                xref="x",
+                yref="y",
+                x0=-1 * v_shells[shell_no],
+                y0=-1 * v_shells[shell_no],
+                x1=v_shells[shell_no],
+                y1=v_shells[shell_no],
+            )
             if shell_no == 0:
                 # photosphere
                 self.fig.add_shape(
-                    type="circle",
-                    xref="x",
-                    yref="y",
-                    x0=-1 * v_shells[shell_no],
-                    y0=-1 * v_shells[shell_no],
-                    x1=v_shells[shell_no],
-                    y1=v_shells[shell_no],
+                    **shape_props,
                     line_color=self.theme_colors[theme][
                         "photosphere_line_color"
                     ],
@@ -192,83 +214,43 @@ class RPacketPlotter:
             elif shell_no == (len(self.sim.simulation_state.radius.value) - 1):
                 # outermost shell
                 self.fig.add_shape(
-                    type="circle",
-                    xref="x",
-                    yref="y",
-                    x0=-1 * v_shells[shell_no],
-                    y0=-1 * v_shells[shell_no],
-                    x1=v_shells[shell_no],
-                    y1=v_shells[shell_no],
+                    **shape_props,
                     line_color=self.theme_colors[theme]["shells_line_color"],
                     opacity=1,
                 )
             else:
                 # remaining shells
                 self.fig.add_shape(
-                    type="circle",
-                    xref="x",
-                    yref="y",
-                    x0=-1 * v_shells[shell_no],
-                    y0=-1 * v_shells[shell_no],
-                    x1=v_shells[shell_no],
-                    y1=v_shells[shell_no],
+                    **shape_props,
                     line_color=self.theme_colors[theme]["shells_line_color"],
                     opacity=0.2,
                 )
 
         # Adding packet trajectory
-
         for packet_no in range(len(rpacket_x)):
             self.fig.add_trace(
-                go.Scatter(
-                    x=rpacket_x[packet_no],
-                    y=rpacket_y[packet_no],
-                    mode="markers+lines",
-                    name="Packet " + str(packet_no + 1),
-                    showlegend=False,
-                    hovertemplate="<b>X</b>: %{x}"
-                    + "<br><b>Y</b>: %{y}<br>"
-                    + "<b>Last Interaction: %{text}</b>",
-                    text=[
-                        self.interaction_from_num[
-                            int(rpacket_interactions[packet_no][step_no])
-                        ]["text"]
-                        for step_no in range(len(rpacket_x[packet_no]))
-                    ],
-                    line=dict(
-                        color=self.theme_colors[theme]["packet_line_color"]
-                    ),
-                    marker=dict(
-                        opacity=[
-                            self.interaction_from_num[
-                                int(rpacket_interactions[packet_no][step_no])
-                            ]["opacity"]
-                            for step_no in range(len(rpacket_x[packet_no]))
-                        ],
-                        color=[
-                            self.interaction_from_num[
-                                int(rpacket_interactions[packet_no][step_no])
-                            ]["color"]
-                            for step_no in range(len(rpacket_x[packet_no]))
-                        ],
-                    ),
+                self.create_packet_scatter(
+                    packet_no, rpacket_x, rpacket_y, rpacket_interactions, theme
                 )
             )
 
         # adding legends
+        legend_props = dict(
+            x=[9999999],
+            y=[0],
+            legendgroup="a",
+            opacity=1,
+            mode="lines+markers",
+        )
         self.fig.add_trace(
             go.Scatter(
-                x=[9999999],
-                y=[0],
-                legendgroup="a",
-                opacity=1,
+                **legend_props,
                 legendgrouptitle=dict(
                     font=dict(
                         color=self.theme_colors[theme]["legendgrouptitle_color"]
                     ),
                     text="Interaction Type:",
                 ),
-                mode="lines+markers",
                 name="e-scattering",
                 hoverlabel=dict(font=dict(color="#222")),
                 marker=dict(color="#3366FF"),
@@ -276,11 +258,7 @@ class RPacketPlotter:
         )
         self.fig.add_trace(
             go.Scatter(
-                x=[9999999],
-                y=[0],
-                legendgroup="a",
-                opacity=1,
-                mode="lines+markers",
+                **legend_props,
                 name="Line Interaction",
                 marker=dict(color="#FF3300"),
             )
@@ -313,35 +291,7 @@ class RPacketPlotter:
                     font={
                         "color": self.theme_colors[theme]["button_font_color"]
                     },
-                    buttons=[
-                        {
-                            "args": [
-                                None,
-                                {
-                                    "frame": {"duration": 500, "redraw": False},
-                                    "fromcurrent": True,
-                                    "transition": {
-                                        "duration": 300,
-                                        "easing": "quadratic-in-out",
-                                    },
-                                },
-                            ],
-                            "label": "Play",
-                            "method": "animate",
-                        },
-                        {
-                            "args": [
-                                [None],
-                                {
-                                    "frame": {"duration": 0, "redraw": False},
-                                    "mode": "immediate",
-                                    "transition": {"duration": 0},
-                                },
-                            ],
-                            "label": "Pause",
-                            "method": "animate",
-                        },
-                    ],
+                    buttons=[self.play_button, self.pause_button],
                 )
             ],
         )
@@ -425,7 +375,7 @@ class RPacketPlotter:
         list
             types of interactions occuring at different points
         """
-        rpacket_x, rpacket_y, theta, rpacket_interactions = [], [], [], []
+        theta, rpacket_interactions = [], []
 
         # getting thetas at different steps of the packet movement
 
@@ -435,28 +385,19 @@ class RPacketPlotter:
                 theta.append(theta_initial)
             # for further steps we calculate thetas with the formula derived in the documentation
             else:
-                if r_track[step_no] < r_track[step_no - 1]:
-                    theta.append(
-                        theta[-1]
-                        - math.pi
-                        + math.asin(
-                            r_track[step_no - 1]
-                            * math.sin(math.acos(mu_track[step_no - 1]))
-                            / r_track[step_no]
-                        )
-                        + math.acos(mu_track[step_no - 1])
-                    )
+                curr_r = r_track[step_no]
+                prev_r = r_track[step_no - 1]
+                prev_mu = mu_track[step_no - 1]
+
+                acos_mu = math.acos(prev_mu)
+                sin_term = prev_r * math.sin(acos_mu) / curr_r
+                new_theta = theta[-1] + acos_mu
+
+                if curr_r < prev_r:
+                    new_theta = new_theta - math.pi + math.asin(sin_term)
                 else:
-                    theta.append(
-                        theta[-1]
-                        + math.asin(
-                            -1
-                            * r_track[step_no - 1]
-                            * math.sin(math.acos(mu_track[step_no - 1]))
-                            / r_track[step_no]
-                        )
-                        + math.acos(mu_track[step_no - 1])
-                    )
+                    new_theta += math.asin(-1 * sin_term)
+                theta.append(new_theta)
 
         # converting the thetas into x and y coordinates using radius as radius*cos(theta) and radius*sin(theta) respectively
         rpacket_x = (np.array(r_track)) * np.cos(np.array(theta)) * 1e-5 / time
@@ -491,9 +432,10 @@ class RPacketPlotter:
         """
         # for plotting packets at equal intervals throught the circle, we choose thetas distributed uniformly
         thetas = np.linspace(0, 2 * math.pi, self.no_of_packets + 1)
-        rpackets_x = []
-        rpackets_y = []
-        rpackets_interactions = []
+        all_rpackets_x_coords = []
+        all_rpackets_y_coords = []
+        all_rpackets_interactions_coords = []
+
         # getting coordinates and interaction arrays for all packets
         for packet_no in range(self.no_of_packets):
             (
@@ -507,13 +449,13 @@ class RPacketPlotter:
                 r_packet_tracker.loc[packet_no]["interaction_type"],
                 thetas[packet_no],
             )
-            rpackets_x.append(rpacket_x)
-            rpackets_y.append(rpacket_y)
-            rpackets_interactions.append(rpacket_interactions)
+            all_rpackets_x_coords.append(rpacket_x)
+            all_rpackets_y_coords.append(rpacket_y)
+            all_rpackets_interactions_coords.append(rpacket_interactions)
         return (
-            np.array(rpackets_x, dtype="object"),
-            np.array(rpackets_y, dtype="object"),
-            np.array(rpackets_interactions, dtype="object"),
+            np.array(all_rpackets_x_coords, dtype="object"),
+            np.array(all_rpackets_y_coords, dtype="object"),
+            np.array(all_rpackets_interactions_coords, dtype="object"),
         )
 
     def get_equal_array_size(self, rpacket_x, rpacket_y, interactions):
@@ -544,31 +486,25 @@ class RPacketPlotter:
         rpacket_step_no_array_max_size = max(list(map(len, rpacket_x)))
 
         for packet_no in range(len(rpacket_x)):
-            # making all coordinate arrays of size `rpacket_step_no_array_max_size` by repeating the last element across the remaining length of array
-            rpacket_x[packet_no] = np.append(
-                rpacket_x[packet_no],
-                rpacket_x[packet_no][-1]
-                * np.ones(
-                    [rpacket_step_no_array_max_size - len(rpacket_x[packet_no])]
-                ),
+            padding_size = rpacket_step_no_array_max_size - len(
+                rpacket_x[packet_no]
             )
-            rpacket_y[packet_no] = np.append(
-                rpacket_y[packet_no],
-                rpacket_y[packet_no][-1]
-                * np.ones(
-                    [rpacket_step_no_array_max_size - len(rpacket_y[packet_no])]
-                ),
-            )
-            interactions[packet_no] = np.append(
-                interactions[packet_no],
-                interactions[packet_no][-1]
-                * np.ones(
-                    [
-                        rpacket_step_no_array_max_size
-                        - len(interactions[packet_no])
-                    ]
-                ),
-            )
+            if padding_size > 0:
+                x_padding = np.ones(padding_size) * rpacket_x[packet_no][-1]
+                y_padding = np.ones(padding_size) * rpacket_y[packet_no][-1]
+                interactions_padding = (
+                    np.ones(padding_size) * interactions[packet_no][-1]
+                )
+
+                rpacket_x[packet_no] = np.append(
+                    rpacket_x[packet_no], x_padding
+                )
+                rpacket_y[packet_no] = np.append(
+                    rpacket_y[packet_no], y_padding
+                )
+                interactions[packet_no] = np.append(
+                    interactions[packet_no], interactions_padding
+                )
         return (
             rpacket_x,
             rpacket_y,
@@ -598,46 +534,60 @@ class RPacketPlotter:
         list
             list of go.Scatter objects for a particular frame number.
         """
-        frames = []
-
-        for packet_no in range(len(rpacket_x)):
-            # adding a scatter object containing the trajectory of a packet upto a particular frame number
-            frames.append(
-                go.Scatter(
-                    x=rpacket_x[packet_no].tolist()[0:frame],
-                    y=rpacket_y[packet_no].tolist()[0:frame],
-                    mode="markers+lines",
-                    name="Packet " + str(packet_no + 1),
-                    showlegend=False,
-                    hovertemplate="<b>X</b>: %{x}"
-                    + "<br><b>Y</b>: %{y}<br>"
-                    + "<b>Last Interaction: %{text}</b>",
-                    text=[
-                        self.interaction_from_num[
-                            int(interactions[packet_no][step_no])
-                        ]["text"]
-                        for step_no in range(len(rpacket_x[packet_no]))
-                    ],
-                    line=dict(
-                        color=self.theme_colors[theme]["packet_line_color"]
-                    ),
-                    marker=dict(
-                        opacity=[
-                            self.interaction_from_num[
-                                int(interactions[packet_no][step_no])
-                            ]["opacity"]
-                            for step_no in range(len(rpacket_x[packet_no]))
-                        ],
-                        color=[
-                            self.interaction_from_num[
-                                int(interactions[packet_no][step_no])
-                            ]["color"]
-                            for step_no in range(len(rpacket_x[packet_no]))
-                        ],
-                    ),
-                )
+        return [
+            self.create_packet_scatter(
+                packet_no, rpacket_x, rpacket_y, interactions, theme, frame=frame
             )
-        return frames
+            for packet_no in range(len(rpacket_x))
+        ]
+
+    def create_packet_scatter(
+        self, packet_no, rpacket_x, rpacket_y, interactions, theme, frame=None
+    ):
+        """
+        Creates a Scatter object for a given packet with optional frame slicing.
+        """
+        x_vals = rpacket_x[packet_no]
+        y_vals = rpacket_y[packet_no]
+        interaction_vals = interactions[packet_no]
+
+        # If frame is specified, slice data
+        if frame is not None:
+            x_vals = x_vals[:frame]
+            y_vals = y_vals[:frame]
+            interaction_vals = interaction_vals[:frame]
+
+        text_labels = [
+            self.interaction_from_num[int(interaction)]["text"]
+            for interaction in interaction_vals
+        ]
+        opacity_values = [
+            self.interaction_from_num[int(interaction)]["opacity"]
+            for interaction in interaction_vals
+        ]
+        color_values = [
+            self.interaction_from_num[int(interaction)]["color"]
+            for interaction in interaction_vals
+        ]
+
+        return go.Scatter(
+            x=x_vals,
+            y=y_vals,
+            mode="markers+lines",
+            name=f"Packet {str(packet_no + 1)}",
+            showlegend=False,
+            hovertemplate=(
+                "<b>X</b>: %{x}"
+                "<br><b>Y</b>: %{y}<br>"
+                "<b>Last Interaction: %{text}</b>"
+            ),
+            text=text_labels,
+            line=dict(color=self.theme_colors[theme]["packet_line_color"]),
+            marker=dict(
+                opacity=opacity_values,
+                color=color_values,
+            ),
+        )
 
     def get_slider_steps(self, rpacket_max_array_size):
         """
@@ -654,17 +604,15 @@ class RPacketPlotter:
             list of dictionaries of different steps for different frames.
         """
         slider_steps = []
+        base_step_args = {
+            "frame": {"duration": 300, "redraw": False},
+            "mode": "immediate",
+            "transition": {"duration": 300},
+        }
         for step_no in range(rpacket_max_array_size):
             slider_steps.append(
                 {
-                    "args": [
-                        [step_no],
-                        {
-                            "frame": {"duration": 300, "redraw": False},
-                            "mode": "immediate",
-                            "transition": {"duration": 300},
-                        },
-                    ],
+                    "args": [[step_no], base_step_args],
                     "label": step_no,
                     "method": "animate",
                 }
