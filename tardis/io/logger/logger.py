@@ -64,9 +64,12 @@ def initialize_widget_components():
     tuple
         A tuple containing (environment, log_outputs, logger_widget)
     """
-    if 'GITHUB_ACTIONS' not in os.environ:
+    # check if panel is already initialized
+
+    if not pn.extension._loaded:
         pn.extension(comms="ipywidgets")
     else:
+        print("Panel already initialized")
         pn.extension()
 
     environment = get_environment()

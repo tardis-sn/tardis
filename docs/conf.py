@@ -136,6 +136,11 @@ nbsphinx_execute_arguments = [
 
 nbsphinx_prolog = r"""
 {% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
+.. code-cell:: python
+
+    import panel as pn
+    pn.extension()
+    
 .. raw:: html
     
     <style>
