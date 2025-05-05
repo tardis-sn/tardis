@@ -313,3 +313,78 @@ class TestRPacketPlotter:
                 )
                 for packet in range(no_of_packets):
                     assert frame.data[packet] == expected_frame[packet]
+
+    def test_create_packet_scatter(simulation_rpacket_tracking):
+        """
+        Test for the create_packet_scatter method.
+
+        Parameters
+        ----------
+        simulation_rpacket_tracking : tardis.simulation.base.Simulation
+            Simulation object.
+        """
+        theme = "light"
+        no_of_packets = 3
+        frame = 2
+
+        rpacket_plotter = RPacketPlotter.from_simulation(
+            simulation_rpacket_tracking, no_of_packets=no_of_packets
+        )
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+            0 : (no_of_packets - 1)
+        ]
+        (
+            multiple_packet_x,
+            multiple_packet_y,
+            multiple_packet_interaction,
+        ) = rpacket_plotter.get_coordinates_multiple_packets(multiple_packet_df)
+
+        # Test for full packet (no frame slicing)
+        for packet_no in range(no_of_packets):
+            scatter = rpacket_plotter.create_packet_scatter(
+                packet_no,
+                multiple_packet_x,
+                multiple_packet_y,
+                multiple_packet_interaction,
+                theme,
+            )
+
+            assert scatter.name == f"Packet {packet_no + 1}"
+            npt.assert_allclose(scatter.x, multiple_packet_x[packet_no])
+            npt.assert_allclose(scatter.y, multiple_packet_y[packet_no])
+            assert list(scatter.marker.color) == [
+                rpacket_plotter.interaction_from_num[int(interaction)]["color"]
+                for interaction in multiple_packet_interaction[packet_no]
+            ]
+            assert list(scatter.marker.opacity) == [
+                rpacket_plotter.interaction_from_num[int(interaction)]["opacity"]
+                for interaction in multiple_packet_interaction[packet_no]
+            ]
+            assert list(scatter.text) == [
+                rpacket_plotter.interaction_from_num[int(interaction)]["text"]
+                for interaction in multiple_packet_interaction[packet_no]
+            ]
+
+        # Test for partial packet (with frame slicing)
+        for packet_no in range(no_of_packets):
+            scatter = rpacket_plotter.create_packet_scatter(
+                packet_no,
+                multiple_packet_x,
+                multiple_packet_y,
+                multiple_packet_interaction,
+                theme,
+                frame=frame,
+            )
+
+            assert len(scatter.x) == frame
+            assert len(scatter.y) == frame
+            assert len(scatter.marker.color) == frame
+            assert len(scatter.marker.opacity) == frame
+            assert len(scatter.text) == frame
+
+            npt.assert_allclose(scatter.x, multiple_packet_x[packet_no][:frame])
+            npt.assert_allclose(scatter.y, multiple_packet_y[packet_no][:frame])
+            assert list(scatter.marker.color) == [
+                rpacket_plotter.interaction_from_num[int(interaction)]["color"]
+                for interaction in multiple_packet_interaction[packet_no][:frame]
+            ]

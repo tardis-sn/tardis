@@ -574,7 +574,7 @@ class RPacketPlotter:
             x=x_vals,
             y=y_vals,
             mode="markers+lines",
-            name=f"Packet {str(packet_no + 1)}",
+            name=f"Packet {packet_no + 1}",
             showlegend=False,
             hovertemplate=(
                 "<b>X</b>: %{x}"
