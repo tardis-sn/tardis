@@ -10,10 +10,29 @@ import pytest
 from tardis.visualization import RPacketPlotter
 
 
+@pytest.fixture(scope="module", params=[2,5,10])
+def rpacket_plotter(request, simulation_rpacket_tracking):
+    """
+    Factory function to create an RPacketPlotter instance.
+
+    Parameters
+    ----------
+    simulation_rpacket_tracking : tardis.simulation.base.Simulation
+        Simulation object.
+
+    Returns
+    -------
+    RPacketPlotter
+        An instance of RPacketPlotter.
+    """
+    return RPacketPlotter.from_simulation(
+        simulation_rpacket_tracking, no_of_packets=request.param
+    )
+
 class TestRPacketPlotter:
     """Test the RPacketPlotter class."""
 
-    def test_get_coordinates_with_theta_init(self, simulation_rpacket_tracking):
+    def test_get_coordinates_with_theta_init(self, simulation_rpacket_tracking, rpacket_plotter):
         """
         Test for the get_coordinates_with_theta_init method.
 
@@ -21,10 +40,9 @@ class TestRPacketPlotter:
         ----------
         simulation_rpacket_tracking : tardis.simulation.base.Simulation
             Simulation object.
+        rpacket_plotter : tardis.visualization.RPacketPlotter
+            Plotter object used to generate the r-packet visualization.
         """
-        rpacket_plotter = RPacketPlotter.from_simulation(
-            simulation_rpacket_tracking
-        )
         single_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
             0
         ]
@@ -54,9 +72,8 @@ class TestRPacketPlotter:
         )
         npt.assert_allclose(radius_array, expected_radius_array)
 
-    @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     def test_get_coordinates_multiple_packets(
-        self, simulation_rpacket_tracking, no_of_packets
+        self, simulation_rpacket_tracking, rpacket_plotter
     ):
         """
         Test for the get_coordinates_multiple_packets method.
@@ -65,12 +82,10 @@ class TestRPacketPlotter:
         ----------
         simulation_rpacket_tracking : tardis.simulation.base.Simulation
             Simulation object.
-        no_of_packets : int
-            Number of Packets.
+        rpacket_plotter : tardis.visualization.RPacketPlotter
+            Plotter object used to generate the r-packet visualization.
         """
-        rpacket_plotter = RPacketPlotter.from_simulation(
-            simulation_rpacket_tracking, no_of_packets=no_of_packets
-        )
+        no_of_packets = rpacket_plotter.no_of_packets
         multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
             0 : (no_of_packets - 1)
         ]
@@ -108,9 +123,8 @@ class TestRPacketPlotter:
                 rpackets_interactions[rpacket], expected_rpacket_interactions
             )
 
-    @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     def test_get_equal_array_size(
-        self, simulation_rpacket_tracking, no_of_packets
+        self, simulation_rpacket_tracking, rpacket_plotter
     ):
         """
         Test for the get_equal_array_size method.
@@ -119,12 +133,10 @@ class TestRPacketPlotter:
         ----------
         simulation_rpacket_tracking: tardis.simulation.base.Simulation
             Simulation object.
-        no_of_packets : int
-            Number of Packets
+        rpacket_plotter : tardis.visualization.RPacketPlotter
+            Plotter object used to generate the r-packet visualization.
         """
-        rpacket_plotter = RPacketPlotter.from_simulation(
-            simulation_rpacket_tracking, no_of_packets=no_of_packets
-        )
+        no_of_packets = rpacket_plotter.no_of_packets
         multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
             0 : (no_of_packets - 1)
         ]
@@ -180,10 +192,9 @@ class TestRPacketPlotter:
                 expected_rpacket_interactions, rpackets_interactions[rpacket]
             )
 
-    @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     @pytest.mark.parametrize("theme", ["light", "dark"])
     def test_get_frames(
-        self, simulation_rpacket_tracking, no_of_packets, theme
+        self, simulation_rpacket_tracking, rpacket_plotter, theme
     ):
         """
         Test for the get_frames method.
@@ -192,14 +203,12 @@ class TestRPacketPlotter:
         ----------
         simulation_rpacket_tracking : tardis.simulation.base.Simulation
             Simulation object.
-        no_of_packets : int
-            Number of Packets
+        rpacket_plotter : tardis.visualization.RPacketPlotter
+            Plotter object used to generate the r-packet visualization.
         theme : str
             Theme of plot.
         """
-        rpacket_plotter = RPacketPlotter.from_simulation(
-            simulation_rpacket_tracking, no_of_packets=no_of_packets
-        )
+        no_of_packets = rpacket_plotter.no_of_packets
         multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
             0 : (no_of_packets - 1)
         ]
@@ -230,19 +239,15 @@ class TestRPacketPlotter:
                 npt.assert_allclose(expected_y, packet_frame.y)
 
     @pytest.mark.parametrize("max_step_size", [10, 30, 50])
-    def test_get_slider_steps(self, simulation_rpacket_tracking, max_step_size):
-        rpacket_plotter = RPacketPlotter.from_simulation(
-            simulation_rpacket_tracking
-        )
+    def test_get_slider_steps(self, rpacket_plotter, max_step_size):
         slider_steps = rpacket_plotter.get_slider_steps(max_step_size)
         for index, step in enumerate(slider_steps):
             assert step["args"][0][0] == index
             assert step["label"] == index
 
-    @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     @pytest.mark.parametrize("theme", ["light", "dark"])
     def test_generate_plot(
-        self, simulation_rpacket_tracking, no_of_packets, theme
+        self, simulation_rpacket_tracking, rpacket_plotter, theme
     ):
         """
         Test for the generate_plot method.
@@ -251,14 +256,12 @@ class TestRPacketPlotter:
         ----------
         simulation_rpacket_tracking : tardis.simulation.base.Simulation
             Simulation object.
-        no_of_packets : int
-            Number of Packets
+        rpacket_plotter : tardis.visualization.RPacketPlotter
+            Plotter object used to generate the r-packet visualization.
         theme : str
             Theme of plot.
         """
-        rpacket_plotter = RPacketPlotter.from_simulation(
-            simulation_rpacket_tracking, no_of_packets=no_of_packets
-        )
+        no_of_packets = rpacket_plotter.no_of_packets
         multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
             0 : (no_of_packets - 1)
         ]
@@ -314,7 +317,7 @@ class TestRPacketPlotter:
                 for packet in range(no_of_packets):
                     assert frame.data[packet] == expected_frame[packet]
 
-    def test_create_packet_scatter(simulation_rpacket_tracking):
+    def test_create_packet_scatter(self, simulation_rpacket_tracking, rpacket_plotter):
         """
         Test for the create_packet_scatter method.
 
@@ -322,14 +325,13 @@ class TestRPacketPlotter:
         ----------
         simulation_rpacket_tracking : tardis.simulation.base.Simulation
             Simulation object.
+        rpacket_plotter : tardis.visualization.RPacketPlotter
+            Plotter object used to generate the r-packet visualization.
         """
         theme = "light"
-        no_of_packets = 3
+        no_of_packets = rpacket_plotter.no_of_packets
         frame = 2
 
-        rpacket_plotter = RPacketPlotter.from_simulation(
-            simulation_rpacket_tracking, no_of_packets=no_of_packets
-        )
         multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
             0 : (no_of_packets - 1)
         ]
