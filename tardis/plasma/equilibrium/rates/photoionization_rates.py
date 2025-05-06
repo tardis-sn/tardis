@@ -158,9 +158,7 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
         radfield_mc_estimators,
         time_simulation,
         volume,
-        level_number_density,
-        ion_number_density,
-        saha_factor,
+        level_population,
     ):
         """Solve the photoionization and spontaneous recombination rates in the
         case where the radiation field is estimated by Monte Carlo processes.
@@ -194,12 +192,10 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             self.level2continuum_edge_idx
         )
 
-        photoionization_rate_coeff, stimulated_recombination_rate_coeff = (
-            photoionization_rate_coeff_solver.solve(
-                radfield_mc_estimators,
-                time_simulation,
-                volume,
-            )
+        photoionization_rate_coeff = photoionization_rate_coeff_solver.solve(
+            radfield_mc_estimators,
+            time_simulation,
+            volume,
         )
 
         spontaneous_recombination_rate_coeff = (
@@ -208,12 +204,20 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             )
         )
 
-        return self.compute_rates(
-            photoionization_rate_coeff,
-            stimulated_recombination_rate_coeff,
-            spontaneous_recombination_rate_coeff,
-            level_number_density,
-            ion_number_density,
-            electron_energy_distribution.number_density,
-            saha_factor,
+        photoionization_rate = photoionization_rate_coeff * level_population
+
+        recombination_rate = (
+            spontaneous_recombination_rate_coeff
+            * level_population
+            * electron_energy_distribution.number_density
         )
+
+        photoionization_rate = self.__reindex_ionization_rate_dataframe(
+            photoionization_rate, recombination=False
+        )
+
+        recombination_rate = self.__reindex_ionization_rate_dataframe(
+            recombination_rate, recombination=True
+        )
+
+        return photoionization_rate, recombination_rate
