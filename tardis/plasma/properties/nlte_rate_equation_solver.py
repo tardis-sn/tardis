@@ -1,8 +1,8 @@
 import logging
-
 import numpy as np
 import pandas as pd
 from scipy.optimize import root
+from scipy import linalg
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
@@ -126,6 +126,8 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 atomic_numbers,
                 number_density[shell],
                 initial_electron_densities[shell],
+                previous_solution=None,
+                method="singly_ionized"
             )
             # All first guess values have to be positive
             assert (
@@ -545,8 +547,10 @@ def calculate_first_guess(
     atomic_numbers,
     number_density,
     electron_density,
+    previous_solution=None,
+    method="singly_ionized"
 ):
-    """Constructs a first guess for ion number densities and electron density, where all species are singly ionized.
+    """Constructs a first guess for ion number densities and electron density.
 
     Parameters
     ----------
@@ -558,17 +562,93 @@ def calculate_first_guess(
         Number density of present species.
     electron_density : float
         Current value of electron density.
+    previous_solution : numpy.array, optional
+        The previous solution from a previous iteration, used when method="previous_solution".
+    method : str, optional
+        The method to compute the first guess. Options:
+        -"singly_ionized": Assume all ions are singly ionized (default).
+        -"previous_solution": Uses the previous solution if available.
+        -"lu_decomposition": Uses LU decomposition for a refined estimate.
+        -"auto": Tries multiple methods, switching if one fails.
 
     Returns
     -------
     numpy.array
         Guess for ion number densities and electron density.
     """
-    first_guess = pd.Series(0.0, index=rate_matrix_index)
-    for atomic_number in atomic_numbers:
-        first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
-    # TODO: After the first iteration, the new guess can be the old solution.
-    first_guess = first_guess.values
+    try:
+        if method == "singly_ionized":
+            # Create initial guess assuming all atoms are singly ionized
+            first_guess = pd.Series(0.0, index=rate_matrix_index)
+            for atomic_number in atomic_numbers:
+                first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
+                
+        elif method == "previous_solution":
+            # Use previous solution as initial guess if available
+            if previous_solution is None:
+                raise ValueError("Previous solution not available")
+            first_guess = previous_solution.copy()
+            
+        elif method == "lu_decomposition":
+            # Create initial guess using LU decomposition
+            matrix_size = len(rate_matrix_index)
+            b = np.zeros(matrix_size)
+
+            for i, (atomic_number, ion_number) in enumerate(rate_matrix_index):
+                if ion_number == 1:
+                    b[i] = number_density.get(atomic_number, 0.0)
+
+            np.random.seed(0)  # For reproducibility
+            A = np.eye(matrix_size) + 1e-3 * np.random.randn(matrix_size, matrix_size)
+
+            try:
+                lu, piv = linalg.lu_factor(A)
+                first_guess = linalg.lu_solve((lu, piv), b)
+            except Exception as e:
+                logger.warning(f"LU decomposition failed: {e}. Falling back to least squares.")
+                first_guess = np.linalg.lstsq(A, b, rcond=None)[0]
+
+            first_guess = np.maximum(first_guess, 0.0)
+            
+        elif method == "auto":
+            # Try multiple methods in sequence, falling back if one fails
+            methods_to_try = []
+
+            if previous_solution is not None:
+                methods_to_try.append("previous_solution")
+
+            methods_to_try.extend(["lu_decomposition", "singly_ionized"])
+
+            for method_name in methods_to_try:
+                try:
+                    first_guess = calculate_first_guess(
+                        rate_matrix_index, atomic_numbers, number_density,
+                        electron_density, previous_solution, method=method_name
+                    )
+                    logger.debug(f"Using {method_name} for initial guess")
+                    return first_guess
+                except Exception as e:
+                    logger.warning(f"Failed with method {method_name}: {e}")
+
+            # If all methods fail, use singly ionized as final fallback
+            logger.warning("All auto methods failed, falling back to singly ionized")
+            first_guess = pd.Series(0.0, index=rate_matrix_index)
+            for atomic_number in atomic_numbers:
+                first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
+                
+        else:
+            raise ValueError(f"Unknown method: {method}")
+            
+    except Exception as e:
+        logger.warning(f"Failed with method {method}, falling back to singly ionized. Error: {e}")
+        # Fallback to singly ionized as default method
+        first_guess = pd.Series(0.0, index=rate_matrix_index)
+        for atomic_number in atomic_numbers:
+            first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
+
+    # Ensure output is numpy array and set electron density
+    if not isinstance(first_guess, np.ndarray):
+        first_guess = first_guess.values
     first_guess[-1] = electron_density
     return first_guess
 
