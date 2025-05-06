@@ -27,7 +27,7 @@ def test_opacity_solver(
         line_interaction_type=line_interaction_type,
         disable_line_scattering=disable_line_scattering,
     )
-    actual = opacity_solver.legacy_solve(legacy_plasma)
+    actual = opacity_solver.solve(legacy_plasma)
 
     pdt.assert_series_equal(
         actual.electron_density, legacy_plasma.electron_densities
