@@ -3,6 +3,8 @@ import pandas as pd
 
 
 class IonPopulationSolver:
+    max_solver_iterations = 100
+
     def __init__(self, rate_matrix_solver, ions: pd.DataFrame):
         """Solve the normalized ion population values from the rate matrices.
 
@@ -76,7 +78,7 @@ class IonPopulationSolver:
         iteration = 0
         electron_densities = 1
 
-        while iteration < 10:
+        while iteration < self.max_solver_iterations:
             normalized_ion_population = ion_population / ion_population.sum()
 
             self.rates_matrices = self.rate_matrix_solver.solve(

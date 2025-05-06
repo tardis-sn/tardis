@@ -93,7 +93,7 @@ class CollisionalIonizationRateSolver:
 
         # Inverse of the ionization rate for equilibrium
         collision_recombination_rates = collision_ionization_rates.multiply(
-            saha_factor.loc[collision_ionization_rates.index]
+            saha_factor
         )
 
         collision_ionization_rates = (
