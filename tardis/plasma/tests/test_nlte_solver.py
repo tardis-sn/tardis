@@ -25,7 +25,7 @@ def simple_index_nlte_ion():
         MultiIndex for HI and HeII.
     """
     return pd.MultiIndex.from_tuples(
-        [(1, 0), (2, 1)], names=("atomic_number", "ion_number")
+        [(1, 0), (2, 1)], names=("atomic_number", "ion_charge")
     )
 
 
@@ -39,7 +39,7 @@ def simple_index_lte_ion():
         MultiIndex for H II and He I and He III.
     """
     return pd.MultiIndex.from_tuples(
-        [(1, 1), (2, 1), (2, 2)], names=("atomic_number", "ion_number")
+        [(1, 1), (2, 1), (2, 2)], names=("atomic_number", "ion_charge")
     )
 
 
@@ -50,7 +50,7 @@ def simple_rate_matrix_index():
     Returns
     -------
     MultiIndex
-        (atomic_number, ion_number, treatment)
+        (atomic_number, ion_charge, treatment)
     """
     return pd.MultiIndex.from_tuples(
         [
@@ -61,7 +61,7 @@ def simple_rate_matrix_index():
             (2, 2, "lte_ion"),
             ("n_e", "n_e", "n_e"),
         ],
-        names=("atomic_number", "ion_number", "level_number"),
+        names=("atomic_number", "ion_charge", "level_number"),
     )
 
 

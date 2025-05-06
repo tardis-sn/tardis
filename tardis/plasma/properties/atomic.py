@@ -48,7 +48,7 @@ class Levels(BaseAtomicDataProperty):
     Attributes
     ----------
     levels : pandas.MultiIndex
-        (atomic_number, ion_number, level_number)
+        (atomic_number, ion_charge, level_number)
         Index of filtered atomic data. Index used for all other attribute dataframes for this class
     excitation_energy : pandas.DataFrame, dtype float
         Excitation energies of atomic levels.
@@ -85,7 +85,7 @@ class Lines(BaseAtomicDataProperty):
     Attributes
     ----------
     lines : pandas.DataFrame
-        Atomic lines data. Columns are wavelength, atomic_number,ion_number,
+        Atomic lines data. Columns are wavelength, atomic_number,ion_charge,
         f_ul, f_lu, level_number_lower, level_number_upper, nu, B_lu, B_ul, A_ul,
         wavelength. Index is line_id.
     nu : pandas.DataFrame, dtype float
@@ -131,7 +131,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     ----------
     photo_ion_cross_sections : pandas.DataFrame, dtype float
         Photoionization cross sections as a function of frequency.
-        Columns are nu, x_sect, index=('atomic_number','ion_number','level_number')
+        Columns are nu, x_sect, index=('atomic_number','ion_charge','level_number')
     photo_ion_block_references : numpy.ndarray, dtype int
         Indices where the photoionization data for
         a given level starts. Needed for calculation
@@ -144,7 +144,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     photo_ion_index : pandas.MultiIndex, dtype int
         Atomic, ion and level numbers for which photoionization data exists.
     level2continuum_idx : pandas.Series, dtype int
-        Maps a level MultiIndex (atomic_number, ion_number, level_number) to
+        Maps a level MultiIndex (atomic_number, ion_charge, level_number) to
         the continuum_idx of the corresponding bound-free continuum (which are
         sorted by decreasing frequency).
     level_idxs2continuum_idx : pandas.DataFrame, dtype int
@@ -173,7 +173,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
 
     def calculate(self, atomic_data, continuum_interaction_species):
         # photoionization_data = atomic_data.photoionization_data.set_index(
-        #    ["atomic_number", "ion_number", "level_number"]
+        #    ["atomic_number", "ion_charge", "level_number"]
         # )
         photoionization_data = atomic_data.photoionization_data
         mask_selected_species = photoionization_data.index.droplevel(
@@ -359,7 +359,7 @@ class TwoPhotonData(ProcessingPlasmaProperty):
     ----------
     two_photon_data : pandas.DataFrame, dtype float
     A DataFrame containing the *two photon decay data* with:
-        index: atomic_number, ion_number, level_number_lower, level_number_upper
+        index: atomic_number, ion_charge, level_number_lower, level_number_upper
         columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
         alpha, beta, gamma are fit coefficients for the frequency dependent
         transition probability A(y) of the two photon decay. See Eq. 2 in
@@ -575,7 +575,7 @@ class ZetaData(BaseAtomicDataProperty):
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
         zeta_data["atomic_number"] = zeta_data.index.codes[0] + 1
-        zeta_data["ion_number"] = zeta_data.index.codes[1] + 1
+        zeta_data["ion_charge"] = zeta_data.index.codes[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
         zeta_data_check = counter(zeta_data.atomic_number.values)
         keys = np.array(list(zeta_data_check.keys()))
@@ -607,20 +607,20 @@ class ZetaData(BaseAtomicDataProperty):
             for value in range(len(zeta_data)):
                 updated_dataframe.loc[
                     zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
+                    zeta_data.ion_charge.values[value],
                 ] = zeta_data.loc[
                     zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
+                    zeta_data.ion_charge.values[value],
                 ]
             updated_dataframe = updated_dataframe.astype(float)
             updated_index = pd.DataFrame(updated_index)
             updated_dataframe["atomic_number"] = np.array(updated_index[0])
-            updated_dataframe["ion_number"] = np.array(updated_index[1])
+            updated_dataframe["ion_charge"] = np.array(updated_index[1])
             updated_dataframe = updated_dataframe.fillna(1.0)
             return updated_dataframe
 
     def _set_index(self, zeta_data):
-        return zeta_data.set_index(["atomic_number", "ion_number"])
+        return zeta_data.set_index(["atomic_number", "ion_charge"])
 
 
 class NLTEData(ProcessingPlasmaProperty):
@@ -655,7 +655,7 @@ class YgData(ProcessingPlasmaProperty):
         Energy difference between upper and lower levels coupled by collisions.
     yg_idx : pandas.DataFrame
         Source_level_idx and destination_level_idx of collision transitions.
-        Indexed by atomic_number, ion_number, level_number_lower,
+        Indexed by atomic_number, ion_charge, level_number_lower,
         level_number_upper.
     """
 
@@ -675,6 +675,13 @@ class YgData(ProcessingPlasmaProperty):
                 "Tardis does not support continuum interactions for atomic data sources that do not contain yg_data"
             )
 
+        # Ensure we're consistently using ion_charge in indices
+        if hasattr(yg_data.index, 'names') and 'ion_number' in yg_data.index.names:
+            yg_data.index = yg_data.index.rename('ion_charge', level='ion_number')
+        
+        if hasattr(continuum_interaction_species, 'names') and 'ion_number' in continuum_interaction_species.names:
+            continuum_interaction_species = continuum_interaction_species.rename('ion_charge', level='ion_number')
+
         mask_selected_species = yg_data.index.droplevel(
             ["level_number_lower", "level_number_upper"]
         ).isin(continuum_interaction_species)
@@ -688,26 +695,53 @@ class YgData(ProcessingPlasmaProperty):
 
         yg_data = yg_data.combine_first(approximate_yg_data)
 
-        energies = atomic_data.levels.energy
         index = yg_data.index
-        lu_index = index.droplevel("level_number_lower")
-        ll_index = index.droplevel("level_number_upper")
+        
+        # Create clean MultiIndex for energy lookups - handling only level_number_lower/upper
+        def clean_index_for_lookup(idx, level_name):
+            atomic_number = idx.get_level_values('atomic_number')
+            ion_charge = idx.get_level_values('ion_charge')
+            level_number = idx.get_level_values(level_name)
+            
+            # Create proper 3-level MultiIndex
+            return pd.MultiIndex.from_arrays(
+                [atomic_number, ion_charge, level_number],
+                names=['atomic_number', 'ion_charge', 'level_number']
+            )
+        
+        # Create proper indices for upper and lower level lookups
+        ll_index = clean_index_for_lookup(index, 'level_number_lower')
+        lu_index = clean_index_for_lookup(index, 'level_number_upper')
+        
+        # Get the energies and calculate the energy differences
+        energies = atomic_data.levels.energy
         delta_E = energies.loc[lu_index].values - energies.loc[ll_index].values
         delta_E = pd.Series(delta_E, index=index)
 
-        source_idx = atomic_data.macro_atom_references.loc[
-            ll_index
-        ].references_idx
-        destination_idx = atomic_data.macro_atom_references.loc[
-            lu_index
-        ].references_idx
+        # Get the macro atom indices
+        source_idx = atomic_data.macro_atom_references.loc[ll_index].references_idx
+        destination_idx = atomic_data.macro_atom_references.loc[lu_index].references_idx
+        
+        # Create a clean index without level_number_lower/upper for the result
+        result_index = pd.MultiIndex.from_arrays(
+            [
+                index.get_level_values('atomic_number'),
+                index.get_level_values('ion_charge'),
+                index.get_level_values('level_number_lower'),
+                index.get_level_values('level_number_upper')
+            ],
+            names=['atomic_number', 'ion_charge', 'level_number_lower', 'level_number_upper']
+        )
+        
+        # Create the final yg_idx DataFrame
         yg_idx = pd.DataFrame(
             {
                 "source_level_idx": source_idx.values,
                 "destination_level_idx": destination_idx.values,
             },
-            index=index,
+            index=result_index,
         )
+        
         return yg_data, t_yg, index, delta_E, yg_idx
 
     @classmethod

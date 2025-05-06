@@ -29,7 +29,7 @@ class NLTEData:
         for species in self.nlte_species:
             lines_idx = np.where(
                 (self.lines.atomic_number == species[0])
-                & (self.lines.ion_number == species[1])
+                & (self.lines.ion_charge == species[1])
             )
             self.lines_idx[species] = lines_idx
             self.lines_level_number_lower[
@@ -48,7 +48,7 @@ class NLTEData:
         self.delta_E_matrices = {}
         self.g_ratio_matrices = {}
         collision_group = self.atom_data.collision_data.groupby(
-            level=["atomic_number", "ion_number"]
+            level=["atomic_number", "ion_charge"]
         )
         for species in self.nlte_species:
             no_of_levels = self.atom_data.levels.loc[species].energy.count()
@@ -65,7 +65,7 @@ class NLTEData:
             for (
                 (
                     atomic_number,
-                    ion_number,
+                    ion_charge,
                     level_number_lower,
                     level_number_upper,
                 ),

@@ -69,22 +69,22 @@ def get_ion_multi_index(multi_index_full, next_higher=True):
 
     Parameters
     ----------
-    multi_index_full : pandas.MultiIndex (atomic_number, ion_number,
+    multi_index_full : pandas.MultiIndex (atomic_number, ion_charge,
                                           level_number)
     next_higher : bool, default True
-        If True use ion number of next higher ion, else use ion_number from
+        If True use ion number of next higher ion, else use ion_charge from
         multi_index_full.
 
     Returns
     -------
-    pandas.MultiIndex (atomic_number, ion_number)
+    pandas.MultiIndex (atomic_number, ion_charge)
        Ion MultiIndex for the given level MultiIndex.
     """
     atomic_number = multi_index_full.get_level_values(0)
-    ion_number = multi_index_full.get_level_values(1)
+    ion_charge = multi_index_full.get_level_values(1)
     if next_higher is True:
-        ion_number += 1
-    return pd.MultiIndex.from_arrays([atomic_number, ion_number])
+        ion_charge += 1
+    return pd.MultiIndex.from_arrays([atomic_number, ion_charge], names=["atomic_number", "ion_charge"])
 
 
 def get_ground_state_multi_index(multi_index_full):
@@ -93,18 +93,19 @@ def get_ground_state_multi_index(multi_index_full):
 
     Parameters
     ----------
-    multi_index_full : pandas.MultiIndex (atomic_number, ion_number,
+    multi_index_full : pandas.MultiIndex (atomic_number, ion_charge,
                                           level_number)
 
     Returns
     -------
-    pandas.MultiIndex (atomic_number, ion_number)
+    pandas.MultiIndex (atomic_number, ion_charge)
         Ground-state MultiIndex for the next higher ion.
     """
     atomic_number = multi_index_full.get_level_values(0)
-    ion_number = multi_index_full.get_level_values(1) + 1
-    level_number = np.zeros_like(ion_number)
-    return pd.MultiIndex.from_arrays([atomic_number, ion_number, level_number])
+    ion_charge = multi_index_full.get_level_values(1) + 1
+    level_number = np.zeros_like(ion_charge)
+    return pd.MultiIndex.from_arrays([atomic_number, ion_charge, level_number],
+                                     names=["atomic_number", "ion_charge", "level_number"]) 
 
 
 def cooling_rate_series2dataframe(cooling_rate_series, destination_level_idx):
@@ -612,7 +613,7 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
 
     @staticmethod
     def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
-        ion_charge = ion_number_density.index.get_level_values(1).values
+        ion_charge = ion_number_density.index.get_level_values("ion_charge").values
         factor = (
             electron_densities
             * ion_number_density.multiply(ion_charge**2, axis=0).sum()
@@ -759,10 +760,10 @@ class CollIonRateCoeffSeaton(ProcessingPlasmaProperty):
         coll_ion_coeff = factor.multiply(coll_ion_coeff, axis=0)
         coll_ion_coeff = coll_ion_coeff.divide(np.sqrt(t_electrons), axis=1)
 
-        ion_number = coll_ion_coeff.index.get_level_values("ion_number").values
-        coll_ion_coeff[ion_number == 0] *= 0.1
-        coll_ion_coeff[ion_number == 1] *= 0.2
-        coll_ion_coeff[ion_number >= 2] *= 0.3
+        ion_charge = coll_ion_coeff.index.get_level_values("ion_charge").values
+        coll_ion_coeff[ion_charge == 0] *= 0.1
+        coll_ion_coeff[ion_charge == 1] *= 0.2
+        coll_ion_coeff[ion_charge >= 2] *= 0.3
         return coll_ion_coeff
 
     def _calculate_factor(self, nu_i, t_electrons):

@@ -45,7 +45,7 @@ class AnalyticPhotoionizationRateSolver:
         level_number_density : pd.DataFrame
             The electron energy level number density. Columns are cells.
         ion_number_density : pd.DataFrame
-            The ion number density. Columns are cells.
+            The ion charge density. Columns are cells.
         electron_number_density : u.Quantity
             The free electron number density per cell.
         saha_factor : pd.DataFrame
@@ -94,7 +94,7 @@ class AnalyticPhotoionizationRateSolver:
         level_number_density : pd.DataFrame
             Electron energy level number density. Columns are cells.
         ion_number_density : pd.DataFrame
-            Ion number density. Columns are cells.
+            Ion charge density. Columns are cells.
         saha_factor : pd.DataFrame
             Saha factor: the LTE level number density divided by the LTE ion
             number density and the electron number density.
@@ -173,7 +173,7 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
         level_number_density : pd.DataFrame
             Electron energy level number density. Columns are cells.
         ion_number_density : pd.DataFrame
-            Ion number density. Columns are cells.
+            Ion charge density. Columns are cells.
         saha_factor : pd.DataFrame
             Saha factor: the LTE level number density divided by the LTE ion
             number density and the electron number density.

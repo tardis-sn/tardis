@@ -65,14 +65,14 @@ for t_rad in t_rads:
 
 ion_colors = ["b", "g", "r", "k"]
 
-for ion_number in [0, 1, 2, 3]:
-    current_ion_density = ion_number_densities.loc[14, ion_number]
+for ion_charge in [0, 1, 2, 3]:
+    current_ion_density = ion_number_densities.loc[14, ion_charge]
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
-        "%s-" % ion_colors[ion_number],
+        "%s-" % ion_colors[ion_charge],
         label="Si %s W=1.0"
-        % tardis.util.base.int_to_roman(ion_number + 1).upper(),
+        % tardis.util.base.int_to_roman(ion_charge + 1).upper(),
     )
 
 

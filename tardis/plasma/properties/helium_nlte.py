@@ -187,7 +187,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                     output_file.write(number_density)
 
             helium_lines = lines[lines["atomic_number"] == 2]
-            helium_lines = helium_lines[helium_lines["ion_number"] == 0]
+            helium_lines = helium_lines[helium_lines["ion_charge"] == 0]
         for zone, _ in enumerate(electron_densities):
             with open(
                 f"He_NLTE_Files/discradfield_{zone}.txt", "w"

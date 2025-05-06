@@ -353,11 +353,11 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                     self.block_ids,
                     self.ion_zero_threshold,
                 )
-                ion_numbers = ion_number_density.index.get_level_values(
-                    1
+                ion_Charge = ion_number_density.index.get_level_values(
+                    "ion_charge"
                 ).values
-                ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
-                new_n_electron = (ion_number_density.values * ion_numbers).sum(
+                ion_Charge = ion_Charge.reshape((ion_Charge.shape[0], 1))
+                new_n_electron = (ion_number_density.values * ion_Charge).sum(
                     axis=0
                 )
                 if np.any(np.isnan(new_n_electron)):
@@ -394,8 +394,8 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     """
     Convergence process to find the correct solution. A trial value for
     the electron density is initiated in a particular zone. The ion
-    number densities are then calculated using the Saha equation. The
-    electron density is then re-calculated by using the ion number
+    charge densities are then calculated using the Saha equation. The
+    electron density is then re-calculated by using the ion charge
     densities to sum over the number of free electrons. If the two values
     for the electron densities are not similar to within the threshold
     value, a new guess for the value of the electron density is chosen
@@ -404,7 +404,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     Attributes
     ----------
     ion_number_density : pandas.DataFrame, dtype float
-        Index atom number, ion number. Columns zones.
+        Index atom number, ion charge. Columns zones.
     electron_densities : numpy.ndarray, dtype float
     """
 
@@ -478,11 +478,11 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                 ion_number_density.loc[2, 2] = helium_population_updated.loc[
                     2, 0
                 ]
-                ion_numbers = ion_number_density.index.get_level_values(
+                ion_Charge = ion_number_density.index.get_level_values(
                     1
                 ).values
-                ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
-                new_n_electron = (ion_number_density.values * ion_numbers).sum(
+                ion_Charge = ion_Charge.reshape((ion_Charge.shape[0], 1))
+                new_n_electron = (ion_number_density.values * ion_Charge).sum(
                     axis=0
                 )
                 if np.any(np.isnan(new_n_electron)):
@@ -570,6 +570,6 @@ class SahaFactor(ProcessingPlasmaProperty):
     @staticmethod
     def _prepare_boltzmann_factor(boltzmann_factor):
         atomic_number = boltzmann_factor.index.get_level_values(0)
-        ion_number = boltzmann_factor.index.get_level_values(1)
-        selected_ions_mask = atomic_number != ion_number
+        ion_charge = boltzmann_factor.index.get_level_values(1)
+        selected_ions_mask = atomic_number != ion_charge
         return boltzmann_factor[selected_ions_mask]

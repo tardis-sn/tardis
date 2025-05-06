@@ -375,7 +375,7 @@ class PartitionFunction(ProcessingPlasmaProperty):
 
     def calculate(self, level_boltzmann_factor):
         return level_boltzmann_factor.groupby(
-            level=["atomic_number", "ion_number"]
+            level=["atomic_number", "ion_charge"]
         ).sum()
 
 
@@ -384,7 +384,7 @@ class ThermalLTEPartitionFunction(PartitionFunction):
     Attributes
     ----------
     thermal_lte_partition_function : Pandas DataFrame, dtype float
-        Indexed by atomic number, ion number.
+        Indexed by atomic number, ion charge.
         Columns are zones.
     """
 
