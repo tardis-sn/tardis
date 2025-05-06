@@ -383,6 +383,7 @@ class RPacketPlotter:
             if step_no == 0:
                 theta.append(theta_initial)
             # for further steps we calculate thetas with the formula derived in the documentation
+            # https://tardis-sn.github.io/tardis/analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html#Getting-packet-coordinates
             else:
                 curr_r = r_track[step_no]
                 prev_r = r_track[step_no - 1]
