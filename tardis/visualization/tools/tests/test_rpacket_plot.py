@@ -13,6 +13,34 @@ from tardis.visualization import RPacketPlotter
 class TestRPacketPlotter:
     """Test the RPacketPlotter class."""
 
+    def test_from_simulation(self, simulation_rpacket_tracking, simulation_verysimple_vpacket_tracking):
+        """
+        Test for the from_simulation method.
+
+        Parameters
+        ----------
+        simulation_rpacket_tracking : tardis.simulation.base.Simulation
+            Simulation object.
+        """
+        simulation_rpacket_tracking.last_no_of_packets = 10
+        rpacket_plotter = RPacketPlotter.from_simulation(
+            simulation_rpacket_tracking
+        )
+
+        assert rpacket_plotter.no_of_packets == 10
+
+        simulation_rpacket_tracking.last_no_of_packets = 4000
+        rpacket_plotter_change = RPacketPlotter.from_simulation(
+            simulation_rpacket_tracking
+        )
+
+        assert rpacket_plotter_change.no_of_packets == 15
+
+        # Simulation without rpacket_df is used to test the attribute error case. 
+        with pytest.raises(AttributeError):
+            RPacketPlotter.from_simulation(simulation_verysimple_vpacket_tracking)
+
+
     def test_get_coordinates_with_theta_init(self, simulation_rpacket_tracking):
         """
         Test for the get_coordinates_with_theta_init method.
