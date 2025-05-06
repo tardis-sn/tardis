@@ -11,7 +11,7 @@ def run_tardis(
     config,
     atom_data=None,
     packet_source=None,
-    simulation_callbacks=[],
+    simulation_callbacks=None,
     virtual_packet_logging=False,
     show_convergence_plots=False,
     log_level=None,
@@ -78,6 +78,8 @@ def run_tardis(
     from tardis.io.logger.logger import logging_state
     from tardis.simulation import Simulation
 
+    if simulation_callbacks is None:
+        simulation_callbacks = []
     if isinstance(config, Configuration):
         tardis_config = config
     else:
