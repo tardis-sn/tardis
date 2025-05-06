@@ -251,3 +251,39 @@ the `Astropy package template <https://github.com/astropy/package-template>`_
 which is licensed under the BSD 3-clause license. See the licenses folder for
 more information.
 
+## New Features
+
+### Zeta Values Interpolation Function
+
+A new method `get_zeta_values` has been introduced to interpolate zeta values for ion data based on the provided radiative temperatures (`t_rad`). This feature allows the function to filter out inactive shells during the interpolation process.
+
+#### Usage Example:
+
+```python
+import pandas as pd
+import numpy as np
+
+# Sample zeta data in pandas DataFrame format
+zeta_data = pd.DataFrame({
+    '5000': [1.0, 1.2, 1.5],
+    '6000': [1.1, 1.3, 1.6],
+    '7000': [1.2, 1.4, 1.7]
+}, index=['ion1', 'ion2', 'ion3'])
+
+# Call the method with ion data and t_rad
+zeta_values = get_zeta_values(zeta_data, 'ion1', np.array([5000, 6000, 7000]))
+print(zeta_values)
+
+
+## Bug Fixes
+
+### Zeta Values Interpolation Bug
+
+- **Problem**: The `get_zeta_values` method was incorrectly including inactive shells when performing the interpolation for zeta values, resulting in inaccurate results.
+- **Fix**: We have fixed the issue by adding proper filtering for active shells, ensuring that only active shells are considered during interpolation.
+
+#### Before Fix:
+Inactive shells were mistakenly included in the interpolation, leading to errors in the calculated zeta values.
+
+#### After Fix:
+Now, the function filters out inactive shells based on the `active_shells` parameter, improving accuracy.
