@@ -12,7 +12,9 @@ DEFAULT_ATOM_DATA_UUID = "864f1753714343c41f99cb065710cace"
 @pytest.fixture(scope="session")
 def atomic_data_fname(tardis_regression_path):
     atomic_data_fname = (
-        tardis_regression_path / "atom_data" / "kurucz_cd23_chianti_H_He.h5"
+        tardis_regression_path
+        / "atom_data"
+        / "kurucz_cd23_chianti_H_He_latest.h5"
     )
 
     atom_data_missing_str = (
