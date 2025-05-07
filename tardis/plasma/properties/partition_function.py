@@ -209,8 +209,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
             rate_matrix_solver = RateMatrix(rate_solvers, atomic_data.levels)
 
+            # A fake electron distribution. Will eventually be a direct input
+            # to the plasma property.
             electron_distribution = ThermalElectronEnergyDistribution(
-                0,
+                0 * u.erg,
                 t_electrons * u.K,
                 previous_electron_densities * u.g / u.cm**3,
             )
@@ -222,11 +224,6 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             solver = LevelPopulationSolver(rate_matrix, atomic_data.levels)
 
             level_pops = solver.solve()
-
-            pd.testing.assert_index_equal(
-                general_level_boltzmann_factor.loc[species].index,
-                level_pops.loc[species].index,
-            )
 
             general_level_boltzmann_factor.loc[species] = (
                 level_pops.loc[species]
