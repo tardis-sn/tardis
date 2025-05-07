@@ -68,7 +68,7 @@ jobs:
           atom-data-sparse: true
 
       - name: Setup Mamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: benchmark
           init-shell: >-

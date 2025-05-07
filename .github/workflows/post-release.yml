@@ -85,7 +85,7 @@ jobs:
             README.rst
             docs/resources/credits.rst
 
-      - name: Dispatch to Tardis Website
+      - name: Dispatch to TARDIS Website
         run: |
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
