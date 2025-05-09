@@ -308,9 +308,8 @@ class SDECPlotter:
             ascending=False
         )
 
-        # If nelements and species_list are not included, the list of elements is just all elements
         if nelements is None and self._species_list is None:
-            self.species = np.array(list(self.total_luminosities_df.keys()))
+            self.species = np.array(list(self.total_luminosities_df.columns))
         elif self._species_list is not None:
             sorted_keys = list(sorted_list.keys())
             keys_to_keep = [
@@ -319,47 +318,58 @@ class SDECPlotter:
 
             df_map = {
                 "total_luminosities_df": keys_to_keep,
-                "emission_luminosities_df": list(self._species_list)
+                "emission_luminosities_df": keys_to_keep
                 + ["noint", "escatter"],
-                "absorption_luminosities_df": self._species_list,
+                "absorption_luminosities_df": keys_to_keep,
             }
 
             for df_name, keys in df_map.items():
-                setattr(
-                    self,
-                    df_name,
-                    self.process_luminosity_dataframe(
-                        getattr(self, df_name), keys
-                    ),
-                )
+                current_df = getattr(self, df_name)
+                columns_to_exclude = [
+                    col for col in current_df.columns if col not in keys
+                ]
+                other_pos = 2 if df_name != "total_luminosities_df" else 0
 
-            self.species = np.sort(self.total_luminosities_df.keys()[1:])
+                processed_df = self.process_luminosity_dataframe(
+                    current_df,
+                    columns_to_exclude,
+                    other_column_position=other_pos,
+                )
+                setattr(self, df_name, processed_df)
+
+            self.species = np.sort(
+                self.total_luminosities_df.columns[1:]
+            )
 
         else:  # nelements is not None
-            top_n_keys = list(sorted_list.keys())[:nelements]
+            top_n_keys = sorted_list.keys()[:nelements]
+            always_keep = ["noint", "escatter"]
 
-            for df_name in [
-                "total_luminosities_df",
-                "emission_luminosities_df",
-                "absorption_luminosities_df",
-            ]:
-                other_pos = 2 if df_name != "total_luminosities_df" else None
-                kwargs = (
-                    {"other_column_position": other_pos}
-                    if other_pos is not None
-                    else {}
+            df_map = {
+                "total_luminosities_df": list(top_n_keys),
+                "emission_luminosities_df": list(top_n_keys) + always_keep,
+                "absorption_luminosities_df": list(top_n_keys),
+            }
+
+            for df_name, keys_to_keep in df_map.items():
+                current_df = getattr(self, df_name)
+                columns_to_exclude = [
+                    col for col in current_df.columns if col not in keys_to_keep
+                ]
+                other_pos = 2 if df_name != "total_luminosities_df" else 0
+
+                processed_df = self.process_luminosity_dataframe(
+                    current_df,
+                    columns_to_exclude,
+                    other_column_position=other_pos,
                 )
+                setattr(self, df_name, processed_df)
 
-                setattr(
-                    self,
-                    df_name,
-                    self.process_luminosity_dataframe(
-                        getattr(self, df_name), top_n_keys, **kwargs
-                    ),
-                )
+            self.species = np.sort(
+                self.total_luminosities_df.columns[1:]
+            )
 
-            self.species = np.sort(self.total_luminosities_df.keys()[1:])
-
+        # Final calculations
         self.photosphere_luminosity = self._calculate_photosphere_luminosity()
         self.modeled_spectrum_luminosity = (
             self.spectrum[packets_mode]["spectrum_luminosity_density_lambda"][
@@ -369,18 +379,18 @@ class SDECPlotter:
         )
 
     def process_luminosity_dataframe(
-        self, df, keys_to_include, other_column_position=0
+        self, df, keys_to_exclude, other_column_position=0
     ):
-        mask = np.isin(np.array(list(df.keys())), keys_to_include)
-        excluded_keys = df.keys()[~mask]
+        mask = np.isin(df.columns, keys_to_exclude)
+        excluded_keys = df.columns[mask]
+
         if len(excluded_keys) > 0:
             df.insert(
                 loc=other_column_position,
                 column="other",
                 value=df[excluded_keys].sum(axis=1),
             )
-            # Drop all of the individual columns for keys included in 'other'
-            df = df.drop(excluded_keys, axis=1)
+            df = df.drop(columns=excluded_keys)
         return df
 
     def _calculate_grouped_luminosities(
