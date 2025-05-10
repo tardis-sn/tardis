@@ -3,8 +3,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from tardis.tests.fixtures.regression_data import PlotDataHDF
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
+    create_wavelength_mask,
     expand_species_list,
     extract_and_process_packet_data,
     get_mid_point_idx,
@@ -251,3 +253,26 @@ class TestPlotUtil:
                 actual_data[key].value,
                 expected_value.value,
             )
+
+
+    @pytest.fixture(scope="module")
+    def generate_masked_dataframe_hdf(self, simulation_simple):
+        packet_data = {
+            "real": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="real"),
+            "virtual": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="virtual"),
+        }
+        masked_data = {
+            mode: PlotDataHDF(
+                masked_df=create_wavelength_mask(
+                    packet_data, mode, [3000, 9000] * u.AA, df_key="packets_df", column_name="nus"
+                )
+            )
+            for mode in ["real", "virtual"]
+        }
+        return masked_data
+
+    @pytest.mark.parametrize("mode", ["real", "virtual"])
+    def test_create_wavelength_mask(self, generate_masked_dataframe_hdf, regression_data, mode):
+        expected = regression_data.sync_dataframe(generate_masked_dataframe_hdf[mode].masked_df, key=mode)
+        actual = generate_masked_dataframe_hdf[mode].masked_df
+        pd.testing.assert_frame_equal(actual, expected)
