@@ -416,7 +416,7 @@ def parse_species_list_util(species_list):
         Dictionary mapping (Z, ion) to lists of (Z, ion) tuples.
     species_list_result : list of tuple
         Flattened list of all (Z, ion) tuples to be used.
-    keep_colour_result : list of int
+    elements_with_shared_color : list of int
         Atomic numbers of elements that should be grouped by color.
     full_species_list : list of str
         Expanded list of user-requested species in string format.
@@ -432,7 +432,7 @@ def parse_species_list_util(species_list):
 
     full_species_list = expand_species_list(species_list)
     requested_species_ids = []
-    keep_colour = []
+    elements_with_shared_color = []
     species_mapped = {}
 
     # go through each of the requested species. Check whether it is
@@ -452,11 +452,11 @@ def parse_species_list_util(species_list):
             # add the atomic number to a list so you know that this element should
             # have all species in the same colour, i.e. it was requested like
             # species_list = [Si]
-            keep_colour.append(atomic_number)
+            elements_with_shared_color.append(atomic_number)
 
     species_list_result = [species_id for group in requested_species_ids for species_id in group]
 
-    return species_mapped, species_list_result, keep_colour, full_species_list
+    return species_mapped, species_list_result, elements_with_shared_color, full_species_list
 
 
 def make_colorbar_labels(species, species_list=None, species_mapped=None):
