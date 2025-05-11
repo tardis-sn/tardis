@@ -1,6 +1,12 @@
 ## Changelog
 
-### release-2025.05.04 (2025/05/03 21:08)
+### release-2025.05.11 (2025/05/10 21:07)
+- [2998](https://github.com/tardis-sn/tardis/pull/2998) Created a workflow for TARDIS High energy (2998) (@Knights-Templars)
+- [3067](https://github.com/tardis-sn/tardis/pull/3067) Cleanup rpacket plotter class (3067) (@KasukabeDefenceForce)
+- [3029](https://github.com/tardis-sn/tardis/pull/3029) add convergence notebook to analysing tardis outputs section (3029) (@KasukabeDefenceForce)
+- [3064](https://github.com/tardis-sn/tardis/pull/3064) Compare Regression Data Workflow Typo Fix (3064) (@atharva-2001)
+- [3066](https://github.com/tardis-sn/tardis/pull/3066) Post-release 2025.05.04 (3066) (@tardis-bot)
+### release-2025.05.04 (2025/04/29 10:52)
 - [3003](https://github.com/tardis-sn/tardis/pull/3003) Add Rpacket plot notebook under analysing tardis outputs (3003) (@KasukabeDefenceForce)
 - [2928](https://github.com/tardis-sn/tardis/pull/2928) Cleanup SDECPlotter and LIVPlotter class (2928) (@KasukabeDefenceForce)
 - [3058](https://github.com/tardis-sn/tardis/pull/3058) Docs build and logger widget fixes (3058) (@atharva-2001)
