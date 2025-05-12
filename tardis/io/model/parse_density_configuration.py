@@ -70,56 +70,6 @@ def parse_density_section_config(
     return density_0, time_0
 
 
-def parse_density_from_config(config: Configuration) -> u.Quantity:
-    """
-    Parse the configuration file and produce a density at
-    time_explosion.
-
-    Parameters
-    ----------
-    config : tardis.io.config_reader.Configuration
-
-    Returns
-    -------
-    density: u.Quantity
-
-    """
-    from tardis.io.model.parse_geometry_configuration import (
-        parse_structure_from_config,
-    )
-
-    time_explosion = config.supernova.time_explosion.cgs
-    (
-        density_time,
-        velocity,
-        density,
-        electron_densities,
-        temperature,
-    ) = parse_structure_from_config(config)
-
-    if density is None:
-        adjusted_velocity = velocity.insert(0, 0)
-        v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
-        d_conf = config.model.structure.density
-        density, density_time = parse_density_section_config(
-            d_conf, v_middle, time_explosion
-        )
-
-    density = calculate_density_after_time(
-        density, density_time, time_explosion
-    )
-
-    # Note: This is the number of shells *without* taking in mind the
-    #       v boundaries.
-    if len(density) == len(velocity):
-        logger.warning(
-            "Number of density points larger than number of shells. Assuming inner point irrelevant"
-        )
-        density = density[1:]
-
-    return density, electron_densities
-
-
 def parse_density_section_csvy(
     csvy_model_config: Configuration, time_explosion: u.Quantity
 ) -> u.Quantity:

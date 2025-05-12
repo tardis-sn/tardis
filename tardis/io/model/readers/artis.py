@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+
 
 @dataclass
 class ArtisModelData:
@@ -19,7 +21,6 @@ class ArtisModelData:
         We create v_inner and v_outer by treating the velocity array as boundary
         points for the shells. The time_of_model is used as the time_explosion.
         """
-        from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 
         geometry = HomologousRadial1DGeometry(
             v_inner=self.velocity[:-1],
