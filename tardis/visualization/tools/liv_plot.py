@@ -190,9 +190,9 @@ class LIVPlotter:
 
         time_explosion = self.time_explosion
 
-        for specie_list in self._species_mapped.values():
+        for species_list in self._species_mapped.values():
             full_v_last = []
-            for species in specie_list:
+            for species in species_list:
                 if species in self.species:
                     if species not in groups.groups:
                         atomic_number, ion_number = divmod(species, 100) #(quotient, remainder)
