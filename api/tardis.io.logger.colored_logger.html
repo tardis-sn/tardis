@@ -30,6 +30,8 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -63,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
@@ -99,11 +102,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Analysing Tardis Outputs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysing_tardis_outputs/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -200,7 +205,7 @@ it is formatted using formatException() and appended to the message.</p>
 <p>Initialize the logger with a name and an optional level.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.io.logger.colored_logger.ColoredLogger.COLOR_FORMAT">
-<span class="sig-name descname"><span class="pre">COLOR_FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'[\x1b[1m{name:20s}\x1b[0m][{levelname:18s}]</span>&#160; <span class="pre">\n\t{message:s}</span> <span class="pre">(\x1b[1m{filename:s}\x1b[0m:{lineno:d})'</span></em><a class="headerlink" href="#tardis.io.logger.colored_logger.ColoredLogger.COLOR_FORMAT" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">COLOR_FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'[\x1b[1m{name:20s}\x1b[0m][{levelname:18s}]</span>&#160; <span class="pre">{message:s}</span> <span class="pre">(\x1b[1m{filename:s}\x1b[0m:{lineno:d})'</span></em><a class="headerlink" href="#tardis.io.logger.colored_logger.ColoredLogger.COLOR_FORMAT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -225,7 +230,7 @@ it is formatted using formatException() and appended to the message.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 04 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

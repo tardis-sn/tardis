@@ -79,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -226,7 +228,7 @@ def run_tardis(
     if not isinstance(show_convergence_plots, bool):
         raise TypeError(&quot;Expected bool in show_convergence_plots argument&quot;)
 
-    logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
+    logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
 
     if atom_data is not None:
         try:
@@ -236,9 +238,6 @@ def run_tardis(
                 &quot;Atom Data Cannot be Read from HDF. Setting to Default Atom Data&quot;
             )
             atom_data = atom_data
-
-    if show_progress_bars:
-        logger.warning(&quot;Packet Progress bars are disabled after the environment upgrade. Please see issue https://github.com/tardis-sn/tardis/issues/3038 for more information.&quot;)
 
     simulation = Simulation.from_config(
         tardis_config,
@@ -254,7 +253,9 @@ def run_tardis(
 
     simulation.run_convergence()
     simulation.run_final()
-
+    if logger_widget:
+        tardislogger.remove_widget_handler()
+        tardislogger.setup_stream_handler()
     return simulation</div>
 
 </pre></div>
@@ -267,7 +268,7 @@ def run_tardis(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

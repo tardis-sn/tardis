@@ -79,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -133,54 +135,27 @@
 <span></span>&quot;&quot;&quot;Convergence Plots to see the convergence of the simulation in real time.&quot;&quot;&quot;
 
 from collections import defaultdict
-import matplotlib.cm as cm
-import matplotlib.colors as clr
+from contextlib import suppress
+
+import ipywidgets as widgets
+import matplotlib as mpl
 import numpy as np
 import plotly.graph_objects as go
-from IPython.display import display
-import matplotlib as mpl
-import ipywidgets as widgets
-from contextlib import suppress
-from traitlets import TraitError
 from astropy import units as u
+from IPython.display import display
+from traitlets import TraitError
 
 
 # Added the below as a (temporary) workaround to the latex
 # labels on the convergence plots not rendering correctly.
 import plotly
 from IPython.display import display, HTML
+import tardis.visualization.plot_util as pu
 
-plotly.offline.init_notebook_mode()
-display(HTML(
-    &#39;&lt;script type=&quot;text/javascript&quot; async src=&quot;https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG&quot;&gt;&lt;/script&gt;&#39;
-))
-
-
-<div class="viewcode-block" id="transition_colors">
-<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.transition_colors">[docs]</a>
-def transition_colors(length, name=&quot;jet&quot;):
-    &quot;&quot;&quot;
-    Create colorscale for convergence plots, returns a list of colors.
-
-    Parameters
-    ----------
-    length : int
-        The length of the colorscale.
-    name : string, default: &#39;jet&#39;, optional
-        Name of the colorscale.
-
-    Returns
-    -------
-    colors: list
-    &quot;&quot;&quot;
-    cmap = mpl.pyplot.get_cmap(name, length)
-    colors = []
-    for i in range(cmap.N):
-        rgb = cmap(i)[:3]
-        colors.append(mpl.colors.rgb2hex(rgb))
-    return colors</div>
-
-
+plotly.offline.init_notebook_mode(connected=True)
+# mathjax needs to be loaded for latex labels to render correctly
+# see https://github.com/tardis-sn/tardis/issues/2446
+display(HTML(&#39;&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG&quot;&gt;&lt;/script&gt;&#39;))
 
 <div class="viewcode-block" id="ConvergencePlots">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots">[docs]</a>
@@ -238,17 +213,17 @@ class ConvergencePlots(object):
             ]
 
         if &quot;plasma_cmap&quot; in kwargs:
-            self.plasma_colorscale = transition_colors(
+            self.plasma_colorscale = pu.get_hex_color_strings(
                 name=kwargs[&quot;plasma_cmap&quot;], length=self.iterations
             )
         else:
             # default color scale is jet
-            self.plasma_colorscale = transition_colors(length=self.iterations)
+            self.plasma_colorscale = pu.get_hex_color_strings(length=self.iterations)
 
         if &quot;t_inner_luminosities_colors&quot; in kwargs:
             # use cmap if string
             if type(kwargs[&quot;t_inner_luminosities_colors&quot;]) == str:
-                self.t_inner_luminosities_colors = transition_colors(
+                self.t_inner_luminosities_colors = pu.get_hex_color_strings(
                     length=5,
                     name=kwargs[&quot;t_inner_luminosities_colors&quot;],
                 )
@@ -632,7 +607,7 @@ class ConvergencePlots(object):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

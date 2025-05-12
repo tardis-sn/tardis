@@ -79,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -133,11 +135,13 @@
 <span></span>import logging
 import os
 import re
+import sys
 from dataclasses import dataclass, field
 import panel as pn
 from IPython.display import display
 from functools import lru_cache
 import pandas as pd
+from tardis.io.logger.colored_logger import ColoredFormatter
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger(&quot;py.warnings&quot;)
 
@@ -251,10 +255,10 @@ class LoggingConfig:
 
 LOGGING_LEVELS = LoggingConfig().LEVELS
 
-<div class="viewcode-block" id="AsyncEmitLogHandler">
-<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.AsyncEmitLogHandler">[docs]</a>
-class AsyncEmitLogHandler(logging.Handler):
-    &quot;&quot;&quot;Asynchronous log handler for logging to a widget.
+<div class="viewcode-block" id="PanelWidgetLogHandler">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler">[docs]</a>
+class PanelWidgetLogHandler(logging.Handler):
+    &quot;&quot;&quot;Log handler for logging to a widget.
     
     Handles the formatting and display of log messages in Panel widgets.
     
@@ -279,9 +283,13 @@ class AsyncEmitLogHandler(logging.Handler):
         self.display_widget = display_widget
         self.display_handle = display_handle
         self.logger_widget = logger_widget
+        self.stream_handler = None
+        if not self.display_widget or self.display_handle is None:
+            self.stream_handler = logging.StreamHandler()
+            self.stream_handler.setFormatter(logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;))
 
-<div class="viewcode-block" id="AsyncEmitLogHandler.emit">
-<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.AsyncEmitLogHandler.emit">[docs]</a>
+<div class="viewcode-block" id="PanelWidgetLogHandler.emit">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler.emit">[docs]</a>
     def emit(self, record):
         &quot;&quot;&quot;Process and emit a log record.
         
@@ -291,9 +299,7 @@ class AsyncEmitLogHandler(logging.Handler):
             The log record to process and display.
         &quot;&quot;&quot;
         if not self.display_widget or self.display_handle is None:
-            stream_handler = logging.StreamHandler()
-            stream_handler.setFormatter(logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;))
-            stream_handler.emit(record)
+            self.stream_handler.emit(record)
             return
 
         if isinstance(record.msg, pd.DataFrame):
@@ -379,7 +385,19 @@ class AsyncEmitLogHandler(logging.Handler):
 
         # Update Jupyter display if in jupyter environment
         if self.environment == &#39;jupyter&#39; and self.display_handle is not None:
-            self.display_handle.update(self.logger_widget)</div>
+            self.display_handle.update(self.logger_widget)
+    
+<div class="viewcode-block" id="PanelWidgetLogHandler.close">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler.close">[docs]</a>
+    def close(self):
+        &quot;&quot;&quot;Close the log handler.
+        &quot;&quot;&quot;
+        super().close()
+        if self.stream_handler:
+            self.stream_handler.flush()
+            self.stream_handler.close()
+            self.stream_handler = None</div>
+</div>
 
 
 
@@ -484,7 +502,7 @@ class TARDISLogger:
         display_widget : bool, optional
             Whether to display the widget in GUI environments. Default is True.
         &quot;&quot;&quot;
-        self.widget_handler = AsyncEmitLogHandler(
+        self.widget_handler = PanelWidgetLogHandler(
             log_outputs=self.log_outputs,
             colors=self.config.COLORS,
             display_widget=display_widget,
@@ -511,7 +529,29 @@ class TARDISLogger:
                 logger.removeHandler(handler)
 
         self.logger.addHandler(self.widget_handler)
-        PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)</div>
+        PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
+    
+<div class="viewcode-block" id="TARDISLogger.remove_widget_handler">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.remove_widget_handler">[docs]</a>
+    def remove_widget_handler(self):
+        &quot;&quot;&quot;Remove the widget handler from the logger.
+        &quot;&quot;&quot;
+        self.logger.removeHandler(self.widget_handler)
+        PYTHON_WARNINGS_LOGGER.removeHandler(self.widget_handler)
+        self.widget_handler.close()</div>
+
+        
+<div class="viewcode-block" id="TARDISLogger.setup_stream_handler">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.setup_stream_handler">[docs]</a>
+    def setup_stream_handler(self):
+        &quot;&quot;&quot;Set up notebook-based logging after widget handler is removed.
+        &quot;&quot;&quot;
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setFormatter(ColoredFormatter())
+        
+        self.logger.addHandler(stream_handler)
+        PYTHON_WARNINGS_LOGGER.addHandler(stream_handler)</div>
+</div>
 
 
 <div class="viewcode-block" id="LogFilter">
@@ -577,12 +617,11 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         display_handle = display(LOGGER_WIDGET, display_id=&quot;logger_widget&quot;)
     else:
         display_handle = None
-    logger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
-    logger.configure_logging(log_level, tardis_config, specific_log_level)
-    logger.setup_widget_logging(display_widget=display_logging_widget)
-    return LOGGER_WIDGET if (display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]) else None</div>
+    tardislogger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
+    tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
+    tardislogger.setup_widget_logging(display_widget=display_logging_widget)
+    return LOGGER_WIDGET, tardislogger if (display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]) else None</div>
 
- 
 </pre></div>
 
            </div>
@@ -593,7 +632,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

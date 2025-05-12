@@ -81,6 +81,8 @@ Mission Statement
     analyzing_tardis/visualization/index
     analyzing_tardis/spectrum/index
     analyzing_tardis/liv_plot_notebook.ipynb
+    analyzing_tardis/rpacket_plot_notebook.ipynb
+    analyzing_tardis/analysing_convergence_plot.ipynb
 
 
 .. toctree::

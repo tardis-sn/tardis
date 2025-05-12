@@ -107,6 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -161,8 +163,143 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tardis-opacities-macro-atom-base-module">
-<h1>tardis.opacities.macro_atom.base module<a class="headerlink" href="#tardis-opacities-macro-atom-base-module" title="Link to this heading">¶</a></h1>
+  <section id="module-tardis.opacities.macro_atom.base">
+<span id="tardis-opacities-macro-atom-base-module"></span><h1>tardis.opacities.macro_atom.base module<a class="headerlink" href="#module-tardis.opacities.macro_atom.base" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.base.</span></span><span class="sig-name descname"><span class="pre">NonMarkovChainTransitionProbabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plasma_parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/base.html#NonMarkovChainTransitionProbabilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tardis.opacities.macro_atom.base.TransitionProbabilities" title="tardis.opacities.macro_atom.base.TransitionProbabilities"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransitionProbabilities</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('non_markov_transition_probabilities',)</span></em><a class="headerlink" href="#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities.outputs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.TransitionProbabilities">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.base.</span></span><span class="sig-name descname"><span class="pre">TransitionProbabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plasma_parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/base.html#TransitionProbabilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.base.TransitionProbabilities" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.ProcessingPlasmaProperty" title="tardis.plasma.properties.base.ProcessingPlasmaProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingPlasmaProperty</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>transition_probabilities</strong><span class="classifier">Pandas DataFrame, dtype float</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.TransitionProbabilities.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_sobolev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j_blues</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimulated_emission_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/base.html#TransitionProbabilities.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.base.TransitionProbabilities.calculate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.TransitionProbabilities.initialize_macro_atom_transition_type_filters">
+<span class="sig-name descname"><span class="pre">initialize_macro_atom_transition_type_filters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/base.html#TransitionProbabilities.initialize_macro_atom_transition_type_filters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.base.TransitionProbabilities.initialize_macro_atom_transition_type_filters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.TransitionProbabilities.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('transition_probabilities',)</span></em><a class="headerlink" href="#tardis.opacities.macro_atom.base.TransitionProbabilities.outputs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.TransitionProbabilities.prepare_transition_probabilities">
+<span class="sig-name descname"><span class="pre">prepare_transition_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macro_atom_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_sobolev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j_blues</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimulated_emission_factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/base.html#TransitionProbabilities.prepare_transition_probabilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.base.TransitionProbabilities.prepare_transition_probabilities" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.get_macro_atom_data">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.base.</span></span><span class="sig-name descname"><span class="pre">get_macro_atom_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/base.html#get_macro_atom_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.base.get_macro_atom_data" title="Link to this definition">¶</a></dt>
+<dd><p>Get the macro atom data from the atomic data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>atomic_data</strong><span class="classifier">tardis.io.atom_data.AtomData</span></dt><dd><p>Atomic Data</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>The macro atom data in the plasma</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.get_transition_probability_coefs">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.base.</span></span><span class="sig-name descname"><span class="pre">get_transition_probability_coefs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macro_atom_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/base.html#get_transition_probability_coefs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.base.get_transition_probability_coefs" title="Link to this definition">¶</a></dt>
+<dd><p>Coefficients of the transition probabilities</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>macro_atom_data</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Macro Atom Data</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.ndarray</dt><dd><p>Reshaped macro atom transition probabilities</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.initialize_macro_atom_transition_type_filters">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.base.</span></span><span class="sig-name descname"><span class="pre">initialize_macro_atom_transition_type_filters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/base.html#initialize_macro_atom_transition_type_filters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.base.initialize_macro_atom_transition_type_filters" title="Link to this definition">¶</a></dt>
+<dd><p>Get the filters and block references from the macro atom</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>atomic_data</strong><span class="classifier">tardis.io.atom_data.AtomData</span></dt><dd><p>Atomic Data</p>
+</dd>
+<dt><strong>macro_atom_data</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Macro Atom Data</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.ndarray</dt><dd><p>Mask where the transition type is 1</p>
+</dd>
+<dt>np.ndarray</dt><dd><p>index of lines at these locations</p>
+</dd>
+<dt>pd.ndarray</dt><dd><p>macro atom block references</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.base.initialize_transition_probabilities">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.base.</span></span><span class="sig-name descname"><span class="pre">initialize_transition_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/base.html#initialize_transition_probabilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.base.initialize_transition_probabilities" title="Link to this definition">¶</a></dt>
+<dd><p>Convienience Function for initializing the transition probabilities</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>atomic_data</strong><span class="classifier">tardis.io.atom_data.AtomData</span></dt><dd><p>Atomic Data</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><dl class="simple">
+<dt>“transition_probability_coef”<span class="classifier">np.ndarray</span></dt><dd><p>Reshaped macro atom transition probabilities</p>
+</dd>
+<dt>“block_references”: np.ndarray</dt><dd><p>macro atom block references</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -177,7 +314,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

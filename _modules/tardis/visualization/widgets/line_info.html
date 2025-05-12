@@ -79,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -132,26 +134,25 @@
   <h1>Source code for tardis.visualization.widgets.line_info</h1><div class="highlight"><pre>
 <span></span>&quot;&quot;&quot;Class to create and display Line Info Widget.&quot;&quot;&quot;
 
-import re
 
-from astropy import units as u
+import ipywidgets as ipw
 import numpy as np
 import pandas as pd
+from astropy import units as u
 from plotly import graph_objects as go
 from plotly.callbacks import BoxSelector
-import ipywidgets as ipw
 
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import (
-    species_tuple_to_string,
-    species_string_to_tuple,
     is_notebook,
-)
-from tardis.visualization.widgets.util import (
-    create_table_widget,
-    TableSummaryLabel,
+    species_string_to_tuple,
+    species_tuple_to_string,
 )
 from tardis.visualization import plot_util as pu
+from tardis.visualization.widgets.util import (
+    TableSummaryLabel,
+    create_table_widget,
+)
 
 
 <div class="viewcode-block" id="LineInfoWidget">
@@ -445,7 +446,7 @@ class LineInfoWidget:
 
                 assert (
                     current_last_lines_in.empty &amp; current_last_lines_out.empty
-                    == False
+                    is False
                 )
 
             except (KeyError, AssertionError):  # selected_species is invalid
@@ -906,7 +907,7 @@ class LineInfoWidget:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

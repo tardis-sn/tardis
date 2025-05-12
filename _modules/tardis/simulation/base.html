@@ -79,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -650,6 +652,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
+        self.emitted_luminosity = emitted_luminosity
+        self.reabsorbed_luminosity = reabsorbed_luminosity
         if hasattr(self, &quot;convergence_plots&quot;):
             self.convergence_plots.fetch_data(
                 name=&quot;Emitted&quot;,
@@ -1007,7 +1011,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

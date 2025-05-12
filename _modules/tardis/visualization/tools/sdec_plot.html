@@ -79,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -150,411 +152,11 @@ from astropy.modeling.models import BlackBody
 
 from tardis.util.base import (
     atomic_number2element_symbol,
-    element_symbol2atomic_number,
     int_to_roman,
-    roman_to_int,
-    species_string_to_tuple,
 )
 from tardis.visualization import plot_util as pu
 
 logger = logging.getLogger(__name__)
-
-
-<div class="viewcode-block" id="SDECData">
-<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECData">[docs]</a>
-class SDECData:
-    &quot;&quot;&quot;The data of simulation model used by Spectral element DEComposition (SDEC) Plot.
-
-    This preprocesses the data required by SDECPlotter class for doing
-    calculations and plotting.
-    &quot;&quot;&quot;
-
-    def __init__(
-        self,
-        last_interaction_type,
-        last_line_interaction_in_id,
-        last_line_interaction_out_id,
-        last_line_interaction_in_nu,
-        last_interaction_in_r,
-        lines_df,
-        packet_nus,
-        packet_energies,
-        r_inner,
-        spectrum_delta_frequency,
-        spectrum_frequency_bins,  # stores _frequency (bin edges) not frequency
-        spectrum_luminosity_density_lambda,
-        spectrum_wavelength,
-        t_inner,
-        time_of_simulation,
-    ):
-        &quot;&quot;&quot;
-        Initialize the SDECData with required properties of simulation model.
-
-        Parameters
-        ----------
-        last_interaction_type : np.array
-            Interaction type (no-interaction: -1, e-scattering: 1 and
-            line interaction: 2) values of emitted packets
-        last_line_interaction_in_id : np.array
-            IDs of atomic lines with which emitted packet had their last
-            absorption (interaction in)
-        last_line_interaction_out_id : np.array
-            IDs of atomic lines with which emitted packet had their last
-            emission (interaction out)
-        last_line_interaction_in_nu : np.array
-            Frequency values of the last absorption of emitted packets
-        last_line_interaction_in_r : np.array
-            Radius of the last interaction experienced by emitted packets
-        lines_df : pd.DataFrame
-            Data about the atomic lines present in simulation model&#39;s plasma
-        packet_nus : astropy.Quantity
-            Frequency values of the last emission of emitted packets, having
-            unit of Hz
-        packet_energies : astropy.Quantity
-            Energy values of emitted packets, having unit of erg
-        r_inner : astropy.Quantity
-            Radius of innermost shell, having unit of cm
-        spectrum_delta_frequency : astropy.Quantity
-            Frequency bin width of spectrum, having unit of Hz
-        spectrum_frequency_bins : astropy.Quantity
-            Frequency bin edges of spectrum, having unit of Hz
-        spectrum_wavelength : astropy.Quantity
-            Wavelength values of spectrum, having unit of Angstrom
-        t_inner : astropy.Quantity
-            Temperature of innermost shell, having unit of K
-        time_of_simulation : astropy.Quantity
-            Time of simulation, having unit of s (second)
-        &quot;&quot;&quot;
-        # Save packets properties in a dataframe for easier data manipulation
-        packet_nus = u.Quantity(packet_nus, u.Hz)
-        self.packets_df = pd.DataFrame(
-            {
-                &quot;nus&quot;: packet_nus,
-                &quot;lambdas&quot;: packet_nus.to(&quot;angstrom&quot;, u.spectral()),
-                &quot;energies&quot;: packet_energies,
-                &quot;last_interaction_type&quot;: last_interaction_type,
-                &quot;last_line_interaction_out_id&quot;: last_line_interaction_out_id,
-                &quot;last_line_interaction_in_id&quot;: last_line_interaction_in_id,
-                &quot;last_line_interaction_in_nu&quot;: last_line_interaction_in_nu,
-                &quot;last_interaction_in_r&quot;: last_interaction_in_r,
-            }
-        )
-
-        # Save other properties
-        self.lines_df = lines_df
-        self.r_inner = r_inner
-        self.spectrum_delta_frequency = spectrum_delta_frequency
-        self.spectrum_frequency_bins = spectrum_frequency_bins
-        self.spectrum_frequency = spectrum_frequency_bins[:-1]
-        self.spectrum_luminosity_density_lambda = (
-            spectrum_luminosity_density_lambda
-        )
-        self.spectrum_wavelength = spectrum_wavelength
-        self.t_inner = t_inner
-        self.time_of_simulation = time_of_simulation
-
-        # Create dataframe of packets that experience line interaction
-        line_mask = (self.packets_df[&quot;last_interaction_type&quot;] &gt; -1) &amp; (
-            self.packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1
-        )  # &amp; operator is quite faster than np.logical_and on pd.Series
-        self.packets_df_line_interaction = self.packets_df.loc[line_mask].copy()
-
-        # Add columns for atomic number of last interaction out
-        self.packets_df_line_interaction[&quot;last_line_interaction_atom&quot;] = (
-            self.lines_df[&quot;atomic_number&quot;]
-            .iloc[
-                self.packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]
-            ]
-            .to_numpy()
-        )
-        # Add columns for the species id of last interaction
-        # Species id is given by 100 * Z + X, where Z is atomic number and X is ion number
-        self.packets_df_line_interaction[&quot;last_line_interaction_species&quot;] = (
-            self.lines_df[&quot;atomic_number&quot;]
-            .iloc[
-                self.packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]
-            ]
-            .to_numpy()
-            * 100
-            + self.lines_df[&quot;ion_number&quot;]
-            .iloc[
-                self.packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]
-            ]
-            .to_numpy()
-        )
-
-<div class="viewcode-block" id="SDECData.from_simulation">
-<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECData.from_simulation">[docs]</a>
-    @classmethod
-    def from_simulation(cls, sim, packets_mode):
-        &quot;&quot;&quot;
-        Create an instance of SDECData from a TARDIS simulation object.
-
-        Parameters
-        ----------
-        sim : tardis.simulation.Simulation
-            TARDIS Simulation object produced by running a simulation
-        packets_mode : {&#39;virtual&#39;, &#39;real&#39;}
-            Mode of packets to be considered, either real or virtual
-
-        Returns
-        -------
-        SDECData
-        &quot;&quot;&quot;
-        # Properties common among both packet modes
-        lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
-            &quot;line_id&quot;
-        )
-        transport_state = sim.transport.transport_state
-        r_inner = sim.simulation_state.geometry.r_inner_active
-        t_inner = sim.simulation_state.packet_source.temperature
-        time_of_simulation = (
-            transport_state.packet_collection.time_of_simulation * u.s
-        )
-
-        if packets_mode == &quot;virtual&quot;:
-            return cls(
-                last_interaction_type=transport_state.vpacket_tracker.last_interaction_type,
-                last_line_interaction_in_id=transport_state.vpacket_tracker.last_interaction_in_id,
-                last_line_interaction_out_id=transport_state.vpacket_tracker.last_interaction_out_id,
-                last_line_interaction_in_nu=transport_state.vpacket_tracker.last_interaction_in_nu,
-                last_interaction_in_r=transport_state.vpacket_tracker.last_interaction_in_r,
-                lines_df=lines_df,
-                packet_nus=u.Quantity(
-                    transport_state.vpacket_tracker.nus, &quot;Hz&quot;
-                ),
-                packet_energies=u.Quantity(
-                    transport_state.vpacket_tracker.energies, &quot;erg&quot;
-                ),
-                r_inner=r_inner,
-                spectrum_delta_frequency=sim.spectrum_solver.spectrum_virtual_packets.delta_frequency,
-                spectrum_frequency_bins=sim.spectrum_solver.spectrum_virtual_packets._frequency,
-                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,
-                spectrum_wavelength=sim.spectrum_solver.spectrum_virtual_packets.wavelength,
-                t_inner=t_inner,
-                time_of_simulation=time_of_simulation,
-            )
-
-        elif packets_mode == &quot;real&quot;:
-            # Packets-specific properties need to be only for those packets
-            # which got emitted
-            transport_state = sim.transport.transport_state
-            return cls(
-                last_interaction_type=transport_state.last_interaction_type[
-                    transport_state.emitted_packet_mask
-                ],
-                last_line_interaction_in_id=transport_state.last_line_interaction_in_id[
-                    transport_state.emitted_packet_mask
-                ],
-                last_line_interaction_out_id=transport_state.last_line_interaction_out_id[
-                    transport_state.emitted_packet_mask
-                ],
-                last_line_interaction_in_nu=transport_state.last_interaction_in_nu[
-                    transport_state.emitted_packet_mask
-                ],
-                last_interaction_in_r=transport_state.last_interaction_in_r[
-                    transport_state.emitted_packet_mask
-                ],
-                lines_df=lines_df,
-                packet_nus=transport_state.packet_collection.output_nus[
-                    transport_state.emitted_packet_mask
-                ],
-                packet_energies=transport_state.packet_collection.output_energies[
-                    transport_state.emitted_packet_mask
-                ],
-                r_inner=r_inner,
-                spectrum_delta_frequency=sim.spectrum_solver.spectrum_real_packets.delta_frequency,
-                spectrum_frequency_bins=sim.spectrum_solver.spectrum_real_packets._frequency,
-                spectrum_luminosity_density_lambda=sim.spectrum_solver.spectrum_real_packets.luminosity_density_lambda,
-                spectrum_wavelength=sim.spectrum_solver.spectrum_real_packets.wavelength,
-                t_inner=t_inner,
-                time_of_simulation=time_of_simulation,
-            )
-        else:
-            raise ValueError(
-                &quot;Invalid value passed to packets_mode. Only &quot;
-                &quot;allowed values are &#39;virtual&#39; or &#39;real&#39;&quot;
-            )</div>
-
-
-<div class="viewcode-block" id="SDECData.from_hdf">
-<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECData.from_hdf">[docs]</a>
-    @classmethod
-    def from_hdf(cls, hdf_fpath, packets_mode):
-        &quot;&quot;&quot;
-        Create an instance of SDECData from a simulation HDF file.
-
-        Parameters
-        ----------
-        hdf_fpath : str
-            Valid path to the HDF file where simulation is saved
-        packets_mode : {&#39;virtual&#39;, &#39;real&#39;}
-            Mode of packets to be considered, either real or virtual
-
-        Returns
-        -------
-        SDECData
-        &quot;&quot;&quot;
-        with pd.HDFStore(hdf_fpath, &quot;r&quot;) as hdf:
-            lines_df = (
-                hdf[&quot;/simulation/plasma/lines&quot;]
-                .reset_index()
-                .set_index(&quot;line_id&quot;)
-            )
-            r_inner = u.Quantity(
-                hdf[&quot;/simulation/simulation_state/r_inner&quot;].to_numpy(), &quot;cm&quot;
-            )  # Convert pd.Series to np.array to construct quantity from it
-            t_inner = u.Quantity(
-                hdf[&quot;/simulation/simulation_state/scalars&quot;].t_inner, &quot;K&quot;
-            )
-            time_of_simulation = u.Quantity(
-                hdf[
-                    &quot;/simulation/transport/transport_state/scalars&quot;
-                ].time_of_simulation,
-                &quot;s&quot;,
-            )
-
-            if packets_mode == &quot;virtual&quot;:
-                return cls(
-                    last_interaction_type=hdf[
-                        &quot;/simulation/transport/transport_state/virt_packet_last_interaction_type&quot;
-                    ],
-                    last_line_interaction_in_id=hdf[
-                        &quot;/simulation/transport/transport_state/virt_packet_last_line_interaction_in_id&quot;
-                    ],
-                    last_line_interaction_out_id=hdf[
-                        &quot;/simulation/transport/transport_state/virt_packet_last_line_interaction_out_id&quot;
-                    ],
-                    last_line_interaction_in_nu=u.Quantity(
-                        hdf[
-                            &quot;/simulation/transport/transport_state/virt_packet_last_interaction_in_nu&quot;
-                        ].to_numpy(),
-                        &quot;Hz&quot;,
-                    ),
-                    last_interaction_in_r=u.Quantity(
-                        hdf[
-                            &quot;/simulation/transport/transport_state/virt_packet_last_interaction_in_r&quot;
-                        ].to_numpy(),
-                        &quot;cm&quot;,
-                    ),
-                    lines_df=lines_df,
-                    packet_nus=u.Quantity(
-                        hdf[
-                            &quot;/simulation/transport/transport_state/virt_packet_nus&quot;
-                        ].to_numpy(),
-                        &quot;Hz&quot;,
-                    ),
-                    packet_energies=u.Quantity(
-                        hdf[
-                            &quot;/simulation/transport/transport_state/virt_packet_energies&quot;
-                        ].to_numpy(),
-                        &quot;erg&quot;,
-                    ),
-                    r_inner=r_inner,
-                    spectrum_delta_frequency=u.Quantity(
-                        hdf[
-                            &quot;/simulation/spectrum_solver/spectrum_virtual_packets/scalars&quot;
-                        ].delta_frequency,
-                        &quot;Hz&quot;,
-                    ),
-                    spectrum_frequency_bins=u.Quantity(
-                        hdf[
-                            &quot;/simulation/spectrum_solver/spectrum_virtual_packets/_frequency&quot;
-                        ].to_numpy(),
-                        &quot;Hz&quot;,
-                    ),
-                    spectrum_luminosity_density_lambda=u.Quantity(
-                        hdf[
-                            &quot;/simulation/spectrum_solver/spectrum_virtual_packets/luminosity_density_lambda&quot;
-                        ].to_numpy(),
-                        &quot;erg / s cm&quot;,  # luminosity_density_lambda is saved in hdf in CGS
-                    ).to(&quot;erg / s AA&quot;),
-                    spectrum_wavelength=u.Quantity(
-                        hdf[
-                            &quot;/simulation/spectrum_solver/spectrum_virtual_packets/wavelength&quot;
-                        ].to_numpy(),
-                        &quot;cm&quot;,  # wavelength is saved in hdf in CGS
-                    ).to(&quot;AA&quot;),
-                    t_inner=t_inner,
-                    time_of_simulation=time_of_simulation,
-                )
-
-            elif packets_mode == &quot;real&quot;:
-                emitted_packet_mask = hdf[
-                    &quot;/simulation/transport/transport_state/emitted_packet_mask&quot;
-                ].to_numpy()
-                return cls(
-                    # First convert series read from hdf to array before masking
-                    # to eliminate index info which creates problems otherwise
-                    last_interaction_type=hdf[
-                        &quot;/simulation/transport/transport_state/last_interaction_type&quot;
-                    ].to_numpy()[emitted_packet_mask],
-                    last_line_interaction_in_id=hdf[
-                        &quot;/simulation/transport/transport_state/last_line_interaction_in_id&quot;
-                    ].to_numpy()[emitted_packet_mask],
-                    last_line_interaction_out_id=hdf[
-                        &quot;/simulation/transport/transport_state/last_line_interaction_out_id&quot;
-                    ].to_numpy()[emitted_packet_mask],
-                    last_line_interaction_in_nu=u.Quantity(
-                        hdf[
-                            &quot;/simulation/transport/transport_state/last_interaction_in_nu&quot;
-                        ].to_numpy()[emitted_packet_mask],
-                        &quot;Hz&quot;,
-                    ),
-                    last_interaction_in_r=u.Quantity(
-                        hdf[
-                            &quot;/simulation/transport/transport_state/last_interaction_in_r&quot;
-                        ].to_numpy()[emitted_packet_mask],
-                        &quot;cm&quot;,
-                    ),
-                    lines_df=lines_df,
-                    packet_nus=u.Quantity(
-                        hdf[
-                            &quot;/simulation/transport/transport_state/output_nu&quot;
-                        ].to_numpy()[emitted_packet_mask],
-                        &quot;Hz&quot;,
-                    ),
-                    packet_energies=u.Quantity(
-                        hdf[
-                            &quot;/simulation/transport/transport_state/output_energy&quot;
-                        ].to_numpy()[emitted_packet_mask],
-                        &quot;erg&quot;,
-                    ),
-                    r_inner=r_inner,
-                    spectrum_delta_frequency=u.Quantity(
-                        hdf[
-                            &quot;/simulation/spectrum_solver/spectrum_real_packets/scalars&quot;
-                        ].delta_frequency,
-                        &quot;Hz&quot;,
-                    ),
-                    spectrum_frequency_bins=u.Quantity(
-                        hdf[
-                            &quot;/simulation/spectrum_solver/spectrum_real_packets/_frequency&quot;
-                        ].to_numpy(),
-                        &quot;Hz&quot;,
-                    ),
-                    spectrum_luminosity_density_lambda=u.Quantity(
-                        hdf[
-                            &quot;/simulation/spectrum_solver/spectrum_real_packets/luminosity_density_lambda&quot;
-                        ].to_numpy(),
-                        &quot;erg / s cm&quot;,
-                    ).to(&quot;erg / s AA&quot;),
-                    spectrum_wavelength=u.Quantity(
-                        hdf[
-                            &quot;/simulation/spectrum_solver/spectrum_real_packets/wavelength&quot;
-                        ].to_numpy(),
-                        &quot;cm&quot;,
-                    ).to(&quot;AA&quot;),
-                    t_inner=t_inner,
-                    time_of_simulation=time_of_simulation,
-                )
-            else:
-                raise ValueError(
-                    &quot;Invalid value passed to packets_mode. Only &quot;
-                    &quot;allowed values are &#39;virtual&#39; or &#39;real&#39;&quot;
-                )</div>
-</div>
-
 
 
 <div class="viewcode-block" id="SDECPlotter">
@@ -567,17 +169,21 @@ class SDECPlotter:
     model, and allows to plot it in matplotlib and plotly.
     &quot;&quot;&quot;
 
-    def __init__(self, data):
+    def __init__(self):
         &quot;&quot;&quot;
         Initialize the SDECPlotter with required data of simulation model.
-
-        Parameters
-        ----------
-        data : dict of SDECData
-            Dictionary to store data required for SDEC plot, for both packet
-            modes i.e. real and virtual
         &quot;&quot;&quot;
-        self.data = data
+        self.packet_data = {
+            &quot;real&quot;: {&quot;packets_df&quot;: None, &quot;packets_df_line_interaction&quot;: None},
+            &quot;virtual&quot;: {
+                &quot;packets_df&quot;: None,
+                &quot;packets_df_line_interaction&quot;: None,
+            },
+        }
+        self.spectrum = {&quot;virtual&quot;: None, &quot;real&quot;: None}
+        self.t_inner = None
+        self.r_inner = None
+        self.time_of_simulation = None
 
 <div class="viewcode-block" id="SDECPlotter.from_simulation">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.from_simulation">[docs]</a>
@@ -595,26 +201,27 @@ class SDECPlotter:
         -------
         SDECPlotter
         &quot;&quot;&quot;
-        if sim.transport.transport_state.virt_logging:
-            return cls(
-                {
-                    &quot;virtual&quot;: SDECData.from_simulation(sim, &quot;virtual&quot;),
-                    &quot;real&quot;: SDECData.from_simulation(sim, &quot;real&quot;),
-                }
+        plotter = cls()
+        plotter.t_inner = sim.simulation_state.packet_source.temperature
+        plotter.r_inner = sim.simulation_state.geometry.r_inner_active
+        plotter.time_of_simulation = (
+            sim.transport.transport_state.packet_collection.time_of_simulation
+            * u.s
+        )
+
+        for mode in [&quot;real&quot;, &quot;virtual&quot;]:
+            plotter.spectrum[mode] = pu.get_spectrum_data(mode, sim)
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                sim, mode
             )
-        else:
-            return cls(
-                {
-                    &quot;virtual&quot;: None,
-                    &quot;real&quot;: SDECData.from_simulation(sim, &quot;real&quot;),
-                }
-            )</div>
+
+        return plotter</div>
 
 
 <div class="viewcode-block" id="SDECPlotter.from_hdf">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf">[docs]</a>
     @classmethod
-    def from_hdf(cls, hdf_fpath, packets_mode=None):
+    def from_hdf(cls, hdf_fpath):
         &quot;&quot;&quot;
         Create an instance of SDECPlotter from a simulation HDF file.
 
@@ -630,31 +237,30 @@ class SDECPlotter:
         -------
         SDECPlotter
         &quot;&quot;&quot;
-        assert packets_mode in [None, &quot;virtual&quot;, &quot;real&quot;], (
-            &quot;Invalid value passed to packets_mode. Only &quot;
-            &quot;allowed values are &#39;virtual&#39;, &#39;real&#39; or None&quot;
-        )
-        if packets_mode == &quot;virtual&quot;:
-            return cls(
-                {
-                    &quot;virtual&quot;: SDECData.from_hdf(hdf_fpath, &quot;virtual&quot;),
-                    &quot;real&quot;: None,
-                }
+        plotter = cls()
+        with pd.HDFStore(hdf_fpath, &quot;r&quot;) as hdf:
+            plotter.r_inner = u.Quantity(
+                hdf[&quot;/simulation/simulation_state/r_inner&quot;].to_numpy(), &quot;cm&quot;
             )
-        elif packets_mode == &quot;real&quot;:
-            return cls(
-                {
-                    &quot;virtual&quot;: None,
-                    &quot;real&quot;: SDECData.from_hdf(hdf_fpath, &quot;real&quot;),
-                }
+            plotter.t_inner = u.Quantity(
+                hdf[&quot;/simulation/simulation_state/scalars&quot;].t_inner, &quot;K&quot;
             )
-        else:
-            return cls(
-                {
-                    &quot;virtual&quot;: SDECData.from_hdf(hdf_fpath, &quot;virtual&quot;),
-                    &quot;real&quot;: SDECData.from_hdf(hdf_fpath, &quot;real&quot;),
+            plotter.time_of_simulation = u.Quantity(
+                hdf[
+                    &quot;/simulation/transport/transport_state/scalars&quot;
+                ].time_of_simulation,
+                &quot;s&quot;,
+            )
+
+            for mode in [&quot;real&quot;, &quot;virtual&quot;]:
+                plotter.spectrum = {
+                    mode: pu.extract_spectrum_data_hdf(hdf, mode)
                 }
-            )</div>
+                plotter.packet_data[mode] = (
+                    pu.extract_and_process_packet_data_hdf(hdf, mode)
+                )
+
+        return plotter</div>
 
 
     def _parse_species_list(self, species_list):
@@ -670,82 +276,28 @@ class SDECPlotter:
 
         &quot;&quot;&quot;
         if species_list is not None:
-            # check if there are any digits in the species list. If there are, then exit.
-            # species_list should only contain species in the Roman numeral
-            # format, e.g. Si II, and each ion must contain a space
-            if any(char.isdigit() for char in &quot; &quot;.join(species_list)) is True:
-                raise ValueError(
-                    &quot;All species must be in Roman numeral form, e.g. Si II&quot;
-                )
-            else:
-                full_species_list = []
-                species_mapped = {}
-                for species in species_list:
-                    # check if a hyphen is present. If it is, then it indicates a
-                    # range of ions. Add each ion in that range to the list as a new entry
-                    if &quot;-&quot; in species:
-                        # split the string on spaces. First thing in the list is then the element
-                        element = species.split(&quot; &quot;)[0]
-                        # Next thing is the ion range
-                        # convert the requested ions into numerals
-                        first_ion_numeral = roman_to_int(
-                            species.split(&quot; &quot;)[-1].split(&quot;-&quot;)[0]
-                        )
-                        second_ion_numeral = roman_to_int(
-                            species.split(&quot; &quot;)[-1].split(&quot;-&quot;)[-1]
-                        )
-                        # add each ion between the two requested into the species list
-                        for ion_number in np.arange(
-                            first_ion_numeral, second_ion_numeral + 1
-                        ):
-                            full_species_list.append(
-                                f&quot;{element} {int_to_roman(ion_number)}&quot;
-                            )
-                    else:
-                        # Otherwise it&#39;s either an element or ion so just add to the list
-                        full_species_list.append(species)
+            (
+                species_mapped_tuples,
+                requested_species_ids_tuples,
+                keep_colour,
+                full_species_list,
+            ) = pu.parse_species_list_util(species_list)
+            self._full_species_list = full_species_list
+            self._species_list = [
+                atomic_num * 100 + ion_num
+                for atomic_num, ion_num in requested_species_ids_tuples
+            ]
 
-                # full_species_list is now a list containing each individual species requested
-                # e.g. it parses species_list = [Si I - V] into species_list = [Si I, Si II, Si III, Si IV, Si V]
-                self._full_species_list = full_species_list
-                requested_species_ids = []
-                keep_colour = []
-
-                # go through each of the requested species. Check whether it is
-                # an element or ion (ions have spaces). If it is an element,
-                # add all possible ions to the ions list. Otherwise just add
-                # the requested ion
-                for species in full_species_list:
-                    if &quot; &quot; in species:
-                        species_id = (
-                            species_string_to_tuple(species)[0] * 100
-                            + species_string_to_tuple(species)[1]
-                        )
-                        requested_species_ids.append([species_id])
-                        species_mapped[species_id] = [species_id]
-                    else:
-                        atomic_number = element_symbol2atomic_number(species)
-                        species_ids = [
-                            atomic_number * 100 + ion_number
-                            for ion_number in np.arange(atomic_number)
-                        ]
-                        requested_species_ids.append(species_ids)
-                        species_mapped[atomic_number * 100] = species_ids
-                        # add the atomic number to a list so you know that this element should
-                        # have all species in the same colour, i.e. it was requested like
-                        # species_list = [Si]
-                        keep_colour.append(atomic_number)
-                requested_species_ids = [
-                    species_id
-                    for temp_list in requested_species_ids
-                    for species_id in temp_list
-                ]
-
-                self._species_mapped = species_mapped
-                self._species_list = requested_species_ids
-                self._keep_colour = keep_colour
+            self._species_mapped = {
+                (k[0] * 100 + k[1]): [v[0] * 100 + v[1] for v in values]
+                for k, values in species_mapped_tuples.items()
+            }
+            self._keep_colour = keep_colour
         else:
+            self._full_species_list = None
             self._species_list = None
+            self._species_mapped = None
+            self._keep_colour = None
 
     def _calculate_plotting_data(
         self, packets_mode, packet_wvl_range, distance, nelements
@@ -783,7 +335,10 @@ class SDECPlotter:
                 &quot;allowed values are &#39;virtual&#39; or &#39;real&#39;&quot;
             )
 
-        if packets_mode == &quot;virtual&quot; and self.data[packets_mode] is None:
+        if (
+            packets_mode == &quot;virtual&quot;
+            and self.packet_data[packets_mode][&quot;packets_df&quot;] is None
+        ):
             raise ValueError(
                 &quot;SDECPlotter doesn&#39;t have any data for virtual packets population and SDEC &quot;
                 &quot;plot for the same was requested. Either set virtual_packet_logging: True &quot;
@@ -794,11 +349,15 @@ class SDECPlotter:
 
         # Store the plottable range of each spectrum property which is
         # same as entire range, initially
-        self.plot_frequency_bins = self.data[
-            packets_mode
-        ].spectrum_frequency_bins
-        self.plot_wavelength = self.data[packets_mode].spectrum_wavelength
-        self.plot_frequency = self.data[packets_mode].spectrum_frequency
+        self.plot_frequency_bins = self.spectrum[packets_mode][
+            &quot;spectrum_frequency_bins&quot;
+        ]
+        self.plot_wavelength = self.spectrum[packets_mode][
+            &quot;spectrum_wavelength&quot;
+        ]
+        self.plot_frequency = self.spectrum[packets_mode][
+            &quot;spectrum_frequency_bins&quot;
+        ][:-1]
 
         # Filter their plottable range based on packet_wvl_range specified
         if packet_wvl_range is not None:
@@ -1001,11 +560,138 @@ class SDECPlotter:
             packets_mode=packets_mode
         )
         self.modeled_spectrum_luminosity = (
-            self.data[packets_mode].spectrum_luminosity_density_lambda[
+            self.spectrum[packets_mode][&quot;spectrum_luminosity_density_lambda&quot;][
                 self.packet_wvl_range_mask
             ]
             / self.lum_to_flux
         )
+
+    def _create_wavelength_mask(
+        self, packets_mode, packet_wvl_range, df_key, column_name
+    ):
+        &quot;&quot;&quot;
+        Create mask for packets based on wavelength range.
+
+        Parameters
+        ----------
+        packets_mode : str
+            &#39;virtual&#39; or &#39;real&#39; packets mode
+        packet_wvl_range : astropy.Quantity or None
+            Wavelength range to filter packets
+        df_key : str
+            Key for the dataframe in packet_data (&#39;packets_df&#39; or &#39;packets_df_line_interaction&#39;)
+        column_name : str
+            Column name to filter on (&#39;nus&#39; or &#39;last_line_interaction_in_nu&#39;)
+
+        Returns
+        -------
+        np.array
+            Boolean mask for packets in the specified wavelength range
+        &quot;&quot;&quot;
+        if packet_wvl_range is None:
+            return np.ones(
+                self.packet_data[packets_mode][df_key].shape[0],
+                dtype=bool,
+            )
+
+        packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
+        df = self.packet_data[packets_mode][df_key]
+
+        return (df[column_name] &lt; packet_nu_range[0]) &amp; (
+            df[column_name] &gt; packet_nu_range[1]
+        )
+
+    def _calculate_grouped_luminosities(
+        self, packets_mode, mask, nu_column, luminosities_df
+    ):
+        &quot;&quot;&quot;
+        Calculate luminosities for element interactions and populate DataFrame.
+
+        Parameters
+        ----------
+        packets_mode : str
+            &#39;virtual&#39; or &#39;real&#39; packets mode
+        mask : np.array
+            Boolean mask for wavelength filtering
+        nu_column : str
+            Column name containing frequency values
+        luminosities_df : pd.DataFrame
+            DataFrame to store results
+
+        Returns
+        -------
+        tuple
+            (updated luminosities_df, array of species identifiers)
+        &quot;&quot;&quot;
+        # Group packets_df by atomic number of elements with which packets
+        # had their last emission (interaction out)
+        # or if species_list is requested then group by species id
+        groupby_column = (
+            &quot;last_line_interaction_atom&quot;
+            if self._species_list is None
+            else &quot;last_line_interaction_species&quot;
+        )
+        # Group the packets
+        grouped = (
+            self.packet_data[packets_mode][&quot;packets_df_line_interaction&quot;]
+            .loc[mask]
+            .groupby(by=groupby_column)
+        )
+        # Calculate luminosities for each group
+        for identifier, group in grouped:
+            weights = (
+                group[&quot;energies&quot;] / self.lum_to_flux / self.time_of_simulation
+            )
+            hist = np.histogram(
+                group[nu_column],
+                bins=self.plot_frequency_bins.value,
+                weights=weights,
+                density=False,
+            )
+
+            L_nu = (
+                hist[0]
+                * u.erg
+                / u.s
+                / self.spectrum[packets_mode][&quot;spectrum_delta_frequency&quot;]
+            )
+            luminosities_df[identifier] = (
+                L_nu * self.plot_frequency / self.plot_wavelength
+            ).value
+
+        return luminosities_df, np.array(list(grouped.groups.keys()))
+
+    def _calculate_luminosity_contribution(
+        self, packets_mode, mask, contribution_name, luminosities_df
+    ):
+        &quot;&quot;&quot;Calculate luminosity contribution for packets matching the specified mask.&quot;&quot;&quot;
+        # Histogram weights are packet luminosities or flux
+        weights = (
+            self.packet_data[packets_mode][&quot;packets_df&quot;][&quot;energies&quot;][
+                self.packet_nu_range_mask
+            ]
+            / self.lum_to_flux
+        ) / self.time_of_simulation
+
+        # Calculate weighted histogram
+        hist = np.histogram(
+            self.packet_data[packets_mode][&quot;packets_df&quot;][&quot;nus&quot;][
+                self.packet_nu_range_mask
+            ][mask],
+            bins=self.plot_frequency_bins.value,
+            weights=weights[mask],
+            density=False,
+        )
+        # Convert histogram (luminosity values) to luminosity density lambda
+        L_nu = (
+            hist[0]
+            * u.erg
+            / u.s
+            / self.spectrum[packets_mode][&quot;spectrum_delta_frequency&quot;]
+        )
+        L_lambda = L_nu * self.plot_frequency / self.plot_wavelength
+        # Update dataframe
+        luminosities_df[contribution_name] = L_lambda.value
 
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         &quot;&quot;&quot;
@@ -1031,145 +717,55 @@ class SDECPlotter:
             wavelength range interacted
         &quot;&quot;&quot;
         # Calculate masks to be applied on packets data based on packet_wvl_range
-        if packet_wvl_range is None:
-            self.packet_nu_range_mask = np.ones(
-                self.data[packets_mode].packets_df.shape[0], dtype=bool
-            )
-            self.packet_nu_line_range_mask = np.ones(
-                self.data[packets_mode].packets_df_line_interaction.shape[0],
-                dtype=bool,
-            )
-        else:
-            packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
-            self.packet_nu_range_mask = (
-                self.data[packets_mode].packets_df[&quot;nus&quot;] &lt; packet_nu_range[0]
-            ) &amp; (self.data[packets_mode].packets_df[&quot;nus&quot;] &gt; packet_nu_range[1])
-            self.packet_nu_line_range_mask = (
-                self.data[packets_mode].packets_df_line_interaction[&quot;nus&quot;]
-                &lt; packet_nu_range[0]
-            ) &amp; (
-                self.data[packets_mode].packets_df_line_interaction[&quot;nus&quot;]
-                &gt; packet_nu_range[1]
-            )
-
-        # Histogram weights are packet luminosities or flux
-        weights = (
-            self.data[packets_mode].packets_df[&quot;energies&quot;][
-                self.packet_nu_range_mask
-            ]
-            / self.lum_to_flux
-        ) / self.data[packets_mode].time_of_simulation
+        self.packet_nu_range_mask = self._create_wavelength_mask(
+            packets_mode,
+            packet_wvl_range,
+            df_key=&quot;packets_df&quot;,
+            column_name=&quot;nus&quot;,
+        )
+        self.packet_nu_line_range_mask = self._create_wavelength_mask(
+            packets_mode,
+            packet_wvl_range,
+            df_key=&quot;packets_df_line_interaction&quot;,
+            column_name=&quot;nus&quot;,
+        )
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
-        # Contribution of packets which experienced no interaction ------------
+        # Contribution of packets which experienced no interaction
         # Mask to select packets with no interaction
         mask_noint = (
-            self.data[packets_mode].packets_df[&quot;last_interaction_type&quot;][
-                self.packet_nu_range_mask
-            ]
+            self.packet_data[packets_mode][&quot;packets_df&quot;][
+                &quot;last_interaction_type&quot;
+            ][self.packet_nu_range_mask]
             == -1
         )
-
-        # Calculate weighted histogram of packet frequencies for
-        # plottable range of frequency bins
-        hist_noint = np.histogram(
-            self.data[packets_mode].packets_df[&quot;nus&quot;][
-                self.packet_nu_range_mask
-            ][mask_noint],
-            bins=self.plot_frequency_bins.value,
-            weights=weights[mask_noint],
-            density=False,
+        self._calculate_luminosity_contribution(
+            packets_mode, mask_noint, &quot;noint&quot;, luminosities_df
         )
-
-        # Convert histogram (luminosity values) to luminosity density lambda
-        L_nu_noint = (
-            hist_noint[0]
-            * u.erg
-            / u.s
-            / self.data[packets_mode].spectrum_delta_frequency
-        )
-        L_lambda_noint = L_nu_noint * self.plot_frequency / self.plot_wavelength
-
-        # Save it in df
-        luminosities_df[&quot;noint&quot;] = L_lambda_noint.value
 
         # Contribution of packets which only experienced electron scattering ---
         mask_escatter = (
-            self.data[packets_mode].packets_df[&quot;last_interaction_type&quot;][
-                self.packet_nu_range_mask
-            ]
+            self.packet_data[packets_mode][&quot;packets_df&quot;][
+                &quot;last_interaction_type&quot;
+            ][self.packet_nu_range_mask]
             == 1
         ) &amp; (
-            self.data[packets_mode].packets_df[&quot;last_line_interaction_in_id&quot;][
-                self.packet_nu_range_mask
-            ]
+            self.packet_data[packets_mode][&quot;packets_df&quot;][
+                &quot;last_line_interaction_in_id&quot;
+            ][self.packet_nu_range_mask]
             == -1
         )
-        hist_escatter = np.histogram(
-            self.data[packets_mode].packets_df[&quot;nus&quot;][
-                self.packet_nu_range_mask
-            ][mask_escatter],
-            bins=self.plot_frequency_bins.value,
-            weights=weights[mask_escatter],
-            density=False,
+        self._calculate_luminosity_contribution(
+            packets_mode, mask_escatter, &quot;escatter&quot;, luminosities_df
         )
 
-        L_nu_escatter = (
-            hist_escatter[0]
-            * u.erg
-            / u.s
-            / self.data[packets_mode].spectrum_delta_frequency
+        return self._calculate_grouped_luminosities(
+            packets_mode=packets_mode,
+            mask=self.packet_nu_line_range_mask,
+            nu_column=&quot;nus&quot;,
+            luminosities_df=luminosities_df,
         )
-        L_lambda_escatter = (
-            L_nu_escatter * self.plot_frequency / self.plot_wavelength
-        )
-        luminosities_df[&quot;escatter&quot;] = L_lambda_escatter.value
-
-        # Group packets_df by atomic number of elements with which packets
-        # had their last emission (interaction out)
-        # or if species_list is requested then group by species id
-        if self._species_list is None:
-            packets_df_grouped = (
-                self.data[packets_mode]
-                .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
-                .groupby(by=&quot;last_line_interaction_atom&quot;)
-            )
-        else:
-            packets_df_grouped = (
-                self.data[packets_mode]
-                .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
-                .groupby(by=&quot;last_line_interaction_species&quot;)
-            )
-
-        # Contribution of each species with which packets interacted ----------
-        for identifier, group in packets_df_grouped:
-            # Histogram of specific species
-            hist_el = np.histogram(
-                group[&quot;nus&quot;],
-                bins=self.plot_frequency_bins.value,
-                weights=group[&quot;energies&quot;]
-                / self.lum_to_flux
-                / self.data[packets_mode].time_of_simulation,
-            )
-
-            # Convert to luminosity density lambda
-            L_nu_el = (
-                hist_el[0]
-                * u.erg
-                / u.s
-                / self.data[packets_mode].spectrum_delta_frequency
-            )
-            L_lambda_el = L_nu_el * self.plot_frequency / self.plot_wavelength
-
-            luminosities_df[identifier] = L_lambda_el.value
-
-        # Create an array of the species with which packets interacted
-        emission_species_present = np.array(
-            list(packets_df_grouped.groups.keys())
-        )
-
-        return luminosities_df, emission_species_present
 
     def _calculate_absorption_luminosities(
         self, packets_mode, packet_wvl_range
@@ -1194,69 +790,21 @@ class SDECPlotter:
             each element present
         &quot;&quot;&quot;
         # Calculate masks to be applied on packets data based on packet_wvl_range
-        if packet_wvl_range is None:
-            self.packet_nu_line_range_mask = np.ones(
-                self.data[packets_mode].packets_df_line_interaction.shape[0],
-                dtype=bool,
-            )
-        else:
-            packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
-            self.packet_nu_line_range_mask = (
-                self.data[packets_mode].packets_df_line_interaction[
-                    &quot;last_line_interaction_in_nu&quot;
-                ]
-                &lt; packet_nu_range[0]
-            ) &amp; (
-                self.data[packets_mode].packets_df_line_interaction[
-                    &quot;last_line_interaction_in_nu&quot;
-                ]
-                &gt; packet_nu_range[1]
-            )
+        self.packet_nu_line_range_mask = self._create_wavelength_mask(
+            packets_mode,
+            packet_wvl_range,
+            df_key=&quot;packets_df_line_interaction&quot;,
+            column_name=&quot;last_line_interaction_in_nu&quot;,
+        )
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
-        # Group packets_df by atomic number of elements with which packets
-        # had their last absorption (interaction in)
-        # or if species_list is requested then group by species id
-        if self._species_list is None:
-            packets_df_grouped = (
-                self.data[packets_mode]
-                .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
-                .groupby(by=&quot;last_line_interaction_atom&quot;)
-            )
-        else:
-            packets_df_grouped = (
-                self.data[packets_mode]
-                .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
-                .groupby(by=&quot;last_line_interaction_species&quot;)
-            )
-
-        for identifier, group in packets_df_grouped:
-            # Histogram of specific species
-            hist_el = np.histogram(
-                group[&quot;last_line_interaction_in_nu&quot;],
-                bins=self.plot_frequency_bins.value,
-                weights=group[&quot;energies&quot;]
-                / self.lum_to_flux
-                / self.data[packets_mode].time_of_simulation,
-            )
-
-            # Convert to luminosity density lambda
-            L_nu_el = (
-                hist_el[0]
-                * u.erg
-                / u.s
-                / self.data[packets_mode].spectrum_delta_frequency
-            )
-            L_lambda_el = L_nu_el * self.plot_frequency / self.plot_wavelength
-
-            luminosities_df[identifier] = L_lambda_el.value
-
-        absorption_species_present = np.array(
-            list(packets_df_grouped.groups.keys())
+        return self._calculate_grouped_luminosities(
+            packets_mode=packets_mode,
+            mask=self.packet_nu_line_range_mask,
+            nu_column=&quot;last_line_interaction_in_nu&quot;,
+            luminosities_df=luminosities_df,
         )
-
-        return luminosities_df, absorption_species_present
 
     def _calculate_photosphere_luminosity(self, packets_mode):
         &quot;&quot;&quot;
@@ -1274,7 +822,7 @@ class SDECPlotter:
             of TARDIS simulation)
         &quot;&quot;&quot;
         bb_lam = BlackBody(
-            self.data[packets_mode].t_inner,
+            self.t_inner,
             scale=1.0 * u.erg / (u.cm**2 * u.AA * u.s * u.sr),
         )
 
@@ -1282,7 +830,7 @@ class SDECPlotter:
             bb_lam(self.plot_wavelength)
             * 4
             * np.pi**2
-            * self.data[packets_mode].r_inner[0] ** 2
+            * self.r_inner[0] ** 2
             * u.sr
         ).to(&quot;erg / (AA s)&quot;)
 
@@ -1378,7 +926,9 @@ class SDECPlotter:
             self.ax = ax
 
         # Get the labels in the color bar. This determines the number of unique colors
-        self._make_colorbar_labels()
+        self._species_name = pu.make_colorbar_labels(
+            self.species, self._species_list, self._species_mapped
+        )
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unqie colors
@@ -1514,23 +1064,7 @@ class SDECPlotter:
                 )
             except KeyError:
                 # Add notifications that this species was not in the emission df
-                if self._species_list is None:
-                    info_msg = (
-                        f&quot;{atomic_number2element_symbol(identifier)}&quot;
-                        f&quot; is not in the emitted packets; skipping&quot;
-                    )
-                    logger.info(info_msg)
-                else:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-
-                    info_msg = (
-                        f&quot;{atomic_number2element_symbol(atomic_number)}&quot;
-                        f&quot;{int_to_roman(ion_number + 1)}&quot;
-                        f&quot; is not in the emitted packets; skipping&quot;
-                    )
-                    logger.info(info_msg)
+                self._log_missing_species(identifier, &quot;emitted&quot;)
 
     def _plot_absorption_mpl(self):
         &quot;&quot;&quot;Plot absorption part of the SDEC Plot using matplotlib.&quot;&quot;&quot;
@@ -1572,23 +1106,7 @@ class SDECPlotter:
 
             except KeyError:
                 # Add notifications that this species was not in the emission df
-                if self._species_list is None:
-                    info_msg = (
-                        f&quot;{atomic_number2element_symbol(identifier)}&quot;
-                        f&quot; is not in the absorbed packets; skipping&quot;
-                    )
-                    logger.info(info_msg)
-                else:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-
-                    info_msg = (
-                        f&quot;{atomic_number2element_symbol(atomic_number)}&quot;
-                        f&quot;{int_to_roman(ion_number + 1)}&quot;
-                        f&quot; is not in the absorbed packets; skipping&quot;
-                    )
-                    logger.info(info_msg)
+                self._log_missing_species(identifier, &quot;absorbed&quot;)
 
     def _show_colorbar_mpl(self):
         &quot;&quot;&quot;Show matplotlib colorbar with labels of elements mapped to colors.&quot;&quot;&quot;
@@ -1607,39 +1125,6 @@ class SDECPlotter:
         cbar.set_ticks(bounds)
 
         cbar.set_ticklabels(self._species_name)
-
-    def _make_colorbar_labels(self):
-        &quot;&quot;&quot;Get the labels for the species in the colorbar.&quot;&quot;&quot;
-        if self._species_list is None:
-            # If species_list is none then the labels are just elements
-            species_name = [
-                atomic_number2element_symbol(atomic_num)
-                for atomic_num in self.species
-            ]
-        else:
-            species_name = []
-            for species in self.species:
-                # Go through each species requested
-                ion_number = species % 100
-                atomic_number = (species - ion_number) / 100
-
-                ion_numeral = int_to_roman(ion_number + 1)
-                atomic_symbol = atomic_number2element_symbol(atomic_number)
-
-                # if the element was requested, and not a specific ion, then
-                # add the element symbol to the label list
-                if (atomic_number in self._keep_colour) &amp; (
-                    atomic_symbol not in species_name
-                ):
-                    # compiling the label, and adding it to the list
-                    label = f&quot;{atomic_symbol}&quot;
-                    species_name.append(label)
-                elif atomic_number not in self._keep_colour:
-                    # otherwise add the ion to the label list
-                    label = f&quot;{atomic_symbol} {ion_numeral}&quot;
-                    species_name.append(label)
-
-        self._species_name = species_name
 
     def _make_colorbar_colors(self):
         &quot;&quot;&quot;Get the colours for the species to be plotted.&quot;&quot;&quot;
@@ -1781,7 +1266,9 @@ class SDECPlotter:
             self.fig = fig
 
         # Get the labels in the color bar. This determines the number of unique colors
-        self._make_colorbar_labels()
+        self._species_name = pu.make_colorbar_labels(
+            self.species, self._species_list, self._species_mapped
+        )
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unique colors
@@ -1938,23 +1425,7 @@ class SDECPlotter:
                 )
             except KeyError:
                 # Add notifications that this species was not in the emission df
-                if self._species_list is None:
-                    info_msg = (
-                        f&quot;{atomic_number2element_symbol(identifier)}&quot;
-                        f&quot; is not in the emitted packets; skipping&quot;
-                    )
-                    logger.info(info_msg)
-                else:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-
-                    info_msg = (
-                        f&quot;{atomic_number2element_symbol(atomic_number)}&quot;
-                        f&quot;{int_to_roman(ion_number + 1)}&quot;
-                        f&quot; is not in the emitted packets; skipping&quot;
-                    )
-                    logger.info(info_msg)
+                self._log_missing_species(identifier, &quot;emitted&quot;)
 
     def _plot_absorption_ply(self):
         &quot;&quot;&quot;Plot absorption part of the SDEC Plot using plotly.&quot;&quot;&quot;
@@ -1997,24 +1468,8 @@ class SDECPlotter:
                 )
 
             except KeyError:
-                # Add notifications that this species was not in the emission df
-                if self._species_list is None:
-                    info_msg = (
-                        f&quot;{atomic_number2element_symbol(identifier)}&quot;
-                        f&quot; is not in the absorbed packets; skipping&quot;
-                    )
-                    logger.info(info_msg)
-                else:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-
-                    info_msg = (
-                        f&quot;{atomic_number2element_symbol(atomic_number)}&quot;
-                        f&quot;{int_to_roman(ion_number + 1)}&quot;
-                        f&quot; is not in the absorbed packets; skipping&quot;
-                    )
-                    logger.info(info_msg)
+                # Add notifications that this species was not in the df
+                self._log_missing_species(identifier, &quot;absorbed&quot;)
 
     def _show_colorbar_ply(self):
         &quot;&quot;&quot;Show plotly colorbar with labels of elements mapped to colors.&quot;&quot;&quot;
@@ -2064,7 +1519,26 @@ class SDECPlotter:
                 hoverinfo=&quot;skip&quot;,
                 marker=dict(color=[0], opacity=0, **coloraxis_options),
             )
-        )</div>
+        )
+
+    def _log_missing_species(self, identifier, is_absorption):
+        interaction_type = &quot;absorbed&quot; if is_absorption else &quot;emitted&quot;
+        if self._species_list is None:
+            info_msg = (
+                f&quot;{atomic_number2element_symbol(identifier)}&quot;
+                f&quot; is not in the {interaction_type} packets; skipping&quot;
+            )
+        else:
+            # Get the ion number and atomic number for each species
+            ion_number = identifier % 100
+            atomic_number = (identifier - ion_number) / 100
+
+            info_msg = (
+                f&quot;{atomic_number2element_symbol(atomic_number)}&quot;
+                f&quot;{int_to_roman(ion_number + 1)}&quot;
+                f&quot; is not in the {interaction_type} packets; skipping&quot;
+            )
+        logger.info(info_msg)</div>
 
 </pre></div>
 
@@ -2076,7 +1550,7 @@ class SDECPlotter:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

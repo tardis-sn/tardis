@@ -107,6 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -167,115 +169,16 @@
 <p>This plot is a spectral diagnostics plot similar to those originally
 proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECData">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.sdec_plot.</span></span><span class="sig-name descname"><span class="pre">SDECData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_in_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_out_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_in_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_interaction_in_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_nus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_delta_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_frequency_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_luminosity_density_lambda</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECData" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>The data of simulation model used by Spectral element DEComposition (SDEC) Plot.</p>
-<p>This preprocesses the data required by SDECPlotter class for doing
-calculations and plotting.</p>
-<p>Initialize the SDECData with required properties of simulation model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>last_interaction_type</strong><span class="classifier">np.array</span></dt><dd><p>Interaction type (no-interaction: -1, e-scattering: 1 and
-line interaction: 2) values of emitted packets</p>
-</dd>
-<dt><strong>last_line_interaction_in_id</strong><span class="classifier">np.array</span></dt><dd><p>IDs of atomic lines with which emitted packet had their last
-absorption (interaction in)</p>
-</dd>
-<dt><strong>last_line_interaction_out_id</strong><span class="classifier">np.array</span></dt><dd><p>IDs of atomic lines with which emitted packet had their last
-emission (interaction out)</p>
-</dd>
-<dt><strong>last_line_interaction_in_nu</strong><span class="classifier">np.array</span></dt><dd><p>Frequency values of the last absorption of emitted packets</p>
-</dd>
-<dt><strong>last_line_interaction_in_r</strong><span class="classifier">np.array</span></dt><dd><p>Radius of the last interaction experienced by emitted packets</p>
-</dd>
-<dt><strong>lines_df</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Data about the atomic lines present in simulation model’s plasma</p>
-</dd>
-<dt><strong>packet_nus</strong><span class="classifier">astropy.Quantity</span></dt><dd><p>Frequency values of the last emission of emitted packets, having
-unit of Hz</p>
-</dd>
-<dt><strong>packet_energies</strong><span class="classifier">astropy.Quantity</span></dt><dd><p>Energy values of emitted packets, having unit of erg</p>
-</dd>
-<dt><strong>r_inner</strong><span class="classifier">astropy.Quantity</span></dt><dd><p>Radius of innermost shell, having unit of cm</p>
-</dd>
-<dt><strong>spectrum_delta_frequency</strong><span class="classifier">astropy.Quantity</span></dt><dd><p>Frequency bin width of spectrum, having unit of Hz</p>
-</dd>
-<dt><strong>spectrum_frequency_bins</strong><span class="classifier">astropy.Quantity</span></dt><dd><p>Frequency bin edges of spectrum, having unit of Hz</p>
-</dd>
-<dt><strong>spectrum_wavelength</strong><span class="classifier">astropy.Quantity</span></dt><dd><p>Wavelength values of spectrum, having unit of Angstrom</p>
-</dd>
-<dt><strong>t_inner</strong><span class="classifier">astropy.Quantity</span></dt><dd><p>Temperature of innermost shell, having unit of K</p>
-</dd>
-<dt><strong>time_of_simulation</strong><span class="classifier">astropy.Quantity</span></dt><dd><p>Time of simulation, having unit of s (second)</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECData.from_hdf">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECData.from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECData.from_hdf" title="Link to this definition">¶</a></dt>
-<dd><p>Create an instance of SDECData from a simulation HDF file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>hdf_fpath</strong><span class="classifier">str</span></dt><dd><p>Valid path to the HDF file where simulation is saved</p>
-</dd>
-<dt><strong>packets_mode</strong><span class="classifier">{‘virtual’, ‘real’}</span></dt><dd><p>Mode of packets to be considered, either real or virtual</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>SDECData</dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECData.from_simulation">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECData.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECData.from_simulation" title="Link to this definition">¶</a></dt>
-<dd><p>Create an instance of SDECData from a TARDIS simulation object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>sim</strong><span class="classifier">tardis.simulation.Simulation</span></dt><dd><p>TARDIS Simulation object produced by running a simulation</p>
-</dd>
-<dt><strong>packets_mode</strong><span class="classifier">{‘virtual’, ‘real’}</span></dt><dd><p>Mode of packets to be considered, either real or virtual</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>SDECData</dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.sdec_plot.</span></span><span class="sig-name descname"><span class="pre">SDECPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.sdec_plot.</span></span><span class="sig-name descname"><span class="pre">SDECPlotter</span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Plotting interface for Spectral element DEComposition (SDEC) Plot.</p>
 <p>It performs necessary calculations to generate SDEC Plot for a simulation
 model, and allows to plot it in matplotlib and plotly.</p>
 <p>Initialize the SDECPlotter with required data of simulation model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>data</strong><span class="classifier">dict of SDECData</span></dt><dd><p>Dictionary to store data required for SDEC plot, for both packet
-modes i.e. real and virtual</p>
-</dd>
-</dl>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf" title="Link to this definition">¶</a></dt>
 <dd><p>Create an instance of SDECPlotter from a simulation HDF file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -444,7 +347,7 @@ e.g. [‘Si II’, ‘Ca II’, ‘C’, ‘Fe I-V’]</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

@@ -9,6 +9,7 @@ Submodules
 
    tardis.workflows.simple_tardis_workflow
    tardis.workflows.standard_tardis_workflow
+   tardis.workflows.tardis_he_workflow
    tardis.workflows.util
    tardis.workflows.v_inner_solver
    tardis.workflows.workflow_logging

@@ -79,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -130,19 +132,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.visualization.widgets.shell_info</h1><div class="highlight"><pre>
-<span></span>from tardis.base import run_tardis
-from tardis.io.atom_data.atom_web_download import download_atom_data
+<span></span>import ipywidgets as ipw
+import pandas as pd
+
 from tardis.util.base import (
     atomic_number2element_symbol,
-    species_tuple_to_string,
     is_notebook,
+    species_tuple_to_string,
 )
-
 from tardis.visualization.widgets.util import create_table_widget
-
-import pandas as pd
-import numpy as np
-import ipywidgets as ipw
 
 
 <div class="viewcode-block" id="BaseShellInfo">
@@ -451,7 +449,7 @@ class ShellInfoWidget:
                 &quot;other_names&quot;: [
                     f&quot;Frac. Ab. (Ion={ion})&quot;
                     for ion in range(
-                        0, self.element_count_table.df.index.max() + 1
+                        self.element_count_table.df.index.max() + 1
                     )
                 ],
             },
@@ -707,7 +705,7 @@ def shell_info_from_hdf(hdf_fpath):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

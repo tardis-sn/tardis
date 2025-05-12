@@ -107,6 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -178,7 +180,6 @@
 <li class="toctree-l3"><a class="reference internal" href="tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.update_t_inner_luminosities_plot"><code class="docutils literal notranslate"><span class="pre">ConvergencePlots.update_t_inner_luminosities_plot()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.transition_colors"><code class="docutils literal notranslate"><span class="pre">transition_colors()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.visualization.tools.liv_plot.html">tardis.visualization.tools.liv_plot module</a><ul>
@@ -193,6 +194,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.visualization.tools.rpacket_plot.html">tardis.visualization.tools.rpacket_plot module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tardis.visualization.tools.rpacket_plot.html#tardis.visualization.tools.rpacket_plot.RPacketPlotter"><code class="docutils literal notranslate"><span class="pre">RPacketPlotter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.visualization.tools.rpacket_plot.html#tardis.visualization.tools.rpacket_plot.RPacketPlotter.create_packet_scatter"><code class="docutils literal notranslate"><span class="pre">RPacketPlotter.create_packet_scatter()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.visualization.tools.rpacket_plot.html#tardis.visualization.tools.rpacket_plot.RPacketPlotter.from_simulation"><code class="docutils literal notranslate"><span class="pre">RPacketPlotter.from_simulation()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.visualization.tools.rpacket_plot.html#tardis.visualization.tools.rpacket_plot.RPacketPlotter.generate_plot"><code class="docutils literal notranslate"><span class="pre">RPacketPlotter.generate_plot()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.visualization.tools.rpacket_plot.html#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_coordinates_multiple_packets"><code class="docutils literal notranslate"><span class="pre">RPacketPlotter.get_coordinates_multiple_packets()</span></code></a></li>
@@ -205,11 +207,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.visualization.tools.sdec_plot.html">tardis.visualization.tools.sdec_plot module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECData"><code class="docutils literal notranslate"><span class="pre">SDECData</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECData.from_hdf"><code class="docutils literal notranslate"><span class="pre">SDECData.from_hdf()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECData.from_simulation"><code class="docutils literal notranslate"><span class="pre">SDECData.from_simulation()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter"><code class="docutils literal notranslate"><span class="pre">SDECPlotter</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf"><code class="docutils literal notranslate"><span class="pre">SDECPlotter.from_hdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.from_simulation"><code class="docutils literal notranslate"><span class="pre">SDECPlotter.from_simulation()</span></code></a></li>
@@ -242,7 +239,7 @@ produce a specific visualization through a function (or class method) call.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

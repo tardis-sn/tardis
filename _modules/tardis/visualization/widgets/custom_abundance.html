@@ -79,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -132,37 +134,38 @@
   <h1>Source code for tardis.visualization.widgets.custom_abundance</h1><div class="highlight"><pre>
 <span></span>&quot;&quot;&quot;Class to create and display Custom Abundance Widget.&quot;&quot;&quot;
 import os
-import yaml
+from pathlib import Path
+
+import ipywidgets as ipw
 import numpy as np
 import pandas as pd
-import ipywidgets as ipw
 import plotly.graph_objects as go
+import yaml
 from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
-from pathlib import Path
 
 import tardis
-from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
-from tardis.util.base import (
-    quantity_linspace,
-    is_valid_nuclide_or_elem,
-    is_notebook,
-)
-from tardis.io.configuration.config_reader import Configuration
-from tardis.model import SimulationState
-from tardis.io.model.parse_density_configuration import (
-    calculate_power_law_density,
-    calculate_exponential_density,
-)
+import tardis.visualization.plot_util as pu
 from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
-from tardis.io.model.readers.csvy import load_csvy
+from tardis.io.model.parse_density_configuration import (
+    calculate_exponential_density,
+    calculate_power_law_density,
+)
 from tardis.io.model.readers.csvy import (
+    load_csvy,
     parse_csv_mass_fractions,
 )
-from tardis.util.base import atomic_number2element_symbol, quantity_linspace
-from tardis.visualization.tools.convergence_plot import transition_colors
+from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
+from tardis.model import SimulationState
+from tardis.util.base import (
+    atomic_number2element_symbol,
+    is_notebook,
+    is_valid_nuclide_or_elem,
+    quantity_linspace,
+)
 from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
@@ -764,7 +767,7 @@ class CustomAbundanceWidget:
         &quot;&quot;&quot;
         self._trigger = False
         # `input_items` is the list of  abundance input widgets.
-        self.input_items[index].value = float(&quot;{:.2e}&quot;.format(value))
+        self.input_items[index].value = float(f&quot;{value:.2e}&quot;)
         self._trigger = True</div>
 
 
@@ -880,7 +883,7 @@ class CustomAbundanceWidget:
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.update_line_color">[docs]</a>
     def update_line_color(self):
         &quot;&quot;&quot;Update line color in the plot according to colormap.&quot;&quot;&quot;
-        colorscale = transition_colors(self.no_of_elements, self.plot_cmap)
+        colorscale = pu.get_hex_color_strings(self.no_of_elements, self.plot_cmap)
         for i in range(self.no_of_elements):
             self.fig.data[2 + i].line.color = colorscale[i]</div>
 
@@ -918,12 +921,11 @@ class CustomAbundanceWidget:
             else position_1
         )
 
-        if (index_1 - index_0 &gt; 1) or (
-            index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0)
-        ):
-            return True
-        else:
-            return False</div>
+        return bool(
+            index_1 - index_0 &gt; 1
+            or index_1 - index_0 == 1
+            and not np.isclose(v_vals[index_0], v_0)
+        )</div>
 
 
 <div class="viewcode-block" id="CustomAbundanceWidget.on_btn_add_shell">
@@ -1110,7 +1112,7 @@ class CustomAbundanceWidget:
         &quot;&quot;&quot;
         item_index = obj.owner.index
 
-        if obj.new == True:
+        if obj.new is True:
             self.bound_locked_sum_to_1(item_index)</div>
 
 
@@ -1714,7 +1716,7 @@ class CustomAbundanceWidget:
             data = data.sort_index()
 
             formatted_v = pd.Series(self.data.velocity.value).apply(
-                lambda x: &quot;%.3e&quot; % x
+                lambda x: f&quot;{x:.3e}&quot;
             )
             # Make sure velocity is within the boundary.
             formatted_v[0] = self.data.velocity.value[0]
@@ -1950,7 +1952,7 @@ class DensityEditor:
         &quot;&quot;&quot;
         dvalue = self.data.density[self.shell_no].value
         self._trigger = False
-        self.input_d.value = float(&quot;{:.3e}&quot;.format(dvalue))
+        self.input_d.value = float(f&quot;{dvalue:.3e}&quot;)
         self._trigger = True</div>
 
 
@@ -2129,7 +2131,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 

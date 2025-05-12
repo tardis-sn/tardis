@@ -112,6 +112,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -670,7 +672,15 @@
 <li class="toctree-l2"><a class="reference internal" href="tardis.visualization.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tardis.visualization.plot_util.html">tardis.visualization.plot_util module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.axis_label_in_latex"><code class="docutils literal notranslate"><span class="pre">axis_label_in_latex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.extract_and_process_packet_data"><code class="docutils literal notranslate"><span class="pre">extract_and_process_packet_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.extract_and_process_packet_data_hdf"><code class="docutils literal notranslate"><span class="pre">extract_and_process_packet_data_hdf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.extract_spectrum_data_hdf"><code class="docutils literal notranslate"><span class="pre">extract_spectrum_data_hdf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.get_hex_color_strings"><code class="docutils literal notranslate"><span class="pre">get_hex_color_strings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.get_mid_point_idx"><code class="docutils literal notranslate"><span class="pre">get_mid_point_idx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.get_spectrum_data"><code class="docutils literal notranslate"><span class="pre">get_spectrum_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.make_colorbar_labels"><code class="docutils literal notranslate"><span class="pre">make_colorbar_labels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.parse_species_list_util"><code class="docutils literal notranslate"><span class="pre">parse_species_list_util()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.process_line_interactions"><code class="docutils literal notranslate"><span class="pre">process_line_interactions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.visualization.plot_util.html#tardis.visualization.plot_util.to_rgb255_string"><code class="docutils literal notranslate"><span class="pre">to_rgb255_string()</span></code></a></li>
 </ul>
 </li>
@@ -687,6 +697,11 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.workflows.standard_tardis_workflow.html">tardis.workflows.standard_tardis_workflow module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.workflows.standard_tardis_workflow.html#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow"><code class="docutils literal notranslate"><span class="pre">StandardTARDISWorkflow</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.workflows.tardis_he_workflow.html">tardis.workflows.tardis_he_workflow module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.tardis_he_workflow.html#tardis.workflows.tardis_he_workflow.TARDISHEWorkflow"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflow</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.tardis_he_workflow.html#tardis.workflows.tardis_he_workflow.TARDISHEWorkflowResult"><code class="docutils literal notranslate"><span class="pre">TARDISHEWorkflowResult</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.workflows.util.html">tardis.workflows.util module</a><ul>
@@ -767,7 +782,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Apr 2025.
+      <span class="lastupdated">Last updated on 12 May 2025.
       </span></p>
   </div>
 
