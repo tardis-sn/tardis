@@ -8,9 +8,6 @@ from tardis.io.configuration.config_reader import (
     Configuration,
     ConfigurationNameSpace,
 )
-from tardis.io.model.parse_geometry_configuration import (
-    parse_structure_from_config,
-)
 from tardis.util.base import quantity_linspace
 
 logger = logging.getLogger(__name__)
@@ -87,6 +84,10 @@ def parse_density_from_config(config: Configuration) -> u.Quantity:
     density: u.Quantity
 
     """
+    from tardis.io.model.parse_geometry_configuration import (
+        parse_structure_from_config,
+    )
+
     time_explosion = config.supernova.time_explosion.cgs
     (
         density_time,
