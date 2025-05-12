@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
+from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
@@ -32,6 +33,7 @@ def test_compare_models(model_config_fnames, atomic_dataset):
     csvy_config_file, old_config_file = model_config_fnames
     tardis_config = Configuration.from_yaml(csvy_config_file)
     tardis_config_old = Configuration.from_yaml(old_config_file)
+    tardis_config_old.model.abundances.model_isotope_time_0 = 0 * u.s
     csvy_simulation_state = SimulationState.from_csvy(
         tardis_config, atom_data=atomic_dataset
     )
