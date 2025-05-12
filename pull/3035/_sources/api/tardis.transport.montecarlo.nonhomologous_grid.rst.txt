@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.nonhomologous\_grid module
-======================================================
-
-.. automodule:: tardis.transport.montecarlo.nonhomologous_grid
-   :members:
-   :undoc-members:
-   :show-inheritance:
