@@ -159,7 +159,6 @@ class ArtisModelData:
         We create v_inner and v_outer by treating the velocity array as boundary
         points for the shells. The time_of_model is used as the time_explosion.
         &quot;&quot;&quot;
-
         geometry = HomologousRadial1DGeometry(
             v_inner=self.velocity[:-1],
             v_outer=self.velocity[1:],
