@@ -1,7 +1,0 @@
-tardis.plasma.properties.rate\_matrix\_index module
-===================================================
-
-.. automodule:: tardis.plasma.properties.rate_matrix_index
-   :members:
-   :undoc-members:
-   :show-inheritance:

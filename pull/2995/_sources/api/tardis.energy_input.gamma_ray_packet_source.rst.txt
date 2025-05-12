@@ -1,7 +1,0 @@
-tardis.energy\_input.gamma\_ray\_packet\_source module
-======================================================
-
-.. automodule:: tardis.energy_input.gamma_ray_packet_source
-   :members:
-   :undoc-members:
-   :show-inheritance:
