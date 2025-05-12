@@ -192,15 +192,15 @@ class LIVPlotter:
 
         for specie_list in self._species_mapped.values():
             full_v_last = []
-            for element in specie_list:
-                if element in self.species:
-                    if element not in groups.groups:
-                        atomic_number, ion_number = divmod(element, 100) #(quotient, remainder)
+            for species in specie_list:
+                if species in self.species:
+                    if species not in groups.groups:
+                        atomic_number, ion_number = divmod(species, 100) #(quotient, remainder)
                         ion_numeral = int_to_roman(ion_number + 1)
                         label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
                         species_not_wvl_range.append(label)
                         continue
-                    g_df = groups.get_group(element)
+                    g_df = groups.get_group(species)
                     r_last_interaction = (
                         g_df["last_interaction_in_r"].values * u.cm
                     )
