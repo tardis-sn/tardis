@@ -37,8 +37,6 @@ class CollisionalIonizationSeaton:
         ----------
         .. [1] Hubeny, I. and Mihalas, D., "Theory of Stellar Atmospheres". 2014.
         """
-        assert electron_temperature > 0 * u.K, "Temperature must be positive"
-
         photo_ion_cross_sections_threshold = (
             self.photoionization_cross_sections.groupby(level=[0, 1, 2]).first()
         )

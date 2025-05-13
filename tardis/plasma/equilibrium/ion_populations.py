@@ -54,6 +54,8 @@ class IonPopulationSolver:
         pd.DataFrame
             Normalized ion population values indexed by atomic number, ion
             number and ion number. Columns are cells.
+        pd.DataFrame
+            Normalized electron fraction values. Columns are cells.
         """
         # this is the i level in Lucy 2003
         lower_ion_level_index = (
@@ -124,4 +126,4 @@ class IonPopulationSolver:
 
             iteration += 1
 
-        return ion_population_solution
+        return ion_population_solution, electron_population_solution
