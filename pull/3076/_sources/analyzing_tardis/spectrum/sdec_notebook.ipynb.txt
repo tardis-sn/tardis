@@ -1,0 +1,670 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Analysing Spectral Energy Distribution and Emission/Absorption Visualization"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "**Note:** \n",
+    "\n",
+    "This notebook is only a sample demonstrating some of the features of the `sdecplotter` class. If you are interested in using additional features, you should directly access the [sdecplotter](https://github.com/tardis-sn/tardis/blob/master/tardis/visualization/tools/sdec_plot.py#L419) class. You can see the rest of the features of the sdecplotter class [here](docs/analysing_tardis_outputs/visualization/how_to_sdec_plot.ipynb).\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A notebook for analyzing and visualizing the spectral energy distribution, emission and absorption patterns in supernova simulations using TARDIS."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2021-10-01T11:54:24.525446Z",
+     "start_time": "2021-10-01T11:54:24.522894Z"
+    },
+    "nbsphinx": "hidden"
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "from astropy import units as u\n",
+    "\n",
+    "from tardis.util.base import atomic_number2element_symbol\n",
+    "from tardis.visualization import plot_util as pu\n",
+    "from tardis.visualization.sdec.util import (\n",
+    "    calculate_absorption_luminosities,\n",
+    "    calculate_emission_luminosities,\n",
+    ")\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Every simulation run requires [atomic data](io/configuration/components/atomic/atomic_data.rst) and a [configuration file](io/configuration/index.rst). \n",
+    "\n",
+    "## Atomic Data\n",
+    "\n",
+    "We recommend using the [kurucz_cd23_chianti_H_He.h5](https://github.com/tardis-sn/tardis-regression-data/raw/main/atom_data/kurucz_cd23_chianti_H_He.h5) dataset."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from tardis.io.atom_data import download_atom_data\n",
+    "\n",
+    "# We download the atomic data needed to run the simulation\n",
+    "download_atom_data('kurucz_cd23_chianti_H_He')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Example Configuration File"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!wget -q -nc https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/tardis_example.yml"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!cat tardis_example.yml"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Loading Simulation Data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Running simulation\n",
+    "\n",
+    "To run the simulation, import the `run_tardis` function and create the `sim` object."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "**Note:**\n",
+    "\n",
+    "Get more information about the [progress bars](io/output/progress_bars.rst), [logging configuration](io/optional/tutorial_logging_configuration.ipynb), and [convergence plots](io/visualization/tutorial_convergence_plot.ipynb).\n",
+    "\n",
+    "</div>\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2021-10-01T11:55:28.560853Z",
+     "start_time": "2021-10-01T11:54:24.527697Z"
+    },
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "from tardis import run_tardis\n",
+    "\n",
+    "simulation = run_tardis(\n",
+    "    \"tardis_example.yml\",\n",
+    "    log_level=\"ERROR\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### HDF"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "TARDIS can save simulation data to HDF files for later analysis. The code below shows how to load a simulation from an HDF file. This is useful when you want to analyze simulation results without re-running the simulation.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# import astropy.units as u\n",
+    "# import pandas as pd\n",
+    "\n",
+    "# hdf_fpath = \"add_file_path_here\"\n",
+    "# with pd.HDFStore(hdf_fpath, \"r\") as hdf:\n",
+    "#     sim = u.Quantity(hdf[\"/simulation\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Calculating Spectral Quantities"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This section demonstrates how to analyze the spectral decomposition (SDEC) output from TARDIS. SDEC helps understand how different atomic species contribute to the formation of spectral features through their emission and absorption processes."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Wavelength and Frequency Grid Setup"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "First, we set up the wavelength and frequency grids for analysis and plotting"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Get frequency bins from the simulation's real packets spectrum\n",
+    "plot_frequency_bins = (\n",
+    "    simulation.spectrum_solver.spectrum_real_packets._frequency\n",
+    ")\n",
+    "\n",
+    "# Get wavelength array from the simulation's real packets spectrum\n",
+    "plot_wavelength = simulation.spectrum_solver.spectrum_real_packets.wavelength\n",
+    "\n",
+    "# Create frequency array by excluding the last bin edge\n",
+    "plot_frequency = plot_frequency_bins[:-1]\n",
+    "\n",
+    "# Create a boolean mask array of ones with same size as wavelength array\n",
+    "# This will be used to filter wavelength ranges later\n",
+    "packet_wvl_range_mask = np.ones(plot_wavelength.size, dtype=bool)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Luminosity Calculations"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Then we calculate emission and absorption luminosities for each atomic species to understand their contributions to the spectrum\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Calculate emission luminosities for each species\n",
+    "# Returns a DataFrame with species-wise emission contributions and list of species\n",
+    "(emission_luminosities_df, emission_species) = calculate_emission_luminosities(\n",
+    "    simulation,\n",
+    "    \"real\",  # Use real packets mode\n",
+    "    packet_wvl_range=None,  # Use full wavelength range\n",
+    ")\n",
+    "\n",
+    "# Calculate absorption luminosities for each species\n",
+    "# Returns a DataFrame with species-wise absorption contributions and list of species\n",
+    "(\n",
+    "    absorption_luminosities_df,\n",
+    "    absorption_species,\n",
+    ") = calculate_absorption_luminosities(\n",
+    "    simulation,\n",
+    "    packets_mode=\"real\",  # Use real packets mode\n",
+    "    packet_wvl_range=None,  # Use full wavelength range\n",
+    ")\n",
+    "\n",
+    "# Calculate total luminosities by adding absorption and emission\n",
+    "# Drop 'no interaction' and 'electron scattering' columns from emission before adding\n",
+    "total_luminosities_df = (\n",
+    "    absorption_luminosities_df\n",
+    "    + emission_luminosities_df.drop([\"noint\", \"escatter\"], axis=1)\n",
+    ")\n",
+    "\n",
+    "# Convert atomic numbers to element symbols for plotting\n",
+    "species = np.array(list(total_luminosities_df.keys()))\n",
+    "species_name = [\n",
+    "    atomic_number2element_symbol(atomic_num)\n",
+    "    for atomic_num in species\n",
+    "]\n",
+    "species_length = len(species_name)\n",
+    "\n",
+    "# Get the modeled spectrum luminosity for the selected wavelength range\n",
+    "modeled_spectrum_luminosity = (\n",
+    "    simulation.spectrum_solver.spectrum_real_packets.luminosity_density_lambda[\n",
+    "        packet_wvl_range_mask\n",
+    "    ]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Plotting Species-wise Emission and Absorption Contributions"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now we will plot the species-wise emission and absorption contributions that we calculated in the previous step using calculate_emission_luminosities() and calculate_absorption_luminosities() respectively. We'll start with packets that had no interaction with the ejecta, followed by electron scattering events, and then contributions from different atomic species. The colorbar will help you to identify the atomic species and their respective contributions to the total luminosity at each wavelength."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Matplotlib"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.cm as cm  # For colormaps\n",
+    "import matplotlib.colors as clr  # For color mapping and normalization\n",
+    "import matplotlib.pyplot as plt  # Main plotting interface\n",
+    "\n",
+    "# Create figure and axis\n",
+    "ax = plt.figure(figsize=(12, 7)).add_subplot(111)\n",
+    "\n",
+    "# Generate colors for each species using 'jet' colormap\n",
+    "# The colors will be evenly distributed across the colormap based on number of species\n",
+    "cmap = plt.get_cmap(\"jet\", species_length)\n",
+    "color_list = []\n",
+    "color_values = []\n",
+    "for species_counter in range(species_length):\n",
+    "    # Calculate normalized color value and store in both lists\n",
+    "    color = cmap(species_counter / species_length)\n",
+    "    color_list.append(color)\n",
+    "    color_values.append(color)\n",
+    "\n",
+    "\n",
+    "# This will be used in the colorbar to show which color corresponds to which species\n",
+    "custcmap = clr.ListedColormap(color_values) # Normalize color range\n",
+    "norm = clr.Normalize(vmin=0, vmax=species_length)\n",
+    "mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)\n",
+    "mappable.set_array(np.linspace(1, species_length + 1, 256))\n",
+    "\n",
+    "\n",
+    "# Add colorbar for species representation\n",
+    "cbar = plt.colorbar(mappable, ax=ax)\n",
+    "bounds = np.arange(species_length) + 0.5\n",
+    "cbar.set_ticks(bounds)\n",
+    "cbar.set_ticklabels(species_name) # Label ticks with species names\n",
+    "\n",
+    "# Plot the emission contributions starting with 'no interaction' packets\n",
+    "lower_level = np.zeros(emission_luminosities_df.shape[0])  # Start at zero\n",
+    "upper_level = lower_level + emission_luminosities_df.noint.to_numpy()\n",
+    "ax.fill_between(\n",
+    "    plot_wavelength.value,\n",
+    "    lower_level,\n",
+    "    upper_level,\n",
+    "    color=\"#4C4C4C\", #  Dark grey color\n",
+    "    label=\"No interaction\",\n",
+    ")\n",
+    "\n",
+    "# Plot electron scattering contribution\n",
+    "# This is stacked on top of the 'no interaction' contribution\n",
+    "lower_level = upper_level # Start where 'no interaction' ended\n",
+    "upper_level = lower_level + emission_luminosities_df.escatter.to_numpy()\n",
+    "ax.fill_between(\n",
+    "    plot_wavelength.value,\n",
+    "    lower_level,\n",
+    "    upper_level,\n",
+    "    color=\"#8F8F8F\",\n",
+    "    label=\"Electron Scatter Only\",\n",
+    ")\n",
+    "\n",
+    "# Plot the emission contributions for each species by stacking them on top of each other.\n",
+    "# The lower level for each species starts where the previous species ended (upper_level),\n",
+    "# and the upper level adds that species' emission contribution.\n",
+    "# Each species gets a unique color from the colormap defined above.\n",
+    "for species_counter, identifier in enumerate(species):\n",
+    "    lower_level = upper_level\n",
+    "    upper_level = lower_level + emission_luminosities_df[identifier].to_numpy()\n",
+    "\n",
+    "    ax.fill_between(\n",
+    "        plot_wavelength.value,\n",
+    "        lower_level,\n",
+    "        upper_level,\n",
+    "        color=color_list[species_counter],\n",
+    "        cmap=cmap,\n",
+    "        linewidth=0,\n",
+    "    )\n",
+    "\n",
+    "\n",
+    "# The absorption contributions are plotted below zero, showing how each species\n",
+    "# absorbs light and reduces the total luminosity. The contributions are stacked\n",
+    "# downward from zero, with each species getting the same color as its emission above.\n",
+    "lower_level = np.zeros(absorption_luminosities_df.shape[0])\n",
+    "for species_counter, identifier in enumerate(species):\n",
+    "    upper_level = lower_level\n",
+    "    lower_level = (\n",
+    "        upper_level - absorption_luminosities_df[identifier].to_numpy()\n",
+    "    )\n",
+    "\n",
+    "    ax.fill_between(\n",
+    "        plot_wavelength.value,\n",
+    "        upper_level,\n",
+    "        lower_level,\n",
+    "        color=color_list[species_counter],\n",
+    "        cmap=cmap,\n",
+    "        linewidth=0,\n",
+    "    )\n",
+    "\n",
+    "\n",
+    "# Plot the modeled spectrum\n",
+    "ax.plot(\n",
+    "    plot_wavelength.value,\n",
+    "    modeled_spectrum_luminosity.value,\n",
+    "    \"--b\",\n",
+    "    label=\"Real Spectrum\",\n",
+    "    linewidth=1,\n",
+    ")\n",
+    "xlabel = pu.axis_label_in_latex(\"Wavelength\", u.AA)\n",
+    "ylabel = pu.axis_label_in_latex(\n",
+    "    \"L_{\\\\lambda}\", u.Unit(\"erg/(s AA)\"), only_text=False\n",
+    ")\n",
+    "# Add labels, legend, and formatting\n",
+    "ax.set_title(\"TARDIS example Spectral Energy Distribution\")\n",
+    "ax.legend(fontsize=12)\n",
+    "ax.set_xlabel(xlabel, fontsize=12)\n",
+    "ax.set_ylabel(ylabel, fontsize=12)\n",
+    "\n",
+    "plt.gca()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Plotly"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import plotly.graph_objects as go\n",
+    "\n",
+    "# Create figure\n",
+    "fig = go.Figure()\n",
+    "\n",
+    "# By specifying a common stackgroup, plotly will itself add up luminosities,\n",
+    "# in order, to created stacked area chart\n",
+    "fig.add_trace(\n",
+    "    go.Scatter(\n",
+    "        x=emission_luminosities_df.index,\n",
+    "        y=emission_luminosities_df.noint,\n",
+    "        mode=\"none\",\n",
+    "        name=\"No interaction\",\n",
+    "        fillcolor=\"#4C4C4C\",\n",
+    "        stackgroup=\"emission\",\n",
+    "        hovertemplate=\"(%{x:.2f}, %{y:.3g})\",\n",
+    "    )\n",
+    ")\n",
+    "\n",
+    "fig.add_trace(\n",
+    "    go.Scatter(\n",
+    "        x=emission_luminosities_df.index,\n",
+    "        y=emission_luminosities_df.escatter,\n",
+    "        mode=\"none\",\n",
+    "        name=\"Electron Scatter Only\",\n",
+    "        fillcolor=\"#8F8F8F\",\n",
+    "        stackgroup=\"emission\",\n",
+    "        hoverlabel={\"namelength\": -1},\n",
+    "        hovertemplate=\"(%{x:.2f}, %{y:.3g})\",\n",
+    "    )\n",
+    ")\n",
+    "\n",
+    "# The species data comes from the emission_luminosities_df and absorption_luminosities_df DataFrames\n",
+    "# We plot emissions as positive values stacked above zero\n",
+    "# And absorptions as negative values stacked below zero\n",
+    "# This creates a visualization showing how different species contribute to the spectrum\n",
+    "for (species_counter, identifier), name_of_spec in zip(\n",
+    "    enumerate(species), species_name\n",
+    "):\n",
+    "    fig.add_trace(\n",
+    "        go.Scatter(\n",
+    "            x=emission_luminosities_df.index,\n",
+    "            y=emission_luminosities_df[identifier],\n",
+    "            mode=\"none\",\n",
+    "            name=name_of_spec + \" Emission\",\n",
+    "            hovertemplate=f\"<b>{name_of_spec:s} Emission<br>\"  # noqa: ISC003\n",
+    "            + \"(%{x:.2f}, %{y:.3g})<extra></extra>\",\n",
+    "            fillcolor=pu.to_rgb255_string(color_list[species_counter]),\n",
+    "            stackgroup=\"emission\",\n",
+    "            showlegend=False,\n",
+    "            hoverlabel={\"namelength\": -1},\n",
+    "        )\n",
+    "    )\n",
+    "    # Plot absorption part\n",
+    "    fig.add_trace(\n",
+    "        go.Scatter(\n",
+    "            x=absorption_luminosities_df.index,\n",
+    "            # to plot absorption luminosities along negative y-axis\n",
+    "            y=absorption_luminosities_df[identifier] * -1,\n",
+    "            mode=\"none\",\n",
+    "            name=name_of_spec + \" Absorption\",\n",
+    "            hovertemplate=f\"<b>{name_of_spec:s} Absorption<br>\"  # noqa: ISC003\n",
+    "            + \"(%{x:.2f}, %{y:.3g})<extra></extra>\",\n",
+    "            fillcolor=pu.to_rgb255_string(color_list[species_counter]),\n",
+    "            stackgroup=\"absorption\",\n",
+    "            showlegend=False,\n",
+    "            hoverlabel={\"namelength\": -1},\n",
+    "        )\n",
+    "    )\n",
+    "\n",
+    "# Plot modeled spectrum\n",
+    "fig.add_trace(\n",
+    "    go.Scatter(\n",
+    "        x=plot_wavelength.value,\n",
+    "        y=modeled_spectrum_luminosity.value,\n",
+    "        mode=\"lines\",\n",
+    "        line={\n",
+    "            \"color\": \"blue\",\n",
+    "            \"width\": 1,\n",
+    "        },\n",
+    "        name=\"Real Spectrum\",\n",
+    "        hovertemplate=\"(%{x:.2f}, %{y:.3g})\",\n",
+    "        hoverlabel={\"namelength\": -1},\n",
+    "    )\n",
+    ")\n",
+    "\n",
+    "# Interpolate [0, 1] range to create bins equal to number of elements\n",
+    "colorscale_bins = np.linspace(0, 1, num=len(species_name) + 1)\n",
+    "\n",
+    "# Create a categorical colorscale [a list of (reference point, color)]\n",
+    "# by mapping same reference points (excluding 1st and last bin edge)\n",
+    "# twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)\n",
+    "categorical_colorscale = []\n",
+    "for species_counter in range(len(species_name)):\n",
+    "    color = pu.to_rgb255_string(cmap(colorscale_bins[species_counter]))\n",
+    "    categorical_colorscale.append((colorscale_bins[species_counter], color))\n",
+    "    categorical_colorscale.append((colorscale_bins[species_counter + 1], color))\n",
+    "\n",
+    "# Create a categorical colorscale for the elements by mapping each species to a color\n",
+    "coloraxis_options = {\n",
+    "    \"colorscale\": categorical_colorscale,\n",
+    "    \"showscale\": True,\n",
+    "    \"cmin\": 0,\n",
+    "    \"cmax\": len(species_name),\n",
+    "    \"colorbar\": {\n",
+    "        \"title\": \"Elements\",\n",
+    "        \"tickvals\": np.arange(0, len(species_name)) + 0.5,\n",
+    "        \"ticktext\": species_name,\n",
+    "        # to change length and position of colorbar\n",
+    "        \"len\": 0.75,\n",
+    "        \"yanchor\": \"top\",\n",
+    "        \"y\": 0.75,\n",
+    "    },\n",
+    "}\n",
+    "\n",
+    "# Add an invisible scatter point to make the colorbar show up in the plot\n",
+    "# The point is placed at the middle of the wavelength range with y=0\n",
+    "# The marker color is set to 0 (first color in colorscale) with opacity=0 to hide it\n",
+    "# coloraxis_options contains the categorical colorscale mapping species to colors\n",
+    "scatter_point_idx = pu.get_mid_point_idx(plot_wavelength)\n",
+    "fig.add_trace(\n",
+    "    go.Scatter(\n",
+    "        x=[plot_wavelength[scatter_point_idx].value],\n",
+    "        y=[0],\n",
+    "        mode=\"markers\",\n",
+    "        name=\"Colorbar\",\n",
+    "        showlegend=False,\n",
+    "        hoverinfo=\"skip\",\n",
+    "        marker=dict(color=[0], opacity=0, **coloraxis_options),\n",
+    "    )\n",
+    ")\n",
+    "\n",
+    "# Set label and other layout options\n",
+    "xlabel = pu.axis_label_in_latex(\"Wavelength\", u.AA)\n",
+    "ylabel = pu.axis_label_in_latex(\n",
+    "    \"L_{\\\\lambda}\", u.Unit(\"erg/(s AA)\"), only_text=False\n",
+    ")\n",
+    "fig.update_layout(\n",
+    "    title=\"TARDIS example Spectral Energy Distribution \",\n",
+    "    xaxis={\n",
+    "        \"title\": xlabel,\n",
+    "        \"exponentformat\": \"none\",\n",
+    "    },\n",
+    "    yaxis={\"title\": ylabel, \"exponentformat\": \"e\"},\n",
+    "    xaxis_range=[0, 9000],\n",
+    "    height=600,\n",
+    ")\n",
+    "\n",
+    "fig.show(renderer='notebook_connected')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "tardis",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  },
+  "toc": {
+   "base_numbering": 1,
+   "nav_menu": {},
+   "number_sections": false,
+   "sideBar": true,
+   "skip_h1_title": false,
+   "title_cell": "Table of Contents",
+   "title_sidebar": "Contents",
+   "toc_cell": false,
+   "toc_position": {
+    "height": "calc(100% - 180px)",
+    "left": "10px",
+    "top": "150px",
+    "width": "229.767px"
+   },
+   "toc_section_display": true,
+   "toc_window_display": true
+  },
+  "varInspector": {
+   "cols": {
+    "lenName": 16,
+    "lenType": 16,
+    "lenVar": 40
+   },
+   "kernels_config": {
+    "python": {
+     "delete_cmd_postfix": "",
+     "delete_cmd_prefix": "del ",
+     "library": "var_list.py",
+     "varRefreshCmd": "print(var_dic_list())"
+    },
+    "r": {
+     "delete_cmd_postfix": ") ",
+     "delete_cmd_prefix": "rm(",
+     "library": "var_list.r",
+     "varRefreshCmd": "cat(var_dic_list()) "
+    }
+   },
+   "types_to_exclude": [
+    "module",
+    "function",
+    "builtin_function_or_method",
+    "instance",
+    "_Feature"
+   ],
+   "window_display": false
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
