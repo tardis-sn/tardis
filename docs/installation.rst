@@ -115,7 +115,7 @@ To update the environment after a new release, download the latest lockfile and 
 
   ::
 
-      $ conda compare --name tardis tardis_env3.yml
+      $ conda compare --name tardis env.yml
 
 **Recommended approach:**
 
