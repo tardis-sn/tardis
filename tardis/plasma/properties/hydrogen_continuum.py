@@ -103,7 +103,7 @@ class HydrogenContinuumPropertes(ProcessingPlasmaProperty):
 
         solver = IonPopulationSolver(ion_rate_matrix_solver, [(1, 0), (1, 1)])
 
-        fractional_ion_population = solver.solve(
+        fractional_ion_population, fractional_electron_density = solver.solve(
             dilute_planckian_radiation_field,
             electron_dist,
             lte_level_number_density,
@@ -114,5 +114,8 @@ class HydrogenContinuumPropertes(ProcessingPlasmaProperty):
         )
 
         ion_number_density = fractional_ion_population * number_density
+        electron_densities = (
+            fractional_electron_density * previous_electron_densities
+        )
 
-        return (ion_number_density,)
+        return ion_number_density, electron_densities
