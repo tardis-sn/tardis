@@ -20,6 +20,12 @@ Installation
 Install with lockfiles
 ======================
 
+
+.. note::
+    TARDIS installation is being shifted to `tardisbase <https://tardis-sn.github.io/tardisbase/>`_.
+    Please refer to the `tardisbase installation guide <https://tardis-sn.github.io/tardisbase/installation.html>`_
+    for more information.
+
 Conda lockfiles are platform-specific dependency files that produce repeatable environments.
 These files are generated on every new release. We strongly recommend installing TARDIS using
 this method by following the steps described below.
@@ -115,7 +121,7 @@ To update the environment after a new release, download the latest lockfile and 
 
   ::
 
-      $ conda compare --name tardis tardis_env3.yml
+      $ conda compare --name tardis env.yml
 
 **Recommended approach:**
 
