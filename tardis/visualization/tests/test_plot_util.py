@@ -263,9 +263,9 @@ class TestPlotUtil:
         }
         masked_data = {
             mode: PlotDataHDF(
-                masked_df=create_wavelength_mask(
+                masked_df=pd.DataFrame(create_wavelength_mask(
                     packet_data, mode, [3000, 9000] * u.AA, df_key="packets_df", column_name="nus"
-                )
+                ))
             )
             for mode in ["real", "virtual"]
         }
