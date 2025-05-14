@@ -146,6 +146,32 @@ class LIVPlotter:
             ]
             self._parse_species_list(top_species_list, packets_mode)
 
+    def _make_colorbar_labels(self):
+        """
+        Generate labels for the colorbar based on species.
+
+        If a species list is provided, uses that to generate labels.
+        Otherwise, generates labels from the species in the model.
+        """
+        if self._species_list is None:
+            species_name = [
+                atomic_number2element_symbol(atomic_num)
+                for atomic_num in self.species
+            ]
+        else:
+            species_name = []
+            for species_key, species_ids in self._species_mapped.items():
+                if any(spec_id in self.species for spec_id in species_ids):
+                    atomic_number, ion_number = divmod(species_key, 100)
+                    if ion_number == 0:
+                        label = atomic_number2element_symbol(atomic_number)
+                    else:
+                        ion_numeral = int_to_roman(ion_number + 1)
+                        label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
+                    species_name.append(label)
+
+        self._species_name = species_name
+
     def _make_colorbar_colors(self):
         """
         Generate colors for the species to be plotted.
@@ -283,9 +309,7 @@ class LIVPlotter:
         if len(self.species) == 0:
             raise ValueError("No valid species found for plotting.")
 
-        self._species_name = pu.make_colorbar_labels(
-            self.species, self._species_list, self._species_mapped
-        )
+        self._make_colorbar_labels()
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         self._make_colorbar_colors()
 

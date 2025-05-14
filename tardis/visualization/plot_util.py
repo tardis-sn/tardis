@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 
 from tardis.util.base import (
-    atomic_number2element_symbol,
     element_symbol2atomic_number,
     int_to_roman,
     roman_to_int,
@@ -457,43 +456,6 @@ def parse_species_list_util(species_list):
     species_list_result = [species_id for group in requested_species_ids for species_id in group]
 
     return species_mapped, species_list_result, elements_with_shared_color, full_species_list
-
-
-def make_colorbar_labels(species, species_list=None, species_mapped=None):
-    """
-    Generate labels for the colorbar based on species.
-
-    Parameters
-    ----------
-    species : list of int
-        List of species identifiers (Z * 100 + ion) or atomic numbers.
-    species_list : list, optional
-        Optional list of species to filter against.
-    species_mapped : dict, optional
-        Mapping from species key (Z * 100 + ion) to lists of species IDs.
-
-    Returns
-    -------
-    list of str
-        List of formatted species labels
-    """
-    if species_list is None:
-        species_name = [
-            atomic_number2element_symbol(atomic_num) for atomic_num in species
-        ]
-    else:
-        species_name = []
-        for species_key, species_ids in species_mapped.items():
-            if any(spec_id in species for spec_id in species_ids):
-                atomic_number, ion_number = divmod(species_key, 100)
-                if ion_number == 0:
-                    label = atomic_number2element_symbol(atomic_number)
-                else:
-                    ion_numeral = int_to_roman(ion_number + 1)
-                    label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
-                species_name.append(label)
-
-    return species_name
 
 
 def get_spectrum_data(packets_mode, sim):
