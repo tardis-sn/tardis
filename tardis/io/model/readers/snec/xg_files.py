@@ -1,10 +1,43 @@
+from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 from astropy import units as u
-from tqdm import tqdm
+from astropy.units import Quantity
+
+
+@dataclass
+class XGData:
+    timestamps: Quantity
+    data_blocks: list
+    metadata: dict = field(default_factory=dict)
+
+    def to_xarray(self):
+        """
+        Converts the XGData to an xarray DataArray.
+
+        Returns
+        -------
+        xr.DataArray: A 3D xarray DataArray where each DataFrame in data_blocks is a slice along the first dimension.
+        """
+        # Ensure all DataFrames share the same index and columns
+        idx = self.data_blocks[0].index
+        cols = self.data_blocks[0].columns
+
+        # Stack their values into a single numpy array
+        arr = np.stack([df.values for df in self.data_blocks], axis=0)
+
+        # Create the xarray DataArray
+        da3d = xr.DataArray(
+            arr,
+            coords={"time": self.timestamps, "cell_id": idx, "quantity": cols},
+            dims=("time", "cell_id", "quantity"),
+        )
+
+        return da3d
 
 
 def xg_block_size(path):
@@ -37,9 +70,7 @@ def xg_block_size(path):
     return len(timestamp_blocks), np.diff(timestamp_blocks)[0]
 
 
-def read_xg_timestamps_and_data(
-    file_path: str, column_names: list, show_progress: bool = False
-):
+def read_xg_file(file_path: str, column_names: list, show_progress: bool = False):
     """
     Reads the timestamps and corresponding data blocks from an .xg file.
 
@@ -78,7 +109,7 @@ def read_xg_timestamps_and_data(
     iterator = block_ranges
     if show_progress:
         try:
-            from IPython import get_ipython
+            from IPython.core import get_ipython
 
             ip = get_ipython()
             if ip is not None and "IPKernelApp" in ip.config:
@@ -97,8 +128,11 @@ def read_xg_timestamps_and_data(
 
         # Extract the data block corresponding to the timestamp
         data_block = pd.read_csv(
-            StringIO("".join(current_block[1:])), sep=r"\s+", header=None
+            StringIO("".join(current_block[1:])),
+            sep=r"\s+",
+            header=None,
+            names=column_names,
         )
         data_blocks.append(data_block)
 
-    return timestamps * u.s, data_blocks
+    return XGData(timestamps * u.s, data_blocks)
