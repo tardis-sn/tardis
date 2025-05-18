@@ -4,12 +4,13 @@
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
 import os
+from importlib.metadata import PackageNotFoundError, version
 
 __all__ = ['__version__', 'test']
 
 try:
-    from .version import version as __version__
-except ImportError:
+    __version__ = version("package-name")
+except PackageNotFoundError:
     __version__ = ''
 
 # ----------------------------------------------------------------------------
