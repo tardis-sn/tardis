@@ -25,7 +25,7 @@ def test_macro_atom(
     activation_level_id = verysimple_opacity_state.line2macro_level_upper[
         static_packet.next_line_id
     ]
-    result, transition_type = macro_atom.macro_atom(
+    result, transition_type = macro_atom.macro_atom_interaction(
         activation_level_id,
         static_packet.current_shell_id,
         verysimple_opacity_state,

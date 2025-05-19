@@ -484,6 +484,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
+        self.opacity_states = opacity_states
         virtual_packet_energies = self.solve_montecarlo(
             opacity_states,
             self.final_iteration_packet_count,
