@@ -30,3 +30,8 @@ runs:
           environment-name: tardis
           cache-environment: true
           cache-downloads: true
+      
+      - name: Install xarray
+        run: |
+          micromamba install -c conda-forge xarray --yes
+        shell: bash
