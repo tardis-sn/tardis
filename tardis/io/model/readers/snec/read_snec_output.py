@@ -1,4 +1,4 @@
-from xg_files import read_xg_file, XGData
+from tardis.io.model.readers.snec.xg_files import read_xg_file, XGData
 import numpy as np
 
 SNEC_XG_OUTPUT_QUANTITIES = {
