@@ -51,7 +51,11 @@ class LIVPlotter:
         plotter = cls()
         plotter.velocity = sim.simulation_state.velocity
         plotter.time_explosion = sim.plasma.time_explosion
-        for mode in ["real", "virtual"]:
+
+        modes = ["real"]
+        if sim.transport.transport_state.virt_logging:
+            modes.append("virtual")
+        for mode in modes:
             plotter.packet_data[mode] = pu.extract_and_process_packet_data(
                 sim, mode
             )
@@ -80,7 +84,11 @@ class LIVPlotter:
             plotter.velocity = hdf["/simulation/simulation_state/velocity"] * (
                 u.cm / u.s
             )
-            for mode in ["real", "virtual"]:
+            transport_state_scalars = hdf["/simulation/transport/transport_state/scalars"]
+            has_virtual = bool(getattr(transport_state_scalars, "virt_logging", False))
+
+            modes = ["real"] + (["virtual"] if has_virtual else [])
+            for mode in modes:
                 plotter.packet_data[mode] = (
                     pu.extract_and_process_packet_data_hdf(hdf, mode)
                 )

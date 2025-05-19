@@ -90,7 +90,11 @@ class SDECPlotter:
             * u.s
         )
 
-        for mode in ["real", "virtual"]:
+        modes = ["real"]
+        if sim.transport.transport_state.virt_logging:
+            modes.append("virtual")
+
+        for mode in modes:
             plotter.spectrum[mode] = pu.get_spectrum_data(mode, sim)
             plotter.packet_data[mode] = pu.extract_and_process_packet_data(
                 sim, mode
@@ -122,20 +126,18 @@ class SDECPlotter:
             plotter.t_inner = u.Quantity(
                 hdf["/simulation/simulation_state/scalars"].t_inner, "K"
             )
+            transport_state_scalars = hdf["/simulation/transport/transport_state/scalars"]
             plotter.time_of_simulation = u.Quantity(
-                hdf[
-                    "/simulation/transport/transport_state/scalars"
-                ].time_of_simulation,
+                transport_state_scalars.time_of_simulation,
                 "s",
             )
 
-            for mode in ["real", "virtual"]:
-                plotter.spectrum = {
-                    mode: pu.extract_spectrum_data_hdf(hdf, mode)
-                }
-                plotter.packet_data[mode] = (
-                    pu.extract_and_process_packet_data_hdf(hdf, mode)
-                )
+            has_virtual = bool(getattr(transport_state_scalars, "virt_logging", False))
+            modes = ["real"] + (["virtual"] if has_virtual else [])
+
+            for mode in modes:
+                plotter.spectrum[mode] = pu.extract_spectrum_data_hdf(hdf, mode)
+                plotter.packet_data[mode] = pu.extract_and_process_packet_data_hdf(hdf, mode)
 
         return plotter
 
