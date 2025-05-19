@@ -1,158 +1,39 @@
 from xg_files import read_xg_file, XGData
 import numpy as np
+import yaml
+import pandas as pd
+import numpy.testing as npt
+from dataclasses import dataclass
 
-SNEC_XG_OUTPUT_QUANTITIES = {
-    "radius": {
-        "long_name": "Radius",
-        "units": "cm",
-        "description": "Radial coordinate at each point.",
-    },
-    "mass": {
-        "long_name": "Mass",
-        "units": "g",
-        "description": "Mass coordinate in grams.",
-    },
-    "vel": {
-        "long_name": "Velocity",
-        "units": "cm / s",
-        "description": "Fluid velocity.",
-    },
-    "rho": {"long_name": "Density", "units": "g / cm3", "description": "Mass density."},
-    "temp": {
-        "long_name": "Temperature",
-        "units": "K",
-        "description": "Gas temperature.",
-    },
-    "logT": {
-        "long_name": "Log Temperature",
-        "units": "dex",
-        "description": "Base-10 logarithm of temperature.",
-    },
-    "tau": {
-        "long_name": "Optical Depth",
-        "units": "",
-        "description": "Integrated optical depth from this point to the outer boundary.",
-    },
-    "lum": {
-        "long_name": "Luminosity",
-        "units": "erg / s",
-        "description": "Local radiative luminosity (see Eq. 4 of the notes).",
-    },
-    "p_rad": {
-        "long_name": "Radiation Pressure",
-        "units": "dyn / cm2",
-        "description": "Pressure due to radiation field.",
-    },
-    "press": {
-        "long_name": "Gas Pressure",
-        "units": "dyn / cm2",
-        "description": "Thermal gas pressure.",
-    },
-    "E_shell": {
-        "long_name": "Shell Energy",
-        "units": "erg",
-        "description": "Auxiliary shell energy quantity (see Sec. 7 of the notes).",
-    },
-    "Ni_deposit_function": {
-        "long_name": "Ni Deposition Function",
-        "units": "",
-        "description": "Fractional gamma-ray energy deposition function (Eq. 46 of the notes).",
-    },
-    "ye": {
-        "long_name": "Electron Fraction",
-        "units": "",
-        "description": "Ratio of free electrons to baryons.",
-    },
-    "free_electron_frac": {
-        "long_name": "Free Electron Fraction",
-        "units": "",
-        "description": "Local fraction of electrons not bound in atoms.",
-    },
-    "photosphere_tracer": {
-        "long_name": "Photosphere Tracer",
-        "units": "",
-        "description": "1 at the photosphere position, 0 elsewhere.",
-    },
-    "time_diff": {
-        "long_name": "diffusion timescale",
-        "units": "s",
-        "description": "Auxiliary time difference quantity (used in analysis; Sec. 7 of the notes).",
-    },
-    "delta_time": {
-        "long_name": "Timestep",
-        "units": "s",
-        "description": "Local timestep as computed in timestep.F90 (Eq. 34 of the notes).",
-    },
-    "time_exp": {
-        "long_name": "Time Since Explosion",
-        "units": "s",
-        "description": "Time since explosion at each grid point (used in analysis; Sec. 7 of the notes).",
-    },
-    "Q": {
-        "long_name": "Artificial Viscosity",
-        "units": "dyn / cm2",
-        "description": "Artificial viscosity term added in the momentum equation.",
-    },
-    "kappa": {
-        "long_name": "Opacity (floored)",
-        "units": "cm2 / g",
-        "description": "Rosseland-mean opacity after applying the floor (see Sec. 3.3).",
-    },
-    "kappa_table": {
-        "long_name": "Opacity (raw)",
-        "units": "cm2 / g",
-        "description": "Rosseland-mean opacity before applying the floor.",
-    },
-    "eps": {
-        "long_name": "Internal Energy",
-        "units": "erg / g",
-        "description": "Specific internal energy.",
-    },
-    "logR_op": {
-        "long_name": "Log R",
-        "units": "dex",
-        "description": "Logarithm of R as defined in opacity calculations (see Sec. 3.3).",
-    },
-    "cs2": {
-        "long_name": "Sound Speed Squared",
-        "units": "cm2 / s2",
-        "description": "Square of the adiabatic sound speed.",
-    },
-    "H_1": {
-        "long_name": "Neutral Hydrogen Fraction",
-        "units": "",
-        "description": "Fraction of hydrogen in the neutral state.",
-    },
-    "H_2": {
-        "long_name": "Ionized Hydrogen Fraction",
-        "units": "",
-        "description": "Fraction of hydrogen in the first ionized state.",
-    },
-    "He_1": {
-        "long_name": "Neutral Helium Fraction",
-        "units": "",
-        "description": "Fraction of helium in the neutral state.",
-    },
-    "He_2": {
-        "long_name": "Singly Ionized Helium Fraction",
-        "units": "",
-        "description": "Fraction of helium in the first ionized state.",
-    },
-    "He_3": {
-        "long_name": "Doubly Ionized Helium Fraction",
-        "units": "",
-        "description": "Fraction of helium in the second ionized state.",
-    },
-}
+with open("parser_config/snec_xg_output_quantities.yml", "r") as fh:
+    SNEC_XG_OUTPUT_METADATA = yaml.safe_load(fh)
 
-def read_snec_output_xg(snec_dir, show_progress=False):
+with open("parser_config/snec_initial_composition.yml") as fh:
+    SNEC_INITIAL_COMPOSITION_METADATA = yaml.safe_load(fh)
+
+with open("parser_config/snec_initial_quantities.yml") as fh:
+    SNEC_INITIAL_QUANTITIES_METADATA = yaml.safe_load(fh)
+
+with open("parser_config/snec_em_output_metadata.yml") as fh:
+    SNEC_EM_OUTPUT_METADATA = yaml.safe_load(fh)
+
+
+@dataclass
+class SNECOutput:
+    xg_data: XGData
+    initial_composition: pd.DataFrame
+    initial_quantities: pd.DataFrame
+    em_output: pd.DataFrame
+
+
+def read_snec_output_xg(snec_output_dir, show_progress=False):
     all_xg_data = {}
     mass_xg_data = read_xg_file(
-        snec_dir / "output" / "mass.xg", column_names=["radius", "enclosed_mass"]
+        snec_output_dir / "output" / "mass.xg", column_names=["radius", "enclosed_mass"]
     )
 
-    for output_quantity, metadata in SNEC_XG_OUTPUT_QUANTITIES.items():
-        xg_file = snec_dir / "output" / f"{output_quantity}.xg"
+    for output_quantity, metadata in SNEC_XG_OUTPUT_METADATA.items():
+        xg_file = snec_output_dir / "output" / f"{output_quantity}.xg"
         if not xg_file.exists():
             raise FileNotFoundError(f"File {xg_file} does not exist.")
 
@@ -185,6 +66,150 @@ def read_snec_output_xg(snec_dir, show_progress=False):
     merged_xg_data = XGData(
         timestamps=mass_xg_data.timestamps,
         data_blocks=merged_data_blocks,
-        metadata=SNEC_XG_OUTPUT_QUANTITIES  # Use the full SNEC_XG_OUTPUT_QUANTITIES as metadata
+        metadata=SNEC_XG_OUTPUT_METADATA,  # Use the full SNEC_XG_OUTPUT_QUANTITIES as metadata
     )
     return merged_xg_data
+
+
+def read_snec_dat_output(snec_output_dir, snec_dat_names, first_column_name):
+    """
+    Load the initial composition data from SNEC output.
+
+    Parameters
+    ----------
+    snec_output_dir : Path
+        Path to the directory containing the SNEC output files.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the initial composition for each cell, indexed by cell ID.
+    """
+    first_composition_name = snec_dat_names[0]
+    snec_initial_composition_df = pd.read_csv(
+        snec_output_dir / "output" / f"{first_composition_name}.dat",
+        names=[first_column_name, first_composition_name],
+        sep=r"\s+",
+    )
+
+    for snec_initial_composition_name in snec_dat_names[1:]:
+        current_snec_initial_composition_df = pd.read_csv(
+            snec_output_dir / "output" / f"{snec_initial_composition_name}.dat",
+            names=[first_column_name, snec_initial_composition_name],
+            sep=r"\s+",
+        )
+        npt.assert_array_almost_equal(
+            snec_initial_composition_df.iloc[:, 0],
+            current_snec_initial_composition_df.iloc[:, 0],
+        )
+
+        snec_initial_composition_df[snec_initial_composition_name] = (
+            current_snec_initial_composition_df[snec_initial_composition_name]
+        )
+
+    return snec_initial_composition_df
+
+
+def read_snec_initial_composition(snec_output_dir):
+    """
+    Load the initial composition data from SNEC output.
+
+    Parameters
+    ----------
+    snec_output_dir : Path
+        Path to the directory containing the SNEC output files.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the initial composition for each cell, indexed by cell ID.
+    """
+    return read_snec_dat_output(
+        snec_output_dir,
+        list(SNEC_INITIAL_COMPOSITION_METADATA.keys()),
+        first_column_name="cell_id",
+    )
+
+
+def read_snec_initial_quantities(snec_output_dir):
+    """
+    Load the initial quantities data from SNEC output.
+
+    Parameters
+    ----------
+    snec_output_dir : Path
+        Path to the directory containing the SNEC output files.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the initial quantities for each cell, indexed by cell ID.
+    """
+    return read_snec_dat_output(
+        snec_output_dir,
+        list(SNEC_INITIAL_QUANTITIES_METADATA.keys()),
+        first_column_name="cell_id",
+    )
+
+
+def read_snec_em_output(snec_output_dir):
+    """
+    Load the output quantities data from SNEC output.
+
+    Parameters
+    ----------
+    snec_output_dir : Path
+        Path to the directory containing the SNEC output files.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the output quantities for each cell, indexed by cell ID.
+    """
+
+    em_output_metadata = [
+        item for item in SNEC_EM_OUTPUT_METADATA.keys() if not item.startswith("index_")
+    ]
+    em_index_output_metadata = [
+        item for item in SNEC_EM_OUTPUT_METADATA.keys() if item.startswith("index_")
+    ]
+
+    em_output_df = read_snec_dat_output(
+        snec_output_dir,
+        em_output_metadata,
+        first_column_name="time",
+    )
+    
+    em_index_output_df = read_snec_dat_output(
+        snec_output_dir,
+        em_index_output_metadata,
+        first_column_name="time",
+    )
+    
+    npt.assert_allclose(em_output_df['time'], em_index_output_df['time'], rtol=1e-9)
+
+    return em_output_df.join(em_index_output_df.iloc[:, 1:])
+
+
+def read_snec_output(snec_output_dir, show_progress=False):
+    """
+    Read SNEC output files and return a SNECOutput dataclass instance.
+
+    Parameters
+    ----------
+    snec_output_dir : Path
+        Path to the directory containing the SNEC output files.
+    show_progress : bool, optional
+        If True, show progress for reading xg files. Default is False.
+
+    Returns
+    -------
+    SNECOutput
+        Dataclass instance containing the SNEC output data.
+    """
+    return SNECOutput(
+        xg_data=read_snec_output_xg(snec_output_dir, show_progress),
+        initial_composition=read_snec_initial_composition(snec_output_dir),
+        initial_quantities=read_snec_initial_quantities(snec_output_dir),
+        em_output=read_snec_em_output(snec_output_dir),
+    )

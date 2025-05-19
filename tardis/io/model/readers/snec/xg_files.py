@@ -1,13 +1,12 @@
-from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
+from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
-import xarray as xr
 from astropy import units as u
 from astropy.units import Quantity
-
+import xarray as xr
 
 @dataclass
 class XGData:
@@ -23,6 +22,7 @@ class XGData:
         -------
         xr.DataArray: A 3D xarray DataArray where each DataFrame in data_blocks is a slice along the first dimension.
         """
+
         # Ensure all DataFrames share the same index and columns
         idx = self.data_blocks[0].index
         cols = self.data_blocks[0].columns
@@ -33,11 +33,16 @@ class XGData:
         # Create the xarray DataArray
         da3d = xr.DataArray(
             arr,
-            coords={"time": self.timestamps, "cell_id": idx, "quantity": cols},
-            dims=("time", "cell_id", "quantity"),
+            coords={
+                'time': self.timestamps,
+                'cell_id': idx+1,
+                'quantity': cols
+            },
+            dims=('time', 'cell_id', 'quantity')
         )
 
         return da3d
+
 
 
 def xg_block_size(path):
@@ -70,7 +75,9 @@ def xg_block_size(path):
     return len(timestamp_blocks), np.diff(timestamp_blocks)[0]
 
 
-def read_xg_file(file_path: str, column_names: list, show_progress: bool = False):
+def read_xg_file(
+    file_path: str, column_names: list, show_progress: bool = False
+):
     """
     Reads the timestamps and corresponding data blocks from an .xg file.
 
@@ -128,10 +135,8 @@ def read_xg_file(file_path: str, column_names: list, show_progress: bool = False
 
         # Extract the data block corresponding to the timestamp
         data_block = pd.read_csv(
-            StringIO("".join(current_block[1:])),
-            sep=r"\s+",
-            header=None,
-            names=column_names,
+            StringIO("".join(current_block[1:])), sep=r"\s+", header=None,
+            names=column_names
         )
         data_blocks.append(data_block)
 
