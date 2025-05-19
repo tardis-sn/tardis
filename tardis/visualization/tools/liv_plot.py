@@ -170,7 +170,7 @@ class LIVPlotter:
             species_name = []
             for species_key, species_ids in self._species_mapped.items():
                 if any(spec_id in self.species for spec_id in species_ids):
-                    atomic_number, ion_number = divmod(species_key, 100)
+                    atomic_number, ion_number = divmod(species_key, 100) #(quotient, remainder) Eg: 1402 = 14, 02
                     if ion_number == 0:
                         label = atomic_number2element_symbol(atomic_number)
                     else:
