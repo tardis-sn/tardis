@@ -377,6 +377,23 @@ class SDECPlotter:
     def process_luminosity_dataframe(
         self, df, keys_to_exclude, other_column_position=0
     ):
+        """
+        Process a luminosity DataFrame by aggregating specified columns into an 'other' column.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The DataFrame containing luminosity data to be processed.
+        keys_to_exclude : list of str
+            Column names in `df` whose data should be summed into the 'other' column and removed.
+        other_column_position : int, optional
+            The integer location (0-indexed) at which to insert the new 'other' column. Defaults to 0.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A new DataFrame with the excluded columns summed into 'other' and removed from the original.
+        """
         mask = np.isin(df.columns, keys_to_exclude)
         excluded_keys = df.columns[mask]
 
@@ -1246,6 +1263,16 @@ class SDECPlotter:
         )
 
     def _log_missing_species(self, identifier, is_absorption):
+        """
+        Log an informational message when a species is missing from interaction data.
+
+        Parameters
+        ----------
+        identifier : int
+            Species identifier, atomic number or combined atomic and ion number (Z*100+ion).
+        is_absorption : bool
+            True if checking absorption species, False for emission species.
+        """
         interaction_type = "absorbed" if is_absorption else "emitted"
         if self._species_list is None:
             info_msg = (
