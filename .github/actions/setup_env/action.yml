@@ -11,7 +11,7 @@ runs:
   using: "composite"
   steps:
       - name: Download Lock File
-        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ inputs.os-label }}.lock
+        run:  wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/add-xarray/conda-${{ inputs.os-label }}.lock
         if: matrix.pip == true
         shell: bash
       
@@ -30,8 +30,3 @@ runs:
           environment-name: tardis
           cache-environment: true
           cache-downloads: true
-      
-      - name: Install xarray
-        run: |
-          micromamba install -c conda-forge xarray --yes
-        shell: bash
