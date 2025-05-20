@@ -1,9 +1,8 @@
-from numba import float64, int64, njit, from_dtype
-from numba.experimental import jitclass
-from numba.typed import List
 import numpy as np
 import pandas as pd
-
+from numba import float64, from_dtype, int64, njit
+from numba.experimental import jitclass
+from numba.typed import List
 
 boundary_interaction_dtype = np.dtype(
     [
@@ -33,9 +32,10 @@ rpacket_tracker_spec = [
 
 
 @jitclass(rpacket_tracker_spec)
-class RPacketTracker(object):
+class RPacketTracker:
     """
     Numba JITCLASS for storing the information for each interaction a RPacket instance undergoes.
+
     Parameters
     ----------
         length : int
@@ -200,7 +200,7 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
             rpacket_tracker_ndarray[column_name][
                 prev_index:cur_index
             ] = getattr(rpacket_tracker, column_name)
-        index_array[0][prev_index:cur_index] = getattr(rpacket_tracker, "index")
+        index_array[0][prev_index:cur_index] = rpacket_tracker.index
         index_array[1][prev_index:cur_index] = range(cur_index - prev_index)
     return pd.DataFrame(
         rpacket_tracker_ndarray,
@@ -220,9 +220,10 @@ rpacket_last_interaction_tracker_spec = [
 
 
 @jitclass(rpacket_last_interaction_tracker_spec)
-class RPacketLastInteractionTracker(object):
+class RPacketLastInteractionTracker:
     """
     Numba JITCLASS for storing the last interaction the RPacket undergoes.
+
     Parameters
     ----------
         index : int
@@ -265,14 +266,12 @@ class RPacketLastInteractionTracker(object):
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
         """
-        pass
 
     # To make it compatible with RPacketTracker
     def track_boundary_interaction(self, current_shell_id, next_shell_id):
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
         """
-        pass
 
 
 @njit

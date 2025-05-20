@@ -37,7 +37,7 @@ opacity_state_spec = [
 
 
 @jitclass(opacity_state_spec)
-class OpacityState(object):
+class OpacityState:
     def __init__(
         self,
         electron_density,
@@ -80,7 +80,6 @@ class OpacityState(object):
         transition_line_id : numpy.ndarray
         bf_threshold_list_nu : numpy.ndarray
         """
-
         self.electron_density = electron_density
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
@@ -118,7 +117,8 @@ class OpacityState(object):
         Args:
             i (slice): shell slice.  Will fail if slice is int since class only supports array types
 
-        Returns:
+        Returns
+        -------
             OpacityState : a shallow copy of the current instance
         """
         # NOTE: This currently will not work with continuum processes since it does not slice those arrays
@@ -161,7 +161,6 @@ def opacity_state_initialize(
     plasma : tardis.plasma.BasePlasma
     line_interaction_type : enum
     """
-
     electron_densities = plasma.electron_densities.values
     t_electrons = plasma.t_electrons
     line_list_nu = plasma.atomic_data.lines.nu.values

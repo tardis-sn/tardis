@@ -1,9 +1,9 @@
 """
-Faciliating the MonteCarlo iterations. 
+Faciliating the MonteCarlo iterations.
 
 During a simulation run, a number of MonteCarlo iterations specified
 in the configuration are run using the numba compiler.
-Most of the iterations are used to calculate the steady-state plasma 
+Most of the iterations are used to calculate the steady-state plasma
 properties and with the last iteration, the spectrum is determined.
 """
 
@@ -21,7 +21,7 @@ njit_dict_no_parallel = {
     "parallel": False,
 }
 
-from tardis.transport.montecarlo.r_packet import RPacket
 from tardis.transport.montecarlo.packet_collections import (
     PacketCollection,
 )
+from tardis.transport.montecarlo.r_packet import RPacket

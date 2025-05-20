@@ -9,7 +9,6 @@ from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
 )
-from tardis.transport.montecarlo.r_packet import RPacket
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_bound_free_estimators,
@@ -22,6 +21,7 @@ from tardis.transport.montecarlo.interaction import (
 from tardis.transport.montecarlo.r_packet import (
     InteractionType,
     PacketStatus,
+    RPacket,
 )
 from tardis.transport.montecarlo.r_packet_transport import (
     move_packet_across_shell_boundary,

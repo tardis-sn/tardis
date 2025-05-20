@@ -21,14 +21,13 @@ from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 def test_opacity_solver(
     nb_simulation_verysimple, line_interaction_type, disable_line_scattering
 ):
-
     legacy_plasma = nb_simulation_verysimple.plasma
 
     opacity_solver = OpacitySolver(
         line_interaction_type=line_interaction_type,
         disable_line_scattering=disable_line_scattering,
     )
-    actual = opacity_solver.solve(legacy_plasma)
+    actual = opacity_solver.legacy_solve(legacy_plasma)
 
     pdt.assert_series_equal(
         actual.electron_density, legacy_plasma.electron_densities
@@ -42,10 +41,11 @@ def test_opacity_solver(
         pass
     else:
         macroatom_state = MacroAtomSolver().solve(
-            legacy_plasma,
+            legacy_plasma.j_blues,
             legacy_plasma.atomic_data,
             actual.tau_sobolev,
             legacy_plasma.stimulated_emission_factor,
+            beta_sobolev=actual.beta_sobolev,
         )
         pdt.assert_frame_equal(
             macroatom_state.transition_probabilities,

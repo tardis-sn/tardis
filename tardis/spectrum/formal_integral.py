@@ -1,34 +1,29 @@
 import warnings
+
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
-from scipy.interpolate import interp1d
 from astropy import units as u
+from numba import njit, prange
+from scipy.interpolate import interp1d
+
 from tardis import constants as const
-from numba import njit, char, float64, int64, typeof, byte, prange
-from numba.experimental import jitclass
-
-
+from tardis.opacities.continuum.continuum_state import ContinuumState
 from tardis.opacities.opacity_state import (
     OpacityState,
     opacity_state_initialize,
 )
-from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
-from tardis.transport.montecarlo.configuration import montecarlo_globals
-from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
-from tardis.transport.montecarlo.numba_interface import (
-    opacity_state_initialize,
-    OpacityState,
-)
 from tardis.spectrum.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
-
 from tardis.spectrum.spectrum import TARDISSpectrum
+from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
+from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 C_INV = 3.33564e-11
-M_PI = np.arccos(-1)
+PI = np.pi
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
@@ -61,8 +56,7 @@ def numba_formal_integral(
         intensities at each p-ray multiplied by p
         frequency x p-ray grid
     """
-
-    # todo: add all the original todos
+    # TODO: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
     # global read-only values
@@ -202,7 +196,7 @@ def numba_formal_integral(
                 pJred_lu += direction
                 pJblue_lu += direction
             I_nu[p_idx] *= p
-        L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N)
+        L[nu_idx] = 8 * PI * PI * trapezoid_integration(I_nu, R_max / N)
 
     return L, I_nu_p
 
@@ -215,7 +209,7 @@ def numba_formal_integral(
 
 
 # @jitclass(integrator_spec)
-class NumbaFormalIntegrator(object):
+class NumbaFormalIntegrator:
     """
     Helper class for performing the formal integral
     with numba.
@@ -258,7 +252,7 @@ class NumbaFormalIntegrator(object):
         )
 
 
-class FormalIntegrator(object):
+class FormalIntegrator:
     """
     Class containing the formal integrator.
 
@@ -277,7 +271,15 @@ class FormalIntegrator(object):
     points : int64
     """
 
-    def __init__(self, simulation_state, plasma, transport, points=1000):
+    def __init__(
+        self,
+        simulation_state,
+        plasma,
+        transport,
+        opacity_state=None,
+        macro_atom_state=None,
+        points=1000,
+    ):
         self.simulation_state = simulation_state
         self.transport = transport
         self.points = points
@@ -285,19 +287,30 @@ class FormalIntegrator(object):
             self.montecarlo_configuration = (
                 self.transport.montecarlo_configuration
             )
-        if plasma:
-            self.plasma = opacity_state_initialize(
+        if plasma and opacity_state and macro_atom_state:
+            self.opacity_state = opacity_state.to_numba(
+                macro_atom_state,
+                transport.line_interaction_type,
+            )
+            self.atomic_data = plasma.atomic_data
+            self.plasma = plasma
+            self.levels_index = plasma.levels
+        elif plasma:
+            self.opacity_state = opacity_state_initialize(
                 plasma,
                 transport.line_interaction_type,
                 self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
             )
             self.atomic_data = plasma.atomic_data
-            self.original_plasma = plasma
+            self.plasma = plasma
             self.levels_index = plasma.levels
+        else:
+            self.opacity_state = None
 
     def generate_numba_objects(self):
         """instantiate the numba interface objects
-        needed for computing the formal integral"""
+        needed for computing the formal integral
+        """
         from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
         self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
@@ -308,11 +321,12 @@ class FormalIntegrator(object):
             self.transport.r_outer_i
             / self.simulation_state.time_explosion.to("s").value,
         )
-        self.opacity_state = opacity_state_initialize(
-            self.original_plasma,
-            self.transport.line_interaction_type,
-            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-        )
+        if self.opacity_state is None:
+            self.opacity_state = opacity_state_initialize(
+                self.plasma,
+                self.transport.line_interaction_type,
+                self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+            )
         if self.transport.use_gpu:
             self.integrator = CudaFormalIntegrator(
                 self.numba_radial_1d_geometry,
@@ -353,7 +367,7 @@ class FormalIntegrator(object):
                     "FormalIntegrator."
                 )
 
-        if not self.transport.line_interaction_type in [
+        if self.transport.line_interaction_type not in [
             "downbranch",
             "macroatom",
         ]:
@@ -420,14 +434,27 @@ class FormalIntegrator(object):
         -------
         Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
         """
+
         simulation_state = self.simulation_state
+        # slice for the active shells
+        local_slice = slice(
+            simulation_state.geometry.v_inner_boundary_index,
+            simulation_state.geometry.v_outer_boundary_index,
+        )
+
         transport = self.transport
         montecarlo_transport_state = transport.transport_state
+        transition_probabilities = self.opacity_state.transition_probabilities[
+            :, local_slice
+        ]
+        tau_sobolevs = self.opacity_state.tau_sobolev[:, local_slice]
+
+        columns = range(simulation_state.no_of_shells)
 
         # macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
         # macro_data = self.atomic_data.macro_atom_data
-        macro_data = self.original_plasma.macro_atom_data
+        macro_data = self.plasma.atomic_data.macro_atom_data
 
         no_lvls = len(self.levels_index)
         no_shells = len(simulation_state.dilution_factor)
@@ -435,9 +462,7 @@ class FormalIntegrator(object):
         if transport.line_interaction_type == "macroatom":
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
-            internal = self.original_plasma.transition_probabilities[
-                internal_jump_mask
-            ]
+            internal = transition_probabilities[internal_jump_mask]
 
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values
@@ -446,7 +471,7 @@ class FormalIntegrator(object):
             montecarlo_transport_state.packet_collection.time_of_simulation
             * simulation_state.volume
         )
-        exptau = 1 - np.exp(-self.original_plasma.tau_sobolevs)
+        exptau = 1 - np.exp(-tau_sobolevs)
         Edotlu = (
             Edotlu_norm_factor
             * exptau
@@ -479,18 +504,18 @@ class FormalIntegrator(object):
         upper_level_index = self.atomic_data.lines.index.droplevel(
             "level_number_lower"
         )
-        e_dot_lu = pd.DataFrame(Edotlu.values, index=upper_level_index)
+        e_dot_lu = pd.DataFrame(
+            Edotlu.value, index=upper_level_index, columns=columns
+        )
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
 
         if transport.line_interaction_type == "macroatom":
-            C_frame = pd.DataFrame(
-                columns=np.arange(no_shells), index=macro_ref.index
-            )
+            C_frame = pd.DataFrame(columns=columns, index=macro_ref.index)
             q_indices = (source_level_idx, destination_level_idx)
             for shell in range(no_shells):
                 Q = sp.coo_matrix(
-                    (internal[shell], q_indices), shape=(no_lvls, no_lvls)
+                    (internal[:, shell], q_indices), shape=(no_lvls, no_lvls)
                 )
                 inv_N = sp.identity(no_lvls) - Q
                 e_dot_u_vec = np.zeros(no_lvls)
@@ -502,16 +527,17 @@ class FormalIntegrator(object):
             "ion_number",
             "source_level_number",
         ]  # To make the q_ul e_dot_u product work, could be cleaner
-        transitions = self.original_plasma.atomic_data.macro_atom_data[
-            self.original_plasma.atomic_data.macro_atom_data.transition_type
-            == -1
+        transitions = self.plasma.atomic_data.macro_atom_data[
+            self.plasma.atomic_data.macro_atom_data.transition_type == -1
         ].copy()
         transitions_index = transitions.set_index(
             ["atomic_number", "ion_number", "source_level_number"]
         ).index.copy()
-        tmp = self.original_plasma.transition_probabilities[
-            (self.atomic_data.macro_atom_data.transition_type == -1).values
-        ]
+        tmp = pd.DataFrame(
+            transition_probabilities[
+                (self.atomic_data.macro_atom_data.transition_type == -1).values
+            ]
+        )
         q_ul = tmp.set_index(transitions_index)
         t = simulation_state.time_explosion.value
         t = simulation_state.time_explosion.value
@@ -524,13 +550,15 @@ class FormalIntegrator(object):
         att_S_ul = wave * (q_ul * e_dot_u) * t / (4 * np.pi)
 
         result = pd.DataFrame(
-            att_S_ul.values, index=transitions.transition_line_id.values
+            att_S_ul.values,
+            index=transitions.transition_line_id.values,
+            columns=columns,
         )
         att_S_ul = result.loc[lines.index.values].values
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-self.original_plasma.tau_sobolevs) + att_S_ul
+        Jredlu = Jbluelu * np.exp(-tau_sobolevs) + att_S_ul
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -547,11 +575,9 @@ class FormalIntegrator(object):
             transport.r_outer_i = (
                 montecarlo_transport_state.geometry_state.r_outer
             )
-            transport.tau_sobolevs_integ = (
-                self.original_plasma.tau_sobolevs.values
-            )
+            transport.tau_sobolevs_integ = self.opacity_state.tau_sobolev
             transport.electron_densities_integ = (
-                self.original_plasma.electron_densities.values
+                self.opacity_state.electron_density
             )
 
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
@@ -561,7 +587,7 @@ class FormalIntegrator(object):
     ):
         transport = self.transport
         mct_state = transport.transport_state
-        plasma = self.original_plasma
+        plasma = self.plasma
         nshells = self.interpolate_shells
         r_middle = (
             mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
@@ -579,7 +605,9 @@ class FormalIntegrator(object):
 
         transport.electron_densities_integ = interp1d(
             r_middle,
-            plasma.electron_densities,
+            plasma.electron_densities.iloc[
+                self.simulation_state.geometry.v_inner_boundary_index : self.simulation_state.geometry.v_outer_boundary_index
+            ],
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
@@ -587,15 +615,18 @@ class FormalIntegrator(object):
         # (as in the MC simulation)
         transport.tau_sobolevs_integ = interp1d(
             r_middle,
-            plasma.tau_sobolevs,
+            self.opacity_state.tau_sobolev[
+                :,
+                self.simulation_state.geometry.v_inner_boundary_index : self.simulation_state.geometry.v_outer_boundary_index,
+            ],
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
         att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
         )
-        Jredlu = pd.DataFrame(
-            interp1d(r_middle, Jredlu, fill_value="extrapolate")(r_middle_integ)
+        Jredlu = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
+            r_middle_integ
         )
         Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
             r_middle_integ
@@ -613,13 +644,14 @@ class FormalIntegrator(object):
 
     def formal_integral(self, nu, N):
         """Do the formal integral with the numba
-        routines"""
+        routines
+        """
         # TODO: get rid of storage later on
 
         res = self.make_source_function()
 
         att_S_ul = res[0].flatten(order="F")
-        Jred_lu = res[1].values.flatten(order="F")
+        Jred_lu = res[1].flatten(order="F")
         Jblue_lu = res[2].flatten(order="F")
 
         self.generate_numba_objects()
@@ -643,7 +675,7 @@ class FormalIntegrator(object):
         I_nu = self.transport.I_nu_p * ps
         L_test = np.array(
             [
-                8 * M_PI * M_PI * trapezoid_integration((I_nu)[i, :], R_max / N)
+                8 * PI * PI * trapezoid_integration((I_nu)[i, :], R_max / N)
                 for i in range(nu.shape[0])
             ]
         )

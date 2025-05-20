@@ -2,9 +2,8 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
-import numpy.testing as npt
 
-
+from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.properties import (
     NLTEPopulationSolverLU,
     NLTEPopulationSolverRoot,
@@ -14,7 +13,6 @@ from tardis.plasma.properties.nlte_rate_equation_solver import (
     calculate_jacobian_matrix,
     calculate_rate_matrix,
 )
-from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 
 
 @pytest.fixture

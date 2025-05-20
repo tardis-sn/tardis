@@ -93,7 +93,7 @@ class Composition:
 
     def assemble_isotope_masses(self):
         isotope_mass_df = pd.Series(
-            index=self.isotopic_mass_fraction.index, data=-1
+            index=self.isotopic_mass_fraction.index, data=-1, dtype="float64"
         )
         for isotope_tuple in self.isotopic_mass_fraction.index:
             isotope_symbol = int("{:03d}{:03d}0000".format(*isotope_tuple))

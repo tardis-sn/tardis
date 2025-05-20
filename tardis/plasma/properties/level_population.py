@@ -1,6 +1,7 @@
 import logging
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
@@ -25,7 +26,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
     latex_formula = (r"N_{i,j}\dfrac{bf_{i,j,k}}{Z_{i,j}}",)
 
     def __init__(self, plasma_parent):
-        super(LevelNumberDensity, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self._update_inputs()
         self.initialize_indices = True
 
@@ -98,5 +99,7 @@ class LevelNumberDensityHeNLTE(LevelNumberDensity):
             partition_function,
         )
         if helium_population_updated is not None:
-            level_number_density.loc[2].update(helium_population_updated)
+            level_number_density.loc[
+                2, helium_population_updated.columns
+            ] = helium_population_updated.values
         return level_number_density

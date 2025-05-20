@@ -1,16 +1,12 @@
-from tardis.base import run_tardis
-from tardis.io.atom_data.atom_web_download import download_atom_data
+import ipywidgets as ipw
+import pandas as pd
+
 from tardis.util.base import (
     atomic_number2element_symbol,
-    species_tuple_to_string,
     is_notebook,
+    species_tuple_to_string,
 )
-
 from tardis.visualization.widgets.util import create_table_widget
-
-import pandas as pd
-import numpy as np
-import ipywidgets as ipw
 
 
 class BaseShellInfo:
@@ -73,7 +69,7 @@ class BaseShellInfo:
         )  # Overwrite index
         shells_temp_w.index.name = "Shell No."
         # Format to string to make qgrid show values in scientific notations
-        return shells_temp_w.applymap(lambda x: f"{x:.6e}")
+        return shells_temp_w.map(lambda x: f"{x:.6e}")
 
     def element_count(self, shell_num):
         """Generates fractional abundance of elements present in a specific
@@ -296,7 +292,7 @@ class ShellInfoWidget:
                 "other_names": [
                     f"Frac. Ab. (Ion={ion})"
                     for ion in range(
-                        0, self.element_count_table.df.index.max() + 1
+                        self.element_count_table.df.index.max() + 1
                     )
                 ],
             },

@@ -43,14 +43,18 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         he_one_population = HeliumNLTE.calculate_helium_one(
             g_electron, beta_rad, ionization_data, level_boltzmann_factor, g, w
         )
-        helium_population.loc[0].update(he_one_population)
+        helium_population.loc[
+            0, helium_population.columns
+        ] = he_one_population.values
         # He I ground state
         helium_population.loc[0, 0] = 0.0
         # He II excited states
         he_two_population = level_boltzmann_factor.loc[2, 1].mul(
-            (float(g.loc[2, 1, 0]) ** (-1.0))
+            float(g.loc[2, 1, 0]) ** (-1.0)
         )
-        helium_population.loc[1].update(he_two_population)
+        helium_population.loc[
+            1, helium_population.columns
+        ] = he_two_population.values
         # He II ground state
         helium_population.loc[1, 0] = 1.0
         # He III states
@@ -123,7 +127,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
     outputs = ("helium_population",)
 
     def __init__(self, plasma_parent, heating_rate_data_file):
-        super(HeliumNumericalNLTE, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self._g_upper = None
         self._g_lower = None
         self.heating_rate_data = np.loadtxt(heating_rate_data_file, unpack=True)
@@ -228,10 +232,8 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         # Reading in populations from files
         helium_population = level_boltzmann_factor.loc[2].copy()
         for zone, _ in enumerate(electron_densities):
-            with open(
-                f"He_NLTE_Files/discradfield{zone}.txt", "r"
-            ) as read_file:
-                for level in range(0, 35):
+            with open(f"He_NLTE_Files/discradfield{zone}.txt") as read_file:
+                for level in range(35):
                     level_population = read_file.readline()
                     level_population = float(level_population)
                     helium_population[zone].loc[0, level] = level_population

@@ -1,13 +1,10 @@
 import logging
-import os
 
-import numpy as np
 import pandas as pd
 
 from tardis.plasma.properties.base import (
     PreviousIterationProperty,
 )
-from tardis.plasma.properties.ion_population import PhiSahaNebular
 
 __all__ = [
     "PreviousElectronDensities",

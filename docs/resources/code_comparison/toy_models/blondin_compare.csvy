@@ -1,7 +1,7 @@
 ---
 datatype:
   fields:
-  - desc: velocities of shell outer bounderies.
+  - desc: velocities of shell outer boundaries.
     name: velocity
     unit: km/s
   - desc: mean density of shell.

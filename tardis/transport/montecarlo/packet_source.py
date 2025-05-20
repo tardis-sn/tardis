@@ -1,13 +1,14 @@
 import abc
 
-import numpy as np
 import numexpr as ne
+import numpy as np
+from astropy import units as u
+
 from tardis import constants as const
+from tardis.io.util import HDFWriterMixin
 from tardis.transport.montecarlo.packet_collections import (
     PacketCollection,
 )
-from tardis.io.util import HDFWriterMixin
-from astropy import units as u
 
 
 class BasePacketSource(abc.ABC):
@@ -239,7 +240,6 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         Directions for packets
             numpy.ndarray
         """
-
         # For testing purposes
         if self.legacy_mode_enabled:
             return np.sqrt(np.random.random(no_of_packets))
@@ -269,7 +269,6 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
         Parameters
         ----------
-
         luminosity : u.Quantity
 
         """
@@ -314,7 +313,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
         self.time_explosion = time_explosion
         super().__init__(**kwargs)
 
-    def create_packets(self, no_of_packets):
+    def create_packets(self, no_of_packets, *args, **kwargs):
         """Generate relativistic black-body packet properties as arrays
 
         Parameters
@@ -336,7 +335,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
         if self.radius is None or self.time_explosion is None:
             raise ValueError("Black body Radius or Time of Explosion isn't set")
         self.beta = (self.radius / self.time_explosion) / const.c
-        return super().create_packets(no_of_packets)
+        return super().create_packets(no_of_packets, *args, **kwargs)
 
     def create_packet_mus(self, no_of_packets):
         """

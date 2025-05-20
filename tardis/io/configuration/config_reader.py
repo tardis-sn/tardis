@@ -85,7 +85,7 @@ class ConfigurationNameSpace(dict):
                 "Cannot specify both model and csvy_model in main config file."
             )
         if hasattr(self, "csvy_model"):
-            model = dict()
+            model = {}
             csvy_model_path = os.path.join(self.config_dirname, self.csvy_model)
             csvy_yml = load_yaml_from_csvy(csvy_model_path)
             if "v_inner_boundary" in csvy_yml:
@@ -109,13 +109,13 @@ class ConfigurationNameSpace(dict):
         dict.__setitem__(self, key, value)
 
     def __getitem__(self, key):
-        return super(ConfigurationNameSpace, self).__getitem__(key)
+        return super().__getitem__(key)
 
     def __getattr__(self, item):
         if item in self:
             return self[item]
         else:
-            super(ConfigurationNameSpace, self).__getattribute__(item)
+            super().__getattribute__(item)
 
     __setattr__ = __setitem__
 
@@ -431,7 +431,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         """
         convergence_parameters = ["damping_constant", "threshold", "type"]
 
-        for convergence_variable in ["t_inner", "t_rad", "w"]:
+        for convergence_variable in ["t_inner", "t_rad", "w", "v_inner_boundary"]:
             if convergence_variable not in convergence_section_dict:
                 convergence_section_dict[convergence_variable] = {}
             convergence_variable_section = convergence_section_dict[
@@ -447,7 +447,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         return convergence_section_dict
 
     def __init__(self, config_dict):
-        super(Configuration, self).__init__(config_dict)
+        super().__init__(config_dict)
 
 
 def quantity_representer(dumper, data):

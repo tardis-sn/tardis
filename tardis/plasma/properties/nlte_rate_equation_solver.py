@@ -24,6 +24,14 @@ NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE = 1e-6  # Arbitrary toleran
 class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
     outputs = ("ion_number_density", "electron_densities")
 
+    def __init__(
+        self,
+        plasma_parent,
+        electron_densities=None,
+    ):
+        super().__init__(plasma_parent)
+        self._electron_densities = electron_densities
+
     def calculate(
         self,
         gamma,
@@ -138,9 +146,7 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 ),
                 jac=True,
             )
-            assert (
-                solution.success
-            ), "No solution for NLTE population equation found or solver takes too long to converge"
+            assert solution.success, "No solution for NLTE population equation found or solver takes too long to converge"
             (
                 ion_number_density[shell],
                 electron_densities[shell],
@@ -168,6 +174,14 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
 
 class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
     outputs = ("ion_number_density", "electron_densities")
+
+    def __init__(
+        self,
+        plasma_parent,
+        electron_densities=None,
+    ):
+        super().__init__(plasma_parent)
+        self._electron_densities = electron_densities
 
     def calculate(
         self,
@@ -299,9 +313,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
                     < NLTE_POPULATION_SOLVER_TOLERANCE
                 ):
                     logger.debug(
-                        "NLTE ionization solver converged after {} iterations for shell {}".format(
-                            iteration, shell
-                        )
+                        f"NLTE ionization solver converged after {iteration} iterations for shell {shell}"
                     )
                     break
 
@@ -554,9 +566,7 @@ def calculate_first_guess(
     """
     first_guess = pd.Series(0.0, index=rate_matrix_index)
     for atomic_number in atomic_numbers:
-        first_guess.loc[(atomic_number, 1)].iloc[0] = number_density.loc[
-            atomic_number
-        ]
+        first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
     # TODO: After the first iteration, the new guess can be the old solution.
     first_guess = first_guess.values
     first_guess[-1] = electron_density
@@ -717,9 +727,9 @@ def calculate_rate_matrix(
                 total_coll_ion_coefficients.loc[(atomic_number,)],
                 total_coll_recomb_coefficients.loc[(atomic_number,)],
             )
-        rate_matrix.loc[
-            (atomic_number, slice(None)), (atomic_number)
-        ] = rate_matrix_block
+        rate_matrix.loc[(atomic_number, slice(None)), (atomic_number)] = (
+            rate_matrix_block
+        )
 
     charge_conservation_row = calculate_charge_conservation_row(atomic_numbers)
     if set_charge_conservation:
@@ -937,7 +947,7 @@ def ion_matrix(ion_coefficients, atomic_number, ion_number):
     offdiag = np.zeros(atomic_number)
     index = ion_coefficients.index
     for i in index:
-        offdiag[i] = ion_coefficients.loc[i]
+        offdiag[i] = ion_coefficients.loc[i].values[0]
     diag = np.hstack([-offdiag, np.zeros(1)])
     return (np.diag(diag) + np.diag(offdiag, k=-1))[ion_number, :]
 
@@ -961,7 +971,7 @@ def recomb_matrix(recomb_coefficients, atomic_number, ion_number):
     offdiag = np.zeros(atomic_number)
     index = recomb_coefficients.index
     for i in index:
-        offdiag[i] = recomb_coefficients.loc[i]
+        offdiag[i] = recomb_coefficients.loc[i].values[0]
     diag = np.hstack([np.zeros(1), -offdiag])
     return (np.diag(diag) + np.diag(offdiag, k=1))[ion_number, :]
 

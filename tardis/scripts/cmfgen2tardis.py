@@ -1,10 +1,8 @@
-import os
-import sys
 import argparse
+import os
+
 import numpy as np
 import pandas as pd
-
-from tardis.io.atom_data import AtomData
 
 # The from_hdf() method requires an argument, so the line below doesn't work
 # atomic_dataset = AtomData.from_hdf()
@@ -40,7 +38,7 @@ def extract_file_block(f):
 def convert_format(file_path):
     quantities_row = []
     prop_list = ["Velocity", "Density", "Electron density", "Temperature"]
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         for line in f:
             items = line.replace("(", "").replace(")", "").split()
             n = len(items)
@@ -102,7 +100,7 @@ def parse_file(args):
     )
 
     filename = os.path.splitext(os.path.basename(args.input_path))[0]
-    save_fname = ".".join((filename, "csv"))
+    save_fname = f"{filename}.csv"
     resultant_df = pd.concat([density_df, abundances_df], axis=1)
     resultant_df.columns = pd.MultiIndex.from_tuples(
         zip(resultant_df.columns, quantities_row)

@@ -6,7 +6,7 @@ Code for Custom Logger Classes (ColoredFormatter and ColorLogger) and its helper
 http://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 """
 
-FORMAT = "[$BOLD{name:20s}$RESET][{levelname:18s}]  \n\t{message:s} ($BOLD{filename:s}$RESET:{lineno:d})"
+FORMAT = "[$BOLD{name:20s}$RESET][{levelname:18s}]  {message:s} ($BOLD{filename:s}$RESET:{lineno:d})"
 DEBUG_FORMAT = "[$BOLD{name:20s}$RESET][{levelname:18s}]  {message:s} ($BOLD{filename:s}$RESET:{lineno:d})"
 
 

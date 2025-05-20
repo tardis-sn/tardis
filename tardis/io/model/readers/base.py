@@ -1,3 +1,7 @@
+import numpy as np
+import pandas as pd
+
+from tardis.io.model.readers.artis import read_artis_density
 from tardis.io.model.readers.cmfgen_deprecated import (
     read_cmfgen_composition,
     read_cmfgen_density,
@@ -5,15 +9,9 @@ from tardis.io.model.readers.cmfgen_deprecated import (
 from tardis.io.model.readers.generic_readers import (
     ConfigurationError,
     read_csv_composition,
-    read_simple_ascii_mass_fractions,
     read_simple_ascii_density,
+    read_simple_ascii_mass_fractions,
 )
-
-
-import numpy as np
-import pandas as pd
-
-from tardis.io.model.readers.artis import read_artis_density
 
 
 def read_mass_fractions_file(
@@ -36,7 +34,6 @@ def read_mass_fractions_file(
     outer_boundary_index : int
         index of the outer shell, default None
     """
-
     file_parsers = {
         "simple_ascii": read_simple_ascii_mass_fractions,
         "artis": read_simple_ascii_mass_fractions,

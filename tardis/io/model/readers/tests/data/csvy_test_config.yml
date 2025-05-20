@@ -5,7 +5,7 @@ supernova:
   luminosity_requested: 8.770 log_lsun
   time_explosion: 16 day
 
-# standard atomic data base; get it from the tardis-refdata repository
+# standard atomic data base; get it from the tardis-regression-data repository
 atom_data: kurucz_cd23_chianti_H_He.h5
 
 csvy_model: csvy_full.csvy

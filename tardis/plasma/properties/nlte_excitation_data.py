@@ -5,7 +5,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-class NLTEExcitationData(object):
+class NLTEExcitationData:
     """Data needed for NLTE excitation treatment."""
 
     def __init__(self, atom_data_lines, nlte_excitation_species):

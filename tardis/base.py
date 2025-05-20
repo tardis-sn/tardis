@@ -4,7 +4,6 @@ Functions that are important for the general usage of TARDIS.
 
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -18,6 +17,7 @@ def run_tardis(
     log_level=None,
     specific_log_level=None,
     show_progress_bars=True,
+    display_logging_widget=True,
     **kwargs,
 ):
     """
@@ -57,6 +57,9 @@ def run_tardis(
         Option to enable tardis convergence plots.
     show_progress_bars : bool, default: True, optional
         Option to enable the progress bar.
+    display_widget : bool, default: True, optional
+        Option to display the logging widget in Jupyter/VSCode environments.
+        If False, logs will be printed normally instead.
     **kwargs : dict, optional
         Optional keyword arguments including those
         supported by :obj:`tardis.visualization.tools.convergence_plot.ConvergencePlots`.
@@ -70,9 +73,9 @@ def run_tardis(
     -----
     Please see the `logging tutorial <https://tardis-sn.github.io/tardis/io/optional/logging_configuration.html>`_ to know more about `log_level` and `specific` options.
     """
-    from tardis.io.logger.logger import logging_state
-    from tardis.io.configuration.config_reader import Configuration
     from tardis.io.atom_data.base import AtomData
+    from tardis.io.configuration.config_reader import Configuration
+    from tardis.io.logger.logger import logging_state
     from tardis.simulation import Simulation
 
     if isinstance(config, Configuration):
@@ -89,7 +92,7 @@ def run_tardis(
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
 
-    logging_state(log_level, tardis_config, specific_log_level)
+    logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
 
     if atom_data is not None:
         try:
@@ -114,5 +117,7 @@ def run_tardis(
 
     simulation.run_convergence()
     simulation.run_final()
-
+    if logger_widget:
+        tardislogger.remove_widget_handler()
+        tardislogger.setup_stream_handler()
     return simulation

@@ -1,10 +1,9 @@
 # It is currently not possible to use scipy.integrate.cumulative_trapezoid in
 # numba. So here is my own implementation.
-from tardis.transport.montecarlo import njit_dict
-
-
 import numpy as np
 from numba import njit, prange
+
+from tardis.transport.montecarlo import njit_dict
 
 
 @njit(**njit_dict)

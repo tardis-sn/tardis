@@ -28,7 +28,7 @@ def read_blondin_toymodel(fname):
     blondin_csv : pandas.DataFrame
         DataFrame containing the csv part of the toymodel
     """
-    with open(fname, "r") as fh:
+    with open(fname) as fh:
         for line in fh:
             if line.startswith("#idx"):
                 break
@@ -91,7 +91,7 @@ def read_blondin_toymodel(fname):
     )
     blondin_csv["velocity"] = new_velocities
 
-    with open(fname, "r") as fh:
+    with open(fname) as fh:
         t0_string = T0_PATTERN.findall(fh.read())[0]
 
     t0 = parse_quantity(t0_string.replace("DAYS", "day"))

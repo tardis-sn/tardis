@@ -135,17 +135,17 @@ def parse_geometry_from_csvy(
     """
     if hasattr(config, "model"):
         if hasattr(config.model, "v_inner_boundary"):
-            v_boundary_inner = config.model.v_inner_boundary
+            v_inner_boundary = config.model.v_inner_boundary
         else:
-            v_boundary_inner = None
+            v_inner_boundary = None
 
         if hasattr(config.model, "v_outer_boundary"):
-            v_boundary_outer = config.model.v_outer_boundary
+            v_outer_boundary = config.model.v_outer_boundary
         else:
-            v_boundary_outer = None
+            v_outer_boundary = None
     else:
-        v_boundary_inner = None
-        v_boundary_outer = None
+        v_inner_boundary = None
+        v_outer_boundary = None
 
     if hasattr(csvy_model_config, "velocity"):
         velocity = quantity_linspace(
@@ -166,8 +166,8 @@ def parse_geometry_from_csvy(
     geometry = HomologousRadial1DGeometry(
         velocity[:-1],  # v_inner
         velocity[1:],  # v_outer
-        v_inner_boundary=v_boundary_inner,
-        v_outer_boundary=v_boundary_outer,
+        v_inner_boundary=v_inner_boundary,
+        v_outer_boundary=v_outer_boundary,
         time_explosion=time_explosion,
     )
     return geometry

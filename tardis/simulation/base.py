@@ -15,8 +15,11 @@ from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
 from tardis.io.util import HDFWriterMixin
-from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral import FormalIntegrator
@@ -28,9 +31,6 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
-from tardis.opacities.opacity_solver import OpacitySolver
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
-from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
 
@@ -152,9 +152,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         show_progress_bars,
         spectrum_solver,
     ):
-        super(Simulation, self).__init__(
-            iterations, simulation_state.no_of_shells
-        )
+        super().__init__(iterations, simulation_state.no_of_shells)
 
         self.converged = False
         self.iterations = iterations
@@ -291,12 +289,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
         )
 
-        estimated_t_rad = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        )
-        estimated_dilution_factor = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
-        )
+        estimated_t_rad = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
@@ -450,8 +444,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
+    
+        if self.macro_atom is None:
+            self.plasma.beta_sobolev = None
+            macro_atom_state = None
 
-        opacity_state = self.opacity.solve(self.plasma)
+        opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 macro_atom_state = MacroAtomState.from_legacy_plasma(
@@ -459,10 +457,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )  # TODO: Impliment
             else:
                 macro_atom_state = self.macro_atom.solve(
-                    self.plasma,
+                    self.plasma.j_blues,
                     self.plasma.atomic_data,
                     opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
+                    opacity_state.beta_sobolev,
                 )
 
         transport_state = self.transport.initialize_transport_state(
@@ -500,6 +499,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
+        self.emitted_luminosity = emitted_luminosity
+        self.reabsorbed_luminosity = reabsorbed_luminosity
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
                 name="Emitted",
@@ -621,40 +622,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             index=np.arange(len(t_rad)),
             columns=["t_rad", "next_t_rad", "w", "next_w"],
         )
-        plasma_state_log["t_rad"] = t_rad
-        plasma_state_log["next_t_rad"] = next_t_rad
+        plasma_state_log["t_rad"] = t_rad.value
+        plasma_state_log["next_t_rad"] = next_t_rad.value
         plasma_state_log["w"] = dilution_factor
         plasma_state_log["next_w"] = next_dilution_factor
         plasma_state_log.columns.name = "Shell No."
-
-        if is_notebook():
-            logger.info("\n\tPlasma stratification:")
-
-            # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
-            if logger.level <= logging.INFO:
-                if not logger.filters:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            "{:.3g}"
-                        )
-                    )
-                elif logger.filters[0].log_level == 20:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            "{:.3g}"
-                        )
-                    )
-        else:
-            output_df = ""
-            plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
-                float_format=lambda x: f"{x:.3g}",
-                justify="center",
-            )
-            for value in plasma_output.split("\n"):
-                output_df = output_df + f"\t{value}\n"
-            logger.info("\n\tPlasma stratification:")
-            logger.info(f"\n{output_df}")
-
+        logger.info(plasma_state_log.iloc[::log_sampling])
         logger.info(
             f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
         )

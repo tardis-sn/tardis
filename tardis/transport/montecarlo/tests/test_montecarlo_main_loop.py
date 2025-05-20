@@ -8,7 +8,7 @@ from tardis.simulation import Simulation
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_montecarlo_radial1d():
-    assert False
+    raise AssertionError()
 
 
 def test_montecarlo_main_loop(

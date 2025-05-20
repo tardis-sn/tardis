@@ -1,11 +1,13 @@
-import pytest
+import os
+
+import astropy.tests.helper as test_helper
 import numpy as np
 import pandas as pd
-import os
+import pytest
 from astropy import units as u
-from tardis import constants as c
-import astropy.tests.helper as test_helper
 from numpy.testing import assert_almost_equal
+
+from tardis import constants as c
 from tardis.spectrum.spectrum import (
     TARDISSpectrum,
 )
@@ -78,7 +80,9 @@ def test_flux_nu(spectrum):
             )
     else:
         with pytest.raises(AttributeError):
-            spectrum.flux_nu
+            spectrum.luminosity_to_flux(
+                spectrum.luminosity_density_nu, spectrum.distance
+            )
 
 
 def test_flux_lambda(spectrum):
@@ -93,7 +97,9 @@ def test_flux_lambda(spectrum):
             )
     else:
         with pytest.raises(AttributeError):
-            spectrum.flux_nu
+            spectrum.luminosity_to_flux(
+                spectrum.luminosity_density_nu, spectrum.distance
+            )
 
 
 ###

@@ -29,29 +29,7 @@ requires = ["setuptools",
             "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.black]
-line-length = 80
-target-version = ["py36"]
-exclude = '''
-(
-  /(
-      \.eggs         # all directories in the root of the project
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.nox
-    | \.tox
-    | \.venv
-    | \.svn
-    | _build
-    | buck-out
-    | build
-    | dist
-  )/
-  | docs/conf.py
-  | _astropy_init.py
-)
-'''
+[tool.setuptools_scm]
 
 [tool.interrogate]
 color = true
@@ -76,7 +54,6 @@ verbose = 0
 [tool.ruff]
 line-length = 80
 lint.select = ["ALL"]
-exclude=[]
 lint.ignore = [  # NOTE: non-permanent exclusions should be added to `.ruff.toml` instead.
 
     # flake8-builtins (A) : shadowing a Python built-in.
@@ -182,13 +159,10 @@ tardis_visualization = ["tools/tests/data/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tardis"]
-astropy_header = true
 text_file_format = "rst"
 markers = [
     # continuum tests
     "continuum",
-    # rpacket tracking tests
-    "rpacket_tracking"
 ]
 
 [tool.tardis]
@@ -215,3 +189,7 @@ sort_commits = "newest"
 [tool.git-cliff.remote.github]
 owner = "tardis-sn"
 repo = "tardis"
+
+[tool.codespell]
+skip = "*.ipynb,*.png,*.ggb,*.jpg,*.gif,*.ico,docs/contributing/CHANGELOG.md,docs/tardis.bib,docs/resources/research_done_using_TARDIS/research_papers.rst"
+quiet-level = 3

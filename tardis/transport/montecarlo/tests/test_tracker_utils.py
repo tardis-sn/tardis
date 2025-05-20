@@ -1,12 +1,11 @@
-import pytest
 import numpy as np
 from numba import typeof
 
 from tardis.transport.montecarlo.packet_trackers import (
-    RPacketTracker,
     RPacketLastInteractionTracker,
-    generate_rpacket_tracker_list,
+    RPacketTracker,
     generate_rpacket_last_interaction_tracker_list,
+    generate_rpacket_tracker_list,
 )
 
 

@@ -1,10 +1,12 @@
-import logging, shutil
-import yaml
+import logging
 import os
+import shutil
 from pathlib import Path
 
-from tardis import __path__ as TARDIS_PATH
+import yaml
 from astropy.config import get_config_dir
+
+from tardis import __path__ as TARDIS_PATH
 
 TARDIS_PATH = Path(TARDIS_PATH[0])
 DEFAULT_CONFIG_PATH = (
@@ -46,6 +48,6 @@ def get_data_dir():
         data_dir = DEFAULT_DATA_DIR
 
     if not os.path.exists(data_dir):
-        raise IOError(f"Data directory specified in {data_dir} does not exist")
+        raise OSError(f"Data directory specified in {data_dir} does not exist")
 
     return Path(data_dir)

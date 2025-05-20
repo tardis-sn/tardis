@@ -31,7 +31,6 @@ def read_stella_model(fname):
 
     Parameters
     ----------
-
     fname : str
 
     Returns

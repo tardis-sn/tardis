@@ -40,13 +40,12 @@ def extend_with_default(validator_class):
                 if "default" in subschema:
                     instance.setdefault(property, subschema["default"])
 
-        for error in validate_properties(
+        yield from validate_properties(
             validator,
             properties,
             instance,
             schema,
-        ):
-            yield error
+        )
 
     return validators.extend(
         validator_class,
