@@ -28,6 +28,7 @@ import os
 import sys
 import datetime
 import tardis  # FIXME: this import is required by astropy.constants
+
 from importlib import import_module
 import toml
 from pathlib import Path
@@ -309,6 +310,19 @@ linkcheck_ignore = [
 linkcheck_timeout = 180
 linkcheck_anchors = False
 
+# -- Options for Panel -------------------------------------------
+from ipywidgets.embed import DEFAULT_EMBED_REQUIREJS_URL
+
+# https://panel.holoviz.org/how_to/wasm/sphinx.html#configuration
+nbsite_pyodide_conf = {
+     "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"
+}
+
+html_js_files = [
+    DEFAULT_EMBED_REQUIREJS_URL,
+    "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js",
+]
+
 # -- Turn on nitpicky mode for sphinx (to warn about references not found) ----
 #
 # nitpicky = True
@@ -355,11 +369,11 @@ from shutil import copyfile
 def generate_tutorials_page(app):
     """Create tutorials.rst"""
     notebooks = ""
+    io_path = Path("io")
 
-    for root, dirs, fnames in os.walk("io/"):
-        for fname in fnames:
-            if fname.startswith("tutorial_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
-                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+    for notebook in io_path.rglob("*.ipynb"):
+        if "tutorial_" in notebook.name and "checkpoint" not in notebook.name:
+            notebooks += f"\n* :doc:`{notebook.stem}`"
 
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
@@ -370,11 +384,11 @@ def generate_tutorials_page(app):
 def generate_how_to_guides_page(app):
     """Create how_to_guides.rst"""
     notebooks = ""
+    io_path = Path("io")
 
-    for root, dirs, fnames in os.walk("io/"):
-        for fname in fnames:
-            if fname.startswith("how_to_") and fname.endswith(".ipynb") and "checkpoint" not in fname:
-                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+    for notebook in io_path.rglob("*.ipynb"):
+        if "how_to_" in notebook.name and "checkpoint" not in notebook.name:
+            notebooks += f"\n* :doc:`{notebook.stem}`"
 
     title = "How-To Guides\n*********\n"
     description = "The following pages contain the TARDIS how-to guides:"
@@ -382,6 +396,20 @@ def generate_how_to_guides_page(app):
     with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
+def generate_worflows_page(app):
+    "Create workflows.rst"
+    notebooks = ""
+    workflows_path = Path("workflows")
+
+    for notebook in workflows_path.rglob("*.ipynb"):
+        if "workflow" in notebook.name and "checkpoint" not in notebook.name:
+            notebooks += f"\n* :doc:`{notebook.stem}`" 
+
+    title = "Workflows\n*********\n"
+    description = "The following pages contain the TARDIS workflows:\n\n These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives."
+
+    with open("workflows.rst", mode="wt", encoding="utf-8") as f:
+        f.write(f"{title}\n{description}\n{notebooks}")
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     """Exclude specific functions/methods from the documentation"""
@@ -421,5 +449,6 @@ def create_redirect_files(app, docname):
 def setup(app):
     app.connect("builder-inited", generate_tutorials_page)
     app.connect("builder-inited", generate_how_to_guides_page)
+    app.connect("builder-inited", generate_worflows_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)
