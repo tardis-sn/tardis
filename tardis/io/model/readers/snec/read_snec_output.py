@@ -1,20 +1,21 @@
-from xg_files import read_xg_file, XGData
+from tardis.io.model.readers.snec.xg_files import read_xg_file, XGData
 import numpy as np
 import yaml
 import pandas as pd
 import numpy.testing as npt
 from dataclasses import dataclass
+from pathlib import Path
 
-with open("parser_config/snec_xg_output_quantities.yml", "r") as fh:
+with open(Path(__file__).parent / "parser_config/snec_xg_output_quantities.yml", "r") as fh:
     SNEC_XG_OUTPUT_METADATA = yaml.safe_load(fh)
 
-with open("parser_config/snec_initial_composition.yml") as fh:
+with open(Path(__file__).parent / "parser_config/snec_initial_composition.yml", "r") as fh:
     SNEC_INITIAL_COMPOSITION_METADATA = yaml.safe_load(fh)
 
-with open("parser_config/snec_initial_quantities.yml") as fh:
+with open(Path(__file__).parent / "parser_config/snec_initial_quantities.yml", "r") as fh:
     SNEC_INITIAL_QUANTITIES_METADATA = yaml.safe_load(fh)
 
-with open("parser_config/snec_em_output_metadata.yml") as fh:
+with open(Path(__file__).parent / "parser_config/snec_em_output_metadata.yml", "r") as fh:
     SNEC_EM_OUTPUT_METADATA = yaml.safe_load(fh)
 
 
@@ -44,7 +45,7 @@ def read_snec_output_xg(snec_output_dir, show_progress=False):
         )
 
         # Ensure timestamps match
-        assert np.all(np.isclose(mass_xg_data.timestamps, xg_data.timestamps)), (
+        assert np.all(np.testing.assert_allclose(mass_xg_data.timestamps, xg_data.timestamps)), (
             f"Time stamps do not match for {output_quantity} and mass."
         )
 
