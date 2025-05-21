@@ -45,8 +45,10 @@ def read_snec_output_xg(snec_output_dir, show_progress=False):
         )
 
         # Ensure timestamps match
-        assert np.all(np.testing.assert_allclose(mass_xg_data.timestamps, xg_data.timestamps)), (
-            f"Time stamps do not match for {output_quantity} and mass."
+        np.testing.assert_allclose(
+            mass_xg_data.timestamps, 
+            xg_data.timestamps, 
+            err_msg=f"Time stamps do not match for {output_quantity} and mass."
         )
 
         # Add metadata to XGData

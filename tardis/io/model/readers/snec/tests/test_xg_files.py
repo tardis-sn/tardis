@@ -8,7 +8,7 @@ from tardis.io.model.readers.snec.xg_files import xg_block_size, read_xg_file, X
 
 @pytest.fixture
 def regression_test_xg_file(regression_data):
-    return regression_data.regression_data_path / "MESA_STIR_MESA_SNEC" / "output" / "cs2.xg"
+    return regression_data.regression_data_path / "testdata" / "MESA_STIR_MESA_SNEC" / "output" / "cs2.xg"
 
 
 def test_xg_block_size(regression_test_xg_file):
