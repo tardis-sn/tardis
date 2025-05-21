@@ -29,6 +29,8 @@ requires = ["setuptools",
             "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools_scm]
+
 [tool.interrogate]
 color = true
 #exclude = ["docs", "build"]
