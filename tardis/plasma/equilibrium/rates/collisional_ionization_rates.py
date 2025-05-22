@@ -9,13 +9,60 @@ class CollisionalIonizationRateSolver:
     def __init__(self, photoionization_cross_sections):
         self.photoionization_cross_sections = photoionization_cross_sections
 
-    def solve(self, electron_temperature, saha_factor, approximation="seaton"):
+    @staticmethod
+    def __reindex_ionization_rate_dataframe(
+        rate_dataframe, recombination=False
+    ):
+        rate_dataframe.index.names = [
+            "atomic_number",
+            "ion_number",
+            "level_number_source",
+        ]
+
+        rate_dataframe = rate_dataframe.reset_index()
+
+        if recombination:
+            rate_dataframe["ion_number_destination"] = rate_dataframe[
+                "ion_number"
+            ]
+            rate_dataframe["ion_number_source"] = (
+                rate_dataframe["ion_number"] + 1
+            )
+        else:
+            rate_dataframe["ion_number_source"] = rate_dataframe["ion_number"]
+            rate_dataframe["ion_number_destination"] = (
+                rate_dataframe["ion_number"] + 1
+            )
+
+        # ionized electrons are assumed to leave the ion in the ground state for now
+        rate_dataframe["level_number_destination"] = 0
+
+        not_fully_ionized_mask = (
+            rate_dataframe["atomic_number"] != rate_dataframe["ion_number"]
+        )
+
+        rate_dataframe = rate_dataframe[not_fully_ionized_mask]
+
+        rate_dataframe = rate_dataframe.set_index(
+            [
+                "atomic_number",
+                "ion_number",
+                "ion_number_source",
+                "ion_number_destination",
+                "level_number_source",
+                "level_number_destination",
+            ]
+        )
+
+        return rate_dataframe
+
+    def solve(self, electron_distribution, saha_factor, approximation="seaton"):
         """Solve the collisional ionization and recombination rates.
 
         Parameters
         ----------
-        electron_temperature : u.Quantity
-            Electron temperatures per cell
+        electron_distribution :
+            Electron distribution per cell
         saha_factor : pandas.DataFrame, dtype float
             The Saha factor for each cell. Indexed by atom number, ion number, level number.
         approximation : str, optional
@@ -40,11 +87,26 @@ class CollisionalIonizationRateSolver:
         else:
             raise ValueError(f"approximation {approximation} not supported")
 
-        collision_ionization_rates = strength_solver.solve(electron_temperature)
+        collision_ionization_rates = strength_solver.solve(
+            electron_distribution.temperature
+        )
 
         # Inverse of the ionization rate for equilibrium
         collision_recombination_rates = collision_ionization_rates.multiply(
-            saha_factor.loc[collision_ionization_rates.index]
+            saha_factor
         )
+
+        collision_ionization_rates = (
+            self.__reindex_ionization_rate_dataframe(
+                collision_ionization_rates, recombination=False
+            )
+            * electron_distribution.number_density
+        )
+
+        collision_recombination_rates = (
+            self.__reindex_ionization_rate_dataframe(
+                collision_recombination_rates, recombination=True
+            )
+        ) * electron_distribution.number_density**2
 
         return collision_ionization_rates, collision_recombination_rates
