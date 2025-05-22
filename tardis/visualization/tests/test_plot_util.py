@@ -3,8 +3,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from tardis.tests.fixtures.regression_data import PlotDataHDF
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
+    create_wavelength_mask,
+    expand_species_list,
     extract_and_process_packet_data,
     get_mid_point_idx,
     get_spectrum_data,
@@ -152,30 +155,68 @@ class TestPlotUtil:
         )
 
     @pytest.mark.parametrize(
+        "input_species, expected_output",
+        [
+            (
+                ["Fe II", "Ca", "Si I-V"],
+                ["Fe II", "Ca", "Si I", "Si II", "Si III", "Si IV", "Si V"],
+            ),
+            (
+                ["Fe II", "Ca", "Si III-V"],
+                ["Fe II", "Ca", "Si III", "Si IV", "Si V"],
+            ),
+            (["Fe 2"], None),
+            (["Si 1-5"], None),
+        ],
+    )
+    def test_expand_species_list(
+        self, input_species, expected_output
+    ):
+        if expected_output is None:
+            with pytest.raises(ValueError):
+                expand_species_list(input_species)
+        else:
+            assert expand_species_list(input_species) == expected_output
+
+    @pytest.mark.parametrize(
         "input_species, expected_species_mapped, expected_species_list, expected_keep_colour, expected_full_species_list",
         [
             (
-                ["Fe II", "Ca", "Si I - V"],
+                ["Fe II", "Ca", "Si I-V"],
                 {
                     (26, 1): [(26, 1)],
-                    (20, 0): [(20, np.int64(i)) for i in range(20)],
-                    (14, 4): [(14, 4)]
+                    (20, 0): [(20, i) for i in range(20)],
+                    (14, 0): [(14, 0)],
+                    (14, 1): [(14, 1)],
+                    (14, 2): [(14, 2)],
+                    (14, 3): [(14, 3)],
+                    (14, 4): [(14, 4)],
                 },
-                [(26, 1)] + [(20, np.int64(i)) for i in range(20)] + [(14, 4)],
+                [(26, 1)]
+                + [(20, i) for i in range(20)]
+                + [(14, i) for i in range(5)],
                 [20],
-                ["Fe II", "Ca", "Si V"],
+                ["Fe II", "Ca", "Si I", "Si II", "Si III", "Si IV", "Si V"],
             )
         ],
     )
-    def test_parse_species_list_util(self,
+    def test_parse_species_list_util(
+        self,
         input_species,
         expected_species_mapped,
         expected_species_list,
         expected_keep_colour,
         expected_full_species_list,
     ):
-        species_mapped_result, species_list_result, keep_colour_result, full_species_list_result = parse_species_list_util(input_species)
-        assert set(species_mapped_result.keys()) == set(expected_species_mapped.keys())
+        (
+            species_mapped_result,
+            species_list_result,
+            keep_colour_result,
+            full_species_list_result,
+        ) = parse_species_list_util(input_species)
+        assert set(species_mapped_result.keys()) == set(
+            expected_species_mapped.keys()
+        )
         for key in expected_species_mapped:
             assert key in species_mapped_result
             np.testing.assert_array_equal(
@@ -184,9 +225,7 @@ class TestPlotUtil:
         np.testing.assert_array_equal(
             species_list_result, expected_species_list
         )
-        np.testing.assert_array_equal(
-            keep_colour_result, expected_keep_colour
-        )
+        np.testing.assert_array_equal(keep_colour_result, expected_keep_colour)
         assert full_species_list_result == expected_full_species_list
 
     @pytest.mark.parametrize("packets_mode", ["real", "virtual"])
@@ -214,3 +253,26 @@ class TestPlotUtil:
                 actual_data[key].value,
                 expected_value.value,
             )
+
+
+    @pytest.fixture(scope="module")
+    def generate_masked_dataframe_hdf(self, simulation_simple):
+        packet_data = {
+            "real": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="real"),
+            "virtual": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="virtual"),
+        }
+        masked_data = {
+            mode: PlotDataHDF(
+                masked_df=pd.DataFrame(create_wavelength_mask(
+                    packet_data, mode, [3000, 9000] * u.AA, df_key="packets_df", column_name="nus"
+                ))
+            )
+            for mode in ["real", "virtual"]
+        }
+        return masked_data
+
+    @pytest.mark.parametrize("mode", ["real", "virtual"])
+    def test_create_wavelength_mask(self, generate_masked_dataframe_hdf, regression_data, mode):
+        expected = regression_data.sync_dataframe(generate_masked_dataframe_hdf[mode].masked_df, key=mode)
+        actual = generate_masked_dataframe_hdf[mode].masked_df
+        pd.testing.assert_frame_equal(actual, expected)
