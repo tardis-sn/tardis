@@ -60,8 +60,7 @@ class BenchmarkBase:
     @functools.cached_property
     def tardis_ref_path(self):
         ref_data_path = Path(
-            Path(__file__).parent.parent,
-            env.get("TARDIS_REF_PATH")
+            Path(__file__).parent.parent, env.get("TARDIS_REF_PATH")
         ).resolve()
         return ref_data_path
 
@@ -78,7 +77,7 @@ class BenchmarkBase:
     @functools.cached_property
     def atomic_data_fname(self):
         atomic_data_fname = (
-            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He.h5"
+            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He_latest.h5"
         )
 
         if not Path(atomic_data_fname).exists():
@@ -122,9 +121,7 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_packet_collection(self):
-        return (
-            self.nb_simulation_verysimple.transport.transport_state.packet_collection
-        )
+        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
 
     @functools.cached_property
     def nb_simulation_verysimple(self):
@@ -154,15 +151,11 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_tau_russian(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
 
     @functools.cached_property
     def verysimple_survival_probability(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
 
     @functools.cached_property
     def static_packet(self):
@@ -177,9 +170,7 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_3vpacket_collection(self):
-        spectrum_frequency_grid = (
-            self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
-        )
+        spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
         return VPacketCollection(
             source_rpacket_index=0,
             spectrum_frequency_grid=spectrum_frequency_grid,
