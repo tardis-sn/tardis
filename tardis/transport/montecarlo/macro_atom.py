@@ -22,7 +22,7 @@ class MacroAtomTransitionType(IntEnum):
 
 
 @njit(**njit_dict_no_parallel)
-def macro_atom(activation_level_id, current_shell_id, opacity_state):
+def macro_atom_interaction(activation_level_id, current_shell_id, opacity_state):
     """
     Parameters
     ----------

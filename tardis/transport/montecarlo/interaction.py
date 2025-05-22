@@ -11,7 +11,7 @@ from tardis.transport.frame_transformations import (
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
-    macro_atom,
+    macro_atom_interaction,
 )
 from tardis.transport.montecarlo.numba_interface import (
     LineInteractionType,
@@ -211,7 +211,7 @@ def macro_atom_event(
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
-    transition_id, transition_type = macro_atom(
+    transition_id, transition_type = macro_atom_interaction(
         destination_level_idx, r_packet.current_shell_id, opacity_state
     )
 
