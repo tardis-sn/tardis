@@ -193,8 +193,10 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
 <div class="viewcode-block" id="NLTEIndexHelper.calculate_rate_matrix_index">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.calculate_rate_matrix_index">[docs]</a>
     def calculate_rate_matrix_index(
-        self, levels, nlte_ionization_species, nlte_excitation_species=[]
+        self, levels, nlte_ionization_species, nlte_excitation_species=None
     ):
+        if nlte_excitation_species is None:
+            nlte_excitation_species = []
         for level in levels:
             if level[:2] in nlte_ionization_species:
                 yield (*level[:2], &quot;nlte_ion&quot;)
@@ -217,7 +219,7 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 19 May 2025.
+      <span class="lastupdated">Last updated on 22 May 2025.
       </span></p>
   </div>
 
