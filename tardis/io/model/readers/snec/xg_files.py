@@ -8,41 +8,46 @@ from astropy import units as u
 from astropy.units import Quantity
 import xarray as xr
 
+
 @dataclass
 class XGData:
     timestamps: Quantity
     data_blocks: list
     metadata: dict = field(default_factory=dict)
 
-    def to_xarray(self):
-        """
-        Converts the XGData to an xarray DataArray.
-
-        Returns
-        -------
-        xr.DataArray: A 3D xarray DataArray where each DataFrame in data_blocks is a slice along the first dimension.
-        """
-
-        # Ensure all DataFrames share the same index and columns
+    def to_xr_dataset(self):
         idx = self.data_blocks[0].index
-        cols = self.data_blocks[0].columns
-
-        # Stack their values into a single numpy array
-        arr = np.stack([df.values for df in self.data_blocks], axis=0)
-
-        # Create the xarray DataArray
-        da3d = xr.DataArray(
-            arr,
-            coords={
-                'time': self.timestamps,
-                'cell_id': idx+1,
-                'quantity': cols
-            },
-            dims=('time', 'cell_id', 'quantity')
+        cols = [
+            col
+            for col in self.data_blocks[0].columns
+            if col not in ["enclosed_mass", "radius"]
+        ]
+        arr = np.stack(
+            [
+                df.drop(["enclosed_mass", "radius"], axis=1).values
+                for df in self.data_blocks
+            ],
+            axis=0,
         )
 
-        return da3d
+        # Enclosed mass stays 1D
+        enclosed_mass = self.data_blocks[0]["enclosed_mass"].values
 
+        # Radius becomes 2D (time, cell_id)
+        radius_arr = np.stack([df["radius"].values for df in self.data_blocks], axis=0)
+
+        data_vars = {
+            col: (("time", "cell_id"), arr[:, :, i]) for i, col in enumerate(cols)
+        }
+
+        ds = xr.Dataset(
+            data_vars=data_vars,
+            coords={"time": self.timestamps, "cell_id": idx + 1},
+        )
+        ds = ds.assign_coords(enclosed_mass=("cell_id", enclosed_mass))
+        ds = ds.assign_coords(radius=(("time", "cell_id"), radius_arr))
+
+        return ds
 
 
 def xg_block_size(path):
@@ -135,8 +140,10 @@ def read_xg_file(
 
         # Extract the data block corresponding to the timestamp
         data_block = pd.read_csv(
-            StringIO("".join(current_block[1:])), sep=r"\s+", header=None,
-            names=column_names
+            StringIO("".join(current_block[1:])),
+            sep=r"\s+",
+            header=None,
+            names=column_names,
         )
         data_blocks.append(data_block)
 
