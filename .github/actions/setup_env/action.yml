@@ -11,8 +11,7 @@ runs:
   using: "composite"
   steps:
       - name: Download Lock File
-        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ inputs.os-label }}.lock
-        if: matrix.pip == true
+        run:  wget https://raw.githubusercontent.com/atharva-2001/tardisbase/add-xarray/conda-${{ inputs.os-label }}.lock -O conda-${{ inputs.os-label }}.lock
         shell: bash
       
       - name: Generate Cache Key
@@ -25,8 +24,4 @@ runs:
       - uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: conda-${{ inputs.os-label }}.lock
-          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
           environment-name: tardis
-          cache-environment: true
-          cache-downloads: true

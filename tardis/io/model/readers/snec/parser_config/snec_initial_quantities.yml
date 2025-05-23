@@ -1,0 +1,20 @@
+rad_initial:
+  long_name: "Initial Radius"
+  units: "cm"
+  description: "Initial radial coordinate of each mass shell."
+rho_initial:
+  long_name: "Initial Density"
+  units: "g / cm3"
+  description: "Initial mass density profile."
+mass_initial:
+  long_name: "Initial Mass"
+  units: "g"
+  description: "Initial enclosed mass coordinate."
+press_initial:
+  long_name: "Initial Gas Pressure"
+  units: "dyn / cm2"
+  description: "Initial thermal gas pressure profile."
+delta_mass_initial:
+  long_name: "Initial Shell Mass"
+  units: "g"
+  description: "Mass of each cell in the initial model."
