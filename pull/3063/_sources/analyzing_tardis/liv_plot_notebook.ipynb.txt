@@ -1,0 +1,500 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Analyzing Last Interaction Velocity (LIV) Distribution\n",
+    "\n",
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "**Note:**\n",
+    "\n",
+    "This notebook demonstrates how to calculate and visualize the last interaction velocity distribution of packets in a TARDIS simulation. You can also have a look at the `LIVPlotter` class in the tardis visualization module in order to see more features related to this.\n",
+    "\n",
+    "</div>\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "import numpy as np\n",
+    "from astropy import units as u\n",
+    "\n",
+    "from tardis.util.base import (\n",
+    "    atomic_number2element_symbol,\n",
+    "    int_to_roman,\n",
+    ")\n",
+    "from tardis.visualization import plot_util as pu\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Every simulation run requires [atomic data](io/configuration/components/atomic/atomic_data.rst) and a [configuration file](io/configuration/index.rst). \n",
+    "\n",
+    "## Atomic Data\n",
+    "\n",
+    "We recommend using the [kurucz_cd23_chianti_H_He.h5](https://github.com/tardis-sn/tardis-regression-data/raw/main/atom_data/kurucz_cd23_chianti_H_He.h5) dataset."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from tardis.io.atom_data import download_atom_data\n",
+    "\n",
+    "# We download the atomic data needed to run the simulation\n",
+    "download_atom_data(\"kurucz_cd23_chianti_H_He\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "You can also obtain a copy of the atomic data from the [tardis-regression-data](https://github.com/tardis-sn/tardis-regression-data/tree/main/atom_data) repository."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Example Configuration File\n",
+    "\n",
+    "The configuration file [tardis_example.yml](https://github.com/tardis-sn/tardis/tree/master/docs/tardis_example.yml) is used throughout this Quickstart."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!wget -q -nc https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/tardis_example.yml"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!cat tardis_example.yml"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Running the Simulation\n",
+    "\n",
+    "To run the simulation, import the `run_tardis` function and create the `sim` object."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "**Note:**\n",
+    "\n",
+    "Get more information about the [progress bars](io/output/progress_bars.rst), [logging configuration](io/optional/tutorial_logging_configuration.ipynb), and [convergence plots](io/visualization/tutorial_convergence_plot.ipynb).\n",
+    "\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from tardis import run_tardis\n",
+    "\n",
+    "# Run the TARDIS simulation\n",
+    "simulation = run_tardis(\"tardis_example.yml\", log_level=\"ERROR\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## HDF"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "TARDIS can save simulation data to HDF files for later analysis. The code below shows how to load a simulation from an HDF file. This is useful when you want to analyze simulation results without re-running the simulation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# import astropy.units as u\n",
+    "# import pandas as pd\n",
+    "\n",
+    "# hdf_fpath = \"add_file_path_here\"\n",
+    "# with pd.HDFStore(hdf_fpath, \"r\") as hdf:\n",
+    "#     sim = u.Quantity(hdf[\"/simulation\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Extracting and Processing Packet Interaction Data\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Core simulation parameters"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "time_explosion = simulation.plasma.time_explosion\n",
+    "velocity = simulation.simulation_state.velocity\n",
+    "packet_mode=\"real\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Packet DataFrame Creation\n",
+    "\n",
+    "Creating dataFrames to store packet properties including frequencies, wavelengths, energies and interaction details."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "packet_data = pu.extract_and_process_packet_data(simulation, packet_mode)\n",
+    "\n",
+    "# Extract individual DataFrames safely\n",
+    "packets_df = packet_data.get(\"packets_df\")\n",
+    "packets_df_line_interaction = packet_data.get(\"packets_df_line_interaction\")\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Species List Generation \n",
+    "Converting numerical species IDs to element symbols and organizing ions."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Get unique species IDs from the packets that had line interactions\n",
+    "species_in_model = np.unique(\n",
+    "    packets_df_line_interaction[\"last_line_interaction_species\"].values\n",
+    ")\n",
+    "\n",
+    "# Convert species IDs to element symbols by dividing by 100 to get atomic number\n",
+    "# and get the corresponding element symbol\n",
+    "species_list = [\n",
+    "    f\"{atomic_number2element_symbol(species // 100)}\"\n",
+    "    for species in species_in_model\n",
+    "]\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "(\n",
+    "    species_mapped_tuples,\n",
+    "    requested_species_ids_tuples,\n",
+    "    keep_colour,\n",
+    "    full_species_list,\n",
+    ") = pu.parse_species_list_util(species_list)\n",
+    "\n",
+    "species_flat_list = [\n",
+    "    atomic_num * 100 + ion_num\n",
+    "    for atomic_num, ion_num in requested_species_ids_tuples\n",
+    "]\n",
+    "\n",
+    "species_mapped = {\n",
+    "    (k[0] * 100 + k[1]): [v[0] * 100 + v[1] for v in values]\n",
+    "    for k, values in species_mapped_tuples.items()\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "msk = np.isin(species_flat_list, species_in_model)\n",
+    "species = np.array(species_flat_list)[msk]\n",
+    "\n",
+    "species_name = pu.make_colorbar_labels(species, species_flat_list, species_mapped)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Color Mapping\n",
+    "Setting up color schemes for visualizing different atomic species."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Get a colormap with distinct colors for each species\n",
+    "cmap = plt.get_cmap(\"jet\", len(species_name))\n",
+    "\n",
+    "# Initialize list to store colors for each species\n",
+    "color_list = []\n",
+    "species_keys = list(species_mapped.keys())\n",
+    "num_species = len(species_keys)\n",
+    "\n",
+    "# Assign colors to each species that appears in the simulation\n",
+    "for species_counter, species_key in enumerate(species_keys):\n",
+    "    # Check if any of the ions of this species are present in the simulation\n",
+    "    if any(species2 in species for species2 in species_mapped[species_key]):\n",
+    "        # Get color from colormap and normalize by number of species\n",
+    "        color = cmap(species_counter / num_species)\n",
+    "        color_list.append(color)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Data Grouping and Binning\n",
+    "Grouping packets by species and preparing binned data for visualization."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "packet_nu_line_range_mask = np.ones(\n",
+    "    packets_df_line_interaction.shape[0],\n",
+    "    dtype=bool,\n",
+    ")\n",
+    "\n",
+    "# Group packets by their last line interaction species \n",
+    "groups = packets_df_line_interaction.loc[packet_nu_line_range_mask].groupby(\n",
+    "    by=\"last_line_interaction_species\"\n",
+    ")\n",
+    "\n",
+    "plot_colors = []\n",
+    "plot_data = []\n",
+    "species_not_wvl_range = []\n",
+    "species_counter = 0\n",
+    "\n",
+    "# Iterate through each species to collect velocity data\n",
+    "for species_groups in species_mapped.values():\n",
+    "    full_v_last = []\n",
+    "    for specie in species_groups:\n",
+    "        if specie in species:\n",
+    "            # Skip if species has no interactions\n",
+    "            if specie not in groups.groups:\n",
+    "                atomic_number = specie // 100\n",
+    "                ion_number = specie % 100\n",
+    "                ion_numeral = int_to_roman(ion_number + 1)\n",
+    "                label = f\"{atomic_number2element_symbol(atomic_number)} {ion_numeral}\"\n",
+    "                species_not_wvl_range.append(label)\n",
+    "                continue\n",
+    "\n",
+    "            # Calculate velocities from radii using v = r/t\n",
+    "            g_df = groups.get_group(specie)\n",
+    "            r_last_interaction = g_df[\"last_interaction_in_r\"].values * u.cm\n",
+    "            v_last_interaction = (r_last_interaction / time_explosion).to(\n",
+    "                \"km/s\"\n",
+    "            )\n",
+    "            full_v_last.extend(v_last_interaction)\n",
+    "\n",
+    "    if full_v_last:\n",
+    "        plot_data.append(full_v_last)\n",
+    "        plot_colors.append(color_list[species_counter])\n",
+    "        species_counter += 1\n",
+    "\n",
+    "# Use velocity grid as bin edges for histogram\n",
+    "bin_edges = velocity.to(\"km/s\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Visualizing Last Interaction Velocity Distribution\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The plots below show the velocity distribution of the last interaction points for different atomic species in the TARDIS simulation. This helps understand where in the ejecta different elements contribute to the observed spectrum.\n",
+    "\n",
+    "Each line represents a different element/ion, with:\n",
+    "\n",
+    "- The x-axis showing the ***velocity*** in ($\\text{km} \\, \\text{s}^{-1}$) where the last interaction occurred\n",
+    "- The y-axis showing the ***number of packets*** that had their last interaction at that velocity"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Matplotlib\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ax = plt.figure(figsize=(11, 5)).add_subplot(111)\n",
+    "\n",
+    "for data, color, name in zip(plot_data, plot_colors, species_name):\n",
+    "    # Generate step plot data from histogram data\n",
+    "    hist, _ = np.histogram(data, bins=bin_edges)\n",
+    "    step_x = np.repeat(bin_edges, 2)[1:-1]\n",
+    "    step_y = np.repeat(hist, 2)\n",
+    "    ax.plot(\n",
+    "        step_x,\n",
+    "        step_y,\n",
+    "        label=name,\n",
+    "        color=color,\n",
+    "        linewidth=2.5,\n",
+    "        drawstyle=\"steps-post\",\n",
+    "        alpha=0.75,\n",
+    "    )\n",
+    "\n",
+    "\n",
+    "# set labels, and legend\n",
+    "xlabel = pu.axis_label_in_latex(\n",
+    "    \"Last Interaction Velocity\", u.Unit(\"km/s\"), only_text=True\n",
+    ")\n",
+    "ax.ticklabel_format(axis=\"y\", scilimits=(0, 0))\n",
+    "ax.tick_params(\"both\", labelsize=15)\n",
+    "ax.set_xlabel(xlabel, fontsize=14)\n",
+    "ax.set_ylabel(r\"$\\text{Packet Count}$\", fontsize=15)\n",
+    "ax.legend(fontsize=15, bbox_to_anchor=(1.0, 1.0), loc=\"upper left\")\n",
+    "ax.figure.tight_layout()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Plotly\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import plotly.graph_objects as go\n",
+    "\n",
+    "# Create plotly figure\n",
+    "fig = go.Figure()\n",
+    "\n",
+    "# Loop through each species data and plot histogram\n",
+    "for data, color, name in zip(plot_data, plot_colors, species_name):\n",
+    "    # Generate step plot data from histogram data\n",
+    "    hist, _ = np.histogram(data, bins=bin_edges)\n",
+    "    step_x = np.repeat(bin_edges, 2)[1:-1]\n",
+    "    step_y = np.repeat(hist, 2)\n",
+    "\n",
+    "    # Add trace for each species with step-like line plot\n",
+    "    fig.add_trace(\n",
+    "        go.Scatter(\n",
+    "            x=step_x,\n",
+    "            y=step_y,\n",
+    "            mode=\"lines\",\n",
+    "            line=dict(\n",
+    "                color=pu.to_rgb255_string(color),\n",
+    "                width=2.5,\n",
+    "                shape=\"hv\",  # Horizontal-vertical steps\n",
+    "            ),\n",
+    "            name=name,\n",
+    "            opacity=0.75,\n",
+    "        )\n",
+    "    )\n",
+    "\n",
+    "xlabel = pu.axis_label_in_latex(\n",
+    "    \"Last Interaction Velocity\", u.Unit(\"km/s\"), only_text=True\n",
+    ")\n",
+    "fig.update_layout(\n",
+    "    height=600,\n",
+    "    xaxis_title=xlabel,\n",
+    "    font=dict(size=15),\n",
+    "    yaxis={\"title\": r\"$\\text{Packet Count}$\", \"exponentformat\": \"e\", \"tickformat\":\".1e\"},\n",
+    "    xaxis=dict(exponentformat=\"none\"),\n",
+    ")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "tardis",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
