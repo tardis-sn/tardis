@@ -113,11 +113,20 @@ jobs:
           git commit -m "Update regression data for commit ${GITHUB_SHA}"
         working-directory: ${{ github.workspace }}/tardis-regression-data
       
-      - name: Update compare.py from fork
+
+
+      - name: Checkout tardisbase repository
+        uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardisbase
+          path: tardisbase
+          ref: master
+
+      - name: Copy regression data comparison files
         run: |
-          curl -s https://raw.githubusercontent.com/atharva-2001/tardis-regression-data/refs/heads/update_notebook/compare.py > compare.py
-        working-directory: ${{ github.workspace }}/tardis-regression-data
-      
+          cp tardisbase/compare.py ${{ github.workspace }}/tardisbase/tardisbase/testing/
+          cp tardisbase/compare_regression_data.ipynb ${{ github.workspace }}/tardisbase/tardisbase/testing/
+
       - name: Add environment variable to save plots
         run: |
           echo "SAVE_COMP_IMG=1" >> $GITHUB_ENV
@@ -131,7 +140,7 @@ jobs:
           jupyter nbconvert --execute compare_regression_data.ipynb \
             --to html \
             --output=compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html \
-        working-directory: ${{ github.workspace }}/tardis-regression-data
+        working-directory: ${{ github.workspace }}/tardisbase/tardisbase/testing
 
       - name: Upload comparison notebook
         uses: actions/upload-artifact@v4
@@ -243,3 +252,4 @@ jobs:
             You can also download the artifacts directly from the [Actions tab](${{ env.ARTIFACT_URL }}).
         env:
           ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+ 
