@@ -595,3 +595,40 @@ def extract_spectrum_data_hdf(hdf, packets_mode):
             hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
         ).to("AA"),
     }
+
+# Plot spectral lines
+def label_spectral_lines(ax, wavelengths, labels):
+    """
+    Add spectral lines to a matplotlib plot.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes._subplots.AxesSubplot
+        Axis on which to add the spectral lines.
+    wavelengths : list of float
+        List of wavelengths in Angstroms for the spectral lines.
+    labels : list of str
+        List of labels for the spectral lines.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The figure object with the added spectral lines.
+    """   
+    
+    
+    # check both lists are the same length
+    if len(wavelengths) != len(labels):
+        raise ValueError(
+            """
+            The number of wavelengths and labels must be the same.
+            """
+        )
+    
+    # add new ticks for the lines
+    spec_ax = ax.twiny()
+    spec_ax.set_xlim(ax.get_xlim())
+    spec_ax.set_xticks(wavelengths)
+    spec_ax.set_xticklabels(labels)
+
+    return ax

@@ -753,10 +753,7 @@ class SDECPlotter:
             e.g. ['Si II', 'Ca II', 'C', 'Fe I-V']
         blackbody_photosphere: bool
             Whether to include the blackbody photosphere in the plot. Default value is True
-        label_spectral_lines: tuple of list or None
-            tuple of list containing, first, a list of wavelengths to mark spectral lines and, second 
-            a list of labels for those markers.
-            Defeault value is None.
+        
         Returns
         -------
         matplotlib.axes._subplots.AxesSubplot
@@ -842,35 +839,6 @@ class SDECPlotter:
                 "--r",
                 label="Blackbody Photosphere",
             )
-
-        # Plot spectral lines
-        if label_spectral_lines:
-
-            # check both are specified
-            if len(label_spectral_lines) != 2:
-                raise ValueError(
-                    """
-                    spectral_lines must be a tuple of 2 lists containing wavelengths and labels."
-                    """
-                )
-            
-            wavelengths = label_spectral_lines[0]
-            labels = label_spectral_lines[1]
-            
-            # check both lists are the same length
-            if len(wavelengths) != len(labels):
-                raise ValueError(
-                    """
-                    The number of wavelengths and labels must be the same.
-                    """
-                )
-            
-            # add new ticks for the lines
-            spec_ax = self.ax.twiny()
-            spec_ax.set_xlim(self.ax.get_xlim())
-            spec_ax.set_xticks(wavelengths)
-            spec_ax.set_xticklabels(labels)
-
 
         # Set legends and labels
         self.ax.legend(fontsize=12)
