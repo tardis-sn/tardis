@@ -91,6 +91,7 @@ extensions = [
     "nbsphinx",
     "numpydoc",
     "recommonmark",
+    "sphinx_copybutton",
 ]
 
 bibtex_bibfiles = ["tardis.bib"]
