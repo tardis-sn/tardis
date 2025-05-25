@@ -12,6 +12,7 @@ from matplotlib.testing.compare import compare_images
 
 from tardis.tests.fixtures.regression_data import PlotDataHDF
 from tardis.visualization.tools.sdec_plot import SDECPlotter
+from tardis.visualization.plot_util import label_spectral_lines
 
 
 def make_valid_name(testid):
@@ -387,3 +388,19 @@ class TestSDECPlotter:
             )
             actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
             compare_images(expected, actual, tol=0.001)
+    
+
+    @pytest.mark.parametrize(
+        'wavelengths, labels', [
+            pytest.param([6355, 3951, 8567],[fr'Ca II $\lambda \lambda {3951}$', fr'Ca III $\lambda \lambda \lambda {8567}$'], marks=pytest.mark.xfail)
+        ]
+    )
+    def test_label_spectral_lines_sdec(self, plotter_generate_plot_mpl, regression_data, wavelengths, labels):
+
+
+        ax, _ = plotter_generate_plot_mpl
+        actual_ax_labeled = label_spectral_lines(
+            ax,
+            wavelengths=wavelengths,
+            labels=labels,
+        )

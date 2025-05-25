@@ -707,6 +707,7 @@ class SDECPlotter:
         nelements=None,
         species_list=None,
         blackbody_photosphere=True,
+        label_spectral_lines=None,
     ):
         """
         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
@@ -752,7 +753,7 @@ class SDECPlotter:
             e.g. ['Si II', 'Ca II', 'C', 'Fe I-V']
         blackbody_photosphere: bool
             Whether to include the blackbody photosphere in the plot. Default value is True
-
+        
         Returns
         -------
         matplotlib.axes._subplots.AxesSubplot
