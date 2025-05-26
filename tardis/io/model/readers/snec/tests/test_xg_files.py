@@ -10,6 +10,10 @@ from tardis.io.model.readers.snec.xg_files import xg_block_size, read_xg_file, X
 def regression_test_xg_file(regression_data):
     return regression_data.regression_data_path / "testdata" / "MESA_STIR_MESA_SNEC" / "output" / "cs2.xg"
 
+@pytest.fixture
+def regression_test_mass_xg_file(regression_data):
+    return regression_data.regression_data_path / "testdata" / "MESA_STIR_MESA_SNEC" / "output" / "mass.xg"
+
 
 def test_xg_block_size(regression_test_xg_file):
     num_blocks, block_size = xg_block_size(regression_test_xg_file)
@@ -32,11 +36,14 @@ def test_read_xg_file(regression_test_xg_file):
     assert np.isclose(xg_data.data_blocks[1].iloc[1, 0], np.float64(425927938160107.2))
 
 
-def test_xgdata_to_xarray(regression_test_xg_file):
-    xg_data = read_xg_file(regression_test_xg_file, column_names=["Time"])
+
+def test_xgdata_to_xr_dataset(regression_test_mass_xg_file):
+    xg_data = read_xg_file(regression_test_mass_xg_file, column_names=["radius", "enclosed_mass"])
+    xarray_data = xg_data.to_xr_dataset()
     
-    xarray_data = xg_data.to_xarray()
-    
-    assert xarray_data.dims == ('time', 'cell_id', 'quantity')
-    assert list(xarray_data.coords['quantity'].values) == ["Time"]
+    assert list(xarray_data.dims.keys()) == ['time', 'cell_id']
+    assert 'time' in xarray_data.coords
+    assert 'cell_id' in xarray_data.coords
+    assert 'enclosed_mass' in xarray_data.coords
+    assert 'radius' in xarray_data.coords
     assert len(xarray_data.coords['time'].values) == 1001
