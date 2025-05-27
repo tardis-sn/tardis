@@ -5,17 +5,18 @@ import pandas as pd
 import numpy.testing as npt
 from dataclasses import dataclass
 import xarray as xr
+from pathlib import Path
 
-with open("parser_config/snec_xg_output_quantities.yml", "r") as fh:
+with open(Path(__file__).parent / "parser_config" / "snec_xg_output_quantities.yml", "r") as fh:
     SNEC_XG_OUTPUT_METADATA = yaml.safe_load(fh)
 
-with open("parser_config/snec_initial_composition.yml") as fh:
+with open(Path(__file__).parent / "parser_config" / "snec_initial_composition.yml") as fh:
     SNEC_INITIAL_COMPOSITION_METADATA = yaml.safe_load(fh)
 
-with open("parser_config/snec_initial_quantities.yml") as fh:
+with open(Path(__file__).parent / "parser_config" / "snec_initial_quantities.yml") as fh:
     SNEC_INITIAL_QUANTITIES_METADATA = yaml.safe_load(fh)
 
-with open("parser_config/snec_em_output_metadata.yml") as fh:
+with open(Path(__file__).parent / "parser_config" / "snec_em_output_metadata.yml") as fh:
     SNEC_EM_OUTPUT_METADATA = yaml.safe_load(fh)
 
 
