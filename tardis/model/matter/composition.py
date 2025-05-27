@@ -72,7 +72,7 @@ class Composition:
         ), "Negative mass fraction detected"
         self.nuclide_mass_fraction = nuclide_mass_fraction
 
-        isotope_masses = self.assemble_isotope_masses()
+        self.isotope_masses = self.assemble_isotope_masses()
 
     def assemble_isotope_masses(self):
         isotope_mass_df = pd.Series(
