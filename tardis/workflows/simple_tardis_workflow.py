@@ -52,7 +52,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             assert (
                 self.simulation_state.v_inner_boundary
                 == self.simulation_state.geometry.v_inner[0]
-            ), "If using csvy in the v_inner_solver workflow, the initial v_inner_boundary must start with the first shell in the current status."
+            ), "If using csvy density input in the v_inner_solver workflow, the initial v_inner_boundary must start at the first shell."
 
         else:
             self.simulation_state = SimulationState.from_config(
