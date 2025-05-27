@@ -30,7 +30,7 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
-.. image:: https://img.shields.io/badge/benchmarks-green
+.. image:: https://img.shields.io/badge/benchmarks-passing-green
     :target: https://github.com/tardis-sn/tardis/actions/workflows/benchmarks.yml
 
 .. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/_static/ruff_badge.json
