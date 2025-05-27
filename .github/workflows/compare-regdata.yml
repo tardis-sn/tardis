@@ -118,14 +118,14 @@ jobs:
       - name: Checkout tardisbase repository
         uses: actions/checkout@v4
         with:
-          repository: riddhigangbhoj/tardisbase
+          repository: tardis-sn/tardisbase
           path: tardisbase
-          ref: master
+          ref: refs/pull/4/head
 
       - name: Copy regression data comparison files
         run: |
-          cp tardisbase/compare.py ${{ github.workspace }}/tardisbase/tardisbase/testing/
-          cp tardisbase/compare_regression_data.ipynb ${{ github.workspace }}/tardisbase/tardisbase/testing/
+          cp tardisbase/tardisbase/testing/compare.py ${{ github.workspace }}/tardisbase/tardisbase/testing/
+          cp tardisbase/tardisbase/testing/compare_regression_data.ipynb ${{ github.workspace }}/tardisbase/tardisbase/testing/
 
       - name: Add environment variable to save plots
         run: |
