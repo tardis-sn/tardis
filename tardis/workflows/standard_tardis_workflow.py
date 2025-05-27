@@ -36,11 +36,13 @@ class StandardTARDISWorkflow(
         enable_virtual_packet_logging=False,
         log_level=None,
         specific_log_level=None,
-        show_progress_bars=False,
+        show_progress_bars=True,
         show_convergence_plots=False,
-        convergence_plots_kwargs={},
+        convergence_plots_kwargs=None,
         csvy=False,
     ):
+        if convergence_plots_kwargs is None:
+            convergence_plots_kwargs = {}
         self.show_progress_bars = show_progress_bars
         self.log_level = log_level
         self.specific_log_level = specific_log_level
