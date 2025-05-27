@@ -11,7 +11,7 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.simulation import Simulation
-from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
+from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_MD5
 from tardis.transport.montecarlo import RPacket, packet_trackers
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -68,8 +68,8 @@ class BenchmarkBase:
     def atomic_dataset(self) -> AtomData:
         atomic_data = AtomData.from_hdf(self.atomic_data_fname)
 
-        if atomic_data.md5 != DEFAULT_ATOM_DATA_UUID:
-            message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_UUID}")'
+        if atomic_data.md5 != DEFAULT_ATOM_DATA_MD5:
+            message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_MD5}")'
             raise Exception(message)
         else:
             return atomic_data
@@ -82,8 +82,7 @@ class BenchmarkBase:
 
         if not Path(atomic_data_fname).exists():
             atom_data_missing_str = (
-                f"{atomic_data_fname} atomic datafiles "
-                f"does not seem to exist"
+                f"{atomic_data_fname} atomic datafiles does not seem to exist"
             )
             raise Exception(atom_data_missing_str)
 

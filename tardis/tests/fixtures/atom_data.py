@@ -6,7 +6,7 @@ from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.base import SimulationState
 
-DEFAULT_ATOM_DATA_UUID = "864f1753714343c41f99cb065710cace"
+DEFAULT_ATOM_DATA_MD5 = "10b6573096c7dc562eb8b1a75256620f"
 
 
 @pytest.fixture(scope="session")
@@ -18,7 +18,7 @@ def atomic_data_fname(tardis_regression_path):
     )
 
     atom_data_missing_str = (
-        f"{atomic_data_fname} atomic datafiles " f"does not seem to exist"
+        f"{atomic_data_fname} atomic datafiles does not seem to exist"
     )
 
     if not atomic_data_fname.exists():
@@ -31,9 +31,9 @@ def atomic_data_fname(tardis_regression_path):
 def atomic_dataset(atomic_data_fname):
     atomic_data = AtomData.from_hdf(atomic_data_fname)
 
-    if atomic_data.md5 != DEFAULT_ATOM_DATA_UUID:
+    if atomic_data.md5 != DEFAULT_ATOM_DATA_MD5:
         pytest.skip(
-            f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_UUID}")'
+            f'Need default Kurucz atomic dataset (MD5="{DEFAULT_ATOM_DATA_MD5}")'
         )
     else:
         return atomic_data
@@ -58,7 +58,7 @@ def nlte_atomic_data_fname(tardis_regression_path):
     )
 
     atom_data_missing_str = (
-        f"{atomic_data_fname} atomic datafiles " f"does not seem to exist"
+        f"{atomic_data_fname} atomic datafiles does not seem to exist"
     )
 
     if not atomic_data_fname.exists():
