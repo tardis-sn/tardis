@@ -6,7 +6,7 @@ from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.base import SimulationState
 
-DEFAULT_ATOM_DATA_MD5 = "10b6573096c7dc562eb8b1a75256620f"
+DEFAULT_ATOM_DATA_MD5 = "5d80fa4ae0638469bf1ff281b6ca2a94"
 
 
 @pytest.fixture(scope="session")
