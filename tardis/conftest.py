@@ -10,7 +10,8 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
-from tardis.tests.fixtures.regression_data import regression_data
+from tardisbase.testing.regression_data.regression_data import regression_data
+
 from tardis.util.base import packet_pbar, iterations_pbar
 from tardis.tests.test_util import monkeysession
 
