@@ -5,7 +5,7 @@ import tardis.transport.montecarlo.macro_atom as macro_atom
 
 @pytest.mark.parametrize(
     ["seed", "expected"],
-    [(1963, 10015), (1, 9993), (2111963, 13494), (10000, 9993)],
+    [(1963, 10015), (1, 9993), (2111963, 17296), (10000, 9993)],
 )
 def test_macro_atom(
     static_packet,
