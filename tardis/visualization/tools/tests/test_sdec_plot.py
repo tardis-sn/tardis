@@ -387,3 +387,16 @@ class TestSDECPlotter:
             )
             actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
             compare_images(expected, actual, tol=0.001)
+
+    def test_make_colorbar_labels(self, plotter):
+        expected_labels = ['O', 'Mg', 'Si', 'Ca']
+        plotter._species_list = ['Si','O','Mg','Ca']
+        plotter._parse_species_list(plotter._species_list)
+        plotter._calculate_plotting_data(
+            packets_mode="virtual",
+            packet_wvl_range=[500, 9000] * u.AA,
+            distance=None,
+            nelements=None,
+        )
+        plotter._make_colorbar_labels()
+        assert plotter._species_name == expected_labels
