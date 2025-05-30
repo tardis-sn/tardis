@@ -9,7 +9,8 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation.base import Simulation
 from tardis.spectrum.base import SpectrumSolver
-from tardis.tests.fixtures.regression_data import RegressionData
+from tardisbase.testing.regression_data.regression_data import RegressionData
+
 
 
 class TestSpectrumSolver:

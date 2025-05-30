@@ -8,7 +8,8 @@ from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
 
 from tardis.visualization.tools.liv_plot import LIVPlotter
-from tardis.tests.fixtures.regression_data import PlotDataHDF
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
+
 
 
 @pytest.fixture(scope="class")
