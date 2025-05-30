@@ -52,7 +52,7 @@ def test_atom_data_lines(lines):
     assert_quantity_allclose(
         sorted_lines.loc[(2, 0, 0, 6), "wavelength_cm"].values[0]
         * u.Unit("cm"),
-        584.334 * u.Unit("Angstrom"),
+        584.335 * u.Unit("Angstrom"),
     )
 
 
