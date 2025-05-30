@@ -49,7 +49,7 @@ class StandardTARDISWorkflow(
         self.enable_virtual_packet_logging = enable_virtual_packet_logging
         self.convergence_plots_kwargs = convergence_plots_kwargs
 
-        SimpleTARDISWorkflow.__init__(configuration, csvy)
+        SimpleTARDISWorkflow.__init__(self, configuration, csvy)
 
         # set up plasma storage
         PlasmaStateStorerMixin.__init__(
