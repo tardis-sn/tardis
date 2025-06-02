@@ -1,7 +1,14 @@
 import pytest
 from tardis.visualization.tools.sdec_plot import SDECPlotter
-from tardis.visualization.tools.lineid_plotter import lineid_plotter
 from matplotlib.testing.compare import compare_images
+
+# check if lineid_plot is installed
+try:
+    import lineid_plot
+    lineid_installed = True
+    from tardis.visualization.tools.lineid_plotter import lineid_plotter
+except ImportError:
+    lineid_installed = False
 
 
 @pytest.fixture(scope="module")
@@ -38,21 +45,25 @@ def plotter(simulation_simple):
 def test_lineid_plotter(
     regression_data, plotter, tmp_path, wavelengths, labels, style
 ):
-    fig, ax = lineid_plotter(plotter, wavelengths, labels, style=style)
+    if lineid_installed:
 
-    regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
-    fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}.png")
+        fig, ax = lineid_plotter(plotter, wavelengths, labels, style=style)
 
-    if regression_data.enable_generate_reference:
-        fig.figure.savefig(
-            regression_data.absolute_regression_data_dir
-            / f"{regression_data.fname_prefix}.png"
-        )
-        pytest.skip("Skipping test to generate reference data")
+        regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
+        fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}.png")
+
+        if regression_data.enable_generate_reference:
+            fig.figure.savefig(
+                regression_data.absolute_regression_data_dir
+                / f"{regression_data.fname_prefix}.png"
+            )
+            pytest.skip("Skipping test to generate reference data")
+        else:
+            expected = str(
+                regression_data.absolute_regression_data_dir
+                / f"{regression_data.fname_prefix}.png"
+            )
+            actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
+            compare_images(expected, actual, tol=0.001)
     else:
-        expected = str(
-            regression_data.absolute_regression_data_dir
-            / f"{regression_data.fname_prefix}.png"
-        )
-        actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
-        compare_images(expected, actual, tol=0.001)
+        pytest.skip("lineid_plot is not installed, skipping test")
