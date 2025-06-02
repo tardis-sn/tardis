@@ -8,9 +8,11 @@ except ImportError:
 
 
 def lineid_plotter(
-    plotter,
-    wavelengths,
+    ax,
+    line_wavelengths,
     line_labels,
+    spectrum_wavelengths,
+    spectrum_data,
     style="top",
     plotter_kwargs=None,
     lineid_kwargs=None,
@@ -21,17 +23,19 @@ def lineid_plotter(
     ----------
     plotter : SDECPlotter
         Plotting interface for Spectral element DEComposition (SDEC) Plot.
-    wavelengths : list of float
+    line_wavelengths : list of float
         wavelength values of the lines to be plotted
     line_labels : list of str
         the labels to be used for the lines at the wavelength positions
+    spectrum_wavelengths : astropy.units.Quantity
+        Wavelengths of the spectrum where the lines will be plotted.
+    spectrum_data : astropy.units.Quantity
+        Fluxes or luminosity of the spectrum where the lines will be plotted.
     style : {'top', 'inside', 'along'}, optional
         Preset styles for the lines markers. (default: 'top')
         If 'top', the lines will be plotted above the top axes.
         If 'inside', the lines will be plotted inside the axes.
         If 'along', the lines will be plotted along the spectrum.
-    plotter_kwargs : dict, optional
-        kwargs passed to the plotter's generate_plot_mpl method, by default None
     lineid_kwargs : dict, optional
         kwargs passed to the lineid_plot.plot_line_ids method, by default None
 
@@ -47,14 +51,9 @@ def lineid_plotter(
     if lineid_kwargs is None:
         lineid_kwargs = {}
 
-    ax = plotter.generate_plot_mpl(**plotter_kwargs)
-
-    waves = plotter.plot_wavelength
-    spec = plotter.modeled_spectrum_luminosity
-
     if style == "top" or style == None:
         fig, ax = lineid_plot.plot_line_ids(
-            waves, spec, wavelengths, line_labels, ax=ax, **lineid_kwargs
+            spectrum_wavelengths, spectrum_data, line_wavelengths, line_labels, ax=ax, **lineid_kwargs
         )
 
     elif style == "inside":
@@ -66,9 +65,9 @@ def lineid_plotter(
         )[1]
 
         fig, ax = lineid_plot.plot_line_ids(
-            waves,
-            spec,
-            wavelengths,
+            spectrum_wavelengths,
+            spectrum_data,
+            line_wavelengths,
             line_labels,
             ax=ax,
             arrow_tip=arrow_loc,
@@ -91,16 +90,16 @@ def lineid_plotter(
         arrow_loc = box_loc - arrow_len  # in data, the start of the arrow
         marker_len = 2 * arrow_len
         fluxes = get_line_flux(
-            wavelengths, waves.value[::-1], spec.value[::-1]
+            line_wavelengths, spectrum_wavelengths.value[::-1], spectrum_data.value[::-1]
         )  # uses np.interp needs to monotonically inc
 
         arrow_tips = fluxes + marker_len
         box_locs = fluxes + marker_len + arrow_len
 
         fig, ax = lineid_plot.plot_line_ids(
-            waves,
-            spec,
-            wavelengths,
+            spectrum_wavelengths,
+            spectrum_data,
+            line_wavelengths,
             line_labels,
             ax=ax,
             arrow_tip=list(arrow_tips),

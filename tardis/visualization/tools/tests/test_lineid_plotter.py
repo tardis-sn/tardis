@@ -47,7 +47,11 @@ def test_lineid_plotter(
 ):
     if lineid_installed:
 
-        fig, ax = lineid_plotter(plotter, wavelengths, labels, style=style)
+        ax = plotter.generate_plot_mpl()
+        spectrum_wavelengths = plotter.plot_wavelength
+        spectrum_data = plotter.modeled_spectrum_luminosity
+
+        fig, ax = lineid_plotter(ax, wavelengths, labels, spectrum_wavelengths, spectrum_data, style=style)
 
         regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
         fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}.png")
