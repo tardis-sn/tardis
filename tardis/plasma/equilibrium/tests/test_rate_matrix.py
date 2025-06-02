@@ -1,5 +1,6 @@
 import astropy.units as u
 import numpy as np
+import pandas as pd
 import pandas.testing as pdt
 import pytest
 
@@ -39,14 +40,14 @@ def test_rate_matrix_solver(
 
 @pytest.mark.parametrize("charge_conservation", [True, False])
 def test_ion_rate_matrix_solver(
-    radiative_ionization_solver,
-    collisional_ionization_solver,
+    photoionization_rate_solver,
+    collisional_ionization_rate_solver,
     collisional_simulation_state,
     charge_conservation,
     regression_data,
 ):
     rate_matrix_solver = IonRateMatrix(
-        radiative_ionization_solver, collisional_ionization_solver
+        photoionization_rate_solver, collisional_ionization_rate_solver
     )
 
     rad_field = DilutePlanckianRadiationField(
@@ -57,13 +58,32 @@ def test_ion_rate_matrix_solver(
         0, collisional_simulation_state.t_radiative, 1e6 * u.g / u.cm**3
     )
 
+    lte_level_population = pd.DataFrame(
+        data=np.ones((2, 20)) * 1e5,
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0, 0), (1, 0, 1)],
+            names=["atomic_number", "ion_number", "level_number"],
+        ),
+    )
+
+    lte_ion_population = pd.DataFrame(
+        data=np.ones((2, 20)) * 1e5,
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0), (1, 1)],
+            names=["atomic_number", "ion_number"],
+        ),
+    )
+
+    level_population = lte_level_population.copy() * 1.4
+    ion_population = lte_level_population.copy() * 3.0
+
     actual = rate_matrix_solver.solve(
         rad_field,
         electron_dist,
-        lte_level_pop,
-        level_pop,
-        lte_ion_pop,
-        ion_pop,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
         charge_conservation,
     )
 

@@ -74,17 +74,23 @@ def collisional_simulation_state(new_chianti_atomic_dataset_si):
 
 
 @pytest.fixture
-def photoionization_rate_solver(atom_data):
-    return AnalyticPhotoionizationRateSolver(atom_data.photoionization_data)
+def photoionization_rate_solver(nlte_atomic_dataset):
+    return AnalyticPhotoionizationRateSolver(
+        nlte_atomic_dataset.photoionization_data
+    )
 
 
 @pytest.fixture
-def collisional_ionization_rate_solver(atom_data):
-    return CollisionalIonizationRateSolver(atom_data.photoionization_data)
+def collisional_ionization_rate_solver(nlte_atomic_dataset):
+    return CollisionalIonizationRateSolver(
+        nlte_atomic_dataset.photoionization_data
+    )
 
 
 @pytest.fixture
-def rate_matrix_solver():
+def rate_matrix_solver(
+    photoionization_rate_solver, collisional_ionization_rate_solver
+):
     return IonRateMatrix(
         photoionization_rate_solver, collisional_ionization_rate_solver
     )

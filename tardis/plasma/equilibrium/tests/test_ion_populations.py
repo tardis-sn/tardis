@@ -21,14 +21,23 @@ def test_solve(rate_matrix_solver):
         0, np.ones(20) * 10000 * u.K, np.ones(20) * 2e9 * u.cm**-3
     )
     lte_level_population = pd.DataFrame(
-        {"population": [1.0, 2.0]},
+        data=np.ones((2, 20)) * 1e5,
         index=pd.MultiIndex.from_tuples(
-            [(1, 0), (2, 1)], names=["atomic_number", "ion_number"]
+            [(1, 0, 0), (1, 0, 1)],
+            names=["atomic_number", "ion_number", "level_number"],
         ),
     )
-    level_population = lte_level_population.copy()
-    lte_ion_population = lte_level_population.copy()
-    ion_population = lte_level_population.copy()
+
+    lte_ion_population = pd.DataFrame(
+        data=np.ones((2, 20)) * 1e5,
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0), (1, 1)],
+            names=["atomic_number", "ion_number"],
+        ),
+    )
+
+    level_population = lte_level_population.copy() * 1.4
+    ion_population = lte_level_population.copy() * 3.0
     charge_conservation = False
 
     result = ion_population_solver.solve(
