@@ -25,11 +25,11 @@ def lineid_plotter(
         wavelength values of the lines to be plotted
     line_labels : list of str
         the labels to be used for the lines at the wavelength positions
-    style : {'top', 'inside', 'along spectrum'}, optional
+    style : {'top', 'inside', 'along'}, optional
         Preset styles for the lines markers. (default: 'top')
         If 'top', the lines will be plotted above the top axes.
         If 'inside', the lines will be plotted inside the axes.
-        If 'along spectrum', the lines will be plotted along the spectrum.
+        If 'along', the lines will be plotted along the spectrum.
     plotter_kwargs : dict, optional
         kwargs passed to the plotter's generate_plot_mpl method, by default None
     lineid_kwargs : dict, optional
@@ -109,7 +109,7 @@ def lineid_plotter(
         )
     else:
         raise ValueError(
-            "style must be one of 'top', 'inside', or 'along spectrum'"
+            "style must be one of 'top', 'inside', or 'along'"
         )
 
     return fig, ax
