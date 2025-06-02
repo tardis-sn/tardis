@@ -229,7 +229,7 @@ def process_line_interactions(packet_data, lines_df):
         # Add columns for the species ID of last interaction
         packet_data["packets_df_line_interaction"][
             "last_line_interaction_species"
-        ] = (
+        ] = list(zip(
             lines_df["atomic_number"]
             .iloc[
                 packet_data["packets_df_line_interaction"][
@@ -237,7 +237,7 @@ def process_line_interactions(packet_data, lines_df):
                 ]
             ]
             .to_numpy()
-            * 100
+            ,
             + lines_df["ion_number"]
             .iloc[
                 packet_data["packets_df_line_interaction"][
@@ -245,7 +245,7 @@ def process_line_interactions(packet_data, lines_df):
                 ]
             ]
             .to_numpy()
-        )
+        ))
 
 
 def extract_and_process_packet_data_hdf(hdf, packets_mode):

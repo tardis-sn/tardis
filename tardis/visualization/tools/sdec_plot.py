@@ -161,15 +161,17 @@ class SDECPlotter:
                 full_species_list,
             ) = pu.parse_species_list_util(species_list)
             self._full_species_list = full_species_list
-            self._species_list = [
-                atomic_num * 100 + ion_num
-                for atomic_num, ion_num in requested_species_ids_tuples
-            ]
+            self._species_list = requested_species_ids_tuples
+            # self._species_list = [
+            #     atomic_num * 100 + ion_num
+            #     for atomic_num, ion_num in requested_species_ids_tuples
+            # ]
 
-            self._species_mapped = {
-                (k[0] * 100 + k[1]): [v[0] * 100 + v[1] for v in values]
-                for k, values in species_mapped_tuples.items()
-            }
+            # self._species_mapped = {
+            #     (k[0] * 100 + k[1]): [v[0] * 100 + v[1] for v in values]
+            #     for k, values in species_mapped_tuples.items()
+            # }
+            self._species_mapped = species_mapped_tuples
             self._keep_colour = keep_colour
         else:
             self._full_species_list = None
@@ -289,12 +291,14 @@ class SDECPlotter:
         ) = self._calculate_emission_luminosities(
             packets_mode=packets_mode, packet_wvl_range=packet_wvl_range
         )
+        print("emission", self.emission_luminosities_df.columns)
         (
             self.absorption_luminosities_df,
             self.absorption_species,
         ) = self._calculate_absorption_luminosities(
             packets_mode=packets_mode, packet_wvl_range=packet_wvl_range
         )
+        print("absorption", self.absorption_luminosities_df.columns)
 
         # Calculate the total contribution of elements
         # by summing absorption and emission
@@ -314,6 +318,7 @@ class SDECPlotter:
             self.species = np.array(list(self.total_luminosities_df.columns))
         elif self._species_list is not None:
             sorted_keys = list(sorted_list.keys())
+            print("sorted_keys:", sorted_keys)
             keys_to_keep = [
                 key for key in sorted_keys if key in self._species_list
             ]
@@ -324,6 +329,7 @@ class SDECPlotter:
                 + ["noint", "escatter"],
                 "absorption_luminosities_df": keys_to_keep,
             }
+            print("df_map:", df_map)
 
             for df_name, keys in df_map.items():
                 current_df = getattr(self, df_name)
@@ -340,6 +346,7 @@ class SDECPlotter:
                 setattr(self, df_name, processed_df)
 
             self.species = np.sort(self.total_luminosities_df.columns[1:])
+            print("Species in SDEC plot:", self.species)
 
         else:  # nelements is not None
             top_n_keys = sorted_list.keys()[:nelements]
@@ -974,7 +981,8 @@ class SDECPlotter:
             species_name = []
             for element in self.species:
                 # Go through each species requested
-                atomic_number, ion_number = divmod(element, 100)
+                # atomic_number, ion_number = divmod(element, 100)
+                atomic_number, ion_number = element
 
                 ion_numeral = int_to_roman(ion_number + 1)
                 atomic_symbol = atomic_number2element_symbol(atomic_number)
@@ -1002,10 +1010,12 @@ class SDECPlotter:
         for i, identifier in enumerate(self.species):
             if self._species_list is not None:
                 color_counter = 0
-                atomic_number = identifier // 100
+                # atomic_number = identifier // 100
+                atomic_number = identifier[0]
                 # For any element after the first one
                 if i > 0:
-                    previous_atomic_number = self.species[i - 1] // 100
+                    # previous_atomic_number = self.species[i - 1] // 100
+                    previous_atomic_number = self.species[i - 1][0]
                     # Increment color when:
                     # 1. There is a new element, OR
                     # 2. The previous element isn't in the keep_colour list
@@ -1283,9 +1293,10 @@ class SDECPlotter:
             )
         else:
             # Get the ion number and atomic number for each species
-            atomic_number, ion_number = divmod(
-                identifier, 100
-            )  # (quotient, remainder)
+            # atomic_number, ion_number = divmod(
+            #     identifier, 100
+            # )  # (quotient, remainder)
+            atomic_number, ion_number = identifier
             info_msg = (
                 f"{atomic_number2element_symbol(atomic_number)}"
                 f"{int_to_roman(ion_number + 1)}"
