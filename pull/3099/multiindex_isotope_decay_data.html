@@ -208,8 +208,8 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download the atom data file from tardis-regression-data repo to run this cell.</span>
-<span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He&#39;</span><span class="p">)</span>
-<span class="n">atom_data_file</span> <span class="o">=</span> <span class="s1">&#39;kurucz_cd23_chianti_H_He.h5&#39;</span>
+<span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He_latest&#39;</span><span class="p">)</span>
+<span class="n">atom_data_file</span> <span class="o">=</span> <span class="s1">&#39;kurucz_cd23_chianti_H_He_latest.h5&#39;</span>
 <span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">atom_data_file</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -219,7 +219,7 @@
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-WARNING:tardis.io.atom_data.atom_web_download:Atomic Data kurucz_cd23_chianti_H_He already exists in /Users/anirbandutta/Downloads/tardis-data/kurucz_cd23_chianti_H_He.h5. Will not download - override with force_download=True.
+WARNING:tardis.io.atom_data.atom_web_download:Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /Users/anirbandutta/Downloads/tardis-data/kurucz_cd23_chianti_H_He_latest.h5. Will not download - override with force_download=True.
 INFO:tardis.io.atom_data.base:Reading Atom Data with: UUID = 6f7b09e887a311e7a06b246e96350010 MD5  = 864f1753714343c41f99cb065710cace
 INFO:tardis.io.atom_data.base:Non provided Atomic Data: synpp_refs, photoionization_data, yg_data, two_photon_data, linelist
 </pre></div></div>
@@ -504,7 +504,7 @@ INFO:tardis.model.matter.decay:Decaying abundances for 2600540.0352 seconds
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 29 May 2025.
+      <span class="lastupdated">Last updated on 02 Jun 2025.
       </span></p>
   </div>
 

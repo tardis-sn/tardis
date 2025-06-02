@@ -200,9 +200,9 @@ class LevelPopulationSolver:
                     rates_matrix
                 )
             )
-            normalized_level_populations.loc[species_id, :].update(
-                np.vstack(solved_matrices.values).T
-            )
+            normalized_level_populations.loc[species_id, :] = np.vstack(
+                solved_matrices.values
+            ).T
 
         return normalized_level_populations</div>
 </div>
@@ -217,7 +217,7 @@ class LevelPopulationSolver:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 29 May 2025.
+      <span class="lastupdated">Last updated on 02 Jun 2025.
       </span></p>
   </div>
 
