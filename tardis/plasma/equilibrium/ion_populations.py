@@ -93,9 +93,7 @@ class IonPopulationSolver:
                 charge_conservation,
             )
             solved_matrices = self.rates_matrices.map(
-                lambda rates_matrix: self.__calculate_ion_population(
-                    rates_matrix
-                )
+                self.__calculate_ion_population
             )
 
             ion_population_solution = pd.DataFrame(
