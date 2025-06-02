@@ -8,4 +8,5 @@ The following pages contain the TARDIS workflows:
 * :doc:`workflow_notebook`
 * :doc:`standard_workflow`
 * :doc:`v_inner_solver_workflow`
+* :doc:`simple_workflow_equilibrium`
 * :doc:`simple_workflow`

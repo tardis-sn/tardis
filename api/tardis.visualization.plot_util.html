@@ -191,6 +191,61 @@ using latex) or not. Default value is True</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.create_wavelength_mask">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">create_wavelength_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_wvl_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#create_wavelength_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.create_wavelength_mask" title="Link to this definition">¶</a></dt>
+<dd><p>Create mask for packets based on wavelength range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>packets_mode</strong><span class="classifier">str</span></dt><dd><p>‘virtual’ or ‘real’ packets mode</p>
+</dd>
+<dt><strong>packet_wvl_range</strong><span class="classifier">astropy.Quantity or None</span></dt><dd><p>Wavelength range to filter packets</p>
+</dd>
+<dt><strong>df_key</strong><span class="classifier">str</span></dt><dd><p>Key for the dataframe in packet_data (‘packets_df’ or ‘packets_df_line_interaction’)</p>
+</dd>
+<dt><strong>column_name</strong><span class="classifier">str</span></dt><dd><p>Column name to filter on (‘nus’ or ‘last_line_interaction_in_nu’)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.array</dt><dd><p>Boolean mask for packets in the specified wavelength range</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.expand_species_list">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">expand_species_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#expand_species_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.expand_species_list" title="Link to this definition">¶</a></dt>
+<dd><p>Expand a species list into a fully-resolved list of species strings.</p>
+<p>This includes:
+- Expanding ion ranges like ‘Si I - V’ into [‘Si I’, ‘Si II’, …, ‘Si V’]
+- Keeping individual ions or elements as-is</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>species_list</strong><span class="classifier">list of str</span></dt><dd><p>List of species requested by the user.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>full_species_list</strong><span class="classifier">list of str</span></dt><dd><p>Expanded list of species strings in ‘Element Ion’ format.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If any digit is found in the input (species must use Roman numerals).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="tardis.visualization.plot_util.extract_and_process_packet_data">
 <span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">extract_and_process_packet_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#extract_and_process_packet_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.extract_and_process_packet_data" title="Link to this definition">¶</a></dt>
 <dd><p>Extract and process packet data from the simulation object.</p>
@@ -382,30 +437,6 @@ point not by index but by their values.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.visualization.plot_util.make_colorbar_labels">
-<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">make_colorbar_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_mapped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#make_colorbar_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.make_colorbar_labels" title="Link to this definition">¶</a></dt>
-<dd><p>Generate labels for the colorbar based on species.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>species</strong><span class="classifier">list of int</span></dt><dd><p>List of species identifiers (Z * 100 + ion) or atomic numbers.</p>
-</dd>
-<dt><strong>species_list</strong><span class="classifier">list, optional</span></dt><dd><p>Optional list of species to filter against.</p>
-</dd>
-<dt><strong>species_mapped</strong><span class="classifier">dict, optional</span></dt><dd><p>Mapping from species key (Z * 100 + ion) to lists of species IDs.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>list of str</dt><dd><p>List of formatted species labels</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="tardis.visualization.plot_util.parse_species_list_util">
 <span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">parse_species_list_util</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#parse_species_list_util"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.parse_species_list_util" title="Link to this definition">¶</a></dt>
 <dd><p>Parse user-requested species list and create list of species IDs to be used.</p>
@@ -429,7 +460,7 @@ Species can be given as:
 </dd>
 <dt><strong>species_list_result</strong><span class="classifier">list of tuple</span></dt><dd><p>Flattened list of all (Z, ion) tuples to be used.</p>
 </dd>
-<dt><strong>keep_colour_result</strong><span class="classifier">list of int</span></dt><dd><p>Atomic numbers of elements that should be grouped by color.</p>
+<dt><strong>elements_with_shared_color</strong><span class="classifier">list of int</span></dt><dd><p>Atomic numbers of elements that should be grouped by color.</p>
 </dd>
 <dt><strong>full_species_list</strong><span class="classifier">list of str</span></dt><dd><p>Expanded list of user-requested species in string format.</p>
 </dd>
@@ -439,7 +470,7 @@ Species can be given as:
 <p class="rubric">Examples</p>
 <p>‘Fe II’        -&gt; [(26, 1)]
 ‘Ca’           -&gt; [(20, 0), (20, 1), …, (20, 19)]
-‘Si I - V’     -&gt; [(14, 0), (14, 1), (14, 2), (14, 3), (14, 4)]</p>
+‘Si I-V’       -&gt; [(14, 0), (14, 1), (14, 2), (14, 3), (14, 4)]</p>
 </dd></dl>
 
 <dl class="py function">
@@ -496,7 +527,7 @@ Species can be given as:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 May 2025.
+      <span class="lastupdated">Last updated on 02 Jun 2025.
       </span></p>
   </div>
 

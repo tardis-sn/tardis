@@ -184,6 +184,25 @@ class SDECPlotter:
         self.t_inner = None
         self.r_inner = None
         self.time_of_simulation = None
+        self._default_scatter_kwargs = {
+            &quot;mode&quot;: &quot;none&quot;,
+            &quot;hovertemplate&quot;: &quot;(%{x:.2f}, %{y:.3g})&quot;,
+        }
+
+        self._predefined_traces = {
+            &quot;emission&quot;: {
+                &quot;noint&quot;: {&quot;name&quot;: &quot;No interaction&quot;, &quot;fillcolor&quot;: &quot;#4C4C4C&quot;},
+                &quot;escatter&quot;: {
+                    &quot;name&quot;: &quot;Electron Scatter Only&quot;,
+                    &quot;fillcolor&quot;: &quot;#8F8F8F&quot;,
+                    &quot;hoverlabel&quot;: {&quot;namelength&quot;: -1},
+                },
+                &quot;other&quot;: {&quot;name&quot;: &quot;Other elements&quot;, &quot;fillcolor&quot;: &quot;#C2C2C2&quot;},
+            },
+            &quot;absorption&quot;: {
+                &quot;other&quot;: {&quot;name&quot;: &quot;Other elements&quot;, &quot;fillcolor&quot;: &quot;#C2C2C2&quot;},
+            },
+        }
 
 <div class="viewcode-block" id="SDECPlotter.from_simulation">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.from_simulation">[docs]</a>
@@ -209,7 +228,11 @@ class SDECPlotter:
             * u.s
         )
 
-        for mode in [&quot;real&quot;, &quot;virtual&quot;]:
+        modes = [&quot;real&quot;]
+        if sim.transport.transport_state.virt_logging:
+            modes.append(&quot;virtual&quot;)
+
+        for mode in modes:
             plotter.spectrum[mode] = pu.get_spectrum_data(mode, sim)
             plotter.packet_data[mode] = pu.extract_and_process_packet_data(
                 sim, mode
@@ -230,8 +253,7 @@ class SDECPlotter:
         hdf_fpath : str
             Valid path to the HDF file where simulation is saved
         packets_mode : {&#39;virtual&#39;, &#39;real&#39;}, optional
-            Mode of packets to be considered, either real or virtual. If not
-            specified, both modes are returned
+            Mode of packets to be considered (default: &#39;virtual&#39;)
 
         Returns
         -------
@@ -245,20 +267,18 @@ class SDECPlotter:
             plotter.t_inner = u.Quantity(
                 hdf[&quot;/simulation/simulation_state/scalars&quot;].t_inner, &quot;K&quot;
             )
+            transport_state_scalars = hdf[&quot;/simulation/transport/transport_state/scalars&quot;]
             plotter.time_of_simulation = u.Quantity(
-                hdf[
-                    &quot;/simulation/transport/transport_state/scalars&quot;
-                ].time_of_simulation,
+                transport_state_scalars.time_of_simulation,
                 &quot;s&quot;,
             )
 
-            for mode in [&quot;real&quot;, &quot;virtual&quot;]:
-                plotter.spectrum = {
-                    mode: pu.extract_spectrum_data_hdf(hdf, mode)
-                }
-                plotter.packet_data[mode] = (
-                    pu.extract_and_process_packet_data_hdf(hdf, mode)
-                )
+            has_virtual = bool(getattr(transport_state_scalars, &quot;virt_logging&quot;, False))
+            modes = [&quot;real&quot;] + ([&quot;virtual&quot;] if has_virtual else [])
+
+            for mode in modes:
+                plotter.spectrum[mode] = pu.extract_spectrum_data_hdf(hdf, mode)
+                plotter.packet_data[mode] = pu.extract_and_process_packet_data_hdf(hdf, mode)
 
         return plotter</div>
 
@@ -359,6 +379,9 @@ class SDECPlotter:
             &quot;spectrum_frequency_bins&quot;
         ][:-1]
 
+        self.packet_wvl_range_mask = np.ones(
+            self.plot_wavelength.size, dtype=bool
+        )  # default value
         # Filter their plottable range based on packet_wvl_range specified
         if packet_wvl_range is not None:
             packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
@@ -386,26 +409,20 @@ class SDECPlotter:
             self.plot_frequency = self.plot_frequency[
                 self.packet_wvl_range_mask
             ]
-        else:
-            self.packet_wvl_range_mask = np.ones(
-                self.plot_wavelength.size, dtype=bool
-            )
 
         # Make sure number of bin edges are always one more than wavelengths
         assert self.plot_frequency_bins.size == self.plot_wavelength.size + 1
 
         # Calculate the area term to convert luminosity to flux
-        if distance is None:
-            self.lum_to_flux = 1  # so that this term will have no effect
-        else:
+        self.lum_to_flux = 1  # default to 1 if distance is none so that this term will have no effect
+        if distance is not None:
             if distance &lt;= 0:
                 raise ValueError(
                     &quot;distance passed must be greater than 0. If you intended &quot;
                     &quot;to plot luminosities instead of flux, set distance=None &quot;
                     &quot;or don&#39;t specify distance parameter in the function call.&quot;
                 )
-            else:
-                self.lum_to_flux = 4.0 * np.pi * (distance.to(&quot;cm&quot;)) ** 2
+            self.lum_to_flux = 4.0 * np.pi * (distance.to(&quot;cm&quot;)) ** 2
 
         # Calculate luminosities to be shown in plot
         (
@@ -435,130 +452,65 @@ class SDECPlotter:
             ascending=False
         )
 
-        # If nelements and species_list are not included, the list of elements is just all elements
         if nelements is None and self._species_list is None:
-            self.species = np.array(list(self.total_luminosities_df.keys()))
+            self.species = np.array(list(self.total_luminosities_df.columns))
         elif self._species_list is not None:
-            # Compare the species present in the model to those in the requested list
-            # Mask out those that aren&#39;t in the model
-            mask = np.in1d(
-                np.array(list(sorted_list.keys())), self._species_list
-            )
-            # If species_list is included then create a new column which is the sum
-            # of all other species i.e. those that aren&#39;t in the requested list
-            self.total_luminosities_df.insert(
-                loc=0,
-                column=&quot;other&quot;,
-                value=self.total_luminosities_df[sorted_list.keys()[~mask]].sum(
-                    axis=1
-                ),
-            )
-            # Then drop all of the individual columns for species included in &#39;other&#39;
-            self.total_luminosities_df = self.total_luminosities_df.drop(
-                sorted_list.keys()[~mask], axis=1
-            )
-            # Repeat this for the emission and absorption dfs
-            # This will require creating a temporary list that includes &#39;noint&#39; and &#39;escatter&#39;
-            # packets, because you don&#39;t want them dropped or included in &#39;other&#39;
-            temp = list(self._species_list)
-            temp.append(&quot;noint&quot;)
-            temp.append(&quot;escatter&quot;)
-            mask = np.in1d(
-                np.array(list(self.emission_luminosities_df.keys())), temp
-            )
-            # If species_list is included then create a new column which is the sum
-            # of all other species i.e. those that aren&#39;t in the requested list
-            self.emission_luminosities_df.insert(
-                loc=0,
-                column=&quot;other&quot;,
-                value=self.emission_luminosities_df[
-                    self.emission_luminosities_df.keys()[~mask]
-                ].sum(axis=1),
-            )
-            # Need to add a new value to the mask array for the &#39;other&#39; column just added
-            mask = np.insert(mask, 0, True)
-            # Then drop all of the individual columns for species included in &#39;other&#39;
-            self.emission_luminosities_df = self.emission_luminosities_df.drop(
-                self.emission_luminosities_df.keys()[~mask],
-                axis=1,
-            )
+            sorted_keys = list(sorted_list.keys())
+            keys_to_keep = [
+                key for key in sorted_keys if key in self._species_list
+            ]
 
-            temp = list(self._species_list)
-            mask = np.in1d(
-                np.array(list(self.absorption_luminosities_df.keys())), temp
-            )
-            # If species_list is included then create a new column which is the sum
-            # of all other species i.e. those that aren&#39;t in the requested list
-            self.absorption_luminosities_df.insert(
-                loc=0,
-                column=&quot;other&quot;,
-                value=self.absorption_luminosities_df[
-                    self.absorption_luminosities_df.keys()[~mask]
-                ].sum(axis=1),
-            )
-            # Need to add a new value to the mask array for the &#39;other&#39; column just added
-            mask = np.insert(mask, 0, True)
-            # Then drop all of the individual columns for species included in &#39;other&#39;
-            self.absorption_luminosities_df = (
-                self.absorption_luminosities_df.drop(
-                    self.absorption_luminosities_df.keys()[~mask],
-                    axis=1,
+            df_map = {
+                &quot;total_luminosities_df&quot;: keys_to_keep,
+                &quot;emission_luminosities_df&quot;: keys_to_keep
+                + [&quot;noint&quot;, &quot;escatter&quot;],
+                &quot;absorption_luminosities_df&quot;: keys_to_keep,
+            }
+
+            for df_name, keys in df_map.items():
+                current_df = getattr(self, df_name)
+                columns_to_exclude = [
+                    col for col in current_df.columns if col not in keys
+                ]
+                other_pos = 2 if df_name != &quot;total_luminosities_df&quot; else 0
+
+                processed_df = self.process_luminosity_dataframe(
+                    current_df,
+                    columns_to_exclude,
+                    other_column_position=other_pos,
                 )
-            )
+                setattr(self, df_name, processed_df)
 
-            # Get the list of species in the model
-            # Index from 1: to avoid the &#39;other&#39; column
-            self.species = np.sort(self.total_luminosities_df.keys()[1:])
+            self.species = np.sort(self.total_luminosities_df.columns[1:])
 
-        else:
-            # If nelements is included then create a new column which is the sum
-            # of all other elements, i.e. those that aren&#39;t in the top contributing nelements
-            self.total_luminosities_df.insert(
-                loc=0,
-                column=&quot;other&quot;,
-                value=self.total_luminosities_df[
-                    sorted_list.keys()[nelements:]
-                ].sum(axis=1),
-            )
-            # Then drop all of the individual columns for elements included in &#39;other&#39;
-            self.total_luminosities_df = self.total_luminosities_df.drop(
-                sorted_list.keys()[nelements:], axis=1
-            )
-            # If nelements is included then create a new column which is the sum
-            # of all other elements, i.e. those that aren&#39;t in the top contributing nelements
-            self.emission_luminosities_df.insert(
-                loc=2,
-                column=&quot;other&quot;,
-                value=self.emission_luminosities_df[
-                    sorted_list.keys()[nelements:]
-                ].sum(axis=1),
-            )
-            # Then drop all of the individual columns for elements included in &#39;other&#39;
-            self.emission_luminosities_df = self.emission_luminosities_df.drop(
-                sorted_list.keys()[nelements:], axis=1
-            )
-            # If nelements is included then create a new column which is the sum
-            # of all other elements, i.e. those that aren&#39;t in the top contributing nelements
-            self.absorption_luminosities_df.insert(
-                loc=2,
-                column=&quot;other&quot;,
-                value=self.absorption_luminosities_df[
-                    sorted_list.keys()[nelements:]
-                ].sum(axis=1),
-            )
-            # Then drop all of the individual columns for elements included in &#39;other&#39;
-            self.absorption_luminosities_df = (
-                self.absorption_luminosities_df.drop(
-                    sorted_list.keys()[nelements:], axis=1
+        else:  # nelements is not None
+            top_n_keys = sorted_list.keys()[:nelements]
+            always_keep = [&quot;noint&quot;, &quot;escatter&quot;]
+
+            df_map = {
+                &quot;total_luminosities_df&quot;: list(top_n_keys),
+                &quot;emission_luminosities_df&quot;: list(top_n_keys) + always_keep,
+                &quot;absorption_luminosities_df&quot;: list(top_n_keys),
+            }
+
+            for df_name, keys_to_keep in df_map.items():
+                current_df = getattr(self, df_name)
+                columns_to_exclude = [
+                    col for col in current_df.columns if col not in keys_to_keep
+                ]
+                other_pos = 2 if df_name != &quot;total_luminosities_df&quot; else 0
+
+                processed_df = self.process_luminosity_dataframe(
+                    current_df,
+                    columns_to_exclude,
+                    other_column_position=other_pos,
                 )
-            )
-            # Get the list of species in the model
-            # Index from 1: to avoid the &#39;other&#39; column
-            self.species = np.sort(self.total_luminosities_df.keys()[1:])
+                setattr(self, df_name, processed_df)
 
-        self.photosphere_luminosity = self._calculate_photosphere_luminosity(
-            packets_mode=packets_mode
-        )
+            self.species = np.sort(self.total_luminosities_df.columns[1:])
+
+        # Final calculations
+        self.photosphere_luminosity = self._calculate_photosphere_luminosity()
         self.modeled_spectrum_luminosity = (
             self.spectrum[packets_mode][&quot;spectrum_luminosity_density_lambda&quot;][
                 self.packet_wvl_range_mask
@@ -566,40 +518,40 @@ class SDECPlotter:
             / self.lum_to_flux
         )
 
-    def _create_wavelength_mask(
-        self, packets_mode, packet_wvl_range, df_key, column_name
+<div class="viewcode-block" id="SDECPlotter.process_luminosity_dataframe">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.process_luminosity_dataframe">[docs]</a>
+    def process_luminosity_dataframe(
+        self, df, keys_to_exclude, other_column_position=0
     ):
         &quot;&quot;&quot;
-        Create mask for packets based on wavelength range.
+        Process a luminosity DataFrame by aggregating specified columns into an &#39;other&#39; column.
 
         Parameters
         ----------
-        packets_mode : str
-            &#39;virtual&#39; or &#39;real&#39; packets mode
-        packet_wvl_range : astropy.Quantity or None
-            Wavelength range to filter packets
-        df_key : str
-            Key for the dataframe in packet_data (&#39;packets_df&#39; or &#39;packets_df_line_interaction&#39;)
-        column_name : str
-            Column name to filter on (&#39;nus&#39; or &#39;last_line_interaction_in_nu&#39;)
+        df : pandas.DataFrame
+            The DataFrame containing luminosity data to be processed.
+        keys_to_exclude : list of str
+            Column names in `df` whose data should be summed into the &#39;other&#39; column and removed.
+        other_column_position : int, optional
+            The integer location (0-indexed) at which to insert the new &#39;other&#39; column. Defaults to 0.
 
         Returns
         -------
-        np.array
-            Boolean mask for packets in the specified wavelength range
+        pandas.DataFrame
+            A new DataFrame with the excluded columns summed into &#39;other&#39; and removed from the original.
         &quot;&quot;&quot;
-        if packet_wvl_range is None:
-            return np.ones(
-                self.packet_data[packets_mode][df_key].shape[0],
-                dtype=bool,
+        mask = np.isin(df.columns, keys_to_exclude)
+        excluded_keys = df.columns[mask]
+
+        if len(excluded_keys) &gt; 0:
+            df.insert(
+                loc=other_column_position,
+                column=&quot;other&quot;,
+                value=df[excluded_keys].sum(axis=1),
             )
+            df = df.drop(columns=excluded_keys)
+        return df</div>
 
-        packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
-        df = self.packet_data[packets_mode][df_key]
-
-        return (df[column_name] &lt; packet_nu_range[0]) &amp; (
-            df[column_name] &gt; packet_nu_range[1]
-        )
 
     def _calculate_grouped_luminosities(
         self, packets_mode, mask, nu_column, luminosities_df
@@ -631,13 +583,11 @@ class SDECPlotter:
             if self._species_list is None
             else &quot;last_line_interaction_species&quot;
         )
-        # Group the packets
         grouped = (
             self.packet_data[packets_mode][&quot;packets_df_line_interaction&quot;]
             .loc[mask]
             .groupby(by=groupby_column)
         )
-        # Calculate luminosities for each group
         for identifier, group in grouped:
             weights = (
                 group[&quot;energies&quot;] / self.lum_to_flux / self.time_of_simulation
@@ -672,8 +622,6 @@ class SDECPlotter:
             ]
             / self.lum_to_flux
         ) / self.time_of_simulation
-
-        # Calculate weighted histogram
         hist = np.histogram(
             self.packet_data[packets_mode][&quot;packets_df&quot;][&quot;nus&quot;][
                 self.packet_nu_range_mask
@@ -682,7 +630,6 @@ class SDECPlotter:
             weights=weights[mask],
             density=False,
         )
-        # Convert histogram (luminosity values) to luminosity density lambda
         L_nu = (
             hist[0]
             * u.erg
@@ -690,8 +637,51 @@ class SDECPlotter:
             / self.spectrum[packets_mode][&quot;spectrum_delta_frequency&quot;]
         )
         L_lambda = L_nu * self.plot_frequency / self.plot_wavelength
-        # Update dataframe
         luminosities_df[contribution_name] = L_lambda.value
+
+    def _plot_traces(self, df, group_name, predefined_traces, invert_y=False):
+        &quot;&quot;&quot;Generic helper to plot traces.&quot;&quot;&quot;
+        # By specifying a common stackgroup, plotly will itself add up
+        # luminosities, in order, to created stacked area chart
+        base_kwargs = {
+            &quot;x&quot;: df.index,
+            &quot;stackgroup&quot;: group_name,
+            **self._default_scatter_kwargs,
+        }
+
+        # Plot predefined traces first
+        for colname, trace_info in predefined_traces.items():
+            if colname in df.columns:
+                y_data = df[colname] * (-1 if invert_y else 1)
+                self.fig.add_trace(
+                    go.Scatter(
+                        y=y_data,
+                        **trace_info,
+                        **base_kwargs,
+                    )
+                )
+
+        # Plot species-specific traces
+        for (species_counter, identifier), species_name in zip(
+            enumerate(self.species), self._species_name
+        ):
+            try:
+                y_data = df[identifier] * (-1 if invert_y else 1)
+                self.fig.add_trace(
+                    go.Scatter(
+                        y=y_data,
+                        name=f&quot;{species_name} {&#39;Absorption&#39; if invert_y else &#39;Emission&#39;}&quot;,
+                        fillcolor=pu.to_rgb255_string(
+                            self._color_list[species_counter]
+                        ),
+                        hoverlabel={&quot;namelength&quot;: -1},
+                        **base_kwargs,
+                    )
+                )
+            except KeyError:
+                self._log_missing_species(
+                    identifier, &quot;absorbed&quot; if invert_y else &quot;emitted&quot;
+                )
 
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         &quot;&quot;&quot;
@@ -716,14 +706,15 @@ class SDECPlotter:
             Atomic numbers of the elements with which packets of specified
             wavelength range interacted
         &quot;&quot;&quot;
-        # Calculate masks to be applied on packets data based on packet_wvl_range
-        self.packet_nu_range_mask = self._create_wavelength_mask(
+        self.packet_nu_range_mask = pu.create_wavelength_mask(
+            self.packet_data,
             packets_mode,
             packet_wvl_range,
             df_key=&quot;packets_df&quot;,
             column_name=&quot;nus&quot;,
         )
-        self.packet_nu_line_range_mask = self._create_wavelength_mask(
+        self.packet_nu_line_range_mask = pu.create_wavelength_mask(
+            self.packet_data,
             packets_mode,
             packet_wvl_range,
             df_key=&quot;packets_df_line_interaction&quot;,
@@ -789,8 +780,8 @@ class SDECPlotter:
             Dataframe containing luminosities contributed by absorption with
             each element present
         &quot;&quot;&quot;
-        # Calculate masks to be applied on packets data based on packet_wvl_range
-        self.packet_nu_line_range_mask = self._create_wavelength_mask(
+        self.packet_nu_line_range_mask = pu.create_wavelength_mask(
+            self.packet_data,
             packets_mode,
             packet_wvl_range,
             df_key=&quot;packets_df_line_interaction&quot;,
@@ -806,14 +797,9 @@ class SDECPlotter:
             luminosities_df=luminosities_df,
         )
 
-    def _calculate_photosphere_luminosity(self, packets_mode):
+    def _calculate_photosphere_luminosity(self):
         &quot;&quot;&quot;
         Calculate blackbody luminosity of the photosphere.
-
-        Parameters
-        ----------
-        packets_mode : {&#39;virtual&#39;, &#39;real&#39;}
-            Mode of packets to be considered, either real or virtual
 
         Returns
         -------
@@ -926,9 +912,7 @@ class SDECPlotter:
             self.ax = ax
 
         # Get the labels in the color bar. This determines the number of unique colors
-        self._species_name = pu.make_colorbar_labels(
-            self.species, self._species_list, self._species_mapped
-        )
+        self._make_colorbar_labels()
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unqie colors
@@ -959,9 +943,6 @@ class SDECPlotter:
                     &quot;&quot;&quot;
                 )
 
-            observed_spectrum_wavelength = None
-            observed_spectrum_flux = None
-
             # Convert to wavelength and luminosity units
             observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
             observed_spectrum_flux = observed_spectrum[1].to(&quot;erg/(s cm**2 AA)&quot;)
@@ -984,18 +965,21 @@ class SDECPlotter:
             )
 
         # Set legends and labels
-        self.ax.legend(fontsize=12)
-        self.ax.set_xlabel(r&quot;Wavelength $[\mathrm{\AA}]$&quot;, fontsize=12)
+        xlabel = pu.axis_label_in_latex(&quot;Wavelength&quot;, u.AA)
         if distance is not None:  # Set y-axis label for flux
-            self.ax.set_ylabel(
-                r&quot;$F_{\lambda}$ [erg $\mathrm{s^{-1}}$ $\mathrm{cm^{-2}}$ $\mathrm{\AA^{-1}}$]&quot;,
-                fontsize=12,
+            ylabel = pu.axis_label_in_latex(
+                &quot;F_{\\lambda}&quot;, u.Unit(&quot;erg/(s cm**2 AA)&quot;), only_text=False
             )
         else:  # Set y-axis label for luminosity
-            self.ax.set_ylabel(
-                r&quot;$L_{\lambda}$ [erg $\mathrm{s^{-1}}$ $\mathrm{\AA^{-1}}$]&quot;,
-                fontsize=12,
+            ylabel = pu.axis_label_in_latex(
+                &quot;L_{\\lambda}&quot;, u.Unit(&quot;erg/(s AA)&quot;), only_text=False
             )
+        self.ax.legend(fontsize=12)
+        self.ax.set_xlabel(xlabel, fontsize=12)
+        self.ax.set_ylabel(
+            ylabel,
+            fontsize=12,
+        )
 
         return plt.gca()</div>
 
@@ -1126,54 +1110,63 @@ class SDECPlotter:
 
         cbar.set_ticklabels(self._species_name)
 
+    def _make_colorbar_labels(self):
+        &quot;&quot;&quot;Get the labels for the species in the colorbar.&quot;&quot;&quot;
+        if self._species_list is None:
+            # If species_list is none then the labels are just elements
+            species_name = [
+                atomic_number2element_symbol(atomic_num)
+                for atomic_num in self.species
+            ]
+        else:
+            species_name = []
+            for element in self.species:
+                # Go through each species requested
+                atomic_number, ion_number = divmod(element, 100)
+
+                ion_numeral = int_to_roman(ion_number + 1)
+                atomic_symbol = atomic_number2element_symbol(atomic_number)
+
+                # if the element was requested, and not a specific ion, then
+                # add the element symbol to the label list
+                if (atomic_number in self._keep_colour) and (
+                    atomic_symbol not in species_name
+                ):
+                    # compiling the label, and adding it to the list
+                    label = atomic_symbol
+                    species_name.append(label)
+                elif atomic_number not in self._keep_colour:
+                    # otherwise add the ion to the label list
+                    label = f&quot;{atomic_symbol} {ion_numeral}&quot;
+                    species_name.append(label)
+        self._species_name = species_name
+
     def _make_colorbar_colors(self):
         &quot;&quot;&quot;Get the colours for the species to be plotted.&quot;&quot;&quot;
-        # the colours depends on the species present in the model and what&#39;s requested
-        # some species need to be shown in the same colour, so the exact colours have to be
-        # worked out
-
         color_list = []
-
-        # Colors for each element
-        # Create new variables to keep track of the last atomic number that was plotted
-        # This is used when plotting species in case an element was given in the list
-        # This is to ensure that all ions of that element are grouped together
-        # ii is to track the colour index
-        # e.g. if Si is given in species_list, this is to ensure Si I, Si II, etc. all have the same colour
-        color_counter = 0
-        previous_atomic_number = 0
-        for species_counter, identifier in enumerate(self.species):
+        # - For elements in self._keep_colour, all ionization states share the same color
+        #   (e.g., Si I, Si II, Si III all get the same color if Si&#39;s atomic number is in self._keep_colour)
+        # - For elements not in self._keep_colour, each ionization state gets a new color
+        for i, identifier in enumerate(self.species):
             if self._species_list is not None:
-                # Get the ion number and atomic number for each species
-                ion_number = identifier % 100
-                atomic_number = (identifier - ion_number) / 100
-                if previous_atomic_number == 0:
-                    # If this is the first species being plotted, then take note of the atomic number
-                    # don&#39;t update the colour index
-                    previous_atomic_number = atomic_number
-                elif previous_atomic_number in self._keep_colour:
-                    # If the atomic number is in the list of elements that should all be plotted in the same colour
-                    # then don&#39;t update the colour index if this element has been plotted already
-                    if previous_atomic_number == atomic_number:
-                        previous_atomic_number = atomic_number
-                    else:
-                        # Otherwise, increase the colour counter by one, because this is a new element
-                        color_counter = color_counter + 1
-                        previous_atomic_number = atomic_number
-                else:
-                    # If this is just a normal species that was requested then increment the colour index
-                    color_counter = color_counter + 1
-                    previous_atomic_number = atomic_number
-                # Calculate the colour of this species
+                color_counter = 0
+                atomic_number = identifier // 100
+                # For any element after the first one
+                if i &gt; 0:
+                    previous_atomic_number = self.species[i - 1] // 100
+                    # Increment color when:
+                    # 1. There is a new element, OR
+                    # 2. The previous element isn&#39;t in the keep_colour list
+                    if (
+                        previous_atomic_number != atomic_number
+                        or previous_atomic_number not in self._keep_colour
+                    ):
+                        color_counter += 1
+
                 color = self.cmap(color_counter / len(self._species_name))
-
             else:
-                # If you&#39;re not using species list then this is just a fraction based on the total
-                # number of columns in the dataframe
-                color = self.cmap(species_counter / len(self.species))
-
+                color = self.cmap(i / len(self.species))
             color_list.append(color)
-
         self._color_list = color_list
 
 <div class="viewcode-block" id="SDECPlotter.generate_plot_ply">
@@ -1247,7 +1240,10 @@ class SDECPlotter:
             logger.info(
                 &quot;Both nelements and species_list were requested. Species_list takes priority; nelements is ignored&quot;
             )
-
+        hover_props = {
+            &quot;hoverlabel&quot;: {&quot;namelength&quot;: -1},
+            &quot;hovertemplate&quot;: &quot;(%{x:.2f}, %{y:.3g})&quot;,
+        }
         # Parse the requested species list
         self._parse_species_list(species_list=species_list)
 
@@ -1266,9 +1262,7 @@ class SDECPlotter:
             self.fig = fig
 
         # Get the labels in the color bar. This determines the number of unique colors
-        self._species_name = pu.make_colorbar_labels(
-            self.species, self._species_list, self._species_mapped
-        )
+        self._make_colorbar_labels()
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         # Get the number of unique colors
@@ -1290,8 +1284,7 @@ class SDECPlotter:
                         &quot;width&quot;: 1,
                     },
                     name=f&quot;{packets_mode.capitalize()} Spectrum&quot;,
-                    hovertemplate=&quot;(%{x:.2f}, %{y:.3g})&quot;,
-                    hoverlabel={&quot;namelength&quot;: -1},
+                    **hover_props,
                 )
             )
 
@@ -1305,9 +1298,6 @@ class SDECPlotter:
                     &quot;&quot;&quot;
                 )
 
-            observed_spectrum_wavelength = None
-            observed_spectrum_flux = None
-
             # Convert to wavelength and luminosity units
             observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
             observed_spectrum_flux = observed_spectrum[1].to(&quot;erg/(s cm**2 AA)&quot;)
@@ -1317,8 +1307,7 @@ class SDECPlotter:
                 y=observed_spectrum_flux.value,
                 name=&quot;Observed Spectrum&quot;,
                 line={&quot;color&quot;: &quot;black&quot;, &quot;width&quot;: 1.2},
-                hoverlabel={&quot;namelength&quot;: -1},
-                hovertemplate=&quot;(%{x:.2f}, %{y:.3g})&quot;,
+                **hover_props,
             )
 
         # Plot photosphere
@@ -1330,8 +1319,7 @@ class SDECPlotter:
                     mode=&quot;lines&quot;,
                     line={&quot;width&quot;: 1.5, &quot;color&quot;: &quot;red&quot;, &quot;dash&quot;: &quot;dash&quot;},
                     name=&quot;Blackbody Photosphere&quot;,
-                    hoverlabel={&quot;namelength&quot;: -1},
-                    hovertemplate=&quot;(%{x:.2f}, %{y:.3g})&quot;,
+                    **hover_props,
                 )
             )
 
@@ -1361,115 +1349,21 @@ class SDECPlotter:
 
     def _plot_emission_ply(self):
         &quot;&quot;&quot;Plot emission part of the SDEC Plot using plotly.&quot;&quot;&quot;
-        # By specifying a common stackgroup, plotly will itself add up
-        # luminosities, in order, to created stacked area chart
-        self.fig.add_trace(
-            go.Scatter(
-                x=self.emission_luminosities_df.index,
-                y=self.emission_luminosities_df.noint,
-                mode=&quot;none&quot;,
-                name=&quot;No interaction&quot;,
-                fillcolor=&quot;#4C4C4C&quot;,
-                stackgroup=&quot;emission&quot;,
-                hovertemplate=&quot;(%{x:.2f}, %{y:.3g})&quot;,
-            )
+        self._plot_traces(
+            df=self.emission_luminosities_df,
+            group_name=&quot;emission&quot;,
+            predefined_traces=self._predefined_traces[&quot;emission&quot;],
+            invert_y=False,
         )
-
-        self.fig.add_trace(
-            go.Scatter(
-                x=self.emission_luminosities_df.index,
-                y=self.emission_luminosities_df.escatter,
-                mode=&quot;none&quot;,
-                name=&quot;Electron Scatter Only&quot;,
-                fillcolor=&quot;#8F8F8F&quot;,
-                stackgroup=&quot;emission&quot;,
-                hoverlabel={&quot;namelength&quot;: -1},
-                hovertemplate=&quot;(%{x:.2f}, %{y:.3g})&quot;,
-            )
-        )
-
-        # If &#39;other&#39; column exists then plot as silver
-        if &quot;other&quot; in self.emission_luminosities_df.keys():
-            self.fig.add_trace(
-                go.Scatter(
-                    x=self.emission_luminosities_df.index,
-                    y=self.emission_luminosities_df.other,
-                    mode=&quot;none&quot;,
-                    name=&quot;Other elements&quot;,
-                    fillcolor=&quot;#C2C2C2&quot;,
-                    stackgroup=&quot;emission&quot;,
-                    hovertemplate=&quot;(%{x:.2f}, %{y:.3g})&quot;,
-                )
-            )
-
-        # Contribution from each element
-        for (species_counter, identifier), species_name in zip(
-            enumerate(self.species), self._species_name
-        ):
-            try:
-                self.fig.add_trace(
-                    go.Scatter(
-                        x=self.emission_luminosities_df.index,
-                        y=self.emission_luminosities_df[identifier],
-                        mode=&quot;none&quot;,
-                        name=species_name + &quot; Emission&quot;,
-                        hovertemplate=f&quot;&lt;b&gt;{species_name:s} Emission&lt;br&gt;&quot;  # noqa: ISC003
-                        + &quot;(%{x:.2f}, %{y:.3g})&lt;extra&gt;&lt;/extra&gt;&quot;,
-                        fillcolor=pu.to_rgb255_string(
-                            self._color_list[species_counter]
-                        ),
-                        stackgroup=&quot;emission&quot;,
-                        showlegend=False,
-                        hoverlabel={&quot;namelength&quot;: -1},
-                    )
-                )
-            except KeyError:
-                # Add notifications that this species was not in the emission df
-                self._log_missing_species(identifier, &quot;emitted&quot;)
 
     def _plot_absorption_ply(self):
         &quot;&quot;&quot;Plot absorption part of the SDEC Plot using plotly.&quot;&quot;&quot;
-        # If &#39;other&#39; column exists then plot as silver
-        if &quot;other&quot; in self.absorption_luminosities_df.keys():
-            self.fig.add_trace(
-                go.Scatter(
-                    x=self.absorption_luminosities_df.index,
-                    # to plot absorption luminosities along negative y-axis
-                    y=self.absorption_luminosities_df.other * -1,
-                    mode=&quot;none&quot;,
-                    name=&quot;Other elements&quot;,
-                    fillcolor=&quot;#C2C2C2&quot;,
-                    stackgroup=&quot;absorption&quot;,
-                    showlegend=False,
-                    hovertemplate=&quot;(%{x:.2f}, %{y:.3g})&quot;,
-                )
-            )
-
-        for (species_counter, identifier), species_name in zip(
-            enumerate(self.species), self._species_name
-        ):
-            try:
-                self.fig.add_trace(
-                    go.Scatter(
-                        x=self.absorption_luminosities_df.index,
-                        # to plot absorption luminosities along negative y-axis
-                        y=self.absorption_luminosities_df[identifier] * -1,
-                        mode=&quot;none&quot;,
-                        name=species_name + &quot; Absorption&quot;,
-                        hovertemplate=f&quot;&lt;b&gt;{species_name:s} Absorption&lt;br&gt;&quot;  # noqa: ISC003
-                        + &quot;(%{x:.2f}, %{y:.3g})&lt;extra&gt;&lt;/extra&gt;&quot;,
-                        fillcolor=pu.to_rgb255_string(
-                            self._color_list[species_counter]
-                        ),
-                        stackgroup=&quot;absorption&quot;,
-                        showlegend=False,
-                        hoverlabel={&quot;namelength&quot;: -1},
-                    )
-                )
-
-            except KeyError:
-                # Add notifications that this species was not in the df
-                self._log_missing_species(identifier, &quot;absorbed&quot;)
+        self._plot_traces(
+            df=self.absorption_luminosities_df,
+            group_name=&quot;absorption&quot;,
+            predefined_traces=self._predefined_traces[&quot;absorption&quot;],
+            invert_y=True,
+        )
 
     def _show_colorbar_ply(self):
         &quot;&quot;&quot;Show plotly colorbar with labels of elements mapped to colors.&quot;&quot;&quot;
@@ -1522,6 +1416,16 @@ class SDECPlotter:
         )
 
     def _log_missing_species(self, identifier, is_absorption):
+        &quot;&quot;&quot;
+        Log an informational message when a species is missing from interaction data.
+
+        Parameters
+        ----------
+        identifier : int
+            Species identifier, atomic number or combined atomic and ion number (Z*100+ion).
+        is_absorption : bool
+            True if checking absorption species, False for emission species.
+        &quot;&quot;&quot;
         interaction_type = &quot;absorbed&quot; if is_absorption else &quot;emitted&quot;
         if self._species_list is None:
             info_msg = (
@@ -1530,9 +1434,9 @@ class SDECPlotter:
             )
         else:
             # Get the ion number and atomic number for each species
-            ion_number = identifier % 100
-            atomic_number = (identifier - ion_number) / 100
-
+            atomic_number, ion_number = divmod(
+                identifier, 100
+            )  # (quotient, remainder)
             info_msg = (
                 f&quot;{atomic_number2element_symbol(atomic_number)}&quot;
                 f&quot;{int_to_roman(ion_number + 1)}&quot;
@@ -1550,7 +1454,7 @@ class SDECPlotter:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 May 2025.
+      <span class="lastupdated">Last updated on 02 Jun 2025.
       </span></p>
   </div>
 

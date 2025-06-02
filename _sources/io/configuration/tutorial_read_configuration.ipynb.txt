@@ -149,7 +149,7 @@
     "conf_dict = {'tardis_config_version': 'v1.0',\n",
     " 'supernova': {'luminosity_requested': 1.05e+43 * u.erg / u.s,\n",
     "  'time_explosion': 13 * u.day},\n",
-    " 'atom_data': 'kurucz_cd23_chianti_H_He.h5',\n",
+    " 'atom_data': 'kurucz_cd23_chianti_H_He_latest.h5',\n",
     " 'model': {'structure': {'type': 'specific',\n",
     "   'velocity': {'start': 11000. * u.km / u.s,\n",
     "    'stop': 20000. * u.km / u.s,\n",

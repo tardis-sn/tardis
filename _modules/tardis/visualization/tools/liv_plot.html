@@ -189,7 +189,11 @@ class LIVPlotter:
         plotter = cls()
         plotter.velocity = sim.simulation_state.velocity
         plotter.time_explosion = sim.plasma.time_explosion
-        for mode in [&quot;real&quot;, &quot;virtual&quot;]:
+
+        modes = [&quot;real&quot;]
+        if sim.transport.transport_state.virt_logging:
+            modes.append(&quot;virtual&quot;)
+        for mode in modes:
             plotter.packet_data[mode] = pu.extract_and_process_packet_data(
                 sim, mode
             )
@@ -221,7 +225,11 @@ class LIVPlotter:
             plotter.velocity = hdf[&quot;/simulation/simulation_state/velocity&quot;] * (
                 u.cm / u.s
             )
-            for mode in [&quot;real&quot;, &quot;virtual&quot;]:
+            transport_state_scalars = hdf[&quot;/simulation/transport/transport_state/scalars&quot;]
+            has_virtual = bool(getattr(transport_state_scalars, &quot;virt_logging&quot;, False))
+
+            modes = [&quot;real&quot;] + ([&quot;virtual&quot;] if has_virtual else [])
+            for mode in modes:
                 plotter.packet_data[mode] = (
                     pu.extract_and_process_packet_data_hdf(hdf, mode)
                 )
@@ -288,6 +296,32 @@ class LIVPlotter:
             ]
             self._parse_species_list(top_species_list, packets_mode)
 
+    def _make_colorbar_labels(self):
+        &quot;&quot;&quot;
+        Generate labels for the colorbar based on species.
+
+        If a species list is provided, uses that to generate labels.
+        Otherwise, generates labels from the species in the model.
+        &quot;&quot;&quot;
+        if self._species_list is None:
+            species_name = [
+                atomic_number2element_symbol(atomic_num)
+                for atomic_num in self.species
+            ]
+        else:
+            species_name = []
+            for species_key, species_ids in self._species_mapped.items():
+                if any(spec_id in self.species for spec_id in species_ids):
+                    atomic_number, ion_number = divmod(species_key, 100) #(quotient, remainder) Eg: 1402 = 14, 02
+                    if ion_number == 0:
+                        label = atomic_number2element_symbol(atomic_number)
+                    else:
+                        ion_numeral = int_to_roman(ion_number + 1)
+                        label = f&quot;{atomic_number2element_symbol(atomic_number)} {ion_numeral}&quot;
+                    species_name.append(label)
+
+        self._species_name = species_name
+
     def _make_colorbar_colors(self):
         &quot;&quot;&quot;
         Generate colors for the species to be plotted.
@@ -332,18 +366,17 @@ class LIVPlotter:
 
         time_explosion = self.time_explosion
 
-        for specie_list in self._species_mapped.values():
+        for species_list in self._species_mapped.values():
             full_v_last = []
-            for specie in specie_list:
-                if specie in self.species:
-                    if specie not in groups.groups:
-                        atomic_number = specie // 100
-                        ion_number = specie % 100
+            for species in species_list:
+                if species in self.species:
+                    if species not in groups.groups:
+                        atomic_number, ion_number = divmod(species, 100) #(quotient, remainder)
                         ion_numeral = int_to_roman(ion_number + 1)
                         label = f&quot;{atomic_number2element_symbol(atomic_number)} {ion_numeral}&quot;
                         species_not_wvl_range.append(label)
                         continue
-                    g_df = groups.get_group(specie)
+                    g_df = groups.get_group(species)
                     r_last_interaction = (
                         g_df[&quot;last_interaction_in_r&quot;].values * u.cm
                     )
@@ -406,23 +439,18 @@ class LIVPlotter:
             If no species are provided for plotting, or if no valid species are
             found in the model.
         &quot;&quot;&quot;
-        if species_list is None:
-            # Extract all unique elements from the packets data
-            species_in_model = np.unique(
-                self.packet_data[packets_mode][&quot;packets_df_line_interaction&quot;][
-                    &quot;last_line_interaction_species&quot;
-                ].values
-            )
-            species_list = [
-                f&quot;{atomic_number2element_symbol(specie // 100)}&quot;
-                for specie in species_in_model
-            ]
-        self._parse_species_list(species_list, packets_mode, nelements)
+        # Extract all unique elements from the packets data
         species_in_model = np.unique(
             self.packet_data[packets_mode][&quot;packets_df_line_interaction&quot;][
                 &quot;last_line_interaction_species&quot;
             ].values
         )
+        if species_list is None:
+            species_list = [
+                f&quot;{atomic_number2element_symbol(specie // 100)}&quot;
+                for specie in species_in_model
+            ]
+        self._parse_species_list(species_list, packets_mode, nelements)
         if self._species_list is None or not self._species_list:
             raise ValueError(&quot;No species provided for plotting.&quot;)
         msk = np.isin(self._species_list, species_in_model)
@@ -431,35 +459,17 @@ class LIVPlotter:
         if len(self.species) == 0:
             raise ValueError(&quot;No valid species found for plotting.&quot;)
 
-        self._species_name = pu.make_colorbar_labels(
-            self.species, self._species_list, self._species_mapped
-        )
+        self._make_colorbar_labels()
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
         self._make_colorbar_colors()
 
-        if packet_wvl_range is None:
-            self.packet_nu_line_range_mask = np.ones(
-                self.packet_data[packets_mode][
-                    &quot;packets_df_line_interaction&quot;
-                ].shape[0],
-                dtype=bool,
-            )
-        else:
-            packet_nu_range = [
-                value.to(&quot;Hz&quot;, equivalencies=u.spectral())
-                for value in packet_wvl_range
-            ]
-            self.packet_nu_line_range_mask = (
-                self.packet_data[packets_mode][&quot;packets_df_line_interaction&quot;][
-                    &quot;nus&quot;
-                ]
-                &gt;= packet_nu_range[1]
-            ) &amp; (
-                self.packet_data[packets_mode][&quot;packets_df_line_interaction&quot;][
-                    &quot;nus&quot;
-                ]
-                &lt;= packet_nu_range[0]
-            )
+        self.packet_nu_line_range_mask = pu.create_wavelength_mask(
+            self.packet_data,
+            packets_mode,
+            packet_wvl_range,
+            df_key=&quot;packets_df_line_interaction&quot;,
+            column_name=&quot;nus&quot;,
+        )
 
         self._generate_plot_data(packets_mode)
         bin_edges = (self.velocity).to(&quot;km/s&quot;)
@@ -467,7 +477,7 @@ class LIVPlotter:
         if num_bins:
             if num_bins &lt; 1:
                 raise ValueError(&quot;Number of bins must be positive&quot;)
-            elif num_bins &gt; len(bin_edges) - 1:
+            if num_bins &gt; len(bin_edges) - 1:
                 logger.warning(
                     &quot;Number of bins must be less than or equal to number of shells. Plotting with number of bins equals to number of shells.&quot;
                 )
@@ -721,7 +731,7 @@ class LIVPlotter:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 May 2025.
+      <span class="lastupdated">Last updated on 02 Jun 2025.
       </span></p>
   </div>
 

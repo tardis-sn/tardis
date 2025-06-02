@@ -372,12 +372,10 @@ class OpacityState:
         else:
             continuum_state = None
 
-        atomic_data = plasma.atomic_data
-
         return cls(
             plasma.electron_densities,
             plasma.t_electrons,
-            atomic_data.lines.nu,
+            plasma.atomic_data.lines.nu,
             tau_sobolev,
             beta_sobolev,
             continuum_state,
@@ -667,7 +665,7 @@ def opacity_state_initialize(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 May 2025.
+      <span class="lastupdated">Last updated on 02 Jun 2025.
       </span></p>
   </div>
 
