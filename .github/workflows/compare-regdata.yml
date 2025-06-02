@@ -37,7 +37,7 @@ jobs:
       allow_lfs_pull: ${{ contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    name: compare-regdata ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
     if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -138,6 +138,7 @@ jobs:
 
 
   deploy-comparison:
+    name: deploy-comparison
     needs: tests
     if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
