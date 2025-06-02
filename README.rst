@@ -30,6 +30,9 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
+.. image:: https://img.shields.io/badge/benchmarks-passing-green
+    :target: https://github.com/tardis-sn/tardis/actions/workflows/benchmarks.yml
+
 .. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/_static/ruff_badge.json
     :target: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml
 |
@@ -110,14 +113,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2025_15107213
+.. |CITATION| replace:: kerzendorf_2025_15567542
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.15107213-blue
-                 :target: https://doi.org/10.5281/zenodo.15107213
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.15567542-blue
+                 :target: https://doi.org/10.5281/zenodo.15567542
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2025_15107213,
+    @software{kerzendorf_2025_15567542,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -225,13 +228,13 @@ The following BibTeX entries are needed for the references:
                       Nayak U, Ashwin and
                       Kumar, Atul and
                       Kharkar, Atharwa},
-      title        = {tardis-sn/tardis: TARDIS v2025.03.30},
-      month        = mar,
+      title        = {tardis-sn/tardis: TARDIS v2025.06.01},
+      month        = jun,
       year         = 2025,
       publisher    = {Zenodo},
-      version      = {release-2025.03.30},
-      doi          = {10.5281/zenodo.15107213},
-      url          = {https://doi.org/10.5281/zenodo.15107213},
+      version      = {release-2025.06.01},
+      doi          = {10.5281/zenodo.15567542},
+      url          = {https://doi.org/10.5281/zenodo.15567542},
     }
 
 *******

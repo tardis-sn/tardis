@@ -1,51 +1,27 @@
 """Convergence Plots to see the convergence of the simulation in real time."""
 
 from collections import defaultdict
-import matplotlib.cm as cm
-import matplotlib.colors as clr
+from contextlib import suppress
+
+import ipywidgets as widgets
+import matplotlib as mpl
 import numpy as np
 import plotly.graph_objects as go
-from IPython.display import display
-import matplotlib as mpl
-import ipywidgets as widgets
-from contextlib import suppress
-from traitlets import TraitError
 from astropy import units as u
+from IPython.display import display
+from traitlets import TraitError
 
 
 # Added the below as a (temporary) workaround to the latex
 # labels on the convergence plots not rendering correctly.
 import plotly
 from IPython.display import display, HTML
+import tardis.visualization.plot_util as pu
 
-plotly.offline.init_notebook_mode()
-display(HTML(
-    '<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'
-))
-
-
-def transition_colors(length, name="jet"):
-    """
-    Create colorscale for convergence plots, returns a list of colors.
-
-    Parameters
-    ----------
-    length : int
-        The length of the colorscale.
-    name : string, default: 'jet', optional
-        Name of the colorscale.
-
-    Returns
-    -------
-    colors: list
-    """
-    cmap = mpl.pyplot.get_cmap(name, length)
-    colors = []
-    for i in range(cmap.N):
-        rgb = cmap(i)[:3]
-        colors.append(mpl.colors.rgb2hex(rgb))
-    return colors
-
+plotly.offline.init_notebook_mode(connected=True)
+# mathjax needs to be loaded for latex labels to render correctly
+# see https://github.com/tardis-sn/tardis/issues/2446
+display(HTML('<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'))
 
 class ConvergencePlots(object):
     """
@@ -90,6 +66,7 @@ class ConvergencePlots(object):
         self.luminosities = ["Emitted", "Absorbed", "Requested"]
         self.plasma_plot = None
         self.t_inner_luminosities_plot = None
+        self.display_handle = None
 
         if "plasma_plot_config" in kwargs:
             self.plasma_plot_config = kwargs["plasma_plot_config"]
@@ -100,17 +77,17 @@ class ConvergencePlots(object):
             ]
 
         if "plasma_cmap" in kwargs:
-            self.plasma_colorscale = transition_colors(
+            self.plasma_colorscale = pu.get_hex_color_strings(
                 name=kwargs["plasma_cmap"], length=self.iterations
             )
         else:
             # default color scale is jet
-            self.plasma_colorscale = transition_colors(length=self.iterations)
+            self.plasma_colorscale = pu.get_hex_color_strings(length=self.iterations)
 
         if "t_inner_luminosities_colors" in kwargs:
             # use cmap if string
             if type(kwargs["t_inner_luminosities_colors"]) == str:
-                self.t_inner_luminosities_colors = transition_colors(
+                self.t_inner_luminosities_colors = pu.get_hex_color_strings(
                     length=5,
                     name=kwargs["t_inner_luminosities_colors"],
                 )
@@ -314,10 +291,11 @@ class ConvergencePlots(object):
         self.create_t_inner_luminosities_plot()
 
         if display_plot:
-            display(
+            self.display_handle = display(
                 widgets.VBox(
                     [self.plasma_plot, self.t_inner_luminosities_plot],
-                )
+                ),
+                display_id="convergence_plots"
             )
 
     def update_plasma_plots(self):
@@ -430,6 +408,11 @@ class ConvergencePlots(object):
 
             self.update_plasma_plots()
             self.update_t_inner_luminosities_plot()
+            self.display_handle.update(
+                widgets.VBox(
+                    [self.plasma_plot, self.t_inner_luminosities_plot],
+                )
+            )
 
             # data property for plasma plots needs to be
             # updated after the last iteration because new traces have been added
@@ -448,12 +431,8 @@ class ConvergencePlots(object):
                 display(
                     widgets.VBox(
                         [
-                            self.plasma_plot.show(
-                                renderer="notebook_connected"
-                            ),
-                            self.t_inner_luminosities_plot.show(
-                                renderer="notebook_connected"
-                            ),
+                            self.plasma_plot.show(),
+                            self.t_inner_luminosities_plot.show(),
                         ]
                     )
                 )
