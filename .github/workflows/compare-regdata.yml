@@ -78,6 +78,13 @@ jobs:
           swap-storage: true
 
       - uses: actions/checkout@v4
+      
+      - name: Checkout tardisbase repository
+        uses: actions/checkout@v4
+        with:
+          repository: riddhigangbhoj/tardisbase
+          path: tardisbase
+          ref: move-regression-tools
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -102,6 +109,10 @@ jobs:
         run: |
           pip install qgridnext
 
+      - name: Install tardisbase
+        run: pip install -e .
+        working-directory: ${{ github.workspace }}/tardisbase
+        
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
       
@@ -112,20 +123,6 @@ jobs:
           git add tardis
           git commit -m "Update regression data for commit ${GITHUB_SHA}"
         working-directory: ${{ github.workspace }}/tardis-regression-data
-      
-
-
-      - name: Checkout tardisbase repository
-        uses: actions/checkout@v4
-        with:
-          repository: tardis-sn/tardisbase
-          path: tardisbase
-          ref: refs/pull/4/head
-
-      - name: Copy regression data comparison files
-        run: |
-          cp tardisbase/tardisbase/testing/compare.py ${{ github.workspace }}/tardisbase/tardisbase/testing/
-          cp tardisbase/tardisbase/testing/compare_regression_data.ipynb ${{ github.workspace }}/tardisbase/tardisbase/testing/
 
       - name: Add environment variable to save plots
         run: |
@@ -140,7 +137,7 @@ jobs:
           jupyter nbconvert --execute compare_regression_data.ipynb \
             --to html \
             --output=compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html \
-        working-directory: ${{ github.workspace }}/tardisbase/tardisbase/testing
+        working-directory: ${{ github.workspace }}/tardis-regression-data
 
       - name: Upload comparison notebook
         uses: actions/upload-artifact@v4
