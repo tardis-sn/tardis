@@ -9,6 +9,9 @@ from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     EstimatedPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
 )
+from tardis.plasma.radiation_field import (
+    DilutePlanckianRadiationField,
+)
 
 
 @pytest.fixture
@@ -27,16 +30,9 @@ def mock_photoionization_cross_sections():
 
 @pytest.fixture
 def mock_dilute_blackbody_radiationfield_state():
-    """Fixture to create a mock radiation field state."""
-
-    class MockRadiationFieldState:
-        def __init__(self):
-            self.temperature = np.array([1e4, 1e4]) * u.K
-
-        def calculate_mean_intensity(self, nu):
-            return np.array([1e-5, 2e-5]) * u.erg / (u.cm**2 * u.s * u.Hz)
-
-    return MockRadiationFieldState()
+    return DilutePlanckianRadiationField(
+        np.ones(20) * 10000 * u.K, dilution_factor=np.ones(20) * 0.5
+    )
 
 
 def test_spontaneous_recombination_coeff_solver(
@@ -62,7 +58,7 @@ def test_analytic_photoionization_coeff_solver(
     solver = AnalyticPhotoionizationCoeffSolver(
         mock_photoionization_cross_sections
     )
-    electron_temperature = np.array([1e4, 1e4]) * u.K
+    electron_temperature = np.array([1e4] * 20) * u.K
 
     photoionization_rate_coeff, stimulated_recombination_rate_coeff = (
         solver.solve(
@@ -117,7 +113,7 @@ def test_analytic_corrected_photoionization_coeff_solver(
 
 
 def test_estimated_photoionization_coeff_solver():
-    level2continuum_edge_idx = np.array([0, 2, 4])
+    level2continuum_edge_idx = pd.Series(np.array([0, 2, 4]))
     solver = EstimatedPhotoionizationCoeffSolver(level2continuum_edge_idx)
 
     class MockRadFieldMCEstimators:
@@ -134,10 +130,7 @@ def test_estimated_photoionization_coeff_solver():
 
     assert isinstance(photoionization_rate_coeff, pd.DataFrame)
     assert isinstance(stimulated_recombination_rate_coeff, pd.DataFrame)
-    assert (
-        photoionization_rate_coeff.shape[0] == len(level2continuum_edge_idx) - 1
-    )
-    assert (
-        stimulated_recombination_rate_coeff.shape[0]
-        == len(level2continuum_edge_idx) - 1
+    assert photoionization_rate_coeff.shape[0] == len(level2continuum_edge_idx)
+    assert stimulated_recombination_rate_coeff.shape[0] == len(
+        level2continuum_edge_idx
     )

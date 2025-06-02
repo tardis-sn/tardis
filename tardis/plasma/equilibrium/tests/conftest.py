@@ -5,7 +5,10 @@ import pytest
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.base import SimulationState
+from tardis.plasma.equilibrium.rate_matrix import IonRateMatrix
 from tardis.plasma.equilibrium.rates import (
+    AnalyticPhotoionizationRateSolver,
+    CollisionalIonizationRateSolver,
     RadiativeRatesSolver,
     ThermalCollisionalRateSolver,
 )
@@ -67,4 +70,21 @@ def collisional_simulation_state(new_chianti_atomic_dataset_si):
     )
     return SimulationState.from_config(
         config, atom_data=new_chianti_atomic_dataset_si
+    )
+
+
+@pytest.fixture
+def photoionization_rate_solver(atom_data):
+    return AnalyticPhotoionizationRateSolver(atom_data.photoionization_data)
+
+
+@pytest.fixture
+def collisional_ionization_rate_solver(atom_data):
+    return CollisionalIonizationRateSolver(atom_data.photoionization_data)
+
+
+@pytest.fixture
+def rate_matrix_solver():
+    return IonRateMatrix(
+        photoionization_rate_solver, collisional_ionization_rate_solver
     )

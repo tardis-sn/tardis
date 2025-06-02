@@ -5,17 +5,14 @@ import pandas as pd
 class IonPopulationSolver:
     max_solver_iterations = 100
 
-    def __init__(self, rate_matrix_solver, ions: pd.DataFrame):
+    def __init__(self, rate_matrix_solver):
         """Solve the normalized ion population values from the rate matrices.
 
         Parameters
         ----------
         rate_matrix_solver :
-        ions : pd.DataFrame
-            DataFrame of ions present.
         """
         self.rate_matrix_solver = rate_matrix_solver
-        self.ions = ions
 
     def __calculate_ion_population(self, rates_matrix: np.ndarray):
         """Helper function to calculate the normalized, per-ion boltzmann factor.

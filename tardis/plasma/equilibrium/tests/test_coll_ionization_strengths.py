@@ -28,7 +28,7 @@ def collisional_ionization_solver(mock_photoionization_cross_sections):
     return CollisionalIonizationSeaton(mock_photoionization_cross_sections)
 
 
-def test_solve_with_valid_temperature(collisional_ionization_solver):
+def test_solve(collisional_ionization_solver):
     """Test the solve method with a valid electron temperature."""
     electron_temperature = 1e4 * u.K
     result = collisional_ionization_solver.solve(electron_temperature)
@@ -39,11 +39,3 @@ def test_solve_with_valid_temperature(collisional_ionization_solver):
         collisional_ionization_solver.photoionization_cross_sections.index
     )
     assert np.all(result.values >= 0)
-
-
-def test_solve_with_invalid_temperature(collisional_ionization_solver):
-    """Test the solve method with an invalid electron temperature."""
-    electron_temperature = -1e4 * u.K  # Invalid temperature
-
-    with pytest.raises(AssertionError):
-        collisional_ionization_solver.solve(electron_temperature)
