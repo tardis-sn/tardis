@@ -76,7 +76,7 @@ def lineid_plotter(
             **lineid_kwargs,
         )
 
-    elif style == "along spectrum":
+    elif style == "along":
         # in data the center of boxs
         box_loc = ax.transData.inverted().transform(
             ax.transAxes.transform((0, 0.9))

@@ -26,7 +26,7 @@ def plotter(simulation_simple):
     [
         ([3951, 6355, 8567], ["Ca II", "Si II", "Ca III"], "top"),
         ([3951, 6355, 8567], ["Ca II", "Si II", "Ca III"], "inside"),
-        ([3951, 6355, 8567], ["Ca II", "Si II", "Ca III"], "along spectrum"),
+        ([3951, 6355, 8567], ["Ca II", "Si II", "Ca III"], "along"),
         pytest.param(
             [3951, 6355, 8567],
             ["Ca II", "Si II", "Ca III"],
