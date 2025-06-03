@@ -21,12 +21,12 @@ def lineid_plotter(
 
     Parameters
     ----------
-    plotter : SDECPlotter
-        Plotting interface for Spectral element DEComposition (SDEC) Plot.
+    ax : matplotlib.axes._subplots.AxesSubplot
+        Axes for which the spectral lines will be plotted.
     line_wavelengths : list of float
-        wavelength values of the lines to be plotted
+        Wavelength values of the lines to be plotted
     line_labels : list of str
-        the labels to be used for the lines at the wavelength positions
+        Labels to be used for the lines at the wavelength positions
     spectrum_wavelengths : astropy.units.Quantity
         Wavelengths of the spectrum where the lines will be plotted.
     spectrum_data : astropy.units.Quantity
@@ -41,8 +41,8 @@ def lineid_plotter(
 
     Returns
     -------
-    matplotlib.axes._subplots.AxesSubplot
-        axes from generate_plot_mpl with the lines plotted.
+    fig, ax: matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot
+        figure and axes with the spectral lines marked.
     """
 
     if plotter_kwargs is None:
@@ -51,7 +51,12 @@ def lineid_plotter(
     if lineid_kwargs is None:
         lineid_kwargs = {}
 
-    if style == "top" or style == None:
+    # if len(line_wavelengths) != len(line_labels):
+    #     raise ValueError(
+    #         "line_wavelengths and line_labels must have the same length"
+    #     )
+
+    if style == "top":
         fig, ax = lineid_plot.plot_line_ids(
             spectrum_wavelengths, spectrum_data, line_wavelengths, line_labels, ax=ax, **lineid_kwargs
         )
