@@ -1,5 +1,5 @@
 from tardis.plasma.equilibrium.rates.photoionization_strengths import (
-    AnalyticPhotoionizationCoeffSolver,
+    AnalyticCorrectedPhotoionizationCoeffSolver,
     EstimatedPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
 )
@@ -19,85 +19,79 @@ class AnalyticPhotoionizationRateSolver:
             )
         )
 
-    def compute_rates(
-        self,
-        photoionization_rate_coeff,
-        stimulated_recombination_rate_coeff,
-        spontaneous_recombination_rate_coeff,
-        level_number_density,
-        ion_number_density,
-        electron_number_density,
-        saha_factor,
+    @staticmethod
+    def __reindex_ionization_rate_dataframe(
+        rate_dataframe, recombination=False
     ):
-        """Compute the photoionization and spontaneous recombination rates
+        rate_dataframe.index.names = [
+            "atomic_number",
+            "ion_number",
+            "level_number_source",
+        ]
 
-        Parameters
-        ----------
-        photoionization_rate_coeff : pd.DataFrame
-            The photoionization rate coefficients for each transition.
-            Columns are cells.
-        stimulated_recombination_rate_coeff : pd.DataFrame
-            The stimulated recombination rate coefficients for each transition.
-            Columns are cells.
-        spontaneous_recombination_rate_coeff : pd.DataFrame
-            The spontaneous recombination rate coefficients for each transition.
-            Columns are cells.
-        level_number_density : pd.DataFrame
-            The electron energy level number density. Columns are cells.
-        ion_number_density : pd.DataFrame
-            The ion number density. Columns are cells.
-        electron_number_density : u.Quantity
-            The free electron number density per cell.
-        saha_factor : pd.DataFrame
-            The LTE population factor. Columns are cells.
+        rate_dataframe = rate_dataframe.reset_index()
 
-        Returns
-        -------
-        pd.DataFrame
-            Photoionization rate for each electron energy level. Columns are cells
-        pd.DataFrame
-            Spontaneous recombination rate for each electron energy level. Columns are cells
-        """
-        photoionization_rate = (
-            photoionization_rate_coeff * level_number_density
-            - saha_factor
-            * stimulated_recombination_rate_coeff
-            * ion_number_density
-            * electron_number_density
-        )
-        spontaneous_recombination_rate = (
-            saha_factor
-            * spontaneous_recombination_rate_coeff
-            * ion_number_density
-            * electron_number_density
+        if recombination:
+            rate_dataframe["ion_number_destination"] = rate_dataframe[
+                "ion_number"
+            ]
+            rate_dataframe["ion_number_source"] = (
+                rate_dataframe["ion_number"] + 1
+            )
+        else:
+            rate_dataframe["ion_number_source"] = rate_dataframe["ion_number"]
+            rate_dataframe["ion_number_destination"] = (
+                rate_dataframe["ion_number"] + 1
+            )
+
+        # ionized electrons are assumed to leave the ion in the ground state for now
+        rate_dataframe["level_number_destination"] = 0
+
+        not_fully_ionized_mask = (
+            rate_dataframe["atomic_number"] != rate_dataframe["ion_number"]
         )
 
-        return photoionization_rate, spontaneous_recombination_rate
+        rate_dataframe = rate_dataframe[not_fully_ionized_mask]
+
+        rate_dataframe = rate_dataframe.set_index(
+            [
+                "atomic_number",
+                "ion_number",
+                "ion_number_source",
+                "ion_number_destination",
+                "level_number_source",
+                "level_number_destination",
+            ]
+        )
+
+        return rate_dataframe
 
     def solve(
         self,
-        dilute_blackbody_radiationfield_state,
+        radiation_field,
         electron_energy_distribution,
-        level_number_density,
-        ion_number_density,
-        saha_factor,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
     ):
         """Solve the photoionization and spontaneous recombination rates in the
         case where the radiation field is not estimated.
 
         Parameters
         ----------
-        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
-            A dilute black body radiation field state.
+        radiation_field : RadiationField
+            A radiation field that can compute its mean intensity.
         electron_energy_distribution : ThermalElectronEnergyDistribution
             Electron properties.
-        level_number_density : pd.DataFrame
-            Electron energy level number density. Columns are cells.
-        ion_number_density : pd.DataFrame
-            Ion number density. Columns are cells.
-        saha_factor : pd.DataFrame
-            Saha factor: the LTE level number density divided by the LTE ion
-            number density and the electron number density.
+        lte_level_population : pd.DataFrame
+            LTE level number density. Columns are cells.
+        level_population : pd.DataFrame
+            Estimated level number density. Columns are cells.
+        lte_ion_population : pd.DataFrame
+            LTE ion number density. Columns are cells.
+        ion_population : pd.DataFrame
+            Estimated ion number density. Columns are cells.
 
         Returns
         -------
@@ -106,32 +100,44 @@ class AnalyticPhotoionizationRateSolver:
         pd.DataFrame
             Spontaneous recombination rate. Columns are cells.
         """
-        photoionization_rate_coeff_solver = AnalyticPhotoionizationCoeffSolver(
-            self.photoionization_cross_sections
-        )
-
-        photoionization_rate_coeff, stimulated_recombination_rate_coeff = (
-            photoionization_rate_coeff_solver.solve(
-                dilute_blackbody_radiationfield_state,
-                electron_energy_distribution.temperature,
+        photoionization_rate_coeff_solver = (
+            AnalyticCorrectedPhotoionizationCoeffSolver(
+                self.photoionization_cross_sections
             )
         )
 
-        spontaneous_recombination_rate_coeff = (
+        photoionization_rate_coeff = photoionization_rate_coeff_solver.solve(
+            radiation_field,
+            electron_energy_distribution.temperature,
+            lte_level_population,
+            level_population,
+            lte_ion_population,
+            ion_population,
+        )
+
+        recombination_rate_coeff = (
             self.spontaneous_recombination_rate_coeff_solver.solve(
                 electron_energy_distribution.temperature
             )
         )
 
-        return self.compute_rates(
-            photoionization_rate_coeff,
-            stimulated_recombination_rate_coeff,
-            spontaneous_recombination_rate_coeff,
-            level_number_density,
-            ion_number_density,
-            electron_energy_distribution.number_density,
-            saha_factor,
+        photoionization_rate = photoionization_rate_coeff * level_population
+
+        recombination_rate = (
+            recombination_rate_coeff
+            * level_population
+            * electron_energy_distribution.number_density
         )
+
+        photoionization_rate = self.__reindex_ionization_rate_dataframe(
+            photoionization_rate, recombination=False
+        )
+
+        recombination_rate = self.__reindex_ionization_rate_dataframe(
+            recombination_rate, recombination=True
+        )
+
+        return photoionization_rate, recombination_rate
 
 
 class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
@@ -153,9 +159,7 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
         radfield_mc_estimators,
         time_simulation,
         volume,
-        level_number_density,
-        ion_number_density,
-        saha_factor,
+        level_population,
     ):
         """Solve the photoionization and spontaneous recombination rates in the
         case where the radiation field is estimated by Monte Carlo processes.
@@ -170,13 +174,8 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             Time of simulation.
         volume : u.Quantity
             Volume per cell.
-        level_number_density : pd.DataFrame
+        level_population : pd.DataFrame
             Electron energy level number density. Columns are cells.
-        ion_number_density : pd.DataFrame
-            Ion number density. Columns are cells.
-        saha_factor : pd.DataFrame
-            Saha factor: the LTE level number density divided by the LTE ion
-            number density and the electron number density.
 
         Returns
         -------
@@ -189,12 +188,10 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             self.level2continuum_edge_idx
         )
 
-        photoionization_rate_coeff, stimulated_recombination_rate_coeff = (
-            photoionization_rate_coeff_solver.solve(
-                radfield_mc_estimators,
-                time_simulation,
-                volume,
-            )
+        photoionization_rate_coeff = photoionization_rate_coeff_solver.solve(
+            radfield_mc_estimators,
+            time_simulation,
+            volume,
         )
 
         spontaneous_recombination_rate_coeff = (
@@ -203,12 +200,20 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             )
         )
 
-        return self.compute_rates(
-            photoionization_rate_coeff,
-            stimulated_recombination_rate_coeff,
-            spontaneous_recombination_rate_coeff,
-            level_number_density,
-            ion_number_density,
-            electron_energy_distribution.number_density,
-            saha_factor,
+        photoionization_rate = photoionization_rate_coeff * level_population
+
+        recombination_rate = (
+            spontaneous_recombination_rate_coeff
+            * level_population
+            * electron_energy_distribution.number_density
         )
+
+        photoionization_rate = self.__reindex_ionization_rate_dataframe(
+            photoionization_rate, recombination=False
+        )
+
+        recombination_rate = self.__reindex_ionization_rate_dataframe(
+            recombination_rate, recombination=True
+        )
+
+        return photoionization_rate, recombination_rate
