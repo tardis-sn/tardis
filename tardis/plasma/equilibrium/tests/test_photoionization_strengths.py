@@ -15,20 +15,6 @@ from tardis.plasma.radiation_field import (
 
 
 @pytest.fixture
-def mock_photoionization_cross_sections():
-    """Fixture to create mock photoionization cross-sections."""
-    index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0), (1, 0, 1), (2, 1, 0), (2, 1, 1)],
-        names=["atomic_number", "ion_number", "level_number"],
-    )
-    data = {
-        "nu": [1e15, 2e15, 1e15, 2e15],
-        "x_sect": [1e-18, 2e-18, 1e-18, 2e-18],
-    }
-    return pd.DataFrame(data, index=index)
-
-
-@pytest.fixture
 def mock_dilute_blackbody_radiationfield_state():
     return DilutePlanckianRadiationField(
         np.ones(20) * 10000 * u.K, dilution_factor=np.ones(20) * 0.5
@@ -85,16 +71,16 @@ def test_analytic_corrected_photoionization_coeff_solver(
     )
     electron_temperature = np.array([1e4, 1e4]) * u.K
     lte_level_population = pd.DataFrame(
-        np.ones((4, 2)), index=mock_photoionization_cross_sections.index
+        np.ones((2, 2)), index=mock_photoionization_cross_sections.index
     )
     level_population = pd.DataFrame(
-        np.ones((4, 2)), index=mock_photoionization_cross_sections.index
+        np.ones((2, 2)), index=mock_photoionization_cross_sections.index
     )
     lte_ion_population = pd.DataFrame(
-        np.ones((4, 2)), index=mock_photoionization_cross_sections.index
+        np.ones((2, 2)), index=mock_photoionization_cross_sections.index
     )
     ion_population = pd.DataFrame(
-        np.ones((4, 2)), index=mock_photoionization_cross_sections.index
+        np.ones((2, 2)), index=mock_photoionization_cross_sections.index
     )
 
     corrected_photoionization_rate_coeff = solver.solve(

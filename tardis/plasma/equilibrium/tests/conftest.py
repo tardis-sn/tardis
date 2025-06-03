@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from tardis.io.atom_data import AtomData
@@ -15,6 +16,20 @@ from tardis.plasma.equilibrium.rates import (
 
 
 @pytest.fixture
+def mock_photoionization_cross_sections():
+    """Fixture for mock photoionization cross-sections."""
+    data = {
+        "nu": [1e15, 2e15],
+        "x_sect": [1e-18, 2e-18],
+    }
+    index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    return pd.DataFrame(data, index=index)
+
+
+@pytest.fixture
 def new_chianti_atomic_dataset_si(tardis_regression_path):
     atomic_data_fname = (
         tardis_regression_path / "atom_data" / "kurucz_cd23_chianti_Si.h5"
@@ -22,7 +37,7 @@ def new_chianti_atomic_dataset_si(tardis_regression_path):
     return AtomData.from_hdf(atomic_data_fname)
 
 
-@pytest.fixture  # (scope="session")
+@pytest.fixture(scope="session")
 def hydrogen_atomic_data_fname(tardis_regression_path):
     """
     File name for the atomic data file used in NTLE ionization solver tests.
@@ -41,7 +56,7 @@ def hydrogen_atomic_data_fname(tardis_regression_path):
     return atomic_data_fname
 
 
-@pytest.fixture  # (scope="session")
+@pytest.fixture(scope="session")
 def hydrogen_atomic_dataset(hydrogen_atomic_data_fname):
     """
     Atomic dataset used for NLTE ionization solver tests.

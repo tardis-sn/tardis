@@ -2,6 +2,7 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
+import pytest
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -54,12 +55,31 @@ def test_solve(rate_matrix_solver, regression_data):
         )
     )
 
-    expected_ion_population = regression_data.sync_dataframe(
-        actual_ion_population
-    )
-    expected_electron_density = regression_data.sync_dataframe(
-        actual_electron_density
-    )
+    # write paths manually with regression_data directory info from the class
+    if regression_data.enable_generate_reference:
+        actual_ion_population.to_hdf(
+            regression_data.absolute_regression_data_dir / "ion_population.h5",
+            key="data",
+        )
+        actual_electron_density.to_hdf(
+            regression_data.absolute_regression_data_dir
+            / "electron_density.h5",
+            key="data",
+        )
+        pytest.skip("Skipping test to generate reference data")
+    else:
+        expected_ion_population = pd.read_hdf(
+            regression_data.absolute_regression_data_dir / "ion_population.h5",
+            key="data",
+        )
 
-    pdt.assert_frame_equal(actual_ion_population, expected_ion_population)
-    pdt.assert_series_equal(actual_electron_density, expected_electron_density)
+        expected_electron_density = pd.read_hdf(
+            regression_data.absolute_regression_data_dir
+            / "electron_density.h5",
+            key="data",
+        )
+
+        pdt.assert_frame_equal(actual_ion_population, expected_ion_population)
+        pdt.assert_series_equal(
+            actual_electron_density, expected_electron_density
+        )

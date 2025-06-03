@@ -84,13 +84,14 @@ class AnalyticPhotoionizationRateSolver:
             A radiation field that can compute its mean intensity.
         electron_energy_distribution : ThermalElectronEnergyDistribution
             Electron properties.
-        level_number_density : pd.DataFrame
-            Electron energy level number density. Columns are cells.
-        ion_number_density : pd.DataFrame
-            Ion number density. Columns are cells.
-        saha_factor : pd.DataFrame
-            Saha factor: the LTE level number density divided by the LTE ion
-            number density and the electron number density.
+        lte_level_population : pd.DataFrame
+            LTE level number density. Columns are cells.
+        level_population : pd.DataFrame
+            Estimated level number density. Columns are cells.
+        lte_ion_population : pd.DataFrame
+            LTE ion number density. Columns are cells.
+        ion_population : pd.DataFrame
+            Estimated ion number density. Columns are cells.
 
         Returns
         -------
@@ -173,13 +174,8 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             Time of simulation.
         volume : u.Quantity
             Volume per cell.
-        level_number_density : pd.DataFrame
+        level_population : pd.DataFrame
             Electron energy level number density. Columns are cells.
-        ion_number_density : pd.DataFrame
-            Ion number density. Columns are cells.
-        saha_factor : pd.DataFrame
-            Saha factor: the LTE level number density divided by the LTE ion
-            number density and the electron number density.
 
         Returns
         -------

@@ -1,12 +1,11 @@
-import pytest
-import pandas as pd
+import astropy.units as u
 import numpy as np
+import pandas as pd
+import pandas.testing as pdt
+import pytest
 
 from tardis.plasma.equilibrium.rates.collisional_ionization_rates import (
     CollisionalIonizationRateSolver,
-)
-from tardis.plasma.equilibrium.rates.collisional_ionization_strengths import (
-    CollisionalIonizationSeaton,
 )
 
 
@@ -19,23 +18,11 @@ class MockElectronDistribution:
 
 
 @pytest.fixture
-def mock_photoionization_cross_sections():
-    """Fixture for mock photoionization cross-sections."""
-    return pd.DataFrame(
-        {
-            "atomic_number": [1, 2],
-            "ion_number": [0, 1],
-            "cross_section": [1e-18, 2e-18],
-        }
-    )
-
-
-@pytest.fixture
 def mock_electron_distribution():
     """Fixture for mock electron distribution."""
     return MockElectronDistribution(
-        temperature=pd.Series([10000, 20000], index=[0, 1]),
-        number_density=pd.Series([1e13, 2e13], index=[0, 1]),
+        temperature=np.array([10000, 20000]) * u.K,
+        number_density=np.array([1e13, 2e13]) * u.cm**-3,
     )
 
 
@@ -43,10 +30,10 @@ def mock_electron_distribution():
 def mock_saha_factor():
     """Fixture for mock Saha factor."""
     index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0), (2, 1, 0)],
+        [(1, 0, 0), (1, 0, 1)],
         names=["atomic_number", "ion_number", "level_number"],
     )
-    return pd.DataFrame([0.1, 0.2], index=index, columns=["saha_factor"])
+    return pd.DataFrame([[1e-15, 1e-20], [1e-15, 1e-20]], index=index)
 
 
 def test_collisional_ionization_rate_solver_init(
@@ -65,41 +52,49 @@ def test_collisional_ionization_rate_solver_solve(
     mock_photoionization_cross_sections,
     mock_electron_distribution,
     mock_saha_factor,
+    regression_data,
 ):
     """Test the solve method of CollisionalIonizationRateSolver."""
     solver = CollisionalIonizationRateSolver(
         mock_photoionization_cross_sections
     )
 
-    # Mock the strength solver
-    class MockStrengthSolver:
-        def __init__(self, photoionization_cross_sections):
-            pass
-
-        def solve(self, temperature):
-            return pd.DataFrame(
-                {
-                    "atomic_number": [1, 2],
-                    "ion_number": [0, 1],
-                    "level_number_source": [0, 0],
-                    "rate": [1e-8, 2e-8],
-                }
-            ).set_index(["atomic_number", "ion_number", "level_number_source"])
-
-    # Replace the strength solver with the mock
-    CollisionalIonizationSeaton.solve = MockStrengthSolver.solve
-
-    ionization_rates, recombination_rates = solver.solve(
+    actual_ionization_rates, actual_recombination_rates = solver.solve(
         mock_electron_distribution, mock_saha_factor, approximation="seaton"
     )
 
-    # Check ionization rates
-    assert not ionization_rates.empty
-    assert "rate" in ionization_rates.columns
+    # write paths manually with regression_data directory info from the class
+    if regression_data.enable_generate_reference:
+        actual_ionization_rates.to_hdf(
+            regression_data.absolute_regression_data_dir
+            / "ionization_rates.h5",
+            key="data",
+        )
+        actual_recombination_rates.to_hdf(
+            regression_data.absolute_regression_data_dir
+            / "recombination_rates.h5",
+            key="data",
+        )
+        pytest.skip("Skipping test to generate reference data")
+    else:
+        expected_ionization_rates = pd.read_hdf(
+            regression_data.absolute_regression_data_dir
+            / "ionization_rates.h5",
+            key="data",
+        )
 
-    # Check recombination rates
-    assert not recombination_rates.empty
-    assert "rate" in recombination_rates.columns
+        expected_recombination_rates = pd.read_hdf(
+            regression_data.absolute_regression_data_dir
+            / "recombination_rates.h5",
+            key="data",
+        )
+
+        pdt.assert_frame_equal(
+            actual_ionization_rates, expected_ionization_rates
+        )
+        pdt.assert_frame_equal(
+            actual_recombination_rates, expected_recombination_rates
+        )
 
 
 def test_collisional_ionization_rate_solver_invalid_approximation(

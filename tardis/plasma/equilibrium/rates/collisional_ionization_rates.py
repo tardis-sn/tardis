@@ -7,12 +7,38 @@ class CollisionalIonizationRateSolver:
     """Solver for collisional ionization and recombination rates."""
 
     def __init__(self, photoionization_cross_sections):
+        """Initialize the collisional ionization rate solver.
+
+        Parameters
+        ----------
+        photoionization_cross_sections : pd.DataFrame
+            Photoionization cross sections.
+        """
         self.photoionization_cross_sections = photoionization_cross_sections
 
     @staticmethod
     def __reindex_ionization_rate_dataframe(
         rate_dataframe, recombination=False
     ):
+        """Index the ionization rate dataframe to include source and destination
+        ion numbers and level numbers.
+
+        Parameters
+        ----------
+        rate_dataframe : pd.DataFrame
+            Dataframe of ionization rates
+        recombination : bool, optional
+            If true, reverse the direction of source to destination
+            to handle recombination, by default False
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with additional columns for source and destination
+            ion numbers and level numbers, indexed by atomic number, ion number,
+            source level number, destination ion number, and destination
+            level number.
+        """
         rate_dataframe.index.names = [
             "atomic_number",
             "ion_number",

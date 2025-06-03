@@ -10,7 +10,7 @@ class IonPopulationSolver:
 
         Parameters
         ----------
-        rate_matrix_solver :
+        rate_matrix_solver : IonRateMatrix
         """
         self.rate_matrix_solver = rate_matrix_solver
 
@@ -42,9 +42,26 @@ class IonPopulationSolver:
         level_population,
         lte_ion_population,
         ion_population,
-        charge_conservation,
+        charge_conservation=True,
     ):
         """Solves the normalized ion population values from the rate matrices.
+
+        Parameters
+        ----------
+        radiation_field : RadiationField
+            A radiation field that can compute its mean intensity.
+        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
+            Electron properties.
+        lte_level_population : pd.DataFrame
+            LTE level number density. Columns are cells.
+        level_population : pd.DataFrame
+            Estimated level number density. Columns are cells.
+        lte_ion_population : pd.DataFrame
+            LTE ion number density. Columns are cells.
+        ion_population : pd.DataFrame
+            Estimated ion number density. Columns are cells.
+        charge_conservation : bool, optional
+            Whether to include a charge conservation row in the rate matrix.
 
         Returns
         -------
