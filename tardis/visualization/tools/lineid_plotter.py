@@ -81,6 +81,7 @@ def lineid_plotter(
         )
 
     elif style == "along":
+
         # in data the center of boxs
         box_loc = ax.transData.inverted().transform(
             ax.transAxes.transform((0, 0.9))
@@ -98,8 +99,11 @@ def lineid_plotter(
             line_wavelengths, spectrum_wavelengths.value[::-1], spectrum_data.value[::-1]
         )  # uses np.interp needs to monotonically inc
 
+        # fix the max height to be that of the inside style
         arrow_tips = fluxes + marker_len
+        arrow_tips[arrow_tips > 0.8] = 0.8
         box_locs = fluxes + marker_len + arrow_len
+        box_locs[box_locs > 0.9] = 0.9
 
         lineid_plot.plot_line_ids(
             spectrum_wavelengths,
