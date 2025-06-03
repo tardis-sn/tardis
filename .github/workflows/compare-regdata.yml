@@ -108,6 +108,7 @@ jobs:
 
       - name: Copy regression data comparison files
         run: |
+          rm -rf tardis-regression-data/compare.py tardis-regression-data/compare_regression_data.ipynb
           cp tardisbase/tardisbase/testing/regression_comparison/compare.py tardis-regression-data/
           cp tardisbase/tardisbase/testing/regression_comparison/compare_regression_data.ipynb tardis-regression-data/
           
