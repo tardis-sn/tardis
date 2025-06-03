@@ -41,8 +41,8 @@ def lineid_plotter(
 
     Returns
     -------
-    fig, ax: matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot
-        figure and axes with the spectral lines marked.
+    ax: matplotlib.axes._subplots.AxesSubplot
+        the original ax with the line markers plotted
     """
 
     if plotter_kwargs is None:
@@ -58,7 +58,12 @@ def lineid_plotter(
 
     if style == "top":
         lineid_plot.plot_line_ids(
-            spectrum_wavelengths, spectrum_data, line_wavelengths, line_labels, ax=ax, **lineid_kwargs
+            spectrum_wavelengths,
+            spectrum_data,
+            line_wavelengths,
+            line_labels,
+            ax=ax,
+            **lineid_kwargs,
         )
 
     elif style == "inside":
@@ -81,29 +86,32 @@ def lineid_plotter(
         )
 
     elif style == "along":
-
         # in data the center of boxs
-        box_loc = ax.transData.inverted().transform(
+        box_loc_max = ax.transData.inverted().transform(
             ax.transAxes.transform((0, 0.9))
         )[1]
         arrow_len = (
-            box_loc
+            box_loc_max
             - ax.transData.inverted().transform(
                 ax.transAxes.transform((0, 0.8))
             )[1]
         )
-        # 1/10 of the axes length, but measured up here because 0 to 0.1 in axes in the negative luminosity
-        arrow_loc = box_loc - arrow_len  # in data, the start of the arrow
+        # 1/10 of the axes length, but measured up here because 0 to 0.1 in axes can be the negative luminosity
+        arrow_loc_max = (
+            box_loc_max - arrow_len
+        )  # in data, the start of the arrow
         marker_len = 2 * arrow_len
         fluxes = get_line_flux(
-            line_wavelengths, spectrum_wavelengths.value[::-1], spectrum_data.value[::-1]
+            line_wavelengths,
+            spectrum_wavelengths.value[::-1],
+            spectrum_data.value[::-1],
         )  # uses np.interp needs to monotonically inc
 
         # fix the max height to be that of the inside style
         arrow_tips = fluxes + marker_len
-        arrow_tips[arrow_tips > 0.8] = 0.8
+        arrow_tips[arrow_tips > arrow_loc_max] = arrow_loc_max
         box_locs = fluxes + marker_len + arrow_len
-        box_locs[box_locs > 0.9] = 0.9
+        box_locs[box_locs > box_loc_max] = box_loc_max
 
         lineid_plot.plot_line_ids(
             spectrum_wavelengths,
@@ -116,8 +124,6 @@ def lineid_plotter(
             **lineid_kwargs,
         )
     else:
-        raise ValueError(
-            "style must be one of 'top', 'inside', or 'along'"
-        )
+        raise ValueError("style must be one of 'top', 'inside', or 'along'")
 
     return ax

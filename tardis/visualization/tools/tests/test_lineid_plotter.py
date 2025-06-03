@@ -5,6 +5,7 @@ from matplotlib.testing.compare import compare_images
 # check if lineid_plot is installed
 try:
     import lineid_plot
+
     lineid_installed = True
     from tardis.visualization.tools.lineid_plotter import lineid_plotter
 except ImportError:
@@ -35,12 +36,12 @@ def plotter(simulation_simple):
         ([3951, 6355, 8567], ["Ca II", "Si II", "Ca III"], "inside"),
         ([3951, 6355, 8567], ["Ca II", "Si II", "Ca III"], "along"),
         pytest.param(
-            [3951, 6355, 8567], # invalid style
+            [3951, 6355, 8567],  # invalid style
             ["Ca II", "Si II", "Ca III"],
             "?",
             marks=pytest.mark.xfail,
         ),
-        pytest.param( # different length arrays
+        pytest.param(  # different length arrays
             [3951, 6355],
             ["Ca II", "Si II", "Ca III"],
             "top",
@@ -48,16 +49,24 @@ def plotter(simulation_simple):
         ),
     ],
 )
-@pytest.mark.skipif(not lineid_installed, reason="lineid_plot is not installed, skipping test")
+@pytest.mark.skipif(
+    not lineid_installed, reason="lineid_plot is not installed, skipping test"
+)
 def test_lineid_plotter(
     regression_data, plotter, tmp_path, wavelengths, labels, style
 ):
-    
     ax = plotter.generate_plot_mpl()
     spectrum_wavelengths = plotter.plot_wavelength
     spectrum_data = plotter.modeled_spectrum_luminosity
 
-    ax = lineid_plotter(ax, wavelengths, labels, spectrum_wavelengths, spectrum_data, style=style)
+    ax = lineid_plotter(
+        ax,
+        wavelengths,
+        labels,
+        spectrum_wavelengths,
+        spectrum_data,
+        style=style,
+    )
     fig = ax.figure
 
     regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
