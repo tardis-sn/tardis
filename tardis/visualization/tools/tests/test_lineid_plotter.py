@@ -35,39 +35,43 @@ def plotter(simulation_simple):
         ([3951, 6355, 8567], ["Ca II", "Si II", "Ca III"], "inside"),
         ([3951, 6355, 8567], ["Ca II", "Si II", "Ca III"], "along"),
         pytest.param(
-            [3951, 6355, 8567],
+            [3951, 6355, 8567], # invalid style
             ["Ca II", "Si II", "Ca III"],
             "?",
             marks=pytest.mark.xfail,
         ),
+        pytest.param( # different length arrays
+            [3951, 6355],
+            ["Ca II", "Si II", "Ca III"],
+            "top",
+            marks=pytest.mark.xfail,
+        ),
     ],
 )
+@pytest.mark.skipif(not lineid_installed, reason="lineid_plot is not installed, skipping test")
 def test_lineid_plotter(
     regression_data, plotter, tmp_path, wavelengths, labels, style
 ):
-    if lineid_installed:
+    
+    ax = plotter.generate_plot_mpl()
+    spectrum_wavelengths = plotter.plot_wavelength
+    spectrum_data = plotter.modeled_spectrum_luminosity
 
-        ax = plotter.generate_plot_mpl()
-        spectrum_wavelengths = plotter.plot_wavelength
-        spectrum_data = plotter.modeled_spectrum_luminosity
+    fig, ax = lineid_plotter(ax, wavelengths, labels, spectrum_wavelengths, spectrum_data, style=style)
 
-        fig, ax = lineid_plotter(ax, wavelengths, labels, spectrum_wavelengths, spectrum_data, style=style)
+    regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
+    fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}.png")
 
-        regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
-        fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}.png")
-
-        if regression_data.enable_generate_reference:
-            fig.figure.savefig(
-                regression_data.absolute_regression_data_dir
-                / f"{regression_data.fname_prefix}.png"
-            )
-            pytest.skip("Skipping test to generate reference data")
-        else:
-            expected = str(
-                regression_data.absolute_regression_data_dir
-                / f"{regression_data.fname_prefix}.png"
-            )
-            actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
-            compare_images(expected, actual, tol=0.001)
+    if regression_data.enable_generate_reference:
+        fig.figure.savefig(
+            regression_data.absolute_regression_data_dir
+            / f"{regression_data.fname_prefix}.png"
+        )
+        pytest.skip("Skipping test to generate reference data")
     else:
-        pytest.skip("lineid_plot is not installed, skipping test")
+        expected = str(
+            regression_data.absolute_regression_data_dir
+            / f"{regression_data.fname_prefix}.png"
+        )
+        actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
+        compare_images(expected, actual, tol=0.001)
