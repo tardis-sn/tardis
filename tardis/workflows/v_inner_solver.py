@@ -7,13 +7,8 @@ from scipy.interpolate import interp1d
 
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
-
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
-from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.util import get_tau_integ
-from tardis.io.util import HDFWriterMixin
-from tardis.simulation.base import PlasmaStateStorerMixin
-
 
 # logging support
 logger = logging.getLogger(__name__)
@@ -27,17 +22,6 @@ logger = logging.getLogger(__name__)
 
 class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
     LOG_TAU_TARGET = np.log(2 / 3)
-
-    hdf_properties = [
-        "simulation_state",
-        "plasma_solver",
-        "transport_solver",
-        "iterations_w",
-        "iterations_t_rad",
-        "iterations_electron_densities",
-        "iterations_t_inner",
-        "spectrum_solver",
-    ]
 
     def __init__(
         self,
