@@ -7,8 +7,13 @@ from scipy.interpolate import interp1d
 
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
+
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.util import get_tau_integ
+from tardis.io.util import HDFWriterMixin
+from tardis.simulation.base import PlasmaStateStorerMixin
+
 
 # logging support
 logger = logging.getLogger(__name__)
@@ -20,8 +25,19 @@ logger = logging.getLogger(__name__)
 # Handle non-explicit formats when going out of the simulation
 
 
-class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
-    TAU_TARGET = np.log(2.0 / 3.0)
+class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
+    LOG_TAU_TARGET = np.log(2 / 3)
+
+    hdf_properties = [
+        "simulation_state",
+        "plasma_solver",
+        "transport_solver",
+        "iterations_w",
+        "iterations_t_rad",
+        "iterations_electron_densities",
+        "iterations_t_inner",
+        "spectrum_solver",
+    ]
 
     def __init__(
         self,
@@ -30,7 +46,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         tau=None,
         csvy=False,
     ):
-        super().__init__(configuration, csvy)
+        super().__init__(configuration, csvy=csvy)
         self.mean_optical_depth = mean_optical_depth.lower()
 
         self.convergence_solvers["v_inner_boundary"] = ConvergenceSolver(
@@ -44,7 +60,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         self.opacity_states = self.solve_opacity()
 
         if tau is not None:
-            self.TAU_TARGET = np.log(tau)
+            self.LOG_TAU_TARGET = np.log(tau)
 
         self.iterations_w = np.full(
             (self.total_iterations, self.simulation_state.no_of_shells), np.nan
@@ -147,7 +163,6 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             : executed_iterations + 1, :
         ]
 
-
     def estimate_v_inner(self):
         """
         Compute the Rosseland Mean Optical Depth,
@@ -172,7 +187,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             fill_value="extrapolate",
         )
 
-        estimated_v_inner = interpolator(self.TAU_TARGET) * u.cm / u.s
+        estimated_v_inner = interpolator(self.LOG_TAU_TARGET) * u.cm / u.s
 
         if estimated_v_inner < self.simulation_state.geometry.v_inner[0]:
             estimated_v_inner = self.simulation_state.geometry.v_inner[0]
