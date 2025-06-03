@@ -22,6 +22,34 @@ def new_chianti_atomic_dataset_si(tardis_regression_path):
     return AtomData.from_hdf(atomic_data_fname)
 
 
+@pytest.fixture  # (scope="session")
+def hydrogen_atomic_data_fname(tardis_regression_path):
+    """
+    File name for the atomic data file used in NTLE ionization solver tests.
+    """
+    atomic_data_fname = (
+        tardis_regression_path / "atom_data" / "nlte_atom_data" / "cmfgen_H.h5"
+    )
+
+    atom_data_missing_str = (
+        f"{atomic_data_fname} atomic datafiles does not seem to exist"
+    )
+
+    if not atomic_data_fname.exists():
+        pytest.exit(atom_data_missing_str)
+
+    return atomic_data_fname
+
+
+@pytest.fixture  # (scope="session")
+def hydrogen_atomic_dataset(hydrogen_atomic_data_fname):
+    """
+    Atomic dataset used for NLTE ionization solver tests.
+    """
+    h_atomic_data = AtomData.from_hdf(hydrogen_atomic_data_fname)
+    return h_atomic_data
+
+
 @pytest.fixture(params=[(14, 1, slice(None), slice(None))])
 def radiative_transitions(new_chianti_atomic_dataset_si, request):
     return new_chianti_atomic_dataset_si.lines.loc[request.param, :]
@@ -74,16 +102,16 @@ def collisional_simulation_state(new_chianti_atomic_dataset_si):
 
 
 @pytest.fixture
-def photoionization_rate_solver(nlte_atomic_dataset):
+def photoionization_rate_solver(hydrogen_atomic_dataset):
     return AnalyticPhotoionizationRateSolver(
-        nlte_atomic_dataset.photoionization_data
+        hydrogen_atomic_dataset.photoionization_data
     )
 
 
 @pytest.fixture
-def collisional_ionization_rate_solver(nlte_atomic_dataset):
+def collisional_ionization_rate_solver(hydrogen_atomic_dataset):
     return CollisionalIonizationRateSolver(
-        nlte_atomic_dataset.photoionization_data
+        hydrogen_atomic_dataset.photoionization_data
     )
 
 

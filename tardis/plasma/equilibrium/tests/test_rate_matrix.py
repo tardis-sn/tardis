@@ -75,7 +75,7 @@ def test_ion_rate_matrix_solver(
     )
 
     level_population = lte_level_population.copy() * 1.4
-    ion_population = lte_level_population.copy() * 3.0
+    ion_population = lte_ion_population.copy() * 3.0
 
     actual = rate_matrix_solver.solve(
         rad_field,

@@ -12,11 +12,11 @@ from tardis.plasma.equilibrium.rates.collisional_ionization_strengths import (
 def mock_photoionization_cross_sections():
     """Fixture for mock photoionization cross-sections."""
     data = {
-        "nu": [1e15, 2e15, 3e15],
-        "x_sect": [1e-18, 2e-18, 3e-18],
+        "nu": [1e15, 2e15],
+        "x_sect": [1e-18, 2e-18],
     }
     index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0), (1, 1, 0), (2, 0, 0)],
+        [(1, 0, 0), (1, 0, 1)],
         names=["atomic_number", "ion_number", "level_number"],
     )
     return pd.DataFrame(data, index=index)
