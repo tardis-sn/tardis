@@ -57,7 +57,7 @@ def lineid_plotter(
     #     )
 
     if style == "top":
-        fig, ax = lineid_plot.plot_line_ids(
+        lineid_plot.plot_line_ids(
             spectrum_wavelengths, spectrum_data, line_wavelengths, line_labels, ax=ax, **lineid_kwargs
         )
 
@@ -69,7 +69,7 @@ def lineid_plotter(
             ax.transAxes.transform((0, 0.8))
         )[1]
 
-        fig, ax = lineid_plot.plot_line_ids(
+        lineid_plot.plot_line_ids(
             spectrum_wavelengths,
             spectrum_data,
             line_wavelengths,
@@ -101,7 +101,7 @@ def lineid_plotter(
         arrow_tips = fluxes + marker_len
         box_locs = fluxes + marker_len + arrow_len
 
-        fig, ax = lineid_plot.plot_line_ids(
+        lineid_plot.plot_line_ids(
             spectrum_wavelengths,
             spectrum_data,
             line_wavelengths,
@@ -116,4 +116,4 @@ def lineid_plotter(
             "style must be one of 'top', 'inside', or 'along'"
         )
 
-    return fig, ax
+    return ax
