@@ -77,7 +77,7 @@ jobs:
       - name: Install package editable
         if: ${{ !inputs.pip_git }}
         run: |
-          pip install -e ".[viz]" --user
+          pip install -e ".[viz]"
       
       - name: check numpy version
         run: | 
