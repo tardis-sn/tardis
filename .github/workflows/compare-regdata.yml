@@ -5,7 +5,7 @@
 name: compare-regdata
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - master
     types:
@@ -133,11 +133,11 @@ jobs:
 
       - name: Run comparison notebook
         run: |
-          jupyter nbconvert --execute compare_regression_data.ipynb \
+          jupyter nbconvert --execute ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data.ipynb \
             --to html \
             --output=compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html \
         working-directory: ${{ github.workspace }}/tardis-regression-data
-
+  
       - name: Upload comparison notebook
         uses: actions/upload-artifact@v4
         with:
@@ -150,7 +150,7 @@ jobs:
 
   deploy-comparison:
     needs: tests
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: main
@@ -175,7 +175,7 @@ jobs:
 
       - name: Set destination directory
         run: |
-          if [[ $EVENT == pull_request_target ]]; then
+          if [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
           else
             echo "DEST_DIR=commit/$GITHUB_SHA" >> $GITHUB_ENV
@@ -248,3 +248,4 @@ jobs:
             You can also download the artifacts directly from the [Actions tab](${{ env.ARTIFACT_URL }}).
         env:
           ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+ 
