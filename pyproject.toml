@@ -10,6 +10,7 @@ dependencies = ["astropy"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
+viz = ["qgridnext", "lineid_plot"]
 test = ["pytest-astropy"]
 docs = ["sphinx-astropy"]
 
