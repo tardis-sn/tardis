@@ -95,14 +95,48 @@ class SDECPlotter:
 
         for mode in modes:
             plotter.spectrum[mode] = pu.get_spectrum_data_from_spectrum_solver(
-                mode, sim.spectrum_solver
+                sim.spectrum_solver, mode
             )
-            plotter.packet_data[mode] = pu.extract_and_process_packet_data(sim, mode)
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                sim.transport.transport_state, sim.plasma, mode
+            )
 
         return plotter
 
     @classmethod
-    def from_hdf(cls, hdf_fpath, spectrum_solver_hdf_path):
+    def from_components(
+        cls, transport_state, simulation_state, plasma, spectrum_solver
+    ):
+        plotter = cls()
+        plotter.t_inner = simulation_state.packet_source.temperature
+        plotter.r_inner = simulation_state.geometry.r_inner_active
+        plotter.time_of_simulation = (
+            transport_state.packet_collection.time_of_simulation * u.s
+        )
+
+        modes = ["real"]
+        if transport_state.virt_logging:
+            modes.append("virtual")
+
+        for mode in modes:
+            plotter.spectrum[mode] = pu.get_spectrum_data_from_spectrum_solver(
+                spectrum_solver, mode
+            )
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                transport_state, plasma, mode
+            )
+
+        return plotter
+
+    @classmethod
+    def from_hdf(
+        cls,
+        hdf_fpath,
+        simulation_state_hdf_path,
+        transport_state_hdf_path,
+        spectrum_solver_hdf_path,
+        lines_hdf_path,
+    ):
         """
         Create an instance of SDECPlotter from a simulation HDF file.
 
@@ -120,14 +154,12 @@ class SDECPlotter:
         plotter = cls()
         with pd.HDFStore(hdf_fpath, "r") as hdf:
             plotter.r_inner = u.Quantity(
-                hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
+                hdf[f"{simulation_state_hdf_path}/r_inner"].to_numpy(), "cm"
             )
             plotter.t_inner = u.Quantity(
-                hdf["/simulation/simulation_state/scalars"].t_inner, "K"
+                hdf[f"{simulation_state_hdf_path}/scalars"].t_inner, "K"
             )
-            transport_state_scalars = hdf[
-                "/simulation/transport/transport_state/scalars"
-            ]
+            transport_state_scalars = hdf[f"{transport_state_hdf_path}/scalars"]
             plotter.time_of_simulation = u.Quantity(
                 transport_state_scalars.time_of_simulation,
                 "s",
@@ -137,9 +169,14 @@ class SDECPlotter:
             modes = ["real"] + (["virtual"] if has_virtual else [])
 
             for mode in modes:
-                plotter.spectrum[mode] = pu.extract_spectrum_data_hdf(hdf, mode)
+                plotter.spectrum[mode] = pu.get_spectrum_data_from_hdf(
+                    hdf, mode, spectrum_solver_hdf_path=spectrum_solver_hdf_path
+                )
                 plotter.packet_data[mode] = pu.extract_and_process_packet_data_hdf(
-                    hdf, mode
+                    hdf,
+                    mode,
+                    lines_hdf_path=lines_hdf_path,
+                    transport_state_hdf_path=transport_state_hdf_path,
                 )
 
         return plotter
@@ -456,7 +493,8 @@ class SDECPlotter:
         self, packets_mode, mask, contribution_name, luminosities_df
     ):
         """Calculate luminosity contribution for packets matching the specified mask."""
-        # Histogram weights are packet luminosities or flux
+        # Histogram weights are packyet luminosities or flux
+
         weights = (
             self.packet_data[packets_mode]["packets_df"]["energies"][
                 self.packet_nu_range_mask

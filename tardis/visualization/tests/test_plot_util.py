@@ -4,6 +4,8 @@ import pandas as pd
 import pytest
 
 from tardis.tests.fixtures.regression_data import PlotDataHDF
+from tardis.visualization.plot_util import process_line_interactions
+from tardis.visualization.plot_util import process_line_interactions
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
     create_wavelength_mask,
@@ -71,7 +73,9 @@ class TestPlotUtil:
         self, simulation_simple, packets_mode
     ):
         actual_data = extract_and_process_packet_data(
-            simulation_simple, packets_mode
+            simulation_simple.transport.transport_state,
+            simulation_simple.plasma,
+            packets_mode=packets_mode,
         )
 
         transport_state = simulation_simple.transport.transport_state
@@ -231,7 +235,7 @@ class TestPlotUtil:
     @pytest.mark.parametrize("packets_mode", ["real", "virtual"])
     def test_get_spectrum_data(self, simulation_simple, packets_mode):
         actual_data = get_spectrum_data_from_spectrum_solver(
-            packets_mode, simulation_simple
+            simulation_simple.spectrum_solver, packets_mode
         )
         packets_type = f"spectrum_{packets_mode}_packets"
 
@@ -259,8 +263,16 @@ class TestPlotUtil:
     @pytest.fixture(scope="module")
     def generate_masked_dataframe_hdf(self, simulation_simple):
         packet_data = {
-            "real": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="real"),
-            "virtual": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="virtual"),
+            "real": extract_and_process_packet_data(
+                transport_state=simulation_simple.transport.transport_state,
+                plasma=simulation_simple.plasma,
+                packets_mode="real",
+            ),
+            "virtual": extract_and_process_packet_data(
+                transport_state=simulation_simple.transport.transport_state,
+                plasma=simulation_simple.plasma,
+                packets_mode="virtual",
+            ),
         }
         masked_data = {
             mode: PlotDataHDF(
@@ -277,3 +289,67 @@ class TestPlotUtil:
         expected = regression_data.sync_dataframe(generate_masked_dataframe_hdf[mode].masked_df, key=mode)
         actual = generate_masked_dataframe_hdf[mode].masked_df
         pd.testing.assert_frame_equal(actual, expected)
+        def test_packet_energies_and_nus_copy():
+            # Create a packets_df with packet_energies and packet_nus only
+
+            original = pd.DataFrame(
+                {
+                    "packet_energies": [10.0, 20.0],
+                    "packet_nus": [1e3, 2e3],
+                    "last_interaction_type": [-1, -1],
+                    "last_line_interaction_in_id": [-1, -1],
+                    "last_line_interaction_out_id": [-1, -1],
+                }
+            )
+            packet_data = {"packets_df": original.copy()}
+            # lines_df can be empty since no line interactions are expected
+            lines_df = pd.DataFrame(columns=["atomic_number", "ion_number"])
+
+            # Should not raise or warn, just copy columns
+            process_line_interactions(packet_data, lines_df)
+
+            df = packet_data["packets_df"]
+            # energies and nus columns should be created and match originals
+            assert "energies" in df.columns
+            assert "nus" in df.columns
+            assert df["energies"].tolist() == original["packet_energies"].tolist()
+            assert df["nus"].tolist() == original["packet_nus"].tolist()
+
+            # No interactions → empty line-interaction DataFrame
+            assert "packets_df_line_interaction" in packet_data
+            assert packet_data["packets_df_line_interaction"].empty
+
+        def test_process_line_interactions_warns_and_maps_atom_and_species():
+
+            # lines_df mapping line_id 10 → atomic_number=1, ion_number=3
+            lines_df = pd.DataFrame(
+                {"atomic_number": [1], "ion_number": [3]}, index=[10]
+            )
+
+            # Create a packets_df with two rows:
+            # row 0 should be selected (both last_interaction_type and in_id > -1)
+            # row 1 filtered out
+            packets_df = pd.DataFrame(
+                {
+                    "energies": [5.0, 6.0],
+                    "nus": [5e3, 6e3],
+                    "last_interaction_type": [1, -1],
+                    "last_line_interaction_in_id": [7, -1],
+                    "last_line_interaction_out_id": [10, 10],
+                }
+            )
+            packet_data = {"packets_df": packets_df.copy()}
+
+            # Expect DeprecationWarning because 'energies' is present
+            with pytest.warns(DeprecationWarning):
+                process_line_interactions(packet_data, lines_df)
+
+            df_line = packet_data["packets_df_line_interaction"]
+            # Only the first row should remain
+            assert len(df_line) == 1
+            row = df_line.reset_index(drop=True).iloc[0]
+
+            # Verify atom and species columns
+            assert row["last_line_interaction_atom"] == 1
+            # species = atomic_number * 100 + ion_number = 1*100 + 3
+            assert row["last_line_interaction_species"] == 103

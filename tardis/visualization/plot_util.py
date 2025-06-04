@@ -1,6 +1,7 @@
 """Utility functions to be used in plotting."""
 
 import re
+import warnings
 from pathlib import Path
 
 import astropy.units as u
@@ -202,6 +203,19 @@ def process_line_interactions(packet_data, lines_df):
         DataFrame with 'atomic_number' and 'ion_number' indexed by line ID.
     """
     packets_df = packet_data["packets_df"]
+    if "energies" in packets_df:
+        warnings.warn(
+            "The 'energies' and 'nus' columns in packets_df are deprecated. "
+            "This function will soon cease to work with this HDF.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    if "packet_energies" in packets_df:
+        packets_df["energies"] = packets_df["packet_energies"]
+
+    if "packet_nus" in packets_df:
+        packets_df["nus"] = packets_df["packet_nus"]
 
     if packets_df is not None:
         # Create dataframe of packets that experience line interaction
@@ -294,7 +308,8 @@ def extract_and_process_packet_data_hdf(
                 f"{packet_hdf_path}_last_interaction_out_id"
             ],
             "last_line_interaction_in_nu": u.Quantity(
-                hdf[f"{packet_hdf_path}_last_interaction_in_nu"].to_numpy(), "Hz"
+                hdf[f"{packet_hdf_path}_last_interaction_in_nu"].to_numpy(),
+                "Hz",
             ),
             "last_interaction_in_r": u.Quantity(
                 hdf[f"{packet_hdf_path}_last_interaction_in_r"].to_numpy(), "cm"
@@ -547,7 +562,8 @@ def get_spectrum_data_from_hdf(
             hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), freq_unit
         ),
         "spectrum_luminosity_density_lambda": u.Quantity(
-            hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(), lum_unit
+            hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(),
+            lum_unit,
         ).to("erg / s AA"),
         "spectrum_wavelength": u.Quantity(
             hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), wvl_unit
