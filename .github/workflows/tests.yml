@@ -74,22 +74,10 @@ jobs:
           os-label: ${{ matrix.label }}
           lock-file-url-prefix: "https://raw.githubusercontent.com/atharva-2001/tardisbase/base-files"
 
-      - name: Setup tardisbase
-        uses: actions/checkout@v4
-        with:
-          repository: atharva-2001/tardisbase
-          path: tardisbase
-          ref: move-regression-data
-      
-      - name: Install tardisbase
-        run: |
-          pip install -e .
-        working-directory: tardisbase
-
       - name: Install tardis editable
         if: ${{ !inputs.pip_git }}
         run: |
-          pip install -e ".[viz]"
+          pip install -e ".[tardisbase,viz]" 
 
       - name: Install tardis git
         if: ${{ inputs.pip_git }}
