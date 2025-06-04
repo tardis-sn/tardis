@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tardis.tests.fixtures.regression_data import PlotDataHDF
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
+
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
     create_wavelength_mask,

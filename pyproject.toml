@@ -10,6 +10,7 @@ dependencies = ["astropy"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
+tardisbase = ["tardisbase @ git+https://github.com/tardis-sn/tardisbase.git@dc8224d"]
 test = ["pytest-astropy"]
 docs = ["sphinx-astropy"]
 
