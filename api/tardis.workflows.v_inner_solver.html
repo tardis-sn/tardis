@@ -166,8 +166,8 @@
 <span id="tardis-workflows-v-inner-solver-module"></span><h1>tardis.workflows.v_inner_solver module<a class="headerlink" href="#module-tardis.workflows.v_inner_solver" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.workflows.v_inner_solver.</span></span><span class="sig-name descname"><span class="pre">InnerVelocitySolverWorkflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_optical_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rosseland'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csvy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/workflows/v_inner_solver.html#InnerVelocitySolverWorkflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="tardis.workflows.simple_tardis_workflow.html#tardis.workflows.simple_tardis_workflow.SimpleTARDISWorkflow" title="tardis.workflows.simple_tardis_workflow.SimpleTARDISWorkflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleTARDISWorkflow</span></code></a></p>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.workflows.v_inner_solver.</span></span><span class="sig-name descname"><span class="pre">InnerVelocitySolverWorkflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/workflows/v_inner_solver.html#InnerVelocitySolverWorkflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="tardis.workflows.standard_tardis_workflow.html#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow" title="tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardTARDISWorkflow</span></code></a></p>
 <p>A simple TARDIS workflow that runs a simulation to convergence</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -180,8 +180,8 @@
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow.TAU_TARGET">
-<span class="sig-name descname"><span class="pre">TAU_TARGET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">np.float64(-0.40546510810816444)</span></em><a class="headerlink" href="#tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow.TAU_TARGET" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow.LOG_TAU_TARGET">
+<span class="sig-name descname"><span class="pre">LOG_TAU_TARGET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">np.float64(-0.40546510810816444)</span></em><a class="headerlink" href="#tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow.LOG_TAU_TARGET" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -389,7 +389,7 @@ used in iterated i.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Jun 2025.
+      <span class="lastupdated">Last updated on 04 Jun 2025.
       </span></p>
   </div>
 

@@ -141,7 +141,7 @@ from scipy.interpolate import interp1d
 
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
-from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.workflows.util import get_tau_integ
 
 # logging support
@@ -156,8 +156,8 @@ logger = logging.getLogger(__name__)
 
 <div class="viewcode-block" id="InnerVelocitySolverWorkflow">
 <a class="viewcode-back" href="../../../api/tardis.workflows.v_inner_solver.html#tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow">[docs]</a>
-class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
-    TAU_TARGET = np.log(2.0 / 3.0)
+class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
+    LOG_TAU_TARGET = np.log(2 / 3)
 
     def __init__(
         self,
@@ -166,7 +166,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         tau=None,
         csvy=False,
     ):
-        super().__init__(configuration, csvy)
+        super().__init__(configuration, csvy=csvy)
         self.mean_optical_depth = mean_optical_depth.lower()
 
         self.convergence_solvers[&quot;v_inner_boundary&quot;] = ConvergenceSolver(
@@ -180,7 +180,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         self.opacity_states = self.solve_opacity()
 
         if tau is not None:
-            self.TAU_TARGET = np.log(tau)
+            self.LOG_TAU_TARGET = np.log(tau)
 
         self.iterations_w = np.full(
             (self.total_iterations, self.simulation_state.no_of_shells), np.nan
@@ -289,7 +289,6 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         ]</div>
 
 
-
 <div class="viewcode-block" id="InnerVelocitySolverWorkflow.estimate_v_inner">
 <a class="viewcode-back" href="../../../api/tardis.workflows.v_inner_solver.html#tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow.estimate_v_inner">[docs]</a>
     def estimate_v_inner(self):
@@ -316,7 +315,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             fill_value=&quot;extrapolate&quot;,
         )
 
-        estimated_v_inner = interpolator(self.TAU_TARGET) * u.cm / u.s
+        estimated_v_inner = interpolator(self.LOG_TAU_TARGET) * u.cm / u.s
 
         if estimated_v_inner &lt; self.simulation_state.geometry.v_inner[0]:
             estimated_v_inner = self.simulation_state.geometry.v_inner[0]
@@ -664,7 +663,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Jun 2025.
+      <span class="lastupdated">Last updated on 04 Jun 2025.
       </span></p>
   </div>
 

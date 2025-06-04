@@ -235,9 +235,7 @@ class StandardTARDISWorkflow(
                 self.convergence_plots_kwargs[&quot;export_convergence_plots&quot;],
                 bool,
             ):
-                raise TypeError(
-                    &quot;Expected bool in export_convergence_plots argument&quot;
-                )
+                raise TypeError(&quot;Expected bool in export_convergence_plots argument&quot;)
             export_convergence_plots = self.convergence_plots_kwargs[
                 &quot;export_convergence_plots&quot;
             ]
@@ -269,8 +267,12 @@ class StandardTARDISWorkflow(
             )
         )
 
-        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        estimated_t_radiative = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        )
+        estimated_dilution_factor = (
+            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
+        )
 
         emitted_luminosity = calculate_filtered_luminosity(
             self.transport_state.emitted_packet_nu,
@@ -285,14 +287,11 @@ class StandardTARDISWorkflow(
             self.luminosity_nu_end,
         )
 
-        luminosity_ratios = (
-            (emitted_luminosity / self.luminosity_requested).to(1).value
-        )
+        luminosity_ratios = (emitted_luminosity / self.luminosity_requested).to(1).value
 
         estimated_t_inner = (
             self.simulation_state.t_inner
-            * luminosity_ratios
-            ** self.convergence_strategy.t_inner_update_exponent
+            * luminosity_ratios**self.convergence_strategy.t_inner_update_exponent
         )
 
         if self.convergence_plots is not None:
@@ -305,7 +304,7 @@ class StandardTARDISWorkflow(
                 &quot;Absorbed&quot;: [absorbed_luminosity.value, &quot;value&quot;],
                 &quot;Requested&quot;: [self.luminosity_requested.value, &quot;value&quot;],
             }
-        self.update_convergence_plot_data(plot_data)
+            self.update_convergence_plot_data(plot_data)
 
         logger.info(
             f&quot;\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n&quot;
@@ -391,9 +390,7 @@ class StandardTARDISWorkflow(
         if self.converged:
             logger.info(&quot;\n\tStarting final iteration&quot;)
         else:
-            logger.error(
-                &quot;\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration&quot;
-            )
+            logger.error(&quot;\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration&quot;)
         virtual_packet_energies = self.solve_montecarlo(
             opacity_states,
             self.final_iteration_packet_count,
@@ -429,7 +426,7 @@ class StandardTARDISWorkflow(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Jun 2025.
+      <span class="lastupdated">Last updated on 04 Jun 2025.
       </span></p>
   </div>
 
