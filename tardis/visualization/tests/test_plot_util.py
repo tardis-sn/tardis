@@ -10,7 +10,7 @@ from tardis.visualization.plot_util import (
     expand_species_list,
     extract_and_process_packet_data,
     get_mid_point_idx,
-    get_spectrum_data,
+    get_spectrum_data_from_spectrum_solver,
     parse_species_list_util,
     to_rgb255_string,
 )
@@ -230,7 +230,9 @@ class TestPlotUtil:
 
     @pytest.mark.parametrize("packets_mode", ["real", "virtual"])
     def test_get_spectrum_data(self, simulation_simple, packets_mode):
-        actual_data = get_spectrum_data(packets_mode, simulation_simple)
+        actual_data = get_spectrum_data_from_spectrum_solver(
+            packets_mode, simulation_simple
+        )
         packets_type = f"spectrum_{packets_mode}_packets"
 
         expected_data = {
@@ -253,7 +255,6 @@ class TestPlotUtil:
                 actual_data[key].value,
                 expected_value.value,
             )
-
 
     @pytest.fixture(scope="module")
     def generate_masked_dataframe_hdf(self, simulation_simple):

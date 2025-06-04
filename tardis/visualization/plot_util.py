@@ -1,6 +1,7 @@
 """Utility functions to be used in plotting."""
 
 import re
+from pathlib import Path
 
 import astropy.units as u
 import matplotlib.colors as mcolors
@@ -92,6 +93,7 @@ def to_rgb255_string(color_tuple):
     color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
     return f"rgb{color_tuple_255}"
 
+
 def get_hex_color_strings(length, name="jet"):
     """
     Generate a list of hex color strings from a discrete colormap.
@@ -112,19 +114,19 @@ def get_hex_color_strings(length, name="jet"):
     return [mcolors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]
 
 
-def extract_and_process_packet_data(simulation, packets_mode):
+def extract_and_process_packet_data(transport_state, plasma, packets_mode):
     """
-    Extract and process packet data from the simulation object.
+    Extract and process packet data from the transport_state and plasma objects.
 
     This includes converting the packet data into a DataFrame and appending
     processed line interaction information.
 
     Parameters
     ----------
-    simulation : tardis.simulation.BaseSimulation
-        Full TARDIS simulation object containing transport state, plasma,
-        and atomic data.
-
+    transport_state : object
+        The transport state object containing packet data.
+    plasma : object
+        The plasma object containing atomic data.
     packets_mode : str
         Type of packets to extract:
         - 'virtual': Use virtual packet tracker.
@@ -136,10 +138,7 @@ def extract_and_process_packet_data(simulation, packets_mode):
         Dictionary containing raw packet data, the full DataFrame `packets_df`,
         and a filtered `packets_df_line_interaction` with line interaction info.
     """
-    transport_state = simulation.transport.transport_state
-    lines_df = simulation.plasma.atomic_data.lines.reset_index().set_index(
-        "line_id"
-    )
+    lines_df = plasma.atomic_data.lines.reset_index().set_index("line_id")
 
     if packets_mode == "virtual":
         vpacket_tracker = transport_state.vpacket_tracker
@@ -248,7 +247,12 @@ def process_line_interactions(packet_data, lines_df):
         )
 
 
-def extract_and_process_packet_data_hdf(hdf, packets_mode):
+def extract_and_process_packet_data_hdf(
+    hdf,
+    packets_mode,
+    lines_hdf_path="/simulation/plasma_solver/lines",
+    transport_state_hdf_path="/simulation/transport/transport_state",
+):
     """
     Extract and process packet data from an HDF file.
 
@@ -277,71 +281,62 @@ def extract_and_process_packet_data_hdf(hdf, packets_mode):
     ValueError
         If an invalid `packets_mode` is provided.
     """
-    lines_df = (
-        hdf["/simulation/plasma/lines"].reset_index().set_index("line_id")
-    )
+    lines_df = hdf[lines_hdf_path].reset_index().set_index("line_id")
+
     if packets_mode == "virtual":
-        packet_prefix = "/simulation/transport/transport_state/virt_packet"
+        packet_hdf_path = str(Path(transport_state_hdf_path, "virt_packet"))
         packet_data = {
-            "last_interaction_type": hdf[
-                f"{packet_prefix}_last_interaction_type"
-            ],
+            "last_interaction_type": hdf[f"{packet_hdf_path}_last_interaction_type"],
             "last_line_interaction_in_id": hdf[
-                f"{packet_prefix}_last_interaction_in_id"
+                f"{packet_hdf_path}_last_interaction_in_id"
             ],
             "last_line_interaction_out_id": hdf[
-                f"{packet_prefix}_last_interaction_out_id"
+                f"{packet_hdf_path}_last_interaction_out_id"
             ],
             "last_line_interaction_in_nu": u.Quantity(
-                hdf[f"{packet_prefix}_last_interaction_in_nu"].to_numpy(), "Hz"
+                hdf[f"{packet_hdf_path}_last_interaction_in_nu"].to_numpy(), "Hz"
             ),
             "last_interaction_in_r": u.Quantity(
-                hdf[f"{packet_prefix}_last_interaction_in_r"].to_numpy(), "cm"
+                hdf[f"{packet_hdf_path}_last_interaction_in_r"].to_numpy(), "cm"
             ),
-            "packet_nus": u.Quantity(
-                hdf[f"{packet_prefix}_nus"].to_numpy(), "Hz"
-            ),
+            "packet_nus": u.Quantity(hdf[f"{packet_hdf_path}_nus"].to_numpy(), "Hz"),
             "packet_energies": u.Quantity(
-                hdf[f"{packet_prefix}_energies"].to_numpy(), "erg"
+                hdf[f"{packet_hdf_path}_energies"].to_numpy(), "erg"
             ),
         }
     else:  # real packets
         emitted_packet_mask = hdf[
-            "/simulation/transport/transport_state/emitted_packet_mask"
+            str(Path(transport_state_hdf_path, "emitted_packet_mask"))
         ].to_numpy()
-        packet_prefix = "/simulation/transport/transport_state"
+        packet_hdf_path = transport_state_hdf_path
         packet_data = {
             "last_interaction_type": hdf[
-                f"{packet_prefix}/last_interaction_type"
+                f"{packet_hdf_path}/last_interaction_type"
             ].to_numpy()[emitted_packet_mask],
             "last_line_interaction_in_id": hdf[
-                f"{packet_prefix}/last_line_interaction_in_id"
+                f"{packet_hdf_path}/last_line_interaction_in_id"
             ].to_numpy()[emitted_packet_mask],
             "last_line_interaction_out_id": hdf[
-                f"{packet_prefix}/last_line_interaction_out_id"
+                f"{packet_hdf_path}/last_line_interaction_out_id"
             ].to_numpy()[emitted_packet_mask],
             "last_line_interaction_in_nu": u.Quantity(
-                hdf[f"{packet_prefix}/last_interaction_in_nu"].to_numpy()[
+                hdf[f"{packet_hdf_path}/last_interaction_in_nu"].to_numpy()[
                     emitted_packet_mask
                 ],
                 "Hz",
             ),
             "last_interaction_in_r": u.Quantity(
-                hdf[f"{packet_prefix}/last_interaction_in_r"].to_numpy()[
+                hdf[f"{packet_hdf_path}/last_interaction_in_r"].to_numpy()[
                     emitted_packet_mask
                 ],
                 "cm",
             ),
             "packet_nus": u.Quantity(
-                hdf[f"{packet_prefix}/output_nu"].to_numpy()[
-                    emitted_packet_mask
-                ],
+                hdf[f"{packet_hdf_path}/output_nu"].to_numpy()[emitted_packet_mask],
                 "Hz",
             ),
             "packet_energies": u.Quantity(
-                hdf[f"{packet_prefix}/output_energy"].to_numpy()[
-                    emitted_packet_mask
-                ],
+                hdf[f"{packet_hdf_path}/output_energy"].to_numpy()[emitted_packet_mask],
                 "erg",
             ),
         }
@@ -382,10 +377,12 @@ def expand_species_list(species_list):
     full_species_list = []
     for species in species_list:
         if "-" in species:
-           element, ion_range = species.split(" ")
-           first_ion_numeral, last_ion_numeral = map(roman_to_int, ion_range.partition("-")[::2])
-           for ion_number in range(first_ion_numeral, last_ion_numeral + 1):
-               full_species_list.append(f"{element} {int_to_roman(ion_number)}")
+            element, ion_range = species.split(" ")
+            first_ion_numeral, last_ion_numeral = map(
+                roman_to_int, ion_range.partition("-")[::2]
+            )
+            for ion_number in range(first_ion_numeral, last_ion_numeral + 1):
+                full_species_list.append(f"{element} {int_to_roman(ion_number)}")
         else:
             full_species_list.append(species)
 
@@ -445,7 +442,9 @@ def parse_species_list_util(species_list):
             species_mapped[species_id] = [species_id]
         else:
             atomic_number = element_symbol2atomic_number(species)
-            species_ids = [(atomic_number, ion_number) for ion_number in range(atomic_number)]
+            species_ids = [
+                (atomic_number, ion_number) for ion_number in range(atomic_number)
+            ]
             requested_species_ids.append(species_ids)
             species_mapped[(atomic_number, 0)] = species_ids
             # add the atomic number to a list so you know that this element should
@@ -453,12 +452,19 @@ def parse_species_list_util(species_list):
             # species_list = [Si]
             elements_with_shared_color.append(atomic_number)
 
-    species_list_result = [species_id for group in requested_species_ids for species_id in group]
+    species_list_result = [
+        species_id for group in requested_species_ids for species_id in group
+    ]
 
-    return species_mapped, species_list_result, elements_with_shared_color, full_species_list
+    return (
+        species_mapped,
+        species_list_result,
+        elements_with_shared_color,
+        full_species_list,
+    )
 
 
-def get_spectrum_data(packets_mode, sim):
+def get_spectrum_data_from_spectrum_solver(spectrum_solver, packets_mode):
     """
     Get spectrum data from simulation based on mode.
 
@@ -486,21 +492,19 @@ def get_spectrum_data(packets_mode, sim):
 
     return {
         "spectrum_delta_frequency": getattr(
-            sim.spectrum_solver, packets_type
+            spectrum_solver, packets_type
         ).delta_frequency,
-        "spectrum_frequency_bins": getattr(
-            sim.spectrum_solver, packets_type
-        )._frequency,
+        "spectrum_frequency_bins": getattr(spectrum_solver, packets_type)._frequency,
         "spectrum_luminosity_density_lambda": getattr(
-            sim.spectrum_solver, packets_type
+            spectrum_solver, packets_type
         ).luminosity_density_lambda,
-        "spectrum_wavelength": getattr(
-            sim.spectrum_solver, packets_type
-        ).wavelength,
+        "spectrum_wavelength": getattr(spectrum_solver, packets_type).wavelength,
     }
 
 
-def extract_spectrum_data_hdf(hdf, packets_mode):
+def get_spectrum_data_from_hdf(
+    hdf, packets_mode, spectrum_solver_hdf_path="/simulation/spectrum_solver"
+):
     """
     Extract spectrum data from HDF5.
 
@@ -510,6 +514,8 @@ def extract_spectrum_data_hdf(hdf, packets_mode):
         Open HDF5 file containing simulation output.
     packets_mode : str
         Packet mode to extract spectrum data for (e.g., 'real', 'virtual').
+    spectrum_solver_hdf_path : str
+        Path to the spectrum_solver group in the HDF file.
 
     Returns
     -------
@@ -524,22 +530,27 @@ def extract_spectrum_data_hdf(hdf, packets_mode):
         - "spectrum_wavelength" : Quantity
             Wavelength values in Å.
     """
-    spectrum_prefix = (
-        f"/simulation/spectrum_solver/spectrum_{packets_mode}_packets"
+    spectrum_prefix = f"{spectrum_solver_hdf_path}/spectrum_{packets_mode}_packets"
+    # Read units from HDF attributes if available, else use defaults
+    freq_unit = hdf[f"{spectrum_prefix}/_frequency"].attrs.get("unit", "Hz")
+    wvl_unit = hdf[f"{spectrum_prefix}/wavelength"].attrs.get("unit", "angstrom")
+    lum_unit = hdf[f"{spectrum_prefix}/luminosity_density_lambda"].attrs.get(
+        "unit", "erg/(s angstrom)"
     )
+    delta_freq_unit = hdf[f"{spectrum_prefix}/scalars"].attrs.get("unit", "Hz")
+
     return {
         "spectrum_delta_frequency": u.Quantity(
-            hdf[f"{spectrum_prefix}/scalars"].delta_frequency, "Hz"
+            hdf[f"{spectrum_prefix}/scalars"].delta_frequency, delta_freq_unit
         ),
         "spectrum_frequency_bins": u.Quantity(
-            hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), "Hz"
+            hdf[f"{spectrum_prefix}/_frequency"].to_numpy(), freq_unit
         ),
         "spectrum_luminosity_density_lambda": u.Quantity(
-            hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(),
-            "erg / s cm",
+            hdf[f"{spectrum_prefix}/luminosity_density_lambda"].to_numpy(), lum_unit
         ).to("erg / s AA"),
         "spectrum_wavelength": u.Quantity(
-            hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), "cm"
+            hdf[f"{spectrum_prefix}/wavelength"].to_numpy(), wvl_unit
         ).to("AA"),
     }
 
