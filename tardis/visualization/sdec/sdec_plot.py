@@ -86,8 +86,7 @@ class SDECPlotter:
         plotter.t_inner = sim.simulation_state.packet_source.temperature
         plotter.r_inner = sim.simulation_state.geometry.r_inner_active
         plotter.time_of_simulation = (
-            sim.transport.transport_state.packet_collection.time_of_simulation
-            * u.s
+            sim.transport.transport_state.packet_collection.time_of_simulation * u.s
         )
 
         modes = ["real"]
@@ -95,15 +94,49 @@ class SDECPlotter:
             modes.append("virtual")
 
         for mode in modes:
-            plotter.spectrum[mode] = pu.get_spectrum_data(mode, sim)
+            plotter.spectrum[mode] = pu.get_spectrum_data_from_spectrum_solver(
+                sim.spectrum_solver, mode
+            )
             plotter.packet_data[mode] = pu.extract_and_process_packet_data(
-                sim, mode
+                sim.transport.transport_state, sim.plasma, mode
             )
 
         return plotter
 
     @classmethod
-    def from_hdf(cls, hdf_fpath):
+    def from_components(
+        cls, transport_state, simulation_state, plasma, spectrum_solver
+    ):
+        plotter = cls()
+        plotter.t_inner = simulation_state.packet_source.temperature
+        plotter.r_inner = simulation_state.geometry.r_inner_active
+        plotter.time_of_simulation = (
+            transport_state.packet_collection.time_of_simulation * u.s
+        )
+
+        modes = ["real"]
+        if transport_state.virt_logging:
+            modes.append("virtual")
+
+        for mode in modes:
+            plotter.spectrum[mode] = pu.get_spectrum_data_from_spectrum_solver(
+                spectrum_solver, mode
+            )
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                transport_state, plasma, mode
+            )
+
+        return plotter
+
+    @classmethod
+    def from_hdf(
+        cls,
+        hdf_fpath,
+        simulation_state_hdf_path,
+        transport_state_hdf_path,
+        spectrum_solver_hdf_path,
+        lines_hdf_path,
+    ):
         """
         Create an instance of SDECPlotter from a simulation HDF file.
 
@@ -121,12 +154,12 @@ class SDECPlotter:
         plotter = cls()
         with pd.HDFStore(hdf_fpath, "r") as hdf:
             plotter.r_inner = u.Quantity(
-                hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
+                hdf[f"{simulation_state_hdf_path}/r_inner"].to_numpy(), "cm"
             )
             plotter.t_inner = u.Quantity(
-                hdf["/simulation/simulation_state/scalars"].t_inner, "K"
+                hdf[f"{simulation_state_hdf_path}/scalars"].t_inner, "K"
             )
-            transport_state_scalars = hdf["/simulation/transport/transport_state/scalars"]
+            transport_state_scalars = hdf[f"{transport_state_hdf_path}/scalars"]
             plotter.time_of_simulation = u.Quantity(
                 transport_state_scalars.time_of_simulation,
                 "s",
@@ -136,8 +169,15 @@ class SDECPlotter:
             modes = ["real"] + (["virtual"] if has_virtual else [])
 
             for mode in modes:
-                plotter.spectrum[mode] = pu.extract_spectrum_data_hdf(hdf, mode)
-                plotter.packet_data[mode] = pu.extract_and_process_packet_data_hdf(hdf, mode)
+                plotter.spectrum[mode] = pu.get_spectrum_data_from_hdf(
+                    hdf, mode, spectrum_solver_hdf_path=spectrum_solver_hdf_path
+                )
+                plotter.packet_data[mode] = pu.extract_and_process_packet_data_hdf(
+                    hdf,
+                    mode,
+                    lines_hdf_path=lines_hdf_path,
+                    transport_state_hdf_path=transport_state_hdf_path,
+                )
 
         return plotter
 
@@ -230,12 +270,10 @@ class SDECPlotter:
         self.plot_frequency_bins = self.spectrum[packets_mode][
             "spectrum_frequency_bins"
         ]
-        self.plot_wavelength = self.spectrum[packets_mode][
-            "spectrum_wavelength"
+        self.plot_wavelength = self.spectrum[packets_mode]["spectrum_wavelength"]
+        self.plot_frequency = self.spectrum[packets_mode]["spectrum_frequency_bins"][
+            :-1
         ]
-        self.plot_frequency = self.spectrum[packets_mode][
-            "spectrum_frequency_bins"
-        ][:-1]
 
         self.packet_wvl_range_mask = np.ones(
             self.plot_wavelength.size, dtype=bool
@@ -245,34 +283,26 @@ class SDECPlotter:
             packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
 
             # Index of value just before the 1st value that is > packet_nu_range[1]
-            start_idx = (
-                np.argmax(self.plot_frequency_bins > packet_nu_range[1]) - 1
-            )
+            start_idx = np.argmax(self.plot_frequency_bins > packet_nu_range[1]) - 1
             # Index of value just after the last value that is < packet_nu_range[0]
             end_idx = np.argmin(self.plot_frequency_bins < packet_nu_range[0])
-            self.plot_frequency_bins = self.plot_frequency_bins[
-                start_idx : end_idx + 1
-            ]
+            self.plot_frequency_bins = self.plot_frequency_bins[start_idx : end_idx + 1]
 
             # Since spectrum frequency (& hence wavelength) were created from
             # frequency_bins[:-1], so we exclude end_idx when creating the mask
-            self.packet_wvl_range_mask = np.zeros(
-                self.plot_wavelength.size, dtype=bool
-            )
+            self.packet_wvl_range_mask = np.zeros(self.plot_wavelength.size, dtype=bool)
             self.packet_wvl_range_mask[start_idx:end_idx] = True
 
-            self.plot_wavelength = self.plot_wavelength[
-                self.packet_wvl_range_mask
-            ]
-            self.plot_frequency = self.plot_frequency[
-                self.packet_wvl_range_mask
-            ]
+            self.plot_wavelength = self.plot_wavelength[self.packet_wvl_range_mask]
+            self.plot_frequency = self.plot_frequency[self.packet_wvl_range_mask]
 
         # Make sure number of bin edges are always one more than wavelengths
         assert self.plot_frequency_bins.size == self.plot_wavelength.size + 1
 
         # Calculate the area term to convert luminosity to flux
-        self.lum_to_flux = 1  # default to 1 if distance is none so that this term will have no effect
+        self.lum_to_flux = (
+            1  # default to 1 if distance is none so that this term will have no effect
+        )
         if distance is not None:
             if distance <= 0:
                 raise ValueError(
@@ -306,22 +336,17 @@ class SDECPlotter:
         )
 
         # Sort the element list based on the total contribution
-        sorted_list = self.total_luminosities_df.sum().sort_values(
-            ascending=False
-        )
+        sorted_list = self.total_luminosities_df.sum().sort_values(ascending=False)
 
         if nelements is None and self._species_list is None:
             self.species = np.array(list(self.total_luminosities_df.columns))
         elif self._species_list is not None:
             sorted_keys = list(sorted_list.keys())
-            keys_to_keep = [
-                key for key in sorted_keys if key in self._species_list
-            ]
+            keys_to_keep = [key for key in sorted_keys if key in self._species_list]
 
             df_map = {
                 "total_luminosities_df": keys_to_keep,
-                "emission_luminosities_df": keys_to_keep
-                + ["noint", "escatter"],
+                "emission_luminosities_df": keys_to_keep + ["noint", "escatter"],
                 "absorption_luminosities_df": keys_to_keep,
             }
 
@@ -444,9 +469,7 @@ class SDECPlotter:
             .groupby(by=groupby_column)
         )
         for identifier, group in grouped:
-            weights = (
-                group["energies"] / self.lum_to_flux / self.time_of_simulation
-            )
+            weights = group["energies"] / self.lum_to_flux / self.time_of_simulation
             hist = np.histogram(
                 group[nu_column],
                 bins=self.plot_frequency_bins.value,
@@ -470,7 +493,8 @@ class SDECPlotter:
         self, packets_mode, mask, contribution_name, luminosities_df
     ):
         """Calculate luminosity contribution for packets matching the specified mask."""
-        # Histogram weights are packet luminosities or flux
+        # Histogram weights are packyet luminosities or flux
+
         weights = (
             self.packet_data[packets_mode]["packets_df"]["energies"][
                 self.packet_nu_range_mask
@@ -581,9 +605,9 @@ class SDECPlotter:
         # Contribution of packets which experienced no interaction
         # Mask to select packets with no interaction
         mask_noint = (
-            self.packet_data[packets_mode]["packets_df"][
-                "last_interaction_type"
-            ][self.packet_nu_range_mask]
+            self.packet_data[packets_mode]["packets_df"]["last_interaction_type"][
+                self.packet_nu_range_mask
+            ]
             == -1
         )
         self._calculate_luminosity_contribution(
@@ -592,14 +616,14 @@ class SDECPlotter:
 
         # Contribution of packets which only experienced electron scattering ---
         mask_escatter = (
-            self.packet_data[packets_mode]["packets_df"][
-                "last_interaction_type"
-            ][self.packet_nu_range_mask]
+            self.packet_data[packets_mode]["packets_df"]["last_interaction_type"][
+                self.packet_nu_range_mask
+            ]
             == 1
         ) & (
-            self.packet_data[packets_mode]["packets_df"][
-                "last_line_interaction_in_id"
-            ][self.packet_nu_range_mask]
+            self.packet_data[packets_mode]["packets_df"]["last_line_interaction_in_id"][
+                self.packet_nu_range_mask
+            ]
             == -1
         )
         self._calculate_luminosity_contribution(
@@ -613,9 +637,7 @@ class SDECPlotter:
             luminosities_df=luminosities_df,
         )
 
-    def _calculate_absorption_luminosities(
-        self, packets_mode, packet_wvl_range
-    ):
+    def _calculate_absorption_luminosities(self, packets_mode, packet_wvl_range):
         """
         Calculate luminosities for the absorption part of SDEC plot.
 
@@ -668,11 +690,7 @@ class SDECPlotter:
         )
 
         L_lambda_ph = (
-            bb_lam(self.plot_wavelength)
-            * 4
-            * np.pi**2
-            * self.r_inner[0] ** 2
-            * u.sr
+            bb_lam(self.plot_wavelength) * 4 * np.pi**2 * self.r_inner[0] ** 2 * u.sr
         ).to("erg / (AA s)")
 
         return L_lambda_ph / self.lum_to_flux
@@ -841,9 +859,7 @@ class SDECPlotter:
         # To create stacked area chart in matplotlib, we will start with zero
         # lower level and will keep adding luminosities to it (upper level)
         lower_level = np.zeros(self.emission_luminosities_df.shape[0])
-        upper_level = (
-            lower_level + self.emission_luminosities_df.noint.to_numpy()
-        )
+        upper_level = lower_level + self.emission_luminosities_df.noint.to_numpy()
 
         self.ax.fill_between(
             self.plot_wavelength.value,
@@ -854,9 +870,7 @@ class SDECPlotter:
         )
 
         lower_level = upper_level
-        upper_level = (
-            lower_level + self.emission_luminosities_df.escatter.to_numpy()
-        )
+        upper_level = lower_level + self.emission_luminosities_df.escatter.to_numpy()
 
         self.ax.fill_between(
             self.plot_wavelength.value,
@@ -869,9 +883,7 @@ class SDECPlotter:
         # If the 'other' column exists then plot it as silver
         if "other" in self.emission_luminosities_df.keys():
             lower_level = upper_level
-            upper_level = (
-                lower_level + self.emission_luminosities_df.other.to_numpy()
-            )
+            upper_level = lower_level + self.emission_luminosities_df.other.to_numpy()
 
             self.ax.fill_between(
                 self.plot_wavelength.value,
@@ -886,8 +898,7 @@ class SDECPlotter:
             try:
                 lower_level = upper_level
                 upper_level = (
-                    lower_level
-                    + self.emission_luminosities_df[identifier].to_numpy()
+                    lower_level + self.emission_luminosities_df[identifier].to_numpy()
                 )
 
                 self.ax.fill_between(
@@ -912,9 +923,7 @@ class SDECPlotter:
         # If the 'other' column exists then plot it as silver
         if "other" in self.absorption_luminosities_df.keys():
             upper_level = lower_level
-            lower_level = (
-                upper_level - self.absorption_luminosities_df.other.to_numpy()
-            )
+            lower_level = upper_level - self.absorption_luminosities_df.other.to_numpy()
 
             self.ax.fill_between(
                 self.plot_wavelength.value,
@@ -927,8 +936,7 @@ class SDECPlotter:
             try:
                 upper_level = lower_level
                 lower_level = (
-                    upper_level
-                    - self.absorption_luminosities_df[identifier].to_numpy()
+                    upper_level - self.absorption_luminosities_df[identifier].to_numpy()
                 )
 
                 self.ax.fill_between(
@@ -967,8 +975,7 @@ class SDECPlotter:
         if self._species_list is None:
             # If species_list is none then the labels are just elements
             species_name = [
-                atomic_number2element_symbol(atomic_num)
-                for atomic_num in self.species
+                atomic_number2element_symbol(atomic_num) for atomic_num in self.species
             ]
         else:
             species_name = []
@@ -1224,15 +1231,9 @@ class SDECPlotter:
         # twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)
         categorical_colorscale = []
         for species_counter in range(len(self._species_name)):
-            color = pu.to_rgb255_string(
-                self.cmap(colorscale_bins[species_counter])
-            )
-            categorical_colorscale.append(
-                (colorscale_bins[species_counter], color)
-            )
-            categorical_colorscale.append(
-                (colorscale_bins[species_counter + 1], color)
-            )
+            color = pu.to_rgb255_string(self.cmap(colorscale_bins[species_counter]))
+            categorical_colorscale.append((colorscale_bins[species_counter], color))
+            categorical_colorscale.append((colorscale_bins[species_counter + 1], color))
 
         coloraxis_options = {
             "colorscale": categorical_colorscale,
@@ -1283,9 +1284,7 @@ class SDECPlotter:
             )
         else:
             # Get the ion number and atomic number for each species
-            atomic_number, ion_number = divmod(
-                identifier, 100
-            )  # (quotient, remainder)
+            atomic_number, ion_number = divmod(identifier, 100)  # (quotient, remainder)
             info_msg = (
                 f"{atomic_number2element_symbol(atomic_number)}"
                 f"{int_to_roman(ion_number + 1)}"
