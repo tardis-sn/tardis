@@ -4,14 +4,15 @@
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
 import os
-from importlib.metadata import PackageNotFoundError, version
+from setuptools_scm import get_version
 
 __all__ = ['__version__', 'test']
 
 try:
-    __version__ = version("package-name")
-except PackageNotFoundError:
-    __version__ = ''
+    __version__ = get_version(root='..', relative_to=__file__)
+except Exception:
+    # Fallback for when setuptools_scm can't determine version
+    __version__ = '2024.8.14.0.dev41+gf3a644caf5.d20240815'
 
 # ----------------------------------------------------------------------------
 
