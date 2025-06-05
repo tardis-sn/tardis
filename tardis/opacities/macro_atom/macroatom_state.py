@@ -139,4 +139,4 @@ class MacroAtomState:
         macro_block_references = pd.Series(data=macro_data.values, index=unique_source_multi_index, name='macro_block_references')
         line2macro_level_upper = self.line2macro_level_upper.values
 
-        return(LegacyMacroAtomState(transition_probabilities, transition_type, destination_level_id, transition_line_id, macro_block_references, line2macro_level_upper))
+        return LegacyMacroAtomState(transition_probabilities, transition_type, destination_level_id, transition_line_id, macro_block_references, line2macro_level_upper)

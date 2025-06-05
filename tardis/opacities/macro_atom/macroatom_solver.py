@@ -254,4 +254,4 @@ class MacroAtomSolver:
         
         macro_atom_transition_metadata.drop(columns=['atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper'], inplace=True)
 
-        return(MacroAtomState(probabilities_df, macro_atom_transition_metadata, line2macro_level_upper))
+        return MacroAtomState(probabilities_df, macro_atom_transition_metadata, line2macro_level_upper)
