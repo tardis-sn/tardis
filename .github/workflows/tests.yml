@@ -66,8 +66,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup LFS
-        uses: ./.github/actions/setup_lfs
+      # - name: Setup LFS
+      #   uses: ./.github/actions/setup_lfs
 
       - name: Setup environment
         uses: ./.github/actions/setup_env
@@ -87,6 +87,9 @@ jobs:
       - name: Install qgridnext
         run: |
           pip install qgridnext
+
+      - run: micromamba list
+      - run: exit 1 
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
