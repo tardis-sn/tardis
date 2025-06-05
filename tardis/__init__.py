@@ -4,8 +4,12 @@
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
 from importlib.metadata import version
+from packaging.version import Version 
+
 __version__ = version("tardis")
-__all__ = ['__version__', 'test']
+last_release = Version(__version__).base_version
+
+__all__ = ['__version__', 'test', 'last_release']
 
 # ----------------------------------------------------------------------------
 
