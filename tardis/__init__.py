@@ -3,16 +3,15 @@
 # Packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-import os
-from setuptools_scm import get_version
-
-__all__ = ['__version__', 'test']
+from importlib.metadata import version, PackageNotFoundError
 
 try:
-    __version__ = get_version(root='..', relative_to=__file__)
-except Exception:
+    __version__ = version("tardis")
+except PackageNotFoundError:
     # Fallback for when setuptools_scm can't determine version
     __version__ = '2024.8.14.0.dev41+gf3a644caf5.d20240815'
+
+__all__ = ['__version__', 'test']
 
 # ----------------------------------------------------------------------------
 
