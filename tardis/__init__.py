@@ -3,11 +3,11 @@
 # Packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-from importlib.metadata import version
-from packaging.version import Version 
+from importlib.metadata import version as ilversion
+from packaging.version import Version as pversion
 
-__version__ = version("tardis")
-last_release = Version(__version__).base_version
+__version__ = ilversion("tardis")
+last_release = pversion(__version__).base_version
 
 __all__ = ['__version__', 'test', 'last_release']
 
