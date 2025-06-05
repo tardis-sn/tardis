@@ -82,8 +82,9 @@ jobs:
       - name: Checkout tardisbase repository
         uses: actions/checkout@v4
         with:
-          repository: tardis-sn/tardisbase
+          repository: riddhigangbhoj/tardisbase
           path: tardisbase
+          ref: modular-comparison-file
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
