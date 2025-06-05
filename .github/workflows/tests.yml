@@ -91,6 +91,8 @@ jobs:
           pip install qgridnext
 
       - run: micromamba list | grep tardis
+      - run: python -c "import tardis; print(tardis.__version__)"
+      - run: micromamba list
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
 
