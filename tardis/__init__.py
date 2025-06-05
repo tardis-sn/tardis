@@ -3,14 +3,8 @@
 # Packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-from importlib.metadata import version, PackageNotFoundError
-
-try:
-    __version__ = version("tardis")
-except PackageNotFoundError:
-    # Fallback for when setuptools_scm can't determine version
-    __version__ = '2024.8.14.0.dev41+gf3a644caf5.d20240815'
-
+from importlib.metadata import version
+__version__ = version("tardis")
 __all__ = ['__version__', 'test']
 
 # ----------------------------------------------------------------------------
