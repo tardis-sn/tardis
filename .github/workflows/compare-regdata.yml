@@ -75,7 +75,7 @@ jobs:
       - name: Checkout tardisbase repository
         uses: actions/checkout@v4
         with:
-          repository: riddhigangbhoi/tardisbase
+          repository: riddhigangbhoj/tardisbase
           path: tardisbase
           ref: modular-comparison-file
 
