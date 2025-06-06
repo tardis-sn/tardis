@@ -43,21 +43,24 @@ def create_output_widget(height=300):
         
     Returns
     -------
-    panel.pane.HTML
-        A Panel HTML pane configured for logging output.
+    panel.Column
+        A Panel Column containing an HTML pane configured for logging output.
     """
-    return pn.pane.HTML(
+    html_pane = pn.pane.HTML(
         "",
-        height=height,
         styles={
-            'overflow-y': 'auto',
-            'overflow-x': 'auto',
             'border': '1px solid #ddd',
             'width': '100%',
             'font-family': 'monospace',
             'padding': '8px',
             'background-color': 'white'
         }
+    )
+    return pn.Column(
+        html_pane,
+        height=height,
+        scroll=True,
+        sizing_mode='stretch_width'
     )
 
 ENVIRONMENT = get_environment()
@@ -229,11 +232,11 @@ class PanelWidgetLogHandler(logging.Handler):
         # Update specific level output
         output_key = level_to_output.get(level)
         if output_key:
-            current = self.log_outputs[output_key].object or ""
-            self.log_outputs[output_key].object = current + "\n" + html_wrapped if current else html_wrapped
+            current = self.log_outputs[output_key][0].object or ""
+            self.log_outputs[output_key][0].object = current + "\n" + html_wrapped if current else html_wrapped
         # Update ALL output
-        current_all = self.log_outputs["ALL"].object or ""
-        self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
+        current_all = self.log_outputs["ALL"][0].object or ""
+        self.log_outputs["ALL"][0].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
 
         # Update Jupyter display if in jupyter environment
         if self.environment == 'jupyter' and self.display_handle is not None:
