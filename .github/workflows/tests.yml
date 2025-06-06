@@ -65,8 +65,8 @@ jobs:
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        # with:
+        #   fetch-depth: 0
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -115,8 +115,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        # with:
+        #   fetch-depth: 0
       - name: Setup environment
         uses: ./.github/actions/setup_env
         with:
