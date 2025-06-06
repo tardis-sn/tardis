@@ -147,8 +147,8 @@ jobs:
           name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
           include-hidden-files: true
           path: |
-            ${{ github.workspace }}/tardis-regression-data/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
-            ${{ github.workspace }}/tardis-regression-data/comparison_plots*
+            ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+            ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/comparison_plots*
 
 
   deploy-comparison:
