@@ -65,8 +65,6 @@ jobs:
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
       - uses: actions/checkout@v4
-        # with:
-        #   fetch-depth: 0
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -89,8 +87,6 @@ jobs:
       - name: Install qgridnext
         run: |
           pip install qgridnext
-
-      - run: micromamba list | grep tardis
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
@@ -115,8 +111,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        # with:
-        #   fetch-depth: 0
+
       - name: Setup environment
         uses: ./.github/actions/setup_env
         with:
