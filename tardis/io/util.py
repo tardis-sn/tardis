@@ -17,6 +17,7 @@ from astropy.utils.data import download_file
 
 from tardis import __path__ as TARDIS_PATH
 from tardis import constants as const
+from tardis import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -287,6 +288,11 @@ class HDFWriterMixin:
                     )
                     data = pd.DataFrame([value])
                     data.to_hdf(buf, key=os.path.join(path, key))
+
+        metadata = {
+            "tardis_version": __version__
+        }
+        pd.Series(metadata).to_hdf(buf, key=os.path.join(path, "metadata"))
 
         if scalars:
             pd.Series(scalars).to_hdf(buf, key=os.path.join(path, "scalars"))
