@@ -138,6 +138,8 @@ jobs:
             --to html \
             --output=compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html \
         working-directory: ${{ github.workspace }}/tardis-regression-data
+        env:
+          REGRESSION_DATA_REPO: ${{ github.workspace }}/tardis-regression-data
   
       - name: Upload comparison notebook
         uses: actions/upload-artifact@v4
