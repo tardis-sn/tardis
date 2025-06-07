@@ -119,7 +119,8 @@ def read_xg_file(
         )
     )
 
-    for block_start, block_end in tqdm(block_ranges):
+    iterator = tqdm(block_ranges) if show_progress else block_ranges
+    for block_start, block_end in iterator:
         # Extract the timestamp from the current block
         current_block = lines[block_start:block_end]
         timestamp = float(current_block[0].split("=")[1].strip().split()[0])

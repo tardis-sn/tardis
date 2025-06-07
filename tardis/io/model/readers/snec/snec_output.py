@@ -17,6 +17,8 @@ import numpy.testing as npt
 import pandas as pd
 import yaml
 
+from tqdm.auto import tqdm
+
 from tardis.io.model.readers.snec.xg_files import XGData, read_xg_file
 
 with open(
@@ -107,9 +109,7 @@ class SNECOutput:
         return ds
 
 
-def read_snec_output_xg(
-    snec_output_dir: Path | str, show_progress: bool = False
-) -> XGData:
+def read_snec_output_xg(snec_output_dir: Path | str) -> XGData:
     """
     Read SNEC output .xg files and merge them into a unified XGData object.
 
@@ -152,7 +152,14 @@ def read_snec_output_xg(
         column_names=["radius", "enclosed_mass"],
     )
 
-    for output_quantity, metadata in SNEC_XG_OUTPUT_METADATA.items():
+    # Prepare items and progress bar
+    xg_items = list(SNEC_XG_OUTPUT_METADATA.items())
+    pbar = tqdm(xg_items, unit="quantity")
+
+    for output_quantity, metadata in pbar:
+        # update description to show current quantity
+        pbar.set_description(f"Reading {output_quantity}")
+
         xg_file = snec_output_dir / "output" / f"{output_quantity}.xg"
         if not xg_file.exists():
             raise FileNotFoundError(f"File {xg_file} does not exist.")
@@ -160,7 +167,7 @@ def read_snec_output_xg(
         xg_data = read_xg_file(
             str(xg_file),
             column_names=["enclosed_mass", output_quantity],
-            show_progress=show_progress,
+            show_progress=False,
         )
 
         # Ensure timestamps match
@@ -288,7 +295,6 @@ def read_snec_em_output(snec_output_dir: Path) -> pd.DataFrame:
     pd.DataFrame
         DataFrame containing the output quantities for each cell, indexed by cell ID.
     """
-
     em_output_metadata = [
         item for item in SNEC_EM_OUTPUT_METADATA.keys() if not item.startswith("index_")
     ]
@@ -313,7 +319,7 @@ def read_snec_em_output(snec_output_dir: Path) -> pd.DataFrame:
     return em_output_df.join(em_index_output_df.iloc[:, 1:])
 
 
-def read_snec_output(snec_output_dir: Path, show_progress: bool = False) -> SNECOutput:
+def read_snec_output(snec_output_dir: Path) -> SNECOutput:
     """
     Read SNEC output files and return a SNECOutput dataclass instance.
 
@@ -330,7 +336,7 @@ def read_snec_output(snec_output_dir: Path, show_progress: bool = False) -> SNEC
         Dataclass instance containing the SNEC output data.
     """
     return SNECOutput(
-        xg_data=read_snec_output_xg(snec_output_dir, show_progress),
+        xg_data=read_snec_output_xg(snec_output_dir),
         initial_composition=read_snec_initial_composition(snec_output_dir),
         initial_quantities=read_snec_initial_quantities(snec_output_dir),
         em_output=read_snec_em_output(snec_output_dir),
