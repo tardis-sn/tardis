@@ -1,12 +1,13 @@
+from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
-from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 from astropy import units as u
 from astropy.units import Quantity
-import xarray as xr
+from tqdm.auto import tqdm
 
 
 @dataclass
@@ -118,21 +119,7 @@ def read_xg_file(
         )
     )
 
-    iterator = block_ranges
-    if show_progress:
-        try:
-            from IPython.core import get_ipython
-
-            ip = get_ipython()
-            if ip is not None and "IPKernelApp" in ip.config:
-                from tqdm.notebook import tqdm as tqdm_progress
-            else:
-                from tqdm import tqdm as tqdm_progress
-        except ImportError:
-            from tqdm import tqdm as tqdm_progress
-        iterator = tqdm_progress(iterator, total=num_blocks, desc="Reading xg blocks")
-
-    for block_start, block_end in iterator:
+    for block_start, block_end in tqdm(block_ranges):
         # Extract the timestamp from the current block
         current_block = lines[block_start:block_end]
         timestamp = float(current_block[0].split("=")[1].strip().split()[0])

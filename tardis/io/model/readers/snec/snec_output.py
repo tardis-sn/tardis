@@ -1,34 +1,93 @@
-from tardis.io.model.readers.snec.xg_files import read_xg_file, XGData
-import numpy as np
-import yaml
-import pandas as pd
-import numpy.testing as npt
-from dataclasses import dataclass
-import xarray as xr
-from pathlib import Path
+from __future__ import annotations
 
-with open(Path(__file__).parent / "parser_config" / "snec_xg_output_quantities.yml", "r") as fh:
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import pandas as pd
+    import xarray as xr
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Union
+
+import numpy as np
+import numpy.testing as npt
+import pandas as pd
+import yaml
+
+from tardis.io.model.readers.snec.xg_files import XGData, read_xg_file
+
+with open(
+    Path(__file__).parent / "parser_config" / "snec_xg_output_quantities.yml",
+    "r",
+) as fh:
     SNEC_XG_OUTPUT_METADATA = yaml.safe_load(fh)
 
-with open(Path(__file__).parent / "parser_config" / "snec_initial_composition.yml") as fh:
+with open(
+    Path(__file__).parent / "parser_config" / "snec_initial_composition.yml"
+) as fh:
     SNEC_INITIAL_COMPOSITION_METADATA = yaml.safe_load(fh)
 
-with open(Path(__file__).parent / "parser_config" / "snec_initial_quantities.yml") as fh:
+with open(
+    Path(__file__).parent / "parser_config" / "snec_initial_quantities.yml"
+) as fh:
     SNEC_INITIAL_QUANTITIES_METADATA = yaml.safe_load(fh)
 
-with open(Path(__file__).parent / "parser_config" / "snec_em_output_metadata.yml") as fh:
+with open(
+    Path(__file__).parent / "parser_config" / "snec_em_output_metadata.yml"
+) as fh:
     SNEC_EM_OUTPUT_METADATA = yaml.safe_load(fh)
 
 
 @dataclass
 class SNECOutput:
+    """
+    SNECOutput holds the results from a SNEC supernova explosion simulation.
+
+    Attributes
+    ----------
+    xg_data : XGData
+        The X-ray/gamma-ray transport output as a function of time and spatial cell.
+    initial_composition : pandas.DataFrame
+        Initial elemental composition for each cell, indexed by `cell_id`.
+    initial_quantities : pandas.DataFrame
+        Initial physical quantities (e.g., density, temperature) for each cell, indexed by `cell_id`.
+    em_output : pandas.DataFrame
+        Time series of emission properties, indexed by `time`.
+
+    Methods
+    -------
+    to_xr_dataset()
+        Convert all stored outputs into a single xarray.Dataset.
+    """
+
     xg_data: XGData
     initial_composition: pd.DataFrame
     initial_quantities: pd.DataFrame
     em_output: pd.DataFrame
 
     def to_xr_dataset(self) -> xr.Dataset:
-        """Convert SNECOutput to xarray.Dataset combining xg_data, em_output, initial_composition, and initial_quantities."""
+        """
+        Convert SNECOutput to an xarray.Dataset by merging multiple data sources.
+
+        This method builds a unified Dataset with:
+        - xg_data: Base dataset obtained from `self.xg_data.to_xr_dataset()`.
+        - em_output: Emission output indexed by time and reindexed to match `xg_data.time`,
+            using nearest-neighbor interpolation.
+        - initial_composition: Initial composition data merged over `cell_id` as coordinates
+            and data variables.
+        - initial_quantities: Initial quantities data merged over `cell_id` as coordinates
+            and data variables.
+
+        Returns
+        -------
+        xr.Dataset
+                An xarray.Dataset containing the combined data from xg_data, em_output,
+                initial_composition, and initial_quantities, all aligned along common
+                dimensions (e.g., time, cell_id).
+        """
         # Base dataset from xg_data
         ds = self.xg_data.to_xr_dataset()
 
@@ -48,10 +107,48 @@ class SNECOutput:
         return ds
 
 
-def read_snec_output_xg(snec_output_dir, show_progress=False):
-    all_xg_data = {}
-    mass_xg_data = read_xg_file(
-        snec_output_dir / "output" / "mass.xg",
+def read_snec_output_xg(
+    snec_output_dir: Path | str, show_progress: bool = False
+) -> XGData:
+    """
+    Read SNEC output .xg files and merge them into a unified XGData object.
+
+    Parameters
+    ----------
+    snec_output_dir : pathlib.Path or str
+        Path to the directory containing the SNEC output files. Expects an
+        "output" subdirectory with files named "mass.xg" and "{quantity}.xg".
+    show_progress : bool, optional
+        If True, display a progress bar when reading each .xg file.
+        Default is False.
+
+    Returns
+    -------
+    XGData
+        An object with the following attributes:
+        - timestamps : numpy.ndarray
+            Array of time stamps common to all quantities.
+        - data_blocks : list of pandas.DataFrame
+            A list of data frames, one per time stamp, each containing columns
+            ['radius', 'enclosed_mass', *quantities].
+        - metadata : dict
+            Mapping from each quantity name to its associated metadata
+            (taken from SNEC_XG_OUTPUT_METADATA).
+
+    Raises
+    ------
+    FileNotFoundError
+        If the mass.xg or any "{quantity}.xg" file is missing in the expected
+        "output" directory.
+    AssertionError
+        If the time stamps in mass.xg do not match those in another quantity file.
+    """
+    # Ensure snec_output_dir is a Path
+    if not isinstance(snec_output_dir, Path):
+        snec_output_dir = Path(snec_output_dir)
+    all_xg_data: dict[str, XGData] = {}
+    mass_xg_data: XGData = read_xg_file(
+        str(snec_output_dir / "output" / "mass.xg"),
         column_names=["radius", "enclosed_mass"],
     )
 
@@ -61,7 +158,7 @@ def read_snec_output_xg(snec_output_dir, show_progress=False):
             raise FileNotFoundError(f"File {xg_file} does not exist.")
 
         xg_data = read_xg_file(
-            xg_file,
+            str(xg_file),
             column_names=["enclosed_mass", output_quantity],
             show_progress=show_progress,
         )
@@ -75,7 +172,7 @@ def read_snec_output_xg(snec_output_dir, show_progress=False):
         xg_data.metadata = metadata
         all_xg_data[output_quantity] = xg_data
 
-    merged_data_blocks = []
+    merged_data_blocks: list[pd.DataFrame] = []
     for i, time_stamp in enumerate(mass_xg_data.timestamps):
         merged_df = mass_xg_data.data_blocks[i][["radius"]].copy()
         merged_df["enclosed_mass"] = mass_xg_data.data_blocks[i]["enclosed_mass"]
@@ -94,7 +191,9 @@ def read_snec_output_xg(snec_output_dir, show_progress=False):
     return merged_xg_data
 
 
-def read_snec_dat_output(snec_output_dir, snec_dat_names, first_column_name):
+def read_snec_dat_output(
+    snec_output_dir: Path, snec_dat_names: list[str], first_column_name: str
+) -> pd.DataFrame:
     """
     Load the initial composition data from SNEC output.
 
@@ -133,7 +232,7 @@ def read_snec_dat_output(snec_output_dir, snec_dat_names, first_column_name):
     return snec_initial_composition_df
 
 
-def read_snec_initial_composition(snec_output_dir):
+def read_snec_initial_composition(snec_output_dir: Path) -> pd.DataFrame:
     """
     Load the initial composition data from SNEC output.
 
@@ -154,7 +253,7 @@ def read_snec_initial_composition(snec_output_dir):
     )
 
 
-def read_snec_initial_quantities(snec_output_dir):
+def read_snec_initial_quantities(snec_output_dir: Path) -> pd.DataFrame:
     """
     Load the initial quantities data from SNEC output.
 
@@ -175,7 +274,7 @@ def read_snec_initial_quantities(snec_output_dir):
     )
 
 
-def read_snec_em_output(snec_output_dir):
+def read_snec_em_output(snec_output_dir: Path) -> pd.DataFrame:
     """
     Load the output quantities data from SNEC output.
 
@@ -214,7 +313,7 @@ def read_snec_em_output(snec_output_dir):
     return em_output_df.join(em_index_output_df.iloc[:, 1:])
 
 
-def read_snec_output(snec_output_dir, show_progress=False):
+def read_snec_output(snec_output_dir: Path, show_progress: bool = False) -> SNECOutput:
     """
     Read SNEC output files and return a SNECOutput dataclass instance.
 
