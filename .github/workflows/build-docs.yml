@@ -41,6 +41,7 @@ jobs:
     with:
       atom-data-sparse: true
       regression-data-repo: tardis-sn/tardis-regression-data
+      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   check-for-changes:
     runs-on: ubuntu-latest
@@ -92,7 +93,6 @@ jobs:
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
 

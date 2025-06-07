@@ -3,11 +3,15 @@
 # Packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-from ._astropy_init import *  # noqa
+import os
+from importlib.metadata import PackageNotFoundError, version
 
-# ----------------------------------------------------------------------------
+__all__ = ['__version__', 'test']
 
-__all__ = []
+try:
+    __version__ = version("package-name")
+except PackageNotFoundError:
+    __version__ = ''
 
 # ----------------------------------------------------------------------------
 

@@ -29,6 +29,8 @@ requires = ["setuptools",
             "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools_scm]
+
 [tool.interrogate]
 color = true
 #exclude = ["docs", "build"]
@@ -52,7 +54,6 @@ verbose = 0
 [tool.ruff]
 line-length = 80
 lint.select = ["ALL"]
-exclude=[]
 lint.ignore = [  # NOTE: non-permanent exclusions should be added to `.ruff.toml` instead.
 
     # flake8-builtins (A) : shadowing a Python built-in.
