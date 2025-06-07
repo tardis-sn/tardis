@@ -11,7 +11,7 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.simulation import Simulation
-from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
+from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_MD5
 from tardis.transport.montecarlo import RPacket, packet_trackers
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
@@ -60,8 +60,7 @@ class BenchmarkBase:
     @functools.cached_property
     def tardis_ref_path(self):
         ref_data_path = Path(
-            Path(__file__).parent.parent,
-            env.get("TARDIS_REF_PATH")
+            Path(__file__).parent.parent, env.get("TARDIS_REF_PATH")
         ).resolve()
         return ref_data_path
 
@@ -69,8 +68,8 @@ class BenchmarkBase:
     def atomic_dataset(self) -> AtomData:
         atomic_data = AtomData.from_hdf(self.atomic_data_fname)
 
-        if atomic_data.md5 != DEFAULT_ATOM_DATA_UUID:
-            message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_UUID}")'
+        if atomic_data.md5 != DEFAULT_ATOM_DATA_MD5:
+            message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_MD5}")'
             raise Exception(message)
         else:
             return atomic_data
@@ -78,13 +77,12 @@ class BenchmarkBase:
     @functools.cached_property
     def atomic_data_fname(self):
         atomic_data_fname = (
-            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He.h5"
+            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He_latest.h5"
         )
 
         if not Path(atomic_data_fname).exists():
             atom_data_missing_str = (
-                f"{atomic_data_fname} atomic datafiles "
-                f"does not seem to exist"
+                f"{atomic_data_fname} atomic datafiles does not seem to exist"
             )
             raise Exception(atom_data_missing_str)
 
@@ -122,9 +120,7 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_packet_collection(self):
-        return (
-            self.nb_simulation_verysimple.transport.transport_state.packet_collection
-        )
+        return self.nb_simulation_verysimple.transport.transport_state.packet_collection
 
     @functools.cached_property
     def nb_simulation_verysimple(self):
@@ -154,15 +150,11 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_tau_russian(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.VPACKET_TAU_RUSSIAN
 
     @functools.cached_property
     def verysimple_survival_probability(self):
-        return (
-            self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
-        )
+        return self.nb_simulation_verysimple.transport.montecarlo_configuration.SURVIVAL_PROBABILITY
 
     @functools.cached_property
     def static_packet(self):
@@ -177,9 +169,7 @@ class BenchmarkBase:
 
     @functools.cached_property
     def verysimple_3vpacket_collection(self):
-        spectrum_frequency_grid = (
-            self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
-        )
+        spectrum_frequency_grid = self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value
         return VPacketCollection(
             source_rpacket_index=0,
             spectrum_frequency_grid=spectrum_frequency_grid,
