@@ -13,6 +13,13 @@ on:
       - reopened
       - synchronize
       - labeled
+  workflow_call:
+    inputs:
+      pip_git:
+        description: "Whether or not to install tardis using git"
+        required: false
+        type: boolean
+        default: false
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
@@ -37,7 +44,7 @@ jobs:
       allow_lfs_pull: ${{ contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    name: compare-regdata ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -55,6 +62,21 @@ jobs:
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
+      - name: Free Disk Space (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          
+          # other packages
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+
       - uses: actions/checkout@v4
 
       - name: Setup LFS
@@ -79,7 +101,6 @@ jobs:
         if: ${{ !inputs.pip_git }}
         run: |
           pip install qgridnext
-
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
@@ -161,10 +182,11 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          personal_token: ${{ secrets.BOT_TOKEN }}
+          personal_token: ${{ secrets.BOT_TOKEN }} # personal_token since pushing to external repo
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: comparison-artifacts
           destination_dir: ${{ env.DEST_DIR }}
+          keep_files: true
           external_repository: tardis-sn/reg-data-comp
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"

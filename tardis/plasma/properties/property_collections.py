@@ -51,6 +51,7 @@ nlte_properties = PlasmaPropertyCollection(
         LevelBoltzmannFactorNLTE,
         NLTEData,
         PreviousElectronDensities,
+        PreviousBetaSobolev,
     ]
 )
 nlte_root_solver_properties = PlasmaPropertyCollection(
