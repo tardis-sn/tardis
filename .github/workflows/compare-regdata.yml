@@ -83,9 +83,10 @@ jobs:
         uses: ./.github/actions/setup_lfs
 
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
+          lock-file-url-prefix: "https://raw.githubusercontent.com/atharva-2001/tardisbase/base-files"
 
       - name: Install package editable
         if: ${{ !inputs.pip_git }}

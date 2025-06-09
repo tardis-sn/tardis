@@ -32,11 +32,13 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
-            os-label: linux-64
-      
+          os-label: ${{ matrix.label }}
+          lock-file-url-prefix: "https://raw.githubusercontent.com/atharva-2001/tardisbase/base-files"
+  
       - name: Show statistics pull request
         if: github.event_name == 'pull_request_target'
         run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt

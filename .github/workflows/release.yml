@@ -28,19 +28,11 @@ jobs:
           repository: tardis-sn/tardis_zenodo
           token: ${{ secrets.BOT_TOKEN }}
 
-      - name: Checkout setup_env action
-        uses: actions/checkout@v4
-        with:
-          repository: tardis-sn/tardis
-          sparse-checkout: |
-            .github/actions/setup_env/action.yml
-          sparse-checkout-cone-mode: true
-          path: tardis
-
       - name: Setup environment
-        uses: ./tardis/.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
-          os-label: "linux-64"
+          os-label: ${{ matrix.label }}
+          lock-file-url-prefix: "https://raw.githubusercontent.com/atharva-2001/tardisbase/base-files"
 
       - name: Dump Secret Key
         run: echo "$KEY_SECRET_JSON" > key_secret.json
