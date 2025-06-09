@@ -78,10 +78,6 @@ jobs:
         if: ${{ !inputs.pip_git }}
         run: |
           pip install -e ".[viz]"
-      
-      - name: check numpy version
-        run: | 
-          python -c "import numpy; print(f'Version: {numpy.__version__}'); print(f'Path: {numpy.__file__}')"
 
       - name: Install package git
         if: ${{ inputs.pip_git }}
