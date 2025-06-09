@@ -128,22 +128,13 @@ def run_gamma_ray_loop(
         1.0 / ejecta_velocity_volume[:, np.newaxis]
     ) / effective_time_array**3.0
 
-    for (
-        atom_number
-    ) in model.composition.isotopic_number_density.index.get_level_values(0):
-        values = model.composition.isotopic_number_density.loc[
-            atom_number
-        ].values
-        if values.shape[1] > 1:
-            model.elemental_number_density.loc[atom_number] = np.sum(
-                values, axis=0
-            )
-        else:
-            model.elemental_number_density.loc[atom_number]= values
+    elemental_number_density = model.composition.isotopic_number_density.groupby(
+        "atomic_number"
+    ).sum()
 
     # Electron number density
-    electron_number_density = model.elemental_number_density.mul(
-        model.elemental_number_density.index,
+    electron_number_density = elemental_number_density.mul(
+        elemental_number_density.index,
         axis=0,
     ).sum()
     electron_number = np.array(electron_number_density * ejecta_volume)
