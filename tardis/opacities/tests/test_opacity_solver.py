@@ -40,7 +40,7 @@ def test_opacity_solver(
     if line_interaction_type == "scatter":
         pass
     else:
-        macroatom_state = LegacyMacroAtomSolver().solve(
+        macro_atom_state = LegacyMacroAtomSolver().solve(
             legacy_plasma.j_blues,
             legacy_plasma.atomic_data,
             actual.tau_sobolev,
@@ -48,26 +48,26 @@ def test_opacity_solver(
             beta_sobolev=actual.beta_sobolev,
         )
         pdt.assert_frame_equal(
-            macroatom_state.transition_probabilities,
+            macro_atom_state.transition_probabilities,
             legacy_plasma.transition_probabilities,
         )
         npt.assert_allclose(
-            macroatom_state.line2macro_level_upper,
+            macro_atom_state.line2macro_level_upper,
             legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
         )
         pdt.assert_series_equal(
-            macroatom_state.macro_block_references,
+            macro_atom_state.macro_block_references,
             legacy_plasma.atomic_data.macro_atom_references["block_references"],
         )
         pdt.assert_series_equal(
-            macroatom_state.transition_type,
+            macro_atom_state.transition_type,
             legacy_plasma.atomic_data.macro_atom_data["transition_type"],
         )
         pdt.assert_series_equal(
-            macroatom_state.destination_level_id,
+            macro_atom_state.destination_level_id,
             legacy_plasma.atomic_data.macro_atom_data["destination_level_idx"],
         )
         pdt.assert_series_equal(
-            macroatom_state.transition_line_id,
+            macro_atom_state.transition_line_id,
             legacy_plasma.atomic_data.macro_atom_data["lines_idx"],
         )
