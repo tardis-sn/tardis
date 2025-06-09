@@ -76,7 +76,7 @@ def gamma_ray_test_composition(gamma_ray_simulation_state):
     cell_masses: Mass of the cell
     """
 
-    raw_isotopic_mass_fraction = (
+    isotopic_mass_fraction = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
     composition = gamma_ray_simulation_state.composition
@@ -84,7 +84,7 @@ def gamma_ray_test_composition(gamma_ray_simulation_state):
         gamma_ray_simulation_state.geometry.volume
     )
 
-    return raw_isotopic_mass_fraction, cell_masses
+    return isotopic_mass_fraction, cell_masses
 
 
 def test_calculate_cell_masses(gamma_ray_simulation_state):
