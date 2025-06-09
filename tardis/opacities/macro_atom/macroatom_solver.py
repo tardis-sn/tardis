@@ -181,6 +181,7 @@ class MacroAtomSolver:
         mean_intensities_blue_wing : pd.DataFrame
             Mean intensity of the radiation field of each line in the blue wing for each shell.
             For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
+            Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
         beta_sobolevs : pd.DataFrame
             Escape probabilites for the Sobolev approximation.
         stimulated_emission_factors : pd.DataFrame
