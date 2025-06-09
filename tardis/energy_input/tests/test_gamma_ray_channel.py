@@ -58,9 +58,7 @@ def gamma_ray_simulation_state(gamma_ray_config, atomic_dataset):
     gamma_ray_config.model.structure.density.rho_0 = 5.0e2 * u.g / u.cm**3
     gamma_ray_config.supernova.time_explosion = 150 * u.d
 
-    return SimulationState.from_config(
-        gamma_ray_config, atom_data=atomic_dataset
-    )
+    return SimulationState.from_config(gamma_ray_config, atom_data=atomic_dataset)
 
 
 @pytest.fixture(scope="module")
@@ -76,7 +74,7 @@ def gamma_ray_test_composition(gamma_ray_simulation_state):
     cell_masses: Mass of the cell
     """
 
-    raw_isotopic_mass_fraction = (
+    isotopic_mass_fraction = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
     composition = gamma_ray_simulation_state.composition
@@ -84,7 +82,7 @@ def gamma_ray_test_composition(gamma_ray_simulation_state):
         gamma_ray_simulation_state.geometry.volume
     )
 
-    return raw_isotopic_mass_fraction, cell_masses
+    return isotopic_mass_fraction, cell_masses
 
 
 def test_calculate_cell_masses(gamma_ray_simulation_state):
@@ -169,9 +167,7 @@ def test_mass_energy_conservation(
     total_decays = calculate_total_decays(inventories_dict, 1 * u.d)
     isotope_decay_df = create_isotope_decay_df(total_decays, gamma_ray_lines)
 
-    grouped_isotope_df = isotope_decay_df.groupby(
-        level=["shell_number", "isotope"]
-    )
+    grouped_isotope_df = isotope_decay_df.groupby(level=["shell_number", "isotope"])
 
     parent_isotope_energy = (
         grouped_isotope_df.get_group((0, nuclide_name.replace("-", "")))[
@@ -226,9 +222,7 @@ def test_activity(gamma_ray_test_composition, nuclide_name):
     inventories_dict = create_inventories_dict(isotope_dict)
 
     total_decays = calculate_total_decays(inventories_dict, time_delta)
-    actual = total_decays.loc[
-        (0, nuclide_name.replace("-", "")), "number_of_decays"
-    ]
+    actual = total_decays.loc[(0, nuclide_name.replace("-", "")), "number_of_decays"]
 
     isotope_mass = nuclide.atomic_mass * u.u
     number_of_atoms = (test_mass / isotope_mass).to(u.dimensionless_unscaled)
@@ -280,9 +274,7 @@ def test_total_energy_production(gamma_ray_test_composition, atomic_dataset):
         (tau_co56 - tau_ni56) * ni56_nuclide.atomic_mass * atomic_mass_unit
     )
     ni_term = (
-        (ni_56_energy * (tau_co56 / tau_ni56 - 1) - co_56_energy)
-        * first_term
-        * KEV2ERG
+        (ni_56_energy * (tau_co56 / tau_ni56 - 1) - co_56_energy) * first_term * KEV2ERG
     )
 
     co_term = co_56_energy * first_term * KEV2ERG
@@ -290,25 +282,15 @@ def test_total_energy_production(gamma_ray_test_composition, atomic_dataset):
     expected = (
         ni_term
         * tau_ni56
-        * (
-            np.exp(-time_start.value / tau_ni56)
-            - np.exp(-time_end.value / tau_ni56)
-        )
+        * (np.exp(-time_start.value / tau_ni56) - np.exp(-time_end.value / tau_ni56))
         + co_term
         * tau_co56
-        * (
-            np.exp(-time_start.value / tau_co56)
-            - np.exp(-time_end.value / tau_co56)
-        )
+        * (np.exp(-time_start.value / tau_co56) - np.exp(-time_end.value / tau_co56))
     ) * ni_56_mass_solar
 
-    ni56_df = isotope_decay_df[
-        isotope_decay_df.index.get_level_values(1) == "Ni56"
-    ]
+    ni56_df = isotope_decay_df[isotope_decay_df.index.get_level_values(1) == "Ni56"]
     ni56_energy = ni56_df["decay_energy_erg"].sum()
-    co_56_df = isotope_decay_df[
-        isotope_decay_df.index.get_level_values(1) == "Co56"
-    ]
+    co_56_df = isotope_decay_df[isotope_decay_df.index.get_level_values(1) == "Co56"]
     co56_energy = co_56_df["decay_energy_erg"].sum()
     actual = ni56_energy + co56_energy
 
