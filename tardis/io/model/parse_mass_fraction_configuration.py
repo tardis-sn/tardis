@@ -77,20 +77,19 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
     mass_fractions = mass_fractions.replace(np.nan, 0.0)
     mass_fractions = mass_fractions[mass_fractions.sum(axis=1) > 0]
 
-    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(
-        axis=0
-    )
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
-        logger.warning(
-            "Mass fractions have not been normalized to 1. - normalizing"
-        )
+        logger.warning("Mass fractions have not been normalized to 1. - normalizing")
         mass_fractions /= norm_factor
         isotope_mass_fractions /= norm_factor
     # The next line is if the mass_fractions are given via dict
     # and not gone through the schema validator
+
     model_isotope_time_0 = config.model.abundances.model_isotope_time_0
-    if not np.isnan(model_isotope_time_0.value):
+
+    if not np.isnan(model_isotope_time_0):
+        assert model_isotope_time_0 < time_explosion
         isotope_mass_fractions = IsotopicMassFraction(
             isotope_mass_fractions, time_0=model_isotope_time_0
         ).decay(time_explosion)
@@ -153,9 +152,7 @@ def parse_mass_fractions_from_csvy(
         mass_fractions = mass_fractions.loc[:, 1:]
         mass_fractions.columns = np.arange(mass_fractions.shape[1])
         isotope_mass_fractions = isotope_mass_fractions.loc[:, 1:]
-        isotope_mass_fractions.columns = np.arange(
-            isotope_mass_fractions.shape[1]
-        )
+        isotope_mass_fractions.columns = np.arange(isotope_mass_fractions.shape[1])
 
     mass_fractions = mass_fractions.replace(np.nan, 0.0)
     mass_fractions = mass_fractions[mass_fractions.sum(axis=1) > 0]
@@ -163,14 +160,10 @@ def parse_mass_fractions_from_csvy(
     isotope_mass_fractions = isotope_mass_fractions[
         isotope_mass_fractions.sum(axis=1) > 0
     ]
-    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(
-        axis=0
-    )
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
-        logger.warning(
-            "Mass fractions have not been normalized to 1. - normalizing"
-        )
+        logger.warning("Mass fractions have not been normalized to 1. - normalizing")
         mass_fractions /= norm_factor
         isotope_mass_fractions /= norm_factor
 
