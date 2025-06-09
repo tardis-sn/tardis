@@ -90,11 +90,16 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
     # The next line is if the mass_fractions are given via dict
     # and not gone through the schema validator
     model_isotope_time_0 = config.model.abundances.model_isotope_time_0
-    if model_isotope_time_0 >= 0 * u.s:
+    if not np.isnan(model_isotope_time_0):
         isotope_mass_fractions = IsotopicMassFraction(
             isotope_mass_fractions, time_0=model_isotope_time_0
         ).decay(time_explosion)
-
+    else:
+        logger.warning(
+            "model_isotope_time_0 is not set in the configuration. "
+            "Isotopic mass fractions will not be decayed and is assumed to be correct for the time_explosion. THIS IS NOT RECOMMENDED!"
+        )
+        isotope_mass_fractions = IsotopicMassFraction(isotope_mass_fractions)
     nuclide_mass_fractions = convert_to_nuclide_mass_fractions(
         isotope_mass_fractions, mass_fractions
     )

@@ -183,7 +183,8 @@ definitions:
           type: quantity
           default: nan s
           description: Initial time for isotope decay. If nan is specified then this is set to time_explosion and the
-                       isotope abundances are not decayed.
+                       isotope abundances are not decayed. If set to a value then the abundances are decayed from 
+                       model_isotope_time_0 to time_explosion.
 
       required:
       - filetype
