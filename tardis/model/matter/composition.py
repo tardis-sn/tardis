@@ -130,7 +130,7 @@ class Composition:
             },
         )
 
-        return composition_ds.set_index(isotope=["element_number", "mass_number"])
+        return composition_ds.set_index(isotope=["atomic_number", "mass_number"])
 
     @staticmethod
     def convert_element2nuclide_index(element_index):
