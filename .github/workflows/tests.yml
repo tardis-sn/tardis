@@ -72,7 +72,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
-          lock-file-url-prefix: "https://raw.githubusercontent.com/atharva-2001/tardisbase/base-files"
+          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardisbase/master"
 
 
       - name: Install package editable
@@ -113,7 +113,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
-          lock-file-url-prefix: "https://raw.githubusercontent.com/atharva-2001/tardisbase/base-files"
+          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardisbase/master"
 
       # will download all artifacts(in this case all are coverage reports)
       - uses: actions/download-artifact@v4
