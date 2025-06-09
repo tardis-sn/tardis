@@ -14,9 +14,6 @@ from tardis.tests.fixtures.atom_data import *
 from tardis.util.base import packet_pbar, iterations_pbar
 from tardis.tests.test_util import monkeysession
 
-# ensuring that regression_data is not removed by ruff
-assert regression_data is not None
-
 """Configure Test Suite.
 
 This file is used to configure the behavior of pytest when using the Astropy
