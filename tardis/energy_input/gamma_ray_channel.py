@@ -253,7 +253,7 @@ def time_evolve_cumulative_decay(
 
         decayed_isotope_mass_fraction = IsotopicMassFraction(
             initial_isotope_mass_fraction
-        ).decay(time)
+        ).calculate_decayed_mass_fractions(time)
 
         initial_isotope_mass_fraction = decayed_isotope_mass_fraction
 

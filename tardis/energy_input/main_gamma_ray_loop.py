@@ -116,7 +116,7 @@ def run_gamma_ray_loop(
     shell_masses = model.volume * model.density
     number_of_shells = len(shell_masses)
     # TODO: decaying upto times[0]. raw_isotope_abundance is possibly not the best name
-    raw_isotope_abundance = model.composition.raw_isotope_abundance.sort_values(
+    isotopic_mass_fraction = model.composition.isotopic_mass_fraction.sort_values(
         by=["atomic_number", "mass_number"], ascending=False
     )
 
@@ -154,7 +154,7 @@ def run_gamma_ray_loop(
     )
     mass_density_time = shell_masses[:, np.newaxis] * inv_volume_time
 
-    taus, parents = get_taus(raw_isotope_abundance)
+    taus, parents = get_taus(isotopic_mass_fraction)
     # Need to get the strings for the isotopes without the dashes
     taus = make_isotope_string_tardis_like(taus)
 
@@ -210,7 +210,7 @@ def run_gamma_ray_loop(
 
     logger.info(f"Total energy deposited by the positrons is {total_energy.sum().sum()}")
 
-    #positron_energy = total_energy
+    # positron_energy = total_energy
 
     # Copy the positron energy to a new dataframe
     positron_energy_df = pd.DataFrame(data=total_energy.copy(), columns=times[:-1])
