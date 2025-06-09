@@ -313,7 +313,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
         self.time_explosion = time_explosion
         super().__init__(**kwargs)
 
-    def create_packets(self, no_of_packets):
+    def create_packets(self, no_of_packets, *args, **kwargs):
         """Generate relativistic black-body packet properties as arrays
 
         Parameters
@@ -335,7 +335,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
         if self.radius is None or self.time_explosion is None:
             raise ValueError("Black body Radius or Time of Explosion isn't set")
         self.beta = (self.radius / self.time_explosion) / const.c
-        return super().create_packets(no_of_packets)
+        return super().create_packets(no_of_packets, *args, **kwargs)
 
     def create_packet_mus(self, no_of_packets):
         """

@@ -22,5 +22,6 @@ def basic_gamma_ray():
         nu_cmf=1000.0e3 / H_CGS_KEV,
         status=GXPacketStatus.IN_PROCESS,
         shell=1,
-        time_current=1000,
+        time_start=2.0,
+        time_index=0,
     )

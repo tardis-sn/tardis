@@ -34,6 +34,7 @@ jobs:
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
+      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   build:
     if: github.repository_owner == 'tardis-sn' &&
@@ -67,7 +68,7 @@ jobs:
           atom-data-sparse: true
 
       - name: Setup Mamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: benchmark
           init-shell: >-

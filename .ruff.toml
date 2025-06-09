@@ -1,5 +1,6 @@
 # Ruff configuration file adapted from astropy
 extend = "pyproject.toml"
+
 lint.ignore = [
     # NOTE: to find a good code to fix, run:
     # ruff --select="ALL" --statistics astropy/<subpackage>
@@ -217,3 +218,4 @@ lint.unfixable = [
 
 [lint.extend-per-file-ignores]
 "docs/*" = []
+
