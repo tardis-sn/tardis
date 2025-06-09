@@ -6,6 +6,7 @@ from tardis.opacities.macro_atom.base import (
     get_macro_atom_data,
     initialize_transition_probabilities,
 )
+from tardis.opacities.macro_atom.macroatom_transitions import line_transition_emission_down, line_transition_internal_down, line_transition_internal_up
 from tardis.opacities.macro_atom.macroatom_state import (
     MacroAtomState,
     LegacyMacroAtomState,
@@ -155,11 +156,6 @@ class LegacyMacroAtomSolver:
         )
 
 
-P_INTERNAL_UP = 1
-P_INTERNAL_DOWN = 0
-P_EMISSION_DOWN = -1
-
-
 class MacroAtomSolver:
     levels: pd.DataFrame
     lines: pd.DataFrame
@@ -213,64 +209,26 @@ class MacroAtomSolver:
             .reindex(beta_sobolevs.index.droplevel("level_number_upper"))
             .values
         )
+        transition_a_i_l_u_array = self.lines.reset_index()[['atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper']].values  # This is a helper array to make the source and destination columns.
 
         lines_level_upper = self.lines.index.droplevel("level_number_lower")
 
-        p_emission_down = (
-            2
-            * nus**2
-            * f_ul
-            / const.c.cgs.value**2
-            * beta_sobolevs
-            * (energies_upper - energies_lower)
-        )  # * gs_lower / gs_upper are considered by using f_ul instead of f_lu.
-        p_internal_down = (
-            2
-            * nus**2
-            * f_ul
-            / const.c.cgs.value**2
-            * beta_sobolevs
-            * (energies_lower)
-        )  # * gs_lower / gs_upper are considered by using f_ul instead of f_lu.
-        p_internal_up = (
-            f_lu
-            / (const.h.cgs.value * nus)
-            * stimulated_emission_factors
-            * mean_intensities_blue_wing
-            * beta_sobolevs
-            * (energies_lower)
-        )
-
-        transition_a_i_l_u_array = (
-            p_emission_down.reset_index()[
-                [
-                    "atomic_number",
-                    "ion_number",
-                    "level_number_lower",
-                    "level_number_upper",
-                ]
-            ].values
-        )  # This is a helper array to make the source and destination columns.
-
-        p_internal_up["source"] = [
-            tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-        ]
-        p_internal_down["source"] = [
-            tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-        ]
-        p_emission_down["source"] = [
-            tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-        ]
+        p_emission_down, emission_down_metadata = line_transition_emission_down(f_ul, nus, energies_upper, energies_lower, beta_sobolevs, transition_a_i_l_u_array, self.lines.line_id.values)
+        p_internal_down, internal_down_metadata = line_transition_internal_down(f_ul, nus, energies_lower, beta_sobolevs, transition_a_i_l_u_array, self.lines.line_id.values)
+        p_internal_up, internal_up_metadata = line_transition_internal_up(f_lu, nus, energies_lower, mean_intensities_blue_wing, beta_sobolevs, stimulated_emission_factors, transition_a_i_l_u_array, self.lines.line_id.values)
 
         probabilities_df = pd.concat(
             [p_internal_up, p_internal_down, p_emission_down]
         )
-        probabilities_index = probabilities_df.index
-
-        probabilities_df.index = probabilities_index
-
-        probabilities_df = probabilities_df.reset_index(drop=True)
-
+        
+        macro_atom_transition_metadata = pd.concat(
+            [
+                internal_up_metadata,
+                internal_down_metadata,
+                emission_down_metadata,
+            ]
+        )
+                
         if normalize:
             # Normalize the probabilities
             probabilities_df = probabilities_df.div(
@@ -281,46 +239,11 @@ class MacroAtomSolver:
             )  # Some blocks have no transitions, so we replace NaN with 0.
 
         probabilities_df.drop(columns=["source"], inplace=True)
-        probabilities_df = probabilities_df.reset_index(drop=True)
-
-        p_internal_up["destination"] = [
-            tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-        ]
-        p_internal_down["destination"] = [
-            tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-        ]
-        p_emission_down["destination"] = [
-            tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-        ]
-
-        p_internal_up["transition_type"] = P_INTERNAL_UP
-        p_internal_down["transition_type"] = P_INTERNAL_DOWN
-        p_emission_down["transition_type"] = P_EMISSION_DOWN
-
-        p_internal_up["transition_line_id"] = p_internal_down[
-            "transition_line_id"
-        ] = p_emission_down["transition_line_id"] = self.lines.line_id.values
-        p_internal_up["transition_line_idx"] = p_internal_down[
-            "transition_line_idx"
-        ] = p_emission_down["transition_line_idx"] = range(len(self.lines))
-
-        # Grab all the columns for the metadata.
-        macro_atom_transition_metadata = pd.DataFrame(index=probabilities_index)
-        for col in [
-            "transition_line_id",
-            "source",
-            "destination",
-            "transition_type",
-            "transition_line_idx",
-        ]:
-            macro_atom_transition_metadata[col] = np.concat(
-                [p_internal_up[col], p_internal_down[col], p_emission_down[col]]
-            )
+        probabilities_df = probabilities_df.reset_index(drop=True).rename(columns={probabilities_df.index.name:'macro_atom_transition_id'}) #Reset to create a unique macro_atom_transition_id.
 
         macro_atom_transition_metadata = (
-            macro_atom_transition_metadata.reset_index()
+            macro_atom_transition_metadata.reset_index().rename(columns={macro_atom_transition_metadata.index.name:'macro_atom_transition_id'})
         )
-
         macro_atom_transition_metadata = (
             macro_atom_transition_metadata.sort_values(
                 ["atomic_number", "ion_number", "source"]
@@ -329,12 +252,7 @@ class MacroAtomSolver:
 
         probabilities_df = probabilities_df.loc[
             macro_atom_transition_metadata.index
-        ]
-
-        probabilities_df.index.names = ["macro_atom_transition_id"]
-        macro_atom_transition_metadata.index.names = [
-            "macro_atom_transition_id"
-        ]
+        ] #Reorder to match the metadata, which was sorted to match carsus. 
 
         # We have to do this at the end so that it's sorted the same way.
         unique_source_index = pd.MultiIndex.from_tuples(
