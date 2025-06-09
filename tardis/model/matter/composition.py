@@ -6,8 +6,6 @@ from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 
 from tardis.model.matter.decay import IsotopicMassFraction
 
-import xarray as xr
-
 
 def compile_rd_isotope_masses():
     """
@@ -103,6 +101,14 @@ class Composition:
         return isotope_mass_df
 
     def to_xarray(self):
+        try:
+            import xarray as xr
+        except ImportError:
+            raise ImportError(
+                "xarray is required to use the Composition.to_xarray method. "
+                "Please install it using 'pip install xarray'."
+            )
+
         composition_ds = xr.Dataset(
             coords={
                 "cell_id": np.arange(len(self.density)),
@@ -123,7 +129,8 @@ class Composition:
                 ),
             },
         )
-        return composition_ds
+
+        return composition_ds.set_index(isotope=["element_number", "mass_number"])
 
     @staticmethod
     def convert_element2nuclide_index(element_index):
