@@ -6,7 +6,7 @@ from tardis.opacities.macro_atom.base import (
     get_macro_atom_data,
     initialize_transition_probabilities,
 )
-from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState, LegacyMacroAtomState
 from astropy import constants as const
 
 class LegacyMacroAtomSolver:
@@ -141,7 +141,7 @@ class LegacyMacroAtomSolver:
         ]
         macro_atom_info = atomic_data.macro_atom_data
 
-        return MacroAtomState(
+        return LegacyMacroAtomState(
             transition_probabilities,
             macro_atom_info["transition_type"],
             macro_atom_info["destination_level_idx"],

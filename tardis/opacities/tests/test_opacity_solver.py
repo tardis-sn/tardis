@@ -3,7 +3,7 @@ import numpy as np
 import numpy.testing as npt
 import pandas.testing as pdt
 from tardis.opacities.opacity_solver import OpacitySolver
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
 from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 
@@ -40,7 +40,7 @@ def test_opacity_solver(
     if line_interaction_type == "scatter":
         pass
     else:
-        macroatom_state = MacroAtomSolver().solve(
+        macroatom_state = LegacyMacroAtomSolver().solve(
             legacy_plasma.j_blues,
             legacy_plasma.atomic_data,
             actual.tau_sobolev,
