@@ -89,18 +89,21 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
         isotope_mass_fractions /= norm_factor
     # The next line is if the mass_fractions are given via dict
     # and not gone through the schema validator
-    raw_isotope_mass_fractions = isotope_mass_fractions
-    model_isotope_time_0 = config.model.abundances.get(
-        "model_isotope_time_0", 0.0 * u.day
-    )
-    isotope_mass_fractions = IsotopicMassFraction(
-        isotope_mass_fractions, time_0=model_isotope_time_0
-    ).decay(time_explosion)
-
+    model_isotope_time_0 = config.model.abundances.model_isotope_time_0
+    if not np.isnan(model_isotope_time_0.value):
+        isotope_mass_fractions = IsotopicMassFraction(
+            isotope_mass_fractions, time_0=model_isotope_time_0
+        ).decay(time_explosion)
+    else:
+        logger.warning(
+            "model_isotope_time_0 is not set in the configuration. "
+            "Isotopic mass fractions will not be decayed and is assumed to be correct for the time_explosion. THIS IS NOT RECOMMENDED!"
+        )
+        isotope_mass_fractions = IsotopicMassFraction(isotope_mass_fractions)
     nuclide_mass_fractions = convert_to_nuclide_mass_fractions(
         isotope_mass_fractions, mass_fractions
     )
-    return nuclide_mass_fractions, raw_isotope_mass_fractions
+    return nuclide_mass_fractions
 
 
 def parse_mass_fractions_from_csvy(
@@ -171,16 +174,10 @@ def parse_mass_fractions_from_csvy(
         mass_fractions /= norm_factor
         isotope_mass_fractions /= norm_factor
 
-    raw_isotope_mass_fraction = isotope_mass_fractions
     isotope_mass_fractions = IsotopicMassFraction(
         isotope_mass_fractions, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
-    return (
-        convert_to_nuclide_mass_fractions(
-            isotope_mass_fractions, mass_fractions
-        ),
-        raw_isotope_mass_fraction,
-    )
+    return convert_to_nuclide_mass_fractions(isotope_mass_fractions, mass_fractions)
 
 
 def convert_to_nuclide_mass_fractions(isotopic_mass_fractions, mass_fractions):
