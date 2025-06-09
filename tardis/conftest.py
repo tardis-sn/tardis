@@ -10,7 +10,6 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
-from tardisbase.testing.regression_data.regression_data import regression_data
 
 from tardis.util.base import packet_pbar, iterations_pbar
 from tardis.tests.test_util import monkeysession
@@ -135,6 +134,14 @@ def pytest_collection_modifyitems(config, items):
 # -------------------------------------------------------------------------
 # project specific fixtures
 # -------------------------------------------------------------------------
+
+@pytest.fixture(scope="session")
+def regression_data():
+    try: 
+        from tardisbase.testing.regression_data.regression_data import regression_data
+    except ImportError:
+        pytest.skip("tardisbase package not available - skipping regression tests")
+    return regression_data
 
 
 @pytest.fixture(scope="session")
