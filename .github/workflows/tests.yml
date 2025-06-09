@@ -15,7 +15,6 @@ on:
       - opened
       - reopened
       - synchronize
-
   workflow_call:
     inputs:
       pip_git:
@@ -46,7 +45,7 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -77,16 +76,12 @@ jobs:
       - name: Install package editable
         if: ${{ !inputs.pip_git }}
         run: |
-          pip install -e . --user
+          pip install -e ".[viz]"
 
       - name: Install package git
         if: ${{ inputs.pip_git }}
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git@master
-
-      - name: Install qgridnext
-        run: |
-          pip install qgridnext
+          pip install "git+https://github.com/tardis-sn/tardis.git@master[viz]"
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
