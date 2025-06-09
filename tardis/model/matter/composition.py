@@ -100,6 +100,38 @@ class Composition:
 
         return isotope_mass_df
 
+    def to_xarray(self):
+        try:
+            import xarray as xr
+        except ImportError:
+            raise ImportError(
+                "xarray is required to use the Composition.to_xarray method. "
+                "Please install it using 'pip install xarray'."
+            )
+
+        composition_ds = xr.Dataset(
+            coords={
+                "cell_id": np.arange(len(self.density)),
+                "atomic_number": (
+                    "isotope",
+                    self.nuclide_mass_fraction.index.get_level_values(0),
+                ),
+                "mass_number": (
+                    "isotope",
+                    self.nuclide_mass_fraction.index.get_level_values(1),
+                ),
+            },
+            data_vars={
+                "density": ("cell_id", self.density),
+                "nuclide_mass_fraction": (
+                    ("isotope", "cell_id"),
+                    self.nuclide_mass_fraction,
+                ),
+            },
+        )
+
+        return composition_ds.set_index(isotope=["atomic_number", "mass_number"])
+
     @staticmethod
     def convert_element2nuclide_index(element_index):
         new_nuclide_index = pd.MultiIndex.from_product([element_index, [-1]])
@@ -162,12 +194,9 @@ class Composition:
     def elemental_number_density(self):
         """Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass"""
         return (
-            self.elemental_mass_fraction
-            * self.density.to(u.g / u.cm**3).value
+            self.elemental_mass_fraction * self.density.to(u.g / u.cm**3).value
         ).divide(
-            self.effective_element_masses.reindex(
-                self.elemental_mass_fraction.index
-            ),
+            self.effective_element_masses.reindex(self.elemental_mass_fraction.index),
             axis=0,
         )
 
