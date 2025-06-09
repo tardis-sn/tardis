@@ -11,8 +11,6 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 viz = ["qgridnext", "lineid_plot"]
-test = ["pytest-astropy"]
-docs = ["sphinx-astropy"]
 
 [project.scripts]
 cmfgen2tardis = "tardis.scripts.cmfgen2tardis:main"
