@@ -107,17 +107,13 @@ class Composition:
         effective_element_masses = self.nuclide_mass_fraction[
             self.nuclide_mass_fraction.index.get_level_values(1) == -1
         ].copy()
-        effective_element_masses.index = (
-            effective_element_masses.index.droplevel(1)
-        )
+        effective_element_masses.index = effective_element_masses.index.droplevel(1)
         for col in effective_element_masses.columns:
             effective_element_masses[col] = element_masses.loc[
                 effective_element_masses.index
             ]
 
-        current_isotope_masses = ISOTOPE_MASSES.loc[
-            self.isotopic_mass_fraction.index
-        ]
+        current_isotope_masses = ISOTOPE_MASSES.loc[self.isotopic_mass_fraction.index]
         contributing_isotope_masses = (
             self.isotopic_mass_fraction.multiply(current_isotope_masses, axis=0)
             .groupby(level=0)
@@ -195,9 +191,7 @@ class Composition:
         --------
         >>> composition.calculate_cell_masses(10 * u.cm**3)
         """
-        return (
-            self.elemental_mass_fraction * (self.density * volume).to(u.g).value
-        )
+        return self.elemental_mass_fraction * (self.density * volume).to(u.g).value
 
     def calculate_cell_masses(self, volume):
         """
