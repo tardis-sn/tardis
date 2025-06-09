@@ -198,7 +198,7 @@ class TestLIVPlotter:
         return fig, plotter
 
     @pytest.fixture(scope="function")
-    def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl):
+    def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl, plotdatahdf):
         """
         Fixture to generate and store plot data for Matplotlib in HDF5 format.
 
@@ -237,7 +237,7 @@ class TestLIVPlotter:
                         "polypath" + "ind_" + str(index1) + "ind_" + str(index2)
                     ] = path.vertices
 
-        plot_data = PlotDataHDF(**property_group)
+        plot_data = plotdatahdf(**property_group)
         return plot_data
 
     def test_generate_plot_mpl(
@@ -370,7 +370,7 @@ class TestLIVPlotter:
         return fig, plotter
 
     @pytest.fixture(scope="function")
-    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply):
+    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply, plotdatahdf):
         """
         Fixture to generate and store plot data for Matplotlib in HDF5 format.
 
@@ -401,7 +401,7 @@ class TestLIVPlotter:
                 property_group[group + "name"] = data.name.encode()
             property_group[group + "x"] = data.x
             property_group[group + "y"] = data.y
-        plot_data = PlotDataHDF(**property_group)
+        plot_data = plotdatahdf(**property_group)
         return plot_data
 
     def test_generate_plot_ply(

@@ -8,7 +8,6 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.simulation.base import Simulation
-from tardisbase.testing.regression_data.regression_data import RegressionData
 
 
 config_line_modes = ["downbranch", "macroatom"]
@@ -71,29 +70,29 @@ class TestTransportSimpleFormalIntegral:
 
         return simulation
 
-    def test_simulation(self, simulation, request):
-        regression_data = RegressionData(request)
+    def test_simulation(self, simulation, request, regression_data_class):
+        regression_data = regression_data_class(request)
         container = SimulationContainer(simulation)
         data = regression_data.sync_hdf_store(container)
         data.close()
 
-    def test_j_blue_estimators(self, simulation, request):
-        regression_data = RegressionData(request)
+    def test_j_blue_estimators(self, simulation, request, regression_data_class):
+        regression_data = regression_data_class(request)
         j_blue_estimator = (
             simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator
         )
         expected = regression_data.sync_ndarray(j_blue_estimator)
         npt.assert_allclose(j_blue_estimator, expected)
 
-    def test_spectrum(self, simulation, request):
-        regression_data = RegressionData(request)
+    def test_spectrum(self, simulation, request, regression_data_class):
+        regression_data = regression_data_class(request)
         luminosity = simulation.spectrum_solver.spectrum_real_packets.luminosity
         expected = regression_data.sync_ndarray(luminosity.cgs.value)
         expected = u.Quantity(expected, "erg /s")
         assert_quantity_allclose(luminosity, expected)
 
-    def test_spectrum_integrated(self, simulation, request):
-        regression_data = RegressionData(request)
+    def test_spectrum_integrated(self, simulation, request, regression_data_class):
+        regression_data = regression_data_class(request)
         luminosity = simulation.spectrum_solver.spectrum_integrated.luminosity
         expected = regression_data.sync_ndarray(luminosity.cgs.value)
         expected = u.Quantity(expected, "erg /s")

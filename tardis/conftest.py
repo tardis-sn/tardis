@@ -140,6 +140,21 @@ def regression_data():
         pytest.skip("tardisbase package not available - skipping regression tests")
     return regression_data
 
+@pytest.fixture(scope="session")
+def regression_data_class():
+    try: 
+        from tardisbase.testing.regression_data.regression_data import RegressionData
+    except ImportError:
+        pytest.skip("tardisbase package not available - skipping regression tests")
+    return RegressionData
+
+@pytest.fixture(scope="session")
+def plotdatahdf():
+    try: 
+        from tardisbase.testing.regression_data.regression_data import PlotDataHDF
+    except ImportError:
+        pytest.skip("tardisbase package not available - skipping regression tests")
+    return PlotDataHDF
 
 @pytest.fixture(scope="session")
 def generate_reference(request):

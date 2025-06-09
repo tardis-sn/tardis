@@ -10,8 +10,6 @@ from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
 
-from tardisbase.testing.regression_data.regression_data import PlotDataHDF
-
 from tardis.visualization.tools.sdec_plot import SDECPlotter
 
 
@@ -150,7 +148,7 @@ class TestSDECPlotter:
 
     @pytest.fixture(scope="class")
     def calculate_plotting_data_hdf(
-        self, plotter_calculate_plotting_data
+        self, plotter_calculate_plotting_data, plotdatahdf
     ):
         property_group = {}
         for _, attribute_name in self.plotting_data_attributes:
@@ -158,7 +156,7 @@ class TestSDECPlotter:
                 plotter_calculate_plotting_data, attribute_name
             )
             property_group[attribute_name] = plot_object
-        plot_data = PlotDataHDF(**property_group)
+        plot_data = plotdatahdf(**property_group)
         return plot_data
 
     def test_calculate_plotting_data(
@@ -210,7 +208,7 @@ class TestSDECPlotter:
         return fig, plotter
 
     @pytest.fixture(scope="class")
-    def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl):
+    def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl, plotdatahdf):
         fig, plotter = plotter_generate_plot_mpl
 
         color_list = [
@@ -239,7 +237,7 @@ class TestSDECPlotter:
                         "polypath" + "ind_" + str(index1) + "ind_" + str(index2)
                     ] = path.vertices
 
-        plot_data = PlotDataHDF(**property_group)
+        plot_data = plotdatahdf(**property_group)
         return plot_data
 
     def test_generate_plot_mpl(
@@ -310,7 +308,7 @@ class TestSDECPlotter:
         return fig, plotter
 
     @pytest.fixture(scope="class")
-    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply):
+    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply, plotdatahdf):
         fig, plotter = plotter_generate_plot_ply
 
         color_list = [
@@ -328,7 +326,7 @@ class TestSDECPlotter:
                 property_group[group + "name"] = data.name.encode()
             property_group[group + "x"] = data.x
             property_group[group + "y"] = data.y
-        plot_data = PlotDataHDF(**property_group)
+        plot_data = plotdatahdf(**property_group)
         return plot_data
 
     def test_generate_plot_mpl(

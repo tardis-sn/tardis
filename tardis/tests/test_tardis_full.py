@@ -9,8 +9,6 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation.base import Simulation
-from tardisbase.testing.regression_data.regression_data import RegressionData
-
 
 
 def test_run_tardis_from_config_obj(
@@ -52,8 +50,6 @@ class TestTransportSimple:
     Very simple run
     """
 
-    regression_data: RegressionData = None
-
     @pytest.fixture(scope="class")
     def simulation(
         self,
@@ -61,6 +57,7 @@ class TestTransportSimple:
         atomic_data_fname,
         generate_reference,
         example_configuration_dir: Path,
+        regression_data_class,
     ):
         config = Configuration.from_yaml(
             str(example_configuration_dir / "tardis_configv1_verysimple.yml")
@@ -71,7 +68,7 @@ class TestTransportSimple:
         simulation.run_convergence()
         simulation.run_final()
 
-        request.cls.regression_data = RegressionData(request)
+        request.cls.regression_data = regression_data_class(request)
         data = request.cls.regression_data.sync_hdf_store(simulation)
 
         yield simulation

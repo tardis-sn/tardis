@@ -8,7 +8,6 @@ from pandas import testing as pdt
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
-from tardisbase.testing.regression_data.regression_data import RegressionData
 
 
 PLASMA_CONFIG_FPATH = (
@@ -143,7 +142,7 @@ class TestPlasma:
         ).absolute()
 
     @pytest.fixture(scope="class", params=CONFIG_LIST, ids=idfn)
-    def config(self, request):
+    def config(self, request, regression_data_class):
         config = Configuration.from_yaml(PLASMA_CONFIG_FPATH)
         hash_string = ""
         for prop, value in request.param.items():
@@ -158,7 +157,7 @@ class TestPlasma:
                 hash_string = "_".join((hash_string, str(value)))
         hash_string = f"plasma_unittest{hash_string}"
         config.plasma.save_path = hash_string
-        request.cls.regression_data = RegressionData(request)
+        request.cls.regression_data = regression_data_class(request)
         request.cls.regression_data.fname = f"{hash_string}.h5"
         return config
 

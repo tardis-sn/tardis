@@ -3,8 +3,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tardisbase.testing.regression_data.regression_data import PlotDataHDF
-
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
     create_wavelength_mask,
@@ -257,13 +255,13 @@ class TestPlotUtil:
 
 
     @pytest.fixture(scope="module")
-    def generate_masked_dataframe_hdf(self, simulation_simple):
+    def generate_masked_dataframe_hdf(self, simulation_simple, plotdatahdf):
         packet_data = {
             "real": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="real"),
             "virtual": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="virtual"),
         }
         masked_data = {
-            mode: PlotDataHDF(
+            mode: plotdatahdf(
                 masked_df=pd.DataFrame(create_wavelength_mask(
                     packet_data, mode, [3000, 9000] * u.AA, df_key="packets_df", column_name="nus"
                 ))
