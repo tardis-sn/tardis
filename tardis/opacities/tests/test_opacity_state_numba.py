@@ -30,9 +30,9 @@ def test_opacity_state_to_numba(
         macroatom_state = LegacyMacroAtomSolver().solve(
             legacy_plasma.j_blues,
             legacy_plasma.atomic_data,
-            actual.tau_sobolev,
+            opacity_state.tau_sobolev,
             legacy_plasma.stimulated_emission_factor,
-            beta_sobolev=actual.beta_sobolev,
+            beta_sobolev=opacity_state.beta_sobolev,
         )
     else:
         macro_atom_state = None
