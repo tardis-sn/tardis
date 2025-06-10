@@ -136,6 +136,8 @@ class TARDISHEWorkflow:
         fp,
         spectrum_bins,
         grey_opacity=-1,
+        legacy=False,
+        legacy_atom_data=None,
     ):
         """
         Run the gamma-ray transport simulation.
@@ -188,6 +190,8 @@ class TARDISHEWorkflow:
             fp,
             spectrum_bins,
             grey_opacity,
+            legacy=legacy,
+            legacy_atom_data=legacy_atom_data,
         )
 
         return TARDISHEWorkflowResult(

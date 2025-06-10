@@ -64,6 +64,8 @@ def run_gamma_ray_loop(
     grey_opacity,
     photoabsorption_opacity="tardis",
     pair_creation_opacity="tardis",
+    legacy=False,
+    legacy_atom_data=None,
 ):
     """
     Main loop to determine the gamma-ray propagation through the ejecta.
@@ -128,9 +130,15 @@ def run_gamma_ray_loop(
         1.0 / ejecta_velocity_volume[:, np.newaxis]
     ) / effective_time_array**3.0
 
-    elemental_number_density = model.composition.isotopic_number_density.groupby(
-        "atomic_number"
-    ).sum()
+    # Calculate the elemental number density
+    if legacy:
+        elemental_number_density = model.composition.isotopic_number_density.groupby(
+            "atomic_number"
+        ).sum()
+    else:
+        elemental_number_density = model.composition.calculate_elemental_number_density(
+            legacy_atom_data.atom_data.mass
+        )
 
     # Electron number density
     electron_number_density = elemental_number_density.mul(
