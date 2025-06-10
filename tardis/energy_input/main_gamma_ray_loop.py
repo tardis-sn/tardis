@@ -128,19 +128,7 @@ def run_gamma_ray_loop(
         1.0 / ejecta_velocity_volume[:, np.newaxis]
     ) / effective_time_array**3.0
 
-    for (
-        atom_number
-    ) in model.composition.isotopic_number_density.index.get_level_values(0):
-        values = model.composition.isotopic_number_density.loc[
-            atom_number
-        ].values
-        if values.shape[1] > 1:
-            model.elemental_number_density.loc[atom_number] = np.sum(
-                values, axis=0
-            )
-        else:
-            model.elemental_number_density.loc[atom_number]= values
-
+    
     # Electron number density
     electron_number_density = model.elemental_number_density.mul(
         model.elemental_number_density.index,
@@ -177,11 +165,12 @@ def run_gamma_ray_loop(
         effective_time_array,
         taus,
         parents,
+        base_seed=seed
     )
 
     logger.info("Creating packets")
     packet_collection, isotope_positron_fraction = packet_source.create_packets(
-        cumulative_decays_df, num_decays, seed
+        cumulative_decays_df, num_decays
     )
 
     total_energy = np.zeros((number_of_shells, len(times) - 1))
