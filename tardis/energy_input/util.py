@@ -55,6 +55,24 @@ def get_random_unit_vector():
 
 
 @njit(**njit_dict_no_parallel)
+def get_random_unit_vectors(no_of_packets, seed):
+    """Generate a random unit vector
+
+    Returns
+    -------
+        array: random unit vector
+    """
+    directions = np.zeros((3, no_of_packets), dtype=np.float64)
+    np.random.seed(seed)
+    for i in range(no_of_packets):
+        theta = get_random_theta_photon()
+        phi = get_random_phi_photon()
+        vector = spherical_to_cartesian(1, theta, phi)
+        directions[:, i] = normalize_vector(vector)
+    return directions
+
+
+@njit(**njit_dict_no_parallel)
 def doppler_factor_3d(direction_vector, position_vector, time):
     """Doppler shift for photons in 3D
 

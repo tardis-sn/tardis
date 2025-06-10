@@ -1,4 +1,3 @@
-import astropy.units as u
 import numpy as np
 
 from tardis.energy_input.GXPacket import (
@@ -6,14 +5,11 @@ from tardis.energy_input.GXPacket import (
 )
 from tardis.energy_input.samplers import (
     PositroniumSampler,
-    sample_energy,
 )
 from tardis.energy_input.util import (
     H_CGS_KEV,
-    doppler_factor_3d,
     doppler_factor_3D_all_packets,
-    get_index,
-    get_random_unit_vector,
+    get_random_unit_vectors,
 )
 from tardis.transport.montecarlo.packet_source import BasePacketSource
 
@@ -156,7 +152,7 @@ class GammaRayPacketSource(BasePacketSource):
 
         return energy_array
 
-    def create_packet_directions(self, no_of_packets):
+    def create_packet_directions(self, no_of_packets, seed):
         """Create an array of random directions
 
         Parameters
@@ -169,9 +165,7 @@ class GammaRayPacketSource(BasePacketSource):
         array
             Array of direction vectors
         """
-        directions = np.zeros((3, no_of_packets))
-        for i in range(no_of_packets):
-            directions[:, i] = get_random_unit_vector()
+        directions = get_random_unit_vectors(no_of_packets, seed)
 
         return directions
 
@@ -312,11 +306,13 @@ class GammaRayPacketSource(BasePacketSource):
         locations = (
             initial_radii.values
             * effective_decay_times
-            * self.create_packet_directions(number_of_packets)
+            * self.create_packet_directions(number_of_packets, seed=self.base_seed)
         )
 
         # sample directions (valid at all times), non-relativistic
-        directions = self.create_packet_directions(number_of_packets)
+        directions = self.create_packet_directions(
+            number_of_packets, seed=self.base_seed
+        )
 
         # the individual gamma-ray energy that makes up a packet
         # co-moving frame, including positronium formation

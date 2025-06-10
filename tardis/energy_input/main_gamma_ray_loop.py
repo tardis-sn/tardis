@@ -131,12 +131,12 @@ def run_gamma_ray_loop(
     ) / effective_time_array**3.0
 
     # Calculate the elemental number density
-    if legacy:
+    if not legacy:
         elemental_number_density = model.composition.isotopic_number_density.groupby(
             "atomic_number"
         ).sum()
     else:
-        elemental_number_density = model.composition.calculate_elemental_number_density(
+        elemental_number_density = model.calculate_elemental_number_density(
             legacy_atom_data.atom_data.mass
         )
 
@@ -176,6 +176,7 @@ def run_gamma_ray_loop(
         effective_time_array,
         taus,
         parents,
+        base_seed=seed,
     )
 
     logger.info("Creating packets")
