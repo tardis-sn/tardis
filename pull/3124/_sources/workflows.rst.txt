@@ -5,8 +5,8 @@ The following pages contain the TARDIS workflows:
 
  These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives.
 
-* :doc:`simple_workflow`
 * :doc:`workflow_notebook`
-* :doc:`simple_workflow_equilibrium`
 * :doc:`standard_workflow`
 * :doc:`v_inner_solver_workflow`
+* :doc:`simple_workflow_equilibrium`
+* :doc:`simple_workflow`
