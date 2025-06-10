@@ -8,6 +8,7 @@ import re
 import shutil
 from collections import OrderedDict
 from functools import lru_cache
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -268,17 +269,17 @@ class HDFWriterMixin:
                     # This try,except block is only for model.plasma.levels
                     try:
                         pd.Series(value).to_hdf(
-                            buf, key=os.path.join(path, key)
+                            buf, key=str(Path(path) / key)
                         )
                     except NotImplementedError:
                         logger.debug(
                             "Could not convert SERIES to HDF. Converting DATAFRAME to HDF"
                         )
                         pd.DataFrame(value).to_hdf(
-                            buf, key=os.path.join(path, key)
+                            buf, key=str(Path(path) / key)
                         )
                 else:
-                    pd.DataFrame(value).to_hdf(buf, key=os.path.join(path, key))
+                    pd.DataFrame(value).to_hdf(buf, key=str(Path(path) / key))
             else:  # value is a TARDIS object like model, transport or plasma
                 try:
                     value.to_hdf(buf, path, name=key, overwrite=overwrite)
@@ -287,15 +288,15 @@ class HDFWriterMixin:
                         "Could not convert VALUE to HDF. Converting DATA (Dataframe) to HDF"
                     )
                     data = pd.DataFrame([value])
-                    data.to_hdf(buf, key=os.path.join(path, key))
+                    data.to_hdf(buf, key=str(Path(path) / key))
 
         metadata = {
             "tardis_version": __version__
         }
-        pd.Series(metadata).to_hdf(buf, key=os.path.join(path, "metadata"))
+        pd.Series(metadata).to_hdf(buf, key=str(Path(path) / "metadata"))
 
         if scalars:
-            pd.Series(scalars).to_hdf(buf, key=os.path.join(path, "scalars"))
+            pd.Series(scalars).to_hdf(buf, key=str(Path(path) / "scalars"))
 
         if buf.is_open:
             buf.close()
@@ -339,7 +340,7 @@ class HDFWriterMixin:
                 )
 
         data = self.get_properties()
-        buff_path = os.path.join(path, name)
+        buff_path = str(Path(path) / name)
         self.to_hdf_util(file_path_or_buf, buff_path, data, overwrite)
 
 
