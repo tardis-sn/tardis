@@ -3,15 +3,13 @@
 # Packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-import os
-from importlib.metadata import PackageNotFoundError, version
+from importlib.metadata import version as ilversion
+from packaging.version import Version as pversion
 
-__all__ = ['__version__', 'test']
+__version__ = ilversion("tardis")
+last_release = pversion(__version__).base_version
 
-try:
-    __version__ = version("package-name")
-except PackageNotFoundError:
-    __version__ = ''
+__all__ = ['__version__', 'test', 'last_release']
 
 # ----------------------------------------------------------------------------
 
