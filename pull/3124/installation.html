@@ -63,6 +63,7 @@
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#install-with-lockfiles">Install with lockfiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-update">Environment update</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart for TARDIS</a></li>
@@ -153,11 +154,121 @@ to be installed on your system.</p></li>
 </div>
 <section id="install-with-lockfiles">
 <h2>Install with lockfiles<a class="headerlink" href="#install-with-lockfiles" title="Link to this heading">¶</a></h2>
+<p>Conda lockfiles are platform-specific dependency files that produce reproducible environments.
+We strongly recommend installing TARDIS ecosystem packages using this method by following the steps below.</p>
+<ol class="arabic">
+<li><p>Download the lockfile for your platform:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget<span class="w"> </span>-q<span class="w"> </span>https://github.com/tardis-sn/tardisbase/master/conda-<span class="o">{</span>platform<span class="o">}</span>-64.lock
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">{platform}</span></code> with <code class="docutils literal notranslate"><span class="pre">linux-64</span></code> or <code class="docutils literal notranslate"><span class="pre">osx-arm64</span></code> based on your operating system.</p>
+</li>
+<li><p>Create the environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>tardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
+</pre></div>
+</div>
+</li>
+<li><p>Activate the environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>tardis
+</pre></div>
+</div>
+</li>
+<li><p>To install TARDIS, first execute these commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:tardis-sn/tardis.git
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>tardis
+$<span class="w"> </span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>git@github.com:tardis-sn/tardis.git
+$<span class="w"> </span>git<span class="w"> </span>fetch<span class="w"> </span>upstream
+$<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>upstream/master
+</pre></div>
+</div>
+<p>The installation process differs for developers and non-developers:</p>
+<ol class="loweralpha">
+<li><p>Developers should <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo">fork the repository</a> of the package to be installed, configure
+GitHub to <a class="reference external" href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh">work with SSH keys</a>,
+set up the <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork">upstream remote</a>,
+and install the package in development mode.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Please refer to the <a class="reference external" href="https://tardis-sn.github.io/tardisbase/installation.html">tardisbase</a>  documentation for installation instructions.</p>
+<p>The complete developer guidelines can be found <a class="reference internal" href="contributing/development/index.html#developer-guidelines"><span class="std std-ref">here</span></a>.</p>
 </div>
-<p>🎉 Once installation is complete, please refer to <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart for TARDIS</span></a>  to start running simulations.</p>
+</li>
+<li><p>Non-developers can install from specific releases using pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@<span class="o">{</span>tag<span class="o">}</span>
+</pre></div>
+</div>
+<p>For example, to install the latest release:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@release-latest
+</pre></div>
+</div>
+<p>or to install the most recent, unreleased changes from upstream:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tardis-sn/tardis.git@master
+</pre></div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Running specific modules or tests for some packages might require additional optional dependencies.
+The tardisbase package can also be installed as an optional dependency.
+These optional dependencies can be installed by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[optional_dependencies]&quot;</span>
+<span class="c1"># for example:</span>
+<span class="c1"># pip install -e &quot;.[tardisbase]&quot; # installs the package with tardisbase optional dependency group</span>
+<span class="c1"># for multiple optional dependencies</span>
+<span class="c1"># $ pip install -e &quot;.[tardisbase,viz]&quot; # installs the package with tardisbase and viz optional dependency groups</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The tardisbase package is required for running TARDIS Regression Tests. The viz package is required for running the TARDIS visualization tools.</p>
+</div>
+<p>To update optional dependencies, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[optional_dependency]&quot;</span><span class="w"> </span>--upgrade<span class="w"> </span>--force-reinstall
+<span class="c1"># for example:</span>
+$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[tardisbase]&quot;</span><span class="w"> </span>--upgrade<span class="w"> </span>--force-reinstall<span class="w"> </span><span class="c1"># forces reinstall of tardisbase dependencies group</span>
+</pre></div>
+</div>
+<p>See the package documentation for a complete list of optional dependencies for that package.</p>
+</div>
+</div></blockquote>
+</li>
+<li><p>Once finished working, you can deactivate your environment.</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ conda deactivate
+</pre></div>
+</div>
+</div></blockquote>
+<p>From now on, just activate the <code class="docutils literal notranslate"><span class="pre">tardis</span></code> environment before working with the TARDIS package.</p>
+<p>You have successfully installed TARDIS! 🎉 Please refer to <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart for TARDIS</span></a>
+to start running simulations.</p>
+</section>
+<section id="environment-update">
+<h2>Environment update<a class="headerlink" href="#environment-update" title="Link to this heading">¶</a></h2>
+<p>To update the environment, download the latest lockfile and run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">update</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>wget<span class="w"> </span>-q<span class="w"> </span>https://github.com/tardis-sn/tardisbase/master/conda-<span class="o">{</span>platform<span class="o">}</span>-64.lock
+$<span class="w"> </span>conda<span class="w"> </span>update<span class="w"> </span>--name<span class="w"> </span>tardis<span class="w"> </span>--file<span class="w"> </span>conda-<span class="o">{</span>platform<span class="o">}</span>.lock
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you have installed the package in development mode, you should <em>ideally</em> update your environment whenever you pull latest package code because the new code added might be using updated (or new) dependencies. If you don’t do that and your installation seems broken, you can check if your environment requires update by comparing it against the latest environment file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda<span class="w"> </span>compare<span class="w"> </span>--name<span class="w"> </span>tardis<span class="w"> </span>env.yml
+</pre></div>
+</div>
+<p>We also recommend updating optional dependencies whenever you pull latest code.</p>
+</div>
+<p><strong>Recommended approach:</strong></p>
+<p>We highly recommend deleting your existing environment and creating a new one using the latest lockfile whenever you need to update your environment.</p>
+<p>Use the following <code class="docutils literal notranslate"><span class="pre">conda</span></code> command to remove your current <code class="docutils literal notranslate"><span class="pre">tardis</span></code> environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda<span class="w"> </span>remove<span class="w"> </span>--name<span class="w"> </span>tardis<span class="w"> </span>--all
+</pre></div>
+</div>
+<p>Now, you can create a new environment by following the steps given <a class="reference external" href="https://tardis-sn.github.io/tardis/installation.html#install-with-lockfiles">here</a>.</p>
 </section>
 </section>
 
@@ -173,7 +284,7 @@ to be installed on your system.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 09 Jun 2025.
+      <span class="lastupdated">Last updated on 10 Jun 2025.
       </span></p>
   </div>
 
