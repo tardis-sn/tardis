@@ -5,7 +5,7 @@
 name: compare-regdata
 
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - master
     types:
@@ -75,9 +75,8 @@ jobs:
       - name: Checkout tardisbase repository
         uses: actions/checkout@v4
         with:
-          repository: riddhigangbhoj/tardisbase
+          repository: tardis-sn/tardisbase
           path: tardisbase
-          ref: modular-comparison-file
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -106,11 +105,6 @@ jobs:
         run: pip install -e .
         working-directory: ${{ github.workspace }}/tardisbase
 
-      # - name: Copy regression data comparison files
-      #   run: |
-      #     cp tardisbase/tardisbase/testing/regression_comparison/compare.py tardis-regression-data/
-      #     cp tardisbase/tardisbase/testing/regression_comparison/compare_regression_data.ipynb tardis-regression-data/
-          
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
       
@@ -151,7 +145,7 @@ jobs:
 
   deploy-comparison:
     needs: tests
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: main
@@ -176,7 +170,7 @@ jobs:
 
       - name: Set destination directory
         run: |
-          if [[ $EVENT == pull_request ]]; then
+          if [[ $EVENT == pull_request_target ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
           else
             echo "DEST_DIR=commit/$GITHUB_SHA" >> $GITHUB_ENV
