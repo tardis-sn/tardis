@@ -170,52 +170,39 @@ def get_environment():
     return &#39;jupyter&#39;</div>
 
 
-<div class="viewcode-block" id="create_output_widget">
-<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.create_output_widget">[docs]</a>
-def create_output_widget(height=300):
-    &quot;&quot;&quot;Create an HTML pane for logging output.
+<div class="viewcode-block" id="create_logger_columns">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.create_logger_columns">[docs]</a>
+def create_logger_columns():
+    &quot;&quot;&quot;Create logger scroll columns with dynamic height.
     
-    Parameters
-    ----------
-    height : int, optional
-        The height of the pane in pixels.
-        
     Returns
     -------
-    panel.Column
-        A Panel Column containing an HTML pane configured for logging output.
+    dict
+        Dictionary of scroll columns for each log level.
     &quot;&quot;&quot;
-    html_pane = pn.pane.HTML(
-        &quot;&quot;,
-        styles={
-            &#39;border&#39;: &#39;1px solid #ddd&#39;,
-            &#39;width&#39;: &#39;100%&#39;,
-            &#39;font-family&#39;: &#39;monospace&#39;,
-            &#39;padding&#39;: &#39;8px&#39;,
-            &#39;background-color&#39;: &#39;white&#39;
-        }
-    )
-    return pn.Column(
-        html_pane,
-        height=height,
-        scroll=True,
-        sizing_mode=&#39;stretch_width&#39;
-    )</div>
+    # Create scroll columns for each log level
+    columns = {}
+    
+    for level in [&quot;INFO&quot;, &quot;WARNING/ERROR&quot;, &quot;DEBUG&quot;]:
+        column = pn.Column(
+            height=10,  # Start small
+            scroll=True,
+            sizing_mode=&#39;stretch_width&#39;,
+            styles={
+                &#39;border&#39;: &#39;1px solid #ddd&#39;,
+                &#39;background-color&#39;: &#39;white&#39;
+            }
+        )
+        column.max_log_entries = 1000
+        column._start_height = 10
+        column._max_height = 300
+        columns[level] = column
+    
+    return columns</div>
 
 
 ENVIRONMENT = get_environment()
-LOG_OUTPUTS = {
-    &quot;WARNING/ERROR&quot;: create_output_widget(),
-    &quot;INFO&quot;: create_output_widget(),
-    &quot;DEBUG&quot;: create_output_widget(),
-    &quot;ALL&quot;: create_output_widget(),
-}
-TAB_ORDER = [&quot;ALL&quot;, &quot;WARNING/ERROR&quot;, &quot;INFO&quot;, &quot;DEBUG&quot;]
-LOGGER_WIDGET = pn.Tabs(
-    *[(title, LOG_OUTPUTS[title]) for title in TAB_ORDER],
-    height=350,
-    sizing_mode=&#39;stretch_width&#39;
-)
+LOG_COLUMNS = create_logger_columns()
 
 <div class="viewcode-block" id="LoggingConfig">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig">[docs]</a>
@@ -261,33 +248,24 @@ LOGGING_LEVELS = LoggingConfig().LEVELS
 <div class="viewcode-block" id="PanelWidgetLogHandler">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler">[docs]</a>
 class PanelWidgetLogHandler(logging.Handler):
-    &quot;&quot;&quot;Log handler for logging to a widget.
-    
-    Handles the formatting and display of log messages in Panel widgets.
+    &quot;&quot;&quot;Log handler for logging to scroll columns.
     
     Parameters
     ----------
-    log_outputs : dict
-        Dictionary of Panel HTML panes for different log levels.
+    log_columns : dict
+        Dictionary of scroll columns for each log level.
     colors : dict
         Dictionary mapping log levels to display colors.
     display_widget : bool, optional
         Whether to display logs in the widget. Defaults to True.
-    display_handle : IPython.display.DisplayHandle, optional
-        Handle for updating the display in Jupyter environment.
-    logger_widget : panel.Tabs, optional
-        The Panel Tabs widget containing the log outputs.
     &quot;&quot;&quot;
-    def __init__(self, log_outputs, colors, display_widget=True, display_handle=None, logger_widget=None):
+    def __init__(self, log_columns, colors, display_widget=True):
         super().__init__()
-        self.log_outputs = log_outputs
+        self.log_columns = log_columns
         self.colors = colors
-        self.environment = get_environment()
         self.display_widget = display_widget
-        self.display_handle = display_handle
-        self.logger_widget = logger_widget
         self.stream_handler = None
-        if not self.display_widget or self.display_handle is None:
+        if not self.display_widget:
             self.stream_handler = logging.StreamHandler()
             self.stream_handler.setFormatter(logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;))
 
@@ -301,8 +279,9 @@ class PanelWidgetLogHandler(logging.Handler):
         record : logging.LogRecord
             The log record to process and display.
         &quot;&quot;&quot;
-        if not self.display_widget or self.display_handle is None:
-            self.stream_handler.emit(record)
+        if not self.display_widget:
+            if self.stream_handler:
+                self.stream_handler.emit(record)
             return
 
         if isinstance(record.msg, pd.DataFrame):
@@ -312,7 +291,8 @@ class PanelWidgetLogHandler(logging.Handler):
             log_entry = self.format(record)
             clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
             html_output = self._format_html_output(clean_log_entry, record)
-        self._emit_to_widget(record.levelno, html_output)</div>
+        
+        self._emit_to_columns(record.levelno, html_output)</div>
 
 
     @staticmethod
@@ -354,41 +334,60 @@ class PanelWidgetLogHandler(logging.Handler):
             return f&#39;&lt;span&gt;{prefix}&lt;/span&gt; &lt;span style=&quot;color: {color}; font-weight: bold;&quot;&gt;{levelname}&lt;/span&gt; {message}&#39;
         return log_entry
 
-    def _emit_to_widget(self, level, html_output):
-        &quot;&quot;&quot;Handles the widget updates.
-        
-        Updates the appropriate log output widgets based on the log level
-        and updates the display handle in Jupyter environments. Updates happen automatically
-        in the vscode environment.
+    def _emit_to_columns(self, level, html_output):
+        &quot;&quot;&quot;Add log entry to appropriate scroll columns.
         
         Parameters
         ----------
         level : int
-            The logging level (e.g., logging.INFO, logging.ERROR).
+            The logging level.
         html_output : str
             The HTML-formatted log message.
         &quot;&quot;&quot;
         level_to_output = {
             logging.WARNING: &quot;WARNING/ERROR&quot;,
             logging.ERROR: &quot;WARNING/ERROR&quot;,
+            logging.CRITICAL: &quot;WARNING/ERROR&quot;,
             logging.INFO: &quot;INFO&quot;,
             logging.DEBUG: &quot;DEBUG&quot;
         }
 
-        html_wrapped = f&quot;&lt;div style=&#39;margin: 0;&#39;&gt;{html_output}&lt;/div&gt;&quot;
-
-        # Update specific level output
+        # Add to specific level column
         output_key = level_to_output.get(level)
-        if output_key:
-            current = self.log_outputs[output_key][0].object or &quot;&quot;
-            self.log_outputs[output_key][0].object = current + &quot;\n&quot; + html_wrapped if current else html_wrapped
-        # Update ALL output
-        current_all = self.log_outputs[&quot;ALL&quot;][0].object or &quot;&quot;
-        self.log_outputs[&quot;ALL&quot;][0].object = current_all + &quot;\n&quot; + html_wrapped if current_all else html_wrapped
-
-        # Update Jupyter display if in jupyter environment
-        if self.environment == &#39;jupyter&#39; and self.display_handle is not None:
-            self.display_handle.update(self.logger_widget)
+        if output_key and output_key in self.log_columns:
+            level_column = self.log_columns[output_key]
+            log_pane = pn.pane.HTML(
+                html_output,
+                styles={
+                    &#39;font-family&#39;: &#39;monospace&#39;,
+                    &#39;padding&#39;: &#39;2px 8px&#39;,
+                    &#39;margin&#39;: &#39;0&#39;,
+                    &#39;white-space&#39;: &#39;pre-wrap&#39;
+                }
+            )
+            level_column.append(log_pane)
+            
+            # Dynamic height adjustment
+            self._adjust_column_height(level_column)
+            
+            # Trim old entries
+            if len(level_column) &gt; level_column.max_log_entries:
+                level_column.pop(0)
+    
+    def _adjust_column_height(self, column):
+        &quot;&quot;&quot;Dynamically adjust column height based on content.
+        
+        Parameters
+        ----------
+        column : panel.Column
+            The column to adjust.
+        &quot;&quot;&quot;
+        if hasattr(column, &#39;_start_height&#39;) and hasattr(column, &#39;_max_height&#39;):
+            # Estimate height needed: ~25px per log entry
+            estimated_height = max(column._start_height, len(column) * 25)
+            # Cap at max height
+            new_height = min(estimated_height, column._max_height)
+            column.height = new_height
     
 <div class="viewcode-block" id="PanelWidgetLogHandler.close">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler.close">[docs]</a>
@@ -409,23 +408,15 @@ class PanelWidgetLogHandler(logging.Handler):
 class TARDISLogger:
     &quot;&quot;&quot;Main logger class for TARDIS.
     
-    Handles configuration of logging levels, filters, and outputs.
-    
     Parameters
     ----------
-    display_handle : IPython.display.DisplayHandle, optional
-        Handle for updating the display in Jupyter environment.
-    logger_widget : panel.Tabs, optional
-        The Panel Tabs widget containing the log outputs.
-    log_outputs : dict, optional
-        Dictionary of Panel HTML panes for different log levels.
+    log_columns : dict
+        Dictionary of scroll columns for each log level.
     &quot;&quot;&quot;
-    def __init__(self, display_handle=None, logger_widget=None, log_outputs=None):
+    def __init__(self, log_columns=None):
         self.config = LoggingConfig()
         self.logger = logging.getLogger(&quot;tardis&quot;)
-        self.display_handle = display_handle
-        self.logger_widget = logger_widget
-        self.log_outputs = log_outputs
+        self.log_columns = log_columns
 
 <div class="viewcode-block" id="TARDISLogger.configure_logging">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.configure_logging">[docs]</a>
@@ -506,11 +497,9 @@ class TARDISLogger:
             Whether to display the widget in GUI environments. Default is True.
         &quot;&quot;&quot;
         self.widget_handler = PanelWidgetLogHandler(
-            log_outputs=self.log_outputs,
+            log_columns=self.log_columns,
             colors=self.config.COLORS,
-            display_widget=display_widget,
-            display_handle=self.display_handle,
-            logger_widget=self.logger_widget
+            display_widget=display_widget
         )
         self.widget_handler.setFormatter(
             logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;)
@@ -594,9 +583,6 @@ class LogFilter:
 def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
     &quot;&quot;&quot;Configure and initialize the TARDIS logging system.
     
-    Sets up the logging environment, configures log levels, and displays
-    the logging widget if requested.
-    
     Parameters
     ----------
     log_level : str
@@ -610,20 +596,22 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         
     Returns
     -------
-    panel.Tabs or None
-        The logger widget if display_logging_widget is True and in a
-        supported environment, otherwise None.
+    dict
+        Dictionary of log columns if display_logging_widget is True, otherwise None.
     &quot;&quot;&quot;
-    if display_logging_widget and ENVIRONMENT == &#39;jupyter&#39;:
-        display_handle = display(LOGGER_WIDGET.embed(), display_id=&quot;logger_widget&quot;)
-    elif display_logging_widget:
-        display_handle = display(LOGGER_WIDGET, display_id=&quot;logger_widget&quot;)
-    else:
-        display_handle = None
-    tardislogger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
+    tardislogger = TARDISLogger(log_columns=LOG_COLUMNS)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
     tardislogger.setup_widget_logging(display_widget=display_logging_widget)
-    return LOGGER_WIDGET, tardislogger if (display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]) else None</div>
+    
+    if display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]:
+        # Use the working pattern for both environments
+        for level, column in LOG_COLUMNS.items():
+            level_title = pn.pane.HTML(f&quot;&lt;h4 style=&#39;margin: 5px 0; color: #333;&#39;&gt;{level} LOGS&lt;/h4&gt;&quot;)
+            display(level_title)
+            display(column)  # Display raw column directly
+        return LOG_COLUMNS, tardislogger
+    else:
+        return None, tardislogger</div>
 
 </pre></div>
 
@@ -635,7 +623,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 06 Jun 2025.
+      <span class="lastupdated">Last updated on 10 Jun 2025.
       </span></p>
   </div>
 
