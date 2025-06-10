@@ -181,7 +181,7 @@ def run_gamma_ray_loop(
 
     logger.info("Creating packets")
     packet_collection, isotope_positron_fraction = packet_source.create_packets(
-        cumulative_decays_df, num_decays, seed
+        cumulative_decays_df, num_decays
     )
 
     total_energy = np.zeros((number_of_shells, len(times) - 1))
