@@ -122,7 +122,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         dilute_planckian_radiation_field=dilute_planckian_radiation_field,
         abundance=simulation_state.abundance,
         number_density=simulation_state.calculate_elemental_number_density(
-            atom_data.atom_data
+            atom_data.atom_data.mass
         ),
         atomic_data=atom_data,
         time_explosion=simulation_state.time_explosion,
