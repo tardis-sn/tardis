@@ -1,3 +1,6 @@
+import pandas as pd
+import xarray as xr
+
 from tardis.energy_input.energy_source import get_radioactive_isotopes
 
 
@@ -61,3 +64,52 @@ def get_decay_radiation_data(decay_radiation_data, isotopic_mass_fraction_index)
     ]
 
     return em_radiation_data, bp_radiation_data
+
+
+def convert_decay_radiation_to_ds(radiation_data: pd.DataFrame) -> xr.Dataset:
+    """
+    Convert decay radiation DataFrame to xarray Dataset.
+
+    Parameters
+    ----------
+    radiation_data : pd.DataFrame
+        DataFrame with MultiIndex (atomic_number, mass_number, channel_id)
+        and columns like 'energy_per_decay_kev', 'radiation_energy_kev', 'radiation_type'
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset with decay_radiation_channel_id as main dimension
+    """
+    dataset = xr.Dataset(
+        {
+            "energy_per_decay_kev": (
+                "decay_radiation_channel_id",
+                radiation_data["energy_per_decay_kev"].values,
+            ),
+            "radiation_energy_kev": (
+                "decay_radiation_channel_id",
+                radiation_data["radiation_energy_kev"].values,
+            ),
+            "radiation_type": (
+                "decay_radiation_channel_id",
+                radiation_data["radiation_type"].values,
+            ),
+        },
+        coords={
+            "atomic_number": (
+                "decay_radiation_channel_id",
+                radiation_data.index.get_level_values("atomic_number"),
+            ),
+            "mass_number": (
+                "decay_radiation_channel_id",
+                radiation_data.index.get_level_values("mass_number"),
+            ),
+            "decay_radiation_channel_id": (
+                "decay_radiation_channel_id",
+                radiation_data.index.get_level_values("channel_id"),
+            ),
+        },
+    )
+
+    return dataset

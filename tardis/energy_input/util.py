@@ -1,5 +1,8 @@
+from typing import Union
+
 import astropy.units as u
 import numpy as np
+import xarray as xr
 from numba import njit
 
 import tardis.constants as const
@@ -424,7 +427,7 @@ def get_index(value, array):
     """
     if value <= array[0]:
         return 0
-    elif value > array[-1]:
+    if value > array[-1]:
         return len(array) - 1
 
     i = 0
@@ -437,6 +440,7 @@ def get_index(value, array):
 def make_isotope_string_tardis_like(isotope_dict):
     """Converts isotope string to TARDIS format
         Ni-56 -> Ni56, Co-56 -> Co56
+
     Parameters
     ----------
     isotope : str
@@ -447,7 +451,6 @@ def make_isotope_string_tardis_like(isotope_dict):
     str
         TARDIS-like isotope string
     """
-
     new_isotope_dict = {}
 
     for key in isotope_dict.keys():
@@ -455,3 +458,68 @@ def make_isotope_string_tardis_like(isotope_dict):
         new_isotope_dict[new_key] = isotope_dict[key]
 
     return new_isotope_dict
+
+
+def create_time_coord_from_array(
+    time_array: Union[u.Quantity, np.ndarray, list], unit: u.Unit = u.s
+) -> xr.Dataset:
+    """
+    Create a time coordinate dataset from an array of bin edges.
+
+    Parameters
+    ----------
+    time_array : astropy.units.Quantity, np.ndarray, or list
+        Array of time bin edges (must have at least 2 values).
+        If Quantity, will be converted to specified unit.
+        If array/list, assumed to be in the specified unit.
+    unit : astropy.units.Unit, optional
+        Target unit for conversion (default: u.day)
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset with time step coordinates and delta_time as data variable
+    """
+    # Handle both Quantity and non-Quantity inputs
+    if hasattr(time_array, "unit"):  # Check if it's a Quantity
+        time_values = time_array.to(unit).value
+    else:
+        # Assume it's already in the target unit
+        time_values = np.asarray(time_array)
+
+    # Create time step IDs
+    time_step_ids = np.arange(len(time_values))
+
+    # Calculate time step starts, stops, and deltas
+    # time_values are bin edges, so we need n-1 intervals
+    if len(time_values) < 2:
+        raise ValueError("Need at least 2 time values to define bin edges")
+
+    # For bin edges, starts and stops are consecutive pairs
+    time_step_start = time_values[:-1]
+    time_step_stop = time_values[1:]
+    delta_time = time_step_stop - time_step_start
+
+    # Update time_step_ids to match number of intervals
+    time_step_ids = np.arange(len(time_step_start))
+
+    # Create dataset
+    dataset = xr.Dataset(
+        data_vars={
+            "delta_time": ("time_step_id", delta_time),
+        },
+        coords={
+            "time_step_id": ("time_step_id", time_step_ids),
+            "time_step_start": ("time_step_id", time_step_start),
+            "time_step_stop": ("time_step_id", time_step_stop),
+        },
+        attrs={
+            "unit": str(unit),
+            "description": f"Time coordinates in units of {unit}",
+            "time_step_start_description": "Start time of each time step",
+            "time_step_stop_description": "End time of each time step",
+            "delta_time_description": "Duration of each time step",
+        },
+    )
+
+    return dataset

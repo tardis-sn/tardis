@@ -141,11 +141,11 @@ def run_gamma_ray_loop(
         )
 
     # Electron number density
-    electron_number_density = elemental_number_density.mul(
+    total_electron_number_density = elemental_number_density.mul(
         elemental_number_density.index,
         axis=0,
     ).sum()
-    electron_number = np.array(electron_number_density * ejecta_volume)
+    electron_number = np.array(total_electron_number_density * ejecta_volume)
 
     # Evolve electron number and mass density with time
     electron_number_density_time = (
@@ -302,10 +302,8 @@ def run_gamma_ray_loop(
         packets_df_escaped,
         gamma_ray_deposited_energy,
         total_deposited_energy,
-        positron_energy_df
+        positron_energy_df,
     )
-
-
 def get_packet_properties(number_of_shells, times, time_steps, packets):
     """
     Function to get the properties of the packets.

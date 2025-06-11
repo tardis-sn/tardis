@@ -2,7 +2,9 @@ import logging
 from dataclasses import dataclass
 
 import pandas as pd
+from astropy import units as u
 
+from tardis.energy_input.decay_radiation import get_decay_radiation_data
 from tardis.energy_input.gamma_ray_channel import (
     calculate_total_decays,
     create_inventories_dict,
@@ -30,9 +32,8 @@ class TARDISHEWorkflow:
                 configuration, atom_data
             )
 
+        self.atom_data = atom_data
         self.gamma_ray_lines = atom_data.decay_radiation_data
-
-        self.shell_masses = self.simulation_state.volume * self.simulation_state.density
 
         self.isotopic_mass_fraction = (
             self.simulation_state.composition.isotopic_mass_fraction
@@ -56,7 +57,7 @@ class TARDISHEWorkflow:
             A dataframe containing the total number of decays for each isotope
             in the simulation state between t_start and t_end for each shell.
         """
-        isotopes = create_isotope_dicts(self.isotopic_mass_fraction, self.shell_masses)
+        isotopes = create_isotope_dicts(self.isotopic_mass_fraction, self.cell_masses)
         inventories = create_inventories_dict(isotopes)
 
         total_decays = calculate_total_decays(inventories, time_end - time_start)
@@ -100,7 +101,7 @@ class TARDISHEWorkflow:
             each shell for all time steps between t_start and t_end.
         """
         return time_evolve_cumulative_decay(
-            self.isotopic_mass_fraction, self.shell_masses, self.gamma_ray_lines, times
+            self.isotopic_mass_fraction, self.cell_masses, self.gamma_ray_lines, times
         )
 
     def get_times(self, time_start, time_end, time_space, time_steps):
@@ -165,11 +166,28 @@ class TARDISHEWorkflow:
         grey_opacity : float
             The grey opacity of the simulation.
         """
+        time_start = u.Quantity(time_start, u.day)
+        time_end = u.Quantity(time_end, u.day)
+
         times, effective_times = self.get_times(
-            time_start, time_end, time_space, time_steps
+            time_start.to(u.day).value, time_end.to(u.day).value, time_space, time_steps
         )
+
+        cell_masses = (self.simulation_state.volume * self.simulation_state.density).to(
+            u.g
+        )
+        self.cell_masses = cell_masses  # remove once the total decays works
         total_decays = self.calculate_total_decays(time_start, time_end)
+
+        total_decays2 = self.simulation_state.composition.isotopic_mass_fraction.calculate_number_of_decays(
+            time_end - time_start, cell_masses
+        )
         decay_isotopes = self.decay_isotopes_expanded(total_decays)
+
+        em_radiation_data, bp_radiation_data = get_decay_radiation_data(
+            self.atom_data.decay_radiation_data,
+            self.simulation_state.composition.isotopic_mass_fraction.index,
+        )
         decay_over_time = self.time_evolve_cumulative_decay_expanded(times)
 
         (
