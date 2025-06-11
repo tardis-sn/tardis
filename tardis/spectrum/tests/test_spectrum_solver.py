@@ -13,6 +13,7 @@ from tardisbase.testing.regression_data.regression_data import RegressionData
 
 
 class TestSpectrumSolver:
+    regression_data: RegressionData = None
 
     @pytest.fixture(scope="class")
     def simulation_regression_data(
