@@ -106,7 +106,7 @@ class Composition:
         except ImportError:
             raise ImportError(
                 "xarray is required to use the Composition.to_xarray method. "
-                "Please install it using 'pip install xarray'."
+                "Please install it using 'conda install xarray'."
             )
 
         composition_ds = xr.Dataset(
