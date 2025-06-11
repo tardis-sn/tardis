@@ -175,7 +175,8 @@ class MacroAtomSolver:
         stimulated_emission_factors,
         normalize=True,
     ):
-        """Solves the transition probabilities for the macro atom.
+        """
+        Solves the transition probabilities and returns a DataFrame with the probabilities and a DataFrame with the macro atom transition metadata.
         Parameters
         ----------
         mean_intensities_blue_wing : pd.DataFrame
@@ -191,26 +192,24 @@ class MacroAtomSolver:
         Returns
         -------
         MacroAtomState
-            A MacroAtomState object containing the transition probabilities and metadata.
+            A MacroAtomState object containing the transition probabilities, transition metadata, and a mapping from line IDs to macro atom level upper indices.
         """
-
-        # Solves the transition probabilities and returns a DataFrame with the probabilities and a DataFrame with the macro atom transition metadata.
 
         f_ul = self.lines.f_ul.values.reshape(-1, 1)
         f_lu = self.lines.f_lu.values.reshape(-1, 1)
         nus = self.lines.nu.values.reshape(-1, 1)
+        line_ids = self.lines.line_id.values
 
-        # We rename the energies column so that it matches with the beta_sobolevs index.
         energies_upper = (
             self.levels[["energy"]]
             .rename(columns={"energy": "level_number_upper"})
-            .reindex(beta_sobolevs.index.droplevel("level_number_lower"))
+            .reindex(self.lines.index.droplevel("level_number_lower"))
             .values
         )
         energies_lower = (
             self.levels[["energy"]]
             .rename(columns={"energy": "level_number_lower"})
-            .reindex(beta_sobolevs.index.droplevel("level_number_upper"))
+            .reindex(self.lines.index.droplevel("level_number_upper"))
             .values
         )
         transition_a_i_l_u_array = (
@@ -223,7 +222,7 @@ class MacroAtomSolver:
                 ]
             ].values
         )  # This is a helper array to make the source and destination columns.
-
+        
         lines_level_upper = self.lines.index.droplevel("level_number_lower")
 
         p_emission_down, emission_down_metadata = line_transition_emission_down(
@@ -233,7 +232,7 @@ class MacroAtomSolver:
             energies_lower,
             beta_sobolevs,
             transition_a_i_l_u_array,
-            self.lines.line_id.values,
+            line_ids,
         )
         p_internal_down, internal_down_metadata = line_transition_internal_down(
             f_ul,
@@ -241,7 +240,7 @@ class MacroAtomSolver:
             energies_lower,
             beta_sobolevs,
             transition_a_i_l_u_array,
-            self.lines.line_id.values,
+            line_ids,
         )
         p_internal_up, internal_up_metadata = line_transition_internal_up(
             f_lu,
@@ -251,7 +250,7 @@ class MacroAtomSolver:
             beta_sobolevs,
             stimulated_emission_factors,
             transition_a_i_l_u_array,
-            self.lines.line_id.values,
+            line_ids,
         )
 
         probabilities_df = pd.concat(
@@ -267,7 +266,7 @@ class MacroAtomSolver:
         )
 
         if normalize:
-            # Normalize the probabilities
+            # Normalize the probabilities by source. 
             probabilities_df = probabilities_df.div(
                 probabilities_df.groupby("source").transform("sum")
             )
@@ -295,7 +294,7 @@ class MacroAtomSolver:
             macro_atom_transition_metadata.index
         ]  # Reorder to match the metadata, which was sorted to match carsus.
 
-        # We have to do this at the end so that it's sorted the same way.
+        # We have to create the line2macro object after sorting.
         unique_source_index = pd.MultiIndex.from_tuples(
             macro_atom_transition_metadata.source.unique(),
             names=["atomic_number", "ion_number", "level_number"],
