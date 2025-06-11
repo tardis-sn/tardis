@@ -13,6 +13,7 @@ from tardis.visualization.plot_util import (
     parse_species_list_util,
     to_rgb255_string,
 )
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
 
 class TestPlotUtil:
@@ -255,13 +256,13 @@ class TestPlotUtil:
 
 
     @pytest.fixture(scope="module")
-    def generate_masked_dataframe_hdf(self, simulation_simple, plotdatahdf):
+    def generate_masked_dataframe_hdf(self, simulation_simple):
         packet_data = {
             "real": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="real"),
             "virtual": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="virtual"),
         }
         masked_data = {
-            mode: plotdatahdf(
+            mode: PlotDataHDF(
                 masked_df=pd.DataFrame(create_wavelength_mask(
                     packet_data, mode, [3000, 9000] * u.AA, df_key="packets_df", column_name="nus"
                 ))

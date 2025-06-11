@@ -8,7 +8,7 @@ from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
 
 from tardis.visualization.tools.liv_plot import LIVPlotter
-
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
 @pytest.fixture(scope="class")
 def plotter(simulation_simple):
@@ -196,7 +196,7 @@ class TestLIVPlotter:
         return fig, plotter
 
     @pytest.fixture(scope="function")
-    def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl, plotdatahdf):
+    def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl):
         """
         Fixture to generate and store plot data for Matplotlib in HDF5 format.
 
@@ -235,7 +235,7 @@ class TestLIVPlotter:
                         "polypath" + "ind_" + str(index1) + "ind_" + str(index2)
                     ] = path.vertices
 
-        plot_data = plotdatahdf(**property_group)
+        plot_data = PlotDataHDF(**property_group)
         return plot_data
 
     def test_generate_plot_mpl(
@@ -368,7 +368,7 @@ class TestLIVPlotter:
         return fig, plotter
 
     @pytest.fixture(scope="function")
-    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply, plotdatahdf):
+    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply):
         """
         Fixture to generate and store plot data for Matplotlib in HDF5 format.
 
@@ -399,7 +399,7 @@ class TestLIVPlotter:
                 property_group[group + "name"] = data.name.encode()
             property_group[group + "x"] = data.x
             property_group[group + "y"] = data.y
-        plot_data = plotdatahdf(**property_group)
+        plot_data = PlotDataHDF(**property_group)
         return plot_data
 
     def test_generate_plot_ply(
