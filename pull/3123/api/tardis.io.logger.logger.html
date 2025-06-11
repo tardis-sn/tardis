@@ -243,7 +243,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.io.logger.logger.PanelWidgetLogHandler">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">PanelWidgetLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#PanelWidgetLogHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.PanelWidgetLogHandler" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">PanelWidgetLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_handles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#PanelWidgetLogHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.PanelWidgetLogHandler" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Handler" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
 <p>Log handler for logging to scroll columns.</p>
 <dl class="field-list simple">
@@ -254,6 +254,8 @@
 <dt><strong>colors</strong><span class="classifier">dict</span></dt><dd><p>Dictionary mapping log levels to display colors.</p>
 </dd>
 <dt><strong>display_widget</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to display logs in the widget. Defaults to True.</p>
+</dd>
+<dt><strong>display_handles</strong><span class="classifier">dict, optional</span></dt><dd><p>Dictionary of display handles for each column (jupyter environment).</p>
 </dd>
 </dl>
 </dd>
@@ -284,13 +286,15 @@ and the filter list to empty.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.io.logger.logger.TARDISLogger">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">TARDISLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#TARDISLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.TARDISLogger" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">TARDISLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_handles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#TARDISLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.TARDISLogger" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Main logger class for TARDIS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>log_columns</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of scroll columns for each log level.</p>
+</dd>
+<dt><strong>display_handles</strong><span class="classifier">dict, optional</span></dt><dd><p>Dictionary of display handles for each column (jupyter environment).</p>
 </dd>
 </dl>
 </dd>
