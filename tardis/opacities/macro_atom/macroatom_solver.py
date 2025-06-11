@@ -222,7 +222,7 @@ class MacroAtomSolver:
                 ]
             ].values
         )  # This is a helper array to make the source and destination columns.
-        
+
         lines_level_upper = self.lines.index.droplevel("level_number_lower")
 
         p_emission_down, emission_down_metadata = line_transition_emission_down(
@@ -266,7 +266,7 @@ class MacroAtomSolver:
         )
 
         if normalize:
-            # Normalize the probabilities by source. 
+            # Normalize the probabilities by source.
             probabilities_df = probabilities_df.div(
                 probabilities_df.groupby("source").transform("sum")
             )
