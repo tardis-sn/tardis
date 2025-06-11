@@ -21,7 +21,7 @@ Install with lockfiles
 ======================
 
 Conda lockfiles are platform-specific dependency files that produce reproducible environments.
-We strongly recommend installing TARDIS ecosystem packages using this method by following the steps below.
+We strongly recommend installing TARDIS using this method by following the steps below.
 
 1. Download the lockfile for your platform:
 
@@ -55,10 +55,10 @@ We strongly recommend installing TARDIS ecosystem packages using this method by 
     
    The installation process differs for developers and non-developers:
 
-   a. Developers should `fork the repository <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_ of the package to be installed, configure
+   a. Developers should `fork the repository <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_ , configure
       GitHub to `work with SSH keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
       set up the `upstream remote <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork>`_,
-      and install the package in development mode.
+      and install TARDIS in development mode.
 
       .. code-block:: bash
 
@@ -87,30 +87,21 @@ We strongly recommend installing TARDIS ecosystem packages using this method by 
         $ pip install git+https://github.com/tardis-sn/tardis.git@master
         
     .. note::
-      Running specific modules or tests for some packages might require additional optional dependencies. 
-      The tardisbase package can also be installed as an optional dependency.
+      Running specific modules or tests will require additional optional dependencies. 
+      The `tardisbase` package is required for running TARDIS Regression Tests.
+      The `viz` package is required for running the TARDIS visualization tools.
       These optional dependencies can be installed by running:
-      
+
       .. code-block:: bash
       
-        $ pip install -e ".[optional_dependencies]"
-        # for example:
-        # pip install -e ".[tardisbase]" # installs the package with tardisbase optional dependency group
-        # for multiple optional dependencies
-        # $ pip install -e ".[tardisbase,viz]" # installs the package with tardisbase and viz optional dependency groups
-      
-      .. note::
-        The tardisbase package is required for running TARDIS Regression Tests. The viz package is required for running the TARDIS visualization tools.
+        $ pip install -e ".[tardisbase,viz]" 
 
       To update optional dependencies, use:
 
       .. code-block:: bash
       
-          $ pip install -e ".[optional_dependency]" --upgrade --force-reinstall
-          # for example:
-          $ pip install -e ".[tardisbase]" --upgrade --force-reinstall # forces reinstall of tardisbase dependencies group
-      
-      See the package documentation for a complete list of optional dependencies for that package.
+          $ pip install -e ".[tardisbase,viz]" --upgrade --force-reinstall
+
 
 5. Once finished working, you can deactivate your environment.
 
@@ -122,18 +113,6 @@ From now on, just activate the ``tardis`` environment before working with the TA
 
 You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TARDIS <quickstart.ipynb>`_ 
 to start running simulations.
-
-
-.. Install from package
-.. ====================
-
-.. It's also possible to install TARDIS by pulling the `conda-forge package <https://anaconda.org/conda-forge/tardis-sn>`_
-.. into a clean environment. However, we still encourage using lockfiles to ensure
-.. reproducibility of scientific results.
-
-.. ::
-
-..     $ conda create --name tardis-forge tardis-sn --channel conda-forge
 
 
 Environment update
@@ -148,7 +127,7 @@ To update the environment, download the latest lockfile and run ``conda update``
 
 .. note::
 
-  If you have installed the package in development mode, you should *ideally* update your environment whenever you pull latest package code because the new code added might be using updated (or new) dependencies. If you don't do that and your installation seems broken, you can check if your environment requires update by comparing it against the latest environment file:
+  If you have installed TARDIS in development mode, you should *ideally* update your environment whenever you pull latest code because the new code added might be using updated (or new) dependencies. If you don't do that and your installation seems broken, you can check if your environment requires update by comparing it against the latest environment file:
 
   .. code-block:: bash
 
