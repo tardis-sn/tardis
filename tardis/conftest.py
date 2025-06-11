@@ -50,6 +50,11 @@ def pytest_configure(config):
     config : pytest configuration
 
     """
+    try:
+        import tardisbase
+    except ImportError:
+        pytest.exit("tardisbase package not available - skipping entire test suite", returncode=0)
+    
     if ASTROPY_HEADER:
         config.option.astropy_header = True
 
