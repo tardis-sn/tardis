@@ -9,6 +9,7 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation.base import Simulation
 from tardis.spectrum.base import SpectrumSolver
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 
 class TestSpectrumSolver:
@@ -18,9 +19,8 @@ class TestSpectrumSolver:
         self,
         simulation_verysimple_default,
         request: pytest.FixtureRequest,
-        regression_data_class,
     ):
-        request.cls.regression_data = regression_data_class(request)
+        request.cls.regression_data = RegressionData(request)
         data = request.cls.regression_data.sync_hdf_store(simulation_verysimple_default)
 
         yield simulation_verysimple_default
