@@ -77,8 +77,7 @@ jobs:
       - name: Install tardis editable
         if: ${{ !inputs.pip_git }}
         run: |
-          # pip install -e ".[tardisbase,viz]" 
-          pip install -e . 
+          pip install -e ".[tardisbase,viz]" 
 
       - name: Install tardis git
         if: ${{ inputs.pip_git }}
