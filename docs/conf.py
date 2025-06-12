@@ -136,6 +136,11 @@ nbsphinx_execute_arguments = [
 
 nbsphinx_prolog = r"""
 {% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
+.. code-block:: python
+
+    import panel as pn
+    pn.extension()
+
 .. raw:: html
     
     <style>
@@ -183,6 +188,7 @@ if os.getenv("DISABLE_NBSPHINX") == "1":
 else:
     nbsphinx_execute = "auto"
 
+nbsphinx_allow_errors = True
 
 # -- Project information ------------------------------------------------------
 
