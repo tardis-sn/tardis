@@ -37,8 +37,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
-          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardisbase/master"
-  
+
       - name: Show statistics pull request
         if: github.event_name == 'pull_request_target'
         run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt
