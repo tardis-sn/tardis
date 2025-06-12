@@ -95,6 +95,9 @@ def pytest_configure(config):
 # -------------------------------------------------------------------------
 
 
+# this imports regression data fixture from tardisbase
+pytest_plugins = "tardisbase.testing.regression_data.regression_data"
+
 def pytest_addoption(parser):
     parser.addoption(
         "--tardis-regression-data",
@@ -136,14 +139,6 @@ def pytest_collection_modifyitems(config, items):
 # -------------------------------------------------------------------------
 # project specific fixtures
 # -------------------------------------------------------------------------
-
-@pytest.fixture(scope="session")
-def regression_data():
-    try: 
-        from tardisbase.testing.regression_data.regression_data import regression_data
-    except ImportError:
-        pytest.skip("tardisbase package not available - skipping regression tests")
-    return regression_data
 
 @pytest.fixture(scope="session")
 def generate_reference(request):
