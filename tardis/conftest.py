@@ -14,6 +14,16 @@ from tardis.tests.fixtures.atom_data import *
 from tardis.util.base import packet_pbar, iterations_pbar
 from tardis.tests.test_util import monkeysession
 
+try:
+    import tardisbase
+    
+    # this imports regression data fixture from tardisbase
+    pytest_plugins = "tardisbase.testing.regression_data.regression_data"
+
+except ImportError:
+    pytest_plugins = []
+
+
 """Configure Test Suite.
 
 This file is used to configure the behavior of pytest when using the Astropy
@@ -94,9 +104,6 @@ def pytest_configure(config):
 # Here the TARDIS testing stuff begins
 # -------------------------------------------------------------------------
 
-
-# this imports regression data fixture from tardisbase
-pytest_plugins = "tardisbase.testing.regression_data.regression_data"
 
 def pytest_addoption(parser):
     parser.addoption(
