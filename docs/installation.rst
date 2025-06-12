@@ -128,7 +128,7 @@ To update the environment, download the latest lockfile and run ``conda update``
 
 .. note::
 
-  If you have installed TARDIS in development mode, you should *ideally* update your environment whenever you pull latest code because the new code added might be using updated (or new) dependencies. If you don't do that and your installation seems broken, you can check if your environment requires update by comparing it against the latest environment file:
+  If you have installed TARDIS in development mode, you should *ideally* update your environment whenever you pull the latest code because the new code added might be using updated (or new) dependencies. If you don't do that and your installation seems broken, you can check if your environment requires update by comparing it against the latest environment file:
 
   .. code-block:: bash
 
