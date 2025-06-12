@@ -1,0 +1,24 @@
+H_init_frac:
+  long_name: "Initial H Fraction"
+  units: ""
+  description: "Initial hydrogen mass fraction."
+He_init_frac:
+  long_name: "Initial He Fraction"
+  units: ""
+  description: "Initial helium mass fraction."
+C_init_frac:
+  long_name: "Initial C Fraction"
+  units: ""
+  description: "Initial carbon mass fraction."
+O_init_frac:
+  long_name: "Initial O Fraction"
+  units: ""
+  description: "Initial oxygen mass fraction."
+Ni_init_frac:
+  long_name: "Initial Ni Fraction"
+  units: ""
+  description: "Initial nickel mass fraction."
+metallicity_init:
+  long_name: "Initial Metallicity"
+  units: ""
+  description: "Total initial metal mass fraction."

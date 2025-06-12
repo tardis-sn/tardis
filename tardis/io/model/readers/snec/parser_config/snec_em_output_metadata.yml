@@ -1,0 +1,36 @@
+lum_observed:
+  long_name: "Observed Luminosity"
+  units: "erg / s"
+  description: "Bolometric luminosity as observed (after γ-ray deposition)."
+lum_photo:
+  long_name: "Photospheric Luminosity"
+  units: "erg / s"
+  description: "Luminosity at the photosphere."
+vel_photo:
+  long_name: "Photospheric Velocity"
+  units: "cm / s"
+  description: "Velocity at the photosphere."
+index_lumshell:
+  long_name: "Luminosity Shell Index"
+  units: ""
+  description: "Array index of the shell contributing most to luminosity."
+index_photo:
+  long_name: "Photosphere Index"
+  units: ""
+  description: "Array index of the photosphere position."
+mass_lumshell:
+  long_name: "Luminosity Shell Mass"
+  units: "g"
+  description: "Enclosed mass at the luminosity shell."
+mass_photo:
+  long_name: "Photospheric Mass"
+  units: "g"
+  description: "Enclosed mass at the photosphere."
+Ni_total_luminosity:
+  long_name: "Ni Radioactive Luminosity"
+  units: "erg / s"
+  description: "Total instantaneous radioactive luminosity from 56Ni decay."
+T_eff:
+  long_name: "Effective Temperature"
+  units: "K"
+  description: "Model photospheric effective temperature."
