@@ -57,7 +57,9 @@ class LIVPlotter:
             modes.append("virtual")
         for mode in modes:
             plotter.packet_data[mode] = pu.extract_and_process_packet_data(
-                sim, mode
+                transport_state=sim.transport.transport_state,
+                plasma=sim.plasma,
+                packets_mode=mode,
             )
 
         return plotter
