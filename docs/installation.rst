@@ -23,6 +23,10 @@ Install with lockfiles
 Conda lockfiles are platform-specific dependency files that produce reproducible environments.
 We strongly recommend installing TARDIS using this method by following the steps below.
 
+.. note::
+
+  Please note that you don't need to install separate environments for each TARDIS package (STARDIS, Carsus, or TARDISBase). However, for scientific reproducibility, we recommend creating a new environment whenever you start a new project with TARDIS.
+
 1. Download the lockfile for your platform:
 
    .. code-block:: bash
@@ -35,13 +39,15 @@ We strongly recommend installing TARDIS using this method by following the steps
 
    .. code-block:: bash
 
-       conda create --name tardis --file conda-{platform}.lock
+       conda create --name tardis-{project_name} --file conda-{platform}.lock
+       
+   Replace ``{project_name}`` with a name for your TARDIS project.
 
 3. Activate the environment:
 
    .. code-block:: bash
 
-       conda activate tardis
+       conda activate tardis-{project_name}
 
 4. To install TARDIS, first execute these commands:
 
@@ -57,7 +63,7 @@ We strongly recommend installing TARDIS using this method by following the steps
 
    a. Developers should `fork the repository <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_ , configure
       GitHub to `work with SSH keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
-      set up the `upstream remote <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork>`_,
+      set up the `upstream remote <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork>`_ and `origin` (pointing to your fork),
       and install TARDIS in development mode.
 
       .. code-block:: bash
@@ -109,7 +115,7 @@ We strongly recommend installing TARDIS using this method by following the steps
 
     $ conda deactivate
 
-From now on, just activate the ``tardis`` environment before working with the TARDIS package.
+From now on, just activate the ``tardis-{project_name}`` environment before working with the TARDIS package.
 
 You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TARDIS <quickstart.ipynb>`_ 
 to start running simulations.
@@ -131,7 +137,7 @@ To update the environment, download the latest lockfile and run ``conda update``
 
   .. code-block:: bash
 
-      $ conda compare --name tardis env.yml
+      $ conda compare --name tardis-{project_name} env.yml
    
   We also recommend updating optional dependencies whenever you pull latest code.
 
@@ -144,7 +150,7 @@ Use the following ``conda`` command to remove your current ``tardis`` environmen
 
 .. code-block:: bash
 
-    $ conda remove --name tardis --all
+    $ conda remove --name tardis-{project_name} --all
 
 Now, you can create a new environment by following the steps given `here <https://tardis-sn.github.io/tardis/installation.html#install-with-lockfiles>`_.
 
