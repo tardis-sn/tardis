@@ -49,17 +49,7 @@ We strongly recommend installing TARDIS using this method by following the steps
 
        conda activate tardis-{project_name}
 
-4. To install TARDIS, first execute these commands:
-
-   .. code-block:: bash
-
-      $ git clone git@github.com:tardis-sn/tardis.git
-      $ cd tardis
-      $ git remote add upstream git@github.com:tardis-sn/tardis.git
-      $ git fetch upstream
-      $ git checkout upstream/master
-    
-   The installation process differs for developers and non-developers:
+4. The installation process differs for developers and non-developers:
 
    a. Developers should `fork the repository <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_ , configure
       GitHub to `work with SSH keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
@@ -68,7 +58,12 @@ We strongly recommend installing TARDIS using this method by following the steps
 
       .. code-block:: bash
 
-        $ pip install -e .
+        $ git clone git@github.com:tardis-sn/tardis.git
+        $ cd tardis
+        $ git remote add upstream git@github.com:tardis-sn/tardis.git
+        $ git fetch upstream
+        $ git checkout upstream/master
+        $ pip install -e ".[tardisbase,viz]" # or pip install -e ".[viz]" if tardisbase is already installed in editable mode
 
       .. note::
 
