@@ -33,7 +33,7 @@ We strongly recommend installing TARDIS using this method by following the steps
 
        wget -q https://github.com/tardis-sn/tardisbase/master/conda-{platform}-64.lock
 
-   Replace ``{platform}`` with ``linux-64`` or ``osx-arm64`` based on your operating system.
+   Replace ``{platform}`` with ``linux`` or ``osx-arm`` based on your operating system.
 
 2. Create the environment:
 

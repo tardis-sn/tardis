@@ -14,4 +14,3 @@ runs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ inputs.os-label }}
-          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardisbase/master"
