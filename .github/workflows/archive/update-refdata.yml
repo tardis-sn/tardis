@@ -33,9 +33,9 @@ jobs:
         uses: ./.github/actions/setup_lfs
 
       - name: Setup environment
-        uses: ./.github/actions/setup_env
-        with: 
-          os-label: linux-64
+        uses: tardis-sn/tardis-actions/setup-env@main
+        with:
+          os-label: ${{ matrix.label }}
 
       - name: Install package
         run: pip install -e .

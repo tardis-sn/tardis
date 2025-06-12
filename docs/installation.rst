@@ -20,112 +20,131 @@ Installation
 Install with lockfiles
 ======================
 
-Conda lockfiles are platform-specific dependency files that produce repeatable environments.
-These files are generated on every new release. We strongly recommend installing TARDIS using
-this method by following the steps described below.
+Conda lockfiles are platform-specific dependency files that produce reproducible environments.
+We strongly recommend installing TARDIS using this method by following the steps below.
 
-1. Download the latest lockfile for your operating system from our 
-   `releases section <https://github.com/tardis-sn/tardis/releases>`_, or run
-   the following command while replacing ``{platform}`` with ``linux`` or ``osx`` as appropriate.
+.. note::
 
-  ::
+  Please note that you don't need to install separate environments for each TARDIS package (STARDIS, Carsus, or TARDISBase). However, for scientific reproducibility, we recommend creating a new environment whenever you start a new project with TARDIS.
 
-    $ wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-{platform}-64.lock
+1. Download the lockfile for your platform:
 
-2. Create and activate the ``tardis`` environment.
+   .. code-block:: bash
 
-  ::
+       wget -q https://github.com/tardis-sn/tardisbase/master/conda-{platform}-64.lock
 
-    $ conda create --name tardis --file conda-{platform}-64.lock
-    $ conda activate tardis
+   Replace ``{platform}`` with ``linux`` or ``osx-arm`` based on your operating system.
 
-3. a. Developers should `fork the repository <https://github.com/tardis-sn/tardis/fork>`_, configure
+2. Create the environment:
+
+   .. code-block:: bash
+
+       conda create --name tardis-{project_name} --file conda-{platform}.lock
+       
+   Replace ``{project_name}`` with a name for your TARDIS project.
+
+3. Activate the environment:
+
+   .. code-block:: bash
+
+       conda activate tardis-{project_name}
+
+4. The installation process differs for developers and non-developers:
+
+   a. Developers should `fork the repository <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_ , configure
       GitHub to `work with SSH keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
-      set up the `upstream remote <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork>`_,
-      and install the package in development mode.
+      set up the `upstream remote <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork>`_ and `origin` (pointing to your fork),
+      and install TARDIS in development mode.
 
-      ::
+      .. code-block:: bash
 
-        $ git clone git@github.com:<username>/tardis.git
+        $ git clone git@github.com:tardis-sn/tardis.git
         $ cd tardis
         $ git remote add upstream git@github.com:tardis-sn/tardis.git
         $ git fetch upstream
         $ git checkout upstream/master
-        $ pip install -e .
+        $ pip install -e ".[tardisbase,viz]" # or pip install -e ".[viz]" if tardisbase is already installed in editable mode
 
       .. note::
 
         The complete developer guidelines can be found :ref:`here <developer_guidelines>`.
         
-    b. Non-developers can install from specific releases using pip-
+   b. Non-developers can install from specific releases using pip:
 
-      ::
+      .. code-block:: bash
 
         $ pip install git+https://github.com/tardis-sn/tardis.git@{tag}
 
-      For example- 
+      For example, to install the latest release:
 
-      ::
+      .. code-block:: bash
       
         $ pip install git+https://github.com/tardis-sn/tardis.git@release-latest
 
-      or trying the most recent, unreleased changes from upstream.
+      or to install the most recent, unreleased changes from upstream:
 
-      ::
+      .. code-block:: bash
 
         $ pip install git+https://github.com/tardis-sn/tardis.git@master
+        
+    .. note::
+      Running specific modules or tests will require additional optional dependencies. 
+      The `tardisbase` package is required for running TARDIS Regression Tests.
+      The `viz` package is required for running the TARDIS visualization tools.
+      These optional dependencies can be installed by running:
 
-4. Once finished working, you can deactivate your environment.
+      .. code-block:: bash
+      
+        $ pip install -e ".[tardisbase,viz]" 
+
+      To update optional dependencies, use:
+
+      .. code-block:: bash
+      
+          $ pip install -e ".[tardisbase,viz]" --upgrade --force-reinstall
+
+
+5. Once finished working, you can deactivate your environment.
 
   ::
 
     $ conda deactivate
 
-From now on, just activate the ``tardis`` environment before working with the TARDIS package.
+From now on, just activate the ``tardis-{project_name}`` environment before working with the TARDIS package.
 
 You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TARDIS <quickstart.ipynb>`_ 
 to start running simulations.
 
 
-.. Install from package
-.. ====================
-
-.. It's also possible to install TARDIS by pulling the `conda-forge package <https://anaconda.org/conda-forge/tardis-sn>`_
-.. into a clean environment. However, we still encourage using lockfiles to ensure
-.. reproducibility of scientific results.
-
-.. ::
-
-..     $ conda create --name tardis-forge tardis-sn --channel conda-forge
-
-
 Environment update
 ==================
 
-To update the environment after a new release, download the latest lockfile and run ``conda update``.
-
-::
-
-    $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
-    $ conda update --name tardis --file conda-{platform}-64.lock
-
-.. note::
-
-  If you have installed the tardis package in development mode, you should *ideally* update your environment whenever you pull latest tardis code because the new code added might be using updated (or new) dependencies. If you don't do that and your tardis installation seems broken, you can check if your environment requires update by comparing it against the latest environment file:
-
-  ::
-
-      $ conda compare --name tardis tardis_env3.yml
 
 **Recommended approach:**
-
-We highly recommend deleting your existing environment and creating a new one using the latest lockfile whenever you need to update your environment after a new release.
+We highly recommend deleting your existing environment and creating a new one using the latest lockfile whenever you need to update your environment.
 
 Use the following ``conda`` command to remove your current ``tardis`` environment:
 
-::
+.. code-block:: bash
 
-    $ conda remove --name tardis --all
+    $ conda remove --name tardis-{project_name} --all
 
 Now, you can create a new environment by following the steps given `here <https://tardis-sn.github.io/tardis/installation.html#install-with-lockfiles>`_.
+
+To update the environment, download the latest lockfile and run ``conda update``.
+
+.. code-block:: bash
+
+    $ wget -q https://github.com/tardis-sn/tardisbase/master/conda-{platform}-64.lock
+    $ conda update --name tardis --file conda-{platform}.lock
+
+.. note::
+
+  If you have installed TARDIS in development mode, you should *ideally* update your environment whenever you pull the latest code because the new code added might be using updated (or new) dependencies. If you don't do that and your installation seems broken, you can check if your environment requires update by comparing it against the latest environment file:
+
+  .. code-block:: bash
+
+      $ conda compare --name tardis-{project_name} env.yml
+   
+  We also recommend updating optional dependencies whenever you pull the latest code.
 
