@@ -231,7 +231,8 @@ class PanelWidgetLogHandler(logging.Handler):
                 level_column.pop(0)
             
             # Update display handle in jupyter environment
-            if self.environment == 'jupyter' and output_key in self.display_handles:
+            if (self.environment == 'jupyter' and output_key in self.display_handles 
+                and self.display_handles[output_key] is not None):
                 self.display_handles[output_key].update(level_column)
     
     def _adjust_column_height(self, column):
