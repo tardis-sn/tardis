@@ -15,8 +15,8 @@ from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
 from tardis.io.util import HDFWriterMixin
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
-from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_state import LegacyMacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
@@ -110,7 +110,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     plasma : tardis.plasma.BasePlasma
     transport : tardis.transport.montecarlo.MontecarloTransport
     opacity : tardis.opacities.opacity_solver.OpacitySolver
-    macro_atom : tardis.opacities.macro_atom.macroatom_solver.MacroAtomSolver
+    macro_atom : tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver
     no_of_packets : int
     last_no_of_packets : int
     no_of_virtual_packets : int
@@ -452,7 +452,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-                macro_atom_state = MacroAtomState.from_legacy_plasma(
+                macro_atom_state = LegacyMacroAtomState.from_legacy_plasma(
                     self.plasma
                 )  # TODO: Impliment
             else:
@@ -771,7 +771,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 "downbranch",
                 "macroatom",
             ):
-                macro_atom = MacroAtomSolver()
+                macro_atom = LegacyMacroAtomSolver()
 
         convergence_plots_config_options = [
             "plasma_plot_config",
