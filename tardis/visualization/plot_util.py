@@ -92,6 +92,7 @@ def to_rgb255_string(color_tuple):
     color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
     return f"rgb{color_tuple_255}"
 
+
 def get_hex_color_strings(length, name="jet"):
     """
     Generate a list of hex color strings from a discrete colormap.
@@ -216,14 +217,17 @@ def process_line_interactions(packet_data, lines_df):
         # Add columns for atomic number of last interaction out
         packet_data["packets_df_line_interaction"][
             "last_line_interaction_atom"
-        ] = (
-            lines_df["atomic_number"]
-            .iloc[
-                packet_data["packets_df_line_interaction"][
-                    "last_line_interaction_out_id"
+        ] = list(
+            zip(
+                lines_df["atomic_number"]
+                .iloc[
+                    packet_data["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
                 ]
-            ]
-            .to_numpy()
+                .to_numpy(),
+                [0] * len(packet_data["packets_df_line_interaction"]),
+            )
         )
 
         # Add columns for the species ID of last interaction
@@ -377,15 +381,21 @@ def expand_species_list(species_list):
     # species_list should only contain species in the Roman numeral
     # format, e.g. Si II, and each ion must contain a space
     if any(char.isdigit() for char in " ".join(species_list)):
-        raise ValueError("All species must be in Roman numeral form, e.g. Si II")
+        raise ValueError(
+            "All species must be in Roman numeral form, e.g. Si II"
+        )
 
     full_species_list = []
     for species in species_list:
         if "-" in species:
-           element, ion_range = species.split(" ")
-           first_ion_numeral, last_ion_numeral = map(roman_to_int, ion_range.partition("-")[::2])
-           for ion_number in range(first_ion_numeral, last_ion_numeral + 1):
-               full_species_list.append(f"{element} {int_to_roman(ion_number)}")
+            element, ion_range = species.split(" ")
+            first_ion_numeral, last_ion_numeral = map(
+                roman_to_int, ion_range.partition("-")[::2]
+            )
+            for ion_number in range(first_ion_numeral, last_ion_numeral + 1):
+                full_species_list.append(
+                    f"{element} {int_to_roman(ion_number)}"
+                )
         else:
             full_species_list.append(species)
 
@@ -445,7 +455,10 @@ def parse_species_list_util(species_list):
             species_mapped[species_id] = [species_id]
         else:
             atomic_number = element_symbol2atomic_number(species)
-            species_ids = [(atomic_number, ion_number) for ion_number in range(atomic_number)]
+            species_ids = [
+                (atomic_number, ion_number)
+                for ion_number in range(atomic_number)
+            ]
             requested_species_ids.append(species_ids)
             species_mapped[(atomic_number, 0)] = species_ids
             # add the atomic number to a list so you know that this element should
@@ -453,9 +466,16 @@ def parse_species_list_util(species_list):
             # species_list = [Si]
             elements_with_shared_color.append(atomic_number)
 
-    species_list_result = [species_id for group in requested_species_ids for species_id in group]
+    species_list_result = [
+        species_id for group in requested_species_ids for species_id in group
+    ]
 
-    return species_mapped, species_list_result, elements_with_shared_color, full_species_list
+    return (
+        species_mapped,
+        species_list_result,
+        elements_with_shared_color,
+        full_species_list,
+    )
 
 
 def get_spectrum_data(packets_mode, sim):
