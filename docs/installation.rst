@@ -119,6 +119,18 @@ to start running simulations.
 Environment update
 ==================
 
+
+**Recommended approach:**
+We highly recommend deleting your existing environment and creating a new one using the latest lockfile whenever you need to update your environment.
+
+Use the following ``conda`` command to remove your current ``tardis`` environment:
+
+.. code-block:: bash
+
+    $ conda remove --name tardis-{project_name} --all
+
+Now, you can create a new environment by following the steps given `here <https://tardis-sn.github.io/tardis/installation.html#install-with-lockfiles>`_.
+
 To update the environment, download the latest lockfile and run ``conda update``.
 
 .. code-block:: bash
@@ -134,18 +146,5 @@ To update the environment, download the latest lockfile and run ``conda update``
 
       $ conda compare --name tardis-{project_name} env.yml
    
-  We also recommend updating optional dependencies whenever you pull latest code.
-
-
-**Recommended approach:**
-
-We highly recommend deleting your existing environment and creating a new one using the latest lockfile whenever you need to update your environment.
-
-Use the following ``conda`` command to remove your current ``tardis`` environment:
-
-.. code-block:: bash
-
-    $ conda remove --name tardis-{project_name} --all
-
-Now, you can create a new environment by following the steps given `here <https://tardis-sn.github.io/tardis/installation.html#install-with-lockfiles>`_.
+  We also recommend updating optional dependencies whenever you pull the latest code.
 
