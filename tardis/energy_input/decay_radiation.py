@@ -99,17 +99,16 @@ def convert_decay_radiation_to_ds(radiation_data: pd.DataFrame) -> xr.Dataset:
         coords={
             "atomic_number": (
                 "decay_radiation_channel_id",
-                radiation_data.index.get_level_values("atomic_number"),
+                pd.Index(radiation_data.index.get_level_values("atomic_number")),
             ),
             "mass_number": (
                 "decay_radiation_channel_id",
-                radiation_data.index.get_level_values("mass_number"),
+                pd.Index(radiation_data.index.get_level_values("mass_number")),
             ),
             "decay_radiation_channel_id": (
                 "decay_radiation_channel_id",
-                radiation_data.index.get_level_values("channel_id"),
+                pd.Index(radiation_data.index.get_level_values("channel_id")),
             ),
         },
     )
-
     return dataset

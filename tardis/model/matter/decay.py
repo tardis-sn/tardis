@@ -59,16 +59,30 @@ class IsotopicMassFraction(pd.DataFrame):
         nuclide = Nuclide(atomic_id)
         return nuclide.Z, nuclide.A
 
-    def to_inventories(self, cell_masses=None, cell_masses_unit="g"):
+    def to_inventories(
+        self, cell_masses: Optional[u.Quantity] = None, cell_masses_unit: str = "g"
+    ) -> list[Inventory]:
         """
         Convert DataFrame to a list of inventories interpreting the MultiIndex as
         atomic_number and mass_number
+
+        Parameters
+        ----------
+        cell_masses : astropy.units.Quantity, optional
+            1D array of shell masses. If provided, isotopic abundances will be
+            multiplied by the corresponding shell mass.
+        cell_masses_unit : str, optional
+            Unit for the cell masses, by default "g"
 
         Returns
         -------
         list
             list of radioactivedecay Inventories
         """
+        if cell_masses is not None:
+            assert len(cell_masses) == len(
+                self.columns
+            ), f"Length of cell_masses ({len(cell_masses)}) must match number of columns ({len(self.columns)})"
         comp_dicts = [{} for i in range(len(self.columns))]
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
@@ -102,7 +116,9 @@ class IsotopicMassFraction(pd.DataFrame):
         inventories = self.to_inventories()
         time_decay = u.Quantity(time_decay, time_decay_unit)
         time_decay_second = time_decay.to(u.s).value - self.time_0.to(u.s).value
-        logger.info("Decaying abundances for %.2g", time_decay)
+        logger.info(
+            "Decaying abundances for %.2g %s", time_decay.value, time_decay.unit
+        )
         if time_decay_second < 0:
             logger.warning(
                 "Decay time %f is negative. This could indicate a miss-specified input model."

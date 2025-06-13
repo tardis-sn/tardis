@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-class TARDISHEWorkflow:
+class LegacyTARDISHEWorkflow:
     def __init__(self, atom_data, configuration, config_type="yaml"):
 
         if config_type == "csvy":
@@ -179,15 +179,8 @@ class TARDISHEWorkflow:
         self.cell_masses = cell_masses  # remove once the total decays works
         total_decays = self.calculate_total_decays(time_start, time_end)
 
-        total_decays2 = self.simulation_state.composition.isotopic_mass_fraction.calculate_number_of_decays(
-            time_end - time_start, cell_masses
-        )
         decay_isotopes = self.decay_isotopes_expanded(total_decays)
 
-        em_radiation_data, bp_radiation_data = get_decay_radiation_data(
-            self.atom_data.decay_radiation_data,
-            self.simulation_state.composition.isotopic_mass_fraction.index,
-        )
         decay_over_time = self.time_evolve_cumulative_decay_expanded(times)
 
         (
