@@ -45,18 +45,24 @@ def create_logger_columns():
     columns = {}
     
     for level in ["INFO", "WARNING/ERROR", "DEBUG"]:
-        column = pn.Column(
+        column = pn.pane.HTML(
+            "",
             height=10,  # Start small
-            scroll=True,
-            sizing_mode='stretch_width',
             styles={
                 'border': '1px solid #ddd',
-                'background-color': 'white'
-            }
+                'background-color': 'white',
+                'overflow-y': 'auto',
+                'overflow-x': 'auto',
+                'font-family': 'monospace',
+                'padding': '8px',
+                'white-space': 'pre-wrap'
+            },
+            sizing_mode='stretch_width'
         )
         column.max_log_entries = 1000
         column._start_height = 10
         column._max_height = 300
+        column._log_content = ""  # Store content as string
         columns[level] = column
     
     return columns
@@ -200,7 +206,7 @@ class PanelWidgetLogHandler(logging.Handler):
         return log_entry
 
     def _emit_to_columns(self, level, html_output):
-        """Add log entry to appropriate scroll columns.
+        """Add log entry to appropriate scroll columns using string concatenation.
         
         Parameters
         ----------
@@ -217,44 +223,54 @@ class PanelWidgetLogHandler(logging.Handler):
             logging.DEBUG: "DEBUG"
         }
 
-        # Add to specific level column
+        # Add to specific level column using string concatenation
         output_key = level_to_output.get(level)
         if output_key and output_key in self.log_columns:
             level_column = self.log_columns[output_key]
-            log_pane = pn.pane.HTML(
-                html_output,
-                styles={
-                    'font-family': 'monospace',
-                    'padding': '2px 8px',
-                    'margin': '0',
-                    'white-space': 'pre-wrap'
-                }
-            )
-            level_column.append(log_pane)
+            
+            # Wrap in div and concatenate to existing content
+            html_wrapped = f"<div style='margin: 2px 0; padding: 2px 0;'>{html_output}</div>"
+            current_content = getattr(level_column, '_log_content', '') or level_column.object or ''
+            new_content = current_content + html_wrapped if current_content else html_wrapped
+            
+            # Store content and update column
+            level_column._log_content = new_content
+            level_column.object = new_content
             
             # Dynamic height adjustment
-            self._adjust_column_height(level_column)
+            self._adjust_column_height(level_column, new_content)
             
-            # Trim old entries
-            if len(level_column) > level_column.max_log_entries:
-                level_column.pop(0)
+            # Trim old entries if needed (count divs)
+            if new_content.count('<div') > level_column.max_log_entries:
+                # Keep only the last max_log_entries
+                divs = new_content.split('<div')
+                trimmed = '<div'.join(divs[-level_column.max_log_entries:])
+                level_column._log_content = trimmed
+                level_column.object = trimmed
             
             # Update display handle in jupyter environment
             if (self.environment == 'jupyter' and output_key in self.display_handles 
                 and self.display_handles[output_key] is not None):
                 self.display_handles[output_key].update(level_column)
     
-    def _adjust_column_height(self, column):
+    def _adjust_column_height(self, column, content=None):
         """Dynamically adjust column height based on content.
         
         Parameters
         ----------
-        column : panel.Column
+        column : panel.pane.HTML
             The column to adjust.
+        content : str, optional
+            The content to count entries from. If None, uses column._log_content.
         """
         if hasattr(column, '_start_height') and hasattr(column, '_max_height'):
+            # Count entries by counting divs in content
+            if content is None:
+                content = getattr(column, '_log_content', '') or column.object or ''
+            entry_count = content.count('<div') if content else 0
+            
             # Estimate height needed: ~25px per log entry
-            estimated_height = max(column._start_height, len(column) * 25)
+            estimated_height = max(column._start_height, entry_count * 25)
             # Cap at max height
             new_height = min(estimated_height, column._max_height)
             column.height = new_height
@@ -478,7 +494,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
     
     if display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']:
-        if ENVIRONMENT == 'jupyter':
+        if ENVIRONMENT == 'jupyter' and not 'GITHUB_ACTIONS' in os.environ:
             display_handles = {}
             display_ids = {}
             for level, column in LOG_COLUMNS.items():
