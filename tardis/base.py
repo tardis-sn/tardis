@@ -120,6 +120,7 @@ def run_tardis(
     simulation.run_convergence()
     simulation.run_final()
     if logger_widget:
+        tardislogger.finalize_widget_logging()
         tardislogger.remove_widget_handler()
         tardislogger.setup_stream_handler()
     return simulation
