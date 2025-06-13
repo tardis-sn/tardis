@@ -32,6 +32,8 @@ import tardis  # FIXME: this import is required by astropy.constants
 from importlib import import_module
 import toml
 from pathlib import Path
+import logging
+import time
 
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
@@ -446,9 +448,31 @@ def create_redirect_files(app, docname):
                 f.write(new_content)
 
 
+_notebook_start_time = {}
+
+def nbsphinx_notebook_start(app, env, docnames):
+    """Hook called when nbsphinx starts processing notebooks"""
+    current_time = time.time()
+    for docname in docnames:
+        if docname.endswith('.ipynb'):
+            _notebook_start_time[docname] = current_time
+            print(f"[NBSPHINX] Starting notebook: {docname}")
+
+def nbsphinx_notebook_finish(app, env, docname, doctree):
+    """Hook called when nbsphinx finishes processing a notebook"""
+    if docname.endswith('.ipynb') and docname in _notebook_start_time:
+        elapsed = time.time() - _notebook_start_time[docname]
+        print(f"[NBSPHINX] Finished notebook: {docname} (took {elapsed:.2f} seconds)")
+        del _notebook_start_time[docname]
+
+
 def setup(app):
     app.connect("builder-inited", generate_tutorials_page)
     app.connect("builder-inited", generate_how_to_guides_page)
     app.connect("builder-inited", generate_worflows_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)
+    
+    # ADD THESE TWO LINES
+    app.connect("env-before-read-docs", nbsphinx_notebook_start)
+    app.connect("doctree-resolved", nbsphinx_notebook_finish)
