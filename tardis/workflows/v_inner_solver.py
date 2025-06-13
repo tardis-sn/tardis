@@ -167,7 +167,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
             fill_value="extrapolate",
         )
 
-        estimated_v_inner = interpolator(self.TAU_TARGET) * u.cm / u.s
+        estimated_v_inner = interpolator(self.LOG_TAU_TARGET) * u.cm / u.s
         if np.isnan(estimated_v_inner):
             raise ValueError("The estimated v_inner is nan -- aborting")
         logger.info(
