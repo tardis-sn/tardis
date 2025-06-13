@@ -123,6 +123,11 @@ class PanelWidgetLogHandler(logging.Handler):
         self.display_widget = display_widget
         self.display_handles = display_handles or {}
         self.environment = get_environment()
+        self.is_github_actions = 'GITHUB_ACTIONS' in os.environ
+        
+        # Batch logging for GitHub Actions
+        self.batch_logs = []
+        
         self.stream_handler = None
         if not self.display_widget:
             self.stream_handler = logging.StreamHandler()
@@ -149,7 +154,11 @@ class PanelWidgetLogHandler(logging.Handler):
             clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
             html_output = self._format_html_output(clean_log_entry, record)
         
-        self._emit_to_columns(record.levelno, html_output)
+        # For GitHub Actions, batch the logs instead of emitting immediately
+        if self.is_github_actions:
+            self.batch_logs.append((record.levelno, html_output))
+        else:
+            self._emit_to_columns(record.levelno, html_output)
 
     @staticmethod
     def _remove_ansi_escape_sequences(text):
@@ -249,6 +258,18 @@ class PanelWidgetLogHandler(logging.Handler):
             # Cap at max height
             new_height = min(estimated_height, column._max_height)
             column.height = new_height
+    
+    def process_batch_logs(self):
+        """Process all batched logs and emit them to columns.
+        """
+        if not self.is_github_actions or not self.batch_logs:
+            return
+            
+        for level, html_output in self.batch_logs:
+            self._emit_to_columns(level, html_output)
+        
+        # Clear the batch after processing
+        self.batch_logs.clear()
     
     def close(self):
         """Close the log handler.
@@ -378,8 +399,14 @@ class TARDISLogger:
         PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
     
     def finalize_widget_logging(self):
-        """Embed the final state for Sphinx builds.
+        """Finalize widget logging by processing batched logs and embedding the final state.
+        
         """
+        # Process any batched logs first (for GitHub Actions)
+        if hasattr(self, 'widget_handler') and self.widget_handler:
+            self.widget_handler.process_batch_logs()
+        
+        # Embed the final state for Jupyter environments
         if (ENVIRONMENT == 'jupyter' and hasattr(self, 'display_handles') 
             and hasattr(self, 'display_ids') and self.display_handles and self.display_ids):
             for level, column in self.log_columns.items():
