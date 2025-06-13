@@ -275,6 +275,7 @@ class TARDISLogger:
         self.logger = logging.getLogger("tardis")
         self.log_columns = log_columns
         self.display_handles = display_handles
+        self.display_ids = {}
 
     def configure_logging(self, log_level, tardis_config, specific_log_level=None):
         """Configure the logging level and filtering for TARDIS loggers.
@@ -376,6 +377,15 @@ class TARDISLogger:
         self.logger.addHandler(self.widget_handler)
         PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
     
+    def finalize_widget_logging(self):
+        """Embed the final state for Sphinx builds.
+        """
+        if (ENVIRONMENT == 'jupyter' and hasattr(self, 'display_handles') 
+            and hasattr(self, 'display_ids') and self.display_handles and self.display_ids):
+            for level, column in self.log_columns.items():
+                if level in self.display_handles and level in self.display_ids:
+                    self.display_handles[level].update(column.embed())
+    
     def remove_widget_handler(self):
         """Remove the widget handler from the logger.
         """
@@ -442,17 +452,20 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     
     if display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']:
         if ENVIRONMENT == 'jupyter':
-            # Use display handles with embed for jupyter
             display_handles = {}
+            display_ids = {}
             for level, column in LOG_COLUMNS.items():
                 level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
                 display(level_title)
-                display_handles[level] = display(column.embed(), display_id=f"logger_column_{level.lower().replace('/', '_')}")
+                display_id = f"logger_column_{level.lower().replace('/', '_')}"
+                display_handles[level] = display(column, display_id=display_id)
+                display_ids[level] = display_id
             
-            # Update tardislogger with display handles
+            # Update tardislogger with display handles and IDs
             tardislogger.display_handles = display_handles
+            tardislogger.display_ids = display_ids
         else:
-            # Use direct display for vscode
+            # Use direct display for vscode (no change)
             for level, column in LOG_COLUMNS.items():
                 level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
                 display(level_title)
