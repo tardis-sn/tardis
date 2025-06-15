@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from tardis.energy_input.gamma_ray_packet_source import RadioactivePacketSource
+# from tardis.energy_input.gamma_ray_packet_source import RadioactivePacketSource
 
 
 @pytest.mark.skip(reason="Packet source init is very complex")
