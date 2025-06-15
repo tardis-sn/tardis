@@ -64,6 +64,8 @@ def run_gamma_ray_loop(
     grey_opacity,
     photoabsorption_opacity="tardis",
     pair_creation_opacity="tardis",
+    legacy=False,
+    legacy_atom_data=None,
 ):
     """
     Main loop to determine the gamma-ray propagation through the ejecta.
@@ -116,7 +118,7 @@ def run_gamma_ray_loop(
     shell_masses = model.volume * model.density
     number_of_shells = len(shell_masses)
     # TODO: decaying upto times[0]. raw_isotope_abundance is possibly not the best name
-    raw_isotope_abundance = model.composition.raw_isotope_abundance.sort_values(
+    isotopic_mass_fraction = model.composition.isotopic_mass_fraction.sort_values(
         by=["atomic_number", "mass_number"], ascending=False
     )
 
@@ -128,25 +130,22 @@ def run_gamma_ray_loop(
         1.0 / ejecta_velocity_volume[:, np.newaxis]
     ) / effective_time_array**3.0
 
-    for (
-        atom_number
-    ) in model.composition.isotopic_number_density.index.get_level_values(0):
-        values = model.composition.isotopic_number_density.loc[
-            atom_number
-        ].values
-        if values.shape[1] > 1:
-            model.elemental_number_density.loc[atom_number] = np.sum(
-                values, axis=0
-            )
-        else:
-            model.elemental_number_density.loc[atom_number]= values
+    # Calculate the elemental number density
+    if not legacy:
+        elemental_number_density = model.composition.isotopic_number_density.groupby(
+            "atomic_number"
+        ).sum()
+    else:
+        elemental_number_density = model.calculate_elemental_number_density(
+            legacy_atom_data.atom_data.mass
+        )
 
     # Electron number density
-    electron_number_density = model.elemental_number_density.mul(
-        model.elemental_number_density.index,
+    total_electron_number_density = elemental_number_density.mul(
+        elemental_number_density.index,
         axis=0,
     ).sum()
-    electron_number = np.array(electron_number_density * ejecta_volume)
+    electron_number = np.array(total_electron_number_density * ejecta_volume)
 
     # Evolve electron number and mass density with time
     electron_number_density_time = (
@@ -154,7 +153,7 @@ def run_gamma_ray_loop(
     )
     mass_density_time = shell_masses[:, np.newaxis] * inv_volume_time
 
-    taus, parents = get_taus(raw_isotope_abundance)
+    taus, parents = get_taus(isotopic_mass_fraction)
     # Need to get the strings for the isotopes without the dashes
     taus = make_isotope_string_tardis_like(taus)
 
@@ -177,11 +176,12 @@ def run_gamma_ray_loop(
         effective_time_array,
         taus,
         parents,
+        base_seed=seed,
     )
 
     logger.info("Creating packets")
     packet_collection, isotope_positron_fraction = packet_source.create_packets(
-        cumulative_decays_df, num_decays, seed
+        cumulative_decays_df, num_decays
     )
 
     total_energy = np.zeros((number_of_shells, len(times) - 1))
@@ -210,7 +210,7 @@ def run_gamma_ray_loop(
 
     logger.info(f"Total energy deposited by the positrons is {total_energy.sum().sum()}")
 
-    #positron_energy = total_energy
+    # positron_energy = total_energy
 
     # Copy the positron energy to a new dataframe
     positron_energy_df = pd.DataFrame(data=total_energy.copy(), columns=times[:-1])
@@ -302,10 +302,8 @@ def run_gamma_ray_loop(
         packets_df_escaped,
         gamma_ray_deposited_energy,
         total_deposited_energy,
-        positron_energy_df
+        positron_energy_df,
     )
-
-
 def get_packet_properties(number_of_shells, times, time_steps, packets):
     """
     Function to get the properties of the packets.
