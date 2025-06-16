@@ -10,20 +10,17 @@ if TYPE_CHECKING:
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Union
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import yaml
-
 from tqdm.auto import tqdm
 
 from tardis.io.model.readers.snec.xg_files import XGData, read_xg_file
 
 with open(
     Path(__file__).parent / "parser_config" / "snec_xg_output_quantities.yml",
-    "r",
 ) as fh:
     SNEC_XG_OUTPUT_METADATA = yaml.safe_load(fh)
 
@@ -109,7 +106,9 @@ class SNECOutput:
         return ds
 
 
-def read_snec_output_xg(snec_output_dir: Path | str) -> XGData:
+def read_snec_output_xg(
+    snec_output_dir: Path | str, show_progress: bool = True
+) -> XGData:
     """
     Read SNEC output .xg files and merge them into a unified XGData object.
 
@@ -120,7 +119,7 @@ def read_snec_output_xg(snec_output_dir: Path | str) -> XGData:
         "output" subdirectory with files named "mass.xg" and "{quantity}.xg".
     show_progress : bool, optional
         If True, display a progress bar when reading each .xg file.
-        Default is False.
+        Default is True.
 
     Returns
     -------
@@ -152,14 +151,14 @@ def read_snec_output_xg(snec_output_dir: Path | str) -> XGData:
         column_names=["radius", "enclosed_mass"],
     )
 
-    # Prepare items and progress bar
+    # Prepare items and conditional progress bar
     xg_items = list(SNEC_XG_OUTPUT_METADATA.items())
-    pbar = tqdm(xg_items, unit="quantity")
+    if show_progress:
+        xg_iterator = tqdm(xg_items, unit="quantity", desc="Reading XG files")
+    else:
+        xg_iterator = xg_items
 
-    for output_quantity, metadata in pbar:
-        # update description to show current quantity
-        pbar.set_description(f"Reading {output_quantity}")
-
+    for output_quantity, metadata in xg_iterator:
         xg_file = snec_output_dir / "output" / f"{output_quantity}.xg"
         if not xg_file.exists():
             raise FileNotFoundError(f"File {xg_file} does not exist.")

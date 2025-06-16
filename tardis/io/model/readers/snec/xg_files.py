@@ -81,9 +81,7 @@ def xg_block_size(path):
     return len(timestamp_blocks), np.diff(timestamp_blocks)[0]
 
 
-def read_xg_file(
-    file_path: str, column_names: list, show_progress: bool = False
-):
+def read_xg_file(file_path: str, column_names: list, show_progress: bool = True):
     """
     Reads the timestamps and corresponding data blocks from an .xg file.
 

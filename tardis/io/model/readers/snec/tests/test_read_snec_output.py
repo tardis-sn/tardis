@@ -10,7 +10,7 @@ def regression_test_snec_dir(regression_data: RegressionData):
     return regression_data.regression_data_path / "testdata" / "MESA_STIR_MESA_SNEC"
 
 def test_read_snec_output_xg(regression_test_snec_dir):
-    xg_data = read_snec_output_xg(regression_test_snec_dir)
+    xg_data = read_snec_output_xg(regression_test_snec_dir, show_progress=False)
     assert isinstance(xg_data, XGData)
     assert len(xg_data.timestamps) == 1001
     assert len(xg_data.data_blocks) == 1001
