@@ -1,41 +1,11 @@
 tardis_config_version: v1.0
 supernova:
-    luminosity_requested: 5.05e9 L_sun
-    time_explosion: 13 day
-atom_data: kurucz_cd23_chianti_H_He_latest.h5
-model:
-    structure:
-        type: specific
-        velocity:
-            start: 1.1e4 km/s
-            stop: 2.0e4 km/s
-            num: 20
-        density:
-            type: branch85_w7
-    abundances:
-        type: uniform
-        H: 0.0
-        He: 0.0
-        C: 2.0e-3
-        N: 2.0e-3
-        O: 1.0e-2
-        Ne: 1.0e-2
-        Mg: 3.0e-2
-        Si: 0.35
-        S: 0.13
-        Ar: 1.5e-2
-        Ca: 1.5e-2
-        Ti: 8.0e-4
-        Cr: 4.9e-3
-        Fe: 0.074
-        Co: 8.5e-4
-        Ni: 0.036
-        Ni56: 4.9e-2
-        Co56: 0.0
-        Fe52: 1.0e-3
-        Cr48: 1.0e-4
+    luminosity_requested: 6.426477896950761e+40 erg / s
+    time_explosion: 1.00 d
+atom_data: kurucz_cd23_chianti_H_He.h5
+csvy_model: tardis_he_test_model.csvy
 plasma:
-    initial_t_inner: 9000 K
+    initial_t_inner: 8750.347787508592 K
     disable_electron_scattering: false
     ionization: nebular
     excitation: dilute-lte
@@ -44,18 +14,18 @@ plasma:
     helium_treatment: recomb-nlte
 montecarlo:
     seed: 23111963
-    no_of_packets: 1e4
-    iterations: 3
+    no_of_packets: 5e4
+    iterations: 50
     nthreads: 1
-    last_no_of_packets: 3e4
+    last_no_of_packets: 1e6
     no_of_virtual_packets: 0
     convergence_strategy:
         type: damped
         damping_constant: 0.5
         threshold: 0.05
         fraction: 0.8
-        hold_iterations: 3
-        stop_if_converged: false
+        hold_iterations: 5
+        stop_if_converged: true
         t_inner:
             damping_constant: 0.5
             threshold: 0.01
@@ -66,6 +36,6 @@ montecarlo:
 spectrum:
     start: 2000 angstrom
     stop: 25000 angstrom
-    num: 1000
+    num: 5000
     integrated:
         interpolate_shells: 100
