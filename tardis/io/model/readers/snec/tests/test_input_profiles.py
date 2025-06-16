@@ -1,10 +1,11 @@
-import pytest
-import numpy as np
-from pathlib import Path
-from astropy import units as u
 import astropy
+import pytest
+from astropy import units as u
 
-from tardis.io.model.readers.snec.input_profiles import read_snec_input_profile, SNECIsotopeProfile
+from tardis.io.model.readers.snec.snec_input import (
+    SNECIsotopeProfile,
+    read_snec_input_profile,
+)
 
 
 @pytest.fixture
