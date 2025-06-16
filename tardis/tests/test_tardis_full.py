@@ -9,7 +9,7 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation.base import Simulation
-from tardis.tests.fixtures.regression_data import RegressionData
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 
 def test_run_tardis_from_config_obj(
@@ -50,8 +50,6 @@ class TestTransportSimple:
     """
     Very simple run
     """
-
-    regression_data: RegressionData = None
 
     @pytest.fixture(scope="class")
     def simulation(

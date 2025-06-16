@@ -8,7 +8,7 @@ from pandas import testing as pdt
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
-from tardis.tests.fixtures.regression_data import RegressionData
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 PLASMA_CONFIG_FPATH = (
     Path("tardis") / "plasma" / "tests" / "data" / "plasma_base_test_config.yml"
