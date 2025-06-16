@@ -8,16 +8,11 @@ from IPython.display import display
 from functools import lru_cache
 import pandas as pd
 from tardis.io.logger.colored_logger import ColoredFormatter
+from tardis.util.base import is_notebook
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
 pn.extension(comms="ipywidgets")
-# # During the sphinx build, we don't need the ipywidgets comms.
-# if 'GITHUB_ACTIONS' not in os.environ:
-#     pn.extension(comms="ipywidgets")
-# else:
-#     pn.extension()
-
 
 def get_environment():
     """Determine the execution environment.
@@ -32,7 +27,10 @@ def get_environment():
     """
     if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
         return 'vscode'
-    return 'jupyter'
+    elif is_notebook():
+        return 'jupyter'
+    else:
+        return 'terminal'
 
 def create_logger_columns():
     """Create logger scroll columns with dynamic height.
@@ -403,7 +401,8 @@ class TARDISLogger:
             and hasattr(self, 'display_ids') and self.display_handles and self.display_ids):
             print("Embedding the final state for Jupyter environments")
             for level, column in self.log_columns.items():
-                if level in self.display_handles and level in self.display_ids:
+                if (level in self.display_handles and level in self.display_ids 
+                    and self.display_handles[level] is not None):
                     self.display_handles[level].update(column.embed())
     
     def remove_widget_handler(self):
@@ -469,8 +468,9 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     """
     tardislogger = TARDISLogger(log_columns=LOG_COLUMNS)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
+    use_widget = display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']
     
-    if display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']:
+    if use_widget:
         if ENVIRONMENT == 'jupyter':
             display_handles = {}
             display_ids = {}
@@ -494,7 +494,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     # Setup widget logging once after display handles are configured
     tardislogger.setup_widget_logging(display_widget=display_logging_widget)
     
-    if display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']:
+    if use_widget:
         return LOG_COLUMNS, tardislogger
     else:
         return None, tardislogger
