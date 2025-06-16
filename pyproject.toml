@@ -6,11 +6,12 @@ classifiers = ["License :: OSI Approved :: BSD License"]
 description = "TARDIS - Temperature And Radiative Diffusion In Supernovae"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 requires-python = ">=3.7"
-dependencies = ["astropy"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 viz = ["qgridnext", "lineid_plot"]
+tardisbase = ["tardisbase @ git+https://github.com/tardis-sn/tardisbase.git@dc8224d"]
+
 
 [project.scripts]
 cmfgen2tardis = "tardis.scripts.cmfgen2tardis:main"

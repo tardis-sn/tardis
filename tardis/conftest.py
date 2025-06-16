@@ -10,12 +10,19 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
-from tardis.tests.fixtures.regression_data import regression_data
+
 from tardis.util.base import packet_pbar, iterations_pbar
 from tardis.tests.test_util import monkeysession
 
-# ensuring that regression_data is not removed by ruff
-assert regression_data is not None
+try:
+    import tardisbase
+    
+    # this imports regression data fixture from tardisbase
+    pytest_plugins = "tardisbase.testing.regression_data.regression_data"
+
+except ImportError:
+    pytest_plugins = []
+
 
 """Configure Test Suite.
 
@@ -53,6 +60,11 @@ def pytest_configure(config):
     config : pytest configuration
 
     """
+    try:
+        import tardisbase
+    except ImportError:
+        pytest.exit("tardisbase package not available - skipping entire test suite", returncode=0)
+    
     if ASTROPY_HEADER:
         config.option.astropy_header = True
 
@@ -134,7 +146,6 @@ def pytest_collection_modifyitems(config, items):
 # -------------------------------------------------------------------------
 # project specific fixtures
 # -------------------------------------------------------------------------
-
 
 @pytest.fixture(scope="session")
 def generate_reference(request):
