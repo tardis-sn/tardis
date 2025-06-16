@@ -11,6 +11,7 @@ from tardis.io.logger.colored_logger import ColoredFormatter
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
+pn.extension(comms="ipywidgets")
 # # During the sphinx build, we don't need the ipywidgets comms.
 # if 'GITHUB_ACTIONS' not in os.environ:
 #     pn.extension(comms="ipywidgets")
