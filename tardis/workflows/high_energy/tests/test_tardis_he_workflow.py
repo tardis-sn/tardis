@@ -1,10 +1,3 @@
-"""
-Test suite for TARDIS High Energy (HE) Workflow
-
-This module contains comprehensive tests for the TARDISHEWorkflow class,
-following TARDIS testing conventions and using regression data.
-"""
-
 import pytest
 from numpy.testing import assert_allclose
 
