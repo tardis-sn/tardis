@@ -10,9 +10,8 @@ from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
 
-from tardis.tests.fixtures.regression_data import PlotDataHDF
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 from tardis.visualization.tools.sdec_plot import SDECPlotter
-
 
 def make_valid_name(testid):
     """
