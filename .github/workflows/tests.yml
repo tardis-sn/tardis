@@ -69,7 +69,7 @@ jobs:
         uses: ./.github/actions/setup_lfs
 
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
 
@@ -108,7 +108,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: linux-64
 
