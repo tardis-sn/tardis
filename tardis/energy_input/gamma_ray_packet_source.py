@@ -18,6 +18,7 @@ PARA_TO_ORTHO_RATIO = 0.25
 
 
 class GammaRayPacketSource(BasePacketSource):
+
     def __init__(
         self,
         packet_energy,
@@ -25,11 +26,8 @@ class GammaRayPacketSource(BasePacketSource):
         positronium_fraction,
         inner_velocities,
         outer_velocities,
-        inv_volume_time,
         times,
         effective_times,
-        taus,
-        parents,
         **kwargs,
     ):
         """
@@ -47,30 +45,18 @@ class GammaRayPacketSource(BasePacketSource):
             Array of inner shell velocities
         outer_velocities : array
             Array of outer shell velocities
-        inv_volume_time : array
-            Array of inverse volume times
-            1 / ((4 * np.pi)/3 * (vt) ** 3)
-            Indicates how the ejecta volume changes with time
         times : array
             Array of time steps
         effective_times : array
             Array of effective time steps
-        taus : dict
-            Dictionary of isotope mean lifetimes in seconds
-        parents : dict
-            Dictionary of isotope parents
-
         """
         self.packet_energy = packet_energy
         self.isotope_decay_df = isotope_decay_df
         self.positronium_fraction = positronium_fraction
         self.inner_velocities = inner_velocities
         self.outer_velocities = outer_velocities
-        self.inv_volume_time = inv_volume_time
         self.times = times
         self.effective_times = effective_times
-        self.taus = taus
-        self.parents = parents
         super().__init__(**kwargs)
 
     def create_packet_mus(self, no_of_packets, *args, **kwargs):

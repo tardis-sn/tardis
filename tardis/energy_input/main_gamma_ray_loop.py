@@ -166,16 +166,13 @@ def run_gamma_ray_loop(
     logger.info(f"Energy per packet is {energy_per_packet}")
 
     packet_source = GammaRayPacketSource(
-        energy_per_packet,
-        isotope_decay_df,
-        positronium_fraction,
-        inner_velocities,
-        outer_velocities,
-        inv_volume_time,
-        times,
-        effective_time_array,
-        taus,
-        parents,
+        packet_energy=energy_per_packet,
+        isotope_decay_df=isotope_decay_df,
+        positronium_fraction=positronium_fraction,
+        inner_velocities=inner_velocities,
+        outer_velocities=outer_velocities,
+        times=times,
+        effective_times=effective_time_array,
         base_seed=seed,
     )
 
