@@ -129,6 +129,8 @@ mathjax2_config = {
     }
 }
 
+nbsphinx_allow_errors = False
+
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
     "--rc figure.dpi=96",
