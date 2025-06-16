@@ -29,9 +29,9 @@ jobs:
         if: github.event_name == 'pull_request_target'
 
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
-          os-label: linux-64
+          os-label: "linux-64"
       
       - name: Run codespell
         run: |
