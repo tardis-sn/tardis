@@ -5,7 +5,7 @@ on:
     branches:
       - master
 
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -41,13 +41,13 @@ jobs:
       (github.event_name == 'push' ||
       (!github.event.pull_request.draft) ||
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request_target' &&
+      (github.event_name == 'pull_request' &&
       contains(github.event.pull_request.labels.*.name, 'benchmarks')))
     runs-on: ubuntu-latest
     needs: [test-cache]
     steps:
       - uses: actions/checkout@v4
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         with:
           fetch-depth: 0
 
@@ -56,11 +56,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Fetch master branch
         run: git fetch origin master:master
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -90,7 +90,7 @@ jobs:
           wget -q https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/conda-linux-64.lock
 
       - name: Run benchmarks for last 4 commits if not PR
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         run: |
           git log -n 4  --pretty=format:"%H" >> tag_commits.txt
           asv run -a rounds=1 HASHFILE:tag_commits.txt | tee asv-output.log
@@ -100,15 +100,15 @@ jobs:
           fi
 
       - name: Generate Graphs and HTML
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         run: asv publish
 
       - name: Delete env files
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         run: rm -r .asv/env
 
       - name: Deploy asv page
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.BOT_TOKEN }}
@@ -120,7 +120,7 @@ jobs:
           user_email: "tardis.sn.bot@gmail.com"
 
       - name: Run benchmarks for base and head commits of PR
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: |
           echo $(git rev-parse HEAD) > commit_hashes.txt
           echo $(git rev-parse master) >> commit_hashes.txt
@@ -149,16 +149,16 @@ jobs:
           path: asv-compare-changed-output.log
 
       - name: Generate Graphs and HTML of PR
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: |
           asv publish
 
       - name: Delete env files of PR
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: rm -r .asv/env
 
       - name: Set destination directory
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: |
           BRANCH=$(echo ${GITHUB_REF#refs/heads/})
           if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
@@ -169,7 +169,7 @@ jobs:
               echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
             fi
 
-          elif [[ $EVENT == pull_request_target ]]; then
+          elif [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
 
           else
@@ -185,7 +185,7 @@ jobs:
           PR: ${{ github.event.number }}
 
       - name: Set clean branch option
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: |
           if [[ $EVENT == workflow_dispatch ]]; then
             echo "CLEAN_BRANCH=true" >> $GITHUB_ENV
@@ -200,7 +200,7 @@ jobs:
           EVENT: ${{ github.event_name }}
 
       - name: Deploy ${{ env.DEST_DIR }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.BOT_TOKEN }}
@@ -214,7 +214,7 @@ jobs:
           user_email: "tardis.sn.bot@gmail.com"
       
       - name: Find Comment
-        if: always() && github.event_name == 'pull_request_target'
+        if: always() && github.event_name == 'pull_request'
         uses: peter-evans/find-comment@v1
         id: fc
         with:
@@ -222,7 +222,7 @@ jobs:
           body-includes: I ran benchmarks as you asked
 
       - name: Post comment
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v2
         with:
           token: ${{ secrets.BOT_TOKEN }}
