@@ -10,18 +10,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - name: Download Lock File
-        run:  wget https://raw.githubusercontent.com/atharva-2001/tardisbase/add-xarray/conda-${{ inputs.os-label }}.lock -O conda-${{ inputs.os-label }}.lock
-        shell: bash
-      
-      - name: Generate Cache Key
-        run: | 
-          file_hash=$(cat conda-${{ inputs.os-label }}.lock | shasum -a 256 | cut -d' ' -f1)
-          echo "file_hash=tardis-conda-env-${{ inputs.os-label }}-${file_hash}-v1" >> "${GITHUB_OUTPUT}"
-        id: cache-environment-key
-        shell: bash
-        
-      - uses: mamba-org/setup-micromamba@v2
+      - name: Setup environment
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
-          environment-file: conda-${{ inputs.os-label }}.lock
-          environment-name: tardis
+          os-label: ${{ inputs.os-label }}
