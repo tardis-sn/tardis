@@ -1,4 +1,7 @@
+import logging
+
 import numpy as np
+import pandas as pd
 
 from tardis.energy_input.GXPacket import (
     GXPacketCollection,
@@ -13,6 +16,8 @@ from tardis.energy_input.util import (
 )
 from tardis.transport.montecarlo.packet_source import BasePacketSource
 
+logger = logging.getLogger(__name__)
+
 POSITRON_ANNIHILATION_LINE = 511.0
 PARA_TO_ORTHO_RATIO = 0.25
 
@@ -21,7 +26,7 @@ class GammaRayPacketSource(BasePacketSource):
 
     def __init__(
         self,
-        packet_energy,
+        cumulative_decays_df,
         isotope_decay_df,
         positronium_fraction,
         inner_velocities,
@@ -35,8 +40,8 @@ class GammaRayPacketSource(BasePacketSource):
 
         Parameters
         ----------
-        packet_energy : float
-            Energy of the gamma ray packet
+        cumulative_decays_df : pd.DataFrame
+            DataFrame containing the cumulative decay data
         isotope_decay_df : pd.DataFrame
             DataFrame of isotope decay data
         positronium_fraction : float
@@ -50,7 +55,7 @@ class GammaRayPacketSource(BasePacketSource):
         effective_times : array
             Array of effective time steps
         """
-        self.packet_energy = packet_energy
+        self.cumulative_decays_df = cumulative_decays_df
         self.isotope_decay_df = isotope_decay_df
         self.positronium_fraction = positronium_fraction
         self.inner_velocities = inner_velocities
@@ -229,22 +234,46 @@ class GammaRayPacketSource(BasePacketSource):
         return decay_times
 
     def create_packets(
-        self, decays_per_isotope, number_of_packets, *args, **kwargs
-    ):
-        """Initialize a collection of GXPacket objects for the simulation
-        to operate on.
+        self,
+        cumulative_decays_df: pd.DataFrame,
+        number_of_packets: int,
+        legacy_energy_per_packet: float | None = None,
+    ) -> GXPacketCollection:
+        """Initialize a collection of GXPacket objects for the simulation.
 
         Parameters
         ----------
-        decays_per_isotope : array int64
-            Probability of decays per simulation shell per isotope per time step
+        cumulative_decays_df : pd.DataFrame
+            DataFrame containing the cumulative decay data with columns including
+            'radiation', 'decay_energy_erg', and multi-level index with 'isotope',
+            'shell_number', and 'time_index'
         number_of_packets : int
-            Number of packets to create
+            Number of gamma-ray packets to create
+        legacy_energy_per_packet : float, optional
+            Legacy energy per packet for backwards compatibility. If None,
+            energy per packet is calculated from total gamma-ray energy
+            divided by number of packets, by default None
 
         Returns
         -------
         GXPacketCollection
+            Collection of gamma-ray packets with initialized properties including
+            locations, directions, energies, frequencies, and metadata
         """
+        # Calculate energy per packet
+        if legacy_energy_per_packet is None:
+            gamma_df = self.cumulative_decays_df[
+                self.cumulative_decays_df["radiation"] == "g"
+            ]
+            total_energy_gamma = gamma_df["decay_energy_erg"].sum()
+            energy_per_packet = total_energy_gamma / number_of_packets
+        else:
+            energy_per_packet = legacy_energy_per_packet
+            total_energy_gamma = number_of_packets * legacy_energy_per_packet
+
+        logger.info("Total energy in gamma-rays is %s", total_energy_gamma)
+        logger.info("Energy per packet is %s", energy_per_packet)
+
         # initialize arrays for most packet properties
         locations = np.zeros((3, number_of_packets))
         directions = np.zeros((3, number_of_packets))
@@ -255,8 +284,8 @@ class GammaRayPacketSource(BasePacketSource):
         statuses = np.ones(number_of_packets, dtype=np.int64) * 3
 
         # sample packets from the gamma-ray lines only (include X-rays!)
-        sampled_packets_df_gamma = decays_per_isotope[
-            decays_per_isotope["radiation"] == "g"
+        sampled_packets_df_gamma = cumulative_decays_df[
+            cumulative_decays_df["radiation"] == "g"
         ]
 
         # sample packets from the time evolving dataframe
@@ -268,10 +297,7 @@ class GammaRayPacketSource(BasePacketSource):
         )
 
         # get the isotopes and shells of the sampled packets
-        isotopes = sampled_packets_df.index.get_level_values("isotope")
-        isotope_positron_fraction = self.calculate_positron_fraction(
-            isotopes, number_of_packets
-        )
+        source_isotopes = sampled_packets_df.index.get_level_values("isotope")
         shells = sampled_packets_df.index.get_level_values("shell_number")
 
         # get the inner and outer velocity boundaries for each packet to compute
@@ -311,7 +337,7 @@ class GammaRayPacketSource(BasePacketSource):
         nus_cmf = nu_energies_cmf / H_CGS_KEV
 
         packet_energies_cmf = self.create_packet_energies(
-            number_of_packets, self.packet_energy
+            number_of_packets, energy_per_packet
         )
         packet_energies_rf = np.zeros(number_of_packets)
         nus_rf = np.zeros(number_of_packets)
@@ -334,14 +360,20 @@ class GammaRayPacketSource(BasePacketSource):
             shells,
             effective_decay_times,
             decay_time_indices,
-        ), isotope_positron_fraction
+            source_isotopes=source_isotopes,
+        )
 
-    def calculate_positron_fraction(self, isotopes, number_of_packets):
+    @staticmethod
+    def legacy_calculate_positron_fraction(
+        isotope_decay_df, isotopes, number_of_packets
+    ):
         """Calculate the fraction of energy that an isotope
         releases as positron kinetic energy compared to gamma-ray energy
 
         Parameters
         ----------
+        isotope_decay_df : pd.DataFrame
+            DataFrame of isotope decay data
         isotopes : array
             Array of isotope names as strings. Here each isotope is associated with a packet.
         number_of_packets : int
@@ -356,8 +388,8 @@ class GammaRayPacketSource(BasePacketSource):
 
         # Find the positron fraction from the zeroth shell of the dataframe
         # this is because the total positron kinetic energy is the same for all shells
-        shell_number_0 = self.isotope_decay_df[
-            self.isotope_decay_df.index.get_level_values("shell_number") == 0
+        shell_number_0 = isotope_decay_df[
+            isotope_decay_df.index.get_level_values("shell_number") == 0
         ]
 
         gamma_decay_df = shell_number_0[shell_number_0["radiation"] == "g"]
@@ -380,3 +412,38 @@ class GammaRayPacketSource(BasePacketSource):
                     / gamma_energy_per_isotope[isotope]
                 )
         return isotope_positron_fraction
+
+    def get_isotopes_from_packets(self, cumulative_decays_df, number_of_packets):
+        """Get isotopes from sampled packets for positron fraction calculation.
+
+        This method replicates the sampling logic from create_packets to get
+        the same isotopes that would be used for packet creation.
+
+        Parameters
+        ----------
+        cumulative_decays_df : pd.DataFrame
+            DataFrame containing the cumulative decay data
+        number_of_packets : int
+            Number of packets to create
+
+        Returns
+        -------
+        pd.Index
+            Index of isotopes corresponding to the sampled packets
+        """
+        # sample packets from the gamma-ray lines only (include X-rays!)
+        sampled_packets_df_gamma = cumulative_decays_df[
+            cumulative_decays_df["radiation"] == "g"
+        ]
+
+        # sample packets from the time evolving dataframe
+        sampled_packets_df = sampled_packets_df_gamma.sample(
+            n=number_of_packets,
+            weights="decay_energy_erg",
+            replace=True,
+            random_state=np.random.RandomState(self.base_seed),
+        )
+
+        # get the isotopes of the sampled packets
+        isotopes = sampled_packets_df.index.get_level_values("isotope")
+        return isotopes

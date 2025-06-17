@@ -99,6 +99,7 @@ class GXPacketCollection:
         shell,
         time_start,
         time_index,
+        source_isotopes,
     ):
         self.location = location
         self.direction = direction
@@ -111,6 +112,7 @@ class GXPacketCollection:
         self.time_start = time_start
         self.time_index = time_index
         self.tau = -np.log(np.random.random())
+        self.source_isotopes = source_isotopes
 
 
 # @njit(**njit_dict_no_parallel)

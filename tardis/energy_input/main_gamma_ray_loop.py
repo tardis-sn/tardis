@@ -53,7 +53,7 @@ def get_effective_time_array(time_start, time_end, time_space, time_steps):
 
 def run_gamma_ray_loop(
     model,
-    isotope_decay_df,
+    legacy_isotope_decacy_df,
     cumulative_decays_df,
     num_decays,
     times,
@@ -157,17 +157,9 @@ def run_gamma_ray_loop(
     # Need to get the strings for the isotopes without the dashes
     taus = make_isotope_string_tardis_like(taus)
 
-    gamma_df = isotope_decay_df[isotope_decay_df["radiation"] == "g"]
-    total_energy_gamma = gamma_df["decay_energy_erg"].sum()
-
-    energy_per_packet = total_energy_gamma / num_decays
-
-    logger.info(f"Total energy in gamma-rays is {total_energy_gamma}")
-    logger.info(f"Energy per packet is {energy_per_packet}")
-
     packet_source = GammaRayPacketSource(
-        packet_energy=energy_per_packet,
-        isotope_decay_df=isotope_decay_df,
+        cumulative_decays_df=cumulative_decays_df,
+        isotope_decay_df=legacy_isotope_decacy_df,
         positronium_fraction=positronium_fraction,
         inner_velocities=inner_velocities,
         outer_velocities=outer_velocities,
@@ -177,9 +169,36 @@ def run_gamma_ray_loop(
     )
 
     logger.info("Creating packets")
-    packet_collection, isotope_positron_fraction = packet_source.create_packets(
-        cumulative_decays_df, num_decays
+    if legacy:
+        # Calculate energy per packet for legacy mode using legacy_isotope_decacy_df
+        gamma_df = legacy_isotope_decacy_df[
+            legacy_isotope_decacy_df["radiation"] == "g"
+        ]
+        total_energy_gamma = gamma_df["decay_energy_erg"].sum()
+        energy_per_packet = total_energy_gamma / num_decays
+        legacy_energy_per_packet = energy_per_packet
+    else:
+        # Let the packet source calculate energy per packet internally
+        legacy_energy_per_packet = None
+        energy_per_packet = None
+
+    packet_collection = packet_source.create_packets(
+        cumulative_decays_df,
+        num_decays,
+        legacy_energy_per_packet=legacy_energy_per_packet,
     )
+
+    # Calculate isotope positron fraction separately
+    isotopes = packet_source.get_isotopes_from_packets(cumulative_decays_df, num_decays)
+    isotope_positron_fraction = GammaRayPacketSource.legacy_calculate_positron_fraction(
+        legacy_isotope_decacy_df, packet_collection.source_isotopes, num_decays
+    )
+
+    # For non-legacy mode, get the energy per packet from the packet source calculation
+    if not legacy:
+        gamma_df = cumulative_decays_df[cumulative_decays_df["radiation"] == "g"]
+        total_energy_gamma = gamma_df["decay_energy_erg"].sum()
+        energy_per_packet = total_energy_gamma / num_decays
 
     total_energy = np.zeros((number_of_shells, len(times) - 1))
 
@@ -205,7 +224,9 @@ def run_gamma_ray_loop(
     for i, p in enumerate(packets):
         total_energy[p.shell, p.time_index] += isotope_positron_fraction[i] * energy_per_packet
 
-    logger.info(f"Total energy deposited by the positrons is {total_energy.sum().sum()}")
+    logger.info(
+        "Total energy deposited by the positrons is %s", total_energy.sum().sum()
+    )
 
     # positron_energy = total_energy
 
@@ -228,8 +249,8 @@ def run_gamma_ray_loop(
         total_cmf_energy += p.energy_cmf
         total_rf_energy += p.energy_rf
 
-    logger.info(f"Total CMF energy is {total_cmf_energy}")
-    logger.info(f"Total RF energy is {total_rf_energy}")
+    logger.info("Total CMF energy is %s", total_cmf_energy)
+    logger.info("Total RF energy is %s", total_rf_energy)
 
     (
         energy_out,
@@ -289,7 +310,10 @@ def run_gamma_ray_loop(
         data=total_energy, columns=times[:-1]
     )
 
-    logger.info(f"Total energy deposited by gamma rays and positrons is {total_energy.sum().sum()}")
+    logger.info(
+        "Total energy deposited by gamma rays and positrons is %s",
+        total_energy.sum().sum(),
+    )
 
     total_deposited_energy = total_energy / dt_array
 

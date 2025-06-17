@@ -11,20 +11,20 @@ def he_workflow_instance_session(atomic_dataset, he_test_config):
 
 
 @pytest.fixture(scope="session")
-def he_workflow_minimal_run_params():
+def he_workflow_minimal_run_params(atomic_dataset):
     """Minimal parameters for HE workflow run."""
     return {
         "time_start": 0.1,
-        "time_end": 10.0,
-        "number_of_packets": 1000,
-        "time_steps": 5,
+        "time_end": 100.0,
+        "number_of_packets": int(3e5),
+        "time_steps": 20,
         "time_space": "log",
-        "seed": 23,
-        "fp": 0.5,
-        "spectrum_bins": 100,
+        "seed": 1993,
+        "fp": 1.9,
+        "spectrum_bins": 1000,
         "grey_opacity": -1,
-        "legacy": False,
-        "legacy_atom_data": None,
+        "legacy": True,
+        "legacy_atom_data": atomic_dataset,
     }
 
 
@@ -32,50 +32,6 @@ def he_workflow_minimal_run_params():
 def he_workflow_result(he_workflow_instance_session, he_workflow_minimal_run_params):
     """Run the HE workflow once and cache the result for multiple tests."""
     return he_workflow_instance_session.run(**he_workflow_minimal_run_params)
-
-
-@pytest.fixture(scope="session")
-def he_workflow_time_spacing_params():
-    """Parameter sets for time spacing tests."""
-    return {
-        "linear": {
-            "time_start": 1.0,
-            "time_end": 20.0,
-            "number_of_packets": 500,
-            "time_steps": 4,
-            "time_space": "linear",
-            "seed": 23,
-            "fp": 0.5,
-            "spectrum_bins": 50,
-            "grey_opacity": -1,
-            "legacy": False,
-            "legacy_atom_data": None,
-        },
-        "log": {
-            "time_start": 1.0,
-            "time_end": 20.0,
-            "number_of_packets": 500,
-            "time_steps": 4,
-            "time_space": "log",
-            "seed": 23,
-            "fp": 0.5,
-            "spectrum_bins": 50,
-            "grey_opacity": -1,
-            "legacy": False,
-            "legacy_atom_data": None,
-        },
-    }
-
-
-@pytest.fixture(scope="session")
-def he_workflow_time_spacing_results(
-    he_workflow_instance_session, he_workflow_time_spacing_params
-):
-    """Run the HE workflow with different time spacing parameters and cache the results."""
-    results = {}
-    for time_space, params in he_workflow_time_spacing_params.items():
-        results[time_space] = he_workflow_instance_session.run(**params)
-    return results
 
 
 @pytest.mark.parametrize(
