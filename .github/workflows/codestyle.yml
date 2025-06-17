@@ -36,7 +36,7 @@ jobs:
       - name: Setup environment
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
-          os-label: ${{ matrix.label }}
+          os-label: linux-64
 
       - name: Show statistics pull request
         if: github.event_name == 'pull_request_target'
