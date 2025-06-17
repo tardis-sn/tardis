@@ -5,7 +5,7 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 
-from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
+from tardis.energy_input.transport.gamma_packet_loop import gamma_packet_loop
 from tardis.energy_input.gamma_ray_packet_source import (
     GammaRayPacketSource,
     legacy_calculate_positron_fraction,
@@ -15,7 +15,7 @@ from tardis.energy_input.gamma_ray_transport import (
     get_taus,
     iron_group_fraction_per_shell,
 )
-from tardis.energy_input.GXPacket import GXPacket
+from tardis.energy_input.transport.GXPacket import GXPacket
 from tardis.energy_input.util import get_index, make_isotope_string_tardis_like
 from tardis.model.base import SimulationState
 

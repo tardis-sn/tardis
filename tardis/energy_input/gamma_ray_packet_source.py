@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from tardis.energy_input.GXPacket import (
+from tardis.energy_input.transport.GXPacket import (
     GXPacketCollection,
 )
 from tardis.energy_input.samplers import (

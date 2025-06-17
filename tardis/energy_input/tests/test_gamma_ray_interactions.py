@@ -6,7 +6,7 @@ from tardis.energy_input.gamma_ray_interactions import (
     pair_creation_packet,
     scatter_type,
 )
-from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.energy_input.transport.GXPacket import GXPacketStatus
 from tardis.energy_input.util import ELECTRON_MASS_ENERGY_KEV, H_CGS_KEV
 
 

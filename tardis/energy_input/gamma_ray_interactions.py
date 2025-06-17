@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 
-from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.energy_input.transport.GXPacket import GXPacketStatus
 from tardis.energy_input.util import (
     ELECTRON_MASS_ENERGY_KEV,
     H_CGS_KEV,

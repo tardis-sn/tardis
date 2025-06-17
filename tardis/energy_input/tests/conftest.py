@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
+from tardis.energy_input.transport.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.util import H_CGS_KEV
 
 
