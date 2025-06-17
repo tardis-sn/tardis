@@ -83,6 +83,9 @@ jobs:
 
       - name: Accept all asv questions
         run: asv machine --yes
+      
+      - name: Download lockfile for benchmarks
+        run: wget -q https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/env.yml
 
       - name: Run benchmarks for last 4 commits if not PR
         if: github.event_name != 'pull_request_target'

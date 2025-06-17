@@ -104,7 +104,7 @@ jobs:
       - name: Setup environment
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
-          os-label: ${{ matrix.label }}
+          os-label: linux-64
 
       - name: Copy atom_data
         run: |
