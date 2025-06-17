@@ -3,9 +3,9 @@ import pandas as pd
 
 from tardis.util.base import (
     atomic_number2element_symbol,
-    is_notebook,
     species_tuple_to_string,
 )
+from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import create_table_widget
 
 
@@ -435,7 +435,7 @@ class ShellInfoWidget:
         ipywidgets.Box
             Shell info widget containing all component widgets
         """
-        if not is_notebook():
+        if not Environment.is_notebook():
             print("Please use a notebook to display the widget")
         else:
             # CSS properties of the layout of shell info tables container

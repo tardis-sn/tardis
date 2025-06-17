@@ -1,36 +1,16 @@
 import logging
-import os
 import re
 import sys
 from dataclasses import dataclass, field
 import panel as pn
 from IPython.display import display
-from functools import lru_cache
 import pandas as pd
 from tardis.io.logger.colored_logger import ColoredFormatter
-from tardis.util.base import is_notebook
+from tardis.util.environment import Environment
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
 pn.extension(comms="ipywidgets")
-
-def get_environment():
-    """Determine the execution environment.
-    
-    Panel behaves differently in vscode and jupyter. In jupyter, the logger widget's display handle
-    has to be updated after each log entry. In vscode, this is not needed.
-
-    Returns
-    -------
-    str
-        The environment name.
-    """
-    if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
-        return 'vscode'
-    elif is_notebook():
-        return 'jupyter'
-    else:
-        return 'terminal'
 
 def create_logger_columns():
     """Create logger scroll columns with dynamic height.
@@ -66,7 +46,6 @@ def create_logger_columns():
     
     return columns
 
-ENVIRONMENT = get_environment()
 LOG_COLUMNS = create_logger_columns()
 
 @dataclass
@@ -127,7 +106,7 @@ class PanelWidgetLogHandler(logging.Handler):
         self.colors = colors
         self.display_widget = display_widget
         self.display_handles = display_handles or {}
-        self.environment = get_environment()
+        self.environment = Environment.get_current()
         
         self.stream_handler = None
         if not self.display_widget:
@@ -397,7 +376,7 @@ class TARDISLogger:
         """Finalize widget logging by embedding the final state.
         """
         # Embed the final state for Jupyter environments
-        if (ENVIRONMENT == 'jupyter' and hasattr(self, 'display_handles') 
+        if (Environment.is_notebook() and hasattr(self, 'display_handles') 
             and hasattr(self, 'display_ids') and self.display_handles and self.display_ids):
             print("Embedding the final state for Jupyter environments")
             for level, column in self.log_columns.items():
@@ -468,10 +447,10 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     """
     tardislogger = TARDISLogger(log_columns=LOG_COLUMNS)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
-    use_widget = display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']
+    use_widget = display_logging_widget and Environment.is_notebook()
     
     if use_widget:
-        if ENVIRONMENT == 'jupyter':
+        if Environment.is_notebook():
             display_handles = {}
             display_ids = {}
             for level, column in LOG_COLUMNS.items():
