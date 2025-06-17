@@ -363,87 +363,51 @@ class GammaRayPacketSource(BasePacketSource):
             source_isotopes=source_isotopes,
         )
 
-    @staticmethod
-    def legacy_calculate_positron_fraction(
-        isotope_decay_df, isotopes, number_of_packets
-    ):
-        """Calculate the fraction of energy that an isotope
-        releases as positron kinetic energy compared to gamma-ray energy
 
-        Parameters
-        ----------
-        isotope_decay_df : pd.DataFrame
-            DataFrame of isotope decay data
-        isotopes : array
-            Array of isotope names as strings. Here each isotope is associated with a packet.
-        number_of_packets : int
-            Number of gamma-ray packets
+def legacy_calculate_positron_fraction(isotope_decay_df, isotopes, number_of_packets):
+    """Calculate the fraction of energy that an isotope
+    releases as positron kinetic energy compared to gamma-ray energy
 
-        Returns
-        -------
-        dict
-            Fraction of energy released as positron kinetic energy per isotope
-        """
-        isotope_positron_fraction = np.zeros(number_of_packets)
+    Parameters
+    ----------
+    isotope_decay_df : pd.DataFrame
+        DataFrame of isotope decay data
+    isotopes : array
+        Array of isotope names as strings. Here each isotope is associated with a packet.
+    number_of_packets : int
+        Number of gamma-ray packets
 
-        # Find the positron fraction from the zeroth shell of the dataframe
-        # this is because the total positron kinetic energy is the same for all shells
-        shell_number_0 = isotope_decay_df[
-            isotope_decay_df.index.get_level_values("shell_number") == 0
-        ]
+    Returns
+    -------
+    dict
+        Fraction of energy released as positron kinetic energy per isotope
+    """
+    isotope_positron_fraction = np.zeros(number_of_packets)
 
-        gamma_decay_df = shell_number_0[shell_number_0["radiation"] == "g"]
+    # Find the positron fraction from the zeroth shell of the dataframe
+    # this is because the total positron kinetic energy is the same for all shells
+    shell_number_0 = isotope_decay_df[
+        isotope_decay_df.index.get_level_values("shell_number") == 0
+    ]
 
-        positrons_decay_df = shell_number_0[shell_number_0["radiation"] == "bp"]
-        # Find the total energy released from positrons per isotope from the dataframe
-        positron_energy_per_isotope = positrons_decay_df.groupby("isotope")[
-            "energy_per_channel_keV"
-        ].sum()
-        # Find the total energy released from gamma-ray per isotope from the dataframe
-        # TODO: Can be tested with total energy released from all radiation types
-        gamma_energy_per_isotope = gamma_decay_df.groupby("isotope")[
-            "energy_per_channel_keV"
-        ].sum()
-        # TODO: Possibly move this for loop
-        for i, isotope in enumerate(isotopes):
-            if isotope in positron_energy_per_isotope: # check if isotope is in the dataframe
-                isotope_positron_fraction[i] = (
-                    positron_energy_per_isotope[isotope]
-                    / gamma_energy_per_isotope[isotope]
-                )
-        return isotope_positron_fraction
+    gamma_decay_df = shell_number_0[shell_number_0["radiation"] == "g"]
 
-    def get_isotopes_from_packets(self, cumulative_decays_df, number_of_packets):
-        """Get isotopes from sampled packets for positron fraction calculation.
-
-        This method replicates the sampling logic from create_packets to get
-        the same isotopes that would be used for packet creation.
-
-        Parameters
-        ----------
-        cumulative_decays_df : pd.DataFrame
-            DataFrame containing the cumulative decay data
-        number_of_packets : int
-            Number of packets to create
-
-        Returns
-        -------
-        pd.Index
-            Index of isotopes corresponding to the sampled packets
-        """
-        # sample packets from the gamma-ray lines only (include X-rays!)
-        sampled_packets_df_gamma = cumulative_decays_df[
-            cumulative_decays_df["radiation"] == "g"
-        ]
-
-        # sample packets from the time evolving dataframe
-        sampled_packets_df = sampled_packets_df_gamma.sample(
-            n=number_of_packets,
-            weights="decay_energy_erg",
-            replace=True,
-            random_state=np.random.RandomState(self.base_seed),
-        )
-
-        # get the isotopes of the sampled packets
-        isotopes = sampled_packets_df.index.get_level_values("isotope")
-        return isotopes
+    positrons_decay_df = shell_number_0[shell_number_0["radiation"] == "bp"]
+    # Find the total energy released from positrons per isotope from the dataframe
+    positron_energy_per_isotope = positrons_decay_df.groupby("isotope")[
+        "energy_per_channel_keV"
+    ].sum()
+    # Find the total energy released from gamma-ray per isotope from the dataframe
+    # TODO: Can be tested with total energy released from all radiation types
+    gamma_energy_per_isotope = gamma_decay_df.groupby("isotope")[
+        "energy_per_channel_keV"
+    ].sum()
+    # TODO: Possibly move this for loop
+    for i, isotope in enumerate(isotopes):
+        if (
+            isotope in positron_energy_per_isotope
+        ):  # check if isotope is in the dataframe
+            isotope_positron_fraction[i] = (
+                positron_energy_per_isotope[isotope] / gamma_energy_per_isotope[isotope]
+            )
+    return isotope_positron_fraction
