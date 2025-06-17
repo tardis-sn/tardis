@@ -6,7 +6,7 @@ from plotly.callbacks import BoxSelector, Points
 from tardis.util.base import species_string_to_tuple
 
 # check if qgrid is installed for the widgets
-qgrid = pytest.importorskip("qgrid", reason="qgrid is not installed")
+qgrid = pytest.importorskip("qgridnext", reason="qgrid is not installed")
 from tardis.visualization.widgets.line_info import LineInfoWidget
 
 

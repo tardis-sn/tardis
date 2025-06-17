@@ -2,7 +2,7 @@ import numpy as np
 import pandas.testing as pdt
 import pytest
 
-qgrid = pytest.importorskip("qgrid", reason="qgrid is not installed")
+qgrid = pytest.importorskip("qgridnext", reason="qgrid is not installed")
 from tardis.visualization.widgets.shell_info import (
     BaseShellInfo,
     HDFShellInfo,
