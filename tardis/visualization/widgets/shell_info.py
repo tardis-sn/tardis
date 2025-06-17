@@ -3,9 +3,9 @@ import panel as pn
 
 from tardis.util.base import (
     atomic_number2element_symbol,
-    is_notebook,
     species_tuple_to_string,
 )
+from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import create_table_widget
 
 
@@ -376,7 +376,7 @@ class ShellInfoWidget:
         panel.Column
             Shell info widget containing all component widgets
         """
-        if not is_notebook():
+        if not Environment.is_notebook():
             print("Please use a notebook to display the widget")
         else:
             # Panel tables handle their own sizing automatically

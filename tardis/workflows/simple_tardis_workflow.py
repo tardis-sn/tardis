@@ -18,7 +18,7 @@ from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
-from tardis.util.base import is_notebook
+from tardis.util.environment import Environment
 from tardis.workflows.workflow_logging import WorkflowLogging
 
 # logging support
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class SimpleTARDISWorkflow(WorkflowLogging):
-    show_progress_bars = is_notebook()
+    show_progress_bars = Environment.is_notebook()
     enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
