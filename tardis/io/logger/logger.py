@@ -12,7 +12,7 @@ PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
 pn.extension(comms="ipywidgets")
 
-def create_logger_columns():
+def create_logger_columns(start_height=10, max_height=300):
     """Create logger scroll columns with dynamic height.
     
     Returns
@@ -39,14 +39,12 @@ def create_logger_columns():
             sizing_mode='stretch_width'
         )
         column.max_log_entries = 1000
-        column._start_height = 10
-        column._max_height = 300
+        column._start_height = start_height
+        column._max_height = max_height
         column._log_content = ""  # Store content as string
         columns[level] = column
     
     return columns
-
-LOG_COLUMNS = create_logger_columns()
 
 @dataclass
 class LoggingConfig:
@@ -426,7 +424,7 @@ class LogFilter:
         """
         return log_record.levelno in self.log_levels
 
-def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
+def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True, widget_start_height=10, widget_max_height=300):
     """Configure and initialize the TARDIS logging system.
     
     Parameters
@@ -445,7 +443,8 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     dict
         Dictionary of log columns if display_logging_widget is True, otherwise None.
     """
-    tardislogger = TARDISLogger(log_columns=LOG_COLUMNS)
+    log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
+    tardislogger = TARDISLogger(log_columns=log_columns)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
     use_widget = display_logging_widget and Environment.is_notebook()
     
@@ -453,7 +452,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         if Environment.is_notebook():
             display_handles = {}
             display_ids = {}
-            for level, column in LOG_COLUMNS.items():
+            for level, column in log_columns.items():
                 level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
                 display(level_title)
                 display_id = f"logger_column_{level.lower().replace('/', '_')}"
@@ -465,7 +464,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
             tardislogger.display_ids = display_ids
         else:
             # Use direct display for vscode (no change)
-            for level, column in LOG_COLUMNS.items():
+            for level, column in log_columns.items():
                 level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
                 display(level_title)
                 display(column)
@@ -474,6 +473,6 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     tardislogger.setup_widget_logging(display_widget=display_logging_widget)
     
     if use_widget:
-        return LOG_COLUMNS, tardislogger
+        return log_columns, tardislogger
     else:
         return None, tardislogger
