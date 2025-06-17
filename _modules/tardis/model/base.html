@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/documentation_options.js?v=0ee1cf3b"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -298,14 +298,12 @@ class SimulationState(HDFWriterMixin):
                 &quot;Trying to set t_radiative for different number of shells.&quot;
             )
 
-    @property
-    def elemental_number_density(self):
+<div class="viewcode-block" id="SimulationState.calculate_elemental_number_density">
+<a class="viewcode-back" href="../../../api/tardis.model.base.html#tardis.model.base.SimulationState.calculate_elemental_number_density">[docs]</a>
+    def calculate_elemental_number_density(self, element_masses):
         elemental_number_density = (
-            (
-                self.composition.elemental_mass_fraction
-                * self.composition.density
-            )
-            .divide(self.composition.element_masses, axis=0)
+            (self.composition.elemental_mass_fraction * self.composition.density)
+            .divide(element_masses, axis=0)
             .dropna()
         )
         elemental_number_density = elemental_number_density.iloc[
@@ -315,7 +313,8 @@ class SimulationState(HDFWriterMixin):
         elemental_number_density.columns = range(
             len(elemental_number_density.columns)
         )
-        return elemental_number_density
+        return elemental_number_density</div>
+
 
     @property
     def isotopic_number_density(self):
@@ -562,7 +561,7 @@ class SimulationState(HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 09 Jun 2025.
+      <span class="lastupdated">Last updated on 17 Jun 2025.
       </span></p>
   </div>
 
