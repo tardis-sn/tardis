@@ -155,12 +155,13 @@ class PlasmaSolverFactory:
         """
         self.plasma_collection = importlib.import_module(property_collections)
 
-        self.atom_data.prepare_atom_data(
-            selected_atomic_numbers,
-            line_interaction_type=self.line_interaction_type,
-            continuum_interaction_species=self.continuum_interaction_species_multi_index,
-            nlte_species=self.legacy_nlte_species,
-        )
+        if not self.atom_data.prepared:
+            self.atom_data.prepare_atom_data(
+                selected_atomic_numbers,
+                line_interaction_type=self.line_interaction_type,
+                continuum_interaction_species=self.continuum_interaction_species_multi_index,
+                nlte_species=self.legacy_nlte_species,
+            )
 
         self.check_continuum_interaction_species()
 
