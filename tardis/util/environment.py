@@ -1,10 +1,10 @@
 import os
-from enum import Enum
+from enum import StrEnum
 import logging
 from IPython import get_ipython
 logger = logging.getLogger(__name__)
 
-class Environment(Enum):    
+class Environment(StrEnum):    
     VSCODE = 'vscode'
     JUPYTER = 'jupyter'
     TERMINAL = 'terminal'
