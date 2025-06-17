@@ -521,7 +521,7 @@ class SDECPlotter:
             enumerate(self.species), self._species_name
         ):
             try:
-                y_data = df[identifier] * (-1 if invert_y else 1)
+                y_data = df[tuple(identifier)] * (-1 if invert_y else 1)
                 self.fig.add_trace(
                     go.Scatter(
                         y=y_data,
