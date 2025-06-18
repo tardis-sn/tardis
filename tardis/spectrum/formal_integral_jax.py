@@ -80,35 +80,80 @@ def populate_z_jax(p, r_outer, r_inner, time_explosion, size_shell):
     """
 
     z0 = jnp.zeros(2 * size_shell, dtype=jnp.float64)
+    shell_id = np.zeros(2 * size_shell, dtype=np.int64)
 
     r = r_outer
     N = len(r_inner)
-    int_t = 1/time_explosion
+    inv_t = 1./time_explosion
 
-    def in_photosphere(z0):
+    def in_photosphere(arrs):
+        z0, shell_id = arrs
+
         idx = jnp.arange(0, N)
-        z0 = z0.at[idx].set(1-calculate_z_jax(r, p, int_t))
-        return z0
+        z0 = z0.at[idx].set(1-calculate_z_jax(r, p, inv_t))
+
+        shell_id = shell_id.at[idx].set(idx)
+        return z0, shell_id
     
-    def out_photosphere(z0):
-        z = calculate_z_jax(r, p, int_t)
+    def out_photosphere_old(arrs):
+
+        # TODO: not getting the offset correctly
+        z0, shell_id = arrs
+
+        z = calculate_z_jax(r, p, inv_t)
         
         # otherwise get the edges of the shell
         idx_low = jnp.arange(N - 1, -1, -1) 
         z0 = z0.at[idx_low].set(1+z)
+        shell_id = shell_id.at[idx_low].set(jnp.arange(0, N))
+
+        # offset is the first i that z is non-zero
+        offset = N
 
         idx_up = jnp.arange(N, N+N)
         z0 = z0.at[idx_up].set(1-z)
+        shell_id = shell_id.at[idx_up].set(jnp.arange(0, N))
 
         # replace zeroes if z was zero
         idx_zeroes = jnp.where(z == 0, size=N)[0] 
         z0 = z0.at[idx_low[idx_zeroes]].set(0)
         z0 = z0.at[idx_up[idx_zeroes]].set(0)
+        shell_id = shell_id.at[idx_low[idx_zeroes]].set(0)
+        shell_id = shell_id.at[idx_up[idx_zeroes]].set(0)
         
-        return z0
+        return z0, shell_id
 
+    def loop_out(i, state):
+        ri = r[i]
+        z = calculate_z_jax(r[i], p, inv_t)
+
+        def do_update(state):
+            z0, shell_id, offset = state
+            offset = jnp.where(offset == N, i, offset)
+            i_low = N - i - 1
+            i_up = N + i - 2 * offset
+
+            z0 = z0.at[i_low].set(1 + z)
+            z0 = z0.at[i_up].set(1 - z)
+            shell_id = shell_id.at[i_low].set(i)
+            shell_id = shell_id.at[i_up].set(i)
+
+            return z0, shell_id, offset
+        
+        def do_nothing(state):
+            return state
+
+        state = jax.lax.cond(z == 0, do_nothing, do_update, state)
+        return state
+
+    def out_photosphere(arrs):
+        z0, shell_id = arrs
+        z0, shell_id, _ = jax.lax.fori_loop(0, N, loop_out, (z0, shell_id, N))
+        return z0, shell_id
+    
     cond = p <= r_inner[0]
-    return jax.lax.cond(cond, in_photosphere, out_photosphere, z0)
+    # print(cond)
+    return jax.lax.cond(cond, in_photosphere, out_photosphere, (z0, shell_id))
 
 # compute for all p
 calc_z_jax_jitvmap = jax.jit(jax.vmap(populate_z_jax, in_axes=[0, None, None, None, None]), static_argnames=['time_explosion', 'size_shell'])
