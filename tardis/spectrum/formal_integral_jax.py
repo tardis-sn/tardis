@@ -1,6 +1,7 @@
 import jax
 from jax import jit
 import jax.numpy as jnp
+import jax.debug as jdb
 jax.config.update("jax_enable_x64", True)
 from functools import partial
 
@@ -95,34 +96,10 @@ def populate_z_jax(p, r_outer, r_inner, time_explosion, size_shell):
         shell_id = shell_id.at[idx].set(idx)
         return z0, shell_id
     
-    def out_photosphere_old(arrs):
+    
+    # compute interactions if outside of the photosphere
 
-        # TODO: not getting the offset correctly
-        z0, shell_id = arrs
-
-        z = calculate_z_jax(r, p, inv_t)
-        
-        # otherwise get the edges of the shell
-        idx_low = jnp.arange(N - 1, -1, -1) 
-        z0 = z0.at[idx_low].set(1+z)
-        shell_id = shell_id.at[idx_low].set(jnp.arange(0, N))
-
-        # offset is the first i that z is non-zero
-        offset = N
-
-        idx_up = jnp.arange(N, N+N)
-        z0 = z0.at[idx_up].set(1-z)
-        shell_id = shell_id.at[idx_up].set(jnp.arange(0, N))
-
-        # replace zeroes if z was zero
-        idx_zeroes = jnp.where(z == 0, size=N)[0] 
-        z0 = z0.at[idx_low[idx_zeroes]].set(0)
-        z0 = z0.at[idx_up[idx_zeroes]].set(0)
-        shell_id = shell_id.at[idx_low[idx_zeroes]].set(0)
-        shell_id = shell_id.at[idx_up[idx_zeroes]].set(0)
-        
-        return z0, shell_id
-
+    # loop over the radii, update z0 if z is not zero
     def loop_out(i, state):
         ri = r[i]
         z = calculate_z_jax(r[i], p, inv_t)
@@ -152,10 +129,9 @@ def populate_z_jax(p, r_outer, r_inner, time_explosion, size_shell):
         return z0, shell_id
     
     cond = p <= r_inner[0]
-    # print(cond)
     return jax.lax.cond(cond, in_photosphere, out_photosphere, (z0, shell_id))
 
-# compute for all p
+# jit compile and vectorize over impact parameters
 calc_z_jax_jitvmap = jax.jit(jax.vmap(populate_z_jax, in_axes=[0, None, None, None, None]), static_argnames=['time_explosion', 'size_shell'])
 
 def intensity_black_body_jax(nu, temperature):
