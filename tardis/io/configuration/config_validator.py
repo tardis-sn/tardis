@@ -3,7 +3,9 @@ from pathlib import Path
 
 import yaml
 from astropy.units.quantity import Quantity
-from jsonschema import Draft4Validator, RefResolver, validators
+from jsonschema import Draft7Validator, validators
+from referencing import Registry, Resource
+from referencing.jsonschema import DRAFT7
 
 from tardis.io.util import YAMLLoader
 
@@ -53,14 +55,23 @@ def extend_with_default(validator_class):
     )
 
 
-DefaultDraft4Validator = extend_with_default(Draft4Validator)
+DefaultDraft7Validator = extend_with_default(Draft7Validator)
 
 
-def _yaml_handler(path):
-    if not path.startswith("file://"):
-        raise Exception(f"Not a file URL: {path}")
-    with open(path[len("file://") :]) as f:
-        return yaml.load(f, Loader=YAMLLoader)
+def _create_schema_registry():
+    """Create a registry containing all schema files for reference resolution."""
+    registry = Registry()
+
+    # Load all schema files in the schemas directory
+    for schema_file in SCHEMA_DIR.glob("*.yml"):
+        with open(schema_file) as f:
+            schema_content = yaml.load(f, Loader=YAMLLoader)
+
+        # Create a resource with the filename as the URI, explicitly specifying Draft 7
+        resource = Resource.from_contents(schema_content, default_specification=DRAFT7)
+        registry = registry.with_resource(uri=schema_file.name, resource=resource)
+
+    return registry
 
 
 def is_quantity(checker, instance):
@@ -85,13 +96,14 @@ def is_quantity(checker, instance):
 def validate_dict(
     config_dict,
     schemapath=CONFIG_SCHEMA_FNAME,
-    validator=DefaultDraft4Validator,
+    validator=DefaultDraft7Validator,
 ):
     with open(schemapath) as f:
         schema = yaml.load(f, Loader=YAMLLoader)
-    schemaurl = f"file://{schemapath}"
-    handlers = {"file": _yaml_handler}
-    resolver = RefResolver(schemaurl, schema, handlers=handlers)
+
+    # Create registry for schema references
+    registry = _create_schema_registry()
+
     validated_dict = deepcopy(config_dict)
     custom_type_checker = validator.TYPE_CHECKER.redefine(
         "quantity", is_quantity
@@ -99,15 +111,15 @@ def validate_dict(
     custom_validator = validators.extend(
         validator, type_checker=custom_type_checker
     )
-    custom_validator(
-        schema=schema,
-        resolver=resolver,
-    ).validate(validated_dict)
+
+    # Create validator with registry for reference resolution
+    validator_instance = custom_validator(schema=schema, registry=registry)
+    validator_instance.validate(validated_dict)
     return validated_dict
 
 
 def validate_yaml(
-    configpath, schemapath=CONFIG_SCHEMA_FNAME, validator=DefaultDraft4Validator
+    configpath, schemapath=CONFIG_SCHEMA_FNAME, validator=DefaultDraft7Validator
 ):
     with open(configpath) as f:
         config = yaml.load(f, Loader=YAMLLoader)
