@@ -133,6 +133,7 @@
              
   <h1>Source code for tardis.util.environment</h1><div class="highlight"><pre>
 <span></span>import os
+import sys
 from enum import StrEnum
 import logging
 from IPython import get_ipython
@@ -156,12 +157,34 @@ class Environment(StrEnum):
         Environment
             The current environment enum member.
         &quot;&quot;&quot;
-        if any(x for x in (&#39;VSCODE_PID&#39;, &#39;VSCODE&#39;) if x in os.environ):
+        if cls.is_vscode():
             return cls.VSCODE
         elif cls.is_notebook():
             return cls.JUPYTER
+        elif cls.is_terminal():
+            return cls.TERMINAL
         else:
-            return cls.TERMINAL</div>
+            raise ValueError(&quot;Unknown environment detected&quot;)</div>
+
+    
+<div class="viewcode-block" id="Environment.is_terminal">
+<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_terminal">[docs]</a>
+    @staticmethod
+    def is_terminal() -&gt; bool:
+        &quot;&quot;&quot;
+        Checking if the current environment is a terminal.
+        &quot;&quot;&quot;
+        return sys.stdout.isatty()</div>
+
+    
+<div class="viewcode-block" id="Environment.is_vscode">
+<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_vscode">[docs]</a>
+    @staticmethod
+    def is_vscode() -&gt; bool:
+        &quot;&quot;&quot;
+        Checking if the current environment is VSCode
+        &quot;&quot;&quot;
+        return any(x for x in (&#39;VSCODE_PID&#39;, &#39;VSCODE&#39;) if x in os.environ)</div>
 
     
 <div class="viewcode-block" id="Environment.is_notebook">

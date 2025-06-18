@@ -133,7 +133,6 @@
              
   <h1>Source code for tardis.io.logger.logger</h1><div class="highlight"><pre>
 <span></span>import logging
-import re
 import sys
 from dataclasses import dataclass, field
 import panel as pn
@@ -141,49 +140,13 @@ from IPython.display import display
 import pandas as pd
 from tardis.io.logger.colored_logger import ColoredFormatter
 from tardis.util.environment import Environment
+from tardis.io.logger.logger_widget import create_logger_columns, PanelWidgetLogHandler
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger(&quot;py.warnings&quot;)
 
 logger = logging.getLogger(__name__)
 
 pn.extension(comms=&quot;ipywidgets&quot;)
-
-<div class="viewcode-block" id="create_logger_columns">
-<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.create_logger_columns">[docs]</a>
-def create_logger_columns(start_height=10, max_height=300):
-    &quot;&quot;&quot;Create logger scroll columns with dynamic height.
-    
-    Returns
-    -------
-    dict
-        Dictionary of scroll columns for each log level.
-    &quot;&quot;&quot;
-    # Create scroll columns for each log level
-    columns = {}
-    
-    for level in [&quot;INFO&quot;, &quot;WARNING/ERROR&quot;, &quot;DEBUG&quot;]:
-        column = pn.pane.HTML(
-            &quot;&quot;,
-            height=10,  # Start small
-            styles={
-                &#39;border&#39;: &#39;1px solid #ddd&#39;,
-                &#39;background-color&#39;: &#39;white&#39;,
-                &#39;overflow-y&#39;: &#39;auto&#39;,
-                &#39;overflow-x&#39;: &#39;auto&#39;,
-                &#39;font-family&#39;: &#39;monospace&#39;,
-                &#39;padding&#39;: &#39;8px&#39;,
-                &#39;white-space&#39;: &#39;pre-wrap&#39;
-            },
-            sizing_mode=&#39;stretch_width&#39;
-        )
-        column.max_log_entries = 1000
-        column._start_height = start_height
-        column._max_height = max_height
-        column._log_content = &quot;&quot;  # Store content as string
-        columns[level] = column
-    
-    return columns</div>
-
 
 <div class="viewcode-block" id="LoggingConfig">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig">[docs]</a>
@@ -225,184 +188,6 @@ class LoggingConfig:
 
 
 LOGGING_LEVELS = LoggingConfig().LEVELS
-
-<div class="viewcode-block" id="PanelWidgetLogHandler">
-<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler">[docs]</a>
-class PanelWidgetLogHandler(logging.Handler):
-    &quot;&quot;&quot;Log handler for logging to scroll columns.
-    
-    Parameters
-    ----------
-    log_columns : dict
-        Dictionary of scroll columns for each log level.
-    colors : dict
-        Dictionary mapping log levels to display colors.
-    display_widget : bool, optional
-        Whether to display logs in the widget. Defaults to True.
-    display_handles : dict, optional
-        Dictionary of display handles for each column (jupyter environment).
-    &quot;&quot;&quot;
-    def __init__(self, log_columns, colors, display_widget=True, display_handles=None):
-        super().__init__()
-        self.log_columns = log_columns
-        self.colors = colors
-        self.display_widget = display_widget
-        self.display_handles = display_handles or {}
-        self.environment = Environment.get_current_environment()
-        
-        self.stream_handler = None
-        if not self.display_widget:
-            self.stream_handler = logging.StreamHandler()
-            self.stream_handler.setFormatter(logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;))
-
-<div class="viewcode-block" id="PanelWidgetLogHandler.emit">
-<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler.emit">[docs]</a>
-    def emit(self, record):
-        &quot;&quot;&quot;Process and emit a log record.
-        
-        Parameters
-        ----------
-        record : logging.LogRecord
-            The log record to process and display.
-        &quot;&quot;&quot;
-        if not self.display_widget:
-            if self.stream_handler:
-                self.stream_handler.emit(record)
-            return
-
-        if isinstance(record.msg, pd.DataFrame):
-            df_str = record.msg.to_string(index=True)
-            html_output = f&#39;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;{df_str}&lt;/pre&gt;&#39;
-        else:
-            log_entry = self.format(record)
-            clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
-            html_output = self._format_html_output(clean_log_entry, record)
-
-        self._emit_to_columns(record.levelno, html_output)</div>
-
-
-    @staticmethod
-    def _remove_ansi_escape_sequences(text):
-        &quot;&quot;&quot;Remove ANSI escape sequences from string.
-        
-        Parameters
-        ----------
-        text : str
-            The text containing ANSI escape sequences.
-            
-        Returns
-        -------
-        str
-            Cleaned text with ANSI escape sequences removed.
-        &quot;&quot;&quot;
-        ansi_escape = re.compile(r&quot;\x1B[@-_][0-?]*[ -/]*[@-~]&quot;)
-        return ansi_escape.sub(&quot;&quot;, text)
-
-    def _format_html_output(self, log_entry, record):
-        &quot;&quot;&quot;Format log entry as HTML with appropriate styling.
-        
-        Parameters
-        ----------
-        log_entry : str
-            The log entry text to format.
-        record : logging.LogRecord
-            The log record containing level information.
-            
-        Returns
-        -------
-        str
-            HTML-formatted log entry.
-        &quot;&quot;&quot;
-        color = self.colors.get(record.levelno, self.colors[&quot;default&quot;])
-        parts = log_entry.split(&quot; &quot;, 2)
-        if len(parts) &gt; 2:
-            prefix, levelname, message = parts
-            return f&#39;&lt;span&gt;{prefix}&lt;/span&gt; &lt;span style=&quot;color: {color}; font-weight: bold;&quot;&gt;{levelname}&lt;/span&gt; {message}&#39;
-        return log_entry
-
-    def _emit_to_columns(self, level, html_output):
-        &quot;&quot;&quot;Add log entry to appropriate scroll columns using string concatenation.
-        
-        Parameters
-        ----------
-        level : int
-            The logging level.
-        html_output : str
-            The HTML-formatted log message.
-        &quot;&quot;&quot;
-        level_to_output = {
-            logging.WARNING: &quot;WARNING/ERROR&quot;,
-            logging.ERROR: &quot;WARNING/ERROR&quot;,
-            logging.CRITICAL: &quot;WARNING/ERROR&quot;,
-            logging.INFO: &quot;INFO&quot;,
-            logging.DEBUG: &quot;DEBUG&quot;
-        }
-
-        # Add to specific level column using string concatenation
-        output_key = level_to_output.get(level)
-        if output_key and output_key in self.log_columns:
-            level_column = self.log_columns[output_key]
-            
-            # Wrap in div and concatenate to existing content
-            html_wrapped = f&quot;&lt;div style=&#39;margin: 2px 0; padding: 2px 0;&#39;&gt;{html_output}&lt;/div&gt;&quot;
-            current_content = getattr(level_column, &#39;_log_content&#39;, &#39;&#39;) or level_column.object or &#39;&#39;
-            new_content = current_content + html_wrapped if current_content else html_wrapped
-            
-            # Store content and update column
-            level_column._log_content = new_content
-            level_column.object = new_content
-            
-            # Dynamic height adjustment
-            self._adjust_column_height(level_column, new_content)
-            
-            # Trim old entries if needed (count divs)
-            if new_content.count(&#39;&lt;div&#39;) &gt; level_column.max_log_entries:
-                # Keep only the last max_log_entries
-                divs = new_content.split(&#39;&lt;div&#39;)
-                trimmed = &#39;&lt;div&#39;.join(divs[-level_column.max_log_entries:])
-                level_column._log_content = trimmed
-                level_column.object = trimmed
-            
-            # Update display handle in jupyter environment
-            if (self.environment == &#39;jupyter&#39; and output_key in self.display_handles 
-                and self.display_handles[output_key] is not None):
-                self.display_handles[output_key].update(level_column)
-    
-    def _adjust_column_height(self, column, content=None):
-        &quot;&quot;&quot;Dynamically adjust column height based on content.
-        
-        Parameters
-        ----------
-        column : panel.pane.HTML
-            The column to adjust.
-        content : str, optional
-            The content to count entries from. If None, uses column._log_content.
-        &quot;&quot;&quot;
-        if hasattr(column, &#39;_start_height&#39;) and hasattr(column, &#39;_max_height&#39;):
-            # Count entries by counting divs in content
-            if content is None:
-                content = getattr(column, &#39;_log_content&#39;, &#39;&#39;) or column.object or &#39;&#39;
-            entry_count = content.count(&#39;&lt;div&#39;) if content else 0
-            
-            # Estimate height needed: ~25px per log entry
-            estimated_height = max(column._start_height, entry_count * 25)
-            # Cap at max height
-            new_height = min(estimated_height, column._max_height)
-            column.height = new_height
-    
-<div class="viewcode-block" id="PanelWidgetLogHandler.close">
-<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler.close">[docs]</a>
-    def close(self):
-        &quot;&quot;&quot;Close the log handler.
-        &quot;&quot;&quot;
-        super().close()
-        if self.stream_handler:
-            self.stream_handler.flush()
-            self.stream_handler.close()
-            self.stream_handler = None</div>
-</div>
-
-
 
 <div class="viewcode-block" id="TARDISLogger">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger">[docs]</a>
