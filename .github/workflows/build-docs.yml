@@ -102,7 +102,7 @@ jobs:
           atom-data-sparse: true
 
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: linux-64
 
@@ -111,7 +111,7 @@ jobs:
           mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-regression-data/atom_data/. ~/Downloads/tardis-data
 
       - name: Install package
-        run: pip install -e .
+        run: pip install -e ".[viz]"
 
       - name: Install Sphinx extensions
         run: |

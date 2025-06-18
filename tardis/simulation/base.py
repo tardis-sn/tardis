@@ -14,7 +14,7 @@ from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
