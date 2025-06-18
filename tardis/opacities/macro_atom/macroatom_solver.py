@@ -160,7 +160,7 @@ class LegacyMacroAtomSolver:
         )
 
 
-class MacroAtomSolver:
+class BoundBoundMacroAtomSolver:
     levels: pd.DataFrame
     lines: pd.DataFrame
 

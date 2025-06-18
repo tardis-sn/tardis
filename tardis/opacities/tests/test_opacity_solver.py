@@ -5,7 +5,7 @@ import pandas.testing as pdt
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.opacities.macro_atom.macroatom_solver import (
     LegacyMacroAtomSolver,
-    MacroAtomSolver,
+    BoundBoundMacroAtomSolver,
 )
 from tardis.opacities.opacity_state import OpacityState
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
@@ -107,7 +107,7 @@ def test_new_macro_atom_solver(
         beta_sobolev=legacy_opacity.beta_sobolev,
     )
 
-    macro_atom_state = MacroAtomSolver(
+    macro_atom_state = BoundBoundMacroAtomSolver(
         legacy_plasma.atomic_data.levels, legacy_plasma.atomic_data.lines
     ).solve(
         legacy_plasma.j_blues,
