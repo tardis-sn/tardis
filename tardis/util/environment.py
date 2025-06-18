@@ -10,7 +10,7 @@ class Environment(StrEnum):
     TERMINAL = 'terminal'
     
     @classmethod
-    def get_current(cls) -> 'Environment':
+    def get_current_environment(cls) -> 'Environment':
         """Get the current execution environment.
         
         Returns

@@ -104,7 +104,7 @@ class PanelWidgetLogHandler(logging.Handler):
         self.colors = colors
         self.display_widget = display_widget
         self.display_handles = display_handles or {}
-        self.environment = Environment.get_current()
+        self.environment = Environment.get_current_environment()
         
         self.stream_handler = None
         if not self.display_widget:
