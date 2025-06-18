@@ -14,7 +14,8 @@ from typing import TYPE_CHECKING
 
 import yaml
 from astropy.units.quantity import Quantity
-from jsonschema import Draft7Validator, validators
+from jsonschema import validators
+from jsonschema.validators import Draft7Validator
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT7
 
@@ -190,7 +191,7 @@ def validate_dict(
     )
 
     # Create validator with registry for reference resolution
-    validator_instance = custom_validator(schema=schema, reference_registry=registry)
+    validator_instance = custom_validator(schema=schema, registry=registry)
     validator_instance.validate(validated_dict)
     return validated_dict
 
