@@ -18,7 +18,6 @@ from astropy.utils.data import download_file
 
 from tardis import __path__ as tardis_path
 from tardis import constants as const
-from tardis.io.util import quantity_from_str
 
 if TYPE_CHECKING:
     from typing import Any
