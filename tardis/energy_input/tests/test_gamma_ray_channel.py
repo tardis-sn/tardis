@@ -14,7 +14,7 @@ from tardis.energy_input.gamma_ray_channel import (
     create_isotope_dicts,
     time_evolve_cumulative_decay,
 )
-from tardis.energy_input.gamma_ray_transport import get_taus
+
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
 from tardis.energy_input.util import KEV2ERG
 from tardis.io.configuration import config_reader
@@ -248,12 +248,11 @@ def test_total_energy_production(gamma_ray_test_composition, atomic_dataset):
     inventories_dict = create_inventories_dict(isotope_dict)
     total_decays = calculate_total_decays(inventories_dict, time_delta)
     isotope_decay_df = create_isotope_decay_df(total_decays, gamma_ray_lines)
-    taus, parents = get_taus(raw_isotopic_mass_fraction)
 
-    ni56_nuclide = rd.Nuclide("Ni56")
     atomic_mass_unit = const.u.cgs.value
-    tau_ni56 = taus["Ni-56"]
-    tau_co56 = taus["Co-56"]
+    ni56_nuclide = rd.Nuclide("Ni56")
+    tau_ni56 = rd.Nuclide("Ni56").half_life() / np.log(2)
+    tau_co56 = rd.Nuclide("Co56").half_life() / np.log(2)
 
     ni56_mass_fraction = raw_isotopic_mass_fraction.loc[(28, 56)]
 

@@ -2,7 +2,6 @@ import logging
 from dataclasses import dataclass
 
 import pandas as pd
-from tardis.io.util import HDFWriterMixin
 
 from tardis.energy_input.gamma_ray_channel import (
     calculate_total_decays,
@@ -15,6 +14,7 @@ from tardis.energy_input.main_gamma_ray_loop import (
     get_effective_time_array,
     run_gamma_ray_loop,
 )
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.model import SimulationState
 
 logger = logging.getLogger(__name__)
