@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass
 
 import pandas as pd
+from tardis.io.util import HDFWriterMixin
 
 from tardis.energy_input.gamma_ray_channel import (
     calculate_total_decays,
@@ -180,21 +181,22 @@ class TARDISHEWorkflow:
             total_deposited_energy,
             positron_energy,
         ) = run_gamma_ray_loop(
-            self.simulation_state,
-            decay_isotopes,
-            decay_over_time,
-            number_of_packets,
-            times,
-            effective_times,
-            seed,
-            fp,
-            spectrum_bins,
-            grey_opacity,
+            simulation_state=self.simulation_state,
+            legacy_isotope_decacy_df=decay_isotopes,
+            cumulative_decays_df=decay_over_time,
+            number_of_packets=number_of_packets,
+            times=times,
+            effective_time_array=effective_times,
+            seed=seed,
+            positronium_fraction=fp,
+            spectrum_bins=spectrum_bins,
+            grey_opacity=grey_opacity,
             legacy=legacy,
             legacy_atom_data=legacy_atom_data,
         )
 
         return TARDISHEWorkflowResult(
+            decay_radiation=decay_over_time,
             escape_energy=escape_energy,
             escape_energy_cosi=escape_energy_cosi,
             packets_escaped=packets_escaped,
@@ -205,8 +207,19 @@ class TARDISHEWorkflow:
 
 
 @dataclass
-class TARDISHEWorkflowResult:
+class TARDISHEWorkflowResult(HDFWriterMixin):
 
+    hdf_properties = [
+        "decay_radiation",
+        "escape_energy",
+        "escape_energy_cosi",
+        "packets_escaped",
+        "gamma_ray_deposited_energy",
+        "total_deposited_energy",
+        "positron_energy",
+    ]
+
+    decay_radiation: pd.DataFrame
     escape_energy: pd.DataFrame
     escape_energy_cosi: pd.DataFrame
     packets_escaped: pd.DataFrame

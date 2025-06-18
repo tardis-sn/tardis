@@ -120,7 +120,7 @@ def run_gamma_ray_loop(
     simulation_state,
     legacy_isotope_decacy_df,
     cumulative_decays_df,
-    num_decays,
+    number_of_packets,
     times,
     effective_time_array,
     seed,
@@ -225,7 +225,7 @@ def run_gamma_ray_loop(
             legacy_isotope_decacy_df["radiation"] == "g"
         ]
         total_energy_gamma = gamma_df["decay_energy_erg"].sum()
-        energy_per_packet = total_energy_gamma / num_decays
+        energy_per_packet = total_energy_gamma / number_of_packets
         legacy_energy_per_packet = energy_per_packet
     else:
         # Let the packet source calculate energy per packet internally
@@ -234,7 +234,7 @@ def run_gamma_ray_loop(
 
     packet_collection = packet_source.create_packets(
         cumulative_decays_df,
-        num_decays,
+        number_of_packets,
         legacy_energy_per_packet=legacy_energy_per_packet,
     )
 
@@ -242,7 +242,7 @@ def run_gamma_ray_loop(
     if not legacy:
         gamma_df = cumulative_decays_df[cumulative_decays_df["radiation"] == "g"]
         total_energy_gamma = gamma_df["decay_energy_erg"].sum()
-        energy_per_packet = total_energy_gamma / num_decays
+        energy_per_packet = total_energy_gamma / number_of_packets
 
     total_energy = np.zeros((number_of_shells, len(times) - 1))
 
@@ -262,12 +262,12 @@ def run_gamma_ray_loop(
             packet_collection.time_start[i],
             packet_collection.time_index[i],
         )
-        for i in range(num_decays)
+        for i in range(number_of_packets)
     ]
 
     # Calculate isotope positron fraction separately
     isotope_positron_fraction = legacy_calculate_positron_fraction(
-        legacy_isotope_decacy_df, packet_collection.source_isotopes, num_decays
+        legacy_isotope_decacy_df, packet_collection.source_isotopes, number_of_packets
     )
     for i, p in enumerate(packets):
         total_energy[p.shell, p.time_index] += isotope_positron_fraction[i] * energy_per_packet
@@ -285,7 +285,7 @@ def run_gamma_ray_loop(
     energy_out = np.zeros((len(energy_bins - 1), len(times) - 1))
     energy_out_cosi = np.zeros((len(energy_bins - 1), len(times) - 1))
     energy_deposited = np.zeros((number_of_shells, len(times) - 1))
-    packets_info_array = np.zeros((int(num_decays), 8))
+    packets_info_array = np.zeros((int(number_of_packets), 8))
     iron_group_fraction = iron_group_fraction_per_shell(simulation_state)
 
     logger.info("Entering the main gamma-ray loop")
