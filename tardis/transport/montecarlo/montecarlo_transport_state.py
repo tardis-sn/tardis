@@ -2,7 +2,7 @@ import warnings
 
 from astropy import units as u
 
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 
 
 class MonteCarloTransportState(HDFWriterMixin):

@@ -5,7 +5,7 @@ import numpy as np
 from astropy import units as u
 
 from tardis import constants as const
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.transport.montecarlo.packet_collections import (
     PacketCollection,
 )

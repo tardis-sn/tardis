@@ -1,6 +1,6 @@
 import logging
 
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.simulation.base import PlasmaStateStorerMixin
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
