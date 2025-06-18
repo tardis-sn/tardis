@@ -10,6 +10,8 @@ from tardis.util.environment import Environment
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
+logger = logging.getLogger(__name__)
+
 pn.extension(comms="ipywidgets")
 
 def create_logger_columns(start_height=10, max_height=300):
@@ -446,29 +448,32 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
     tardislogger = TARDISLogger(log_columns=log_columns)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
-    use_widget = display_logging_widget and Environment.is_notebook()
+    use_widget = display_logging_widget and (Environment.is_notebook() or Environment.get_current_environment() == Environment.VSCODE)
     
-    if use_widget:
-        if Environment.is_notebook():
-            display_handles = {}
-            display_ids = {}
-            for level, column in log_columns.items():
-                level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
-                display(level_title)
-                display_id = f"logger_column_{level.lower().replace('/', '_')}"
-                display_handles[level] = display(column, display_id=display_id)
-                display_ids[level] = display_id
-            
-            # Update tardislogger with display handles and IDs
-            tardislogger.display_handles = display_handles
-            tardislogger.display_ids = display_ids
-        else:
-            # Use direct display for vscode (no change)
-            for level, column in log_columns.items():
-                level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
-                display(level_title)
-                display(column)
-    
+    if Environment.is_notebook():
+        display_handles = {}
+        display_ids = {}
+        for level, column in log_columns.items():
+            level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
+            display(level_title)
+            display_id = f"logger_column_{level.lower().replace('/', '_')}"
+            display_handles[level] = display(column, display_id=display_id)
+            display_ids[level] = display_id
+        
+        # Update tardislogger with display handles and IDs
+        tardislogger.display_handles = display_handles
+        tardislogger.display_ids = display_ids
+    elif Environment.get_current_environment() == Environment.VSCODE:
+        # Use direct display for vscode (no change)
+        for level, column in log_columns.items():
+            level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
+            display(level_title)
+            display(column)
+    elif Environment.get_current_environment() == Environment.TERMINAL:
+        logger.warning("Terminal environment detected, skipping logger widget")
+    else:
+        logger.warning("Unknown environment, skipping logger widget")
+
     # Setup widget logging once after display handles are configured
     tardislogger.setup_widget_logging(display_widget=display_logging_widget)
     
