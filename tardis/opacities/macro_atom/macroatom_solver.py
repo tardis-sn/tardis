@@ -177,6 +177,7 @@ class MacroAtomSolver:
     ):
         """
         Solves the transition probabilities and returns a DataFrame with the probabilities and a DataFrame with the macro atom transition metadata.
+        Referenced as $p_i$ in Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
         Parameters
         ----------
         mean_intensities_blue_wing : pd.DataFrame
