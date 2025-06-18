@@ -1,4 +1,5 @@
 import os
+import sys
 from enum import StrEnum
 import logging
 from IPython import get_ipython
@@ -18,12 +19,28 @@ class Environment(StrEnum):
         Environment
             The current environment enum member.
         """
-        if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
+        if cls.is_vscode():
             return cls.VSCODE
         elif cls.is_notebook():
             return cls.JUPYTER
-        else:
+        elif cls.is_terminal():
             return cls.TERMINAL
+        else:
+            raise ValueError("Unknown environment detected")
+    
+    @staticmethod
+    def is_terminal() -> bool:
+        """
+        Checking if the current environment is a terminal.
+        """
+        return sys.stdout.isatty()
+    
+    @staticmethod
+    def is_vscode() -> bool:
+        """
+        Checking if the current environment is VSCode
+        """
+        return any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ)
     
     @staticmethod
     def is_notebook() -> bool:
