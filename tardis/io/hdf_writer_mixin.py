@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Union, Optional, Dict, List
 
 import numpy as np
 import pandas as pd
@@ -37,9 +39,9 @@ class HDFWriterMixin:
 
     @staticmethod
     def to_hdf_util(
-        path_or_buf: str | pd.HDFStore,
+        path_or_buf: Union[str, pd.HDFStore],
         path: str,
-        elements: dict[str, Any],
+        elements: Dict[str, Any],
         overwrite: bool,
         complevel: int = 9,
         complib: str = "blosc",
@@ -157,26 +159,26 @@ class HDFWriterMixin:
         if buf.is_open:
             buf.close()
 
-    def get_properties(self) -> dict[str, Any]:
+    def get_properties(self) -> Dict[str, Any]:
         """
         Get properties for HDF storage.
 
         Returns
         -------
-        dict[str, Any]
+        Dict[str, Any]
             Dictionary of property names and their values.
         """
         data = {name: getattr(self, name) for name in self.full_hdf_properties}
         return data
 
     @property
-    def full_hdf_properties(self) -> list[str]:
+    def full_hdf_properties(self) -> List[str]:
         """
         Get the full list of HDF properties.
 
         Returns
         -------
-        list[str]
+        List[str]
             List of all HDF property names.
         """
         if hasattr(self, "virt_logging") and self.virt_logging:
@@ -204,11 +206,11 @@ class HDFWriterMixin:
 
     def to_hdf(
         self,
-        file_path_or_buf: str | pd.HDFStore,
+        file_path_or_buf: Union[str, pd.HDFStore],
         path: str = "",
-        name: str | None = None,
+        name: Optional[str] = None,
         overwrite: bool = False,
-        format: str | None = None,
+        format: Optional[str] = None,
     ) -> None:
         """
         Save the object to an HDF file.
@@ -247,13 +249,13 @@ class PlasmaWriterMixin(HDFWriterMixin):
     Mixin class for writing plasma data to HDF files.
     """
 
-    def get_properties(self) -> dict[str, Any]:
+    def get_properties(self) -> Dict[str, Any]:
         """
         Get plasma properties for HDF storage.
 
         Returns
         -------
-        dict[str, Any]
+        Dict[str, Any]
             Dictionary of plasma property names and their values.
         """
         data = {}
@@ -278,9 +280,9 @@ class PlasmaWriterMixin(HDFWriterMixin):
 
     def to_hdf(
         self,
-        file_path_or_buf: str | pd.HDFStore,
+        file_path_or_buf: Union[str, pd.HDFStore],
         path: str = "",
-        name: str | None = None,
+        name: Optional[str] = None,
         collection: Any = None,
         overwrite: bool = False,
     ) -> None:
