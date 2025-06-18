@@ -101,9 +101,9 @@ class MacroAtomState:
 
     def __init__(
         self,
-        transition_probabilities,
-        transition_metadata,
-        line2macro_level_upper,
+        transition_probabilities: pd.DataFrame,
+        transition_metadata: pd.DataFrame,
+        line2macro_level_upper: pd.Series,
     ):
         """
         Current State of the MacroAtom
@@ -121,7 +121,7 @@ class MacroAtomState:
         self.transition_metadata = transition_metadata
         self.line2macro_level_upper = line2macro_level_upper
 
-    def to_legacy(self):
+    def to_legacy_format(self):
         """
         Convert the current state of the MacroAtom to legacy format.
         Returns
@@ -161,3 +161,79 @@ class MacroAtomState:
             macro_block_references,
             line2macro_level_upper,
         )
+
+    def sort_to_legacy(
+        self, legacy_state: LegacyMacroAtomState, lines: pd.DataFrame
+    ) -> "MacroAtomState":
+        """
+        Sort the current MacroAtomState to match the legacy MacroAtomState.
+
+        Parameters
+        ----------
+        legacy_state : LegacyMacroAtomState
+            The legacy state to sort to.
+        lines : pd.DataFrame
+            DataFrame containing line information.
+
+        Returns
+        -------
+        MacroAtomState
+            A new MacroAtomState sorted to match the legacy state.
+        """
+
+        legacy_sorting_frame = pd.DataFrame(legacy_state.transition_type)
+        legacy_sorting_frame["transition_line_id"] = lines.iloc[
+            legacy_state.transition_line_id
+        ].line_id.values
+        legacy_sorting_frame["match_key"] = legacy_sorting_frame.apply(
+            lambda x: (x["transition_line_id"], x["transition_type"]), axis=1
+        )  # match key uniquely identifies the transition
+
+        resorting_frame = self.transition_metadata.copy()
+        resorting_frame["match_key"] = resorting_frame.apply(
+            lambda x: (x["transition_line_id"], x["transition_type"]), axis=1
+        )
+
+        resorted = (
+            resorting_frame.reset_index()
+            .set_index("match_key")
+            .loc[legacy_sorting_frame["match_key"]]
+            .set_index("macro_atom_transition_id")
+        )
+
+        resorted_transition_probabilities = self.transition_probabilities.loc[
+            resorted.index
+        ]
+        resorted_metadata = self.transition_metadata.loc[resorted.index]
+
+        return MacroAtomState(
+            transition_probabilities=resorted_transition_probabilities,
+            transition_metadata=resorted_metadata,
+            line2macro_level_upper=self.line2macro_level_upper,
+        )
+
+    def recreate_legacy_macro_atom_state(
+        self, legacy_state: LegacyMacroAtomState, lines: pd.DataFrame
+    ) -> LegacyMacroAtomState:
+        """
+        Recreate the legacy MacroAtomState with new transition probabilities and new unique transition ids.
+
+        Parameters
+        ----------
+        lines : pd.DataFrame
+            DataFrame containing line information.
+
+        Returns
+        -------
+        LegacyMacroAtomState
+            The recreated legacy MacroAtomState.
+        """
+        legacy_sorted = self.sort_to_legacy(legacy_state, lines)
+        legacy_macro_atom = legacy_sorted.to_legacy_format()
+        legacy_macro_atom.macro_block_references = legacy_state.macro_block_references  # The old block references contained empty blocks. I can't recreate them from the new state so we just copy them over.
+        legacy_macro_atom.line2macro_level_upper = (
+            legacy_state.line2macro_level_upper
+        )
+        legacy_macro_atom.destination_level_id = legacy_state.destination_level_id  # I'm also not sure how to recreate this because it doesn't quite make sense to me.
+
+        return legacy_macro_atom

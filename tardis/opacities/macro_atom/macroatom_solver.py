@@ -254,14 +254,14 @@ class MacroAtomSolver:
         )
 
         probabilities_df = pd.concat(
-            [p_internal_up, p_internal_down, p_emission_down]
+            [p_emission_down, p_internal_down, p_internal_up]
         )
 
         macro_atom_transition_metadata = pd.concat(
             [
-                internal_up_metadata,
-                internal_down_metadata,
                 emission_down_metadata,
+                internal_down_metadata,
+                internal_up_metadata,
             ]
         )
 
@@ -275,18 +275,23 @@ class MacroAtomSolver:
             )  # Some blocks have no transitions, so we replace NaN with 0.
 
         probabilities_df.drop(columns=["source"], inplace=True)
-        probabilities_df = probabilities_df.reset_index(drop=True).rename(
-            columns={probabilities_df.index.name: "macro_atom_transition_id"}
+        probabilities_df = probabilities_df.reset_index(
+            drop=True
         )  # Reset to create a unique macro_atom_transition_id.
+        probabilities_df.index.rename("macro_atom_transition_id", inplace=True)
 
-        macro_atom_transition_metadata = macro_atom_transition_metadata.reset_index().rename(
-            columns={
-                macro_atom_transition_metadata.index.name: "macro_atom_transition_id"
-            }
+        macro_atom_transition_metadata = (
+            macro_atom_transition_metadata.reset_index()
+        )
+        macro_atom_transition_metadata.index.rename(
+            "macro_atom_transition_id", inplace=True
+        )
+        macro_atom_transition_metadata["source_level"] = (
+            macro_atom_transition_metadata.source.apply(lambda x: x[2])
         )
         macro_atom_transition_metadata = (
             macro_atom_transition_metadata.sort_values(
-                ["atomic_number", "ion_number", "source"]
+                ["atomic_number", "ion_number", "source_level"]
             )
         )  # This is how carsus sorted the macro atom transitions.
 
@@ -311,6 +316,7 @@ class MacroAtomSolver:
                 "ion_number",
                 "level_number_lower",
                 "level_number_upper",
+                "source_level",
             ],
             inplace=True,
         )

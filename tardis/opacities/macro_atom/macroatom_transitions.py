@@ -59,7 +59,7 @@ def line_transition_internal_up(
 
 
 def line_transition_internal_down(
-    line_f_lus,
+    line_f_uls,
     line_nus,
     energies_lower,
     beta_sobolevs,
@@ -69,7 +69,7 @@ def line_transition_internal_down(
     p_internal_down = (
         2
         * line_nus**2
-        * line_f_lus
+        * line_f_uls
         / const.c.cgs.value**2
         * beta_sobolevs
         * energies_lower
@@ -109,7 +109,7 @@ def line_transition_internal_down(
 
 
 def line_transition_emission_down(
-    line_f_lus,
+    line_f_uls,
     line_nus,
     energies_upper,
     energies_lower,
@@ -120,7 +120,7 @@ def line_transition_emission_down(
     p_emission_down = (
         2
         * line_nus**2
-        * line_f_lus
+        * line_f_uls
         / const.c.cgs.value**2
         * beta_sobolevs
         * (energies_upper - energies_lower)
