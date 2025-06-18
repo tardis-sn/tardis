@@ -4,7 +4,7 @@ from astropy import units as u
 
 from tardis.io.model.readers.snec.snec_input import (
     SNECIsotopeProfile,
-    read_snec_input_profile,
+    read_snec_isotope_profile,
 )
 
 
@@ -14,7 +14,7 @@ def regression_input_profile_file(regression_data):
 
 
 def test_read_snec_input_profile(regression_input_profile_file):
-    profile = read_snec_input_profile(regression_input_profile_file)
+    profile = read_snec_isotope_profile(regression_input_profile_file)
     assert isinstance(profile, SNECIsotopeProfile)
     assert all(isinstance(p, astropy.units.Quantity) for p in [profile.radius, profile.enclosed_mass])
     assert profile.radius.unit == u.cm

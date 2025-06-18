@@ -1,9 +1,10 @@
 import astropy.units as u
 import pytest
+from tardisbase.testing.regression_data import RegressionData
 
 from tardis.io.model.readers.snec.snec_output import read_snec_output_xg
 from tardis.io.model.readers.snec.xg_files import XGData
-from tardis.tests.fixtures.regression_data import RegressionData
+
 
 @pytest.fixture
 def regression_test_snec_dir(regression_data: RegressionData):
