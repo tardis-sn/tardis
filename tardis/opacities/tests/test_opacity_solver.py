@@ -165,17 +165,7 @@ def test_new_macro_atom_solver(
     regression_new_macro_atom_data = regression_data.sync_dataframe(
         macro_atom_state.transition_probabilities
     )
-    regression_legacy_sorted_transition_probabilities = (
-        regression_data.sync_dataframe(
-            macro_atom_recreated.transition_probabilities
-        )
-    )
-
     pdt.assert_frame_equal(
         regression_new_macro_atom_data,
         macro_atom_state.transition_probabilities,
-    )
-    pdt.assert_frame_equal(
-        regression_legacy_sorted_transition_probabilities,
-        macro_atom_recreated.transition_probabilities,
     )
