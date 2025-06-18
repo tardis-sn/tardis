@@ -17,8 +17,8 @@ from astropy import units as u
 from astropy.utils.data import download_file
 
 from tardis import __path__ as tardis_path
-from tardis import __version__
 from tardis import constants as const
+from tardis.io.util import quantity_from_str
 
 if TYPE_CHECKING:
     from typing import Any
@@ -166,7 +166,7 @@ class YAMLLoader(yaml.Loader):
 
 
 YAMLLoader.add_constructor("!quantity", YAMLLoader.construct_quantity)
-YAMLLoader.add_implicit_resolver("!quantity", MockRegexPattern(str), None)
+YAMLLoader.add_implicit_resolver("!quantity", MockRegexPattern(quantity_from_str), None)
 YAMLLoader.add_implicit_resolver(
     "tag:yaml.org,2002:float", MockRegexPattern(float), None
 )
