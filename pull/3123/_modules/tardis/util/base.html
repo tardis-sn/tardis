@@ -146,13 +146,14 @@ import tqdm
 import tqdm.notebook
 import yaml
 from astropy import units as u
-from IPython import display, get_ipython
+from IPython import display
 from radioactivedecay import DEFAULTDATA
 from radioactivedecay.utils import Z_DICT, parse_nuclide
 
 import tardis
 from tardis import constants
 from tardis.io.util import get_internal_data_path
+from tardis.util.environment import Environment
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -764,61 +765,7 @@ def convert_abundances_format(fname, delimiter=r&quot;\s+&quot;):
     return df</div>
 
 
-
-<div class="viewcode-block" id="is_notebook">
-<a class="viewcode-back" href="../../../api/tardis.util.base.html#tardis.util.base.is_notebook">[docs]</a>
-def is_notebook():
-    &quot;&quot;&quot;
-    Checking the shell environment where the simulation is run is Jupyter based
-
-    Returns
-    -------
-    True : if the shell environment is IPython Based
-    False : if the shell environment is Terminal or anything else
-    &quot;&quot;&quot;
-    try:
-        # Trying to import the ZMQInteractiveShell for Jupyter based environments
-        from ipykernel.zmqshell import ZMQInteractiveShell
-    except NameError:
-        logger.debug(
-            &quot;Cannot Import ipykernel.zmqshell. Not present inside Jupyter Environment&quot;
-        )
-        # If the class cannot be imported then we are automatically return False Value
-        # Raised due to Name Error with the imported Class
-        return False
-
-    try:
-        # Trying to import Interactive Terminal based IPython shell
-        from IPython.core.interactiveshell import InteractiveShell
-    except NameError:
-        logger.debug(
-            &quot;Cannot Import IPython.core.interactiveshell. Not present in IPython shell&quot;
-        )
-        # If the class cannot be imported then we are automatically return False Value
-        # Raised due to Name Error with the imported Class
-        return False
-
-    try:
-        # Trying to get the value of the shell via the get_ipython() method
-        shell = get_ipython()
-    except NameError:
-        logger.debug(&quot;Cannot infer Shell Id&quot;)
-        # Returns False if the shell name cannot be inferred correctly
-        return False
-
-    # Checking if the shell instance is Jupyter based &amp; if True, returning True
-    if isinstance(shell, ZMQInteractiveShell):
-        return True
-    # Checking if the shell instance is Terminal IPython based &amp; if True, returning False
-    elif isinstance(shell, InteractiveShell):
-        return False
-    # All other shell instances are returned False
-    else:
-        return False</div>
-
-
-
-if is_notebook():
+if Environment.is_notebook():
     iterations_pbar = tqdm.notebook.tqdm(
         desc=&quot;Iterations:&quot;,
         bar_format=&quot;{desc:&lt;}{bar}{n_fmt}/{total_fmt} [{elapsed}&lt;{remaining}, {rate_fmt}]&quot;,
@@ -993,7 +940,7 @@ def deprecated(func):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 11 Jun 2025.
+      <span class="lastupdated">Last updated on 18 Jun 2025.
       </span></p>
   </div>
 

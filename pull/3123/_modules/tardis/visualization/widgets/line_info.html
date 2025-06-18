@@ -144,7 +144,6 @@ from plotly.callbacks import BoxSelector
 
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import (
-    is_notebook,
     species_string_to_tuple,
     species_tuple_to_string,
 )
@@ -153,6 +152,7 @@ from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
+from tardis.util.environment import Environment
 
 
 <div class="viewcode-block" id="LineInfoWidget">
@@ -827,7 +827,7 @@ class LineInfoWidget:
         ipywidgets.Box
             Line info widget containing all component widgets
         &quot;&quot;&quot;
-        if not is_notebook():
+        if not Environment.is_notebook():
             print(&quot;Please use a notebook to display the widget&quot;)
         else:
             # Set widths of widgets
@@ -907,7 +907,7 @@ class LineInfoWidget:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 11 Jun 2025.
+      <span class="lastupdated">Last updated on 18 Jun 2025.
       </span></p>
   </div>
 

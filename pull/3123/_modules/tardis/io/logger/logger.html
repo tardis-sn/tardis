@@ -133,46 +133,24 @@
              
   <h1>Source code for tardis.io.logger.logger</h1><div class="highlight"><pre>
 <span></span>import logging
-import os
 import re
 import sys
 from dataclasses import dataclass, field
 import panel as pn
 from IPython.display import display
-from functools import lru_cache
 import pandas as pd
 from tardis.io.logger.colored_logger import ColoredFormatter
+from tardis.util.environment import Environment
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger(&quot;py.warnings&quot;)
 
-# During the sphinx build, we don&#39;t need the ipywidgets comms.
-if &#39;GITHUB_ACTIONS&#39; not in os.environ:
-    pn.extension(comms=&quot;ipywidgets&quot;)
-else:
-    pn.extension()
+logger = logging.getLogger(__name__)
 
-
-<div class="viewcode-block" id="get_environment">
-<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.get_environment">[docs]</a>
-def get_environment():
-    &quot;&quot;&quot;Determine the execution environment.
-    
-    Panel behaves differently in vscode and jupyter. In jupyter, the logger widget&#39;s display handle
-    has to be updated after each log entry. In vscode, this is not needed.
-
-    Returns
-    -------
-    str
-        The environment name.
-    &quot;&quot;&quot;
-    if any(x for x in (&#39;VSCODE_PID&#39;, &#39;VSCODE&#39;) if x in os.environ):
-        return &#39;vscode&#39;
-    return &#39;jupyter&#39;</div>
-
+pn.extension(comms=&quot;ipywidgets&quot;)
 
 <div class="viewcode-block" id="create_logger_columns">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.create_logger_columns">[docs]</a>
-def create_logger_columns():
+def create_logger_columns(start_height=10, max_height=300):
     &quot;&quot;&quot;Create logger scroll columns with dynamic height.
     
     Returns
@@ -184,25 +162,28 @@ def create_logger_columns():
     columns = {}
     
     for level in [&quot;INFO&quot;, &quot;WARNING/ERROR&quot;, &quot;DEBUG&quot;]:
-        column = pn.Column(
+        column = pn.pane.HTML(
+            &quot;&quot;,
             height=10,  # Start small
-            scroll=True,
-            sizing_mode=&#39;stretch_width&#39;,
             styles={
                 &#39;border&#39;: &#39;1px solid #ddd&#39;,
-                &#39;background-color&#39;: &#39;white&#39;
-            }
+                &#39;background-color&#39;: &#39;white&#39;,
+                &#39;overflow-y&#39;: &#39;auto&#39;,
+                &#39;overflow-x&#39;: &#39;auto&#39;,
+                &#39;font-family&#39;: &#39;monospace&#39;,
+                &#39;padding&#39;: &#39;8px&#39;,
+                &#39;white-space&#39;: &#39;pre-wrap&#39;
+            },
+            sizing_mode=&#39;stretch_width&#39;
         )
         column.max_log_entries = 1000
-        column._start_height = 10
-        column._max_height = 300
+        column._start_height = start_height
+        column._max_height = max_height
+        column._log_content = &quot;&quot;  # Store content as string
         columns[level] = column
     
     return columns</div>
 
-
-ENVIRONMENT = get_environment()
-LOG_COLUMNS = create_logger_columns()
 
 <div class="viewcode-block" id="LoggingConfig">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig">[docs]</a>
@@ -267,7 +248,8 @@ class PanelWidgetLogHandler(logging.Handler):
         self.colors = colors
         self.display_widget = display_widget
         self.display_handles = display_handles or {}
-        self.environment = get_environment()
+        self.environment = Environment.get_current_environment()
+        
         self.stream_handler = None
         if not self.display_widget:
             self.stream_handler = logging.StreamHandler()
@@ -295,7 +277,7 @@ class PanelWidgetLogHandler(logging.Handler):
             log_entry = self.format(record)
             clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
             html_output = self._format_html_output(clean_log_entry, record)
-        
+
         self._emit_to_columns(record.levelno, html_output)</div>
 
 
@@ -339,7 +321,7 @@ class PanelWidgetLogHandler(logging.Handler):
         return log_entry
 
     def _emit_to_columns(self, level, html_output):
-        &quot;&quot;&quot;Add log entry to appropriate scroll columns.
+        &quot;&quot;&quot;Add log entry to appropriate scroll columns using string concatenation.
         
         Parameters
         ----------
@@ -356,43 +338,54 @@ class PanelWidgetLogHandler(logging.Handler):
             logging.DEBUG: &quot;DEBUG&quot;
         }
 
-        # Add to specific level column
+        # Add to specific level column using string concatenation
         output_key = level_to_output.get(level)
         if output_key and output_key in self.log_columns:
             level_column = self.log_columns[output_key]
-            log_pane = pn.pane.HTML(
-                html_output,
-                styles={
-                    &#39;font-family&#39;: &#39;monospace&#39;,
-                    &#39;padding&#39;: &#39;2px 8px&#39;,
-                    &#39;margin&#39;: &#39;0&#39;,
-                    &#39;white-space&#39;: &#39;pre-wrap&#39;
-                }
-            )
-            level_column.append(log_pane)
+            
+            # Wrap in div and concatenate to existing content
+            html_wrapped = f&quot;&lt;div style=&#39;margin: 2px 0; padding: 2px 0;&#39;&gt;{html_output}&lt;/div&gt;&quot;
+            current_content = getattr(level_column, &#39;_log_content&#39;, &#39;&#39;) or level_column.object or &#39;&#39;
+            new_content = current_content + html_wrapped if current_content else html_wrapped
+            
+            # Store content and update column
+            level_column._log_content = new_content
+            level_column.object = new_content
             
             # Dynamic height adjustment
-            self._adjust_column_height(level_column)
+            self._adjust_column_height(level_column, new_content)
             
-            # Trim old entries
-            if len(level_column) &gt; level_column.max_log_entries:
-                level_column.pop(0)
+            # Trim old entries if needed (count divs)
+            if new_content.count(&#39;&lt;div&#39;) &gt; level_column.max_log_entries:
+                # Keep only the last max_log_entries
+                divs = new_content.split(&#39;&lt;div&#39;)
+                trimmed = &#39;&lt;div&#39;.join(divs[-level_column.max_log_entries:])
+                level_column._log_content = trimmed
+                level_column.object = trimmed
             
             # Update display handle in jupyter environment
-            if self.environment == &#39;jupyter&#39; and output_key in self.display_handles:
+            if (self.environment == &#39;jupyter&#39; and output_key in self.display_handles 
+                and self.display_handles[output_key] is not None):
                 self.display_handles[output_key].update(level_column)
     
-    def _adjust_column_height(self, column):
+    def _adjust_column_height(self, column, content=None):
         &quot;&quot;&quot;Dynamically adjust column height based on content.
         
         Parameters
         ----------
-        column : panel.Column
+        column : panel.pane.HTML
             The column to adjust.
+        content : str, optional
+            The content to count entries from. If None, uses column._log_content.
         &quot;&quot;&quot;
         if hasattr(column, &#39;_start_height&#39;) and hasattr(column, &#39;_max_height&#39;):
+            # Count entries by counting divs in content
+            if content is None:
+                content = getattr(column, &#39;_log_content&#39;, &#39;&#39;) or column.object or &#39;&#39;
+            entry_count = content.count(&#39;&lt;div&#39;) if content else 0
+            
             # Estimate height needed: ~25px per log entry
-            estimated_height = max(column._start_height, len(column) * 25)
+            estimated_height = max(column._start_height, entry_count * 25)
             # Cap at max height
             new_height = min(estimated_height, column._max_height)
             column.height = new_height
@@ -428,6 +421,7 @@ class TARDISLogger:
         self.logger = logging.getLogger(&quot;tardis&quot;)
         self.log_columns = log_columns
         self.display_handles = display_handles
+        self.display_ids = {}
 
 <div class="viewcode-block" id="TARDISLogger.configure_logging">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.configure_logging">[docs]</a>
@@ -535,6 +529,21 @@ class TARDISLogger:
         self.logger.addHandler(self.widget_handler)
         PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
     
+<div class="viewcode-block" id="TARDISLogger.finalize_widget_logging">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.finalize_widget_logging">[docs]</a>
+    def finalize_widget_logging(self):
+        &quot;&quot;&quot;Finalize widget logging by embedding the final state.
+        &quot;&quot;&quot;
+        # Embed the final state for Jupyter environments
+        if (Environment.is_notebook() and hasattr(self, &#39;display_handles&#39;) 
+            and hasattr(self, &#39;display_ids&#39;) and self.display_handles and self.display_ids):
+            print(&quot;Embedding the final state for Jupyter environments&quot;)
+            for level, column in self.log_columns.items():
+                if (level in self.display_handles and level in self.display_ids 
+                    and self.display_handles[level] is not None):
+                    self.display_handles[level].update(column.embed())</div>
+
+    
 <div class="viewcode-block" id="TARDISLogger.remove_widget_handler">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.remove_widget_handler">[docs]</a>
     def remove_widget_handler(self):
@@ -592,7 +601,7 @@ class LogFilter:
 
 <div class="viewcode-block" id="logging_state">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.logging_state">[docs]</a>
-def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
+def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True, widget_start_height=10, widget_max_height=300):
     &quot;&quot;&quot;Configure and initialize the TARDIS logging system.
     
     Parameters
@@ -611,32 +620,40 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     dict
         Dictionary of log columns if display_logging_widget is True, otherwise None.
     &quot;&quot;&quot;
-    tardislogger = TARDISLogger(log_columns=LOG_COLUMNS)
+    log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
+    tardislogger = TARDISLogger(log_columns=log_columns)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
+    use_widget = display_logging_widget and (Environment.is_notebook() or Environment.get_current_environment() == Environment.VSCODE)
     
-    if display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]:
-        if ENVIRONMENT == &#39;jupyter&#39;:
-            # Use display handles with embed for jupyter
-            display_handles = {}
-            for level, column in LOG_COLUMNS.items():
-                level_title = pn.pane.HTML(f&quot;&lt;h4 style=&#39;margin: 5px 0; color: #333;&#39;&gt;{level} LOGS&lt;/h4&gt;&quot;)
-                display(level_title)
-                display_handles[level] = display(column.embed(), display_id=f&quot;logger_column_{level.lower().replace(&#39;/&#39;, &#39;_&#39;)}&quot;)
-            
-            # Update tardislogger with display handles
-            tardislogger.display_handles = display_handles
-        else:
-            # Use direct display for vscode
-            for level, column in LOG_COLUMNS.items():
-                level_title = pn.pane.HTML(f&quot;&lt;h4 style=&#39;margin: 5px 0; color: #333;&#39;&gt;{level} LOGS&lt;/h4&gt;&quot;)
-                display(level_title)
-                display(column)
-    
+    if Environment.is_notebook():
+        display_handles = {}
+        display_ids = {}
+        for level, column in log_columns.items():
+            level_title = pn.pane.HTML(f&quot;&lt;h4 style=&#39;margin: 5px 0; color: #333;&#39;&gt;{level} LOGS&lt;/h4&gt;&quot;)
+            display(level_title)
+            display_id = f&quot;logger_column_{level.lower().replace(&#39;/&#39;, &#39;_&#39;)}&quot;
+            display_handles[level] = display(column, display_id=display_id)
+            display_ids[level] = display_id
+        
+        # Update tardislogger with display handles and IDs
+        tardislogger.display_handles = display_handles
+        tardislogger.display_ids = display_ids
+    elif Environment.get_current_environment() == Environment.VSCODE:
+        # Use direct display for vscode (no change)
+        for level, column in log_columns.items():
+            level_title = pn.pane.HTML(f&quot;&lt;h4 style=&#39;margin: 5px 0; color: #333;&#39;&gt;{level} LOGS&lt;/h4&gt;&quot;)
+            display(level_title)
+            display(column)
+    elif Environment.get_current_environment() == Environment.TERMINAL:
+        logger.warning(&quot;Terminal environment detected, skipping logger widget&quot;)
+    else:
+        logger.warning(&quot;Unknown environment, skipping logger widget&quot;)
+
     # Setup widget logging once after display handles are configured
     tardislogger.setup_widget_logging(display_widget=display_logging_widget)
     
-    if display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]:
-        return LOG_COLUMNS, tardislogger
+    if use_widget:
+        return log_columns, tardislogger
     else:
         return None, tardislogger</div>
 
@@ -650,7 +667,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 11 Jun 2025.
+      <span class="lastupdated">Last updated on 18 Jun 2025.
       </span></p>
   </div>
 

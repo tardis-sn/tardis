@@ -256,6 +256,7 @@ def run_tardis(
     simulation.run_convergence()
     simulation.run_final()
     if logger_widget:
+        tardislogger.finalize_widget_logging()
         tardislogger.remove_widget_handler()
         tardislogger.setup_stream_handler()
     return simulation</div>
@@ -270,7 +271,7 @@ def run_tardis(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 11 Jun 2025.
+      <span class="lastupdated">Last updated on 18 Jun 2025.
       </span></p>
   </div>
 
