@@ -25,7 +25,7 @@ from tardis.io.model.parse_radiation_field_configuration import (
 from tardis.io.model.readers.csvy import (
     load_csvy,
 )
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)

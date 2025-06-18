@@ -6,7 +6,7 @@ import tempfile
 
 import networkx as nx
 
-from tardis.io.util import PlasmaWriterMixin
+from tardis.io.hdf_writer_mixin import PlasmaWriterMixin
 from tardis.plasma.exceptions import NotInitializedModule, PlasmaMissingModule
 from tardis.plasma.properties.base import *
 
