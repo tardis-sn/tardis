@@ -781,7 +781,10 @@ class GammaRayPacketSource(BasePacketSource):
         )
 
         # sample directions (valid at all times), non-relativistic
-        directions = self.create_packet_directions(number_of_packets, seed=self.base_seed)
+        directions_seed = self.base_seed + 1 if self.base_seed is not None else None
+        directions = self.create_packet_directions(
+            number_of_packets, seed=directions_seed
+        )
 
         # the individual gamma-ray energy that makes up a packet
         # co-moving frame, including positronium formation
