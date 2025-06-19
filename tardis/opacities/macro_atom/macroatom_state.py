@@ -45,7 +45,7 @@ class LegacyMacroAtomState(HDFWriterMixin):
         self.transition_probabilities = transition_probabilities
         self.transition_type = transition_type
         self.destination_level_id = destination_level_id
-        self.transition_line_id = transition_line_id  # THESE ARE NOT TRANSITION LINE IDS, THEY ARE INTEGER LOCATIONS OF THE LINES. IN THE MACRO ATOM DATA THEY WERE LINES_IDX
+        self.transition_line_id = transition_line_id  # THESE ARE NOT TRANSITION LINE IDS. In the macro atom they were "lines_idx" and are the index locations of the lines in the lines dataframe.
         self.macro_block_references = macro_block_references
         self.line2macro_level_upper = line2macro_level_upper
 
