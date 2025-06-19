@@ -15,7 +15,6 @@ on:
       - opened
       - reopened
       - synchronize
-
   workflow_call:
     inputs:
       pip_git:
@@ -46,7 +45,7 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -64,29 +63,25 @@ jobs:
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4          
 
       - name: Setup LFS
-        uses: ./.github/actions/setup_lfs
+        uses: tardis-sn/tardis-actions/setup-lfs@main
 
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
 
-      - name: Install package editable
+      - name: Install tardis editable
         if: ${{ !inputs.pip_git }}
         run: |
-          pip install -e . --user
+          pip install -e ".[tardisbase,viz]" 
 
-      - name: Install package git
+      - name: Install tardis git
         if: ${{ inputs.pip_git }}
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git@master
-
-      - name: Install qgridnext
-        run: |
-          pip install qgridnext
+          pip install "git+https://github.com/tardis-sn/tardis.git@master[viz]"
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
@@ -111,8 +106,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: linux-64
 

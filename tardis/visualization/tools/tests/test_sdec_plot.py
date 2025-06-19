@@ -10,9 +10,8 @@ from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
 
-from tardis.tests.fixtures.regression_data import PlotDataHDF
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 from tardis.visualization.tools.sdec_plot import SDECPlotter
-
 
 def make_valid_name(testid):
     """
@@ -387,3 +386,16 @@ class TestSDECPlotter:
             )
             actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
             compare_images(expected, actual, tol=0.001)
+
+    def test_make_colorbar_labels(self, plotter):
+        expected_labels = ['O', 'Mg', 'Si', 'Ca']
+        plotter._species_list = ['Si','O','Mg','Ca']
+        plotter._parse_species_list(plotter._species_list)
+        plotter._calculate_plotting_data(
+            packets_mode="virtual",
+            packet_wvl_range=[500, 9000] * u.AA,
+            distance=None,
+            nelements=None,
+        )
+        plotter._make_colorbar_labels()
+        assert plotter._species_name == expected_labels
