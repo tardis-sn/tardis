@@ -774,6 +774,7 @@ class GammaRayPacketSource(BasePacketSource):
         # scale radius by packet decay time. This could be replaced with
         # Geometry object calculations. Note that this also adds a random
         # unit vector multiplication for 3D. May not be needed.
+
         locations = (
             initial_radii.values
             * effective_decay_times
@@ -781,7 +782,12 @@ class GammaRayPacketSource(BasePacketSource):
         )
 
         # sample directions (valid at all times), non-relativistic
-        directions = self.create_packet_directions(number_of_packets, seed=self.base_seed)
+        # the seed is changed to not have packets that are all going outwards as the
+        # create_packet_directions method is also used for the location sampling
+        directions_seed = self.base_seed + 1 if self.base_seed is not None else None
+        directions = self.create_packet_directions(
+            number_of_packets, seed=directions_seed
+        )
 
         # the individual gamma-ray energy that makes up a packet
         # co-moving frame, including positronium formation
