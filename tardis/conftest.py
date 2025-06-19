@@ -4,8 +4,6 @@ from pathlib import Path
 
 import pytest
 from astropy.version import version as astropy_version
-import tardisbase.testing
-import tardisbase.testing
 
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
