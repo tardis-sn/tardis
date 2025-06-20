@@ -5,7 +5,115 @@ on:
   pull_request:
 
 jobs:
-  test-commit:
+  get-release-tags:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.get-tags.outputs.matrix }}
+      
+    steps:
+      - name: Get filtered release tags
+        id: get-tags
+        run: |
+          # Get commit date for reference commit
+          TARGET_COMMIT="f7a3ce9b7ffbd64536ae66eee577be436607eb25"
+          
+          # Get commit date (GitHub API returns ISO format)
+          COMMIT_DATE=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/$TARGET_COMMIT" | \
+            jq -r '.commit.committer.date')
+          
+          # Calculate one year before commit date
+          ONE_YEAR_BEFORE=$(date -d "$COMMIT_DATE - 1 year" --iso-8601)
+          
+          echo "Target commit date: $COMMIT_DATE"
+          echo "One year before: $ONE_YEAR_BEFORE"
+          
+          # Get all releases with efficient pagination
+          ALL_RELEASES=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100" | \
+            jq -r --arg before "$COMMIT_DATE" --arg after "$ONE_YEAR_BEFORE" \
+            '[.[] | select(.published_at >= $after and .published_at < $before) | .tag_name] | sort')
+          
+          # Select every 3rd release for optimal coverage
+          FILTERED_TAGS=$(echo "$ALL_RELEASES" | jq -r '. as $arr | to_entries | 
+            map(select(.key % 3 == 0)) | map(.value) | @json')
+          
+          # Create matrix strategy
+          MATRIX_JSON=$(echo "$FILTERED_TAGS" | jq -c '{include: [.[] | {tag: .}]}')
+          
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+          echo "Selected tags for testing:"
+          echo "$FILTERED_TAGS" | jq -r '.[]'
+
+  test-commits:
+    needs: get-release-tags
+    if: needs.get-release-tags.outputs.matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 5  # Optimize resource usage
+      matrix: ${{ fromJson(needs.get-release-tags.outputs.matrix) }}
+      
+    steps:
+      - name: Checkout TARDIS repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.tag }}
+          
+      - name: Setup Micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: conda-linux-64.lock
+          environment-name: tardis-bisect
+          cache-environment: true
+          cache-environment-key: env-${{ matrix.tag }}  # Tag-specific cache
+
+      - name: Install qgridnext
+        run: pip install qgridnext
+          
+      - name: Install TARDIS in development mode
+        shell: micromamba-shell {0}
+        run: pip install -e .
+
+      - name: Download test notebook
+        run: |
+          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/main/running_tardis_relativity_.ipynb
+          
+      - name: Execute notebook
+        shell: micromamba-shell {0}
+        run: |
+          jupyter nbconvert --to notebook --execute running_tardis_relativity_.ipynb \
+            --output executed_running_tardis_relativity_.ipynb \
+            --output-dir ./notebook_outputs
+            
+      - name: Save executed notebook as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: executed-notebook-${{ matrix.tag }}
+          path: |
+            ./notebook_outputs/
+            ./*.dat
+            ./outputs/
+          retention-days: 30
+          if-no-files-found: warn
+          
+      - name: Save commit information
+        run: |
+          echo "Tag: ${{ matrix.tag }}" > commit_info.txt
+          echo "Date: $(date)" >> commit_info.txt
+          git log -1 --oneline >> commit_info.txt
+          
+      - name: Upload commit info
+        uses: actions/upload-artifact@v4
+        with:
+          name: commit-info-${{ matrix.tag }}
+          path: commit_info.txt
+          retention-days: 30
+
+  # Keep original single commit test for comparison
+  test-original-commit:
     runs-on: ubuntu-latest
     
     steps:
@@ -13,43 +121,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: f7a3ce9b7ffbd64536ae66eee577be436607eb25
-
-      # - name: Clone tardis-sn/tardis-regression-data
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: tardis-sn/tardis-regression-data
-      #     path: tardis-regression-data
-      #     sparse-checkout: atom_data/kurucz_cd23_chianti_H_He.h5
-      #     lfs: false
-
-      # - name: Restore LFS cache
-      #   uses: actions/cache/restore@v4
-      #   id: lfs-cache-regression-data
-      #   with:
-      #     path: tardis-regression-data/.git/lfs
-      #     key: atom-data
-
-      # - name: Git LFS Pull Atom Data
-      #   if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
-      #   run: git lfs pull --include=atom_data/kurucz_cd23_chianti_H_He_latest.h5
-      #   working-directory: tardis-regression-data
-      
-      # - name: Save LFS cache if not found
-      #   uses: actions/cache/save@v4
-      #   if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
-      #   with:
-      #     path: tardis-regression-data/.git/lfs
-      #     key: atom-data
-
-      # - name: Git LFS Checkout (Sparse)
-      #   run: git lfs checkout atom_data/kurucz_cd23_chianti_H_He.h5
-      #   working-directory: tardis-regression-data
-    
-      # - name: Copy atom data to Downloads
-      #   run: |
-      #     mkdir -p /home/runner/Downloads/tardis-data
-      #     cp ${{ github.workspace }}/tardis-regression-data/atom_data/kurucz_cd23_chianti_H_He.h5 /home/runner/Downloads/tardis-data
-      #     ls -la /home/runner/Downloads/tardis-data
           
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
@@ -63,9 +134,7 @@ jobs:
           
       - name: Install TARDIS in development mode
         shell: micromamba-shell {0}
-        run: |
-          pip install -e .
-
+        run: pip install -e .
 
       - name: Download test notebook
         run: |
