@@ -1,0 +1,249 @@
+name: relativity-bug
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  get-release-tags:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.get-tags.outputs.matrix }}
+      
+    steps:
+      - name: Get filtered release tags
+        id: get-tags
+        run: |
+          # Set fixed date range: January 2024 to August 2024
+          START_DATE="2024-01-01T00:00:00Z"
+          END_DATE="2024-08-31T23:59:59Z"
+          
+          echo "Filtering releases from: $START_DATE"
+          echo "Filtering releases to: $END_DATE"
+          
+          # Get all releases with efficient pagination
+          ALL_RELEASES=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100" | \
+            jq -r --arg before "$END_DATE" --arg after "$START_DATE" \
+            '[.[] | select(.published_at >= $after and .published_at <= $before) | .tag_name] | sort')
+          
+          # Select every 4th release for optimal coverage
+          FILTERED_TAGS=$(echo "$ALL_RELEASES" | jq -r '. as $arr | to_entries | 
+            map(select(.key % 4 == 0)) | map(.value) | @json')
+          
+          # Create matrix strategy
+          MATRIX_JSON=$(echo "$FILTERED_TAGS" | jq -c '{include: [.[] | {tag: .}]}')
+          
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+          echo "Selected tags for testing:"
+          echo "$FILTERED_TAGS" | jq -r '.[]'
+
+  test-commits:
+    needs: get-release-tags
+    if: needs.get-release-tags.outputs.matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 5  # Optimize resource usage
+      matrix: ${{ fromJson(needs.get-release-tags.outputs.matrix) }}
+      
+    steps:
+      - name: Checkout TARDIS repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.tag }}
+          
+      - name: Overwrite packet_source.py with fixed version
+        continue-on-error: true
+        id: overwrite-packet-source
+        run: |
+          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/refs/heads/main/packet_source.py -O tardis/transport/montecarlo/packet_source.py
+          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/refs/heads/main/util.py -O tardis/io/atom_data/util.py 
+          wget https://raw.githubusercontent.com/nvieira-mcgill/tardis/59b950094481030f3715ef5954332d5258a88eeb/tardis/transport/montecarlo/packet_source.py -O tardis/transport/montecarlo/packet_source.py
+          
+      - name: new path if fails
+        if: steps.overwrite-packet-source.outcome == 'failure'
+        run: |
+          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/refs/heads/main/packet_source.py -O tardis/montecarlo/packet_source.py
+          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/refs/heads/main/util.py -O tardis/io/atom_data/util.py 
+          # wget https://raw.githubusercontent.com/nvieira-mcgill/tardis/59b950094481030f3715ef5954332d5258a88eeb/tardis/transport/montecarlo/packet_source.py -O tardis/montecarlo/packet_source.py
+          
+          
+      
+      - name: Setup Micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: conda-linux-64.lock
+          environment-name: tardis-bisect
+
+      # - name: Install qgridnext
+      #   run: pip install qgridnext
+          
+      - name: Install TARDIS in development mode
+        shell: micromamba-shell {0}
+        run: pip install -e .
+
+      - name: Download test notebook
+        run: |
+          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/main/running_tardis_relativity_.ipynb
+          
+      - name: Execute notebook
+        shell: micromamba-shell {0}
+        run: |
+          jupyter nbconvert --to notebook --execute running_tardis_relativity_.ipynb \
+            --output executed_running_tardis_relativity_.ipynb \
+            --output-dir ./notebook_outputs \
+            --allow-errors
+            
+      - name: Save executed notebook as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: executed-notebook-${{ matrix.tag }}
+          path: |
+            ./notebook_outputs/
+            ./*.dat
+            ./outputs/
+          retention-days: 30
+          if-no-files-found: warn
+          
+      - name: Save commit information
+        run: |
+          echo "Tag: ${{ matrix.tag }}" > commit_info.txt
+          echo "Date: $(date)" >> commit_info.txt
+          git log -1 --oneline >> commit_info.txt
+          
+      - name: Upload commit info
+        uses: actions/upload-artifact@v4
+        with:
+          name: commit-info-${{ matrix.tag }}
+          path: commit_info.txt
+          retention-days: 30
+
+  # Keep original single commit test for comparison
+  test-original-commit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout TARDIS repository
+        uses: actions/checkout@v4
+        with:
+          ref: f7a3ce9b7ffbd64536ae66eee577be436607eb25
+          
+      - name: Overwrite packet_source.py with fixed version
+        run: |
+          wget https://raw.githubusercontent.com/nvieira-mcgill/tardis/59b950094481030f3715ef5954332d5258a88eeb/tardis/transport/montecarlo/packet_source.py -O tardis/transport/montecarlo/packet_source.py
+          
+      - name: Setup Micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: conda-linux-64.lock
+          environment-name: tardis-bisect
+          cache-environment: true
+
+      - name: Install qgridnext
+        run: pip install qgridnext
+          
+      - name: Install TARDIS in development mode
+        shell: micromamba-shell {0}
+        run: pip install -e .
+
+      - name: Download test notebook
+        run: |
+          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/main/running_tardis_relativity_.ipynb
+          
+      - name: Execute notebook
+        shell: micromamba-shell {0}
+        run: |
+          jupyter nbconvert --to notebook --execute running_tardis_relativity_.ipynb \
+            --output executed_running_tardis_relativity_.ipynb \
+            --output-dir ./notebook_outputs
+            
+      - name: Save executed notebook as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: executed-notebook-f7a3ce9b7ffbd64536ae66eee577be436607eb25
+          path: |
+            ./notebook_outputs/
+            ./*.dat
+            ./outputs/
+          retention-days: 30
+          if-no-files-found: warn
+          
+      - name: Save commit information
+        run: |
+          echo "Commit: f7a3ce9b7ffbd64536ae66eee577be436607eb25" > commit_info.txt
+          echo "Date: $(date)" >> commit_info.txt
+          git log -1 --oneline >> commit_info.txt
+          
+      - name: Upload commit info
+        uses: actions/upload-artifact@v4
+        with:
+          name: commit-info-f7a3ce9b7ffbd64536ae66eee577be436607eb25
+          path: commit_info.txt
+          retention-days: 30
+
+  combine-dat-files:
+    needs: [test-commits, test-original-commit]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./all_artifacts
+          
+      - name: Process and combine dat files
+        run: |
+          # Create combined dat files directory
+          mkdir -p ./combined_dat_files
+          
+          # Process matrix job artifacts
+          for artifact_dir in ./all_artifacts/executed-notebook-*/; do
+            if [[ -d "$artifact_dir" ]]; then
+              # Extract tag name from artifact directory
+              tag_name=$(basename "$artifact_dir" | sed 's/executed-notebook-//')
+              echo "Processing artifacts for tag: $tag_name"
+              
+              # Check if outputs/dat_files exists in this artifact
+              if [[ -d "$artifact_dir/outputs/dat_files" ]]; then
+                # Rename and copy dat_files directory
+                cp -r "$artifact_dir/outputs/dat_files" "./combined_dat_files/dat_files_$tag_name"
+                echo "Copied dat_files for $tag_name"
+              else
+                echo "No dat_files found for $tag_name"
+              fi
+            fi
+          done
+          
+          # Process original commit artifact
+          original_artifact="./all_artifacts/executed-notebook-f7a3ce9b7ffbd64536ae66eee577be436607eb25"
+          if [[ -d "$original_artifact/outputs/dat_files" ]]; then
+            cp -r "$original_artifact/outputs/dat_files" "./combined_dat_files/dat_files_f7a3ce9b7ffbd64536ae66eee577be436607eb25"
+            echo "Copied dat_files for original commit"
+          fi
+          
+          # Create summary of collected files
+          echo "=== DAT FILES COLLECTION SUMMARY ===" > ./combined_dat_files/README.txt
+          echo "Generated on: $(date)" >> ./combined_dat_files/README.txt
+          echo "" >> ./combined_dat_files/README.txt
+          
+          for dat_dir in ./combined_dat_files/dat_files_*/; do
+            if [[ -d "$dat_dir" ]]; then
+              dir_name=$(basename "$dat_dir")
+              file_count=$(find "$dat_dir" -name "*.dat" | wc -l)
+              echo "$dir_name: $file_count .dat files" >> ./combined_dat_files/README.txt
+            fi
+          done
+          
+          # List all collected directories
+          echo "\nCollected dat_files directories:"
+          ls -la ./combined_dat_files/
+          
+      - name: Upload combined dat files
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-dat-files-all-commits
+          path: ./combined_dat_files/
+          retention-days: 90  # Longer retention for combined results
+          if-no-files-found: warn
