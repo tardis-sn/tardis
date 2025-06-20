@@ -68,8 +68,8 @@ jobs:
           environment-file: conda-linux-64.lock
           environment-name: tardis-bisect
 
-      - name: Install qgridnext
-        run: pip install qgridnext
+      # - name: Install qgridnext
+      #   run: pip install qgridnext
           
       - name: Install TARDIS in development mode
         shell: micromamba-shell {0}
