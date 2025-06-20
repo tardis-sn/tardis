@@ -36,7 +36,11 @@ def resolve_atom_data_fname(fname):
         )
         return fpath
 
+<<<<<<< Updated upstream
     atom_data_name = fname.stem
+=======
+    atom_data_name = str(fname).replace(".h5", "")
+>>>>>>> Stashed changes
     atom_repo_config = get_atomic_repo_config()
     if atom_data_name in atom_repo_config:
         raise OSError(

@@ -313,7 +313,11 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
         self.time_explosion = time_explosion
         super().__init__(**kwargs)
 
+<<<<<<< Updated upstream:tardis/transport/montecarlo/packet_source.py
     def create_packets(self, no_of_packets, *args, **kwargs):
+=======
+    def create_packets(self, no_of_packets, seed_offset):
+>>>>>>> Stashed changes:tardis/montecarlo/packet_source.py
         """Generate relativistic black-body packet properties as arrays
 
         Parameters
@@ -334,8 +338,13 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
         """
         if self.radius is None or self.time_explosion is None:
             raise ValueError("Black body Radius or Time of Explosion isn't set")
+<<<<<<< Updated upstream:tardis/transport/montecarlo/packet_source.py
         self.beta = (self.radius / self.time_explosion) / const.c
         return super().create_packets(no_of_packets, *args, **kwargs)
+=======
+        self.beta = ((self.radius / self.time_explosion) / const.c).to("")
+        return super().create_packets(no_of_packets, seed_offset)
+>>>>>>> Stashed changes:tardis/montecarlo/packet_source.py
 
     def create_packet_mus(self, no_of_packets):
         """
