@@ -5,16 +5,16 @@
 name: tests
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-    types:
-      - opened
-      - reopened
-      - synchronize
+  # push:
+  #   branches:
+  #     - master
+  # pull_request:
+  #   branches:
+  #     - master
+  #   types:
+  #     - opened
+  #     - reopened
+  #     - synchronize
   workflow_call:
     inputs:
       pip_git:

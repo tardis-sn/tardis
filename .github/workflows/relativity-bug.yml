@@ -26,6 +26,7 @@ jobs:
         with:
           environment-file: conda-linux-64.lock
           environment-name: tardis-bisect
+          cache-environment: true
 
       - name: Install qgridnext
         run: pip install qgridnext
