@@ -49,6 +49,7 @@ jobs:
         run: |
           mkdir -p /home/runner/Downloads/tardis-data
           cp ${{ github.workspace }}/tardis-regression-data/atom_data/kurucz_cd23_chianti_H_He.h5 /home/runner/Downloads/tardis-data
+          ls -la /home/runner/Downloads/tardis-data
           
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
