@@ -62,6 +62,10 @@ jobs:
         with:
           ref: ${{ matrix.tag }}
           
+      - name: Overwrite packet_source.py with fixed version
+        run: |
+          wget https://raw.githubusercontent.com/nvieira-mcgill/tardis/59b950094481030f3715ef5954332d5258a88eeb/tardis/transport/montecarlo/packet_source.py -O tardis/transport/montecarlo/packet_source.py
+          
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
         with:
@@ -120,6 +124,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: f7a3ce9b7ffbd64536ae66eee577be436607eb25
+          
+      - name: Overwrite packet_source.py with fixed version
+        run: |
+          wget https://raw.githubusercontent.com/nvieira-mcgill/tardis/59b950094481030f3715ef5954332d5258a88eeb/tardis/transport/montecarlo/packet_source.py -O tardis/transport/montecarlo/packet_source.py
           
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
