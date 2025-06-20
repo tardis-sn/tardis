@@ -53,7 +53,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
                 self.simulation_state.geometry.v_inner[0].to(u.km / u.s).value,
             ), (
-                "If using csvy density input in the workflow, the initial v_inner_boundary must start at the first shell."
+                "If using csvy density input in the workflow, the initial v_inner_boundary must start at the first shell, see issue #3129."
             )
 
         else:
