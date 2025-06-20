@@ -16,7 +16,7 @@ from tardis.tests.test_util import monkeysession
 
 try:
     import tardisbase
-    
+
     # this imports regression data fixture from tardisbase
     pytest_plugins = "tardisbase.testing.regression_data.regression_data"
 
@@ -63,8 +63,11 @@ def pytest_configure(config):
     try:
         import tardisbase
     except ImportError:
-        pytest.exit("tardisbase package not available - skipping entire test suite", returncode=0)
-    
+        pytest.exit(
+            "tardisbase package not available - skipping entire test suite",
+            returncode=0,
+        )
+
     if ASTROPY_HEADER:
         config.option.astropy_header = True
 
@@ -84,6 +87,10 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers",
         "ignore_generate: mark test to not generate new reference data",
+    )
+    config.pluginmanager.register(
+        tardisbase.testing.regression_data.regression_data.PytestWritingPlugin(),
+        "writing",
     )
 
 
@@ -147,6 +154,7 @@ def pytest_collection_modifyitems(config, items):
 # project specific fixtures
 # -------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="session")
 def generate_reference(request):
     option = request.config.getoption("--generate-reference")
@@ -182,6 +190,7 @@ def tardis_config_verysimple_nlte():
         "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml",
         YAMLLoader,
     )
+
 
 ###
 # HDF Fixtures
@@ -234,6 +243,7 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     sim.run_final()
     return sim
 
+
 @pytest.fixture(scope="session")
 def simulation_verysimple_default(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
@@ -280,6 +290,7 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
         show_convergence_plots=False,
     )
     return sim
+
 
 def pytest_sessionfinish(session, exitstatus):
     packet_pbar.close()
