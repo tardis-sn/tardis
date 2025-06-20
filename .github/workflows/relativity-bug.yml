@@ -84,7 +84,8 @@ jobs:
         run: |
           jupyter nbconvert --to notebook --execute running_tardis_relativity_.ipynb \
             --output executed_running_tardis_relativity_.ipynb \
-            --output-dir ./notebook_outputs
+            --output-dir ./notebook_outputs \
+            --allow-errors
             
       - name: Save executed notebook as artifact
         uses: actions/upload-artifact@v4
