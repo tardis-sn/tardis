@@ -20,7 +20,38 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: f7a3ce9b7ffbd64536ae66eee577be436607eb25
-          
+
+      - name: Clone tardis-sn/tardis-regression-data
+        uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardis-regression-data
+          path: tardis-regression-data
+          sparse-checkout: atom_data/kurucz_cd23_chianti_H_He.h5
+          lfs: false
+      
+
+      - name: Restore LFS cache
+        uses: actions/cache/restore@v4
+        id: lfs-cache-regression-data
+        with:
+          path: tardis-regression-data/.git/lfs
+          key: atom-data
+      - name: Git LFS Pull Atom Data
+        if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
+        run: git lfs pull --include=atom_data/kurucz_cd23_chianti_H_He_latest.h5
+        working-directory: tardis-regression-data
+      
+      - name: Save LFS cache if not found
+        uses: actions/cache/save@v4
+        if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
+        with:
+          path: tardis-regression-data/.git/lfs
+          key: atom-data
+
+      - name: Git LFS Checkout (Sparse)
+        run: git lfs checkout atom_data/kurucz_cd23_chianti_H_He.h5
+        working-directory: tardis-regression-data
+    
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
         with:
