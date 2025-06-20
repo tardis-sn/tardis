@@ -5,13 +5,6 @@ on:
   pull_request:
 
 jobs:
-  test-cache:
-    uses: ./.github/workflows/lfs-cache.yml
-    with:
-      atom-data-sparse: true
-      regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: false
-
   test-commit:
     runs-on: ubuntu-latest
     
@@ -28,7 +21,6 @@ jobs:
           path: tardis-regression-data
           sparse-checkout: atom_data/kurucz_cd23_chianti_H_He.h5
           lfs: false
-      
 
       - name: Restore LFS cache
         uses: actions/cache/restore@v4
@@ -36,6 +28,7 @@ jobs:
         with:
           path: tardis-regression-data/.git/lfs
           key: atom-data
+
       - name: Git LFS Pull Atom Data
         if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
         run: git lfs pull --include=atom_data/kurucz_cd23_chianti_H_He_latest.h5
@@ -62,10 +55,6 @@ jobs:
       - name: Install qgridnext
         run: pip install qgridnext
           
-      - name: Setup LFS
-        uses: ./.github/actions/setup_lfs
-        with:
-          atom-data-sparse: true
           
       - name: Install TARDIS in development mode
         shell: micromamba-shell {0}
