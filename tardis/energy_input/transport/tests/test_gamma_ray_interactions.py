@@ -2,11 +2,11 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from tardis.energy_input.gamma_ray_interactions import (
+from tardis.energy_input.transport.gamma_ray_interactions import (
     pair_creation_packet,
     scatter_type,
 )
-from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.energy_input.transport.GXPacket import GXPacketStatus
 from tardis.energy_input.util import ELECTRON_MASS_ENERGY_KEV, H_CGS_KEV
 
 
@@ -64,7 +64,5 @@ def test_scatter_type(
     expected : list
         Expected parameters
     """
-    actual = scatter_type(
-        compton_opacity, photoabsorption_opacity, total_opacity
-    )
+    actual = scatter_type(compton_opacity, photoabsorption_opacity, total_opacity)
     assert actual == expected
