@@ -45,6 +45,10 @@ jobs:
         run: git lfs checkout atom_data/kurucz_cd23_chianti_H_He.h5
         working-directory: tardis-regression-data
     
+      - name: Copy atom data to Downloads
+        run: |
+          cp --parents  ${{ github.workspace }}/tardis-regression-data/atom_data/kurucz_cd23_chianti_H_He.h5 /home/runner/Downloads/tardis-data/atom_data
+          
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
         with:
@@ -55,12 +59,12 @@ jobs:
       - name: Install qgridnext
         run: pip install qgridnext
           
-          
       - name: Install TARDIS in development mode
         shell: micromamba-shell {0}
         run: |
           pip install -e .
-          
+
+
       - name: Download test notebook
         run: |
           wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/main/running_tardis_relativity_.ipynb
