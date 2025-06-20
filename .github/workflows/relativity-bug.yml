@@ -67,8 +67,6 @@ jobs:
         with:
           environment-file: conda-linux-64.lock
           environment-name: tardis-bisect
-          cache-environment: true
-          cache-environment-key: env-${{ matrix.tag }}  # Tag-specific cache
 
       - name: Install qgridnext
         run: pip install qgridnext
