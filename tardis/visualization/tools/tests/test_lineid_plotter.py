@@ -43,9 +43,6 @@ def plotter(simulation_simple):
         ),
     ],
 )
-@pytest.mark.skipif(
-    not lineid_installed, reason="lineid_plot is not installed, skipping test"
-)
 def test_lineid_plotter(
     regression_data, plotter, tmp_path, wavelengths, labels, style
 ):
