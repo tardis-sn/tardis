@@ -169,3 +169,69 @@ jobs:
           name: commit-info-f7a3ce9b7ffbd64536ae66eee577be436607eb25
           path: commit_info.txt
           retention-days: 30
+
+  combine-dat-files:
+    needs: [test-commits, test-original-commit]
+    if: always()  # Run regardless of success/failure
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./all_artifacts
+          
+      - name: Process and combine dat files
+        run: |
+          # Create combined dat files directory
+          mkdir -p ./combined_dat_files
+          
+          # Process matrix job artifacts
+          for artifact_dir in ./all_artifacts/executed-notebook-*/; do
+            if [[ -d "$artifact_dir" ]]; then
+              # Extract tag name from artifact directory
+              tag_name=$(basename "$artifact_dir" | sed 's/executed-notebook-//')
+              echo "Processing artifacts for tag: $tag_name"
+              
+              # Check if outputs/dat_files exists in this artifact
+              if [[ -d "$artifact_dir/outputs/dat_files" ]]; then
+                # Rename and copy dat_files directory
+                cp -r "$artifact_dir/outputs/dat_files" "./combined_dat_files/dat_files_$tag_name"
+                echo "Copied dat_files for $tag_name"
+              else
+                echo "No dat_files found for $tag_name"
+              fi
+            fi
+          done
+          
+          # Process original commit artifact
+          original_artifact="./all_artifacts/executed-notebook-f7a3ce9b7ffbd64536ae66eee577be436607eb25"
+          if [[ -d "$original_artifact/outputs/dat_files" ]]; then
+            cp -r "$original_artifact/outputs/dat_files" "./combined_dat_files/dat_files_f7a3ce9b7ffbd64536ae66eee577be436607eb25"
+            echo "Copied dat_files for original commit"
+          fi
+          
+          # Create summary of collected files
+          echo "=== DAT FILES COLLECTION SUMMARY ===" > ./combined_dat_files/README.txt
+          echo "Generated on: $(date)" >> ./combined_dat_files/README.txt
+          echo "" >> ./combined_dat_files/README.txt
+          
+          for dat_dir in ./combined_dat_files/dat_files_*/; do
+            if [[ -d "$dat_dir" ]]; then
+              dir_name=$(basename "$dat_dir")
+              file_count=$(find "$dat_dir" -name "*.dat" | wc -l)
+              echo "$dir_name: $file_count .dat files" >> ./combined_dat_files/README.txt
+            fi
+          done
+          
+          # List all collected directories
+          echo "\nCollected dat_files directories:"
+          ls -la ./combined_dat_files/
+          
+      - name: Upload combined dat files
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-dat-files-all-commits
+          path: ./combined_dat_files/
+          retention-days: 90  # Longer retention for combined results
+          if-no-files-found: warn
