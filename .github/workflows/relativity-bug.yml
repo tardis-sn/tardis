@@ -14,27 +14,19 @@ jobs:
       - name: Get filtered release tags
         id: get-tags
         run: |
-          # Get commit date for reference commit
-          TARGET_COMMIT="f7a3ce9b7ffbd64536ae66eee577be436607eb25"
+          # Set fixed date range: January 2024 to August 2024
+          START_DATE="2024-01-01T00:00:00Z"
+          END_DATE="2024-08-31T23:59:59Z"
           
-          # Get commit date (GitHub API returns ISO format)
-          COMMIT_DATE=$(curl -s -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer ${{ github.token }}" \
-            "https://api.github.com/repos/${{ github.repository }}/commits/$TARGET_COMMIT" | \
-            jq -r '.commit.committer.date')
-          
-          # Calculate one year before commit date
-          TWO_YEARS_BEFORE=$(date -d "$COMMIT_DATE - 2 year" --iso-8601)
-          
-          echo "Target commit date: $COMMIT_DATE"
-          echo "Two years before: $TWO_YEARS_BEFORE"
+          echo "Filtering releases from: $START_DATE"
+          echo "Filtering releases to: $END_DATE"
           
           # Get all releases with efficient pagination
           ALL_RELEASES=$(curl -s -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer ${{ github.token }}" \
             "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100" | \
-            jq -r --arg before "$COMMIT_DATE" --arg after "$TWO_YEARS_BEFORE" \
-            '[.[] | select(.published_at >= $after and .published_at < $before) | .tag_name] | sort')
+            jq -r --arg before "$END_DATE" --arg after "$START_DATE" \
+            '[.[] | select(.published_at >= $after and .published_at <= $before) | .tag_name] | sort')
           
           # Select every 4th release for optimal coverage
           FILTERED_TAGS=$(echo "$ALL_RELEASES" | jq -r '. as $arr | to_entries | 
@@ -64,8 +56,8 @@ jobs:
           
       - name: Overwrite packet_source.py with fixed version
         run: |
-          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/packet_source.py -O tardis/transport/montecarlo/packet_source.py
-          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/util.py -O tardis/io/atom_data/util.py 
+          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/refs/heads/main/packet_source.py -O tardis/transport/montecarlo/packet_source.py
+          wget https://raw.githubusercontent.com/atharva-2001/lfs-investigation/refs/heads/main/util.py -O tardis/io/atom_data/util.py 
           wget https://raw.githubusercontent.com/nvieira-mcgill/tardis/59b950094481030f3715ef5954332d5258a88eeb/tardis/transport/montecarlo/packet_source.py -O tardis/transport/montecarlo/packet_source.py
           
       - name: Setup Micromamba
