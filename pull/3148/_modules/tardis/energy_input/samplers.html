@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.energy_input.samplers &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=600057ec"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.energy_input.samplers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.energy_input.samplers</h1><div class="highlight"><pre>
+<span></span>import astropy.constants as const
+from scipy.interpolate import interp1d
+import astropy.units as u
+import numpy as np
+from numba import njit
+
+from tardis.transport.montecarlo import njit_dict_no_parallel
+
+
+<div class="viewcode-block" id="sample_mass">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.sample_mass">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def sample_mass(masses, inner_radius, outer_radius):
+    &quot;&quot;&quot;Samples location weighted by mass
+
+    Parameters
+    ----------
+    masses : array
+        Shell masses
+    inner_radius : array
+        Inner radii
+    outer_radius : array
+        Outer radii
+
+    Returns
+    -------
+    float
+        Sampled radius
+    int
+        Sampled shell index
+    &quot;&quot;&quot;
+    norm_mass = masses / np.sum(masses)
+    cdf = np.cumsum(norm_mass)
+    shell = np.searchsorted(cdf, np.random.random())
+
+    z = np.random.random()
+    radius = (
+        z * inner_radius[shell] ** 3.0 + (1.0 - z) * outer_radius[shell] ** 3.0
+    ) ** (1.0 / 3.0)
+
+    return radius, shell</div>
+
+
+
+<div class="viewcode-block" id="create_energy_cdf">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.create_energy_cdf">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def create_energy_cdf(energy, intensity):
+    &quot;&quot;&quot;Creates a CDF of given intensities
+
+    Parameters
+    ----------
+    energy :  One-dimensional Numpy Array, dtype float
+        Array of energies
+    intensity :  One-dimensional Numpy Array, dtype float
+        Array of intensities
+
+    Returns
+    -------
+    One-dimensional Numpy Array, dtype float
+        Sorted energy array
+    One-dimensional Numpy Array, dtype float
+        CDF where each index corresponds to the energy in
+        the sorted array
+    &quot;&quot;&quot;
+    energy.sort()
+    sorted_indices = np.argsort(energy)
+    sorted_intensity = intensity[sorted_indices]
+    norm_intensity = sorted_intensity / np.sum(sorted_intensity)
+    cdf = np.cumsum(norm_intensity)
+
+    return energy, cdf</div>
+
+
+
+<div class="viewcode-block" id="sample_energy_distribution">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.sample_energy_distribution">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def sample_energy_distribution(energy_sorted, cdf):
+    &quot;&quot;&quot;Randomly samples a CDF of energies
+
+    Parameters
+    ----------
+    energy_sorted : One-dimensional Numpy Array, dtype float
+        Sorted energy array
+    cdf : One-dimensional Numpy Array, dtype float
+        CDF
+
+    Returns
+    -------
+    float
+        Sampled energy
+    &quot;&quot;&quot;
+    index = np.searchsorted(cdf, np.random.random())
+
+    return energy_sorted[index]</div>
+
+
+
+<div class="viewcode-block" id="sample_energy">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.sample_energy">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def sample_energy(energy, intensity):
+    &quot;&quot;&quot;Samples energy from energy and intensity
+
+    Parameters
+    ----------
+    energy :  One-dimensional Numpy Array, dtype float
+        Array of energies
+    intensity :  One-dimensional Numpy Array, dtype float
+        Array of intensities
+
+    Returns
+    -------
+    float
+        Energy
+    &quot;&quot;&quot;
+    z = np.random.random()
+
+    average = (energy * intensity).sum()
+    total = 0
+    for e, i in zip(energy, intensity):
+        total += e * i / average
+        if z &lt;= total:
+            return e
+
+    return False</div>
+
+
+
+<div class="viewcode-block" id="sample_decay_time">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.sample_decay_time">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def sample_decay_time(
+    start_tau, end_tau=0.0, decay_time_min=0.0, decay_time_max=0.0
+):
+    &quot;&quot;&quot;Samples the decay time from the mean lifetime
+    of the isotopes (needs restructuring for more isotopes)
+
+    Parameters
+    ----------
+    start_tau : float64
+        Initial isotope mean lifetime
+    end_tau : float64, optional
+        Ending mean lifetime, by default 0 for single decays
+
+    Returns
+    -------
+    float64
+        Sampled decay time
+    &quot;&quot;&quot;
+    decay_time = decay_time_min
+    while (decay_time &lt;= decay_time_min) or (decay_time &gt;= decay_time_max):
+        decay_time = -start_tau * np.log(np.random.random()) - end_tau * np.log(
+            np.random.random()
+        )
+    return decay_time</div>
+
+
+
+<div class="viewcode-block" id="PositroniumSampler">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.PositroniumSampler">[docs]</a>
+class PositroniumSampler:
+    def __init__(self, n_grid=10000):
+        &quot;&quot;&quot;
+        Parameters
+        ----------
+        n_grid : int, optional
+            Number of grid points for the CDF, by default 1000
+        &quot;&quot;&quot;
+        self.x_grid = np.linspace(1e-4, 0.9999, n_grid)
+        self.norm_pdf = self.pdf(self.x_grid) / np.trapz(self.pdf(self.x_grid), self.x_grid)
+        self.cdf_grid = np.cumsum(self.norm_pdf)
+        self.cdf_grid /= self.cdf_grid[-1]
+
+<div class="viewcode-block" id="PositroniumSampler.pdf">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.PositroniumSampler.pdf">[docs]</a>
+    @staticmethod
+    def pdf(x):
+        &quot;&quot;&quot;
+        Parameters
+        ----------
+        x : float
+            E / m_e c^2
+
+        Returns
+        -------
+        float
+            PDF of positronium energy from Ore amnd Powell (1949)
+        &quot;&quot;&quot;
+        first_term = x * (1 - x) / (2 - x) ** 2
+        second_term = 2 * (1 - x) ** 2 * np.log(1 - x) / (2 - x) ** 3
+        third_term = (2 - x) / x
+        fourth_term = 2 * (1 - x) * np.log(1 - x) / x**2
+
+        return 2 * (first_term - second_term + third_term + fourth_term)</div>
+
+    
+<div class="viewcode-block" id="PositroniumSampler.sample_energy">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.PositroniumSampler.sample_energy">[docs]</a>
+    def sample_energy(self, samples):
+        &quot;&quot;&quot;
+        Returns
+        -------
+        float
+            Sampled positronium energy
+        &quot;&quot;&quot;
+        inverse_cdf = interp1d(self.cdf_grid, self.x_grid, bounds_error=False, fill_value=&quot;extrapolate&quot;)
+
+        z = np.random.random(samples)
+        # converted to keV
+        return (inverse_cdf(z) * const.m_e.cgs.value 
+            * const.c.cgs.value**2 
+         * u.erg.to(u.keV))</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 20 Jun 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

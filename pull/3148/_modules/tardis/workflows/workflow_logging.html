@@ -1,0 +1,285 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.workflows.workflow_logging &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=600057ec"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.workflows.workflow_logging</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.workflows.workflow_logging</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import numpy as np
+import pandas as pd
+from IPython.display import display
+
+from tardis.io.logger.logger import logging_state
+from tardis.util.base import is_notebook
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="WorkflowLogging">
+<a class="viewcode-back" href="../../../api/tardis.workflows.workflow_logging.html#tardis.workflows.workflow_logging.WorkflowLogging">[docs]</a>
+class WorkflowLogging:
+    def __init__(
+        self,
+        configuration,
+        log_level=None,
+        specific_log_level=None,
+    ):
+        logging_state(log_level, configuration, specific_log_level)
+
+<div class="viewcode-block" id="WorkflowLogging.log_plasma_state">
+<a class="viewcode-back" href="../../../api/tardis.workflows.workflow_logging.html#tardis.workflows.workflow_logging.WorkflowLogging.log_plasma_state">[docs]</a>
+    def log_plasma_state(
+        self,
+        t_rad,
+        dilution_factor,
+        t_inner,
+        next_t_rad,
+        next_dilution_factor,
+        next_t_inner,
+        log_sampling=5,
+    ):
+        &quot;&quot;&quot;
+        Logging the change of the plasma state
+
+        Parameters
+        ----------
+        t_rad : astropy.units.Quanity
+            current t_rad
+        dilution_factor : np.ndarray
+            current dilution_factor
+        next_t_rad : astropy.units.Quanity
+            next t_rad
+        next_dilution_factor : np.ndarray
+            next dilution_factor
+        log_sampling : int
+            the n-th shells to be plotted
+
+        Returns
+        -------
+        &quot;&quot;&quot;
+        plasma_state_log = pd.DataFrame(
+            index=np.arange(len(t_rad)),
+            columns=[&quot;t_rad&quot;, &quot;next_t_rad&quot;, &quot;w&quot;, &quot;next_w&quot;],
+        )
+        plasma_state_log[&quot;t_rad&quot;] = t_rad
+        plasma_state_log[&quot;next_t_rad&quot;] = next_t_rad
+        plasma_state_log[&quot;w&quot;] = dilution_factor
+        plasma_state_log[&quot;next_w&quot;] = next_dilution_factor
+        plasma_state_log.columns.name = &quot;Shell No.&quot;
+
+        logger.info(&quot;\n\tPlasma stratification:&quot;)
+
+        if is_notebook():
+            self.log_dataframe_notebook(plasma_state_log, log_sampling)
+        else:
+            self.log_dataframe_console(plasma_state_log, log_sampling)
+
+        logger.info(
+            f&quot;\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n&quot;
+        )</div>
+
+
+<div class="viewcode-block" id="WorkflowLogging.log_dataframe_notebook">
+<a class="viewcode-back" href="../../../api/tardis.workflows.workflow_logging.html#tardis.workflows.workflow_logging.WorkflowLogging.log_dataframe_notebook">[docs]</a>
+    def log_dataframe_notebook(self, dataframe, step):
+        &quot;&quot;&quot;Logs a dataframe in a notebook with a step sample
+
+        Parameters
+        ----------
+        dataframe : pd.DataFrame
+            Dataframe to display
+        step : int
+            Step to use when sampling the dataframe
+        &quot;&quot;&quot;
+        # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
+        if logger.level &lt;= logging.INFO:
+            if not logger.filters:
+                display(dataframe.iloc[::step].style.format(&quot;{:.3g}&quot;))
+            elif logger.filters[0].log_level == 20:
+                display(dataframe.iloc[::step].style.format(&quot;{:.3g}&quot;))</div>
+
+
+<div class="viewcode-block" id="WorkflowLogging.log_dataframe_console">
+<a class="viewcode-back" href="../../../api/tardis.workflows.workflow_logging.html#tardis.workflows.workflow_logging.WorkflowLogging.log_dataframe_console">[docs]</a>
+    def log_dataframe_console(self, dataframe, step):
+        &quot;&quot;&quot;Logs a dataframe to console with a step sample
+
+        Parameters
+        ----------
+        dataframe : pd.DataFrame
+            Dataframe to display
+        step : int
+            Step to use when sampling the dataframe
+        &quot;&quot;&quot;
+        output_df = &quot;&quot;
+        output = dataframe.iloc[::step].to_string(
+            float_format=lambda x: f&quot;{x:.3g}&quot;,
+            justify=&quot;center&quot;,
+        )
+        for value in output.split(&quot;\n&quot;):
+            output_df = output_df + f&quot;\t{value}\n&quot;
+
+        logger.info(f&quot;\n{output_df}&quot;)</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 20 Jun 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

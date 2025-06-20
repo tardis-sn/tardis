@@ -1,0 +1,782 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.visualization.plot_util &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=600057ec"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.visualization.plot_util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.visualization.plot_util</h1><div class="highlight"><pre>
+<span></span>&quot;&quot;&quot;Utility functions to be used in plotting.&quot;&quot;&quot;
+
+import re
+
+import astropy.units as u
+import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+from tardis.util.base import (
+    element_symbol2atomic_number,
+    int_to_roman,
+    roman_to_int,
+    species_string_to_tuple,
+)
+
+
+<div class="viewcode-block" id="axis_label_in_latex">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.axis_label_in_latex">[docs]</a>
+def axis_label_in_latex(label_text, unit, only_text=True):
+    &quot;&quot;&quot;
+    Get axis label for plotly plots that can show units in latex.
+
+    Parameters
+    ----------
+    label_text : str
+        Text to show on label, may be expressed in latex
+    unit : astropy.units
+        Unit of the label which needs to be expressed in latex
+    only_text : bool
+        If label_text is expressed purely in text (i.e. without
+        using latex) or not. Default value is True
+
+    Returns
+    -------
+    str
+        Latex string for label renderable by plotly
+    &quot;&quot;&quot;
+    unit_in_latex = unit.to_string(&quot;latex_inline&quot;).strip(&quot;$&quot;)
+
+    # If present, place s^{-1} just after erg
+    if &quot;erg&quot; in unit_in_latex and &quot;s^{-1}&quot; in unit_in_latex:
+        constituent_units = (
+            re.compile(r&quot;\\mathrm\{(.*)\}&quot;)
+            .findall(unit_in_latex)[0]
+            .split(&quot;\\,&quot;)
+        )
+        constituent_units.remove(&quot;s^{-1}&quot;)
+        constituent_units.insert(constituent_units.index(&quot;erg&quot;) + 1, &quot;s^{-1}&quot;)
+        constituent_units_string = &quot;\\,&quot;.join(constituent_units)
+        unit_in_latex = f&quot;\\mathrm{{{constituent_units_string}}}&quot;
+
+    if only_text:
+        return f&quot;$\\text{{{label_text}}}\\,[{unit_in_latex}]$&quot;
+    else:
+        return f&quot;${label_text}\\,[{unit_in_latex}]$&quot;</div>
+
+
+
+<div class="viewcode-block" id="get_mid_point_idx">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.get_mid_point_idx">[docs]</a>
+def get_mid_point_idx(arr):
+    &quot;&quot;&quot;
+    Get index of the middle point of a sorted array (ascending or descending).
+
+    The values in array may not be evenly distributed so it picks the middle
+    point not by index but by their values.
+
+    Parameters
+    ----------
+    arr : np.array
+
+    Returns
+    -------
+    int
+    &quot;&quot;&quot;
+    mid_value = (arr[0] + arr[-1]) / 2
+    return np.abs(arr - mid_value).argmin()</div>
+
+
+
+<div class="viewcode-block" id="to_rgb255_string">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.to_rgb255_string">[docs]</a>
+def to_rgb255_string(color_tuple):
+    &quot;&quot;&quot;
+    Convert a matplotlib RGBA tuple to a generic RGB 255 string.
+
+    Parameters
+    ----------
+    color_tuple : tuple
+        Matplotlib RGBA tuple of float values in closed interval [0, 1]
+
+    Returns
+    -------
+    str
+        RGB string of format rgb(r,g,b) where r,g,b are integers between
+        0 and 255 (both inclusive)
+    &quot;&quot;&quot;
+    color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
+    return f&quot;rgb{color_tuple_255}&quot;</div>
+
+
+<div class="viewcode-block" id="get_hex_color_strings">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.get_hex_color_strings">[docs]</a>
+def get_hex_color_strings(length, name=&quot;jet&quot;):
+    &quot;&quot;&quot;
+    Generate a list of hex color strings from a discrete colormap.
+
+    Parameters
+    ----------
+    length : int
+        Number of discrete colors to extract from the colormap.
+    name : str, optional
+        Name of the Matplotlib colormap to use (default is &#39;jet&#39;).
+
+    Returns
+    -------
+    list of str
+        List of hex color strings ([&#39;#ff0000&#39;, &#39;#00ff00&#39;, &#39;#0000ff&#39;])
+    &quot;&quot;&quot;
+    cmap = plt.get_cmap(name, length)
+    return [mcolors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]</div>
+
+
+
+<div class="viewcode-block" id="extract_and_process_packet_data">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.extract_and_process_packet_data">[docs]</a>
+def extract_and_process_packet_data(simulation, packets_mode):
+    &quot;&quot;&quot;
+    Extract and process packet data from the simulation object.
+
+    This includes converting the packet data into a DataFrame and appending
+    processed line interaction information.
+
+    Parameters
+    ----------
+    simulation : tardis.simulation.BaseSimulation
+        Full TARDIS simulation object containing transport state, plasma,
+        and atomic data.
+
+    packets_mode : str
+        Type of packets to extract:
+        - &#39;virtual&#39;: Use virtual packet tracker.
+        - &#39;real&#39;: Use emitted real packets.
+
+    Returns
+    -------
+    dict
+        Dictionary containing raw packet data, the full DataFrame `packets_df`,
+        and a filtered `packets_df_line_interaction` with line interaction info.
+    &quot;&quot;&quot;
+    transport_state = simulation.transport.transport_state
+    lines_df = simulation.plasma.atomic_data.lines.reset_index().set_index(
+        &quot;line_id&quot;
+    )
+
+    if packets_mode == &quot;virtual&quot;:
+        vpacket_tracker = transport_state.vpacket_tracker
+        packet_data = {
+            &quot;last_interaction_type&quot;: vpacket_tracker.last_interaction_type,
+            &quot;last_line_interaction_in_id&quot;: vpacket_tracker.last_interaction_in_id,
+            &quot;last_line_interaction_out_id&quot;: vpacket_tracker.last_interaction_out_id,
+            &quot;last_line_interaction_in_nu&quot;: vpacket_tracker.last_interaction_in_nu,
+            &quot;last_interaction_in_r&quot;: vpacket_tracker.last_interaction_in_r,
+            &quot;nus&quot;: u.Quantity(vpacket_tracker.nus, &quot;Hz&quot;),
+            &quot;energies&quot;: u.Quantity(vpacket_tracker.energies, &quot;erg&quot;),
+            &quot;lambdas&quot;: u.Quantity(vpacket_tracker.nus, &quot;Hz&quot;).to(
+                &quot;angstrom&quot;, u.spectral()
+            ),
+        }
+    else:
+        mask = transport_state.emitted_packet_mask
+        packet_nus = u.Quantity(
+            transport_state.packet_collection.output_nus[mask], u.Hz
+        )
+        packet_data = {
+            &quot;last_interaction_type&quot;: transport_state.last_interaction_type[
+                mask
+            ],
+            &quot;last_line_interaction_in_id&quot;: transport_state.last_line_interaction_in_id[
+                mask
+            ],
+            &quot;last_line_interaction_out_id&quot;: transport_state.last_line_interaction_out_id[
+                mask
+            ],
+            &quot;last_line_interaction_in_nu&quot;: transport_state.last_interaction_in_nu[
+                mask
+            ],
+            &quot;last_interaction_in_r&quot;: transport_state.last_interaction_in_r[
+                mask
+            ],
+            &quot;nus&quot;: packet_nus,
+            &quot;energies&quot;: transport_state.packet_collection.output_energies[mask],
+            &quot;lambdas&quot;: packet_nus.to(&quot;angstrom&quot;, u.spectral()),
+        }
+
+    packet_data[&quot;packets_df&quot;] = pd.DataFrame(packet_data)
+    process_line_interactions(packet_data, lines_df)
+    return packet_data</div>
+
+
+
+<div class="viewcode-block" id="process_line_interactions">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.process_line_interactions">[docs]</a>
+def process_line_interactions(packet_data, lines_df):
+    &quot;&quot;&quot;
+    Add line interaction metadata to the packet DataFrame.
+
+    Filters packets that experienced a line interaction and computes:
+    - Atomic number of the last interaction (out).
+    - Species ID (Z * 100 + ion number).
+
+    Parameters
+    ----------
+    packet_data : dict
+        Dictionary containing a &#39;packets_df&#39; DataFrame.
+
+    lines_df : pandas.DataFrame
+        DataFrame with &#39;atomic_number&#39; and &#39;ion_number&#39; indexed by line ID.
+    &quot;&quot;&quot;
+    packets_df = packet_data[&quot;packets_df&quot;]
+
+    if packets_df is not None:
+        # Create dataframe of packets that experience line interaction
+        line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; -1) &amp; (
+            packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1
+        )
+        packet_data[&quot;packets_df_line_interaction&quot;] = packets_df.loc[
+            line_mask
+        ].copy()
+
+        # Add columns for atomic number of last interaction out
+        packet_data[&quot;packets_df_line_interaction&quot;][
+            &quot;last_line_interaction_atom&quot;
+        ] = (
+            lines_df[&quot;atomic_number&quot;]
+            .iloc[
+                packet_data[&quot;packets_df_line_interaction&quot;][
+                    &quot;last_line_interaction_out_id&quot;
+                ]
+            ]
+            .to_numpy()
+        )
+
+        # Add columns for the species ID of last interaction
+        packet_data[&quot;packets_df_line_interaction&quot;][
+            &quot;last_line_interaction_species&quot;
+        ] = (
+            lines_df[&quot;atomic_number&quot;]
+            .iloc[
+                packet_data[&quot;packets_df_line_interaction&quot;][
+                    &quot;last_line_interaction_out_id&quot;
+                ]
+            ]
+            .to_numpy()
+            * 100
+            + lines_df[&quot;ion_number&quot;]
+            .iloc[
+                packet_data[&quot;packets_df_line_interaction&quot;][
+                    &quot;last_line_interaction_out_id&quot;
+                ]
+            ]
+            .to_numpy()
+        )</div>
+
+
+
+<div class="viewcode-block" id="extract_and_process_packet_data_hdf">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.extract_and_process_packet_data_hdf">[docs]</a>
+def extract_and_process_packet_data_hdf(hdf, packets_mode):
+    &quot;&quot;&quot;
+    Extract and process packet data from an HDF file.
+
+    This function retrieves packet data from an HDF file and processes it
+    based on the specified packet mode (either &quot;virtual&quot; or &quot;real&quot;). The
+    extracted data is organized into a dictionary and further processed
+    to include line interaction information.
+
+    Parameters
+    ----------
+    hdf : h5py.File or dict-like
+        The HDF file object containing the simulation data.
+    packets_mode : str
+        The mode of packets to process. Can be &quot;virtual&quot; for virtual packets
+        or any other value for real packets.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the processed packet data.
+
+    Raises
+    ------
+    KeyError
+        If required keys are missing in the HDF file.
+    ValueError
+        If an invalid `packets_mode` is provided.
+    &quot;&quot;&quot;
+    lines_df = (
+        hdf[&quot;/simulation/plasma/lines&quot;].reset_index().set_index(&quot;line_id&quot;)
+    )
+    if packets_mode == &quot;virtual&quot;:
+        packet_prefix = &quot;/simulation/transport/transport_state/virt_packet&quot;
+        packet_data = {
+            &quot;last_interaction_type&quot;: hdf[
+                f&quot;{packet_prefix}_last_interaction_type&quot;
+            ],
+            &quot;last_line_interaction_in_id&quot;: hdf[
+                f&quot;{packet_prefix}_last_interaction_in_id&quot;
+            ],
+            &quot;last_line_interaction_out_id&quot;: hdf[
+                f&quot;{packet_prefix}_last_interaction_out_id&quot;
+            ],
+            &quot;last_line_interaction_in_nu&quot;: u.Quantity(
+                hdf[f&quot;{packet_prefix}_last_interaction_in_nu&quot;].to_numpy(), &quot;Hz&quot;
+            ),
+            &quot;last_interaction_in_r&quot;: u.Quantity(
+                hdf[f&quot;{packet_prefix}_last_interaction_in_r&quot;].to_numpy(), &quot;cm&quot;
+            ),
+            &quot;packet_nus&quot;: u.Quantity(
+                hdf[f&quot;{packet_prefix}_nus&quot;].to_numpy(), &quot;Hz&quot;
+            ),
+            &quot;packet_energies&quot;: u.Quantity(
+                hdf[f&quot;{packet_prefix}_energies&quot;].to_numpy(), &quot;erg&quot;
+            ),
+        }
+    else:  # real packets
+        emitted_packet_mask = hdf[
+            &quot;/simulation/transport/transport_state/emitted_packet_mask&quot;
+        ].to_numpy()
+        packet_prefix = &quot;/simulation/transport/transport_state&quot;
+        packet_data = {
+            &quot;last_interaction_type&quot;: hdf[
+                f&quot;{packet_prefix}/last_interaction_type&quot;
+            ].to_numpy()[emitted_packet_mask],
+            &quot;last_line_interaction_in_id&quot;: hdf[
+                f&quot;{packet_prefix}/last_line_interaction_in_id&quot;
+            ].to_numpy()[emitted_packet_mask],
+            &quot;last_line_interaction_out_id&quot;: hdf[
+                f&quot;{packet_prefix}/last_line_interaction_out_id&quot;
+            ].to_numpy()[emitted_packet_mask],
+            &quot;last_line_interaction_in_nu&quot;: u.Quantity(
+                hdf[f&quot;{packet_prefix}/last_interaction_in_nu&quot;].to_numpy()[
+                    emitted_packet_mask
+                ],
+                &quot;Hz&quot;,
+            ),
+            &quot;last_interaction_in_r&quot;: u.Quantity(
+                hdf[f&quot;{packet_prefix}/last_interaction_in_r&quot;].to_numpy()[
+                    emitted_packet_mask
+                ],
+                &quot;cm&quot;,
+            ),
+            &quot;packet_nus&quot;: u.Quantity(
+                hdf[f&quot;{packet_prefix}/output_nu&quot;].to_numpy()[
+                    emitted_packet_mask
+                ],
+                &quot;Hz&quot;,
+            ),
+            &quot;packet_energies&quot;: u.Quantity(
+                hdf[f&quot;{packet_prefix}/output_energy&quot;].to_numpy()[
+                    emitted_packet_mask
+                ],
+                &quot;erg&quot;,
+            ),
+        }
+    packet_data[&quot;packets_df&quot;] = pd.DataFrame(packet_data)
+    process_line_interactions(packet_data, lines_df)
+    return packet_data</div>
+
+
+
+<div class="viewcode-block" id="expand_species_list">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.expand_species_list">[docs]</a>
+def expand_species_list(species_list):
+    &quot;&quot;&quot;
+    Expand a species list into a fully-resolved list of species strings.
+
+    This includes:
+    - Expanding ion ranges like &#39;Si I - V&#39; into [&#39;Si I&#39;, &#39;Si II&#39;, ..., &#39;Si V&#39;]
+    - Keeping individual ions or elements as-is
+
+    Parameters
+    ----------
+    species_list : list of str
+        List of species requested by the user.
+
+    Returns
+    -------
+    full_species_list : list of str
+        Expanded list of species strings in &#39;Element Ion&#39; format.
+
+    Raises
+    ------
+    ValueError
+        If any digit is found in the input (species must use Roman numerals).
+    &quot;&quot;&quot;
+    # check if there are any digits in the species list. If there are, then exit.
+    # species_list should only contain species in the Roman numeral
+    # format, e.g. Si II, and each ion must contain a space
+    if any(char.isdigit() for char in &quot; &quot;.join(species_list)):
+        raise ValueError(&quot;All species must be in Roman numeral form, e.g. Si II&quot;)
+
+    full_species_list = []
+    for species in species_list:
+        if &quot;-&quot; in species:
+           element, ion_range = species.split(&quot; &quot;)
+           first_ion_numeral, last_ion_numeral = map(roman_to_int, ion_range.partition(&quot;-&quot;)[::2])
+           for ion_number in range(first_ion_numeral, last_ion_numeral + 1):
+               full_species_list.append(f&quot;{element} {int_to_roman(ion_number)}&quot;)
+        else:
+            full_species_list.append(species)
+
+    return full_species_list</div>
+
+
+
+<div class="viewcode-block" id="parse_species_list_util">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.parse_species_list_util">[docs]</a>
+def parse_species_list_util(species_list):
+    &quot;&quot;&quot;
+    Parse user-requested species list and create list of species IDs to be used.
+
+    The function interprets element or ion names and ion ranges, converting them
+    into (Z, ion) tuples, where Z is the atomic number and `ion` is the zero-based ionization stage.
+
+    Parameters
+    ----------
+    species_list : list of str
+        List of species that the user wants to show in distinct colors.
+        Species can be given as:
+        - An ion (e.g. &#39;Fe II&#39;)
+        - An element (e.g. &#39;Ca&#39;)
+        - A range of ions (e.g. &#39;Si I - V&#39;)
+        - A combination of the above (e.g. [&#39;Si II&#39;, &#39;Fe I - III&#39;, &#39;Ca&#39;])
+
+    Returns
+    -------
+    species_mapped_result : dict
+        Dictionary mapping (Z, ion) to lists of (Z, ion) tuples.
+    species_list_result : list of tuple
+        Flattened list of all (Z, ion) tuples to be used.
+    elements_with_shared_color : list of int
+        Atomic numbers of elements that should be grouped by color.
+    full_species_list : list of str
+        Expanded list of user-requested species in string format.
+
+    Examples
+    --------
+    &#39;Fe II&#39;        -&gt; [(26, 1)]
+    &#39;Ca&#39;           -&gt; [(20, 0), (20, 1), ..., (20, 19)]
+    &#39;Si I-V&#39;       -&gt; [(14, 0), (14, 1), (14, 2), (14, 3), (14, 4)]
+    &quot;&quot;&quot;
+    if species_list is None:
+        return None, None, None, None
+
+    full_species_list = expand_species_list(species_list)
+    requested_species_ids = []
+    elements_with_shared_color = []
+    species_mapped = {}
+
+    # go through each of the requested species. Check whether it is
+    # an element or ion (ions have spaces). If it is an element,
+    # add all possible ions to the ions list. Otherwise just add
+    # the requested ion
+    for species in full_species_list:
+        if &quot; &quot; in species:
+            species_id = species_string_to_tuple(species)
+            requested_species_ids.append([species_id])
+            species_mapped[species_id] = [species_id]
+        else:
+            atomic_number = element_symbol2atomic_number(species)
+            species_ids = [(atomic_number, ion_number) for ion_number in range(atomic_number)]
+            requested_species_ids.append(species_ids)
+            species_mapped[(atomic_number, 0)] = species_ids
+            # add the atomic number to a list so you know that this element should
+            # have all species in the same colour, i.e. it was requested like
+            # species_list = [Si]
+            elements_with_shared_color.append(atomic_number)
+
+    species_list_result = [species_id for group in requested_species_ids for species_id in group]
+
+    return species_mapped, species_list_result, elements_with_shared_color, full_species_list</div>
+
+
+
+<div class="viewcode-block" id="get_spectrum_data">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.get_spectrum_data">[docs]</a>
+def get_spectrum_data(packets_mode, sim):
+    &quot;&quot;&quot;
+    Get spectrum data from simulation based on mode.
+
+    Parameters
+    ----------
+    packets_mode : str
+        Packet mode to extract spectrum data for (e.g., &#39;real&#39;, &#39;virtual&#39;).
+    sim : Simulation
+        Simulation object containing the spectrum solver and data.
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+        - &quot;spectrum_delta_frequency&quot; : Quantity
+            Frequency bin width in Hz.
+        - &quot;spectrum_frequency_bins&quot; : Quantity
+            Frequency bin edges in Hz.
+        - &quot;spectrum_luminosity_density_lambda&quot; : Quantity
+            Luminosity density in erg / s / Å.
+        - &quot;spectrum_wavelength&quot; : Quantity
+            Wavelength values in Å.
+    &quot;&quot;&quot;
+    packets_type = f&quot;spectrum_{packets_mode}_packets&quot;
+
+    return {
+        &quot;spectrum_delta_frequency&quot;: getattr(
+            sim.spectrum_solver, packets_type
+        ).delta_frequency,
+        &quot;spectrum_frequency_bins&quot;: getattr(
+            sim.spectrum_solver, packets_type
+        )._frequency,
+        &quot;spectrum_luminosity_density_lambda&quot;: getattr(
+            sim.spectrum_solver, packets_type
+        ).luminosity_density_lambda,
+        &quot;spectrum_wavelength&quot;: getattr(
+            sim.spectrum_solver, packets_type
+        ).wavelength,
+    }</div>
+
+
+
+<div class="viewcode-block" id="extract_spectrum_data_hdf">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.extract_spectrum_data_hdf">[docs]</a>
+def extract_spectrum_data_hdf(hdf, packets_mode):
+    &quot;&quot;&quot;
+    Extract spectrum data from HDF5.
+
+    Parameters
+    ----------
+    hdf : h5py.File
+        Open HDF5 file containing simulation output.
+    packets_mode : str
+        Packet mode to extract spectrum data for (e.g., &#39;real&#39;, &#39;virtual&#39;).
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+        - &quot;spectrum_delta_frequency&quot; : Quantity
+            Frequency bin width in Hz.
+        - &quot;spectrum_frequency_bins&quot; : Quantity
+            Frequency bin edges in Hz.
+        - &quot;spectrum_luminosity_density_lambda&quot; : Quantity
+            Luminosity density in erg / s / Å.
+        - &quot;spectrum_wavelength&quot; : Quantity
+            Wavelength values in Å.
+    &quot;&quot;&quot;
+    spectrum_prefix = (
+        f&quot;/simulation/spectrum_solver/spectrum_{packets_mode}_packets&quot;
+    )
+    return {
+        &quot;spectrum_delta_frequency&quot;: u.Quantity(
+            hdf[f&quot;{spectrum_prefix}/scalars&quot;].delta_frequency, &quot;Hz&quot;
+        ),
+        &quot;spectrum_frequency_bins&quot;: u.Quantity(
+            hdf[f&quot;{spectrum_prefix}/_frequency&quot;].to_numpy(), &quot;Hz&quot;
+        ),
+        &quot;spectrum_luminosity_density_lambda&quot;: u.Quantity(
+            hdf[f&quot;{spectrum_prefix}/luminosity_density_lambda&quot;].to_numpy(),
+            &quot;erg / s cm&quot;,
+        ).to(&quot;erg / s AA&quot;),
+        &quot;spectrum_wavelength&quot;: u.Quantity(
+            hdf[f&quot;{spectrum_prefix}/wavelength&quot;].to_numpy(), &quot;cm&quot;
+        ).to(&quot;AA&quot;),
+    }</div>
+
+
+
+<div class="viewcode-block" id="create_wavelength_mask">
+<a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.create_wavelength_mask">[docs]</a>
+def create_wavelength_mask(
+    packet_data, packets_mode, packet_wvl_range, df_key, column_name
+):
+    &quot;&quot;&quot;
+    Create mask for packets based on wavelength range.
+
+    Parameters
+    ----------
+    packets_mode : str
+        &#39;virtual&#39; or &#39;real&#39; packets mode
+    packet_wvl_range : astropy.Quantity or None
+        Wavelength range to filter packets
+    df_key : str
+        Key for the dataframe in packet_data (&#39;packets_df&#39; or &#39;packets_df_line_interaction&#39;)
+    column_name : str
+        Column name to filter on (&#39;nus&#39; or &#39;last_line_interaction_in_nu&#39;)
+
+    Returns
+    -------
+    np.array
+        Boolean mask for packets in the specified wavelength range
+    &quot;&quot;&quot;
+    if packet_wvl_range is None:
+        return np.ones(
+            packet_data[packets_mode][df_key].shape[0],
+            dtype=bool,
+        )
+
+    packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
+    df = packet_data[packets_mode][df_key]
+
+    return (df[column_name] &lt; packet_nu_range[0]) &amp; (
+        df[column_name] &gt; packet_nu_range[1]
+    )</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 20 Jun 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
