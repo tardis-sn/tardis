@@ -47,7 +47,8 @@ jobs:
     
       - name: Copy atom data to Downloads
         run: |
-          cp --parents  ${{ github.workspace }}/tardis-regression-data/atom_data/kurucz_cd23_chianti_H_He.h5 /home/runner/Downloads/tardis-data/atom_data
+          mkdir -p /home/runner/Downloads/tardis-data/atom_data
+          cp ${{ github.workspace }}/tardis-regression-data/atom_data/kurucz_cd23_chianti_H_He.h5 /home/runner/Downloads/tardis-data/atom_data
           
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
