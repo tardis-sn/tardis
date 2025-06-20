@@ -23,22 +23,22 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/commits/$TARGET_COMMIT" | \
             jq -r '.commit.committer.date')
           
-          # Calculate one year before commit date
-          ONE_YEAR_BEFORE=$(date -d "$COMMIT_DATE - 1 year" --iso-8601)
+          # Calculate one and a half years before commit date
+          ONE_AND_HALF_YEARS_BEFORE=$(date -d "$COMMIT_DATE - 1.5 years" --iso-8601)
           
           echo "Target commit date: $COMMIT_DATE"
-          echo "One year before: $ONE_YEAR_BEFORE"
+          echo "One and a half years before: $ONE_AND_HALF_YEARS_BEFORE"
           
           # Get all releases with efficient pagination
           ALL_RELEASES=$(curl -s -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer ${{ github.token }}" \
             "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100" | \
-            jq -r --arg before "$COMMIT_DATE" --arg after "$ONE_YEAR_BEFORE" \
+            jq -r --arg before "$COMMIT_DATE" --arg after "$ONE_AND_HALF_YEARS_BEFORE" \
             '[.[] | select(.published_at >= $after and .published_at < $before) | .tag_name] | sort')
           
           # Select every 3rd release for optimal coverage
           FILTERED_TAGS=$(echo "$ALL_RELEASES" | jq -r '. as $arr | to_entries | 
-            map(select(.key % 3 == 0)) | map(.value) | @json')
+            map(select(.key % 4 == 0)) | map(.value) | @json')
           
           # Create matrix strategy
           MATRIX_JSON=$(echo "$FILTERED_TAGS" | jq -c '{include: [.[] | {tag: .}]}')
