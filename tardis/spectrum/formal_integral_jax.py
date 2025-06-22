@@ -10,6 +10,7 @@ import timeit
 
 import numpy as np
 import math
+from scipy.interpolate import interp1d
 
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
@@ -243,16 +244,6 @@ init_Inup_jax_vmap = jax.vmap(vmap_over_p, in_axes=(0, None, None, None, None))
 
 
 # inner for loop:
-@jax.jit(
-    static_argnames=[
-        "line_list_nu",
-        "electron_density",
-        "exp_tau",
-        "att_S_ul",
-        "Jred_lu",
-        "Jblue_lu",
-    ]
-)
 def calc_Inup(
     Inup,
     nu,
@@ -350,17 +341,105 @@ def calc_Inup(
     Inup *= p
     return Inup
 
+# TODO: determine how static variables work
+    # it complained about the jax arrays being unhashable but I want it to know that the first time it sees those arrays they will always be that
+calc_Inup = jax.jit(calc_Inup)
+
+@jax.jit
+def interpolate_integrator_quantities(mct_r_inner, mct_r_outer, v_inner_idx, v_outer_idx, 
+                                      tau_sobolev, electron_densities, 
+                                      interpolate_shells, att_S_ul, Jredlu, Jbluelu, e_dot_u):
+    
+    r_middle = (
+        mct_r_inner + mct_r_outer
+    ) / 2.0 # is this a different geometry?
+
+    r_integ = jnp.linspace(
+        mct_r_inner[0],
+        mct_r_outer[-1],
+        interpolate_shells,
+    )
+
+    r_inner_i = r_integ[:-1]
+    r_outer_i = r_integ[1:]
+
+    r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
+
+    # interp values
+    electron_densities_integ = jax.scipy.interpolate.RegularGridInterpolator(
+            (r_middle, ),
+            electron_densities[v_inner_idx:v_outer_idx],
+            fill_value=None, # TODO: determine fill
+            method="nearest", 
+        )(r_middle_integ)
+    
+    # since these array are of shape (nu, shells), they have to be transposed such that the shells are first
+    tau_sobolevs_integ = jax.scipy.interpolate.RegularGridInterpolator(
+            (r_middle,),
+            tau_sobolev[:, v_inner_idx:v_outer_idx].T,
+            method="nearest",
+            fill_value=None  # for extrapolation    
+        )(r_middle_integ.reshape(-1, 1)).T
+    att_S_ul = jax.scipy.interpolate.RegularGridInterpolator(
+            (r_middle,), att_S_ul.T, fill_value=None
+        )(r_middle_integ.reshape(-1, 1)).T
+    Jredlu = jax.scipy.interpolate.RegularGridInterpolator(
+            (r_middle,), Jredlu.T, fill_value=None
+        )(r_middle_integ.reshape(-1, 1)).T
+    Jbluelu = jax.scipy.interpolate.RegularGridInterpolator(
+            (r_middle,), Jbluelu.T, fill_value=None
+        )(r_middle_integ.reshape(-1, 1)).T
+    e_dot_u = jax.scipy.interpolate.RegularGridInterpolator(
+            (r_middle,), e_dot_u.T, fill_value=None
+        )(r_middle_integ.reshape(-1, 1)).T
+
+    # Set negative values from the extrapolation to zero
+    att_S_ul = jnp.clip(att_S_ul, min=0.0)
+    Jbluelu = jnp.clip(Jbluelu, min=0.0)
+    Jredlu = jnp.clip(Jredlu, min=0.0)
+    e_dot_u = jnp.clip(e_dot_u, min=0.0)
+
+    return r_inner_i, r_outer_i, electron_densities_integ, tau_sobolevs_integ, att_S_ul, Jredlu, Jbluelu, e_dot_u
+
+
+# TODO: probably cant pass in the objects if I want to jjax
+# TODO: state assumption about only macroatom and not downbranch - reduces conditionals
+def make_source_function(simulation_state, transport, opacity_state, atomic_data, levels_index):
+
+    local_slice = slice(
+            simulation_state.geometry.v_inner_boundary_index,
+            simulation_state.geometry.v_outer_boundary_index,
+    )
+    montecarlo_transport_state = transport.transport_state
+    transition_probabilities = opacity_state.transition_probabilities[
+            :, local_slice
+    ]
+    tau_sobolevs = opacity_state.tau_sobolev[:, local_slice]
+
+    columns = range(simulation_state.no_of_shells)
+
+    macro_ref = atomic_data.macro_atom_reference
+    macro_data = atomic_data.macro_atom_data
+
+    no_lvls = len(levels_index)
+    no_shells = len(simulation_state.dilution_factor)
+
+
+    return 
+
+
 
 def formal_integral(
-    geometry,
+    r_inner,
+    r_outer,
     time_explosion,
-    plasma,
+    tau_sobolev,
+    line_list_nu,
     iT,
     inu,
     att_S_ul,
     Jred_lu,
     Jblue_lu,
-    tau_sobolev,
     electron_density,
     N,
 ):
@@ -374,10 +453,10 @@ def formal_integral(
         frequency x p-ray grid
     """
     # get params
-    r_inner = geometry.r_inner.value
-    r_outer = geometry.r_outer.value
     size_line, size_shell = tau_sobolev.shape
     exp_tau = jnp.exp(-tau_sobolev)
+
+    r_inner, r_outer, 
 
     # compute impact parameters, p
     ps = calculate_p_values_jax(r_outer[-1], N)
@@ -390,7 +469,7 @@ def formal_integral(
     # init Inup with the photopshere's black body
     Inup = init_Inup_jax_vmap(inu, ps, zs[:, 0], iT, r_inner[0])
 
-    # figure out how to use the init array with the update and compute
+    # TODO: figure out how to use the init array with the update and compute
     # compute Inup
     Inup = calc_Inup(
         Inup,
@@ -399,9 +478,9 @@ def formal_integral(
         zs,
         size_zs,
         shellids,
-        geometry.line_list_nu.value,
+        line_list_nu,
         time_explosion,
-        electron_density.value,
+        electron_density,
         exp_tau,
         att_S_ul,
         Jred_lu,
