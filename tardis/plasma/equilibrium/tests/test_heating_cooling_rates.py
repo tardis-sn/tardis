@@ -36,8 +36,8 @@ def test_bound_free_thermal_rates_solve(
         level_population,
         ion_population,
         thermal_electron_distribution,
-        radiation_field,
         saha_factor,
+        radiation_field,
     )
     assert heating is not None
     assert cooling is not None
@@ -48,7 +48,6 @@ def test_bound_free_thermal_rates_solve_with_estimators(
     level_population,
     ion_population,
     thermal_electron_distribution,
-    radiation_field,
     saha_factor,
     bound_free_heating_estimator,
     stimulated_recombination_estimator,
@@ -58,7 +57,6 @@ def test_bound_free_thermal_rates_solve_with_estimators(
         level_population,
         ion_population,
         thermal_electron_distribution,
-        radiation_field,
         saha_factor,
         bound_free_heating_estimator=bound_free_heating_estimator,
         stimulated_recombination_estimator=stimulated_recombination_estimator,
