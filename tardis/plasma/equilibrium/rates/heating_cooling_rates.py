@@ -25,9 +25,8 @@ class BoundFreeThermalRates:
         self,
         level_population,
         ion_population,
-        electron_density,
+        thermal_electron_distribution,
         radiation_field,
-        boltzmann_factor,
         saha_factor,
         bound_free_heating_estimator=None,
         stimulated_recombination_estimator=None,
@@ -40,8 +39,8 @@ class BoundFreeThermalRates:
             Estimated level number density. Columns are cells.
         ion_population : pd.DataFrame
             Estimated ion number density. Columns are cells.
-        electron_density : pd.Series
-            Electron number density.
+        thermal_electron_distribution : ThermalElectronEnergyDistribution
+            Electron energy distribution containing the number density, temperature and energy.
         radiation_field : RadiationField
             A radiation field that can compute its mean intensity.
         boltzmann_factor : pd.DataFrame
@@ -85,6 +84,12 @@ class BoundFreeThermalRates:
                 self.photoionization_block_references,
             )
 
+        boltzmann_factor = np.exp(
+            -self.nu
+            / thermal_electron_distribution.temperature
+            * (const.h.cgs / const.k_B.cgs)
+        )
+
         spontaneous_recombination_cooling_coefficient = (
             (
                 8
@@ -109,7 +114,7 @@ class BoundFreeThermalRates:
         spontaneous_recombination_cooling_rate = (
             integrated_cooling_coefficient
             * saha_factor
-            * electron_density
+            * thermal_electron_distribution.number_density
             * ion_population
         )
 
@@ -117,7 +122,7 @@ class BoundFreeThermalRates:
             stimulated_recombination_cooling_rate = (
                 stimulated_recombination_estimator
                 * saha_factor
-                * electron_density
+                * thermal_electron_distribution.number_density
                 * ion_population
             )
         else:
@@ -183,7 +188,7 @@ class FreeFreeThermalRates:
         """
         heating_factor = self.heating_factor(
             ion_population,
-            thermal_electron_distribution.density,
+            thermal_electron_distribution.number_density,
         )
 
         heating_rate = (
