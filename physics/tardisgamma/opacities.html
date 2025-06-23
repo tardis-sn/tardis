@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=4d442840"></script>
+      <script src="../../_static/documentation_options.js?v=a3007301"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -38,7 +38,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Contribution Guidelines" href="../../contributing/CONTRIBUTING.html" />
+    <link rel="next" title="Radioactive Decay Energy" href="decayenergy.html" />
     <link rel="prev" title="Packet Initialization" href="packetinitialization.html" />
     <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
 
@@ -103,6 +103,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#Photoabsorption">Photoabsorption</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="decayenergy.html">Radioactive Decay Energy</a></li>
 </ul>
 </li>
 </ul>
@@ -225,7 +226,7 @@
 <p>Pair Creation is dominant when the energy of the <span class="math notranslate nohighlight">\(\gamma\)</span>-ray is greater than or equal to <span class="math notranslate nohighlight">\(2m_e c^2\)</span>. It occurs when a <span class="math notranslate nohighlight">\(\gamma\)</span>-ray interacts with an atomic nucleus and creates an electron-positron pair.</p>
 <p><img alt="Pair Production Diagram" src="../../_images/pair_production_diagram.jpg" /></p>
 <p><em>Image from</em> <a class="reference external" href="http://electrons.wikidot.com/pair-production-and-annihilation">Wikidot</a></p>
-<p>The positron forms a bound-state with an electron called positronium which decay into two photons at 0.511 MeV or three photons. The photon packet keeps its energy but is sent into a new direction. The pair-production coefficients (<span class="math notranslate nohighlight">\(cm^{-1}\)</span>) as given in <span id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id27" title="J. H. Hubbell. Photon cross sections, attenuation coefficients, and energy absorption coefficients from 10 kev to 100 gev. NSRDS-NBS, 1969.">Hub69</a>]</span> <span id="id2">[<a class="reference internal" href="../../resources/zreferences.html#id28" title="Kailash Ambwani and Peter Sutherland. Gamma-Ray Spectra and Energy Deposition for Type IA Supernovae. \apj , 325:820, February 1988. doi:10.1086/166052.">AmbwaniSutherland88</a>]</span> (see Equation 2) are:</p>
+<p>The positron forms a bound-state with an electron called positronium which decay into two photons at 0.511 MeV or three photons. The photon packet keeps its energy but is sent into a new direction. The pair-production coefficients (<span class="math notranslate nohighlight">\(cm^{-1}\)</span>) as given in <span id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id28" title="J. H. Hubbell. Photon cross sections, attenuation coefficients, and energy absorption coefficients from 10 kev to 100 gev. NSRDS-NBS, 1969.">Hub69</a>]</span> <span id="id2">[<a class="reference internal" href="../../resources/zreferences.html#id29" title="Kailash Ambwani and Peter Sutherland. Gamma-Ray Spectra and Energy Deposition for Type IA Supernovae. \apj , 325:820, February 1988. doi:10.1086/166052.">AmbwaniSutherland88</a>]</span> (see Equation 2) are:</p>
 <div class="math notranslate nohighlight">
 \[\alpha_{pp}(1.5 &lt; h\nu &lt; 1.022 MeV) = \rho \left[ \frac{Z_{\text{Si}}^2}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + \frac{Z_{\text{Fe}}^2}{m_{\text{Fe}}} X_{\text{IGE}} \right] 1.0063 (h\nu - 1.022 MeV) \times 10^{-27}\]</div>
 <div class="math notranslate nohighlight">
@@ -274,14 +275,14 @@ Text(0.5, 1.0, &#39;Pair Creation Attenuation Coefficient&#39;)
 <div class="math notranslate nohighlight">
 \[f = \frac{1}{1 + x(1 - \cos{\theta})}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(\theta\)</span> is the angle the photon is scattered at and <span class="math notranslate nohighlight">\(x = \frac{h \nu}{m_e c^2}\)</span></p>
-<p>The partial cross section from 0 to <span class="math notranslate nohighlight">\(\theta\)</span> in terms of f as given in the <a class="reference external" href="https://github.com/artis-mcrt/artis">ARTIS</a> code <span id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id30" title="S. A. Sim. Multidimensional simulations of radiative transfer in type ia supernovae. Monthly Notices of the Royal Astronomical Society, 375(1):154–162, February 2007. URL: http://dx.doi.org/10.1111/j.1365-2966.2006.11271.x, doi:10.1111/j.1365-2966.2006.11271.x.">Sim07</a>]</span> <span id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id31" title="M. Kromer and S. A. Sim. Time-dependent three-dimensional spectrum synthesis for type ia supernovae. Monthly Notices of the Royal Astronomical Society, 398(4):1809–1826, October 2009. URL: http://dx.doi.org/10.1111/j.1365-2966.2009.15256.x, doi:10.1111/j.1365-2966.2009.15256.x.">KS09</a>]</span> is:</p>
+<p>The partial cross section from 0 to <span class="math notranslate nohighlight">\(\theta\)</span> in terms of f as given in the <a class="reference external" href="https://github.com/artis-mcrt/artis">ARTIS</a> code <span id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id31" title="S. A. Sim. Multidimensional simulations of radiative transfer in type ia supernovae. Monthly Notices of the Royal Astronomical Society, 375(1):154–162, February 2007. URL: http://dx.doi.org/10.1111/j.1365-2966.2006.11271.x, doi:10.1111/j.1365-2966.2006.11271.x.">Sim07</a>]</span> <span id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id32" title="M. Kromer and S. A. Sim. Time-dependent three-dimensional spectrum synthesis for type ia supernovae. Monthly Notices of the Royal Astronomical Society, 398(4):1809–1826, October 2009. URL: http://dx.doi.org/10.1111/j.1365-2966.2009.15256.x, doi:10.1111/j.1365-2966.2009.15256.x.">KS09</a>]</span> is:</p>
 <div class="math notranslate nohighlight">
 \[\sigma(f) = \frac{3 \sigma_T}{8x} \frac{\left( x^2 - 2x - 2 \right) \ln(f)}{x^2} + \frac{f^2 - 1}{2f^2} +  \frac{f - 1}{x} [\frac{1}{x} + \frac{2}{f} + \frac{1}{xf}]\]</div>
 <p>Where <span class="math notranslate nohighlight">\(f\)</span> can range from <span class="math notranslate nohighlight">\(1\)</span> to <span class="math notranslate nohighlight">\(\frac{1}{1+2x}\)</span> and <span class="math notranslate nohighlight">\(\sigma_T\)</span> is the Thomson scattering cross section.</p>
 <p>The scattering angle is given by:</p>
 <div class="math notranslate nohighlight">
 \[\theta = \cos^{-1}({1 - \frac{f-1}{x}})\]</div>
-<p>The total integrated Compton scattering coefficient <span id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id32" title="Steven Weinberg. The Quantum Theory of Fields. Cambridge University Press, 1995.">Wei95</a>]</span> is:</p>
+<p>The total integrated Compton scattering coefficient <span id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id33" title="Steven Weinberg. The Quantum Theory of Fields. Cambridge University Press, 1995.">Wei95</a>]</span> is:</p>
 <div class="math notranslate nohighlight">
 \[\alpha_C = n_e \frac{3}{4} \sigma_T [\frac{1+x}{x^3} (\frac{2x(1 + x)}{1 + 2x} - \ln(1 + 2x)) + \frac{1}{2x} \ln(1 + 2x) - \frac{1 + 3x}{(1 + 2x)^2}]\]</div>
 <p>Where <span class="math notranslate nohighlight">\(n_e\)</span> is the number density of electrons.</p>
@@ -318,7 +319,7 @@ Text(0.5, 1.0, &#39;Pair Creation Attenuation Coefficient&#39;)
 </section>
 <section id="Photoabsorption">
 <h2>Photoabsorption<a class="headerlink" href="#Photoabsorption" title="Link to this heading">¶</a></h2>
-<p>This occurs when the photon is completely absorbed by a material. We assume that the <span class="math notranslate nohighlight">\(\gamma\)</span>-ray deposits all of its energy when this occurs. The coefficient as given in <span id="id6">[<a class="reference internal" href="../../resources/zreferences.html#id29" title="Wm.J. Veigele. Photon cross sections from 0.1 kev to 1 mev for elements z = 1 to z = 94. Atomic Data and Nuclear Data Tables, 5(1):51-111, 1973. URL: https://www.sciencedirect.com/science/article/pii/S0092640X73800154, doi:https://doi.org/10.1016/S0092-640X(73)80015-4.">Vei73</a>]</span> <span id="id7">[<a class="reference internal" href="../../resources/zreferences.html#id28" title="Kailash Ambwani and Peter Sutherland. Gamma-Ray Spectra and Energy Deposition for Type IA Supernovae. \apj , 325:820, February 1988. doi:10.1086/166052.">AmbwaniSutherland88</a>]</span> (see Equation 3) is:</p>
+<p>This occurs when the photon is completely absorbed by a material. We assume that the <span class="math notranslate nohighlight">\(\gamma\)</span>-ray deposits all of its energy when this occurs. The coefficient as given in <span id="id6">[<a class="reference internal" href="../../resources/zreferences.html#id30" title="Wm.J. Veigele. Photon cross sections from 0.1 kev to 1 mev for elements z = 1 to z = 94. Atomic Data and Nuclear Data Tables, 5(1):51-111, 1973. URL: https://www.sciencedirect.com/science/article/pii/S0092640X73800154, doi:https://doi.org/10.1016/S0092-640X(73)80015-4.">Vei73</a>]</span> <span id="id7">[<a class="reference internal" href="../../resources/zreferences.html#id29" title="Kailash Ambwani and Peter Sutherland. Gamma-Ray Spectra and Energy Deposition for Type IA Supernovae. \apj , 325:820, February 1988. doi:10.1086/166052.">AmbwaniSutherland88</a>]</span> (see Equation 3) is:</p>
 <div class="math notranslate nohighlight">
 \[\alpha_{pa}(\nu) = 1.16 \times 10^{-24} (\frac{h\nu}{100 keV})^{-3.13}  \frac{\rho}{m_{\text{Si}}} (1 - X_{\text{IGE}}) + 25.7 \times 10^{-24} (\frac{h\nu}{100 keV})^{-3}  \frac{\rho}{m_{\text{Fe}}} X_{\text{IGE}}\]</div>
 <div class="nbinput docutils container">
@@ -431,14 +432,14 @@ Text(0, 0.5, &#39;Fraction of Total Attenuation Coefficient&#39;)
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="packetinitialization.html" class="btn btn-neutral float-left" title="Packet Initialization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../contributing/CONTRIBUTING.html" class="btn btn-neutral float-right" title="Contribution Guidelines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="decayenergy.html" class="btn btn-neutral float-right" title="Radioactive Decay Energy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 20 Jun 2025.
+      <span class="lastupdated">Last updated on 23 Jun 2025.
       </span></p>
   </div>
 
