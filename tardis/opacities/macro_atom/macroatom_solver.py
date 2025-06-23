@@ -173,7 +173,6 @@ class BoundBoundMacroAtomSolver:
         mean_intensities_blue_wing,
         beta_sobolevs,
         stimulated_emission_factors,
-        normalize=True,
     ):
         """
         Solves the transition probabilities and returns a DataFrame with the probabilities and a DataFrame with the macro atom transition metadata.
@@ -188,16 +187,15 @@ class BoundBoundMacroAtomSolver:
             Escape probabilites for the Sobolev approximation.
         stimulated_emission_factors : pd.DataFrame
             Stimulated emission factors for the lines.
-        normalize : bool, optional
-            Whether to normalize the transition probabilities to unity. Default is True.
+
         Returns
         -------
         MacroAtomState
             A MacroAtomState object containing the transition probabilities, transition metadata, and a mapping from line IDs to macro atom level upper indices.
         """
 
-        f_ul = self.lines.f_ul.values.reshape(-1, 1)
-        f_lu = self.lines.f_lu.values.reshape(-1, 1)
+        oscillator_strength_ul = self.lines.f_ul.values.reshape(-1, 1)
+        oscillator_strength_lu = self.lines.f_lu.values.reshape(-1, 1)
         nus = self.lines.nu.values.reshape(-1, 1)
         line_ids = self.lines.line_id.values
 
@@ -213,21 +211,19 @@ class BoundBoundMacroAtomSolver:
             .reindex(self.lines.index.droplevel("level_number_upper"))
             .values
         )
-        transition_a_i_l_u_array = (
-            self.lines.reset_index()[
-                [
-                    "atomic_number",
-                    "ion_number",
-                    "level_number_lower",
-                    "level_number_upper",
-                ]
-            ].values
-        )  # This is a helper array to make the source and destination columns.
+        transition_a_i_l_u_array = self.lines.reset_index()[
+            [
+                "atomic_number",
+                "ion_number",
+                "level_number_lower",
+                "level_number_upper",
+            ]
+        ].values  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
 
         lines_level_upper = self.lines.index.droplevel("level_number_lower")
 
         p_emission_down, emission_down_metadata = line_transition_emission_down(
-            f_ul,
+            oscillator_strength_ul,
             nus,
             energies_upper,
             energies_lower,
@@ -236,7 +232,7 @@ class BoundBoundMacroAtomSolver:
             line_ids,
         )
         p_internal_down, internal_down_metadata = line_transition_internal_down(
-            f_ul,
+            oscillator_strength_ul,
             nus,
             energies_lower,
             beta_sobolevs,
@@ -244,7 +240,7 @@ class BoundBoundMacroAtomSolver:
             line_ids,
         )
         p_internal_up, internal_up_metadata = line_transition_internal_up(
-            f_lu,
+            oscillator_strength_lu,
             nus,
             energies_lower,
             mean_intensities_blue_wing,
@@ -266,13 +262,12 @@ class BoundBoundMacroAtomSolver:
             ]
         )
 
-        if normalize:
-            # Normalize the probabilities by source.
-            probabilities_df = probabilities_df.div(
-                probabilities_df.groupby("source").transform("sum"),
-            )
-            probabilities_df.replace(np.nan, 0, inplace=True)
-            # fill value for nans where the transition probabilites are all 0, which happens for ground levels that should never be accessed in the active macroatom.
+        # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS.
+        probabilities_df = probabilities_df.div(
+            probabilities_df.groupby("source").transform("sum"),
+        )
+        probabilities_df.replace(np.nan, 0, inplace=True)
+        # fill value for nans where the transition probabilites are all 0, which happens for ground levels that should never be accessed in the active macroatom.
 
         probabilities_df.drop(columns=["source"], inplace=True)
         probabilities_df = probabilities_df.reset_index(
