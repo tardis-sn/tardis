@@ -67,7 +67,7 @@ class GammaRayPacketSource(BasePacketSource):
     def create_packet_mus(self, no_of_packets, *args, **kwargs):
         return super().create_packet_mus(no_of_packets, *args, **kwargs)
 
-    def create_packet_radii(self, sampled_packets_df):
+    def create_packet_velocities(self, sampled_packets_df):
         """Initialize the random radii of packets in a shell
 
         Parameters
@@ -82,6 +82,7 @@ class GammaRayPacketSource(BasePacketSource):
         array
             Array of length packet_count of random locations in the shell
         """
+        np.random.seed(self.base_seed + 2 if self.base_seed is not None else None)
         z = np.random.random(len(sampled_packets_df))
         initial_radii = (
             z * sampled_packets_df["inner_velocity"] ** 3.0
@@ -305,7 +306,7 @@ class GammaRayPacketSource(BasePacketSource):
         sampled_packets_df["outer_velocity"] = self.outer_velocities[shells]
 
         # The radii of the packets at what ever time they are emitted
-        initial_radii = self.create_packet_radii(sampled_packets_df)
+        initial_velocities = self.create_packet_velocities(sampled_packets_df)
 
         # get the time step index of the packets
         decay_time_indices = sampled_packets_df.index.get_level_values("time_index")
@@ -316,14 +317,17 @@ class GammaRayPacketSource(BasePacketSource):
         # Geometry object calculations. Note that this also adds a random
         # unit vector multiplication for 3D. May not be needed.
         locations = (
-            initial_radii.values
+            initial_velocities.values
             * effective_decay_times
             * self.create_packet_directions(number_of_packets, seed=self.base_seed)
         )
 
         # sample directions (valid at all times), non-relativistic
+        # the seed is changed to not have packets that are all going outwards as the
+        # create_packet_directions method is also used for the location sampling
+        directions_seed = self.base_seed + 1 if self.base_seed is not None else None
         directions = self.create_packet_directions(
-            number_of_packets, seed=self.base_seed
+            number_of_packets, seed=directions_seed
         )
 
         # the individual gamma-ray energy that makes up a packet

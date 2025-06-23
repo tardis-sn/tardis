@@ -1,7 +1,7 @@
 from tardis.energy_input.energy_source import get_radioactive_isotopes
 
 
-def get_decay_radiation_data(decay_radiation_data, isotopic_mass_fraction_index):
+def process_decay_radiation_data(decay_radiation_data, isotopic_mass_fraction_index):
     """
     Extracts and processes radiation data for gamma rays and beta particles from decay radiation data.
 
@@ -28,7 +28,11 @@ def get_decay_radiation_data(decay_radiation_data, isotopic_mass_fraction_index)
         get_radioactive_isotopes(isotopic_mass_fraction_index)
     ]
     relevant_decay_radiation_data = relevant_decay_radiation_data.rename(
-        columns={"Rad Energy": "radiation_energy_kev", "Rad subtype": "radiation_type"}
+        columns={
+            "Radiation": "radiation_type",
+            "Rad Energy": "radiation_energy_kev",
+            "Rad subtype": "radiation_sub_type",
+        }
     )
     relevant_decay_radiation_data[
         "energy_per_decay_kev"
@@ -45,19 +49,6 @@ def get_decay_radiation_data(decay_radiation_data, isotopic_mass_fraction_index)
         ["atomic_number", "mass_number", "channel_id"]
     )
 
-    em_radiation_data = relevant_decay_radiation_data[
-        relevant_decay_radiation_data.Radiation == "g"
-    ]
-    # move 'radiation_type' to the last column
-    em_radiation_data = em_radiation_data[
+    return relevant_decay_radiation_data[
         ["radiation_energy_kev", "energy_per_decay_kev", "radiation_type"]
     ]
-
-    bp_radiation_data = relevant_decay_radiation_data[
-        relevant_decay_radiation_data.Radiation == "bp"
-    ]
-    bp_radiation_data = bp_radiation_data[
-        ["radiation_energy_kev", "energy_per_decay_kev", "radiation_type"]
-    ]
-
-    return em_radiation_data, bp_radiation_data
