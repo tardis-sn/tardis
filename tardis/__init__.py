@@ -3,11 +3,13 @@
 # Packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-from ._astropy_init import *  # noqa
+from importlib.metadata import version as ilversion
+from packaging.version import Version as pversion
 
-# ----------------------------------------------------------------------------
+__version__ = ilversion("tardis")
+last_release = pversion(__version__).base_version
 
-__all__ = []
+__all__ = ['__version__', 'test', 'last_release']
 
 # ----------------------------------------------------------------------------
 

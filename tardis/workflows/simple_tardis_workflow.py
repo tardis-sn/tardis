@@ -31,15 +31,36 @@ class SimpleTARDISWorkflow(WorkflowLogging):
     log_level = None
     specific_log_level = None
 
-    def __init__(self, configuration):
+    def __init__(self, configuration, csvy=False):
+        """A simple TARDIS workflow that runs a simulation to convergence
+
+        Parameters
+        ----------
+        configuration : Configuration
+            Configuration object for the simulation
+        csvy : bool, optional
+            Set true if the configuration uses CSVY, by default False
+        """
         super().__init__(configuration, self.log_level, self.specific_log_level)
         atom_data = parse_atom_data(configuration)
 
         # set up states and solvers
-        self.simulation_state = SimulationState.from_config(
-            configuration,
-            atom_data=atom_data,
-        )
+        if csvy:
+            self.simulation_state = SimulationState.from_csvy(
+                configuration, atom_data=atom_data
+            )
+            assert np.isclose(
+                self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
+                self.simulation_state.geometry.v_inner[0].to(u.km / u.s).value,
+            ), (
+                "If using csvy density input in the workflow, the initial v_inner_boundary must start at the first shell, see issue #3129."
+            )
+
+        else:
+            self.simulation_state = SimulationState.from_config(
+                configuration,
+                atom_data=atom_data,
+            )
 
         plasma_solver_factory = PlasmaSolverFactory(
             atom_data,
@@ -53,7 +74,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         )
 
         self.plasma_solver = plasma_solver_factory.assemble(
-            self.simulation_state.elemental_number_density,
+            self.simulation_state.calculate_elemental_number_density(
+                atom_data.atom_data.mass
+            ),
             self.simulation_state.radiation_field_state,
             self.simulation_state.time_explosion,
             self.simulation_state._electron_densities,
@@ -71,6 +94,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         else:
             self.macro_atom_solver = MacroAtomSolver()
 
+        self.transport_state = None
         self.transport_solver = MonteCarloTransportSolver.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
@@ -142,13 +166,8 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.convergence_strategy.t_inner
         )
 
-    def get_convergence_estimates(self, transport_state):
+    def get_convergence_estimates(self):
         """Compute convergence estimates from the transport state
-
-        Parameters
-        ----------
-        transport_state : MonteCarloTransportState
-            Transport state object to compute estimates
 
         Returns
         -------
@@ -159,11 +178,11 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         """
         estimated_radfield_properties = (
             self.transport_solver.radfield_prop_solver.solve(
-                transport_state.radfield_mc_estimators,
-                transport_state.time_explosion,
-                transport_state.time_of_simulation,
-                transport_state.geometry_state.volume,
-                transport_state.opacity_state.line_list_nu,
+                self.transport_state.radfield_mc_estimators,
+                self.transport_state.time_explosion,
+                self.transport_state.time_of_simulation,
+                self.transport_state.geometry_state.volume,
+                self.transport_state.opacity_state.line_list_nu,
             )
         )
 
@@ -171,8 +190,8 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         emitted_luminosity = calculate_filtered_luminosity(
-            transport_state.emitted_packet_nu,
-            transport_state.emitted_packet_luminosity,
+            self.transport_state.emitted_packet_nu,
+            self.transport_state.emitted_packet_luminosity,
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
@@ -268,6 +287,8 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             "t_inner"
         ]
 
+        return next_values
+
     def solve_plasma(self, estimated_radfield_properties):
         """Update the plasma solution with the new radiation field estimates
 
@@ -345,12 +366,11 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             macro_atom_state = None
         else:
             macro_atom_state = self.macro_atom_solver.solve(
-                self.plasma_solver,
+                self.plasma_solver.j_blues,
                 self.plasma_solver.atomic_data,
                 opacity_state.tau_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
                 opacity_state.beta_sobolev,
-                legacy_mode=False,
             )
 
         return {
@@ -382,7 +402,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         opacity_state = opacity_states["opacity_state"]
         macro_atom_state = opacity_states["macro_atom_state"]
 
-        transport_state = self.transport_solver.initialize_transport_state(
+        self.transport_state = self.transport_solver.initialize_transport_state(
             self.simulation_state,
             opacity_state,
             macro_atom_state,
@@ -393,21 +413,20 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         )
 
         virtual_packet_energies = self.transport_solver.run(
-            transport_state,
+            self.transport_state,
             iteration=self.completed_iterations,
             total_iterations=self.total_iterations,
             show_progress_bars=self.show_progress_bars,
         )
 
-        output_energy = transport_state.packet_collection.output_energies
+        output_energy = self.transport_state.packet_collection.output_energies
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        return transport_state, virtual_packet_energies
+        return virtual_packet_energies
 
     def initialize_spectrum_solver(
         self,
-        transport_state,
         opacity_states,
         virtual_packet_energies=None,
     ):
@@ -415,13 +434,11 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         Parameters
         ----------
-        transport_state : MonteCarloTransportState
-            The transport state to init with
         virtual_packet_energies : ndarray, optional
             Array of virtual packet energies binned by frequency, by default None
         """
         # Set up spectrum solver
-        self.spectrum_solver.transport_state = transport_state
+        self.spectrum_solver.transport_state = self.transport_state
 
         if virtual_packet_energies is not None:
             self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
@@ -443,7 +460,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
-        converged = False
+        self.converged = False
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
@@ -451,39 +468,38 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
             opacity_states = self.solve_opacity()
 
-            transport_state, virtual_packet_energies = self.solve_montecarlo(
+            virtual_packet_energies = self.solve_montecarlo(
                 opacity_states, self.real_packet_count
             )
 
             (
                 estimated_values,
                 estimated_radfield_properties,
-            ) = self.get_convergence_estimates(transport_state)
+            ) = self.get_convergence_estimates()
 
             self.solve_simulation_state(estimated_values)
 
             self.solve_plasma(estimated_radfield_properties)
 
-            converged = self.check_convergence(estimated_values)
+            self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
 
-            if converged and self.convergence_strategy.stop_if_converged:
+            if self.converged and self.convergence_strategy.stop_if_converged:
                 break
 
-        if converged:
+        if self.converged:
             logger.info("\n\tStarting final iteration")
         else:
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
-        transport_state, virtual_packet_energies = self.solve_montecarlo(
+        virtual_packet_energies = self.solve_montecarlo(
             opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
 
         self.initialize_spectrum_solver(
-            transport_state,
             opacity_states,
             virtual_packet_energies,
         )

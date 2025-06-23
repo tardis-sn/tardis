@@ -1,0 +1,93 @@
+name: utility
+
+on:
+  pull_request_target:
+    branches:
+      - master
+
+jobs:
+  git-lfs-pull-label:
+    if: contains(github.event.pull_request.labels.*.name, 'git-lfs-pull')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            Warning - LFS bandwidth usage
+            ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
+
+  check-first-time-committer:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    permissions:
+      pull-requests: write
+    
+    steps:
+      - name: Add welcome comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
+            Before asking for reviews, please make sure all checks have passed.
+
+  
+  check-orcid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      
+      - name: Check if author email exists in orcid.csv
+        id: check_orcid
+        continue-on-error: true
+        run: |
+          echo "PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}"
+          grep "$(git log $PR_BASE_SHA..HEAD --pretty='%aE' | sort -u)" .orcid.csv
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+
+      - name: Find comment
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: Please add your email and ORCID ID
+        if: always()
+
+      - name: Create comment
+        if: steps.check_orcid.outcome == 'failure'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            I'm the @tardis-bot and I noticed that your email is not associated with an ORCID ID in our database.
+
+            Please add your email and ORCID ID to the `.orcid.csv` file in your current branch and push the changes to this pull request.
+
+            If you don't have an ORCID ID yet, you can create one for free at [orcid.org](https://orcid.org/). ORCID IDs help ensure you get proper credit for your scientific contributions.
+
+            The format should be:
+            ```
+            email,orcid
+            your.email@example.com,0000-0000-0000-0000
+            ```

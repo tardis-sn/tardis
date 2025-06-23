@@ -78,6 +78,28 @@ def doppler_factor_3d(direction_vector, position_vector, time):
 
 
 @njit(**njit_dict_no_parallel)
+def doppler_factor_3D_all_packets(direction_vectors, position_vectors, times):
+    """Doppler shift for photons in 3D
+
+    Parameters
+    ----------
+    direction_vectors : array
+    position_vectors : array
+    times : array
+
+    Returns
+    -------
+    array
+        Doppler factors
+    """
+    velocity_vector = position_vectors / times
+    vel_mul_dir = np.multiply(velocity_vector, direction_vectors)
+    doppler_factors = 1 - (np.sum(vel_mul_dir, axis=0) / C_CGS)
+
+    return doppler_factors
+
+
+@njit(**njit_dict_no_parallel)
 def angle_aberration_gamma(direction_vector, position_vector, time):
     """Angle aberration formula for photons in 3D
 
@@ -169,13 +191,13 @@ def solve_quadratic_equation(position, direction, radius):
     a = np.sum(direction**2)
     b = 2.0 * np.sum(position * direction)
     c = -(radius**2) + np.sum(position**2)
-    root = b**2 - 4 * a * c
+    discriminant = b**2 - 4 * a * c
     solution_1 = -np.inf
     solution_2 = -np.inf
-    if root > 0.0:
-        solution_1 = (-b + np.sqrt(root)) / (2 * a)
-        solution_2 = (-b - np.sqrt(root)) / (2 * a)
-    elif root == 0:
+    if discriminant > 0.0:
+        solution_1 = (-b + np.sqrt(discriminant)) / (2 * a)
+        solution_2 = (-b - np.sqrt(discriminant)) / (2 * a)
+    elif discriminant == 0:
         solution_1 = -b / (2 * a)
 
     return solution_1, solution_2
@@ -203,13 +225,13 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
     a = np.dot(direction, direction) - (radius / light_distance) ** 2.0
     b = 2.0 * (np.dot(position, direction) - radius**2.0 / light_distance)
     c = np.dot(position, position) - radius**2.0
-    root = b**2.0 - 4.0 * a * c
+    discriminant = b**2.0 - 4.0 * a * c
     solution_1 = -np.inf
     solution_2 = -np.inf
-    if root > 0.0:
-        solution_1 = (-b + np.sqrt(root)) / (2.0 * a)
-        solution_2 = (-b - np.sqrt(root)) / (2.0 * a)
-    elif root == 0:
+    if discriminant > 0.0:
+        solution_1 = (-b + np.sqrt(discriminant)) / (2.0 * a)
+        solution_2 = (-b - np.sqrt(discriminant)) / (2.0 * a)
+    elif discriminant == 0:
         solution_1 = -b / (2.0 * a)
 
     return solution_1, solution_2
@@ -392,3 +414,26 @@ def get_index(value, array):
         i += 1
 
     return i
+
+
+def make_isotope_string_tardis_like(isotope_dict):
+    """Converts isotope string to TARDIS format
+        Ni-56 -> Ni56, Co-56 -> Co56
+    Parameters
+    ----------
+    isotope : str
+        Isotope string
+
+    Returns
+    -------
+    str
+        TARDIS-like isotope string
+    """
+
+    new_isotope_dict = {}
+
+    for key in isotope_dict.keys():
+        new_key = key.replace("-", "")
+        new_isotope_dict[new_key] = isotope_dict[key]
+
+    return new_isotope_dict

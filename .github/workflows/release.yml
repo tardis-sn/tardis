@@ -28,17 +28,8 @@ jobs:
           repository: tardis-sn/tardis_zenodo
           token: ${{ secrets.BOT_TOKEN }}
 
-      - name: Checkout setup_env action
-        uses: actions/checkout@v4
-        with:
-          repository: tardis-sn/tardis
-          sparse-checkout: |
-            .github/actions/setup_env/action.yml
-          sparse-checkout-cone-mode: true
-          path: tardis
-
       - name: Setup environment
-        uses: ./tardis/.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: "linux-64"
 
@@ -119,7 +110,7 @@ jobs:
         
       - name: Generate and process changelog
         run: |
-          CHANGELOG=$(git cliff --config pyproject.toml --unreleased | sed -n '/^## Changelog/,$p' | grep -vE '^(ERROR|WARN)')
+          CHANGELOG=$(git cliff --config pyproject.toml --unreleased --tag ${{ env.NEW_TAG }}| sed -n '/^## Changelog/,$p' | grep -vE '^(ERROR|WARN)')
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           echo "$CHANGELOG" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV

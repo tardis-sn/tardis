@@ -51,8 +51,8 @@ Set up
 ======
 
 In this step, ASV configures TARDIS through Mamba.
-Packages that use TARIDS are downloaded here.
-These packages are mainly found in this ``tardis_env3.yml`` file.
+Packages that use TARDIS are downloaded here.
+These packages are mainly found in this ``env.yml`` file that can be found in the `tardisbase repository <https://github.com/tardis-sn/tardisbase/blob/master/env.yml>`_.
 The environment is also configured for ASV to execute benchmarks
 and store the results through the ``asv.conf.json`` file.
 

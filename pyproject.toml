@@ -6,12 +6,12 @@ classifiers = ["License :: OSI Approved :: BSD License"]
 description = "TARDIS - Temperature And Radiative Diffusion In Supernovae"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 requires-python = ">=3.7"
-dependencies = ["astropy"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-test = ["pytest-astropy"]
-docs = ["sphinx-astropy"]
+viz = ["qgridnext", "lineid_plot"]
+tardisbase = ["tardisbase @ git+https://github.com/tardis-sn/tardisbase.git@dc8224d"]
+
 
 [project.scripts]
 cmfgen2tardis = "tardis.scripts.cmfgen2tardis:main"
@@ -28,6 +28,8 @@ requires = ["setuptools",
             "setuptools_scm",
             "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
 
 [tool.interrogate]
 color = true
@@ -52,7 +54,6 @@ verbose = 0
 [tool.ruff]
 line-length = 80
 lint.select = ["ALL"]
-exclude=[]
 lint.ignore = [  # NOTE: non-permanent exclusions should be added to `.ruff.toml` instead.
 
     # flake8-builtins (A) : shadowing a Python built-in.
@@ -190,5 +191,5 @@ owner = "tardis-sn"
 repo = "tardis"
 
 [tool.codespell]
-skip = "*.png,*.ggb,*.jpg,*.gif,*.ico,docs/contributing/CHANGELOG.md,docs/tardis.bib"
+skip = "*.ipynb,*.png,*.ggb,*.jpg,*.gif,*.ico,docs/contributing/CHANGELOG.md,docs/tardis.bib,docs/resources/research_done_using_TARDIS/research_papers.rst"
 quiet-level = 3
