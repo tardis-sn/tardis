@@ -1,5 +1,7 @@
 import numpy as np
 
+import astropy.units as u
+
 from tardis import constants as const
 from tardis.transport.montecarlo.estimators.util import (
     integrate_array_by_blocks,
@@ -13,7 +15,7 @@ class BoundFreeThermalRates:
 
     def __init__(self, photoionization_cross_sections):
         self.photoionization_cross_sections = photoionization_cross_sections
-        self.nu = photoionization_cross_sections["nu"].values
+        self.nu = photoionization_cross_sections["nu"]
         self.photoionization_block_references = np.pad(
             self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])
             .count()
@@ -26,8 +28,8 @@ class BoundFreeThermalRates:
         level_population,
         ion_population,
         thermal_electron_distribution,
-        radiation_field,
         saha_factor,
+        radiation_field=None,
         bound_free_heating_estimator=None,
         stimulated_recombination_estimator=None,
     ):
@@ -41,12 +43,10 @@ class BoundFreeThermalRates:
             Estimated ion number density. Columns are cells.
         thermal_electron_distribution : ThermalElectronEnergyDistribution
             Electron energy distribution containing the number density, temperature and energy.
-        radiation_field : RadiationField
-            A radiation field that can compute its mean intensity.
-        boltzmann_factor : pd.DataFrame
-            Boltzmann factor for the level populations. Columns are cells.
         saha_factor : pd.DataFrame
             Saha factor for the ion populations as defined in Lucy 03 equation 14. Columns are cells.
+        radiation_field : RadiationField, optional.
+            A radiation field that can compute its mean intensity.
         bound_free_heating_estimator : pd.DataFrame, optional
             Montecarlo bound free heating estimator, by default None
         stimulated_recombination_estimator : pd.DataFrame, optional
@@ -57,14 +57,19 @@ class BoundFreeThermalRates:
         pd.DataFrame, pd.DataFrame
             Heating and cooling rates for the bound-free process.
         """
-        nu_i = self.nu.groupby(level=[0, 1, 2]).first()
+        nu_i = (
+            self.photoionization_cross_sections["nu"]
+            .groupby(level=[0, 1, 2])
+            .first()
+        )
         nu_is = nu_i.loc[self.photoionization_cross_sections.index]
-        mean_intensities = radiation_field.calculate_mean_intensity(self.nu)
 
         if bound_free_heating_estimator is not None:
             # TODO: check if this is correct
             integrated_heating_coefficient = bound_free_heating_estimator
         else:
+            mean_intensities = radiation_field.calculate_mean_intensity(self.nu)
+
             heating_coefficient = (
                 (
                     4
@@ -80,12 +85,13 @@ class BoundFreeThermalRates:
 
             integrated_heating_coefficient = integrate_array_by_blocks(
                 heating_coefficient.values,
-                self.nu,
+                self.nu.values,
                 self.photoionization_block_references,
             )
 
         boltzmann_factor = np.exp(
             -self.nu
+            * u.Hz
             / thermal_electron_distribution.temperature
             * (const.h.cgs / const.k_B.cgs)
         )
@@ -105,7 +111,7 @@ class BoundFreeThermalRates:
 
         integrated_cooling_coefficient = integrate_array_by_blocks(
             spontaneous_recombination_cooling_coefficient.values,
-            self.nu,
+            self.nu.values,
             self.photoionization_block_references,
         )
 
