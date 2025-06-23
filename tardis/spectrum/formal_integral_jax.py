@@ -162,7 +162,7 @@ ibb_vmap = jax.jit(
 )
 
 
-@partial(jit, static_argnames=["imin", "imax"])
+# @partial(jit, static_argnames=["x", "imin", "imax"])
 def reverse_binary_search_jax(x, x_insert, imin, imax):
     """
     Find indicies where elements should be inserted
@@ -190,14 +190,21 @@ def reverse_binary_search_jax(x, x_insert, imin, imax):
     int
         Location of insertion
     """
+    jdb.print("x shape:{s}", s=x.shape)
+    jdb.print("x shape:{s}", s=x.shape)
+    jdb.print("x_insert shape:{s}", s=x_insert.shape)
+    jdb.print("imin:{s}, imax:{q}", s=imin, q=imax)
 
-    cond = (x_insert > x[imin]) or (x_insert < x[imax])
-    return jnp.where(
-        cond, -1, len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
-    )
+    # cond = (x_insert > x[imin]) & (x_insert < x[imax])
+    # return jnp.where(
+    #     cond, -1, len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
+    # )
+    # TODO: warn about lack of checking
+    return len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
 
 
 @partial(jit, static_argnames="nu")
+@partial(jax.vmap, in_axes=(None, 0))
 def line_search_jax(nu, nu_insert):
     """
     Insert a value in to an array of line frequencies
@@ -221,14 +228,18 @@ def line_search_jax(nu, nu_insert):
     imax = len(nu) - 1
 
     # TODO: check if this gets compiled
-    def binary_search(_):
+    # TODO: check the types of these things
+    def binary_search():
         result = reverse_binary_search_jax(nu, nu_insert, imin, imax)
         return result + 1
+
+    def no_search():
+        return imax + 1
 
     return jax.lax.cond(
         nu_insert > nu[imin],
         0.0,
-        jax.lax.cond(nu_insert < nu[imax], imax + 1, binary_search),
+        jax.lax.cond(nu_insert < nu[imax], no_search, binary_search),
     )
 
 
@@ -258,12 +269,13 @@ def calc_Inup(
     att_S_ul,
     Jred_lu,
     Jblue_lu,
-):
+)
+    
     escat_op = SIGMA_THOMSON * electron_density
     size_line = len(line_list_nu)
     nu_start = nu * z[0]
     pline = line_search_jax(
-        line_list_nu, nu_start, size_line
+        line_list_nu, nu_start
     )  # ensure this computes all plines
     offset = shell_id[0] * size_line
     pline_offset = pline + offset
@@ -343,10 +355,14 @@ def calc_Inup(
 
 # TODO: determine how static variables work
     # it complained about the jax arrays being unhashable but I want it to know that the first time it sees those arrays they will always be that
-calc_Inup = jax.jit(calc_Inup)
+calc_Inup_vmapped = jax.vmap(
+        calc_Inup, 
+        in_axes=(1, None, 0, 0, None, None, None, None, None, None, None, None, None))
+calc_Inup_jax = jax.jit(calc_Inup_vmapped)
 
-@jax.jit
-def interpolate_integrator_quantities(mct_r_inner, mct_r_outer, v_inner_idx, v_outer_idx, 
+
+@partial(jit, static_argnames=["interpolate_shells", "v_inner_idx", "v_outer_idx"])
+def interpolate_integrator_quantities_jax(mct_r_inner, mct_r_outer, v_inner_idx, v_outer_idx, 
                                       tau_sobolev, electron_densities, 
                                       interpolate_shells, att_S_ul, Jredlu, Jbluelu, e_dot_u):
     
@@ -456,8 +472,6 @@ def formal_integral(
     size_line, size_shell = tau_sobolev.shape
     exp_tau = jnp.exp(-tau_sobolev)
 
-    r_inner, r_outer, 
-
     # compute impact parameters, p
     ps = calculate_p_values_jax(r_outer[-1], N)
 
@@ -468,10 +482,15 @@ def formal_integral(
 
     # init Inup with the photopshere's black body
     Inup = init_Inup_jax_vmap(inu, ps, zs[:, 0], iT, r_inner[0])
+    jdb.print("Inup shape:{s}", s=Inup.shape)
+    jdb.print("nu shape:{s}", s=inu.shape)
+    jdb.print("ps shape:{s}", s=ps.shape)
+    jdb.print("zs shape:{s}", s=zs.shape)
+
 
     # TODO: figure out how to use the init array with the update and compute
     # compute Inup
-    Inup = calc_Inup(
+    Inup_i = calc_Inup_jax(
         Inup,
         inu,
         ps,
@@ -487,4 +506,4 @@ def formal_integral(
         Jblue_lu,
     )
 
-    return
+    return Inup_i
