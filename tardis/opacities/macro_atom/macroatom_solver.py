@@ -270,8 +270,9 @@ class BoundBoundMacroAtomSolver:
             # Normalize the probabilities by source.
             probabilities_df = probabilities_df.div(
                 probabilities_df.groupby("source").transform("sum"),
-                fill_value=0,
-            )  # fill value for nans where the transition probabilites are all 0, which happens for bound levels that should never be accessed in the active macroatom.
+            )
+            probabilities_df.replace(np.nan, 0, inplace=True)
+            # fill value for nans where the transition probabilites are all 0, which happens for ground levels that should never be accessed in the active macroatom.
 
         probabilities_df.drop(columns=["source"], inplace=True)
         probabilities_df = probabilities_df.reset_index(
