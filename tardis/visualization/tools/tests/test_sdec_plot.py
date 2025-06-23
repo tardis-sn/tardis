@@ -1,5 +1,4 @@
 """Tests for SDEC Plots."""
-from copy import deepcopy
 from itertools import product
 
 import astropy
@@ -11,19 +10,8 @@ from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
 
-from tardis.base import run_tardis
-from tardis.io.util import HDFWriterMixin
-from tardis.tests.fixtures.regression_data import RegressionData
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 from tardis.visualization.tools.sdec_plot import SDECPlotter
-
-
-class PlotDataHDF(HDFWriterMixin):
-    def __init__(self, **kwargs):
-        self.hdf_properties = []
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-            self.hdf_properties.append(key)
-
 
 def make_valid_name(testid):
     """
@@ -42,42 +30,6 @@ def make_valid_name(testid):
     testid = testid.replace("-", "_")
     testid = "_" + testid
     return testid
-
-
-@pytest.fixture(scope="module")
-def simulation_simple(config_verysimple, atomic_dataset):
-    """
-    Instantiate SDEC plotter using a simple simulation model.
-
-    Parameters
-    ----------
-    config_verysimple : tardis.io.config_reader.Configuration
-        Configuration object for a very simple simulation.
-    atomic_dataset : str or tardis.atomic.AtomData
-        Atomic data.
-
-    Returns
-    -------
-    sim: tardis.simulation.base.Simulation
-        Simulation object.
-    """
-    # Setup simulation configuration using config_verysimple and
-    # override properties in such a way to make the simulation run faster
-    config_verysimple.montecarlo.iterations = 3
-    config_verysimple.montecarlo.no_of_packets = 4000
-    config_verysimple.montecarlo.last_no_of_packets = -1
-    config_verysimple.spectrum.virtual.virtual_packet_logging = True
-    config_verysimple.montecarlo.no_of_virtual_packets = 1
-    config_verysimple.spectrum.num = 2000
-    atomic_data = deepcopy(atomic_dataset)
-    sim = run_tardis(
-        config_verysimple,
-        atom_data=atomic_data,
-        show_convergence_plots=False,
-        log_level="CRITICAl",
-    )
-    return sim
-
 
 class TestSDECPlotter:
     """Test the SDECPlotter class."""
@@ -124,7 +76,7 @@ class TestSDECPlotter:
     ]
 
     @pytest.fixture(scope="class")
-    def plotter(self, simulation_simple, request):
+    def plotter(self, simulation_simple):
         """
         Create a SDECPlotter object.
 
@@ -161,19 +113,18 @@ class TestSDECPlotter:
     @pytest.mark.parametrize(
         "attribute", ["_full_species_list", "_species_list", "_keep_colour"]
     )
-    def test_parse_species_list(self, request, plotter, attribute):
+    def test_parse_species_list(self, regression_data, plotter, attribute):
         """
         Test _parse_species_list method.
 
         Parameters
         ----------
-        request : _pytest.fixtures.SubRequest
+        regression_data : _pytest.fixtures.RegressionData
         plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
-        species : list
+        attribute : parameter to be tested
         """
         # THIS NEEDS TO BE RUN FIRST. NOT INDEPENDENT TESTS
         plotter._parse_species_list(self.species_list[0])
-        regression_data = RegressionData(request)
         data = regression_data.sync_ndarray(getattr(plotter, attribute))
         if attribute == "_full_species_list":
             np.testing.assert_equal(getattr(plotter, attribute), data)
@@ -197,7 +148,7 @@ class TestSDECPlotter:
 
     @pytest.fixture(scope="class")
     def calculate_plotting_data_hdf(
-        self, request, plotter_calculate_plotting_data
+        self, plotter_calculate_plotting_data
     ):
         property_group = {}
         for _, attribute_name in self.plotting_data_attributes:
@@ -212,9 +163,8 @@ class TestSDECPlotter:
         self,
         plotter_calculate_plotting_data,
         calculate_plotting_data_hdf,
-        request,
+        regression_data,
     ):
-        regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(calculate_plotting_data_hdf)
         group = "plot_data_hdf/"
         for attribute_type, attribute_name in self.plotting_data_attributes:
@@ -258,7 +208,7 @@ class TestSDECPlotter:
         return fig, plotter
 
     @pytest.fixture(scope="class")
-    def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl, request):
+    def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl):
         fig, plotter = plotter_generate_plot_mpl
 
         color_list = [
@@ -291,10 +241,9 @@ class TestSDECPlotter:
         return plot_data
 
     def test_generate_plot_mpl(
-        self, generate_plot_mpl_hdf, plotter_generate_plot_mpl, request
+        self, generate_plot_mpl_hdf, plotter_generate_plot_mpl, regression_data
     ):
         fig, _ = plotter_generate_plot_mpl
-        regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_mpl_hdf)
         for item in ["_species_name", "_color_list"]:
             np.testing.assert_array_equal(
@@ -359,7 +308,7 @@ class TestSDECPlotter:
         return fig, plotter
 
     @pytest.fixture(scope="class")
-    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply, request):
+    def generate_plot_plotly_hdf(self, plotter_generate_plot_ply):
         fig, plotter = plotter_generate_plot_ply
 
         color_list = [
@@ -381,10 +330,9 @@ class TestSDECPlotter:
         return plot_data
 
     def test_generate_plot_mpl(
-        self, generate_plot_plotly_hdf, plotter_generate_plot_ply, request
+        self, generate_plot_plotly_hdf, plotter_generate_plot_ply, regression_data
     ):
         fig, _ = plotter_generate_plot_ply
-        regression_data = RegressionData(request)
         expected = regression_data.sync_hdf_store(generate_plot_plotly_hdf)
 
         for item in ["_species_name", "_color_list"]:
@@ -420,8 +368,7 @@ class TestSDECPlotter:
 
         expected.close()
 
-    def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, request):
-        regression_data = RegressionData(request)
+    def test_mpl_image(self, plotter_generate_plot_mpl, tmp_path, regression_data):
         fig, _ = plotter_generate_plot_mpl
         regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
         fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}.png")
@@ -439,3 +386,16 @@ class TestSDECPlotter:
             )
             actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
             compare_images(expected, actual, tol=0.001)
+
+    def test_make_colorbar_labels(self, plotter):
+        expected_labels = ['O', 'Mg', 'Si', 'Ca']
+        plotter._species_list = ['Si','O','Mg','Ca']
+        plotter._parse_species_list(plotter._species_list)
+        plotter._calculate_plotting_data(
+            packets_mode="virtual",
+            packet_wvl_range=[500, 9000] * u.AA,
+            distance=None,
+            nelements=None,
+        )
+        plotter._make_colorbar_labels()
+        assert plotter._species_name == expected_labels

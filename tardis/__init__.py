@@ -3,14 +3,13 @@
 # Packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-import os
+from importlib.metadata import version as ilversion
+from packaging.version import Version as pversion
 
-__all__ = ['__version__', 'test']
+__version__ = ilversion("tardis")
+last_release = pversion(__version__).base_version
 
-try:
-    from .version import version as __version__
-except ImportError:
-    __version__ = ''
+__all__ = ['__version__', 'test', 'last_release']
 
 # ----------------------------------------------------------------------------
 

@@ -68,7 +68,7 @@ jobs:
           atom-data-sparse: true
 
       - name: Setup Mamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: benchmark
           init-shell: >-
@@ -83,6 +83,9 @@ jobs:
 
       - name: Accept all asv questions
         run: asv machine --yes
+      
+      - name: Download lockfile for benchmarks
+        run: wget -q https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/env.yml
 
       - name: Run benchmarks for last 4 commits if not PR
         if: github.event_name != 'pull_request_target'

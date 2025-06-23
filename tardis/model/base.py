@@ -162,14 +162,10 @@ class SimulationState(HDFWriterMixin):
                 "Trying to set t_radiative for different number of shells."
             )
 
-    @property
-    def elemental_number_density(self):
+    def calculate_elemental_number_density(self, element_masses):
         elemental_number_density = (
-            (
-                self.composition.elemental_mass_fraction
-                * self.composition.density
-            )
-            .divide(self.composition.element_masses, axis=0)
+            (self.composition.elemental_mass_fraction * self.composition.density)
+            .divide(element_masses, axis=0)
             .dropna()
         )
         elemental_number_density = elemental_number_density.iloc[

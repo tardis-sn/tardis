@@ -499,6 +499,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
+        self.emitted_luminosity = emitted_luminosity
+        self.reabsorbed_luminosity = reabsorbed_luminosity
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
                 name="Emitted",
