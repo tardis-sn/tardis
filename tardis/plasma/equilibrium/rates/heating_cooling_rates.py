@@ -23,15 +23,41 @@ class BoundFreeThermalRates:
 
     def solve(
         self,
-        level_number_density,
-        ion_number_density,
+        level_population,
+        ion_population,
         electron_density,
         radiation_field,
         boltzmann_factor,
-        phi,
+        saha_factor,
         bound_free_heating_estimator=None,
         stimulated_recombination_estimator=None,
     ):
+        """Compute the bound-free heating and cooling rates.
+
+        Parameters
+        ----------
+        level_population : pd.DataFrame
+            Estimated level number density. Columns are cells.
+        ion_population : pd.DataFrame
+            Estimated ion number density. Columns are cells.
+        electron_density : pd.Series
+            Electron number density.
+        radiation_field : RadiationField
+            A radiation field that can compute its mean intensity.
+        boltzmann_factor : pd.DataFrame
+            Boltzmann factor for the level populations. Columns are cells.
+        saha_factor : pd.DataFrame
+            Saha factor for the ion populations as defined in Lucy 03 equation 14. Columns are cells.
+        bound_free_heating_estimator : pd.DataFrame, optional
+            Montecarlo bound free heating estimator, by default None
+        stimulated_recombination_estimator : pd.DataFrame, optional
+            Montecarlo stimulated recombination estimator, by default None
+
+        Returns
+        -------
+        pd.DataFrame, pd.DataFrame
+            Heating and cooling rates for the bound-free process.
+        """
         nu_i = self.nu.groupby(level=[0, 1, 2]).first()
         nu_is = nu_i.loc[self.photoionization_cross_sections.index]
         mean_intensities = radiation_field.calculate_mean_intensity(self.nu)
@@ -78,21 +104,21 @@ class BoundFreeThermalRates:
             self.photoionization_block_references,
         )
 
-        heating_rate = integrated_heating_coefficient * level_number_density
+        heating_rate = integrated_heating_coefficient * level_population
 
         spontaneous_recombination_cooling_rate = (
             integrated_cooling_coefficient
-            * phi
+            * saha_factor
             * electron_density
-            * ion_number_density
+            * ion_population
         )
 
         if stimulated_recombination_estimator is not None:
             stimulated_recombination_cooling_rate = (
                 stimulated_recombination_estimator
-                * phi
+                * saha_factor
                 * electron_density
-                * ion_number_density
+                * ion_population
             )
         else:
             stimulated_recombination_cooling_rate = np.zeros(1)
@@ -107,22 +133,68 @@ class BoundFreeThermalRates:
 
 class FreeFreeThermalRates:
     def __init__(self):
-        # TODO replace with real value
-        self.cooling_constant = 0
+        self.cooling_constant = 1.426e-27  # in cgs units (see Osterbrock 1974)
 
-    def solve(self, heating_estimator, electron_temperature, heating_factor):
-        if heating_estimator is not None:
-            heating_rate = (
-                heating_estimator
-                * np.sqrt(electron_temperature)
-                * heating_factor
-            )
-        else:
-            heating_rate = 0
+    def heating_factor(self, ion_population, electron_density):
+        """Compute the free-free heating factor.
+
+        Parameters
+        ----------
+        ion_population : pd.DataFrame
+            Ion number density. Columsn are cells.
+        electron_density : pd.Series
+            Electron number density.
+
+        Returns
+        -------
+        pd.DataFrame
+            The free-free heating factor.
+        """
+        ionic_charge_squared = np.square(
+            ion_population.index.get_level_values(1).values
+        )
+        factor = (
+            electron_density
+            * ion_population.multiply(ionic_charge_squared, axis=0).sum()
+        )
+        return factor
+
+    def solve(
+        self,
+        heating_estimator,
+        thermal_electron_distribution,
+        ion_population,
+    ):
+        """_summary_
+
+        Parameters
+        ----------
+        heating_estimator : pd.DataFrame
+            Montecarlo free-free heating estimator.
+        thermal_electron_distribution : ThermalElectronEnergyDistribution
+            Electron energy distribution containing the number density, temperature and energy.
+        ion_population : pd.DataFrame
+            Ion number density. Columns are cells.
+
+        Returns
+        -------
+        pd.DataFrame, pd.DataFrame
+            The heating and cooling rates for the free-free process.
+        """
+        heating_factor = self.heating_factor(
+            ion_population,
+            thermal_electron_distribution.density,
+        )
+
+        heating_rate = (
+            heating_estimator
+            * np.sqrt(thermal_electron_distribution.temperature)
+            * heating_factor
+        )
 
         cooling_rate = (
             self.cooling_constant
-            * np.sqrt(electron_temperature)
+            * np.sqrt(thermal_electron_distribution.temperature)
             * heating_factor
         )
 
@@ -136,22 +208,42 @@ class CollisionalIonizationThermalRates:
     def solve(
         self,
         electron_density,
+        ion_population,
+        level_population,
         collisional_ionization_rate_coefficient,
-        phi,
-        ion_number_density,
-        level_number_density,
+        saha_factor,
     ):
+        """Compute the collisional ionization heating and cooling rates.
+
+        Parameters
+        ----------
+        electron_density : pd.Series
+            Electron number density.
+        ion_population : pd.DataFrame
+            Ion number density.
+        level_population : pd.DataFrame
+            Level number density.
+        collisional_ionization_rate_coefficient : pd.DataFrame
+            Collisional ionization rate ceofficients.
+        saha_factor : pd.DataFrame
+            Saha factor for the ion populations as defined in Lucy 03 equation 14. Columns are cells.
+
+        Returns
+        -------
+        pd.DataFrame, pd.DataFrame
+            Heating and cooling rates for the collisional ionization process.
+        """
         heating_rate = (
             electron_density**2
             * collisional_ionization_rate_coefficient
-            * phi
-            * ion_number_density
+            * saha_factor
+            * ion_population
             * self.nu
             * const.h.cgs
         )
 
         cooling_rate = (
-            level_number_density
+            level_population
             * electron_density
             * collisional_ionization_rate_coefficient
         )
@@ -168,10 +260,35 @@ class CollisionalBoundThermalRates:
         electron_density,
         collisional_deexcitation_rate_coefficient,
         collisional_excitation_rate_coefficient,
-        level_number_density,
+        level_population,
     ):
-        lower_level_number_density = level_number_density
-        upper_level_number_density = level_number_density  # do something here
+        """Compute the collisional bound heating and cooling rates.
+
+        Parameters
+        ----------
+        electron_density : pd.Series
+            Electron number density.
+        collisional_deexcitation_rate_coefficient : pd.DataFrame
+            Collisional deexcitation rate coefficients.
+        collisional_excitation_rate_coefficient : pd.DataFrame
+            Collisional excitation rate coefficients.
+        level_population : pd.DataFrame
+            Level number density. Columns are cells.
+
+        Returns
+        -------
+        pd.DataFrame, pd.DataFrame
+            Heating and cooling rates for the collisional bound process.
+        """
+        lower_index = collisional_excitation_rate_coefficient.index.droplevel(
+            level=3
+        )
+        upper_index = collisional_excitation_rate_coefficient.index.droplevel(
+            level=2
+        )
+
+        lower_level_number_density = level_population.loc[lower_index]
+        upper_level_number_density = level_population.loc[upper_index]
 
         heating_rate = (
             electron_density
@@ -194,13 +311,27 @@ class CollisionalBoundThermalRates:
 
 class AdiabaticThermalRates:
     """
-    Class to represent the adiabatic heating and cooling rates.
+    Class to represent the adiabatic cooling rate.
     """
 
     def __init__(self):
         pass
 
     def solve(self, thermal_electron_distribution, time):
+        """Solve for the adiabatic cooling rate.
+
+        Parameters
+        ----------
+        thermal_electron_distribution : ThermalElectronDistribution
+            The thermal electron distribution containing the number density and temperature.
+        time : Quantity
+            The time over which the adiabatic cooling is calculated.
+
+        Returns
+        -------
+        Quantity
+            The adiabatic cooling rate in TODO: add unit.
+        """
         return (
             3
             * const.k_B.cgs
