@@ -166,7 +166,7 @@ class YAMLLoader(yaml.Loader):
 
 
 YAMLLoader.add_constructor("!quantity", YAMLLoader.construct_quantity)
-YAMLLoader.add_implicit_resolver("!quantity", MockRegexPattern(str), None)
+YAMLLoader.add_implicit_resolver("!quantity", MockRegexPattern(quantity_from_str), None)
 YAMLLoader.add_implicit_resolver(
     "tag:yaml.org,2002:float", MockRegexPattern(float), None
 )
