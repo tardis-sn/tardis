@@ -84,16 +84,6 @@ class IonPopulationSolver:
             lte_ion_population.index.get_level_values("ion_number") >= 1
         )
 
-        self.rates_matrices = self.rate_matrix_solver.solve(
-            radiation_field,
-            thermal_electron_energy_distribution,
-            lte_level_population.loc[lower_ion_level_index],
-            level_population.loc[lower_ion_level_index],
-            lte_ion_population.loc[upper_ion_population_index],
-            ion_population.loc[upper_ion_population_index],
-            charge_conservation,
-        )
-
         iteration = 0
         electron_densities = 1
 
@@ -140,5 +130,7 @@ class IonPopulationSolver:
             electron_densities = electron_population_solution
 
             iteration += 1
+
+        print(iteration)
 
         return ion_population_solution, electron_population_solution
