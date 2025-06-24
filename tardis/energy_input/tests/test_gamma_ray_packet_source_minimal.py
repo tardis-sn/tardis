@@ -145,12 +145,12 @@ def created_packets_data_legacy(
 ):
     """Creates gamma ray packets using legacy energy calculation from isotope_decay_df."""
     n_packets = 300000  # Number of packets to create
-    packets, isotope_positron_fraction = gamma_ray_source.create_packets(
+    packets = gamma_ray_source.create_packets(
         cumulative_decays_df,
         number_of_packets=n_packets,
         legacy_energy_per_packet=legacy_energy_per_packet,
     )
-    return packets, isotope_positron_fraction, n_packets
+    return packets, n_packets
 
 
 @pytest.fixture(scope="module")
@@ -168,10 +168,10 @@ def created_packets_data_cumulative(gamma_ray_source, cumulative_decays_df):
         )
 
     n_packets = 300000  # Number of packets to create
-    packets, isotope_positron_fraction = gamma_ray_source.create_packets(
+    packets = gamma_ray_source.create_packets(
         cumulative_decays_df, number_of_packets=n_packets
     )
-    return packets, isotope_positron_fraction, n_packets
+    return packets, n_packets
 
 
 # Attributes to test for GXPacketCollection, with their expected type format
@@ -195,7 +195,7 @@ def test_gamma_ray_packet_properties_legacy_energy(
     gx_collection_attr, created_packets_data_legacy, regression_data
 ):
     """Test properties of the GXPacketCollection using legacy energy calculation from isotope_decay_df."""
-    packets, _isotope_positron_fraction, _n_packets = created_packets_data_legacy
+    packets, _n_packets = created_packets_data_legacy
 
     actual_value = getattr(packets, gx_collection_attr)
 
@@ -214,7 +214,7 @@ def test_gamma_ray_packet_properties_cumulative_energy(
     gx_collection_attr, created_packets_data_cumulative, regression_data
 ):
     """Test properties of the GXPacketCollection using energy calculation from cumulative_decays_df."""
-    packets, _isotope_positron_fraction, _n_packets = created_packets_data_cumulative
+    packets, _n_packets = created_packets_data_cumulative
 
     actual_value = getattr(packets, gx_collection_attr)
 
