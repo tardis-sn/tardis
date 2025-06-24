@@ -3,6 +3,9 @@ from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     EstimatedPhotoionizationCoeffSolver,
     SpontaneousRecombinationCoeffSolver,
 )
+from tardis.plasma.equilibrium.rates.util import (
+    reindex_ionization_rate_dataframe,
+)
 
 
 class AnalyticPhotoionizationRateSolver:
@@ -18,53 +21,6 @@ class AnalyticPhotoionizationRateSolver:
                 self.photoionization_cross_sections
             )
         )
-
-    @staticmethod
-    def __reindex_ionization_rate_dataframe(
-        rate_dataframe, recombination=False
-    ):
-        rate_dataframe.index.names = [
-            "atomic_number",
-            "ion_number",
-            "level_number_source",
-        ]
-
-        rate_dataframe = rate_dataframe.reset_index()
-
-        if recombination:
-            rate_dataframe["ion_number_destination"] = rate_dataframe[
-                "ion_number"
-            ]
-            rate_dataframe["ion_number_source"] = (
-                rate_dataframe["ion_number"] + 1
-            )
-        else:
-            rate_dataframe["ion_number_source"] = rate_dataframe["ion_number"]
-            rate_dataframe["ion_number_destination"] = (
-                rate_dataframe["ion_number"] + 1
-            )
-
-        # ionized electrons are assumed to leave the ion in the ground state for now
-        rate_dataframe["level_number_destination"] = 0
-
-        not_fully_ionized_mask = (
-            rate_dataframe["atomic_number"] != rate_dataframe["ion_number"]
-        )
-
-        rate_dataframe = rate_dataframe[not_fully_ionized_mask]
-
-        rate_dataframe = rate_dataframe.set_index(
-            [
-                "atomic_number",
-                "ion_number",
-                "ion_number_source",
-                "ion_number_destination",
-                "level_number_source",
-                "level_number_destination",
-            ]
-        )
-
-        return rate_dataframe
 
     def solve(
         self,
@@ -129,11 +85,11 @@ class AnalyticPhotoionizationRateSolver:
             * electron_energy_distribution.number_density
         )
 
-        photoionization_rate = self.__reindex_ionization_rate_dataframe(
+        photoionization_rate = reindex_ionization_rate_dataframe(
             photoionization_rate, recombination=False
         )
 
-        recombination_rate = self.__reindex_ionization_rate_dataframe(
+        recombination_rate = reindex_ionization_rate_dataframe(
             recombination_rate, recombination=True
         )
 
@@ -208,11 +164,11 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             * electron_energy_distribution.number_density
         )
 
-        photoionization_rate = self.__reindex_ionization_rate_dataframe(
+        photoionization_rate = reindex_ionization_rate_dataframe(
             photoionization_rate, recombination=False
         )
 
-        recombination_rate = self.__reindex_ionization_rate_dataframe(
+        recombination_rate = reindex_ionization_rate_dataframe(
             recombination_rate, recombination=True
         )
 
