@@ -28,11 +28,12 @@ class IonPopulationSolver:
             The normalized, per-ion population.
         """
         normalized_ion_population = np.zeros(rates_matrix.shape[0])
-        # Number conservation
+        # Number conservation, i.e. the sum of all ion populations is 1
         normalized_ion_population[1] = 1.0
         normalized_ion_population = np.linalg.solve(
             rates_matrix, normalized_ion_population
         )
+        # drop charge conservation entry
         return normalized_ion_population[:-1]
 
     def solve(
