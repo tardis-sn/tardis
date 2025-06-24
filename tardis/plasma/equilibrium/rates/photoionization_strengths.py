@@ -211,7 +211,7 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         )
 
         stimulated_recombination_rate_coeff = (
-            mean_intensity_photoionization_df.multiply(
+            stimulated_recombination_rate_coeff.multiply(
                 self.common_prefactor,
                 axis=0,
             )
