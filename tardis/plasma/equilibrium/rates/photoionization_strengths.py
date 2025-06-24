@@ -290,13 +290,13 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
 
     def calculate_mean_intensity_photoionization_df(
         self,
-        dilute_blackbody_radiationfield_state,
+        radiation_field,
     ):
         """Calculates the mean intensity of the radiation field at each photoionization frequency.
 
         Parameters
         ----------
-        dilute_blackbody_radiationfield_state : DilutePlanckianRadiationField
+        radiation_field : RadiationField
             The radiation field.
 
         Returns
@@ -305,17 +305,11 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
             DataFrame of mean intensities indexed by photoionization levels and
             columns of cells.
         """
-        mean_intensity = (
-            dilute_blackbody_radiationfield_state.calculate_mean_intensity(
-                self.nu
-            )
-        )
+        mean_intensity = radiation_field.calculate_mean_intensity(self.nu)
         return pd.DataFrame(
             mean_intensity,
             index=self.photoionization_cross_sections.index,
-            columns=np.arange(
-                len(dilute_blackbody_radiationfield_state.temperature)
-            ),
+            columns=np.arange(len(radiation_field.temperature)),
         )
 
     def calculate_corrected_photoionization_rate_coeff(

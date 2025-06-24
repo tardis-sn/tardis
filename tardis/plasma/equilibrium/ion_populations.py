@@ -15,7 +15,7 @@ class IonPopulationSolver:
         self.rate_matrix_solver = rate_matrix_solver
 
     def __calculate_ion_population(self, rates_matrix: np.ndarray):
-        """Helper function to calculate the normalized, per-ion boltzmann factor.
+        """Helper function to calculate the normalized ion population.
 
         Parameters
         ----------
@@ -28,6 +28,7 @@ class IonPopulationSolver:
             The normalized, per-ion population.
         """
         normalized_ion_population = np.zeros(rates_matrix.shape[0])
+        # Number conservation
         normalized_ion_population[1] = 1.0
         normalized_ion_population = np.linalg.solve(
             rates_matrix, normalized_ion_population
@@ -71,6 +72,7 @@ class IonPopulationSolver:
         pd.DataFrame
             Normalized electron fraction values. Columns are cells.
         """
+        # TODO: make more general indices that work for non-Hydrogen species
         # this is the i level in Lucy 2003
         lower_ion_level_index = (
             lte_level_population.index.get_level_values("ion_number") == 0

@@ -266,18 +266,17 @@ class IonRateMatrix:
             columns=photoion_rates_df.columns,
         )
 
-        for (atomic_number, photoion_rates), (
-            atomic_number,
-            recomb_rates,
-        ), (atomic_number, coll_ion_rates), (
-            atomic_number,
-            recomb_ion_rates,
-        ) in zip(
-            grouped_photoion_rates_df,
-            grouped_recomb_rates_df,
-            grouped_collisional_ionization_rates_df,
-            grouped_collisional_recombination_rates_df,
-        ):
+        for atomic_number in grouped_photoion_rates_df.groups.keys():
+            photoion_rates = grouped_photoion_rates_df.get_group(atomic_number)
+            recomb_rates = grouped_recomb_rates_df.get_group(atomic_number)
+            coll_ion_rates = grouped_collisional_ionization_rates_df.get_group(
+                atomic_number
+            )
+            recomb_ion_rates = (
+                grouped_collisional_recombination_rates_df.get_group(
+                    atomic_number
+                )
+            )
             ion_states = atomic_number + 1
             for shell in range(len(photoion_rates.columns)):
                 photoion_matrix = self.__construct_rate_matrix(
