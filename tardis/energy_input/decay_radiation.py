@@ -1,26 +1,40 @@
+import pandas as pd
+
 from tardis.energy_input.energy_source import get_radioactive_isotopes
 
 
-def process_decay_radiation_data(decay_radiation_data, isotopic_mass_fraction_index):
+def process_decay_radiation_data(
+    decay_radiation_data: pd.DataFrame, isotopic_mass_fraction_index: pd.Index
+) -> pd.DataFrame:
     """
-    Extracts and processes radiation data for gamma rays and beta particles from decay radiation data.
+    Extract and process radiation data from decay radiation data.
+
+    Extracts and processes radiation data for gamma rays and beta particles from
+    decay radiation data, filtering based on relevant radioactive isotopes and
+    calculating energy per decay.
 
     Parameters
     ----------
     decay_radiation_data : pd.DataFrame
-        DataFrame containing decay radiation data with columns including 'Z', 'A', 'Radiation',
-        'Rad Energy', 'Rad subtype', and 'Rad Intensity'.
+        DataFrame containing decay radiation data with columns including 'Z', 'A',
+        'Radiation', 'Rad Energy', 'Rad subtype', and 'Rad Intensity'.
     isotopic_mass_fraction_index : pd.Index
         Index of isotopic mass fractions used to filter relevant radioactive isotopes.
 
     Returns
     -------
-    em_radiation_data : pd.DataFrame
-        DataFrame containing processed electromagnetic radiation data for gamma rays with columns:
+    pd.DataFrame
+        DataFrame containing processed radiation data with columns:
         'radiation_energy_kev', 'energy_per_decay_kev', and 'radiation_type'.
-    bp_radiation_data : pd.DataFrame
-        DataFrame containing processed radiation data for beta particles with columns:
-        'radiation_energy_kev', 'energy_per_decay_kev', and 'radiation_type'.
+        Index includes 'atomic_number', 'mass_number', and 'channel_id'.
+
+    Notes
+    -----
+    The function performs the following operations:
+    - Filters decay radiation data for relevant radioactive isotopes
+    - Renames columns to standardized format
+    - Calculates energy per decay from radiation intensity
+    - Adds channel_id as additional multi-index level
     """
     decay_radiation_data = decay_radiation_data.set_index(["Z", "A"])
     decay_radiation_data.index.names = ["atomic_number", "mass_number"]
