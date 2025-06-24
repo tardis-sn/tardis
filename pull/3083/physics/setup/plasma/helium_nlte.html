@@ -1,0 +1,243 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helium NLTE &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=96e6ea9f"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Macro Atom" href="macroatom.html" />
+    <link rel="prev" title="NLTE treatment" href="nlte.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Setting Up the Simulation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../setup_example.html">Setup Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Plasma</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="index.html#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#the-plasma-graph">The Plasma Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#updating-the-plasma">Updating the Plasma</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#plasma-calculations">Plasma Calculations</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="lte_plasma.html">LTE Plasma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nebular_plasma.html">Nebular Plasma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nlte.html">NLTE treatment</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Helium NLTE</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#sobolev-optical-depth">Sobolev optical depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#macro-atom-line-interaction-treatment">Macro Atom Line Interaction Treatment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Setting Up the Simulation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Plasma</a></li>
+      <li class="breadcrumb-item active">Helium NLTE</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/physics/setup/plasma/helium_nlte.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="helium-nlte">
+<h1>Helium NLTE<a class="headerlink" href="#helium-nlte" title="Link to this heading">¶</a></h1>
+<dl class="simple">
+<dt>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">helium_treatment</span></code> setting in the TARDIS config. file will accept one of three options:</dt><dd><ul class="simple">
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">none</span></code>: The default setting. Populate helium in the same way as the other elements.</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">recomb-nlte</span></code>: Treats helium in NLTE using the analytical approximation outlined in <span id="id1">[<a class="reference internal" href="../../../resources/zreferences.html#id19" title="A. Boyle, S. A. Sim, S. Hachinger, and W. Kerzendorf. Helium in double-detonation models of type ia supernovae. Astronomy and Astrophysics, 599:A46, March 2017. arXiv:1611.05938, doi:10.1051/0004-6361/201629712.">BoyleSimHachingerKerzendorf17</a>]</span>.</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerical-nlte</span></code>: To be implemented. Will allow the use of a separate module (not distributed with TARDIS) to perform helium NLTE calculations numerically.</p></li>
+</ul>
+</dd>
+</dl>
+<section id="recombination-he-nlte">
+<h2>Recombination He NLTE<a class="headerlink" href="#recombination-he-nlte" title="Link to this heading">¶</a></h2>
+<p>Paper version:</p>
+<p>This section will summarise the equations used in the calculation of the helium state for the <code class="xref py py-obj docutils literal notranslate"><span class="pre">recomb-NLTE</span></code> approximation in TARDIS. A full physical justification for these equations will be provided in an upcoming paper. All of the level populations are given as a function of the He II ground state population (<span class="math notranslate nohighlight">\(n_{2,1,0}\)</span>), and the values are then normalised using the helium number density to give the correct level number densities.</p>
+<dl>
+<dt>Symbols/Indexing:</dt><dd><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(N_{i,j}\)</span>: Ion Number Density</p></li>
+<li><p><span class="math notranslate nohighlight">\(n_{i,j,k}\)</span>: Level Number Density</p></li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><p>i: atomic number</p></li>
+<li><p>j: ion number</p></li>
+<li><p>k: level number</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<div class="math notranslate nohighlight">
+\[n_{2,0,0} = 0\]</div>
+<div class="math notranslate nohighlight">
+\[n_{2,0,k}~(k\geq1) = n_{2,1,0}\times n_{e}\times\frac{1}{W}\times\frac{g_{2,0,k}}{2g_{2,1,0}}\times\left(\frac{h^{2}}{2\pi m_{e}kT_{r}}\right)^{3/2}\times\exp{\left(\frac{\chi_{2,1}-\epsilon_{2,0,k}}{kT_{r}}\right)}\times\left(\frac{T_{r}}{T_{e}}\right)^{1/2}\]</div>
+<p>(Note: An extra factor of <span class="math notranslate nohighlight">\(\frac{1}{W}\)</span> is included for the metastable states of He I.)</p>
+<div class="math notranslate nohighlight">
+\[n_{2,1,0} = 1\]</div>
+<div class="math notranslate nohighlight">
+\[n_{2,1,k}~(k\geq1) = W\times\frac{g_{2,0,k}}{g_{2,1,0}}\times n_{2,1,0}\times\exp{\left(-\frac{\epsilon_{2,1,k}}{kT_{r}}\right)}\]</div>
+<div class="math notranslate nohighlight">
+\[n_{2,2,0} = \frac{n_{2,1,0}}{n_{e}}\times[W(\delta_{2,2}\times\zeta_{2,2}+W(1-\zeta_{2,2})]\left(\frac{T_{e}}{T_{r}}\right)^{1/2}\times\frac{2g_{2,2,0}}{g_{2,1,0}}\times\left(\frac{2\pi m_{e}kT_{r}}{h^{2}}\right)^{3/2}\times\exp{\left(-\frac{\chi_{2,1}}{kT_{r}}\right)}\]</div>
+<p>Code Version:</p>
+<p>In the TARDIS plasma, some of these equations are re-written slightly to make use of existing property methods (e.g. <code class="xref py py-obj docutils literal notranslate"><span class="pre">PhiSahaLTE</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">PhiSahaNebular</span></code>) often using the relation:</p>
+<div class="math notranslate nohighlight">
+\[\frac{N_{i,j}}{Z_{i,j}} = \frac{n_{i,j,k}}{g_{i,j,k}}\]</div>
+</section>
+<section id="numerical-he-nlte">
+<h2>Numerical He NLTE<a class="headerlink" href="#numerical-he-nlte" title="Link to this heading">¶</a></h2>
+<p>Another <code class="xref py py-obj docutils literal notranslate"><span class="pre">helium_treatment</span></code> option offered by TARDIS is <code class="xref py py-obj docutils literal notranslate"><span class="pre">numerical-nlte</span></code>. The use of this plasma property requires an additional code that is the property of Stephan Hachinger (see arXiv:1201.1506) and is not distributed with TARDIS. TARDIS also requires a specific atomic datafile to use this module. This plasma option is included so that people who have access to and permission to use the necessary module may use it. Otherwise, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">recomb-NLTE</span></code> option provides a very accurate alternative approximation.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="nlte.html" class="btn btn-neutral float-left" title="NLTE treatment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="macroatom.html" class="btn btn-neutral float-right" title="Macro Atom" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 24 Jun 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
