@@ -7,7 +7,7 @@ from astropy import units as u
 from tardis import constants as const
 from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
@@ -92,7 +92,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         if line_interaction_type == "scatter":
             self.macro_atom_solver = None
         else:
-            self.macro_atom_solver = MacroAtomSolver()
+            self.macro_atom_solver = LegacyMacroAtomSolver()
 
         self.transport_state = None
         self.transport_solver = MonteCarloTransportSolver.from_config(
