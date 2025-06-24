@@ -29,19 +29,55 @@ We strongly recommend installing TARDIS using this method by following the steps
 
 1. Download the lockfile for your platform:
 
-   .. code-block:: bash
+   .. tabs:: 
 
-       wget -q https://github.com/tardis-sn/tardisbase/master/conda-{platform}-64.lock
+      .. group-tab:: OSX (Arm CPU)
 
-   Replace ``{platform}`` with ``linux`` or ``osx-arm`` based on your operating system.
+        .. code-block:: bash
+
+            wget -q https://github.com/tardis-sn/tardisbase/master/conda-osx-arm64.lock
+        
+      
+      .. group-tab:: Linux
+
+        .. code-block:: bash
+
+            wget -q https://github.com/tardis-sn/tardisbase/master/conda-linux-64.lock
+      
+      .. group-tab:: OSX (Intel CPU)
+
+        .. code-block:: bash
+
+            wget -q https://github.com/tardis-sn/tardisbase/master/conda-osx-64.lock
+        
+        .. warning::
+            Use at your own risk. This lockfile is not tested, so we recommend :ref:`running the test <running-tests>`) before using any of the TARDIS ecosystem packages with this environment.
 
 2. Create the environment:
 
-   .. code-block:: bash
+Replace ``{project_name}`` with a name for your TARDIS project.
 
-       conda create --name tardis-{project_name} --file conda-{platform}.lock
-       
-   Replace ``{project_name}`` with a name for your TARDIS project.
+   .. tabs:: 
+
+      .. group-tab:: OSX (Arm CPU)
+
+        .. code-block:: bash
+
+            conda create --name tardis-{project_name} --file conda-osx-arm64.lock
+        
+      
+      .. group-tab:: Linux
+
+        .. code-block:: bash
+
+            conda create --name tardis-{project_name} --file conda-linux-64.lock
+      
+      .. group-tab:: OSX (Intel CPU)
+
+        .. code-block:: bash
+
+            conda create --name tardis-{project_name} --file conda-osx-64.lock
+
 
 3. Activate the environment:
 
