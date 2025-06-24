@@ -1,19 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    import pandas as pd
-    import xarray as xr
-
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+import xarray as xr
 import yaml
 from tqdm.auto import tqdm
 
@@ -88,22 +81,22 @@ class SNECOutput:
                 dimensions (e.g., time, cell_id).
         """
         # Base dataset from xg_data
-        ds = self.xg_data.to_xr_dataset()
+        xg_data_ds = self.xg_data.to_xr_dataset()
 
         # Merge emission output over time, interpolating to xg_data time using nearest
         em_ds = self.em_output.set_index("time").to_xarray()
-        em_ds = em_ds.reindex(time=ds.time, method="nearest")
-        ds = ds.merge(em_ds)
+        em_ds = em_ds.reindex(time=xg_data_ds.time, method="nearest")
+        xg_data_ds = xg_data_ds.merge(em_ds)
 
         # Merge initial composition as coordinates/data_vars over cell_id
         comp_ds = self.initial_composition.set_index("cell_id").to_xarray()
-        ds = ds.merge(comp_ds)
+        xg_data_ds = xg_data_ds.merge(comp_ds)
 
         # Merge initial quantities as coordinates/data_vars over cell_id
         quant_ds = self.initial_quantities.set_index("cell_id").to_xarray()
-        ds = ds.merge(quant_ds)
+        xg_data_ds = xg_data_ds.merge(quant_ds)
 
-        return ds
+        return xg_data_ds
 
 
 def read_snec_output_xg(
