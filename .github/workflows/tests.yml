@@ -81,7 +81,7 @@ jobs:
       - name: Install tardis git
         if: ${{ inputs.pip_git }}
         run: |
-          pip install "git+https://github.com/tardis-sn/tardis.git@master[viz]"
+          pip install "tardis[viz] @ git+https://github.com/tardis-sn/tardis.git@master"
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
