@@ -51,7 +51,7 @@ We strongly recommend installing TARDIS using this method by following the steps
             wget -q https://github.com/tardis-sn/tardisbase/master/conda-osx-64.lock
         
         .. warning::
-            Use at your own risk. This lockfile is not tested, so we recommend :ref:`running the test <running-tests>`) before using any of the TARDIS ecosystem packages with this environment.
+            Use at your own risk. This lockfile is not tested, so we recommend :ref:`running the test <running-tests>` before using any of the TARDIS ecosystem packages with this environment.
 
 2. Create the environment:
 
