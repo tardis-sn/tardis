@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=96e6ea9f"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=76b1df2b"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -134,20 +134,13 @@
   <h1>Source code for tardis.io.model.readers.snec.snec_output</h1><div class="highlight"><pre>
 <span></span>from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    import pandas as pd
-    import xarray as xr
-
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+import xarray as xr
 import yaml
 from tqdm.auto import tqdm
 
@@ -226,22 +219,22 @@ class SNECOutput:
                 dimensions (e.g., time, cell_id).
         &quot;&quot;&quot;
         # Base dataset from xg_data
-        ds = self.xg_data.to_xr_dataset()
+        xg_data_ds = self.xg_data.to_xr_dataset()
 
         # Merge emission output over time, interpolating to xg_data time using nearest
         em_ds = self.em_output.set_index(&quot;time&quot;).to_xarray()
-        em_ds = em_ds.reindex(time=ds.time, method=&quot;nearest&quot;)
-        ds = ds.merge(em_ds)
+        em_ds = em_ds.reindex(time=xg_data_ds.time, method=&quot;nearest&quot;)
+        xg_data_ds = xg_data_ds.merge(em_ds)
 
         # Merge initial composition as coordinates/data_vars over cell_id
         comp_ds = self.initial_composition.set_index(&quot;cell_id&quot;).to_xarray()
-        ds = ds.merge(comp_ds)
+        xg_data_ds = xg_data_ds.merge(comp_ds)
 
         # Merge initial quantities as coordinates/data_vars over cell_id
         quant_ds = self.initial_quantities.set_index(&quot;cell_id&quot;).to_xarray()
-        ds = ds.merge(quant_ds)
+        xg_data_ds = xg_data_ds.merge(quant_ds)
 
-        return ds</div>
+        return xg_data_ds</div>
 </div>
 
 
