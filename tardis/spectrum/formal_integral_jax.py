@@ -19,6 +19,7 @@ PI = np.pi
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
+
 @partial(jit, static_argnames="N")
 def calculate_p_values_jax(Rmax, N):
     """
@@ -63,26 +64,31 @@ def calculate_z_jax(r, p, inv_t):
     return jnp.where(r > p, jnp.sqrt(r * r - p * p) * C_INV * inv_t, 0.0)
 
 
-def populate_z_jax(p, r_outer, r_inner, time_explosion, size_shell):
+def populate_z(p, r_outer, r_inner, time_explosion, size_shell):
     """
     Calculates the intersection points of the p-line with each shell
 
     Parameters
     ----------
-    p : jnp.array
+    p : jnp.array float64
         distances of the p-lines to the center of the supernova
-    r_outer : jnp.array
+    r_outer : jnp.array float64
         outer radii of the shells
-    r_inner :jnp.array
+    r_inner :jnp.array float64
         inner radii of the shells
     time_explosion : float64
         time of the explosion in seconds
-    size_shell : _type_
+    size_shell : int64
         length of the shell array
 
     Returns
     -------
-    jnp.array float64
+    z: jnp.array float64
+        the intersection points
+    shell_id: jnp.array int64
+        ids of the shell intersected
+    size_z: int64
+        number of interaction points
     """
 
     z0 = jnp.zeros(2 * size_shell, dtype=jnp.float64)
@@ -92,6 +98,7 @@ def populate_z_jax(p, r_outer, r_inner, time_explosion, size_shell):
     N = len(r_inner)
     inv_t = 1.0 / time_explosion
 
+    # compute interactions if inside the photosphere
     def in_photosphere(arrs):
         z0, shell_id = arrs
 
@@ -138,15 +145,30 @@ def populate_z_jax(p, r_outer, r_inner, time_explosion, size_shell):
     return jax.lax.cond(cond, in_photosphere, out_photosphere, (z0, shell_id))
 
 
-# jit compile and vectorize over impact parameters
-calc_z_jax_jitvmap = jax.jit(
-    jax.vmap(populate_z_jax, in_axes=[0, None, None, None, None]),
+# jit compile and vectorize over impact parameters p
+populate_z_jax = jax.jit(
+    jax.vmap(populate_z, in_axes=[0, None, None, None, None]),
     static_argnames=["time_explosion", "size_shell"],
 )
 
 
 @jit
 def intensity_black_body_jax(nu, temperature):
+    """
+    Calculate the blackbody intensity.
+
+    Parameters
+    ----------
+    nu : float64
+        frequency
+    temperature : float64
+        Temperature
+
+    Returns
+    -------
+    float64
+    """
+
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
 
@@ -187,16 +209,10 @@ def reverse_binary_search_jax(x, x_insert, imin, imax):
     """
 
     # cond = (x_insert > x[imin]) & (x_insert < x[imax])
-    # res = jnp.where(
-    #     cond, -1, len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
-    # )
-    return len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
-    
-
     # TODO: warn about lack of checking
-    # return len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
+    return len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
 
-# @partial(jax.vmap, in_axes=(None, 0))
+
 @jit
 def line_search_jax(nu, nu_insert):
     """
@@ -231,22 +247,47 @@ def line_search_jax(nu, nu_insert):
 
     return jax.lax.cond(
         nu_insert > nu[imin],
-        lambda: jnp.int64(0), # must be callable
+        lambda: jnp.int64(0),  # must be callable
         lambda: jax.lax.cond(nu_insert < nu[imax], no_search, binary_search),
     )
 
 
 def init_Inup(nu, p, z, iT, Rph):
+    """
+    Creates the initial intensity per nu and p array
+
+    Parameters
+    ----------
+    nu : float64
+        frequency
+    p : float64
+        impact parameter
+    z : array float64
+        interaction points
+    iT : float64
+        interpolated temperature
+    Rph : float64
+        radius of the photosphere
+
+    Returns
+    -------
+    float64
+        initial intensity per nu and p
+    """
+
     val = jnp.where(
         (p <= Rph) & (p != 0.0), intensity_black_body_jax(nu * z, iT), 0.0
     )
     return val
+
+
 init_Inup_jax = jax.jit(
     jax.vmap(
         jax.vmap(init_Inup, in_axes=(None, 0, 0, None, None)),
-        in_axes=(0, None, None, None, None)
+        in_axes=(0, None, None, None, None),
     )
 )
+
 
 # inner for loop:
 def calc_Inup(
@@ -264,7 +305,43 @@ def calc_Inup(
     Jred_lu,
     Jblue_lu,
 ):
-    
+    """
+    Updates the initial intensity per nu, p, and interaction
+
+    Parameters
+    ----------
+    Inup : float64
+        initial intensity per nu and p
+    nu : float64
+        frequency
+    p : float64
+        impact parameter
+    z : float64
+        intersection points
+    size_z : int
+        number of interaction points
+    shell_id : int
+        ids of the shell intersected
+    line_list_nu : float64 array
+        line frequencies
+    time_explosion : float64
+        time of the explosion in seconds
+    electron_density : float64 array
+        electron densities in each shell
+    exp_tau : float64 array
+        exponential of the Sobolev optical depth
+    att_S_ul : float64 array
+        attenuated source function for each line in each shell
+    Jred_lu : float64 array
+        J estimator from red end of the line from lower to upper level
+    Jblue_lu : float64 array
+        J estimator from blue end of the line from lower to upper level
+
+    Returns
+    -------
+    Inup : float64
+    """
+
     size_line = len(line_list_nu)
     nu_start = nu * z[0]
     pline = line_search_jax(
@@ -296,7 +373,9 @@ def calc_Inup(
             escat_contrib += (zdiff) * escat_op * (Jkkp - Inup)
             return escat_contrib, 0
 
-        Inup, pline, pline_offset, escat_contrib, escat_op, zstart, first = escat_params
+        Inup, pline, pline_offset, escat_contrib, escat_op, zstart, first = (
+            escat_params
+        )
         zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
         zdiff = zend - zstart
         escat_contrib, first = jax.lax.cond(
@@ -305,20 +384,28 @@ def calc_Inup(
             otherwise,
             (0, zdiff, escat_op, Inup, pline_offset),
         )
-    
+
         Inup += escat_contrib
         Inup *= exp_tau[pline_offset]
         Inup += att_S_ul[pline_offset]
 
         # increment indexed and reset zstart
-        return (Inup, pline + 1, pline_offset + 1, escat_contrib, escat_op, zend, first)
+        return (
+            Inup,
+            pline + 1,
+            pline_offset + 1,
+            escat_contrib,
+            escat_op,
+            zend,
+            first,
+        )
 
     def loop_interactions(i, loop_params):
         Inup, pline, pline_offset, escat_contrib, zstart = loop_params
         escat_op = electron_density[shell_id[i]] * SIGMA_THOMSON
         nu_end = nu_ends[i]
         nu_end_idx = nu_ends_idxs[i]
-        
+
         # escat loop
         Inup, pline, pline_offset, _, _, zstart, _ = jax.lax.fori_loop(
             0,
@@ -331,7 +418,9 @@ def calc_Inup(
         Jkkp = 0.5 * (Jred_lu[pline_offset - 1] + Jblue_lu[pline_offset])
         zend = time_explosion / C_INV * (1.0 - nu_end / nu)
         escat_contrib += (zend - zstart) * escat_op * (Jkkp - Inup)
-        dir = (shell_id[i + 1] - shell_id[i]) * size_line # TODO: replace since flattened need to move by sizeline, but if not flat then just diff axis
+        dir = (
+            (shell_id[i + 1] - shell_id[i]) * size_line
+        )  # TODO: replace since flattened need to move by sizeline, but if not flat then just diff axis
 
         return (Inup, pline + dir, pline_offset + dir, escat_contrib, zend)
 
@@ -347,28 +436,99 @@ def calc_Inup(
     Inup *= p
     return Inup
 
+
 # TODO: determine how static variables work
-    # it complained about the jax arrays being unhashable but I want it to know that the first time it sees those arrays they will always be that
-calc_Inup_vmapped = jax.vmap(
-    jax.vmap(
-        calc_Inup,
-        in_axes=(0, None, 0, 0, 0, 0, None, None, None, None, None, None, None)
-        #        ^Inup[nu,p] ^nu ^p ^z[p,:] ^size_z ^shell_id[p,:] ^line_list_nu ^time_explosion ^electron_density ^exp_tau ^att_S_ul ^Jred_lu ^Jblue_lu
-    ),
-    in_axes=(0, 0, None, None, None, None, None, None, None, None, None, None,None)
-    #        ^Inup[nu,:] ^nu ^p ^z ^size_z ^shell_id ^line_list_nu ^time_explosion ^electron_density ^exp_tau ^att_S_ul ^Jred_lu ^Jblue_lu
+calc_Inup_jax = jax.jit(
+    jax.vmap(  # vectorize over nu
+        jax.vmap(  # vectorize over p
+            calc_Inup,
+            in_axes=(
+                0,
+                None,
+                0,
+                0,
+                0,
+                0,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ),
+        ),
+        in_axes=(
+            0,
+            0,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+    )
 )
-calc_Inup_jax = jax.jit(calc_Inup_vmapped)
+# p_jax = jax.jit(calc_Inup_vmapped)
 
 
-@partial(jit, static_argnames=["interpolate_shells", "v_inner_idx", "v_outer_idx"])
-def interpolate_integrator_quantities_jax(mct_r_inner, mct_r_outer, v_inner_idx, v_outer_idx, 
-                                      tau_sobolev, electron_densities, 
-                                      interpolate_shells, att_S_ul, Jredlu, Jbluelu, e_dot_u):
-    
+@partial(
+    jit, static_argnames=["interpolate_shells", "v_inner_idx", "v_outer_idx"]
+)
+def interpolate_integrator_quantities_jax(
+    mct_r_inner,
+    mct_r_outer,
+    v_inner_idx,
+    v_outer_idx,
+    tau_sobolev,
+    electron_densities,
+    interpolate_shells,
+    att_S_ul,
+    Jredlu,
+    Jbluelu,
+    e_dot_u,
+):
+    """
+
+    Parameters
+    ----------
+    mct_r_inner : float64 array
+        inner radii of the shells from the monte carlo transport
+    mct_r_outer : float64 array
+        outer radii of the shells from the monte carlo transport
+    v_inner_idx : int
+        index of the inner velocity boundary
+    v_outer_idx : int
+        index of the outer velocity boundary
+    tau_sobolev : float64 2D array
+        Sobolev optical depth for each line in each shell
+    electron_densities : float64 1D array
+        electron densities in each shell
+    interpolate_shells : int
+        number of shells to interpolate to
+    att_S_ul : float64 2D array
+        attenuated source function for each line in each shell
+    Jredlu : float64 2D array
+        J estimator from red end of the line from lower to upper level
+    Jbluelu : float64 2D array
+        J estimator from blue end of the line from lower to upper level
+    e_dot_u : float64 2D array
+        Line estimator for the rate of energy density absorption from lower to upper level
+
+    Returns
+    -------
+    r_inner, r_outer, electron_densities, tau_sobolevs, att_S_ul, Jredlu, Jbluelu, e_dot_u interpolated to interpolate_shells shells
+    """
+
     r_middle = (
         mct_r_inner + mct_r_outer
-    ) / 2.0 # is this a different geometry?
+    ) / 2.0  # is this a different geometry?
 
     r_integ = jnp.linspace(
         mct_r_inner[0],
@@ -383,31 +543,31 @@ def interpolate_integrator_quantities_jax(mct_r_inner, mct_r_outer, v_inner_idx,
 
     # interp values
     electron_densities_integ = jax.scipy.interpolate.RegularGridInterpolator(
-            (r_middle, ),
-            electron_densities[v_inner_idx:v_outer_idx],
-            fill_value=None, # TODO: determine fill
-            method="nearest", 
-        )(r_middle_integ)
-    
+        (r_middle,),
+        electron_densities[v_inner_idx:v_outer_idx],
+        fill_value=None,  # TODO: determine fill
+        method="nearest",
+    )(r_middle_integ)
+
     # since these array are of shape (nu, shells), they have to be transposed such that the shells are first
     tau_sobolevs_integ = jax.scipy.interpolate.RegularGridInterpolator(
-            (r_middle,),
-            tau_sobolev[:, v_inner_idx:v_outer_idx].T,
-            method="nearest",
-            fill_value=None  # for extrapolation    
-        )(r_middle_integ.reshape(-1, 1)).T
+        (r_middle,),
+        tau_sobolev[:, v_inner_idx:v_outer_idx].T,
+        method="nearest",
+        fill_value=None,  # for extrapolation
+    )(r_middle_integ.reshape(-1, 1)).T
     att_S_ul = jax.scipy.interpolate.RegularGridInterpolator(
-            (r_middle,), att_S_ul.T, fill_value=None
-        )(r_middle_integ.reshape(-1, 1)).T
+        (r_middle,), att_S_ul.T, fill_value=None
+    )(r_middle_integ.reshape(-1, 1)).T
     Jredlu = jax.scipy.interpolate.RegularGridInterpolator(
-            (r_middle,), Jredlu.T, fill_value=None
-        )(r_middle_integ.reshape(-1, 1)).T
+        (r_middle,), Jredlu.T, fill_value=None
+    )(r_middle_integ.reshape(-1, 1)).T
     Jbluelu = jax.scipy.interpolate.RegularGridInterpolator(
-            (r_middle,), Jbluelu.T, fill_value=None
-        )(r_middle_integ.reshape(-1, 1)).T
+        (r_middle,), Jbluelu.T, fill_value=None
+    )(r_middle_integ.reshape(-1, 1)).T
     e_dot_u = jax.scipy.interpolate.RegularGridInterpolator(
-            (r_middle,), e_dot_u.T, fill_value=None
-        )(r_middle_integ.reshape(-1, 1)).T
+        (r_middle,), e_dot_u.T, fill_value=None
+    )(r_middle_integ.reshape(-1, 1)).T
 
     # Set negative values from the extrapolation to zero
     att_S_ul = jnp.clip(att_S_ul, min=0.0)
@@ -415,20 +575,30 @@ def interpolate_integrator_quantities_jax(mct_r_inner, mct_r_outer, v_inner_idx,
     Jredlu = jnp.clip(Jredlu, min=0.0)
     e_dot_u = jnp.clip(e_dot_u, min=0.0)
 
-    return r_inner_i, r_outer_i, electron_densities_integ, tau_sobolevs_integ, att_S_ul, Jredlu, Jbluelu, e_dot_u
+    return (
+        r_inner_i,
+        r_outer_i,
+        electron_densities_integ,
+        tau_sobolevs_integ,
+        att_S_ul,
+        Jredlu,
+        Jbluelu,
+        e_dot_u,
+    )
 
 
 # TODO: probably cant pass in the objects if I want to jjax
 # TODO: state assumption about only macroatom and not downbranch - reduces conditionals
-def make_source_function(simulation_state, transport, opacity_state, atomic_data, levels_index):
-
+def make_source_function(
+    simulation_state, transport, opacity_state, atomic_data, levels_index
+):
     local_slice = slice(
-            simulation_state.geometry.v_inner_boundary_index,
-            simulation_state.geometry.v_outer_boundary_index,
+        simulation_state.geometry.v_inner_boundary_index,
+        simulation_state.geometry.v_outer_boundary_index,
     )
     montecarlo_transport_state = transport.transport_state
     transition_probabilities = opacity_state.transition_probabilities[
-            :, local_slice
+        :, local_slice
     ]
     tau_sobolevs = opacity_state.tau_sobolev[:, local_slice]
 
@@ -440,9 +610,7 @@ def make_source_function(simulation_state, transport, opacity_state, atomic_data
     no_lvls = len(levels_index)
     no_shells = len(simulation_state.dilution_factor)
 
-
-    return 
-
+    return
 
 
 def formal_integral(
@@ -460,6 +628,36 @@ def formal_integral(
     N,
 ):
     """
+    Computes the formal integral
+
+    Parameters
+    ----------
+    r_inner : float64 array
+        inner radii of the shells
+    r_outer : float64 array
+        outer radii of the shells
+    time_explosion : float64
+        time of the explosion in seconds
+    tau_sobolev : float64 2D array
+        Sobolev Optical depth for each line in each shell
+    line_list_nu : float64 array
+        line frequencies
+    iT : float64
+        interpolated temperature
+    inu : float64 array
+        interpolated frequencies
+    att_S_ul : float64 2D array
+        attentuated source function
+    Jred_lu : float64 2D array
+        J estimator from red end of the line from lower to upper level
+    Jblue_lu : float64 2D array
+        J estimator from blue end of the line from lower to upper level
+    electron_density : float64 1D array
+        electron densities in each shell
+    N : int
+        number of impact parameters
+
+
     Returns
     -------
     L : float64 array
@@ -470,17 +668,19 @@ def formal_integral(
     """
     # get params
     size_line, size_shell = tau_sobolev.shape
-    exp_tau = jnp.exp(-tau_sobolev.T.ravel()) # TODO: figure this out (10000 nus but 29000 in first axis)
+    exp_tau = jnp.exp(
+        -tau_sobolev.T.ravel()
+    )  # TODO: figure this out (10000 nus but 29000 in first axis)
 
     # compute impact parameters, p
     ps = calculate_p_values_jax(r_outer[-1], N)
 
     # compute interaction points, z
-    zs, shellids, size_zs = calc_z_jax_jitvmap(
+    zs, shellids, size_zs = populate_z_jax(
         ps, r_outer, r_inner, time_explosion, size_shell
     )
 
-    # init Inup with the photopshere's black body
+    # init Inup with the photopshere
     Inup = init_Inup_jax(inu, ps, zs[:, 0], iT, r_inner[0])
 
     Inup_i = calc_Inup_jax(
@@ -489,7 +689,7 @@ def formal_integral(
         ps[1:],
         zs[1:],
         size_zs[1:],
-        shellids[1:], # #TODO: determine if correct (unsure)
+        shellids[1:],
         line_list_nu,
         time_explosion,
         electron_density,
