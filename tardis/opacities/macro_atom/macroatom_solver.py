@@ -262,40 +262,19 @@ class BoundBoundMacroAtomSolver:
             ]
         )
 
-        # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS.
-        probabilities_df = probabilities_df.div(
-            probabilities_df.groupby("source").transform("sum"),
+        # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS. This also removes the source column from the probabilities DataFrame.
+        normalized_probabilities = normalize_transition_probabilities(
+            probabilities_df
         )
-        probabilities_df.replace(np.nan, 0, inplace=True)
-        # fill value for nans where the transition probabilites are all 0, which happens for ground levels that should never be accessed in the active macroatom.
 
-        probabilities_df.drop(columns=["source"], inplace=True)
-        probabilities_df = probabilities_df.reset_index(
-            drop=True
-        )  # Reset to create a unique macro_atom_transition_id.
-        probabilities_df.index.rename("macro_atom_transition_id", inplace=True)
-
-        macro_atom_transition_metadata = (
-            macro_atom_transition_metadata.reset_index()
-        )
-        macro_atom_transition_metadata.index.rename(
-            "macro_atom_transition_id", inplace=True
-        )
-        macro_atom_transition_metadata["source_level"] = (
-            macro_atom_transition_metadata.source.apply(lambda x: x[2])
-        )
-        macro_atom_transition_metadata = (
-            macro_atom_transition_metadata.sort_values(
-                ["atomic_number", "ion_number", "source_level"]
+        normalized_probabilities, macro_atom_transition_metadata = (
+            reindex_sort_and_clean_probabilities_and_metadata(
+                normalized_probabilities, macro_atom_transition_metadata
             )
-        )  # This is how carsus sorted the macro atom transitions.
-
-        probabilities_df = probabilities_df.loc[
-            macro_atom_transition_metadata.index
-        ]  # Reorder to match the metadata, which was sorted to match carsus.
+        )
 
         # We have to create the line2macro object after sorting.
-        line2macro_level_upper = self.create_line2macro_level_upper(
+        line2macro_level_upper = create_line2macro_level_upper(
             macro_atom_transition_metadata, lines_level_upper
         )
 
@@ -311,37 +290,106 @@ class BoundBoundMacroAtomSolver:
         )
 
         return MacroAtomState(
-            probabilities_df,
+            normalized_probabilities,
             macro_atom_transition_metadata,
             line2macro_level_upper,
         )
 
 
-    def create_line2macro_level_upper(
-        self, macro_atom_transition_metadata, lines_level_upper
-    ):
-        """
-        Create a mapping from line transitions to macro atom level indices for upper levels.
-        This method creates a mapping that connects line transition upper levels to their
-        corresponding macro atom level indices. It first extracts unique source levels
-        from the macro atom transition metadata and assigns sequential indices to them,
-        then maps the line upper levels to these indices.
-        Parameters
-        ----------
-        macro_atom_transition_metadata : pandas.DataFrame
-        lines_level_upper : pandas.MultiIndex or array-like
-        Returns
-        -------
-        pandas.Series
-        """
-        unique_source_index = pd.MultiIndex.from_tuples(
-            macro_atom_transition_metadata.source.unique(),
-            names=["atomic_number", "ion_number", "level_number"],
-        )
-        unique_source_series = pd.Series(
-            index=unique_source_index,
-            data=range(len(macro_atom_transition_metadata.source.unique())),
-        )
-        line2macro_level_upper = unique_source_series.loc[lines_level_upper]
-        
-        return line2macro_level_upper
+def create_line2macro_level_upper(
+    macro_atom_transition_metadata, lines_level_upper
+):
+    """
+    Create a mapping from line transitions to macro atom level indices for upper levels.
+    This method creates a mapping that connects line transition upper levels to their
+    corresponding macro atom level indices. It first extracts unique source levels
+    from the macro atom transition metadata and assigns sequential indices to them,
+    then maps the line upper levels to these indices.
+    Parameters
+    ----------
+    macro_atom_transition_metadata : pandas.DataFrame
+    lines_level_upper : pandas.MultiIndex or array-like
+    Returns
+    -------
+    pandas.Series
+    """
+    unique_source_index = pd.MultiIndex.from_tuples(
+        macro_atom_transition_metadata.source.unique(),
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    unique_source_series = pd.Series(
+        index=unique_source_index,
+        data=range(len(macro_atom_transition_metadata.source.unique())),
+    )
+    line2macro_level_upper = unique_source_series.loc[lines_level_upper]
+
+    return line2macro_level_upper
+
+
+def normalize_transition_probabilities(probabilities_df):
+    """
+    Normalize transition probabilities by their source levels.
+    Parameters
+    ----------
+    probabilities_df : pandas.DataFrame
+        DataFrame containing transition probabilities with a 'source' column
+        for grouping.
+    Returns
+    -------
+    pandas.DataFrame
+        Normalized probabilities where each source group sums to 1.0.
+        NaN values are replaced with 0.0 for cases where all transition
+        probabilities are zero (typically ground levels in macroatom).
+    """
+    # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS.
+    normalized_probabilities = probabilities_df.div(
+        probabilities_df.groupby("source").transform("sum"),
+    )
+    normalized_probabilities.replace(np.nan, 0, inplace=True)
+
+    return normalized_probabilities.drop(columns=["source"])
+
+
+def reindex_sort_and_clean_probabilities_and_metadata(
+    normalized_probabilities, macro_atom_transition_metadata
+):
+    """
+    Reindex and sort macro atom transition probabilities and metadata.
+    Parameters
+    ----------
+    normalized_probabilities : pandas.DataFrame
+        DataFrame containing normalized transition probabilities.
+    macro_atom_transition_metadata : pandas.DataFrame
+        DataFrame containing metadata for macro atom transitions.
+    Returns
+    -------
+    tuple of pandas.DataFrame
+        Reindexed normalized probabilities and cleaned metadata sorted by
+        atomic number, ion number, and source level.
+    """
+
+    normalized_probabilities = normalized_probabilities.reset_index(
+        drop=True
+    )  # Reset to create a unique macro_atom_transition_id.
+    normalized_probabilities.index.rename(
+        "macro_atom_transition_id", inplace=True
+    )
+
+    macro_atom_transition_metadata = (
+        macro_atom_transition_metadata.reset_index()
+    )
+    macro_atom_transition_metadata.index.rename(
+        "macro_atom_transition_id", inplace=True
+    )
+    macro_atom_transition_metadata["source_level"] = (
+        macro_atom_transition_metadata.source.apply(lambda x: x[2])
+    )
+    macro_atom_transition_metadata = macro_atom_transition_metadata.sort_values(
+        ["atomic_number", "ion_number", "source_level"]
+    )  # This is how carsus sorted the macro atom transitions.
+
+    normalized_probabilities = normalized_probabilities.loc[
+        macro_atom_transition_metadata.index
+    ]  # Reorder to match the metadata, which was sorted to match carsus.
+
+    return normalized_probabilities, macro_atom_transition_metadata
