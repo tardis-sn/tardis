@@ -19,7 +19,7 @@ PI = np.pi
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
-
+@partial(jit, static_argnames="N")
 def calculate_p_values_jax(Rmax, N):
     """
     Calculates N p values
@@ -145,6 +145,7 @@ calc_z_jax_jitvmap = jax.jit(
 )
 
 
+@jit
 def intensity_black_body_jax(nu, temperature):
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
@@ -156,13 +157,7 @@ def intensity_black_body_jax(nu, temperature):
     )
 
 
-ibb_vmap = jax.jit(
-    jax.vmap(intensity_black_body_jax, in_axes=[0, None]),
-    static_argnames=["temperature"],
-)
-
-
-# @partial(jit, static_argnames=["x", "imin", "imax"])
+@partial(jit, static_argnames=["x", "imin", "imax"])
 def reverse_binary_search_jax(x, x_insert, imin, imax):
     """
     Find indicies where elements should be inserted
@@ -190,21 +185,19 @@ def reverse_binary_search_jax(x, x_insert, imin, imax):
     int
         Location of insertion
     """
-    jdb.print("x shape:{s}", s=x.shape)
-    jdb.print("x shape:{s}", s=x.shape)
-    jdb.print("x_insert shape:{s}", s=x_insert.shape)
-    jdb.print("imin:{s}, imax:{q}", s=imin, q=imax)
 
     # cond = (x_insert > x[imin]) & (x_insert < x[imax])
-    # return jnp.where(
+    # res = jnp.where(
     #     cond, -1, len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
     # )
-    # TODO: warn about lack of checking
     return len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
+    
 
+    # TODO: warn about lack of checking
+    # return len(x) - 1 - jnp.searchsorted(x[::-1], x_insert, side="right")
 
-@partial(jit, static_argnames="nu")
-@partial(jax.vmap, in_axes=(None, 0))
+# @partial(jax.vmap, in_axes=(None, 0))
+@jit
 def line_search_jax(nu, nu_insert):
     """
     Insert a value in to an array of line frequencies
@@ -231,28 +224,29 @@ def line_search_jax(nu, nu_insert):
     # TODO: check the types of these things
     def binary_search():
         result = reverse_binary_search_jax(nu, nu_insert, imin, imax)
-        return result + 1
+        return jnp.int64(result + 1)
 
     def no_search():
-        return imax + 1
+        return jnp.int64(imax + 1)
 
     return jax.lax.cond(
         nu_insert > nu[imin],
-        0.0,
-        jax.lax.cond(nu_insert < nu[imax], no_search, binary_search),
+        lambda: jnp.int64(0), # must be callable
+        lambda: jax.lax.cond(nu_insert < nu[imax], no_search, binary_search),
     )
 
 
-def init_Inup_jax(nu, p, z, iT, Rph):
+def init_Inup(nu, p, z, iT, Rph):
     val = jnp.where(
         (p <= Rph) & (p != 0.0), intensity_black_body_jax(nu * z, iT), 0.0
     )
     return val
-
-
-vmap_over_p = jax.vmap(init_Inup_jax, in_axes=(None, 0, 0, None, None))
-init_Inup_jax_vmap = jax.vmap(vmap_over_p, in_axes=(0, None, None, None, None))
-
+init_Inup_jax = jax.jit(
+    jax.vmap(
+        jax.vmap(init_Inup, in_axes=(None, 0, 0, None, None)),
+        in_axes=(0, None, None, None, None)
+    )
+)
 
 # inner for loop:
 def calc_Inup(
@@ -269,9 +263,8 @@ def calc_Inup(
     att_S_ul,
     Jred_lu,
     Jblue_lu,
-)
+):
     
-    escat_op = SIGMA_THOMSON * electron_density
     size_line = len(line_list_nu)
     nu_start = nu * z[0]
     pline = line_search_jax(
@@ -303,43 +296,44 @@ def calc_Inup(
             escat_contrib += (zdiff) * escat_op * (Jkkp - Inup)
             return escat_contrib, 0
 
-        Inup, pline, pline_offset, escat_contrib, zstart, first = escat_params
+        Inup, pline, pline_offset, escat_contrib, escat_op, zstart, first = escat_params
         zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
         zdiff = zend - zstart
         escat_contrib, first = jax.lax.cond(
             first == 1,
             first_contrib,
             otherwise,
-            (zdiff, escat_op, Inup, pline_offset),
+            (0, zdiff, escat_op, Inup, pline_offset),
         )
+    
         Inup += escat_contrib
         Inup *= exp_tau[pline_offset]
         Inup += att_S_ul[pline_offset]
 
         # increment indexed and reset zstart
-        return Inup, pline + 1, pline_offset + 1, escat_contrib, zend, first
+        return (Inup, pline + 1, pline_offset + 1, escat_contrib, escat_op, zend, first)
 
     def loop_interactions(i, loop_params):
         Inup, pline, pline_offset, escat_contrib, zstart = loop_params
-        escat_op = electron_density[int(shell_id[i])] * SIGMA_THOMSON
+        escat_op = electron_density[shell_id[i]] * SIGMA_THOMSON
         nu_end = nu_ends[i]
         nu_end_idx = nu_ends_idxs[i]
-
+        
         # escat loop
-        Inup, pline, pline_offset, _, zstart = jax.lax.fori_loop(
+        Inup, pline, pline_offset, _, _, zstart, _ = jax.lax.fori_loop(
             0,
-            max(nu_end_idx - pline, 0),
+            jnp.maximum(nu_end_idx - pline, 0),
             calc_escat,
-            (Inup, pline, pline_offset, escat_contrib, zstart, 1),
+            (Inup, pline, pline_offset, escat_contrib, escat_op, zstart, 1),
         )
 
         # calculate e-scattering optical depth to grid cell boundary
         Jkkp = 0.5 * (Jred_lu[pline_offset - 1] + Jblue_lu[pline_offset])
         zend = time_explosion / C_INV * (1.0 - nu_end / nu)
         escat_contrib += (zend - zstart) * escat_op * (Jkkp - Inup)
-        dir = int((shell_id[i + 1] - shell_id[i]) * size_line)
+        dir = (shell_id[i + 1] - shell_id[i]) * size_line # TODO: replace since flattened need to move by sizeline, but if not flat then just diff axis
 
-        return Inup, pline + dir, pline_offset + dir, escat_contrib, zend
+        return (Inup, pline + dir, pline_offset + dir, escat_contrib, zend)
 
     # run the inner loop for i in range(size_z - 1):
     zstart = time_explosion / C_INV * (1.0 - z[0])
@@ -356,8 +350,14 @@ def calc_Inup(
 # TODO: determine how static variables work
     # it complained about the jax arrays being unhashable but I want it to know that the first time it sees those arrays they will always be that
 calc_Inup_vmapped = jax.vmap(
-        calc_Inup, 
-        in_axes=(1, None, 0, 0, None, None, None, None, None, None, None, None, None))
+    jax.vmap(
+        calc_Inup,
+        in_axes=(0, None, 0, 0, 0, 0, None, None, None, None, None, None, None)
+        #        ^Inup[nu,p] ^nu ^p ^z[p,:] ^size_z ^shell_id[p,:] ^line_list_nu ^time_explosion ^electron_density ^exp_tau ^att_S_ul ^Jred_lu ^Jblue_lu
+    ),
+    in_axes=(0, 0, None, None, None, None, None, None, None, None, None, None,None)
+    #        ^Inup[nu,:] ^nu ^p ^z ^size_z ^shell_id ^line_list_nu ^time_explosion ^electron_density ^exp_tau ^att_S_ul ^Jred_lu ^Jblue_lu
+)
 calc_Inup_jax = jax.jit(calc_Inup_vmapped)
 
 
@@ -470,7 +470,7 @@ def formal_integral(
     """
     # get params
     size_line, size_shell = tau_sobolev.shape
-    exp_tau = jnp.exp(-tau_sobolev)
+    exp_tau = jnp.exp(-tau_sobolev.T.ravel()) # TODO: figure this out (10000 nus but 29000 in first axis)
 
     # compute impact parameters, p
     ps = calculate_p_values_jax(r_outer[-1], N)
@@ -481,29 +481,22 @@ def formal_integral(
     )
 
     # init Inup with the photopshere's black body
-    Inup = init_Inup_jax_vmap(inu, ps, zs[:, 0], iT, r_inner[0])
-    jdb.print("Inup shape:{s}", s=Inup.shape)
-    jdb.print("nu shape:{s}", s=inu.shape)
-    jdb.print("ps shape:{s}", s=ps.shape)
-    jdb.print("zs shape:{s}", s=zs.shape)
+    Inup = init_Inup_jax(inu, ps, zs[:, 0], iT, r_inner[0])
 
-
-    # TODO: figure out how to use the init array with the update and compute
-    # compute Inup
     Inup_i = calc_Inup_jax(
-        Inup,
+        Inup[:, 1:],
         inu,
-        ps,
-        zs,
-        size_zs,
-        shellids,
+        ps[1:],
+        zs[1:],
+        size_zs[1:],
+        shellids[1:], # #TODO: determine if correct (unsure)
         line_list_nu,
         time_explosion,
         electron_density,
         exp_tau,
-        att_S_ul,
-        Jred_lu,
-        Jblue_lu,
+        att_S_ul.ravel(order="F"),
+        Jred_lu.ravel(order="F"),
+        Jblue_lu.ravel(order="F"),
     )
 
     return Inup_i
