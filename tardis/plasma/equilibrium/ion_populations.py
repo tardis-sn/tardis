@@ -1,11 +1,13 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
+logger = logging.getLogger(__name__)
+
 
 class IonPopulationSolver:
-    max_solver_iterations = 100
-
-    def __init__(self, rate_matrix_solver):
+    def __init__(self, rate_matrix_solver, max_solver_iterations=100):
         """Solve the normalized ion population values from the rate matrices.
 
         Parameters
@@ -13,6 +15,7 @@ class IonPopulationSolver:
         rate_matrix_solver : IonRateMatrix
         """
         self.rate_matrix_solver = rate_matrix_solver
+        self.max_solver_iterations = max_solver_iterations
 
     def __calculate_ion_population(self, rates_matrix: np.ndarray):
         """Helper function to calculate the normalized ion population.
@@ -84,10 +87,9 @@ class IonPopulationSolver:
             lte_ion_population.index.get_level_values("ion_number") >= 1
         )
 
-        iteration = 0
         electron_densities = 1
 
-        while iteration < self.max_solver_iterations:
+        for iteration in range(self.max_solver_iterations):
             normalized_ion_population = ion_population / ion_population.sum()
 
             self.rates_matrices = self.rate_matrix_solver.solve(
@@ -128,9 +130,10 @@ class IonPopulationSolver:
 
             ion_population = ion_population_solution
             electron_densities = electron_population_solution
-
-            iteration += 1
-
-        print(iteration)
+        else:
+            logger.warning(
+                "Ion population solver did not converge after %d iterations.",
+                self.max_solver_iterations,
+            )
 
         return ion_population_solution, electron_population_solution

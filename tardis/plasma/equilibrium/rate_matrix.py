@@ -165,7 +165,7 @@ class IonRateMatrix:
         ----------
         rate : pd.DataFrame
             Rate DataFrame indexed by atomic number and ion number
-        shell : int
+        cell : int
             Cell index
         ion_states : int
             Number of ion states for the atomic number
