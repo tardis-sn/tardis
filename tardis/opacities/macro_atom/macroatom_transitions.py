@@ -1,4 +1,7 @@
 from astropy import constants as const
+import numpy as np
+import pandas as pd
+
 
 P_INTERNAL_UP = 1
 P_INTERNAL_DOWN = 0
@@ -285,3 +288,160 @@ def line_transition_emission_down(
         ]
     )
     return p_emission_down, emission_down_metadata
+
+
+
+def set_index(p, photo_ion_idx, transition_type=0, reverse=True):
+        idx = photo_ion_idx.loc[p.index]
+        transition_type = transition_type * np.ones_like(
+            idx.destination_level_idx
+        )
+        transition_type = pd.Series(transition_type, name="transition_type")
+        idx_arrays = [idx.source_level_idx, idx.destination_level_idx]
+        if reverse:
+            idx_arrays = idx_arrays[::-1]
+        idx_arrays.append(transition_type)
+        index = pd.MultiIndex.from_arrays(idx_arrays)
+        if reverse:
+            index.names = index.names[:-1][::-1] + [index.names[-1]]
+        p = p.set_index(index, drop=True)
+        return p
+
+def recombination(alpha_sp, nu_i, energy_i, photoionization_index):
+    '''Unnormalized probabilities of radiative recombination
+    alpha_sp : pandas.Series, dtype float
+        Rate coefficient for spontaneous recombination from `k` to level `i`
+    nu_i : pandas.Series, dtype float
+        Threshold frequencies for ionization
+    energy_i : pandas.Series, dtype float
+        Energies of levels with bound-free transitions. Needed to calculate
+        for example internal transition probabilities in the macro atom scheme.
+    All p_internals (u/l) go as R_i(u/l) * e_i / D_i
+    All p_deactivations go as R * (delta_e)/D_i'''
+
+    p_recomb_deactivation = alpha_sp.multiply(nu_i, axis=0) * const.h.cgs.value # nu_i is ionization threshold, so I guess delta e is just nu_i * h?
+    p_recomb_deactivation = set_index(
+        p_recomb_deactivation, photoionization_index, transition_type=P_EMISSION_DOWN
+    )
+
+    p_recomb_internal = alpha_sp.multiply(energy_i, axis=0)
+    p_recomb_internal = set_index(
+        p_recomb_internal, photoionization_index, transition_type=P_INTERNAL_DOWN
+    )
+    p_recombination = pd.concat([p_recomb_deactivation, p_recomb_internal])
+
+    recombination_metadata = p_recombination[
+        [
+            "transition_line_id",
+            "source",
+            "destination",
+            "transition_type",
+            "transition_line_idx",
+        ]
+    ]
+
+    p_recombination = p_recombination.drop(
+        columns=[
+            "destination",
+            "transition_type",
+            "transition_line_id",
+            "transition_line_idx",
+        ]
+    )
+
+    return p_recombination, recombination_metadata
+
+
+def photoionization(gamma_corr, energy_i, photo_ion_idx):
+    '''
+    Photoionization probability unnormalized
+        gamma_corr : pandas.Series, dtype float
+            Corrected photoionization rate coefficeint from level `i` to `k`
+    This method may need an additional transition type
+     '''
+    p_photoionization = gamma_corr.multiply(energy_i, axis=0)
+    p_photoionization = set_index(p_photoionization, photo_ion_idx, reverse=False, transition_type=P_INTERNAL_DOWN)
+
+    photoionization_metadata = p_photoionization[
+        [
+            "transition_line_id",
+            "source",
+            "destination",
+            "transition_type",
+            "transition_line_idx",
+        ]
+    ]
+
+    p_photoionization = p_photoionization.drop(
+        columns=[
+            "destination",
+            "transition_type",
+            "transition_line_id",
+            "transition_line_idx",
+        ]
+    )
+
+    return p_photoionization, photoionization_metadata
+
+
+
+
+def collisional(
+    self,
+    coll_exc_coeff,
+    coll_deexc_coeff,
+    yg_idx,
+    electron_densities,
+    delta_E_yg,
+    atomic_data,
+    level_number_density,
+):
+    p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
+        delta_E_yg.values, axis=0
+    )
+    p_deexc_deactivation = self.set_index(
+        p_deexc_deactivation, yg_idx, reverse=True
+    )
+    p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
+    index_dd = pd.MultiIndex.from_product(
+        [p_deexc_deactivation.index.values, ["k"], [0]],
+        names=list(yg_idx.columns) + ["transition_type"],
+    )
+    p_deexc_deactivation = p_deexc_deactivation.set_index(index_dd)
+
+    level_lower_index = coll_deexc_coeff.index.droplevel(
+        "level_number_upper"
+    )
+    energy_lower = atomic_data.levels.energy.loc[level_lower_index]
+    p_deexc_internal = (coll_deexc_coeff * electron_densities).multiply(
+        energy_lower.values, axis=0
+    )
+    p_deexc_internal = self.set_index(
+        p_deexc_internal, yg_idx, transition_type=0, reverse=True
+    )
+
+    p_exc_internal = (coll_exc_coeff * electron_densities).multiply(
+        energy_lower.values, axis=0
+    )
+    p_exc_internal = self.set_index(
+        p_exc_internal, yg_idx, transition_type=0, reverse=False
+    )
+    p_exc_cool = (coll_exc_coeff * electron_densities).multiply(
+        delta_E_yg.values, axis=0
+    )
+    p_exc_cool = (
+        p_exc_cool * level_number_density.loc[level_lower_index].values
+    )
+    p_exc_cool = self.set_index(p_exc_cool, yg_idx, reverse=False)
+    p_exc_cool = p_exc_cool.groupby(level="destination_level_idx").sum()
+    exc_cool_index = pd.MultiIndex.from_product(
+        [["k"], p_exc_cool.index.values, [0]],
+        names=list(yg_idx.columns) + ["transition_type"],
+    )
+    p_exc_cool = p_exc_cool.set_index(exc_cool_index)
+    p_coll = pd.concat(
+        [p_deexc_deactivation, p_deexc_internal, p_exc_internal, p_exc_cool]
+    )
+    return p_coll
+
+
