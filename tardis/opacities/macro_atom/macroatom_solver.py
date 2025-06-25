@@ -6,16 +6,15 @@ from tardis.opacities.macro_atom.base import (
     get_macro_atom_data,
     initialize_transition_probabilities,
 )
+from tardis.opacities.macro_atom.macroatom_state import (
+    LegacyMacroAtomState,
+    MacroAtomState,
+)
 from tardis.opacities.macro_atom.macroatom_transitions import (
     line_transition_emission_down,
     line_transition_internal_down,
     line_transition_internal_up,
 )
-from tardis.opacities.macro_atom.macroatom_state import (
-    MacroAtomState,
-    LegacyMacroAtomState,
-)
-from astropy import constants as const
 
 
 class LegacyMacroAtomSolver:
@@ -177,6 +176,7 @@ class BoundBoundMacroAtomSolver:
         """
         Solves the transition probabilities and returns a DataFrame with the probabilities and a DataFrame with the macro atom transition metadata.
         Referenced as $p_i$ in Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
+
         Parameters
         ----------
         mean_intensities_blue_wing : pd.DataFrame
@@ -193,7 +193,6 @@ class BoundBoundMacroAtomSolver:
         MacroAtomState
             A MacroAtomState object containing the transition probabilities, transition metadata, and a mapping from line IDs to macro atom level upper indices.
         """
-
         oscillator_strength_ul = self.lines.f_ul.values.reshape(-1, 1)
         oscillator_strength_lu = self.lines.f_lu.values.reshape(-1, 1)
         nus = self.lines.nu.values.reshape(-1, 1)
@@ -305,10 +304,12 @@ def create_line2macro_level_upper(
     corresponding macro atom level indices. It first extracts unique source levels
     from the macro atom transition metadata and assigns sequential indices to them,
     then maps the line upper levels to these indices.
+
     Parameters
     ----------
     macro_atom_transition_metadata : pandas.DataFrame
     lines_level_upper : pandas.MultiIndex or array-like
+
     Returns
     -------
     pandas.Series
@@ -329,11 +330,13 @@ def create_line2macro_level_upper(
 def normalize_transition_probabilities(probabilities_df):
     """
     Normalize transition probabilities by their source levels.
+
     Parameters
     ----------
     probabilities_df : pandas.DataFrame
         DataFrame containing transition probabilities with a 'source' column
         for grouping.
+
     Returns
     -------
     pandas.DataFrame
@@ -355,19 +358,20 @@ def reindex_sort_and_clean_probabilities_and_metadata(
 ):
     """
     Reindex and sort macro atom transition probabilities and metadata.
+
     Parameters
     ----------
     normalized_probabilities : pandas.DataFrame
         DataFrame containing normalized transition probabilities.
     macro_atom_transition_metadata : pandas.DataFrame
         DataFrame containing metadata for macro atom transitions.
+
     Returns
     -------
     tuple of pandas.DataFrame
         Reindexed normalized probabilities and cleaned metadata sorted by
         atomic number, ion number, and source level.
     """
-
     normalized_probabilities = normalized_probabilities.reset_index(
         drop=True
     )  # Reset to create a unique macro_atom_transition_id.
