@@ -295,15 +295,9 @@ class BoundBoundMacroAtomSolver:
         ]  # Reorder to match the metadata, which was sorted to match carsus.
 
         # We have to create the line2macro object after sorting.
-        unique_source_index = pd.MultiIndex.from_tuples(
-            macro_atom_transition_metadata.source.unique(),
-            names=["atomic_number", "ion_number", "level_number"],
+        line2macro_level_upper = self.create_line2macro_level_upper(
+            macro_atom_transition_metadata, lines_level_upper
         )
-        unique_source_series = pd.Series(
-            index=unique_source_index,
-            data=range(len(macro_atom_transition_metadata.source.unique())),
-        )
-        line2macro_level_upper = unique_source_series.loc[lines_level_upper]
 
         macro_atom_transition_metadata.drop(
             columns=[
@@ -321,3 +315,33 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata,
             line2macro_level_upper,
         )
+
+
+    def create_line2macro_level_upper(
+        self, macro_atom_transition_metadata, lines_level_upper
+    ):
+        """
+        Create a mapping from line transitions to macro atom level indices for upper levels.
+        This method creates a mapping that connects line transition upper levels to their
+        corresponding macro atom level indices. It first extracts unique source levels
+        from the macro atom transition metadata and assigns sequential indices to them,
+        then maps the line upper levels to these indices.
+        Parameters
+        ----------
+        macro_atom_transition_metadata : pandas.DataFrame
+        lines_level_upper : pandas.MultiIndex or array-like
+        Returns
+        -------
+        pandas.Series
+        """
+        unique_source_index = pd.MultiIndex.from_tuples(
+            macro_atom_transition_metadata.source.unique(),
+            names=["atomic_number", "ion_number", "level_number"],
+        )
+        unique_source_series = pd.Series(
+            index=unique_source_index,
+            data=range(len(macro_atom_transition_metadata.source.unique())),
+        )
+        line2macro_level_upper = unique_source_series.loc[lines_level_upper]
+        
+        return line2macro_level_upper
