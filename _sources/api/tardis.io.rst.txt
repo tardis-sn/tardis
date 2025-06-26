@@ -18,6 +18,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   tardis.io.hdf_writer_mixin
    tardis.io.util
 
 Module contents
