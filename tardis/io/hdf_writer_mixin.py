@@ -285,6 +285,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
         name: Optional[str] = None,
         collection: Any = None,
         overwrite: bool = False,
+        format: Optional[str] = None,
     ) -> None:
         """
         Save the plasma object to an HDF file.
@@ -308,4 +309,4 @@ class PlasmaWriterMixin(HDFWriterMixin):
             by default False.
         """
         self.collection = collection
-        super().to_hdf(file_path_or_buf, path, name, overwrite)
+        super().to_hdf(file_path_or_buf, path, name, overwrite, format=format)
