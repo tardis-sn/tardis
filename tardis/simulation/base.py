@@ -5,16 +5,15 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from IPython.display import display
 
 import tardis
 from tardis import constants as const
 from tardis.io.configuration.config_reader import ConfigurationError
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
 from tardis.opacities.macro_atom.macroatom_state import LegacyMacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
@@ -186,10 +185,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                     "to False."
                 )
-            else:
-                self.convergence_plots = ConvergencePlots(
-                    iterations=self.iterations, **convergence_plots_kwargs
-                )
+            self.convergence_plots = ConvergencePlots(
+                iterations=self.iterations, **convergence_plots_kwargs
+            )
 
         if "export_convergence_plots" in convergence_plots_kwargs:
             if not isinstance(
@@ -251,9 +249,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             # iterations to converge before we conclude that the Simulation
             # is converged.
             return self.consecutive_converges_count == hold_iterations + 1
-        else:
-            self.consecutive_converges_count = 0
-            return False
+        self.consecutive_converges_count = 0
+        return False
 
     def advance_state(self, emitted_luminosity):
         """
