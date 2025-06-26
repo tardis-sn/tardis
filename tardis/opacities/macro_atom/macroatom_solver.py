@@ -6,10 +6,19 @@ from tardis.opacities.macro_atom.base import (
     get_macro_atom_data,
     initialize_transition_probabilities,
 )
-from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.opacities.macro_atom.macroatom_transitions import (
+    line_transition_emission_down,
+    line_transition_internal_down,
+    line_transition_internal_up,
+)
+from tardis.opacities.macro_atom.macroatom_state import (
+    MacroAtomState,
+    LegacyMacroAtomState,
+)
+from astropy import constants as const
 
 
-class MacroAtomSolver:
+class LegacyMacroAtomSolver:
     initialize: bool = True
     normalize: bool = True
 
@@ -141,11 +150,174 @@ class MacroAtomSolver:
         ]
         macro_atom_info = atomic_data.macro_atom_data
 
-        return MacroAtomState(
+        return LegacyMacroAtomState(
             transition_probabilities,
             macro_atom_info["transition_type"],
             macro_atom_info["destination_level_idx"],
             macro_atom_info["lines_idx"],
             macro_block_references,
             atomic_data.lines_upper2macro_reference_idx,
+        )
+
+
+class BoundBoundMacroAtomSolver:
+    levels: pd.DataFrame
+    lines: pd.DataFrame
+
+    def __init__(self, levels, lines):
+        self.levels = levels
+        self.lines = lines
+
+    def solve(
+        self,
+        mean_intensities_blue_wing,
+        beta_sobolevs,
+        stimulated_emission_factors,
+    ):
+        """
+        Solves the transition probabilities and returns a DataFrame with the probabilities and a DataFrame with the macro atom transition metadata.
+        Referenced as $p_i$ in Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
+        Parameters
+        ----------
+        mean_intensities_blue_wing : pd.DataFrame
+            Mean intensity of the radiation field of each line in the blue wing for each shell.
+            For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
+            Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
+        beta_sobolevs : pd.DataFrame
+            Escape probabilites for the Sobolev approximation.
+        stimulated_emission_factors : pd.DataFrame
+            Stimulated emission factors for the lines.
+
+        Returns
+        -------
+        MacroAtomState
+            A MacroAtomState object containing the transition probabilities, transition metadata, and a mapping from line IDs to macro atom level upper indices.
+        """
+
+        oscillator_strength_ul = self.lines.f_ul.values.reshape(-1, 1)
+        oscillator_strength_lu = self.lines.f_lu.values.reshape(-1, 1)
+        nus = self.lines.nu.values.reshape(-1, 1)
+        line_ids = self.lines.line_id.values
+
+        energies_upper = (
+            self.levels[["energy"]]
+            .rename(columns={"energy": "level_number_upper"})
+            .reindex(self.lines.index.droplevel("level_number_lower"))
+            .values
+        )
+        energies_lower = (
+            self.levels[["energy"]]
+            .rename(columns={"energy": "level_number_lower"})
+            .reindex(self.lines.index.droplevel("level_number_upper"))
+            .values
+        )
+        transition_a_i_l_u_array = self.lines.reset_index()[
+            [
+                "atomic_number",
+                "ion_number",
+                "level_number_lower",
+                "level_number_upper",
+            ]
+        ].values  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
+
+        lines_level_upper = self.lines.index.droplevel("level_number_lower")
+
+        p_emission_down, emission_down_metadata = line_transition_emission_down(
+            oscillator_strength_ul,
+            nus,
+            energies_upper,
+            energies_lower,
+            beta_sobolevs,
+            transition_a_i_l_u_array,
+            line_ids,
+        )
+        p_internal_down, internal_down_metadata = line_transition_internal_down(
+            oscillator_strength_ul,
+            nus,
+            energies_lower,
+            beta_sobolevs,
+            transition_a_i_l_u_array,
+            line_ids,
+        )
+        p_internal_up, internal_up_metadata = line_transition_internal_up(
+            oscillator_strength_lu,
+            nus,
+            energies_lower,
+            mean_intensities_blue_wing,
+            beta_sobolevs,
+            stimulated_emission_factors,
+            transition_a_i_l_u_array,
+            line_ids,
+        )
+
+        probabilities_df = pd.concat(
+            [p_emission_down, p_internal_down, p_internal_up]
+        )
+
+        macro_atom_transition_metadata = pd.concat(
+            [
+                emission_down_metadata,
+                internal_down_metadata,
+                internal_up_metadata,
+            ]
+        )
+
+        # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS.
+        probabilities_df = probabilities_df.div(
+            probabilities_df.groupby("source").transform("sum"),
+        )
+        probabilities_df.replace(np.nan, 0, inplace=True)
+        # fill value for nans where the transition probabilites are all 0, which happens for ground levels that should never be accessed in the active macroatom.
+
+        probabilities_df.drop(columns=["source"], inplace=True)
+        probabilities_df = probabilities_df.reset_index(
+            drop=True
+        )  # Reset to create a unique macro_atom_transition_id.
+        probabilities_df.index.rename("macro_atom_transition_id", inplace=True)
+
+        macro_atom_transition_metadata = (
+            macro_atom_transition_metadata.reset_index()
+        )
+        macro_atom_transition_metadata.index.rename(
+            "macro_atom_transition_id", inplace=True
+        )
+        macro_atom_transition_metadata["source_level"] = (
+            macro_atom_transition_metadata.source.apply(lambda x: x[2])
+        )
+        macro_atom_transition_metadata = (
+            macro_atom_transition_metadata.sort_values(
+                ["atomic_number", "ion_number", "source_level"]
+            )
+        )  # This is how carsus sorted the macro atom transitions.
+
+        probabilities_df = probabilities_df.loc[
+            macro_atom_transition_metadata.index
+        ]  # Reorder to match the metadata, which was sorted to match carsus.
+
+        # We have to create the line2macro object after sorting.
+        unique_source_index = pd.MultiIndex.from_tuples(
+            macro_atom_transition_metadata.source.unique(),
+            names=["atomic_number", "ion_number", "level_number"],
+        )
+        unique_source_series = pd.Series(
+            index=unique_source_index,
+            data=range(len(macro_atom_transition_metadata.source.unique())),
+        )
+        line2macro_level_upper = unique_source_series.loc[lines_level_upper]
+
+        macro_atom_transition_metadata.drop(
+            columns=[
+                "atomic_number",
+                "ion_number",
+                "level_number_lower",
+                "level_number_upper",
+                "source_level",
+            ],
+            inplace=True,
+        )
+
+        return MacroAtomState(
+            probabilities_df,
+            macro_atom_transition_metadata,
+            line2macro_level_upper,
         )
