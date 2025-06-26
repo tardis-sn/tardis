@@ -1,4 +1,4 @@
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 import pandas as pd
 
