@@ -109,7 +109,7 @@ jobs:
           pip install qgridnext
 
       - name: Install tardisbase
-        run: pip install -e .
+        run: pip install -e ".[tardisbase,viz]" 
         working-directory: ${{ github.workspace }}/tardisbase
         
       - name: Regression Data Generation tests
