@@ -78,6 +78,12 @@ jobs:
           swap-storage: true
 
       - uses: actions/checkout@v4
+      
+      - name: Checkout tardisbase repository
+        uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardisbase
+          path: tardisbase
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -102,6 +108,10 @@ jobs:
         run: |
           pip install qgridnext
 
+      - name: Install tardisbase
+        run: pip install -e ".[tardisbase,viz]" 
+        working-directory: ${{ github.workspace }}/tardisbase
+        
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
       
@@ -112,12 +122,7 @@ jobs:
           git add tardis
           git commit -m "Update regression data for commit ${GITHUB_SHA}"
         working-directory: ${{ github.workspace }}/tardis-regression-data
-      
-      - name: Update compare.py from fork
-        run: |
-          curl -s https://raw.githubusercontent.com/atharva-2001/tardis-regression-data/refs/heads/update_notebook/compare.py > compare.py
-        working-directory: ${{ github.workspace }}/tardis-regression-data
-      
+
       - name: Add environment variable to save plots
         run: |
           echo "SAVE_COMP_IMG=1" >> $GITHUB_ENV
@@ -128,19 +133,21 @@ jobs:
 
       - name: Run comparison notebook
         run: |
-          jupyter nbconvert --execute compare_regression_data.ipynb \
+          jupyter nbconvert --execute ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data.ipynb \
             --to html \
             --output=compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html \
         working-directory: ${{ github.workspace }}/tardis-regression-data
-
+        env:
+          REGRESSION_DATA_REPO: ${{ github.workspace }}/tardis-regression-data
+  
       - name: Upload comparison notebook
         uses: actions/upload-artifact@v4
         with:
           name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
           include-hidden-files: true
           path: |
-            ${{ github.workspace }}/tardis-regression-data/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
-            ${{ github.workspace }}/tardis-regression-data/comparison_plots*
+            ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+            ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/comparison_plots*
 
 
   deploy-comparison:
@@ -243,3 +250,4 @@ jobs:
             You can also download the artifacts directly from the [Actions tab](${{ env.ARTIFACT_URL }}).
         env:
           ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+ 
