@@ -64,7 +64,7 @@ def calculate_z_jax(r, p, inv_t):
     return jnp.where(r > p, jnp.sqrt(r * r - p * p) * C_INV * inv_t, 0.0)
 
 
-def populate_z(p, r_outer, r_inner, time_explosion, size_shell):
+def populate_z(p, r_inner, r_outer, time_explosion, size_shell):
     """
     Calculates the intersection points of the p-line with each shell
 
@@ -113,7 +113,7 @@ def populate_z(p, r_outer, r_inner, time_explosion, size_shell):
     # loop over the radii, update z0 if z is not zero
     def loop_out(i, state):
         ri = r[i]
-        z = calculate_z_jax(r[i], p, inv_t)
+        z = calculate_z_jax(ri, p, inv_t)
 
         def do_update(state):
             z0, shell_id, offset = state
@@ -179,7 +179,7 @@ def intensity_black_body_jax(nu, temperature):
     )
 
 
-@partial(jit, static_argnames=["x", "imin", "imax"])
+@partial(jit, static_argnames=["imin", "imax"])
 def reverse_binary_search_jax(x, x_insert, imin, imax):
     """
     Find indicies where elements should be inserted
@@ -677,7 +677,7 @@ def formal_integral(
 
     # compute interaction points, z
     zs, shellids, size_zs = populate_z_jax(
-        ps, r_outer, r_inner, time_explosion, size_shell
+        ps, r_inner, r_outer, time_explosion, size_shell
     )
 
     # init Inup with the photopshere
