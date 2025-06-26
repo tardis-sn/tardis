@@ -5,9 +5,9 @@ from tardis.workflows.high_energy.tardis_he_workflow import TARDISHEWorkflow
 
 
 @pytest.fixture(scope="session")
-def he_workflow_instance_session(atomic_dataset, he_test_config):
+def he_workflow_instance_session(atomic_dataset, he_test_configs):
     """Create a TARDISHEWorkflow instance for testing (session-scoped)."""
-    return TARDISHEWorkflow(atomic_dataset, he_test_config, config_type="csvy")
+    return TARDISHEWorkflow(atomic_dataset, he_test_configs, config_type="csvy")
 
 
 @pytest.fixture(scope="session")
