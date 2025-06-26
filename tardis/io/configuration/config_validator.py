@@ -183,12 +183,8 @@ def validate_dict(
     registry = _create_schema_registry()
 
     validated_dict = deepcopy(config_dict)
-    custom_type_checker = validator.TYPE_CHECKER.redefine(
-        "quantity", is_quantity
-    )
-    custom_validator = validators.extend(
-        validator, type_checker=custom_type_checker
-    )
+    custom_type_checker = validator.TYPE_CHECKER.redefine("quantity", is_quantity)
+    custom_validator = validators.extend(validator, type_checker=custom_type_checker)
 
     # Create validator with registry for reference resolution
     validator_instance = custom_validator(schema=schema, registry=registry)
