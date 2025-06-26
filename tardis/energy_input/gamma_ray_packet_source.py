@@ -562,6 +562,7 @@ class GammaRayPacketSource(BasePacketSource):
         array
             Array of length packet_count of random locations in the shell
         """
+        np.random.seed(self.base_seed + 2 if self.base_seed is not None else None)
         z = np.random.random(len(sampled_packets_df))
         initial_radii = (
             z * sampled_packets_df["inner_velocity"] ** 3.0
