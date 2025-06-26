@@ -673,7 +673,8 @@ def formal_integral(
     )  # TODO: figure this out (10000 nus but 29000 in first axis)
 
     # compute impact parameters, p
-    ps = calculate_p_values_jax(r_outer[-1], N)
+    rmax = r_outer[-1]
+    ps = calculate_p_values_jax(rmax, N)
 
     # compute interaction points, z
     zs, shellids, size_zs = populate_z_jax(
@@ -683,6 +684,7 @@ def formal_integral(
     # init Inup with the photopshere
     Inup = init_Inup_jax(inu, ps, zs[:, 0], iT, r_inner[0])
 
+    # calculate the final intensity
     Inup_i = calc_Inup_jax(
         Inup[:, 1:],
         inu,
@@ -699,4 +701,7 @@ def formal_integral(
         Jblue_lu.ravel(order="F"),
     )
 
-    return Inup_i
+    # compute the luminosity
+    L = 8 * jnp.pi * jnp.pi * jnp.trapezoid(Inup_i, dx=rmax/N, axis=1)    
+
+    return L, Inup_i
