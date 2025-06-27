@@ -89,6 +89,7 @@ extensions = [
     "matplotlib.sphinxext.plot_directive",
     "sphinxcontrib.jquery",
     "nbsphinx",
+    "sphinx_tabs.tabs",
     "numpydoc",
     "recommonmark",
 ]
