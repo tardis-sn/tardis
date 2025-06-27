@@ -1,0 +1,23 @@
+tardis.workflows package
+========================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.workflows.simple_tardis_workflow
+   tardis.workflows.standard_tardis_workflow
+   tardis.workflows.tardis_he_workflow
+   tardis.workflows.util
+   tardis.workflows.v_inner_solver
+   tardis.workflows.workflow_logging
+
+Module contents
+---------------
+
+.. automodule:: tardis.workflows
+   :members:
+   :show-inheritance:
+   :undoc-members:
