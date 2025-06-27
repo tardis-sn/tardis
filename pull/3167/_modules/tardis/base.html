@@ -1,0 +1,294 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.base &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=6a6fa41b"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.base</h1><div class="highlight"><pre>
+<span></span>&quot;&quot;&quot;
+Functions that are important for the general usage of TARDIS.
+&quot;&quot;&quot;
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="run_tardis">
+<a class="viewcode-back" href="../../api/tardis.base.html#tardis.base.run_tardis">[docs]</a>
+def run_tardis(
+    config,
+    atom_data=None,
+    packet_source=None,
+    simulation_callbacks=None,
+    virtual_packet_logging=False,
+    show_convergence_plots=False,
+    log_level=None,
+    specific_log_level=None,
+    show_progress_bars=True,
+    display_logging_widget=True,
+    **kwargs,
+):
+    &quot;&quot;&quot;
+    Run TARDIS from a given config object.
+
+    It will return a model object containing the TARDIS Simulation.
+
+    Parameters
+    ----------
+    config : str or dict or tardis.io.config_reader.Configuration
+        filename of configuration yaml file or dictionary or TARDIS Configuration object
+    atom_data : str or tardis.atomic.AtomData, optional
+        If atom_data is a string it is interpreted as a path to a file storing
+        the atomic data. Atomic data to use for this TARDIS simulation. If set to None (i.e. default),
+        the atomic data will be loaded according to keywords set in the configuration
+    packet_source : class, optional
+        A custom packet source class or a child class of `tardis.transport.montecarlo.packet_source`
+        used to override the TARDIS `BasePacketSource` class.
+    simulation_callbacks : list of lists, default: `[]`, optional
+        Set of callbacks to call at the end of every iteration of the Simulation.
+        The format of the lists should look like:
+        [[callback1, callback_arg1], [callback2, callback_arg2], ...],
+        where the callback function signature should look like:
+        callback_function(simulation, extra_arg1, ...)
+    virtual_packet_logging : bool, default: False, optional
+        Option to enable virtual packet logging.
+    log_level : {&#39;NOTSET&#39;, &#39;DEBUG&#39;, &#39;INFO&#39;, &#39;WARNING&#39;, &#39;ERROR&#39;, &#39;CRITICAL&#39;}, default: None, optional
+        Set the level of the TARDIS logger (follows native python logging framework log levels).
+        Use this parameter to override the `log_level` specified in the configuration file.
+        The default value `None` means that the `log_level` specified in the configuration file will be used.
+    specific_log_level : bool, default: None, optional
+        Allows to set specific logging levels, overriding the value in the configuration file.
+        If True, only show the log messages from a particular log level, set by `log_level`.
+        If False, the logger shows log messages belonging to the level set and all levels above it in severity.
+        The default value None means that the `specific_log_level` specified in the configuration file will be used.
+    show_convergence_plots : bool, default: False, optional
+        Option to enable tardis convergence plots.
+    show_progress_bars : bool, default: True, optional
+        Option to enable the progress bar.
+    display_widget : bool, default: True, optional
+        Option to display the logging widget in Jupyter/VSCode environments.
+        If False, logs will be printed normally instead.
+    **kwargs : dict, optional
+        Optional keyword arguments including those
+        supported by :obj:`tardis.visualization.tools.convergence_plot.ConvergencePlots`.
+
+
+    Returns
+    -------
+    tardis.simulation.Simulation
+
+    Notes
+    -----
+    Please see the `logging tutorial &lt;https://tardis-sn.github.io/tardis/io/optional/logging_configuration.html&gt;`_ to know more about `log_level` and `specific` options.
+    &quot;&quot;&quot;
+    from tardis.io.atom_data.base import AtomData
+    from tardis.io.configuration.config_reader import Configuration
+    from tardis.io.logger.logger import logging_state
+    from tardis.simulation import Simulation
+
+    if simulation_callbacks is None:
+        simulation_callbacks = []
+    if isinstance(config, Configuration):
+        tardis_config = config
+    else:
+        try:
+            tardis_config = Configuration.from_yaml(config)
+        except TypeError:
+            logger.debug(
+                &quot;TARDIS Config not available via YAML. Reading through TARDIS Config Dictionary&quot;
+            )
+            tardis_config = Configuration.from_config_dict(config)
+
+    if not isinstance(show_convergence_plots, bool):
+        raise TypeError(&quot;Expected bool in show_convergence_plots argument&quot;)
+
+    logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
+
+    if atom_data is not None:
+        try:
+            atom_data = AtomData.from_hdf(atom_data)
+        except TypeError:
+            logger.debug(
+                &quot;Atom Data Cannot be Read from HDF. Setting to Default Atom Data&quot;
+            )
+            atom_data = atom_data
+
+    simulation = Simulation.from_config(
+        tardis_config,
+        packet_source=packet_source,
+        atom_data=atom_data,
+        virtual_packet_logging=virtual_packet_logging,
+        show_convergence_plots=show_convergence_plots,
+        show_progress_bars=show_progress_bars,
+        **kwargs,
+    )
+    for cb in simulation_callbacks:
+        simulation.add_callback(*cb)
+
+    simulation.run_convergence()
+    simulation.run_final()
+    if logger_widget:
+        tardislogger.remove_widget_handler()
+        tardislogger.setup_stream_handler()
+    return simulation</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 27 Jun 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

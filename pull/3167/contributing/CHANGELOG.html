@@ -1,0 +1,1376 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=6a6fa41b"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Features In-Progress" href="in_progress/index.html" />
+    <link rel="prev" title="Benchmarking Information" href="tools/benchmark.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-06-01-2025-05-31-21-15">release-2025.06.01 (2025/05/31 21:15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-05-25-2025-05-22-08-34">release-2025.05.25 (2025/05/22 08:34)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-05-18-2025-05-12-12-31">release-2025.05.18 (2025/05/12 12:31)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-05-11-2025-05-06-14-03">release-2025.05.11 (2025/05/06 14:03)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-05-04-2025-04-29-10-52">release-2025.05.04 (2025/04/29 10:52)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-04-27-2025-04-23-13-15">release-2025.04.27 (2025/04/23 13:15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-04-20-2025-04-16-13-29">release-2025.04.20 (2025/04/16 13:29)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-03-30-2025-03-25-09-41">release-2025.03.30 (2025/03/25 09:41)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-03-23-2025-03-21-13-34">release-2025.03.23 (2025/03/21 13:34)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-03-19-2025-03-17-17-44">release-2025.03.19 (2025/03/17 17:44)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-03-16-2025-03-11-09-19">release-2025.03.16 (2025/03/11 09:19)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-03-09-2025-03-06-16-05">release-2025.03.09 (2025/03/06 16:05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-03-02-2025-02-26-13-13">release-2025.03.02 (2025/02/26 13:13)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-02-23-2025-02-21-15-11">release-2025.02.23 (2025/02/21 15:11)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-02-16-2025-02-10-11-20">release-2025.02.16 (2025/02/10 11:20)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-02-09-2025-02-05-12-21">release-2025.02.09 (2025/02/05 12:21)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-02-02-2025-01-27-11-40">release-2025.02.02 (2025/01/27 11:40)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-01-26-2025-01-24-14-54">release-2025.01.26 (2025/01/24 14:54)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-01-19-2025-01-14-16-54">release-2025.01.19 (2025/01/14 16:54)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-01-12-2025-01-09-03-46">release-2025.01.12 (2025/01/09 03:46)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2025-01-05-2024-12-30-01-37">release-2025.01.05 (2024/12/30 01:37)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-12-29-2024-12-23-04-39">release-2024.12.29 (2024/12/23 04:39)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-12-22-2024-12-16-10-05">release-2024.12.22 (2024/12/16 10:05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-12-15-2024-12-09-10-05">release-2024.12.15 (2024/12/09 10:05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-12-08-2024-12-04-12-24">release-2024.12.08 (2024/12/04 12:24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-12-01-2024-11-25-10-00">release-2024.12.01 (2024/11/25 10:00)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-11-24-2024-11-20-12-32">release-2024.11.24 (2024/11/20 12:32)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-11-20-2024-11-20-10-01">release-2024.11.20 (2024/11/20 10:01)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-11-11-2024-11-04-10-14">release-2024.11.11 (2024/11/04 10:14)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-10-14-2024-10-08-12-37">release-2024.10.14 (2024/10/08 12:37)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-08-25-2024-08-24-20-44">release-2024.08.25 (2024/08/24 20:44)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-08-18-2024-08-17-20-45">release-2024.08.18 (2024/08/17 20:45)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-08-12-2024-08-12-08-57">release-2024.08.12 (2024/08/12 08:57)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-08-04-2024-08-03-20-49">release-2024.08.04 (2024/08/03 20:49)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-07-28-2024-07-27-20-43">release-2024.07.28 (2024/07/27 20:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-07-07-2024-07-06-20-49">release-2024.07.07 (2024/07/06 20:49)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-06-09-2024-06-08-20-52">release-2024.06.09 (2024/06/08 20:52)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-06-03-2024-06-03-08-25">release-2024.06.03 (2024/06/03 08:25)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-05-28-2024-05-28-06-24">release-2024.05.28 (2024/05/28 06:24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-05-12-2024-05-11-21-05">release-2024.05.12 (2024/05/11 21:05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-05-05-2024-05-04-20-56">release-2024.05.05 (2024/05/04 20:56)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-04-21-2024-04-20-20-45">release-2024.04.21 (2024/04/20 20:45)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-04-14-2024-04-13-20-54">release-2024.04.14 (2024/04/13 20:54)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-04-08-2024-04-08-09-41">release-2024.04.08 (2024/04/08 09:41)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-04-01-2024-04-01-10-03">release-2024.04.01 (2024/04/01 10:03)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-03-18-2024-03-18-09-58">release-2024.03.18 (2024/03/18 09:58)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-03-11-2024-03-11-09-31">release-2024.03.11 (2024/03/11 09:31)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-02-19-2024-02-19-09-21">release-2024.02.19 (2024/02/19 09:21)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-02-11-2024-02-10-19-45">release-2024.02.11 (2024/02/10 19:45)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-01-14-2024-01-14-10-26">release-2024.01.14 (2024/01/14 10:26)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2024-01-08-2024-01-08-09-37">release-2024.01.08 (2024/01/08 09:37)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-11-26-2023-11-26-10-41">release-2023.11.26 (2023/11/26 10:41)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-11-05-2023-11-04-22-34">release-2023.11.05 (2023/11/04 22:34)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-10-20-2023-10-20-09-48">release-2023.10.20 (2023/10/20 09:48)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-09-17-2023-09-16-20-51">release-2023.09.17 (2023/09/16 20:51)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-09-10-2023-09-09-22-43">release-2023.09.10 (2023/09/09 22:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-09-03-2023-09-02-20-47">release-2023.09.03 (2023/09/02 20:47)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-08-20-2023-08-19-20-43">release-2023.08.20 (2023/08/19 20:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-08-13-2023-08-13-17-04">release-2023.08.13 (2023/08/13 17:04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-08-06-2023-08-05-20-43">release-2023.08.06 (2023/08/05 20:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-07-30-2023-07-29-20-47">release-2023.07.30 (2023/07/29 20:47)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-07-23-2023-07-23-10-47">release-2023.07.23 (2023/07/23 10:47)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-07-16-2023-07-16-15-15">release-2023.07.16 (2023/07/16 15:15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-07-09-2023-07-09-12-30">release-2023.07.09 (2023/07/09 12:30)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-07-02-2023-07-01-20-49">release-2023.07.02 (2023/07/01 20:49)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-06-25-2023-06-25-12-43">release-2023.06.25 (2023/06/25 12:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-06-18-2023-06-17-20-48">release-2023.06.18 (2023/06/17 20:48)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-06-04-2023-06-03-20-53">release-2023.06.04 (2023/06/03 20:53)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-05-28-2023-05-27-20-51">release-2023.05.28 (2023/05/27 20:51)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-05-21-2023-05-20-20-53">release-2023.05.21 (2023/05/20 20:53)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-05-15-2023-05-15-10-10">release-2023.05.15 (2023/05/15 10:10)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-05-07-2023-05-07-13-47">release-2023.05.07 (2023/05/07 13:47)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-04-30-2023-04-30-13-26">release-2023.04.30 (2023/04/30 13:26)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-04-23-2023-04-22-20-49">release-2023.04.23 (2023/04/22 20:49)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-04-16-2023-04-15-20-47">release-2023.04.16 (2023/04/15 20:47)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-04-09-2023-04-08-20-44">release-2023.04.09 (2023/04/08 20:44)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-03-26-2023-03-26-01-55">release-2023.03.26 (2023/03/26 01:55)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-03-20-2023-03-20-12-39">release-2023.03.20 (2023/03/20 12:39)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-02-27-2023-02-27-08-53">release-2023.02.27 (2023/02/27 08:53)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-02-2-2023-02-20-10-04">release-2023.02.2 (2023/02/20 10:04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-02-16-2023-02-16-09-18">release-2023.02.16 (2023/02/16 09:18)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-02-06-2023-02-06-10-00">release-2023.02.06 (2023/02/06 10:00)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2023-01-11-2023-01-11-11-25">release-2023.01.11 (2023/01/11 11:25)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-12-26-2022-12-26-09-51">release-2022.12.26 (2022/12/26 09:51)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-12-12-2022-12-12-10-02">release-2022.12.12 (2022/12/12 10:02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-11-21-2022-11-21-10-15">release-2022.11.21 (2022/11/21 10:15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-11-17-2022-11-17-13-45">release-2022.11.17 (2022/11/17 13:45)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-06-19-2022-06-18-22-25">release-2022.06.19 (2022/06/18 22:25)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-06-05-2022-06-04-21-07">release-2022.06.05 (2022/06/04 21:07)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-05-08-2022-05-07-20-27">release-2022.05.08 (2022/05/07 20:27)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-05-04-2022-05-04-12-35">release-2022.05.04 (2022/05/04 12:35)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-4-24-2022-04-21-20-19">release-2022.4.24 (2022/04/21 20:19)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-4-1-2022-04-07-10-38">release-2022.4.1 (2022/04/07 10:38)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-4-3-2022-03-28-10-30">release-2022.4.3 (2022/03/28 10:30)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-3-27-2022-03-23-11-51">release-2022.3.27 (2022/03/23 11:51)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-3-2-2022-03-14-11-16">release-2022.3.2 (2022/03/14 11:16)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-3-13-2022-03-10-10-35">release-2022.3.13 (2022/03/10 10:35)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-3-6-2022-03-03-14-21">release-2022.3.6 (2022/03/03 14:21)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-2-27-2022-02-24-16-00">release-2022.2.27 (2022/02/24 16:00)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-2-2-2022-02-17-15-14">release-2022.2.2 (2022/02/17 15:14)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-2-6-2022-02-02-12-16">release-2022.2.6 (2022/02/02 12:16)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-1-3-2022-01-29-08-59">release-2022.1.3 (2022/01/29 08:59)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-1-23-2022-01-21-11-50">release-2022.1.23 (2022/01/21 11:50)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-1-16-2022-01-12-10-11">release-2022.1.16 (2022/01/12 10:11)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2022-1-9-2022-01-06-10-59">release-2022.1.9 (2022/01/06 10:59)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-12-19-2021-12-13-13-38">release-2021.12.19 (2021/12/13 13:38)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-12-12-2021-12-10-12-30">release-2021.12.12 (2021/12/10 12:30)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-12-5-2021-12-02-14-14">release-2021.12.5 (2021/12/02 14:14)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-11-28-2021-11-25-12-29">release-2021.11.28 (2021/11/25 12:29)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-11-21-2021-11-14-18-43">release-2021.11.21 (2021/11/14 18:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-11-14-2021-11-12-09-24">release-2021.11.14 (2021/11/12 09:24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-11-7-2021-10-31-19-43">release-2021.11.7 (2021/10/31 19:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-10-31-2021-10-27-15-00">release-2021.10.31 (2021/10/27 15:00)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-10-17-2021-10-14-11-37">release-2021.10.17 (2021/10/14 11:37)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-10-1-2021-10-06-09-38">release-2021.10.1 (2021/10/06 09:38)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-9-26-2021-09-24-17-20">release-2021.9.26 (2021/09/24 17:20)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-9-19-2021-09-17-10-41">release-2021.9.19 (2021/09/17 10:41)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-9-12-2021-09-09-07-18">release-2021.9.12 (2021/09/09 07:18)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-8-29-2021-08-26-13-02">release-2021.8.29 (2021/08/26 13:02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-8-26-2021-08-26-12-40">release-2021.8.26 (2021/08/26 12:40)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-8-15-0-2021-08-12-10-24">release-2021.8.15.0 (2021/08/12 10:24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-8-8-0-2021-08-05-14-49">release-2021.8.8.0 (2021/08/05 14:49)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-8-1-0-2021-07-29-14-57">release-2021.8.1.0 (2021/07/29 14:57)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-7-25-0-2021-07-23-12-16">release-2021.7.25.0 (2021/07/23 12:16)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-7-18-0-2021-07-16-10-41">release-2021.7.18.0 (2021/07/16 10:41)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-7-14-0-2021-07-14-11-39">release-2021.7.14.0 (2021/07/14 11:39)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-7-12-0-2021-07-12-16-05">release-2021.7.12.0 (2021/07/12 16:05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-7-11-0-2021-07-09-13-07">release-2021.7.11.0 (2021/07/09 13:07)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-7-5-2021-07-05-10-32">release-2021.7.5 (2021/07/05 10:32)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-2021-07-01-2021-07-01-19-05">release-2021.07.01 (2021/07/01 19:05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev4019-2021-06-25-12-09">v3.0.dev4019 (2021/06/25 12:09)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev4010-2021-06-18-17-22">v3.0.dev4010 (2021/06/18 17:22)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3998-2021-06-14-10-52">v3.0.dev3998 (2021/06/14 10:52)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3983-2021-06-04-12-50">v3.0.dev3983 (2021/06/04 12:50)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3970-2021-05-28-17-43">v3.0.dev3970 (2021/05/28 17:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3959-2021-05-21-14-44">v3.0.dev3959 (2021/05/21 14:44)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3957-2021-05-20-15-27">v3.0.dev3957 (2021/05/20 15:27)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3952-2021-05-14-13-44">v3.0.dev3952 (2021/05/14 13:44)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3947-2021-05-12-16-42">v3.0.dev3947 (2021/05/12 16:42)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3945-2021-05-05-10-03">v3.0.dev3945 (2021/05/05 10:03)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3808-2021-01-21-11-22">v3.0.dev3808 (2021/01/21 11:22)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3801-2021-01-08-16-28">v3.0.dev3801 (2021/01/08 16:28)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3796-2020-12-28-12-12">v3.0.dev3796 (2020/12/28 12:12)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3794-2020-12-21-10-22">v3.0.dev3794 (2020/12/21 10:22)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3769-2020-12-18-16-07">v3.0.dev3769 (2020/12/18 16:07)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3756-2020-12-11-14-43">v3.0.dev3756 (2020/12/11 14:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3698-2020-12-04-14-50">v3.0.dev3698 (2020/12/04 14:50)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3680-2020-11-25-13-38">v3.0.dev3680 (2020/11/25 13:38)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3673-2020-11-18-11-26">v3.0.dev3673 (2020/11/18 11:26)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3541-2020-11-10-13-45">v3.0.dev3541 (2020/11/10 13:45)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3539-2020-11-04-11-50">v3.0.dev3539 (2020/11/04 11:50)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3527-2020-10-05-12-43">v3.0.dev3527 (2020/10/05 12:43)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3526-2020-10-01-05-50">v3.0.dev3526 (2020/10/01 05:50)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3510-2020-09-25-11-56">v3.0.dev3510 (2020/09/25 11:56)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3504-2020-09-09-06-16">v3.0.dev3504 (2020/09/09 06:16)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3503-2020-09-04-05-18">v3.0.dev3503 (2020/09/04 05:18)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3500-2020-08-12-05-52">v3.0.dev3500 (2020/08/12 05:52)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3497-2020-08-07-11-26">v3.0.dev3497 (2020/08/07 11:26)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3487-2020-07-30-18-18">v3.0.dev3487 (2020/07/30 18:18)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3484-2020-07-19-10-30">v3.0.dev3484 (2020/07/19 10:30)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3477-2020-07-08-23-06">v3.0.dev3477 (2020/07/08 23:06)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3472-2020-06-27-16-11">v3.0.dev3472 (2020/06/27 16:11)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3463-2020-06-19-18-51">v3.0.dev3463 (2020/06/19 18:51)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3459-2020-06-12-14-01">v3.0.dev3459 (2020/06/12 14:01)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3458-2020-06-02-15-11">v3.0.dev3458 (2020/06/02 15:11)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3448-2020-05-28-13-08">v3.0.dev3448 (2020/05/28 13:08)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3442-2020-05-21-19-34">v3.0.dev3442 (2020/05/21 19:34)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3439-2020-05-20-09-25">v3.0.dev3439 (2020/05/20 09:25)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3424-2020-05-07-11-29">v3.0.dev3424 (2020/05/07 11:29)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3409-2020-02-24-23-02">v3.0.dev3409 (2020/02/24 23:02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-dev3403-2020-02-19-10-55">v3.0.dev3403 (2020/02/19 10:55)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev3396-2020-02-07-10-00">3.0.dev3396 (2020/02/07 10:00)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev3384-2020-02-02-16-56">3.0.dev3384 (2020/02/02 16:56)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev3383-2020-02-02-14-01">3.0.dev3383 (2020/02/02 14:01)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-alpha-3-2019-05-13-18-05">v3.0-alpha.3 (2019/05/13 18:05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-alpha-2-2019-03-11-10-24">v3.0-alpha.2 (2019/03/11 10:24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v3-0-a1-2019-03-10-11-03">v3.0.a1 (2019/03/10 11:03)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2-0-2-2018-06-18-16-24">v2.0.2 (2018/06/18 16:24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2-test3-2018-06-18-16-13">v2_test3 (2018/06/18 16:13)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2-0-2018-04-05-09-03">v2.0 (2018/04/05 09:03)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-0-1-2015-03-03-08-12">v1.0.1 (2015/03/03 08:12)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-0-2015-03-03-07-58">v1.0 (2015/03/03 07:58)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rc3-2015-03-03-07-54">1.0rc3 (2015/03/03 07:54)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-0rc3-2015-02-19-09-40">v1.0rc3 (2015/02/19 09:40)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.9.2 (2014/06/12 19:37)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">0.9.1 (2014/02/03 20:51)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-9a-2013-02-14-16-15">v0.9a (2013/02/14 16:15)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/contributing/CHANGELOG.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
+<section id="release-2025-06-01-2025-05-31-21-15">
+<h2>release-2025.06.01 (2025/05/31 21:15)<a class="headerlink" href="#release-2025-06-01-2025-05-31-21-15" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2896">2896</a> Implementation of refactored rates in plasma (2896) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3096">3096</a> add benchmarks link to readme (3096) (&#64;karthik11135)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3069">3069</a> Cleanup sdec and liv plotter classes (3069) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3095">3095</a> Post-release 2025.05.25 (3095) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-05-25-2025-05-22-08-34">
+<h2>release-2025.05.25 (2025/05/22 08:34)<a class="headerlink" href="#release-2025-05-25-2025-05-22-08-34" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3053">3053</a> fix flake8-bugbear (3053) (&#64;Sonu0305)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3086">3086</a> Fix tardis version fallback (3086) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3084">3084</a> Post-release 2025.05.18 (3084) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-05-18-2025-05-12-12-31">
+<h2>release-2025.05.18 (2025/05/12 12:31)<a class="headerlink" href="#release-2025-05-18-2025-05-12-12-31" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3075">3075</a> Build docs issues fixes (3075) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3074">3074</a> Post-release 2025.05.11 (3074) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-05-11-2025-05-06-14-03">
+<h2>release-2025.05.11 (2025/05/06 14:03)<a class="headerlink" href="#release-2025-05-11-2025-05-06-14-03" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2998">2998</a> Created a workflow for TARDIS High energy (2998) (&#64;Knights-Templars)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3067">3067</a> Cleanup rpacket plotter class (3067) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3029">3029</a> add convergence notebook to analysing tardis outputs section (3029) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3064">3064</a> Compare Regression Data Workflow Typo Fix (3064) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3066">3066</a> Post-release 2025.05.04 (3066) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-05-04-2025-04-29-10-52">
+<h2>release-2025.05.04 (2025/04/29 10:52)<a class="headerlink" href="#release-2025-05-04-2025-04-29-10-52" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3003">3003</a> Add Rpacket plot notebook under analysing tardis outputs (3003) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2928">2928</a> Cleanup SDECPlotter and LIVPlotter class (2928) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3058">3058</a> Docs build and logger widget fixes (3058) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3060">3060</a> Post-release 2025.04.27 (3060) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-04-27-2025-04-23-13-15">
+<h2>release-2025.04.27 (2025/04/23 13:15)<a class="headerlink" href="#release-2025-04-27-2025-04-23-13-15" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2846">2846</a> Ruff <code class="docutils literal notranslate"><span class="pre">tardis/visualization</span></code> (2846) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3051">3051</a> Rewrote .rst generating functions with pathlib logic for simplification (3051) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3008">3008</a> Fix labels accross spectral notebooks (3008) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3055">3055</a> Progress Bar Fixes (3055) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3057">3057</a> Rename analzing tardis outputs to analyzing TARDIS (3057) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3056">3056</a> Post-release 2025.04.20 (3056) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-04-20-2025-04-16-13-29">
+<h2>release-2025.04.20 (2025/04/16 13:29)<a class="headerlink" href="#release-2025-04-20-2025-04-16-13-29" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3043">3043</a> Add workflows to documentation (3043) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3041">3041</a> Build Docs and Other Workflow Fixes (3041) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2977">2977</a> Fixture fixes (2977) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3049">3049</a> Fixes the ruff toml issues (3049) (&#64;Sonu0305)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2872">2872</a> Logger Widget Panel (2872) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2876">2876</a> Gammaray opacity documentation (2876) (&#64;CePowers)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2983">2983</a> v_inner convergence plots in docs (2983) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3012">3012</a> Changed name from TARDIS-gamma to TARDIS-HE to match the paper. (3012) (&#64;CePowers)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2973">2973</a> Io artis reader (2973) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3013">3013</a> Upgrade dependencies by resolving TARDIS environment (3013) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2985">2985</a> Add liv plot notebook to the analyzing tardis outputs section (2985) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3036">3036</a> Post-release 2025.03.30 (3036) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-03-30-2025-03-25-09-41">
+<h2>release-2025.03.30 (2025/03/25 09:41)<a class="headerlink" href="#release-2025-03-30-2025-03-25-09-41" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3030">3030</a> BugFix: Utility workflow and Clean Docs workflow (3030) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3025">3025</a> Remove Deprecated Astropy <code class="docutils literal notranslate"><span class="pre">TestRunner</span></code> (3025) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3002">3002</a> Flatten macroatom (3002) (&#64;jvshields)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3028">3028</a> Post-release 2025.03.23 (3028) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-03-23-2025-03-21-13-34">
+<h2>release-2025.03.23 (2025/03/21 13:34)<a class="headerlink" href="#release-2025-03-23-2025-03-21-13-34" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3016">3016</a> Workflow Label Pipeline and Fixes (3016) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3022">3022</a> add final integrated tau property to v_inner workflow (3022) (&#64;jvshields)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2981">2981</a> v_inner_solver store plasma state fxn (2981) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3019">3019</a> Post-release 2025.03.19 (3019) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-03-19-2025-03-17-17-44">
+<h2>release-2025.03.19 (2025/03/17 17:44)<a class="headerlink" href="#release-2025-03-19-2025-03-17-17-44" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3014">3014</a> Post-release 2025.03.16 (3014) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-03-16-2025-03-11-09-19">
+<h2>release-2025.03.16 (2025/03/11 09:19)<a class="headerlink" href="#release-2025-03-16-2025-03-11-09-19" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2968">2968</a> Add sdec visualisation notebook (2968) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3001">3001</a> Document <code class="docutils literal notranslate"><span class="pre">LFS-cache</span></code> workflow and the <code class="docutils literal notranslate"><span class="pre">setup-lfs</span></code> action (3001) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3004">3004</a> Fix post release workflow by pinning python version to 3.12 (3004) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/3000">3000</a> Send a dispatch to tardis website to update credits (3000) (&#64;KasukabeDefenceForce)</p></li>
+</ul>
+</section>
+<section id="release-2025-03-09-2025-03-06-16-05">
+<h2>release-2025.03.09 (2025/03/06 16:05)<a class="headerlink" href="#release-2025-03-09-2025-03-06-16-05" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2984">2984</a> Fix init bug for: line_interaction_type=scatter (2984) (&#64;roee2000)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2969">2969</a> Replace with appropriate .loc or .iloc method. (2969) (&#64;rohit2p)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2982">2982</a> [Docs] : updated the pytest arg from –regression-data to –tardis-regression-data (2982) (&#64;rudrakshnalbalwar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2988">2988</a> Remove plasma object going into the macroatom (2988) (&#64;jvshields)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2999">2999</a> Trigger LFS-cache generation from regression data repository (2999) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2993">2993</a> Regression data comparison workflow (2993) (&#64;atharva-2001)</p></li>
+</ul>
+</section>
+<section id="release-2025-03-02-2025-02-26-13-13">
+<h2>release-2025.03.02 (2025/02/26 13:13)<a class="headerlink" href="#release-2025-03-02-2025-02-26-13-13" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2793">2793</a> Gamma ray spectra dep (2793) (&#64;Knights-Templars)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2935">2935</a> Numpy v2 Upgrade PR 2 (2935) (&#64;atharva-2001)</p></li>
+</ul>
+</section>
+<section id="release-2025-02-23-2025-02-21-15-11">
+<h2>release-2025.02.23 (2025/02/21 15:11)<a class="headerlink" href="#release-2025-02-23-2025-02-21-15-11" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2962">2962</a> Updated packet_source to fix bug with BlackBodySimpleSource.create_pa… (2962) (&#64;nvieira-mcgill)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2980">2980</a> Move required images in the analyzing tardis outputs directory (2980) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2967">2967</a> Move visualization section to analysing tardis output (2967) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2975">2975</a> Fail LFS pull if label not present (2975) (&#64;atharva-2001)</p></li>
+</ul>
+</section>
+<section id="release-2025-02-16-2025-02-10-11-20">
+<h2>release-2025.02.16 (2025/02/10 11:20)<a class="headerlink" href="#release-2025-02-16-2025-02-10-11-20" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2951">2951</a> Ensures consistency across codebase to ensure consistent codestyle (2951) (&#64;Sonu0305)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2956">2956</a> Fixes the codestyle for Invalid Class Names (2956) (&#64;Sonu0305)</p></li>
+</ul>
+</section>
+<section id="release-2025-02-09-2025-02-05-12-21">
+<h2>release-2025.02.09 (2025/02/05 12:21)<a class="headerlink" href="#release-2025-02-09-2025-02-05-12-21" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2966">2966</a> Fix LFS sparse checkout (2966) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2963">2963</a> updated converged status to self.converged throughout workflow (2963) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2965">2965</a> Disallow Merge Refs from Creating Cache (2965) (&#64;atharva-2001)</p></li>
+</ul>
+</section>
+<section id="release-2025-02-02-2025-01-27-11-40">
+<h2>release-2025.02.02 (2025/01/27 11:40)<a class="headerlink" href="#release-2025-02-02-2025-01-27-11-40" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2954">2954</a> LFS Fixes (2954) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2958">2958</a> Post-release 2025.01.26 (2958) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-01-26-2025-01-24-14-54">
+<h2>release-2025.01.26 (2025/01/24 14:54)<a class="headerlink" href="#release-2025-01-26-2025-01-24-14-54" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2932">2932</a> opacity_state_to_numba -&gt; to_numba and moved to as a method of class OpacityState (2932) (&#64;Sonu0305)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2897">2897</a> Ionization rates (2897) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2938">2938</a> Fixes spelling errors in the codebase (2938) (&#64;Sonu0305)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2952">2952</a> Post-release 2025.01.19 (2952) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-01-19-2025-01-14-16-54">
+<h2>release-2025.01.19 (2025/01/14 16:54)<a class="headerlink" href="#release-2025-01-19-2025-01-14-16-54" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2800">2800</a> V inner formal integral (2800) (&#64;Rodot-)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2946">2946</a> Fixes indentation for tracking key to be nested under montecarlo key in YAML (2946) (&#64;Sonu0305)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2907">2907</a> Add missing init.py file in opacitites module (2907) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2922">2922</a> Fixed data download link mentioned under Quickstart for TARDIS (2922) (&#64;Sonu0305)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2908">2908</a> Ignore ipynb files in codespell (2908) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2943">2943</a> Post-release 2025.01.12 (2943) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-01-12-2025-01-09-03-46">
+<h2>release-2025.01.12 (2025/01/09 03:46)<a class="headerlink" href="#release-2025-01-12-2025-01-09-03-46" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2925">2925</a> give tag in git cliff command (2925) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2923">2923</a> Moves non-physical input check outsode I/O module (2923) (&#64;Sonu0305)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2924">2924</a> Post-release 2025.01.05 (2924) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2025-01-05-2024-12-30-01-37">
+<h2>release-2025.01.05 (2024/12/30 01:37)<a class="headerlink" href="#release-2025-01-05-2024-12-30-01-37" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2915">2915</a> Post-release 2024.12.29 (2915) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-12-29-2024-12-23-04-39">
+<h2>release-2024.12.29 (2024/12/23 04:39)<a class="headerlink" href="#release-2024-12-29-2024-12-23-04-39" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2909">2909</a> Post-release 2024.12.22 (2909) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-12-22-2024-12-16-10-05">
+<h2>release-2024.12.22 (2024/12/16 10:05)<a class="headerlink" href="#release-2024-12-22-2024-12-16-10-05" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2901">2901</a> Update test docs (2901) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2905">2905</a> Post-release 2024.12.15 (2905) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-12-15-2024-12-09-10-05">
+<h2>release-2024.12.15 (2024/12/09 10:05)<a class="headerlink" href="#release-2024-12-15-2024-12-09-10-05" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2902">2902</a> Fix Benchmarks Workflow (2902) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2900">2900</a> Post-release 2024.12.08 (2900) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-12-08-2024-12-04-12-24">
+<h2>release-2024.12.08 (2024/12/04 12:24)<a class="headerlink" href="#release-2024-12-08-2024-12-04-12-24" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2898">2898</a> Remove “labeled” from tests workflow triggers (2898) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2865">2865</a> Rates matrix solver (2865) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2874">2874</a> Remove tau sobolevs from plasma (2874) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2894">2894</a> Fixing label issue in convergence plots (see Issue #2446) (2894) (&#64;jamesgillanders)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2895">2895</a> Post-release 2024.12.01 (2895) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-12-01-2024-11-25-10-00">
+<h2>release-2024.12.01 (2024/11/25 10:00)<a class="headerlink" href="#release-2024-12-01-2024-11-25-10-00" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2889">2889</a> Add token to release workflow (2889) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2890">2890</a> Update badge for doc string coverage (2890) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2891">2891</a> Revert “Fix the issue where the docs are built twice when there are no changes” (2891) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2888">2888</a> Post-release 2024.11.25 (2888) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-11-24-2024-11-20-12-32">
+<h2>release-2024.11.24 (2024/11/20 12:32)<a class="headerlink" href="#release-2024-11-24-2024-11-20-12-32" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2887">2887</a> Post-release 2024.11.20 (2887) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-11-20-2024-11-20-10-01">
+<h2>release-2024.11.20 (2024/11/20 10:01)<a class="headerlink" href="#release-2024-11-20-2024-11-20-10-01" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2886">2886</a> Release Fixes (2886) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2884">2884</a> Release Fixes (2884) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2870">2870</a> Replace M_PI=np.arccos(-1) with M_PI=np.pi (2870) (&#64;Akash265)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2873">2873</a> Post-release 2024.11.11 (2873) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2844">2844</a> Remove integration tests (2844) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2871">2871</a> Fix the issue where the docs are built twice when there are no changes (2871) (&#64;KasukabeDefenceForce)</p></li>
+</ul>
+</section>
+<section id="release-2024-11-11-2024-11-04-10-14">
+<h2>release-2024.11.11 (2024/11/04 10:14)<a class="headerlink" href="#release-2024-11-11-2024-11-04-10-14" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2858">2858</a> Gamma ray documentation introduction (2858) (&#64;CePowers)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2730">2730</a> Simulation solver workflow (2730) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2860">2860</a> Cleanup codestyle workflow (2860) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2842">2842</a> Update docs with regression data (2842) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2746">2746</a> Remove <code class="docutils literal notranslate"><span class="pre">rpacket_tracking</span></code> flag from tests workflow (2746) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2843">2843</a> Close regression data files (2843) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2848">2848</a> Ruff <code class="docutils literal notranslate"><span class="pre">tardis/spectrum</span></code> (2848) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2849">2849</a> Ruff root files (2849) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2862">2862</a> Fix release 2024-10-14 CHANGELOG (2862) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2861">2861</a> Replace <code class="docutils literal notranslate"><span class="pre">setup_lfs</span></code> action with single file checkout (2861) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2857">2857</a> Post-release 2024.10.14 (2857) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2770">2770</a> Restructure/detailed balance foundation (2770) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2833">2833</a> Pytest Warnings Fix - 2 (2833) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2851">2851</a> Fix codespell (2851) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2854">2854</a> Remove black from  environment yml and lock files. (2854) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2855">2855</a> Remove black from docs and update with ruff (2855) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2853">2853</a> Remove black from codestyle workflow (2853) (&#64;KasukabeDefenceForce)</p></li>
+</ul>
+</section>
+<section id="release-2024-10-14-2024-10-08-12-37">
+<h2>release-2024.10.14 (2024/10/08 12:37)<a class="headerlink" href="#release-2024-10-14-2024-10-08-12-37" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2824">2824</a> fix typo for word boundaries in doc (2824) (&#64;RyanGroneck)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2847">2847</a> Ruff on tardis/simulation (2847) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2845">2845</a> Ruff <code class="docutils literal notranslate"><span class="pre">tardis/plasma</span></code> (2845) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2838">2838</a> Add zenodo badge in the release summary notes (2838) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2836">2836</a> New Gammaray Packet Initialization Documentation (2836) (&#64;CePowers)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2839">2839</a> Fix mambaforge issue in STARDIS tests (2839) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2840">2840</a> Fix benchmarks 2 (2840) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2841">2841</a> Fix navigation sidebar on mobile (2841) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2835">2835</a> Pre Release Zenodo Not Found (2835) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2834">2834</a> Fixes qgridnext import error in tests (2834) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2816">2816</a> Release Modifications (2816) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2831">2831</a> Failing benchmarks fix (2831) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2823">2823</a> Handle Test warnings (2823) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2830">2830</a> Fix for #2820 (2830) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2832">2832</a> Failing Docs Fix (2832) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2829">2829</a> Ruff <code class="docutils literal notranslate"><span class="pre">tardis/transport</span></code> (2829) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2828">2828</a> Ruff <code class="docutils literal notranslate"><span class="pre">tardis/model</span></code> (2828) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2827">2827</a> Ruff <code class="docutils literal notranslate"><span class="pre">tardis/io</span></code> (2827) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2826">2826</a> Ruff Autofixes (tardis/analysis) (2826) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2819">2819</a> Handling for qgridnext installation (2819) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2811">2811</a> Update line_interaction_in_r after moving the packet (2811) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2808">2808</a> Migrate to Regression Data Completely (2808) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2814">2814</a> Move to qgridnext (2814) (&#64;sarthak-dv)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2807">2807</a> Add codespell workflow (2807) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2810">2810</a> Post-release 2024.08.25 (2810) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-08-25-2024-08-24-20-44">
+<h2>release-2024.08.25 (2024/08/24 20:44)<a class="headerlink" href="#release-2024-08-25-2024-08-24-20-44" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2809">2809</a> Pre-release 2024.08.25 (2809) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2795">2795</a> Doc changes for RPacketTracker (2795) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2806">2806</a> Add molecular data exposure to tardis atom data (2806) (&#64;jvshields)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2805">2805</a> TARDIS Full Formal Integral Regression Tests (2805) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2723">2723</a> LIV Plot Tests (2723) (&#64;sarthak-dv)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2804">2804</a> Simulation Regression Tests (2804) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2783">2783</a> Simple Atom data refactor (2783) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2794">2794</a> Update research papers notebook and update the docs (2794) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2798">2798</a> Remove deprecated setup.py (2798) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2803">2803</a> Post-release 2024.08.18 (2803) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-08-18-2024-08-17-20-45">
+<h2>release-2024.08.18 (2024/08/17 20:45)<a class="headerlink" href="#release-2024-08-18-2024-08-17-20-45" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2802">2802</a> Pre-release 2024.08.18 (2802) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2788">2788</a> Update benchmark base (2788) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2785">2785</a> Convert SDEC tests to Regression Data (2785) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2799">2799</a> Remove syrupy section from docs (2799) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2801">2801</a> Fix file formats (2801) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2784">2784</a> Add Packet Wavelength filter to LIV Plot (2784) (&#64;sarthak-dv)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2786">2786</a> Macroatom restructure (2786) (&#64;Rodot-)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2748">2748</a> [restructure/plasma] Cleanup plasma assembly (2748) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2736">2736</a> Track boundary interaction (2736) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2782">2782</a> Change parameters in benchmarks (2782) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2790">2790</a> Post-release 2024.08.12 (2790) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-08-12-2024-08-12-08-57">
+<h2>release-2024.08.12 (2024/08/12 08:57)<a class="headerlink" href="#release-2024-08-12-2024-08-12-08-57" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2789">2789</a> Pre-release 2024.08.11 (2789) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2759">2759</a> Minor refactor of the spectrum solver (2759) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2787">2787</a> some spelling fixes in the docs (2787) (&#64;zingale)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2778">2778</a> Ruff Fix 2 (2778) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2781">2781</a> Update docstrings of Tracker tests (2781) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2773">2773</a> Opacity state restructure (2773) (&#64;Rodot-)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2776">2776</a> Post-release 2024.08.04 (2776) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-08-04-2024-08-03-20-49">
+<h2>release-2024.08.04 (2024/08/03 20:49)<a class="headerlink" href="#release-2024-08-04-2024-08-03-20-49" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2775">2775</a> Pre-release 2024.08.04 (2775) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2749">2749</a> Cache benchmark functions (2749) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2762">2762</a> Fix ruff comments issue (2762) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2767">2767</a> Release Pipeline Fixes (2767) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2758">2758</a> Opacity state slice (2758) (&#64;Rodot-)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2771">2771</a> Add Extend Array Function (2771) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2761">2761</a> Donot run docs, benchmarks and stardis tests on draft PRs. (2761) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2720">2720</a> Benchmark run_tardis with track_rpacket enabled (2720) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2675">2675</a> [Restructure/plasma] estimator cleanup (2675) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2670">2670</a> Changed file path (2670) (&#64;Knights-Templars)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2763">2763</a> Add benchmark documentation (2763) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2719">2719</a> Restructure Trackers (2719) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2745">2745</a> Address pytest warnings (2745) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2753">2753</a> Run stardis tests on Tardis PRs (2753) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2754">2754</a> Ruff Workflow Fix (2754) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2751">2751</a> Post-release 2024.07.28 (2751) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-07-28-2024-07-27-20-43">
+<h2>release-2024.07.28 (2024/07/27 20:43)<a class="headerlink" href="#release-2024-07-28-2024-07-27-20-43" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2750">2750</a> Pre-release 2024.07.28 (2750) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2718">2718</a> Weighted Packet Sampler (2718) (&#64;Rodot-)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2747">2747</a> Commit hash of PR HEAD not found fix (2747) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2740">2740</a> Adds number_of_packets property to the packet collection (2740) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2735">2735</a> Add solve method to SpectrumSolver (2735) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2660">2660</a> Add ruff workflow (2660) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2744">2744</a> fix docs build by removing the <code class="docutils literal notranslate"><span class="pre">parse_simulation_state</span></code> function from the <code class="docutils literal notranslate"><span class="pre">tardis.io.model</span></code> module and moving it to the <code class="docutils literal notranslate"><span class="pre">tardis.io.model.parse_simulation_state</span></code> module (2744) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2742">2742</a> Fix Codecov (2742) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2664">2664</a> [Restructure/plasma] Refactor the simulation state initialization (2664) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2734">2734</a> Moves time explosion off the transport solver to the transport state (2734) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2722">2722</a> Refactor benchmarks (2722) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2613">2613</a> [Restructure/plasma] restructure the Radiationfields (2613) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2731">2731</a> Fast formal integral (2731) (&#64;Rodot-)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2725">2725</a> Fast Formal Integral (2725) (&#64;Rodot-)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2728">2728</a> Fix Failing docstr-cov Badge (2728) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2727">2727</a> Fix Cache Issues (2727) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2726">2726</a> Codecov fix (2726) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2689">2689</a> Spectrum refactor (2689) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2721">2721</a> Pre Release Workflow Fix (2721) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2716">2716</a> Implement last interaction tracker (2716) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2717">2717</a> Remove parameters and speed up benchmarks (2717) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2709">2709</a> Add google analytics key to tardis docs (2709) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2711">2711</a> Shifting git cliff changelog generator configuration to pyproject.toml (2711) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2713">2713</a> Move pip tests to release workflow (2713) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2699">2699</a> Separate Continuum Tests (2699) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2677">2677</a> Last Interaction Velocity (2677) (&#64;sarthak-dv)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2705">2705</a> Montecarlo globals (limited scope) (2705) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2703">2703</a> Pre Release Fix (2703) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2704">2704</a> Shifting update refdata workflow to archive folder (2704) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2702">2702</a> Benchmark fix for github actions (2702) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2640">2640</a> Refactor and add more benchmarks for montecarlo (2640) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2698">2698</a> Move setup environment steps to composite action (2698) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2696">2696</a> Adds continuum marker to pytest and continuum tests (2696) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2667">2667</a> Add arm64 conda-lock file (2667) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2695">2695</a> Logging - avoid the zero division warning (2695) (&#64;DeerWhale)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2694">2694</a> Change setup.cfg to pyproject.toml (2694) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2693">2693</a> Post-release 2024.07.07 (2693) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-07-07-2024-07-06-20-49">
+<h2>release-2024.07.07 (2024/07/06 20:49)<a class="headerlink" href="#release-2024-07-07-2024-07-06-20-49" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2692">2692</a> Pre-release 2024.07.07 (2692) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2656">2656</a> fix benchmark action (2656) (&#64;officialasishkumar)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2684">2684</a> Fix hdf path for time_of_simulation in sdec plot (2684) (&#64;sarthak-dv)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2652">2652</a> I/O Refactoring (2652) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2666">2666</a> Add Ruff to TARDIS Environment (2666) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2629">2629</a> Updating github changes command in post release workflow (changelog fix) (2629) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2665">2665</a> Fix benchmarks errors (2665) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2669">2669</a> Updating “Environment update” section in tardis docs (2669) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2668">2668</a> Adding analytics to tardis documentation (2668) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2609">2609</a> [Restructure/plasma] Initial Opacities Refactor (2609) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2659">2659</a> Update Ruff Config (2659) (&#64;atharva-2001)</p></li>
+</ul>
+</section>
+<section id="release-2024-06-09-2024-06-08-20-52">
+<h2>release-2024.06.09 (2024/06/08 20:52)<a class="headerlink" href="#release-2024-06-09-2024-06-08-20-52" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2649">2649</a> Pre-release 2024.06.09 (2649) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2647">2647</a> Move rpacket_trackers_to_dataframe function to packet_trackers.py file (2647) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2608">2608</a> Refactoring of Monte Carlo transport (2608) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2518">2518</a> Convergence restructure (2518) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2641">2641</a> Update Lock Files 2024 (2641) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2638">2638</a> Move RPacketTracker class to a new file packet_trackers.py (2638) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2630">2630</a> Added HDF documentation. (2630) (&#64;airvzxf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2573">2573</a> Bugfix: Added a conditional statement and changed the error type that was being handled in <code class="docutils literal notranslate"><span class="pre">tardis.io.model_reader.read_uniform_abundances</span></code>. (2573) (&#64;KC210404)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2631">2631</a> Edit Generation Tests (2631) (&#64;atharva-2001)</p></li>
+</ul>
+</section>
+<section id="release-2024-06-03-2024-06-03-08-25">
+<h2>release-2024.06.03 (2024/06/03 08:25)<a class="headerlink" href="#release-2024-06-03-2024-06-03-08-25" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2639">2639</a> Pre-release 2024.06.02 (2639) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2628">2628</a> Updating actions to their latest version (2628) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2633">2633</a> Fixed the imported modules. (2633) (&#64;airvzxf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2632">2632</a> Removing checkout to the tardis repo step from setup lfs workflow (2632) (&#64;KasukabeDefenceForce)</p></li>
+</ul>
+</section>
+<section id="release-2024-05-28-2024-05-28-06-24">
+<h2>release-2024.05.28 (2024/05/28 06:24)<a class="headerlink" href="#release-2024-05-28-2024-05-28-06-24" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2627">2627</a> Pre-release 2024.05.26 (2627) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2624">2624</a> Updating the docs to use local atomic data (2624) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2607">2607</a> Remove DokuWiki Code (2607) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2584">2584</a> PacketSource should contain <code class="docutils literal notranslate"><span class="pre">.to_hdf()</span></code> method (2584) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2603">2603</a> NumberDensity as Input to plasma (2603) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2623">2623</a> Revert “Updating the worfklow to use atomic data from cache rather th… (2623) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2621">2621</a> Fixing PR checkout in build docs job (2621) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2618">2618</a> Fixing build docs yaml to detect branches on forks (2618) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2619">2619</a> Fixed #2564 by bringing back the image from a previous commit (2619) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2611">2611</a> Converted the reference data to regression in test TARDIS full (2611) (&#64;airvzxf)</p></li>
+</ul>
+</section>
+<section id="release-2024-05-12-2024-05-11-21-05">
+<h2>release-2024.05.12 (2024/05/11 21:05)<a class="headerlink" href="#release-2024-05-12-2024-05-11-21-05" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2614">2614</a> Pre-release 2024.05.12 (2614) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2587">2587</a> Trigger docs only when something inside the docs folder changed (2587) (&#64;KasukabeDefenceForce)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2560">2560</a> Bug t radiative (2560) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2610">2610</a> LFS submodule error fix (2610) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2605">2605</a> Move montecarlo to transport and flatten montecarlo numba (2605) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2565">2565</a> GSoC 2024 | Benchmark | First objective | Israel Roldan (2565) (&#64;airvzxf)</p></li>
+</ul>
+</section>
+<section id="release-2024-05-05-2024-05-04-20-56">
+<h2>release-2024.05.05 (2024/05/04 20:56)<a class="headerlink" href="#release-2024-05-05-2024-05-04-20-56" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2606">2606</a> Pre-release 2024.05.05 (2606) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2561">2561</a> Documentation typo (2561) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2598">2598</a> Only Run Benchmarks Workflow When Owner is <code class="docutils literal notranslate"><span class="pre">tardis-sn</span></code> (2598) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2589">2589</a> Solve Duplicate Code in GitHub Action Workflows (2589) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2528">2528</a> Convergence plot correction: Use step plots (2528) (&#64;sarthak-dv)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2546">2546</a> Gamma-ray packet source refactor (2546) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2577">2577</a> Abundance widget bug fix (2577) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2597">2597</a> Modify Update Refdata to Push Regression Data Changes (2597) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2595">2595</a> Fixes IntegrationError causing refdata generation failure (2595) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2562">2562</a> Reference Data Generation Fixes (2562) (&#64;atharva-2001)</p></li>
+</ul>
+</section>
+<section id="release-2024-04-21-2024-04-20-20-45">
+<h2>release-2024.04.21 (2024/04/20 20:45)<a class="headerlink" href="#release-2024-04-21-2024-04-20-20-45" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2593">2593</a> Pre-release 2024.04.21 (2593) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2525">2525</a> Montecarlo configuration refactor (2525) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2578">2578</a> Updating embedded links in docs with new file names “tutorial_” and “how_to_” (2578) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2509">2509</a> Precommit (2509) (&#64;ntchen)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2580">2580</a> Removing flake8 job. (2580) (&#64;KasukabeDefenceForce)</p></li>
+</ul>
+</section>
+<section id="release-2024-04-14-2024-04-13-20-54">
+<h2>release-2024.04.14 (2024/04/13 20:54)<a class="headerlink" href="#release-2024-04-14-2024-04-13-20-54" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2583">2583</a> Pre-release 2024.04.14 (2583) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-04-08-2024-04-08-09-41">
+<h2>release-2024.04.08 (2024/04/08 09:41)<a class="headerlink" href="#release-2024-04-08-2024-04-08-09-41" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2576">2576</a> Pre-release 2024.04.07 (2576) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2563">2563</a> Recategorizing tutorials as how-to guides to follow diataxis structure (2563) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2542">2542</a> Consistent units in packet source (2542) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2574">2574</a> Updated helium nlte page in docs with in-text citation (2574) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2552">2552</a> Multiindex dataframe (2552) (&#64;Knights-Templars)</p></li>
+</ul>
+</section>
+<section id="release-2024-04-01-2024-04-01-10-03">
+<h2>release-2024.04.01 (2024/04/01 10:03)<a class="headerlink" href="#release-2024-04-01-2024-04-01-10-03" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2566">2566</a> Pre-release 2024.03.31 (2566) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2554">2554</a> Remove Azure Compare Refdata Pipeline (2554) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2555">2555</a> corrected blackbody luminosity density equation (2555) (&#64;CePowers)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2556">2556</a> fixing typos, including pytest issue (2556) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2535">2535</a> Path.replace bug (2535) (&#64;Sumit112192)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2553">2553</a> Fix Cache IDs in Tests Workflow (2553) (&#64;atharva-2001)</p></li>
+</ul>
+</section>
+<section id="release-2024-03-18-2024-03-18-09-58">
+<h2>release-2024.03.18 (2024/03/18 09:58)<a class="headerlink" href="#release-2024-03-18-2024-03-18-09-58" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2551">2551</a> Pre-release 2024.03.17 (2551) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2529">2529</a> PR to separate main gamma ray loop (2529) (&#64;Knights-Templars)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2541">2541</a> Fix units for virtual packet properties in MonteCarloTransportState (2541) (&#64;sarthak-dv)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2533">2533</a> Fix broken URL in generating_widgets.ipynb (2533) (&#64;sarthak-dv)</p></li>
+</ul>
+</section>
+<section id="release-2024-03-11-2024-03-11-09-31">
+<h2>release-2024.03.11 (2024/03/11 09:31)<a class="headerlink" href="#release-2024-03-11-2024-03-11-09-31" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2536">2536</a> Pre-release 2024.03.10 (2536) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2522">2522</a> prevent float overflow when calculating He I population (2522) (&#64;DeerWhale)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2524">2524</a> Update index.rst (2524) (&#64;wkerzendorf)</p></li>
+</ul>
+</section>
+<section id="release-2024-02-19-2024-02-19-09-21">
+<h2>release-2024.02.19 (2024/02/19 09:21)<a class="headerlink" href="#release-2024-02-19-2024-02-19-09-21" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2521">2521</a> Pre-release 2024.02.18 (2521) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2520">2520</a> update the lock file link in doc (2520) (&#64;DeerWhale)</p></li>
+</ul>
+</section>
+<section id="release-2024-02-11-2024-02-10-19-45">
+<h2>release-2024.02.11 (2024/02/10 19:45)<a class="headerlink" href="#release-2024-02-11-2024-02-10-19-45" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2517">2517</a> Pre-release 2024.02.11 (2517) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2460">2460</a> update installation documentation for tardis (2460) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2516">2516</a> fixed the difference between the power of pi in code and function above (2516) (&#64;erinvisser)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2504">2504</a> Update number of shells in SimulationState (2504) (&#64;DeerWhale)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2501">2501</a> Fix/nlte ionization matrix (2501) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2512">2512</a> Estimators restructure cleanup (2512) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2492">2492</a> Restructure/separate transport state (2492) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2506">2506</a> Remove workflow file that installs TARDIS using conda (2506) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2476">2476</a> Restructure/transport solver (2476) (&#64;wkerzendorf)</p></li>
+</ul>
+</section>
+<section id="release-2024-01-14-2024-01-14-10-26">
+<h2>release-2024.01.14 (2024/01/14 10:26)<a class="headerlink" href="#release-2024-01-14-2024-01-14-10-26" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2503">2503</a> Pre-release 2024.01.14 (2503) (&#64;tardis-bot)</p></li>
+</ul>
+</section>
+<section id="release-2024-01-08-2024-01-08-09-37">
+<h2>release-2024.01.08 (2024/01/08 09:37)<a class="headerlink" href="#release-2024-01-08-2024-01-08-09-37" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2502">2502</a> Pre-release 2024.01.07 (2502) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2473">2473</a> A syrupy replacement (2473) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2474">2474</a> Restructure radiation field (2474) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2455">2455</a> Use Mamba Instead of Conda When Running Benchmarks (2455) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2490">2490</a> Fix viz sdec (2490) (&#64;AlexHls)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2445">2445</a> Restructure/abundance (2445) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2479">2479</a> Check if atom data download exists (2479) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2448">2448</a> Decay energy chain (2448) (&#64;Knights-Templars)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2478">2478</a> Add ruff rules and docs (2478) (&#64;AlexHls)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2459">2459</a> Update plasma configuration documentation (2459) (&#64;AlexHls)</p></li>
+</ul>
+</section>
+<section id="release-2023-11-26-2023-11-26-10-41">
+<h2>release-2023.11.26 (2023/11/26 10:41)<a class="headerlink" href="#release-2023-11-26-2023-11-26-10-41" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2477">2477</a> Pre-release 2023.11.26 (2477) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2471">2471</a> Reading in decay radiation data in atom data (2471) (&#64;Knights-Templars)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2470">2470</a> Add astropy import guard (2470) (&#64;AlexHls)</p></li>
+</ul>
+</section>
+<section id="release-2023-11-05-2023-11-04-22-34">
+<h2>release-2023.11.05 (2023/11/04 22:34)<a class="headerlink" href="#release-2023-11-05-2023-11-04-22-34" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2466">2466</a> Pre-release 2023.11.05 (2466) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2461">2461</a> NLTE Ionization solver polish (2461) (&#64;AlexHls)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2462">2462</a> Update docstr-cov.yml to fix failing action (2462) (&#64;andrewfullard)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2458">2458</a> Enable nlte ionization as plasma component (2458) (&#64;AlexHls)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2453">2453</a> Fix bug in relativistic packet source (2453) (&#64;chvogl)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2457">2457</a> Add verbose assert to NLTE rate equation (2457) (&#64;AlexHls)</p></li>
+</ul>
+</section>
+<section id="release-2023-10-20-2023-10-20-09-48">
+<h2>release-2023.10.20 (2023/10/20 09:48)<a class="headerlink" href="#release-2023-10-20-2023-10-20-09-48" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2452">2452</a> Pre-release 2023.10.20 (2452) (&#64;tardis-bot)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2432">2432</a> Remove lock file creation from pre release workflow (2432) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2450">2450</a> Add FAQ section to documentation (2450) (&#64;AlexHls)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2422">2422</a> restructure of geometry (2422) (&#64;wkerzendorf)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2441">2441</a> Change glob patterns in <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code> (2441) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2447">2447</a> Fix numba parallel issues (2447) (&#64;AlexHls)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2443">2443</a> Fix duplicate entries in continuum line list (2443) (&#64;AlexHls)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2434">2434</a> Added a function to calculate shell masses (2434) (&#64;Knights-Templars)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2425">2425</a> Modified how setup input energy takes isotope name. Earlier it was ga… (2425) (&#64;Knights-Templars)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2428">2428</a> add linelist exposure to atom data and reader, built on current (2428) (&#64;jvshields)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2426">2426</a> Disabled formal integral for continuum interaction (2426) (&#64;AlexHls)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2424">2424</a> Ignore tests in docstr coverage (2424) (&#64;atharva-2001)</p></li>
+<li><p><a class="reference external" href="https://github.com/tardis-sn/tardis/pull/2421">2421</a> rename simulation_state2 (2421) (&#64;wkerzendorf)</p></li>
+</ul>
+</section>
+<section id="release-2023-09-17-2023-09-16-20-51">
+<h2>release-2023.09.17 (2023/09/16 20:51)<a class="headerlink" href="#release-2023-09-17-2023-09-16-20-51" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-09-10-2023-09-09-22-43">
+<h2>release-2023.09.10 (2023/09/09 22:43)<a class="headerlink" href="#release-2023-09-10-2023-09-09-22-43" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-09-03-2023-09-02-20-47">
+<h2>release-2023.09.03 (2023/09/02 20:47)<a class="headerlink" href="#release-2023-09-03-2023-09-02-20-47" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-08-20-2023-08-19-20-43">
+<h2>release-2023.08.20 (2023/08/19 20:43)<a class="headerlink" href="#release-2023-08-20-2023-08-19-20-43" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-08-13-2023-08-13-17-04">
+<h2>release-2023.08.13 (2023/08/13 17:04)<a class="headerlink" href="#release-2023-08-13-2023-08-13-17-04" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-08-06-2023-08-05-20-43">
+<h2>release-2023.08.06 (2023/08/05 20:43)<a class="headerlink" href="#release-2023-08-06-2023-08-05-20-43" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-07-30-2023-07-29-20-47">
+<h2>release-2023.07.30 (2023/07/29 20:47)<a class="headerlink" href="#release-2023-07-30-2023-07-29-20-47" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-07-23-2023-07-23-10-47">
+<h2>release-2023.07.23 (2023/07/23 10:47)<a class="headerlink" href="#release-2023-07-23-2023-07-23-10-47" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-07-16-2023-07-16-15-15">
+<h2>release-2023.07.16 (2023/07/16 15:15)<a class="headerlink" href="#release-2023-07-16-2023-07-16-15-15" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-07-09-2023-07-09-12-30">
+<h2>release-2023.07.09 (2023/07/09 12:30)<a class="headerlink" href="#release-2023-07-09-2023-07-09-12-30" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-07-02-2023-07-01-20-49">
+<h2>release-2023.07.02 (2023/07/01 20:49)<a class="headerlink" href="#release-2023-07-02-2023-07-01-20-49" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-06-25-2023-06-25-12-43">
+<h2>release-2023.06.25 (2023/06/25 12:43)<a class="headerlink" href="#release-2023-06-25-2023-06-25-12-43" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-06-18-2023-06-17-20-48">
+<h2>release-2023.06.18 (2023/06/17 20:48)<a class="headerlink" href="#release-2023-06-18-2023-06-17-20-48" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-06-04-2023-06-03-20-53">
+<h2>release-2023.06.04 (2023/06/03 20:53)<a class="headerlink" href="#release-2023-06-04-2023-06-03-20-53" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-05-28-2023-05-27-20-51">
+<h2>release-2023.05.28 (2023/05/27 20:51)<a class="headerlink" href="#release-2023-05-28-2023-05-27-20-51" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-05-21-2023-05-20-20-53">
+<h2>release-2023.05.21 (2023/05/20 20:53)<a class="headerlink" href="#release-2023-05-21-2023-05-20-20-53" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-05-15-2023-05-15-10-10">
+<h2>release-2023.05.15 (2023/05/15 10:10)<a class="headerlink" href="#release-2023-05-15-2023-05-15-10-10" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-05-07-2023-05-07-13-47">
+<h2>release-2023.05.07 (2023/05/07 13:47)<a class="headerlink" href="#release-2023-05-07-2023-05-07-13-47" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-04-30-2023-04-30-13-26">
+<h2>release-2023.04.30 (2023/04/30 13:26)<a class="headerlink" href="#release-2023-04-30-2023-04-30-13-26" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-04-23-2023-04-22-20-49">
+<h2>release-2023.04.23 (2023/04/22 20:49)<a class="headerlink" href="#release-2023-04-23-2023-04-22-20-49" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-04-16-2023-04-15-20-47">
+<h2>release-2023.04.16 (2023/04/15 20:47)<a class="headerlink" href="#release-2023-04-16-2023-04-15-20-47" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-04-09-2023-04-08-20-44">
+<h2>release-2023.04.09 (2023/04/08 20:44)<a class="headerlink" href="#release-2023-04-09-2023-04-08-20-44" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-03-26-2023-03-26-01-55">
+<h2>release-2023.03.26 (2023/03/26 01:55)<a class="headerlink" href="#release-2023-03-26-2023-03-26-01-55" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-03-20-2023-03-20-12-39">
+<h2>release-2023.03.20 (2023/03/20 12:39)<a class="headerlink" href="#release-2023-03-20-2023-03-20-12-39" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-02-27-2023-02-27-08-53">
+<h2>release-2023.02.27 (2023/02/27 08:53)<a class="headerlink" href="#release-2023-02-27-2023-02-27-08-53" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-02-2-2023-02-20-10-04">
+<h2>release-2023.02.2 (2023/02/20 10:04)<a class="headerlink" href="#release-2023-02-2-2023-02-20-10-04" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-02-16-2023-02-16-09-18">
+<h2>release-2023.02.16 (2023/02/16 09:18)<a class="headerlink" href="#release-2023-02-16-2023-02-16-09-18" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-02-06-2023-02-06-10-00">
+<h2>release-2023.02.06 (2023/02/06 10:00)<a class="headerlink" href="#release-2023-02-06-2023-02-06-10-00" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2023-01-11-2023-01-11-11-25">
+<h2>release-2023.01.11 (2023/01/11 11:25)<a class="headerlink" href="#release-2023-01-11-2023-01-11-11-25" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-12-26-2022-12-26-09-51">
+<h2>release-2022.12.26 (2022/12/26 09:51)<a class="headerlink" href="#release-2022-12-26-2022-12-26-09-51" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-12-12-2022-12-12-10-02">
+<h2>release-2022.12.12 (2022/12/12 10:02)<a class="headerlink" href="#release-2022-12-12-2022-12-12-10-02" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-11-21-2022-11-21-10-15">
+<h2>release-2022.11.21 (2022/11/21 10:15)<a class="headerlink" href="#release-2022-11-21-2022-11-21-10-15" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-11-17-2022-11-17-13-45">
+<h2>release-2022.11.17 (2022/11/17 13:45)<a class="headerlink" href="#release-2022-11-17-2022-11-17-13-45" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-06-19-2022-06-18-22-25">
+<h2>release-2022.06.19 (2022/06/18 22:25)<a class="headerlink" href="#release-2022-06-19-2022-06-18-22-25" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-06-05-2022-06-04-21-07">
+<h2>release-2022.06.05 (2022/06/04 21:07)<a class="headerlink" href="#release-2022-06-05-2022-06-04-21-07" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-05-08-2022-05-07-20-27">
+<h2>release-2022.05.08 (2022/05/07 20:27)<a class="headerlink" href="#release-2022-05-08-2022-05-07-20-27" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-05-04-2022-05-04-12-35">
+<h2>release-2022.05.04 (2022/05/04 12:35)<a class="headerlink" href="#release-2022-05-04-2022-05-04-12-35" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-4-24-2022-04-21-20-19">
+<h2>release-2022.4.24 (2022/04/21 20:19)<a class="headerlink" href="#release-2022-4-24-2022-04-21-20-19" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-4-1-2022-04-07-10-38">
+<h2>release-2022.4.1 (2022/04/07 10:38)<a class="headerlink" href="#release-2022-4-1-2022-04-07-10-38" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-4-3-2022-03-28-10-30">
+<h2>release-2022.4.3 (2022/03/28 10:30)<a class="headerlink" href="#release-2022-4-3-2022-03-28-10-30" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-3-27-2022-03-23-11-51">
+<h2>release-2022.3.27 (2022/03/23 11:51)<a class="headerlink" href="#release-2022-3-27-2022-03-23-11-51" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-3-2-2022-03-14-11-16">
+<h2>release-2022.3.2 (2022/03/14 11:16)<a class="headerlink" href="#release-2022-3-2-2022-03-14-11-16" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-3-13-2022-03-10-10-35">
+<h2>release-2022.3.13 (2022/03/10 10:35)<a class="headerlink" href="#release-2022-3-13-2022-03-10-10-35" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-3-6-2022-03-03-14-21">
+<h2>release-2022.3.6 (2022/03/03 14:21)<a class="headerlink" href="#release-2022-3-6-2022-03-03-14-21" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-2-27-2022-02-24-16-00">
+<h2>release-2022.2.27 (2022/02/24 16:00)<a class="headerlink" href="#release-2022-2-27-2022-02-24-16-00" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-2-2-2022-02-17-15-14">
+<h2>release-2022.2.2 (2022/02/17 15:14)<a class="headerlink" href="#release-2022-2-2-2022-02-17-15-14" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-2-6-2022-02-02-12-16">
+<h2>release-2022.2.6 (2022/02/02 12:16)<a class="headerlink" href="#release-2022-2-6-2022-02-02-12-16" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-1-3-2022-01-29-08-59">
+<h2>release-2022.1.3 (2022/01/29 08:59)<a class="headerlink" href="#release-2022-1-3-2022-01-29-08-59" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-1-23-2022-01-21-11-50">
+<h2>release-2022.1.23 (2022/01/21 11:50)<a class="headerlink" href="#release-2022-1-23-2022-01-21-11-50" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-1-16-2022-01-12-10-11">
+<h2>release-2022.1.16 (2022/01/12 10:11)<a class="headerlink" href="#release-2022-1-16-2022-01-12-10-11" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2022-1-9-2022-01-06-10-59">
+<h2>release-2022.1.9 (2022/01/06 10:59)<a class="headerlink" href="#release-2022-1-9-2022-01-06-10-59" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-12-19-2021-12-13-13-38">
+<h2>release-2021.12.19 (2021/12/13 13:38)<a class="headerlink" href="#release-2021-12-19-2021-12-13-13-38" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-12-12-2021-12-10-12-30">
+<h2>release-2021.12.12 (2021/12/10 12:30)<a class="headerlink" href="#release-2021-12-12-2021-12-10-12-30" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-12-5-2021-12-02-14-14">
+<h2>release-2021.12.5 (2021/12/02 14:14)<a class="headerlink" href="#release-2021-12-5-2021-12-02-14-14" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-11-28-2021-11-25-12-29">
+<h2>release-2021.11.28 (2021/11/25 12:29)<a class="headerlink" href="#release-2021-11-28-2021-11-25-12-29" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-11-21-2021-11-14-18-43">
+<h2>release-2021.11.21 (2021/11/14 18:43)<a class="headerlink" href="#release-2021-11-21-2021-11-14-18-43" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-11-14-2021-11-12-09-24">
+<h2>release-2021.11.14 (2021/11/12 09:24)<a class="headerlink" href="#release-2021-11-14-2021-11-12-09-24" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-11-7-2021-10-31-19-43">
+<h2>release-2021.11.7 (2021/10/31 19:43)<a class="headerlink" href="#release-2021-11-7-2021-10-31-19-43" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-10-31-2021-10-27-15-00">
+<h2>release-2021.10.31 (2021/10/27 15:00)<a class="headerlink" href="#release-2021-10-31-2021-10-27-15-00" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-10-17-2021-10-14-11-37">
+<h2>release-2021.10.17 (2021/10/14 11:37)<a class="headerlink" href="#release-2021-10-17-2021-10-14-11-37" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-10-1-2021-10-06-09-38">
+<h2>release-2021.10.1 (2021/10/06 09:38)<a class="headerlink" href="#release-2021-10-1-2021-10-06-09-38" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-9-26-2021-09-24-17-20">
+<h2>release-2021.9.26 (2021/09/24 17:20)<a class="headerlink" href="#release-2021-9-26-2021-09-24-17-20" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-9-19-2021-09-17-10-41">
+<h2>release-2021.9.19 (2021/09/17 10:41)<a class="headerlink" href="#release-2021-9-19-2021-09-17-10-41" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-9-12-2021-09-09-07-18">
+<h2>release-2021.9.12 (2021/09/09 07:18)<a class="headerlink" href="#release-2021-9-12-2021-09-09-07-18" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-8-29-2021-08-26-13-02">
+<h2>release-2021.8.29 (2021/08/26 13:02)<a class="headerlink" href="#release-2021-8-29-2021-08-26-13-02" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-8-26-2021-08-26-12-40">
+<h2>release-2021.8.26 (2021/08/26 12:40)<a class="headerlink" href="#release-2021-8-26-2021-08-26-12-40" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-8-15-0-2021-08-12-10-24">
+<h2>release-2021.8.15.0 (2021/08/12 10:24)<a class="headerlink" href="#release-2021-8-15-0-2021-08-12-10-24" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-8-8-0-2021-08-05-14-49">
+<h2>release-2021.8.8.0 (2021/08/05 14:49)<a class="headerlink" href="#release-2021-8-8-0-2021-08-05-14-49" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-8-1-0-2021-07-29-14-57">
+<h2>release-2021.8.1.0 (2021/07/29 14:57)<a class="headerlink" href="#release-2021-8-1-0-2021-07-29-14-57" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-7-25-0-2021-07-23-12-16">
+<h2>release-2021.7.25.0 (2021/07/23 12:16)<a class="headerlink" href="#release-2021-7-25-0-2021-07-23-12-16" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-7-18-0-2021-07-16-10-41">
+<h2>release-2021.7.18.0 (2021/07/16 10:41)<a class="headerlink" href="#release-2021-7-18-0-2021-07-16-10-41" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-7-14-0-2021-07-14-11-39">
+<h2>release-2021.7.14.0 (2021/07/14 11:39)<a class="headerlink" href="#release-2021-7-14-0-2021-07-14-11-39" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-7-12-0-2021-07-12-16-05">
+<h2>release-2021.7.12.0 (2021/07/12 16:05)<a class="headerlink" href="#release-2021-7-12-0-2021-07-12-16-05" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-7-11-0-2021-07-09-13-07">
+<h2>release-2021.7.11.0 (2021/07/09 13:07)<a class="headerlink" href="#release-2021-7-11-0-2021-07-09-13-07" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-7-5-2021-07-05-10-32">
+<h2>release-2021.7.5 (2021/07/05 10:32)<a class="headerlink" href="#release-2021-7-5-2021-07-05-10-32" title="Link to this heading">¶</a></h2>
+</section>
+<section id="release-2021-07-01-2021-07-01-19-05">
+<h2>release-2021.07.01 (2021/07/01 19:05)<a class="headerlink" href="#release-2021-07-01-2021-07-01-19-05" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev4019-2021-06-25-12-09">
+<h2>v3.0.dev4019 (2021/06/25 12:09)<a class="headerlink" href="#v3-0-dev4019-2021-06-25-12-09" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev4010-2021-06-18-17-22">
+<h2>v3.0.dev4010 (2021/06/18 17:22)<a class="headerlink" href="#v3-0-dev4010-2021-06-18-17-22" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3998-2021-06-14-10-52">
+<h2>v3.0.dev3998 (2021/06/14 10:52)<a class="headerlink" href="#v3-0-dev3998-2021-06-14-10-52" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3983-2021-06-04-12-50">
+<h2>v3.0.dev3983 (2021/06/04 12:50)<a class="headerlink" href="#v3-0-dev3983-2021-06-04-12-50" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3970-2021-05-28-17-43">
+<h2>v3.0.dev3970 (2021/05/28 17:43)<a class="headerlink" href="#v3-0-dev3970-2021-05-28-17-43" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3959-2021-05-21-14-44">
+<h2>v3.0.dev3959 (2021/05/21 14:44)<a class="headerlink" href="#v3-0-dev3959-2021-05-21-14-44" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3957-2021-05-20-15-27">
+<h2>v3.0.dev3957 (2021/05/20 15:27)<a class="headerlink" href="#v3-0-dev3957-2021-05-20-15-27" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3952-2021-05-14-13-44">
+<h2>v3.0.dev3952 (2021/05/14 13:44)<a class="headerlink" href="#v3-0-dev3952-2021-05-14-13-44" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3947-2021-05-12-16-42">
+<h2>v3.0.dev3947 (2021/05/12 16:42)<a class="headerlink" href="#v3-0-dev3947-2021-05-12-16-42" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3945-2021-05-05-10-03">
+<h2>v3.0.dev3945 (2021/05/05 10:03)<a class="headerlink" href="#v3-0-dev3945-2021-05-05-10-03" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3808-2021-01-21-11-22">
+<h2>v3.0.dev3808 (2021/01/21 11:22)<a class="headerlink" href="#v3-0-dev3808-2021-01-21-11-22" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3801-2021-01-08-16-28">
+<h2>v3.0.dev3801 (2021/01/08 16:28)<a class="headerlink" href="#v3-0-dev3801-2021-01-08-16-28" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3796-2020-12-28-12-12">
+<h2>v3.0.dev3796 (2020/12/28 12:12)<a class="headerlink" href="#v3-0-dev3796-2020-12-28-12-12" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3794-2020-12-21-10-22">
+<h2>v3.0.dev3794 (2020/12/21 10:22)<a class="headerlink" href="#v3-0-dev3794-2020-12-21-10-22" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3769-2020-12-18-16-07">
+<h2>v3.0.dev3769 (2020/12/18 16:07)<a class="headerlink" href="#v3-0-dev3769-2020-12-18-16-07" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3756-2020-12-11-14-43">
+<h2>v3.0.dev3756 (2020/12/11 14:43)<a class="headerlink" href="#v3-0-dev3756-2020-12-11-14-43" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3698-2020-12-04-14-50">
+<h2>v3.0.dev3698 (2020/12/04 14:50)<a class="headerlink" href="#v3-0-dev3698-2020-12-04-14-50" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3680-2020-11-25-13-38">
+<h2>v3.0.dev3680 (2020/11/25 13:38)<a class="headerlink" href="#v3-0-dev3680-2020-11-25-13-38" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3673-2020-11-18-11-26">
+<h2>v3.0.dev3673 (2020/11/18 11:26)<a class="headerlink" href="#v3-0-dev3673-2020-11-18-11-26" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3541-2020-11-10-13-45">
+<h2>v3.0.dev3541 (2020/11/10 13:45)<a class="headerlink" href="#v3-0-dev3541-2020-11-10-13-45" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3539-2020-11-04-11-50">
+<h2>v3.0.dev3539 (2020/11/04 11:50)<a class="headerlink" href="#v3-0-dev3539-2020-11-04-11-50" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3527-2020-10-05-12-43">
+<h2>v3.0.dev3527 (2020/10/05 12:43)<a class="headerlink" href="#v3-0-dev3527-2020-10-05-12-43" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3526-2020-10-01-05-50">
+<h2>v3.0.dev3526 (2020/10/01 05:50)<a class="headerlink" href="#v3-0-dev3526-2020-10-01-05-50" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3510-2020-09-25-11-56">
+<h2>v3.0.dev3510 (2020/09/25 11:56)<a class="headerlink" href="#v3-0-dev3510-2020-09-25-11-56" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3504-2020-09-09-06-16">
+<h2>v3.0.dev3504 (2020/09/09 06:16)<a class="headerlink" href="#v3-0-dev3504-2020-09-09-06-16" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3503-2020-09-04-05-18">
+<h2>v3.0.dev3503 (2020/09/04 05:18)<a class="headerlink" href="#v3-0-dev3503-2020-09-04-05-18" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3500-2020-08-12-05-52">
+<h2>v3.0.dev3500 (2020/08/12 05:52)<a class="headerlink" href="#v3-0-dev3500-2020-08-12-05-52" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3497-2020-08-07-11-26">
+<h2>v3.0.dev3497 (2020/08/07 11:26)<a class="headerlink" href="#v3-0-dev3497-2020-08-07-11-26" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3487-2020-07-30-18-18">
+<h2>v3.0.dev3487 (2020/07/30 18:18)<a class="headerlink" href="#v3-0-dev3487-2020-07-30-18-18" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3484-2020-07-19-10-30">
+<h2>v3.0.dev3484 (2020/07/19 10:30)<a class="headerlink" href="#v3-0-dev3484-2020-07-19-10-30" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3477-2020-07-08-23-06">
+<h2>v3.0.dev3477 (2020/07/08 23:06)<a class="headerlink" href="#v3-0-dev3477-2020-07-08-23-06" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3472-2020-06-27-16-11">
+<h2>v3.0.dev3472 (2020/06/27 16:11)<a class="headerlink" href="#v3-0-dev3472-2020-06-27-16-11" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3463-2020-06-19-18-51">
+<h2>v3.0.dev3463 (2020/06/19 18:51)<a class="headerlink" href="#v3-0-dev3463-2020-06-19-18-51" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3459-2020-06-12-14-01">
+<h2>v3.0.dev3459 (2020/06/12 14:01)<a class="headerlink" href="#v3-0-dev3459-2020-06-12-14-01" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3458-2020-06-02-15-11">
+<h2>v3.0.dev3458 (2020/06/02 15:11)<a class="headerlink" href="#v3-0-dev3458-2020-06-02-15-11" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3448-2020-05-28-13-08">
+<h2>v3.0.dev3448 (2020/05/28 13:08)<a class="headerlink" href="#v3-0-dev3448-2020-05-28-13-08" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3442-2020-05-21-19-34">
+<h2>v3.0.dev3442 (2020/05/21 19:34)<a class="headerlink" href="#v3-0-dev3442-2020-05-21-19-34" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3439-2020-05-20-09-25">
+<h2>v3.0.dev3439 (2020/05/20 09:25)<a class="headerlink" href="#v3-0-dev3439-2020-05-20-09-25" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3424-2020-05-07-11-29">
+<h2>v3.0.dev3424 (2020/05/07 11:29)<a class="headerlink" href="#v3-0-dev3424-2020-05-07-11-29" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3409-2020-02-24-23-02">
+<h2>v3.0.dev3409 (2020/02/24 23:02)<a class="headerlink" href="#v3-0-dev3409-2020-02-24-23-02" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-dev3403-2020-02-19-10-55">
+<h2>v3.0.dev3403 (2020/02/19 10:55)<a class="headerlink" href="#v3-0-dev3403-2020-02-19-10-55" title="Link to this heading">¶</a></h2>
+</section>
+<section id="dev3396-2020-02-07-10-00">
+<h2>3.0.dev3396 (2020/02/07 10:00)<a class="headerlink" href="#dev3396-2020-02-07-10-00" title="Link to this heading">¶</a></h2>
+</section>
+<section id="dev3384-2020-02-02-16-56">
+<h2>3.0.dev3384 (2020/02/02 16:56)<a class="headerlink" href="#dev3384-2020-02-02-16-56" title="Link to this heading">¶</a></h2>
+</section>
+<section id="dev3383-2020-02-02-14-01">
+<h2>3.0.dev3383 (2020/02/02 14:01)<a class="headerlink" href="#dev3383-2020-02-02-14-01" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-alpha-3-2019-05-13-18-05">
+<h2>v3.0-alpha.3 (2019/05/13 18:05)<a class="headerlink" href="#v3-0-alpha-3-2019-05-13-18-05" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-alpha-2-2019-03-11-10-24">
+<h2>v3.0-alpha.2 (2019/03/11 10:24)<a class="headerlink" href="#v3-0-alpha-2-2019-03-11-10-24" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v3-0-a1-2019-03-10-11-03">
+<h2>v3.0.a1 (2019/03/10 11:03)<a class="headerlink" href="#v3-0-a1-2019-03-10-11-03" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v2-0-2-2018-06-18-16-24">
+<h2>v2.0.2 (2018/06/18 16:24)<a class="headerlink" href="#v2-0-2-2018-06-18-16-24" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v2-test3-2018-06-18-16-13">
+<h2>v2_test3 (2018/06/18 16:13)<a class="headerlink" href="#v2-test3-2018-06-18-16-13" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v2-0-2018-04-05-09-03">
+<h2>v2.0 (2018/04/05 09:03)<a class="headerlink" href="#v2-0-2018-04-05-09-03" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v1-0-1-2015-03-03-08-12">
+<h2>v1.0.1 (2015/03/03 08:12)<a class="headerlink" href="#v1-0-1-2015-03-03-08-12" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v1-0-2015-03-03-07-58">
+<h2>v1.0 (2015/03/03 07:58)<a class="headerlink" href="#v1-0-2015-03-03-07-58" title="Link to this heading">¶</a></h2>
+</section>
+<section id="rc3-2015-03-03-07-54">
+<h2>1.0rc3 (2015/03/03 07:54)<a class="headerlink" href="#rc3-2015-03-03-07-54" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v1-0rc3-2015-02-19-09-40">
+<h2>v1.0rc3 (2015/02/19 09:40)<a class="headerlink" href="#v1-0rc3-2015-02-19-09-40" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id1">
+<h2>0.9.2 (2014/06/12 19:37)<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id2">
+<h2>0.9.1 (2014/02/03 20:51)<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+</section>
+<section id="v0-9a-2013-02-14-16-15">
+<h2>v0.9a (2013/02/14 16:15)<a class="headerlink" href="#v0-9a-2013-02-14-16-15" title="Link to this heading">¶</a></h2>
+<!-- generated by git-cliff --></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tools/benchmark.html" class="btn btn-neutral float-left" title="Benchmarking Information" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="in_progress/index.html" class="btn btn-neutral float-right" title="Features In-Progress" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 27 Jun 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
