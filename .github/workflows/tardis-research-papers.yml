@@ -35,7 +35,7 @@ jobs:
           with:
             name: research_papers
             path: |
-                resource_papers.rst
+                research_papers.rst
             
     pull_request:
       needs: [research-using-tardis]
