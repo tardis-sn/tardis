@@ -25,7 +25,7 @@ from tardis.io.model.parse_radiation_field_configuration import (
 from tardis.io.model.readers.csvy import (
     load_csvy,
 )
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
@@ -162,14 +162,10 @@ class SimulationState(HDFWriterMixin):
                 "Trying to set t_radiative for different number of shells."
             )
 
-    @property
-    def elemental_number_density(self):
+    def calculate_elemental_number_density(self, element_masses):
         elemental_number_density = (
-            (
-                self.composition.elemental_mass_fraction
-                * self.composition.density
-            )
-            .divide(self.composition.element_masses, axis=0)
+            (self.composition.elemental_mass_fraction * self.composition.density)
+            .divide(element_masses, axis=0)
             .dropna()
         )
         elemental_number_density = elemental_number_density.iloc[

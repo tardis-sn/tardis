@@ -7,7 +7,7 @@ from astropy import units as u
 from tardis import constants as const
 from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
@@ -49,6 +49,13 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.simulation_state = SimulationState.from_csvy(
                 configuration, atom_data=atom_data
             )
+            assert np.isclose(
+                self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
+                self.simulation_state.geometry.v_inner[0].to(u.km / u.s).value,
+            ), (
+                "If using csvy density input in the workflow, the initial v_inner_boundary must start at the first shell, see issue #3129."
+            )
+
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration,
@@ -67,7 +74,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         )
 
         self.plasma_solver = plasma_solver_factory.assemble(
-            self.simulation_state.elemental_number_density,
+            self.simulation_state.calculate_elemental_number_density(
+                atom_data.atom_data.mass
+            ),
             self.simulation_state.radiation_field_state,
             self.simulation_state.time_explosion,
             self.simulation_state._electron_densities,
@@ -83,7 +92,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         if line_interaction_type == "scatter":
             self.macro_atom_solver = None
         else:
-            self.macro_atom_solver = MacroAtomSolver()
+            self.macro_atom_solver = LegacyMacroAtomSolver()
 
         self.transport_state = None
         self.transport_solver = MonteCarloTransportSolver.from_config(

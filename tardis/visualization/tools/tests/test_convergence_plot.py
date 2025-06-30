@@ -1,17 +1,20 @@
 """Tests for Convergence Plots."""
 
+from collections import defaultdict
 from copy import deepcopy
 
+import plotly.graph_objects as go
 import pytest
-from tardis.tests.test_util import monkeysession
+from astropy import units as u
+
 from tardis import run_tardis
 from tardis.visualization.tools.convergence_plot import (
-    ConvergencePlots,
-    transition_colors,
+    ConvergencePlots
 )
 from collections import defaultdict
 import plotly.graph_objects as go
 from astropy import units as u
+import tardis.visualization.plot_util as pu
 
 
 @pytest.fixture(scope="module", params=[0, 1, 2])
@@ -38,7 +41,7 @@ def fetch_luminosity_data(convergence_plots):
 def test_transition_colors():
     """Test whether the object returned by the transition_colors function is a list of appropriate length."""
     iterations = 3
-    colors = transition_colors(length=iterations)
+    colors = pu.get_hex_color_strings(length=iterations)
     assert type(colors) == list
     assert len(colors) == iterations
 
@@ -67,8 +70,8 @@ def test_fetch_data(convergence_plots):
 
 def test_build(convergence_plots):
     """Test if convergence plots are instances of plotly.graph_objs.FigureWidget() and have appropriate number of traces."""
-    assert type(convergence_plots.plasma_plot) == go.FigureWidget
-    assert type(convergence_plots.t_inner_luminosities_plot) == go.FigureWidget
+    assert isinstance(convergence_plots.plasma_plot, go.FigureWidget)
+    assert isinstance(convergence_plots.t_inner_luminosities_plot, go.FigureWidget)
 
     # check number of traces
     assert len(convergence_plots.t_inner_luminosities_plot.data) == 5
@@ -84,7 +87,7 @@ def test_update_t_inner_luminosities_plot(convergence_plots):
     # check number of traces
     assert len(convergence_plots.t_inner_luminosities_plot.data) == 5
 
-    for index in range(0, 5):
+    for index in range(5):
         # check x and y values for all traces
         assert (
             len(convergence_plots.t_inner_luminosities_plot.data[index].x)
@@ -108,7 +111,7 @@ def test_update_plasma_plots(convergence_plots):
     """Test the state of plasma plots after updating."""
     n_iterations = convergence_plots.iterations
     expected_n_traces = 2 * n_iterations + 2
-    velocity = range(0, n_iterations) * u.m / u.s
+    velocity = range(n_iterations) * u.m / u.s
 
     convergence_plots.fetch_data(
         name="velocity", value=velocity, item_type="iterable"
@@ -198,7 +201,7 @@ def test_override_plot_parameters(convergence_plots):
         convergence_plots.t_inner_luminosities_plot["layout"]["xaxis2"][
             "showgrid"
         ]
-        == False
+        is False
     )
 
     # testing plot parameters for plasma plot
@@ -212,7 +215,7 @@ def test_override_plot_parameters(convergence_plots):
         )
     # checking layout for plasma plot
     assert (
-        convergence_plots.plasma_plot["layout"]["xaxis2"]["showgrid"] == False
+        convergence_plots.plasma_plot["layout"]["xaxis2"]["showgrid"] is False
     )
 
 
