@@ -9,18 +9,17 @@ def he_workflow_instance_session(atomic_dataset, he_test_configs):
     """Create a TARDISHEWorkflow instance for testing (session-scoped)."""
     return TARDISHEWorkflow(atomic_dataset, he_test_configs, config_type="csvy")
 
-
 @pytest.fixture(scope="session")
 def he_workflow_minimal_run_params(atomic_dataset):
     """Minimal parameters for HE workflow run."""
     return {
-        "time_start": 0.1,
+        "time_start": 2.0,
         "time_end": 100.0,
         "number_of_packets": int(3e5),
-        "time_steps": 20,
+        "time_steps": 500,
         "time_space": "log",
         "seed": 1993,
-        "fp": 1.9,
+        "fp": 1.0,
         "spectrum_bins": 1000,
         "grey_opacity": -1,
         "legacy": True,
