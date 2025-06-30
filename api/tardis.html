@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=68332751"></script>
+      <script src="../_static/documentation_options.js?v=17b1ff50"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -93,7 +93,10 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.constants.html">tardis.constants module</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-tardis">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-tardis">Module contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tardis.run_tardis"><code class="docutils literal notranslate"><span class="pre">run_tardis()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -771,6 +774,62 @@
 </section>
 <section id="module-tardis">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tardis" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.run_tardis">
+<span class="sig-prename descclassname"><span class="pre">tardis.</span></span><span class="sig-name descname"><span class="pre">run_tardis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_callbacks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">virtual_packet_logging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_convergence_plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress_bars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_logging_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/base.html#run_tardis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.run_tardis" title="Link to this definition">¶</a></dt>
+<dd><p>Run TARDIS from a given config object.</p>
+<p>It will return a model object containing the TARDIS Simulation.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>config</strong><span class="classifier">str or dict or tardis.io.config_reader.Configuration</span></dt><dd><p>filename of configuration yaml file or dictionary or TARDIS Configuration object</p>
+</dd>
+<dt><strong>atom_data</strong><span class="classifier">str or tardis.atomic.AtomData, optional</span></dt><dd><p>If atom_data is a string it is interpreted as a path to a file storing
+the atomic data. Atomic data to use for this TARDIS simulation. If set to None (i.e. default),
+the atomic data will be loaded according to keywords set in the configuration</p>
+</dd>
+<dt><strong>packet_source</strong><span class="classifier">class, optional</span></dt><dd><p>A custom packet source class or a child class of <a class="reference internal" href="tardis.transport.montecarlo.packet_source.html#module-tardis.transport.montecarlo.packet_source" title="tardis.transport.montecarlo.packet_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tardis.transport.montecarlo.packet_source</span></code></a>
+used to override the TARDIS <code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePacketSource</span></code> class.</p>
+</dd>
+<dt><strong>simulation_callbacks</strong><span class="classifier">list of lists, default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">[]</span></code>, optional</span></dt><dd><p>Set of callbacks to call at the end of every iteration of the Simulation.
+The format of the lists should look like:
+[[callback1, callback_arg1], [callback2, callback_arg2], …],
+where the callback function signature should look like:
+callback_function(simulation, extra_arg1, …)</p>
+</dd>
+<dt><strong>virtual_packet_logging</strong><span class="classifier">bool, default: False, optional</span></dt><dd><p>Option to enable virtual packet logging.</p>
+</dd>
+<dt><strong>log_level</strong><span class="classifier">{‘NOTSET’, ‘DEBUG’, ‘INFO’, ‘WARNING’, ‘ERROR’, ‘CRITICAL’}, default: None, optional</span></dt><dd><p>Set the level of the TARDIS logger (follows native python logging framework log levels).
+Use this parameter to override the <code class="xref py py-obj docutils literal notranslate"><span class="pre">log_level</span></code> specified in the configuration file.
+The default value <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> means that the <code class="xref py py-obj docutils literal notranslate"><span class="pre">log_level</span></code> specified in the configuration file will be used.</p>
+</dd>
+<dt><strong>specific_log_level</strong><span class="classifier">bool, default: None, optional</span></dt><dd><p>Allows to set specific logging levels, overriding the value in the configuration file.
+If True, only show the log messages from a particular log level, set by <code class="xref py py-obj docutils literal notranslate"><span class="pre">log_level</span></code>.
+If False, the logger shows log messages belonging to the level set and all levels above it in severity.
+The default value None means that the <code class="xref py py-obj docutils literal notranslate"><span class="pre">specific_log_level</span></code> specified in the configuration file will be used.</p>
+</dd>
+<dt><strong>show_convergence_plots</strong><span class="classifier">bool, default: False, optional</span></dt><dd><p>Option to enable tardis convergence plots.</p>
+</dd>
+<dt><strong>show_progress_bars</strong><span class="classifier">bool, default: True, optional</span></dt><dd><p>Option to enable the progress bar.</p>
+</dd>
+<dt><strong>display_widget</strong><span class="classifier">bool, default: True, optional</span></dt><dd><p>Option to display the logging widget in Jupyter/VSCode environments.
+If False, logs will be printed normally instead.</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">dict, optional</span></dt><dd><p>Optional keyword arguments including those
+supported by <a class="reference internal" href="tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots" title="tardis.visualization.tools.convergence_plot.ConvergencePlots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tardis.visualization.tools.convergence_plot.ConvergencePlots</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tardis.simulation.Simulation</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Please see the <a class="reference external" href="https://tardis-sn.github.io/tardis/io/optional/logging_configuration.html">logging tutorial</a> to know more about <code class="xref py py-obj docutils literal notranslate"><span class="pre">log_level</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">specific</span></code> options.</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -786,7 +845,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 26 Jun 2025.
+      <span class="lastupdated">Last updated on 30 Jun 2025.
       </span></p>
   </div>
 
