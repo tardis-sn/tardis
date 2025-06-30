@@ -1,0 +1,24 @@
+tardis.plasma.equilibrium.rates package
+=======================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.plasma.equilibrium.rates.collision_strengths
+   tardis.plasma.equilibrium.rates.collisional_ionization_rates
+   tardis.plasma.equilibrium.rates.collisional_ionization_strengths
+   tardis.plasma.equilibrium.rates.collisional_rates
+   tardis.plasma.equilibrium.rates.photoionization_rates
+   tardis.plasma.equilibrium.rates.photoionization_strengths
+   tardis.plasma.equilibrium.rates.radiative_rates
+
+Module contents
+---------------
+
+.. automodule:: tardis.plasma.equilibrium.rates
+   :members:
+   :show-inheritance:
+   :undoc-members:
