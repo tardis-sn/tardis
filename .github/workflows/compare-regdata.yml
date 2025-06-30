@@ -96,7 +96,8 @@ jobs:
       - name: Install package editable
         if: ${{ !inputs.pip_git }}
         run: |
-          pip install -e ".[tardisbase,viz]" 
+          pip install -e ".[tardisbase]" 
+          pip install --no-deps qgridnext lineid_plot
 
       - name: Install package git
         if: ${{ inputs.pip_git }}

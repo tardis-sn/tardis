@@ -76,7 +76,8 @@ jobs:
       - name: Install tardis editable
         if: ${{ !inputs.pip_git }}
         run: |
-          pip install -e ".[tardisbase,viz]" 
+          pip install -e ".[tardisbase]" 
+          pip install --no-deps qgridnext lineid_plot
 
       - name: Install tardis git
         if: ${{ inputs.pip_git }}
