@@ -1,0 +1,34 @@
+---
+name: tardis_he_test_model
+description: Minimal test model for TARDIS HE workflow
+tardis_model_config_version: v1.0
+datatype:
+  fields:
+    - {name: velocity, unit: km/s, desc: velocities of shell outer boundaries.}
+    - {name: density, unit: g/cm^3, desc: mean density of shell.}
+    - {name: H, desc: fractional H abundance}
+    - {name: He, desc: fractional He abundance}
+    - {name: C, desc: fractional C abundance}
+    - {name: O, desc: fractional O abundance}
+    - {name: Ne, desc: fractional Ne abundance}
+    - {name: Mg, desc: fractional Mg abundance}
+    - {name: Si, desc: fractional Si abundance}
+    - {name: S, desc: fractional S abundance}
+    - {name: Ca, desc: fractional Ca abundance}
+    - {name: Fe, desc: fractional Fe abundance}
+    - {name: Co, desc: fractional Co abundance}
+    - {name: Ni, desc: fractional Ni abundance}
+    - {name: Ni56, desc: fractional Ni56 abundance}
+    - {name: Co56, desc: fractional Co56 abundance}
+    - {name: Fe52, desc: fractional Fe52 abundance}
+    - {name: Cr48, desc: fractional Cr48 abundance}
+  delimiter: ","
+v_inner_boundary: 1.1e4 km/s
+v_outer_boundary: 2.0e4 km/s
+---
+velocity,density,H,He,C,O,Ne,Mg,Si,S,Ca,Fe,Co,Ni,Ni56,Co56,Fe52,Cr48
+1.2e4,1.0e-10,0.0,0.0,2.0e-3,1.0e-2,1.0e-2,3.0e-2,0.35,0.13,1.5e-2,0.074,8.5e-4,0.036,4.9e-2,0.0,1.0e-3,1.0e-4
+1.4e4,8.0e-11,0.0,0.0,2.0e-3,1.0e-2,1.0e-2,3.0e-2,0.35,0.13,1.5e-2,0.074,8.5e-4,0.036,4.9e-2,0.0,1.0e-3,1.0e-4
+1.6e4,6.0e-11,0.0,0.0,2.0e-3,1.0e-2,1.0e-2,3.0e-2,0.35,0.13,1.5e-2,0.074,8.5e-4,0.036,4.9e-2,0.0,1.0e-3,1.0e-4
+1.8e4,4.0e-11,0.0,0.0,2.0e-3,1.0e-2,1.0e-2,3.0e-2,0.35,0.13,1.5e-2,0.074,8.5e-4,0.036,4.9e-2,0.0,1.0e-3,1.0e-4
+2.0e4,2.0e-11,0.0,0.0,2.0e-3,1.0e-2,1.0e-2,3.0e-2,0.35,0.13,1.5e-2,0.074,8.5e-4,0.036,4.9e-2,0.0,1.0e-3,1.0e-4
