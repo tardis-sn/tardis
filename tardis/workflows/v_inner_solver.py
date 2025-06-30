@@ -7,7 +7,7 @@ from scipy.interpolate import interp1d
 
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
-from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.workflows.util import get_tau_integ
 
 # logging support
@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 # Handle non-explicit formats when going out of the simulation
 
 
-class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
-    TAU_TARGET = np.log(2.0 / 3.0)
+class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
+    LOG_TAU_TARGET = np.log(2 / 3)
 
     def __init__(
         self,
@@ -30,21 +30,23 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         tau=None,
         csvy=False,
     ):
-        super().__init__(configuration, csvy)
+        super().__init__(configuration, csvy=csvy)
         self.mean_optical_depth = mean_optical_depth.lower()
 
         self.convergence_solvers["v_inner_boundary"] = ConvergenceSolver(
             self.convergence_strategy.v_inner_boundary
         )
 
-        self.store_iteration_properties = configuration.montecarlo.convergence_strategy.v_inner_boundary.store_iteration_properties
+        self.store_iteration_properties = (
+            configuration.montecarlo.convergence_strategy.v_inner_boundary.store_iteration_properties
+        )
 
         # Need to compute the opacity state on init to get the optical depths
         # for the first inner boundary calculation.
         self.opacity_states = self.solve_opacity()
 
         if tau is not None:
-            self.TAU_TARGET = np.log(tau)
+            self.LOG_TAU_TARGET = np.log(tau)
 
         self.iterations_w = np.full(
             (self.total_iterations, self.simulation_state.no_of_shells), np.nan
@@ -130,16 +132,12 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         executed_iterations : int
             iteration index, i.e. number of iterations executed minus one!
         """
-        self.iterations_t_rad = self.iterations_t_rad[
-            : executed_iterations + 1, :
-        ]
+        self.iterations_t_rad = self.iterations_t_rad[: executed_iterations + 1, :]
         self.iterations_w = self.iterations_w[: executed_iterations + 1, :]
         self.iterations_electron_densities = self.iterations_electron_densities[
             : executed_iterations + 1, :
         ]
-        self.iterations_t_inner = self.iterations_t_inner[
-            : executed_iterations + 1
-        ]
+        self.iterations_t_inner = self.iterations_t_inner[: executed_iterations + 1]
         self.iterations_v_inner_boundary = self.iterations_v_inner_boundary[
             : executed_iterations + 1
         ]
@@ -164,14 +162,17 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         )
 
         interpolator = interp1d(
-            self.tau_integ[
-                self.simulation_state.geometry.v_inner_boundary_index :
-            ],
+            self.tau_integ[self.simulation_state.geometry.v_inner_boundary_index :],
             self.simulation_state.geometry.v_inner_active,  # Only use the active values as we only need a numerical estimate, not an index
             fill_value="extrapolate",
         )
 
-        estimated_v_inner = interpolator(self.TAU_TARGET) * u.cm / u.s
+        estimated_v_inner = interpolator(self.LOG_TAU_TARGET) * u.cm / u.s
+        if np.isnan(estimated_v_inner):
+            raise ValueError("The estimated v_inner is nan -- aborting")
+        logger.info(
+            "Estimated v_inner_boundary: %s", f"{estimated_v_inner.to(u.km / u.s):.2f}"
+        )
 
         if estimated_v_inner < self.simulation_state.geometry.v_inner[0]:
             estimated_v_inner = self.simulation_state.geometry.v_inner[0]
@@ -188,9 +189,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
 
     @property
     def property_mask(self):
-        mask = np.zeros(
-            (len(self.simulation_state.geometry.r_inner)), dtype=bool
-        )
+        mask = np.zeros((len(self.simulation_state.geometry.r_inner)), dtype=bool)
         mask[
             self.simulation_state.geometry.v_inner_boundary_index : self.simulation_state.geometry.v_outer_boundary_index
         ] = True
@@ -359,18 +358,14 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
             temperature=self.simulation_state.radiation_field_state.temperature,
             dilution_factor=self.simulation_state.radiation_field_state.dilution_factor,
         )
-        update_properties = dict(
-            dilute_planckian_radiation_field=radiation_field
-        )
+        update_properties = dict(dilute_planckian_radiation_field=radiation_field)
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
         if (
             self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
             == "blackbody"
         ):
-            planckian_radiation_field = (
-                radiation_field.to_planckian_radiation_field()
-            )
+            planckian_radiation_field = radiation_field.to_planckian_radiation_field()
             j_blues = planckian_radiation_field.calculate_mean_intensity(
                 self.plasma_solver.atomic_data.lines.nu.values
             )
@@ -388,8 +383,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
                 j_blues, index=self.plasma_solver.atomic_data.lines.index
             )
         elif (
-            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
-            == "detailed"
+            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE == "detailed"
         ):
             j_blues = radiation_field.calculate_mean_intensity(
                 self.plasma_solver.atomic_data.lines.nu.values
@@ -454,9 +448,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         if self.converged:
             logger.info("\n\tStarting final iteration")
         else:
-            logger.error(
-                "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
-            )
+            logger.error("\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration")
         self.opacity_states = self.solve_opacity()
         virtual_packet_energies = self.solve_montecarlo(
             self.opacity_states,

@@ -19,7 +19,7 @@ jobs:
         - uses: actions/checkout@v4
 
         - name: Setup micromamba
-          uses: mamba-org/setup-micromamba@v1
+          uses: mamba-org/setup-micromamba@v2
           with:
             environment-name: fetch-env
             create-args: >-
@@ -35,7 +35,7 @@ jobs:
           with:
             name: research_papers
             path: |
-                resource_papers.rst
+                research_papers.rst
             
     pull_request:
       needs: [research-using-tardis]

@@ -32,18 +32,19 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
-            os-label: linux-64
-      
+          os-label: linux-64
+
       - name: Show statistics pull request
         if: github.event_name == 'pull_request_target'
         run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt
       
       - name: Show entire output pull request
         if: github.event_name == 'pull_request_target'
-        run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_full.txt
+        run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD -- | grep -E '\.py$') | tee ruff_full.txt
 
       - name: Show statistics push
         if: github.event_name == 'push'
@@ -115,4 +116,3 @@ jobs:
           path: |
             ruff_full.txt
             ruff_stats.txt
-
