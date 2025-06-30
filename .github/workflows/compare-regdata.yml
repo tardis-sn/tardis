@@ -96,22 +96,13 @@ jobs:
       - name: Install package editable
         if: ${{ !inputs.pip_git }}
         run: |
-          pip install -e . --user
+          pip install -e ".[tardisbase,viz]" 
 
       - name: Install package git
         if: ${{ inputs.pip_git }}
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git@master
+          pip install "tardis[tardisbase,viz] @ git+https://github.com/tardis-sn/tardis.git@master"
 
-      - name: Install qgridnext
-        if: ${{ !inputs.pip_git }}
-        run: |
-          pip install qgridnext
-
-      - name: Install tardisbase
-        run: pip install -e ".[tardisbase,viz]" 
-        working-directory: ${{ github.workspace }}/tardisbase
-        
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
       
