@@ -7,7 +7,7 @@ import functools
 from numba import config
 
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.spectrum import formal_integral
+from tardis.spectrum.formal_integral import formal_integral
 
 config.THREADING_LAYER = "workqueue"
 
