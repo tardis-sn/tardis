@@ -863,7 +863,7 @@ def formal_integral_jax(
 
     return L, Inup_i
 
-class JaxFormalIntegrator():
+class JaxFormalIntegrator:
 
     def __init__(self, simulation_state, transport_state, plasma):
         
@@ -881,9 +881,8 @@ class JaxFormalIntegrator():
         no_of_shells = self.simulation_state.no_of_shells
         dilution_factor = self.simulation_state.dilution_factor
         volume = self.simulation_state.volume
-
-        # TODO: check why no units here
-        time_of_simulation = self.transport_state.packet_collection.time_of_simulation *u.s 
+        
+        time_of_simulation = self.transport_state.packet_collection.time_of_simulation *u.s # TODO: check why no units here
         transition_probabilities = self.transport_state.opacity_state.transition_probabilities
         tau_sobolev = self.transport_state.opacity_state.tau_sobolev
         Edotlu_estimator = self.transport_state.radfield_mc_estimators.Edotlu_estimator
