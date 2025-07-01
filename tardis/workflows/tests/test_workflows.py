@@ -90,10 +90,10 @@ def simulation_regression_data(regression_data):
         ("plasma_state_iterations", "iterations_t_rad"),
         ("plasma_state_iterations", "iterations_electron_densities"),
         ("plasma_state_iterations", "iterations_t_inner"),
-        # ("plasma_estimates", "nu_bar_estimator"),
-        # ("plasma_estimates", "j_estimator"),
-        # ("plasma_estimates", "output_nus"),
-        # ("plasma_estimates", "output_energies"),
+        ("plasma_estimates", "nu_bar_estimator"),
+        ("plasma_estimates", "j_estimator"),
+        ("plasma_estimates", "output_nus"),
+        ("plasma_estimates", "output_energies"),
     ],
 )
 def test_standard_tardis_workflow(
@@ -116,7 +116,7 @@ def test_standard_tardis_workflow(
             actual = actual.value
         actual = pd.Series(actual)
         expected = simulation_regression_data.get_data(attr_type, attr)
-        pd.testing.assert_series_equal(actual, expected, check_exact=False, rtol=1e-3)
+        pd.testing.assert_series_equal(actual, expected, check_exact=False, rtol=1e-6)
     elif attr_type == "plasma_state_iterations":
         attr_data = getattr(standard_workflow_one_loop, attr)
         if hasattr(attr_data, "value"):
