@@ -1,16 +1,23 @@
 import numpy as np
 import numpy.testing as ntest
-import pytest
 from numba import cuda
+import pytest
 
-import tardis.spectrum.formal_integral as formal_integral_numba
-import tardis.spectrum.formal_integral_cuda as formal_integral_cuda
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.spectrum.formal_integral import (
-    FormalIntegrator,
-    NumbaFormalIntegrator,
-)
+from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator, NumbaFormalIntegrator
+import tardis.spectrum.formal_integral.formal_integral as formal_integral_numba
+import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
+
+@cuda.jit
+def black_body_caller(nu, temperature, actual):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
+    x = cuda.grid(1)
+    actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, temperature)
+
 
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
 GPUs_available = cuda.is_available()
@@ -43,13 +50,13 @@ def test_intensity_black_body_cuda(nu, temperature):
 
 
 @cuda.jit
-def black_body_caller(nu, temperature, actual):
+def trapezoid_integration_caller(data, h, actual):
     """
     This calls the CUDA function and fills out
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, temperature)
+    actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
 
 
 @pytest.mark.skipif(
@@ -77,16 +84,6 @@ def test_trapezoid_integration_cuda(N):
     # there will be more floating point error due to the difference
     # in how the trapezoid integration is called.
     ntest.assert_allclose(actual[0], expected, rtol=1e-13)
-
-
-@cuda.jit
-def trapezoid_integration_caller(data, h, actual):
-    """
-    This calls the CUDA function and fills out
-    the array
-    """
-    x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
 
 
 TESTDATA_model = [
@@ -125,6 +122,16 @@ def time_explosion():
     return 1 / c.c.cgs.value
 
 
+@cuda.jit
+def calculate_z_caller(r, p, inv_t, actual):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
+    x = cuda.grid(1)
+    actual[x] = tardis.spectrum.formal_integral.formal_integral_cuda.calculate_z_cuda(r, p, inv_t)
+
+
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
@@ -148,13 +155,17 @@ def test_calculate_z_cuda(formal_integral_geometry, time_explosion, p, p_loc):
 
 
 @cuda.jit
-def calculate_z_caller(r, p, inv_t, actual):
+def populate_z_caller(
+    r_inner, r_outer, time_explosion, p, oz, oshell_id, actual
+):
     """
     This calls the CUDA function and fills out
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.calculate_z_cuda(r, p, inv_t)
+    actual[x] = tardis.spectrum.formal_integral.formal_integral_cuda.populate_z_cuda(
+        r_inner, r_outer, time_explosion, p, oz, oshell_id
+    )
 
 
 @pytest.mark.skipif(
@@ -200,20 +211,6 @@ def test_populate_z(formal_integral_geometry, time_explosion, p, p_loc):
     ntest.assert_allclose(oz, expected_oz, atol=1e-4)
 
 
-@cuda.jit
-def populate_z_caller(
-    r_inner, r_outer, time_explosion, p, oz, oshell_id, actual
-):
-    """
-    This calls the CUDA function and fills out
-    the array
-    """
-    x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.populate_z_cuda(
-        r_inner, r_outer, time_explosion, p, oz, oshell_id
-    )
-
-
 @pytest.mark.parametrize(
     "N",
     [
@@ -237,6 +234,18 @@ def test_calculate_p_values(N):
     actual[::] = formal_integral_cuda.calculate_p_values(r, N)
 
     ntest.assert_allclose(actual, expected, rtol=1e-14)
+
+
+@cuda.jit
+def line_search_cuda_caller(line_list_nu, nu_insert, actual):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
+    x = cuda.grid(1)
+    actual[x] = tardis.spectrum.formal_integral.formal_integral_cuda.line_search_cuda(
+        line_list_nu, nu_insert, len(line_list_nu)
+    )
 
 
 @pytest.mark.skipif(
@@ -263,14 +272,16 @@ def test_line_search_cuda(nu_insert, simulation_verysimple_opacity_state):
 
 
 @cuda.jit
-def line_search_cuda_caller(line_list_nu, nu_insert, actual):
+def reverse_binary_search_cuda_caller(
+    line_list_nu, nu_insert, imin, imax, actual
+):
     """
     This calls the CUDA function and fills out
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.line_search_cuda(
-        line_list_nu, nu_insert, len(line_list_nu)
+    actual[x] = tardis.spectrum.formal_integral.formal_integral_cuda.reverse_binary_search_cuda(
+        line_list_nu, nu_insert, imin, imax
     )
 
 
@@ -302,20 +313,6 @@ def test_reverse_binary_search(nu_insert, simulation_verysimple_opacity_state):
     )
 
     ntest.assert_equal(actual, expected)
-
-
-@cuda.jit
-def reverse_binary_search_cuda_caller(
-    line_list_nu, nu_insert, imin, imax, actual
-):
-    """
-    This calls the CUDA function and fills out
-    the array
-    """
-    x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.reverse_binary_search_cuda(
-        line_list_nu, nu_insert, imin, imax
-    )
 
 
 # no_of_packets and iterations match what is used by config_verysimple

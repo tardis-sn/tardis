@@ -2,9 +2,9 @@ import numpy as np
 import numpy.testing as ntest
 import pytest
 
-import tardis.spectrum.formal_integral as formal_integral
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+import tardis.spectrum.formal_integral as formal_integral
 from tardis.util.base import intensity_black_body
 
 
@@ -37,10 +37,6 @@ def test_trapezoid_integration(N):
     ntest.assert_almost_equal(actual, expected)
 
 
-def calculate_z(r, p):
-    return np.sqrt(r * r - p * p)
-
-
 TESTDATA = [
     {
         "r": np.linspace(1, 2, 3, dtype=np.float64),
@@ -67,6 +63,10 @@ def formal_integral_geometry(request):
 @pytest.fixture(scope="function")
 def time_explosion():
     return 1 / c.c.cgs.value
+
+
+def calculate_z(r, p):
+    return np.sqrt(r * r - p * p)
 
 
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
