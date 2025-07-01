@@ -9,8 +9,13 @@ from functools import partial
 import timeit
 
 import numpy as np
+import pandas as pd
 import math
 from scipy.interpolate import interp1d
+import scipy.sparse as sp
+import scipy.sparse.linalg as linalg
+from astropy import units as u
+from tardis import constants as const
 
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
@@ -587,33 +592,185 @@ def interpolate_integrator_quantities_jax(
     )
 
 
-# TODO: probably cant pass in the objects if I want to jjax
-# TODO: state assumption about only macroatom and not downbranch - reduces conditionals
+# TODO: jax better - current a replica of the original with parameters adjusted
 def make_source_function(
-    simulation_state, transport, opacity_state, atomic_data, levels_index
+        # geometry parameters
+        v_inner, v_outer, time_explosion,
+
+        # from simulation_state
+        no_of_shells, dilution_factor, volume,
+
+        # from transport_state / opacity state
+        time_of_simulation, tau_sobolev, transition_probabilities,
+        Edotlu_estimator, j_blue_estimator,
+
+        # from atomic data
+        atomic_data, # how to break this one down?
+        levels_index, 
+        
+        # for interpolation/or not? set either way
+        interpolate_shells, mct_inner, mct_outer, electron_densities
 ):
+    """
+    Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
+
+    Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+    so there is no need to factor out the source function explicitly.
+
+    Parameters
+    ----------
+    model : tardis.model.SimulationState
+
+    Returns
+    -------
+    Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
+    """
+
+    # slice for the active shells
     local_slice = slice(
-        simulation_state.geometry.v_inner_boundary_index,
-        simulation_state.geometry.v_outer_boundary_index,
+        v_inner,
+        v_outer,
     )
-    montecarlo_transport_state = transport.transport_state
-    transition_probabilities = opacity_state.transition_probabilities[
+
+    transition_probabilities = transition_probabilities[
         :, local_slice
     ]
-    tau_sobolevs = opacity_state.tau_sobolev[:, local_slice]
+    tau_sobolevs = tau_sobolev[:, local_slice]
 
-    columns = range(simulation_state.no_of_shells)
-
-    macro_ref = atomic_data.macro_atom_reference
-    macro_data = atomic_data.macro_atom_data
-
+    columns = range(no_of_shells)
     no_lvls = len(levels_index)
-    no_shells = len(simulation_state.dilution_factor)
+    no_shells = len(dilution_factor)
 
-    return
+    # assuming "macroatom" for now
+    macro_ref = atomic_data.macro_atom_references
+    macro_atom_data = atomic_data.macro_atom_data
+
+    internal_jump_mask = (macro_atom_data.transition_type >= 0).values
+    ma_int_data = macro_atom_data[internal_jump_mask]
+    internal = transition_probabilities[internal_jump_mask]
+    source_level_idx = ma_int_data.source_level_idx.values
+    destination_level_idx = ma_int_data.destination_level_idx.values
+
+    Edotlu_norm_factor = 1 / (time_of_simulation * volume)
+    exptau = 1 - np.exp(-tau_sobolevs)
+    Edotlu = Edotlu_norm_factor * exptau * Edotlu_estimator
+
+    # The following may be achieved by calling the appropriate plasma
+    # functions
+    Jbluelu_norm_factor = (
+        (
+            const.c.cgs
+            * time_explosion
+            / (
+                4
+                * np.pi
+                * time_of_simulation
+                * volume
+            )
+        )
+        .to("1/(cm^2 s)")
+        .value
+    )
+    # Jbluelu should already by in the correct order, i.e. by wavelength of
+    # the transition l->u
+    Jbluelu = j_blue_estimator * Jbluelu_norm_factor
+
+    upper_level_index = atomic_data.lines.index.droplevel(
+        "level_number_lower"
+    )
+    e_dot_lu = pd.DataFrame(
+        Edotlu.value, index=upper_level_index, columns=columns
+    )
+    e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+    e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
+
+    # assumes line_interaction_type is "macroatom"
+    C_frame = pd.DataFrame(columns=columns, index=macro_ref.index)
+    q_indices = (source_level_idx, destination_level_idx)
+    for shell in range(no_shells):
+        Q = sp.coo_matrix(
+            (internal[:, shell], q_indices), shape=(no_lvls, no_lvls)
+        )
+        inv_N = sp.identity(no_lvls) - Q
+        e_dot_u_vec = np.zeros(no_lvls)
+        e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].values
+        C_frame[shell] = linalg.spsolve(inv_N.T, e_dot_u_vec)
+
+    e_dot_u.index.names = [
+        "atomic_number",
+        "ion_number",
+        "source_level_number",
+    ]  # To make the q_ul e_dot_u product work, could be cleaner
+    transitions = macro_atom_data[macro_atom_data.transition_type == -1].copy()
+    transitions_index = transitions.set_index(
+        ["atomic_number", "ion_number", "source_level_number"]
+    ).index.copy()
+    tmp = pd.DataFrame(
+        transition_probabilities[
+            (macro_atom_data.transition_type == -1).values
+        ]
+    )
+    q_ul = tmp.set_index(transitions_index)
+    t = time_explosion.value
+    lines = atomic_data.lines.set_index("line_id")
+    wave = lines.wavelength_cm.loc[
+        transitions.transition_line_id
+    ].values.reshape(-1, 1)
+   
+    # assumes line_interaction_type is "macroatom"
+    e_dot_u = C_frame.loc[e_dot_u.index]
+    att_S_ul = wave * (q_ul * e_dot_u) * t / (4 * np.pi)
+
+    result = pd.DataFrame(
+        att_S_ul.values,
+        index=transitions.transition_line_id.values,
+        columns=columns,
+    )
+    att_S_ul = result.loc[lines.index.values].values
+
+    # Jredlu should already by in the correct order, i.e. by wavelength of
+    # the transition l->u (similar to Jbluelu)
+    Jredlu = Jbluelu * np.exp(-tau_sobolevs) + att_S_ul
+
+    # now use jax arrays and send to the jax version
+    if interpolate_shells > 0:
+        (
+            r_inner_i,
+            r_outer_i,
+            electron_densities_integ,
+            tau_sobolevs_integ,
+            att_S_ul_i,
+            Jredlu_i,
+            Jbluelu_i,
+            e_dot_u_i,
+        ) = interpolate_integrator_quantities_jax( # returns jax arrays
+            jnp.array(mct_inner),
+            jnp.array(mct_outer),
+            v_inner,
+            v_outer,
+            jnp.array(tau_sobolev),
+            jnp.array(electron_densities),
+            interpolate_shells,
+            jnp.array(att_S_ul),
+            jnp.array(Jredlu),
+            jnp.array(Jbluelu),
+            jnp.array(e_dot_u),
+        )
+    else:
+        r_inner_i = jnp.array(mct_inner)
+        r_outer_i = jnp.array(mct_outer)
+        electron_densities_integ = jnp.array(electron_densities)
+        tau_sobolevs_integ = jnp.array(tau_sobolev)
+        att_S_ul_i = jnp.array(att_S_ul)
+        Jredlu_i = jnp.array(Jredlu)
+        Jbluelu_i = jnp.array(Jbluelu)
+        e_dot_u_i = jnp.array(e_dot_u)
 
 
-def formal_integral(
+    return r_inner_i, r_outer_i, electron_densities_integ, tau_sobolevs_integ, att_S_ul_i, Jredlu_i, Jbluelu_i, e_dot_u_i
+
+
+def formal_integral_jax(
     r_inner,
     r_outer,
     time_explosion,
@@ -705,3 +862,70 @@ def formal_integral(
     L = 8 * jnp.pi * jnp.pi * jnp.trapezoid(Inup_i, dx=rmax/N, axis=1)    
 
     return L, Inup_i
+
+class JaxFormalIntegrator():
+
+    def __init__(self, simulation_state, transport_state, plasma):
+        
+        self.simulation_state = simulation_state
+        self.transport_state = transport_state
+        self.plasma = plasma
+
+    def formal_integral(self, nu, N):
+
+        # get all necessary parameters for make source function
+        v_inner_idx = self.simulation_state.geometry.v_inner_boundary_index
+        v_outer_idx = self.simulation_state.geometry.v_outer_boundary_index
+        time_explosion = self.simulation_state.time_explosion
+
+        no_of_shells = self.simulation_state.no_of_shells
+        dilution_factor = self.simulation_state.dilution_factor
+        volume = self.simulation_state.volume
+
+        # TODO: check why no units here
+        time_of_simulation = self.transport_state.packet_collection.time_of_simulation *u.s 
+        transition_probabilities = self.transport_state.opacity_state.transition_probabilities
+        tau_sobolev = self.transport_state.opacity_state.tau_sobolev
+        Edotlu_estimator = self.transport_state.radfield_mc_estimators.Edotlu_estimator
+        j_blue_estimator = self.transport_state.radfield_mc_estimators.j_blue_estimator
+
+        atomic_data = self.plasma.atomic_data
+        levels_index = self.plasma.levels
+
+        interpolate_shells = 20
+        mct_state = self.transport_state
+        mct_inner = mct_state.geometry_state.r_inner 
+        mct_outer = mct_state.geometry_state.r_outer
+        electron_densities = self.transport_state.opacity_state.electron_density
+
+        # extra params for formal integral
+        line_list_nu = jnp.array(self.transport_state.opacity_state.line_list_nu)
+        iT = 1e4 # TODO fix
+
+        # set up for formal integral
+        r_inner_i, r_outer_i, electron_densities_integ, tau_sobolevs_integ, att_S_ul_i, Jredlu_i, Jbluelu_i, _ = make_source_function(
+            v_inner_idx, v_outer_idx, time_explosion, 
+            no_of_shells, dilution_factor, volume, time_of_simulation,
+            tau_sobolev, transition_probabilities,
+            Edotlu_estimator, j_blue_estimator,
+            atomic_data, levels_index,
+            interpolate_shells, mct_inner, mct_outer, electron_densities
+        )
+
+        # calc formal integral
+        L, Inup = formal_integral_jax(
+            r_inner_i,
+            r_outer_i,
+            time_explosion.value,
+            tau_sobolevs_integ,
+            line_list_nu,
+            iT,
+            nu,
+            att_S_ul_i,
+            Jredlu_i,
+            Jbluelu_i,
+            electron_densities_integ,
+            N
+        )
+
+        return L, Inup
