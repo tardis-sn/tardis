@@ -62,10 +62,10 @@ def standard_workflow_one_loop(config_simulation):
 
 
 @pytest.fixture(scope="function")
-def workflow_regression_data(regression_data):
+def simulation_regression_data(regression_data):
     """Fixture to access simulation regression data for test_simulation.py"""
 
-    class WorkflowRegressionData:
+    class SimulationRegressionData:
         def __init__(self, base_regression_data):
             self.base_regression_data = base_regression_data
             self.simulation_regression_dir = (
@@ -80,11 +80,11 @@ def workflow_regression_data(regression_data):
             regression_file = self.simulation_regression_dir / f"test_{attr_root}__{attr}__.h5"
             return pd.read_hdf(regression_file)
 
-    return WorkflowRegressionData(regression_data)
+    return SimulationRegressionData(regression_data)
 
 
 @pytest.mark.parametrize(
-    ["attr_root", "attr"],
+    ["attr_type", "attr"],
     [
         ("plasma_state_iterations", "iterations_w"),
         ("plasma_state_iterations", "iterations_t_rad"),
@@ -97,9 +97,9 @@ def workflow_regression_data(regression_data):
     ],
 )
 def test_standard_tardis_workflow(
-    standard_workflow_one_loop, attr_root, attr, workflow_regression_data
+    standard_workflow_one_loop, attr_type, attr, simulation_regression_data
 ):
-    if attr_root == "plasma_estimates":
+    if attr_type == "plasma_estimates":
         if attr in ["nu_bar_estimator", "j_estimator"]:
             actual = getattr(
                 standard_workflow_one_loop.transport_state.radfield_mc_estimators,
@@ -115,17 +115,17 @@ def test_standard_tardis_workflow(
         if hasattr(actual, "value"):
             actual = actual.value
         actual = pd.Series(actual)
-        expected = workflow_regression_data.get_data(attr_root, attr)
+        expected = simulation_regression_data.get_data(attr_type, attr)
         pd.testing.assert_series_equal(actual, expected, check_exact=False, rtol=1e-3)
-    elif attr_root == "plasma_state_iterations":
+    elif attr_type == "plasma_state_iterations":
         attr_data = getattr(standard_workflow_one_loop, attr)
         if hasattr(attr_data, "value"):
             attr_data = attr_data.value
         attr_data = pd.DataFrame(attr_data)
-        ref_data = workflow_regression_data.get_data(attr_root, attr)
+        ref_data = simulation_regression_data.get_data(attr_type, attr)
         pd.testing.assert_frame_equal(attr_data, ref_data, atol=1e-3, rtol=1e-6)
     else:
-        raise ValueError(f"Unknown attr_root: {attr_root}")
+        raise ValueError(f"Unknown attr_type: {attr_type}")
 
 
 @pytest.mark.parametrize(
@@ -146,6 +146,7 @@ def test_simple_tardis_workflow(simple_workflow_one_loop, standard_workflow_one_
         attr_standard_workflow = attr_standard_workflow.value
     assert np.allclose(attr_simple_workflow, attr_standard_workflow)
 
+
 @pytest.mark.parametrize(
     "attr",
     [
@@ -157,7 +158,6 @@ def test_simple_tardis_workflow(simple_workflow_one_loop, standard_workflow_one_
     ],
 )
 def test_v_inner_solver_workflow(v_inner_workflow, attr, regression_data):
-    # this test reply on that the standard workflow pass the test comparing with the regression data
     attr_data = getattr(v_inner_workflow, attr)
     if hasattr(attr_data, "value"):
         attr_data = attr_data.value
