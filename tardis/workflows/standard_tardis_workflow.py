@@ -13,7 +13,9 @@ from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 logger = logging.getLogger(__name__)
 
 
-class StandardTARDISWorkflow(SimpleTARDISWorkflow, PlasmaStateStorerMixin, HDFWriterMixin):
+class StandardTARDISWorkflow(
+    SimpleTARDISWorkflow, PlasmaStateStorerMixin, HDFWriterMixin
+):
     convergence_plots = None
     export_convergence_plots = False
 
@@ -95,8 +97,12 @@ class StandardTARDISWorkflow(SimpleTARDISWorkflow, PlasmaStateStorerMixin, HDFWr
                 self.convergence_plots_kwargs["export_convergence_plots"],
                 bool,
             ):
-                raise TypeError("Expected bool in export_convergence_plots argument")
-            export_convergence_plots = self.convergence_plots_kwargs["export_convergence_plots"]
+                raise TypeError(
+                    "Expected bool in export_convergence_plots argument"
+                )
+            export_convergence_plots = self.convergence_plots_kwargs[
+                "export_convergence_plots"
+            ]
         else:
             export_convergence_plots = False
 
@@ -112,20 +118,18 @@ class StandardTARDISWorkflow(SimpleTARDISWorkflow, PlasmaStateStorerMixin, HDFWr
         EstimatedRadiationFieldProperties
             Dilute radiation file and j_blues dataclass
         """
-        estimated_radfield_properties = self.transport_solver.radfield_prop_solver.solve(
-            self.transport_state.radfield_mc_estimators,
-            self.transport_state.time_explosion,
-            self.transport_state.time_of_simulation,
-            self.transport_state.geometry_state.volume,
-            self.transport_state.opacity_state.line_list_nu,
+        estimated_radfield_properties = (
+            self.transport_solver.radfield_prop_solver.solve(
+                self.transport_state.radfield_mc_estimators,
+                self.transport_state.time_explosion,
+                self.transport_state.time_of_simulation,
+                self.transport_state.geometry_state.volume,
+                self.transport_state.opacity_state.line_list_nu,
+            )
         )
 
-        estimated_t_radiative = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        )
-        estimated_dilution_factor = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
-        )
+        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         emitted_luminosity = calculate_filtered_luminosity(
             self.transport_state.emitted_packet_nu,
@@ -140,11 +144,14 @@ class StandardTARDISWorkflow(SimpleTARDISWorkflow, PlasmaStateStorerMixin, HDFWr
             self.luminosity_nu_end,
         )
 
-        luminosity_ratios = (emitted_luminosity / self.luminosity_requested).to(1).value
+        luminosity_ratios = (
+            (emitted_luminosity / self.luminosity_requested).to(1).value
+        )
 
         estimated_t_inner = (
             self.simulation_state.t_inner
-            * luminosity_ratios**self.convergence_strategy.t_inner_update_exponent
+            * luminosity_ratios
+            ** self.convergence_strategy.t_inner_update_exponent
         )
 
         if self.convergence_plots is not None:
@@ -212,7 +219,9 @@ class StandardTARDISWorkflow(SimpleTARDISWorkflow, PlasmaStateStorerMixin, HDFWr
 
             opacity_states = self.solve_opacity()
 
-            virtual_packet_energies = self.solve_montecarlo(opacity_states, self.real_packet_count)
+            virtual_packet_energies = self.solve_montecarlo(
+                opacity_states, self.real_packet_count
+            )
 
             (
                 estimated_values,
@@ -235,7 +244,9 @@ class StandardTARDISWorkflow(SimpleTARDISWorkflow, PlasmaStateStorerMixin, HDFWr
         if self.converged:
             logger.info("\n\tStarting final iteration")
         else:
-            logger.error("\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration")
+            logger.error(
+                "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
+            )
         self.opacity_states = self.solve_opacity()
         virtual_packet_energies = self.solve_montecarlo(
             self.opacity_states,

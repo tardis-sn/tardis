@@ -13,7 +13,9 @@ from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 @pytest.fixture(scope="module")
 def config_simulation(example_configuration_dir, atomic_data_fname):
     # this config is intended to match with the one used for simulation_one_loop in the test_simulation.py
-    config = Configuration.from_yaml(example_configuration_dir / "tardis_configv1_verysimple.yml")
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
     config.montecarlo.no_of_packets = int(4e4)
@@ -23,7 +25,9 @@ def config_simulation(example_configuration_dir, atomic_data_fname):
 
 @pytest.fixture(scope="module")
 def v_inner_config(example_configuration_dir, atomic_data_fname):
-    config = Configuration.from_yaml(example_configuration_dir / "tardis_configv1_verysimple.yml")
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
     config.montecarlo.no_of_packets = int(4e4)
@@ -77,7 +81,10 @@ def simulation_regression_data(regression_data):
             )
 
         def get_data(self, attr_root, attr):
-            regression_file = self.simulation_regression_dir / f"test_{attr_root}__{attr}__.h5"
+            regression_file = (
+                self.simulation_regression_dir
+                / f"test_{attr_root}__{attr}__.h5"
+            )
             return pd.read_hdf(regression_file)
 
     return SimulationRegressionData(regression_data)
@@ -116,7 +123,9 @@ def test_standard_tardis_workflow(
             actual = actual.value
         actual = pd.Series(actual)
         expected = simulation_regression_data.get_data(attr_type, attr)
-        pd.testing.assert_series_equal(actual, expected, check_exact=False, rtol=1e-6)
+        pd.testing.assert_series_equal(
+            actual, expected, check_exact=False, rtol=1e-6
+        )
     elif attr_type == "plasma_state_iterations":
         attr_data = getattr(standard_workflow_one_loop, attr)
         if hasattr(attr_data, "value"):
@@ -136,10 +145,16 @@ def test_standard_tardis_workflow(
         "t_inner",
     ],
 )
-def test_simple_tardis_workflow(simple_workflow_one_loop, standard_workflow_one_loop, attr):
+def test_simple_tardis_workflow(
+    simple_workflow_one_loop, standard_workflow_one_loop, attr
+):
     # this test reply on that the standard workflow pass the test comparing with the regression data
-    attr_simple_workflow = getattr(simple_workflow_one_loop.simulation_state, attr)
-    attr_standard_workflow = getattr(standard_workflow_one_loop.simulation_state, attr)
+    attr_simple_workflow = getattr(
+        simple_workflow_one_loop.simulation_state, attr
+    )
+    attr_standard_workflow = getattr(
+        standard_workflow_one_loop.simulation_state, attr
+    )
     if hasattr(attr_simple_workflow, "value"):
         attr_simple_workflow = attr_simple_workflow.value
     if hasattr(attr_standard_workflow, "value"):
