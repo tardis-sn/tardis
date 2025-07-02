@@ -350,12 +350,22 @@ def test_full_formal_integral(
         2 * formal_integrator_cuda.simulation_state.no_of_shells, 80
     )
 
-    res_numba = formal_integrator_numba.make_source_function()
+    res_numba = make_source_function(
+        formal_integrator_numba.simulation_state,
+        formal_integrator_numba.plasma,
+        formal_integrator_numba.transport,
+        formal_integrator_numba.interpolate_shells
+    )
     att_S_ul_numba = res_numba[0].flatten(order="F")
     Jred_lu_numba = res_numba[1].flatten(order="F")
     Jblue_lu_numba = res_numba[2].flatten(order="F")
 
-    res_cuda = formal_integrator_cuda.make_source_function()
+    res_cuda = make_source_function(
+        formal_integrator_cuda.simulation_state,
+        formal_integrator_cuda.plasma,
+        formal_integrator_cuda.transport,
+        formal_integrator_cuda.interpolate_shells
+    )
     att_S_ul_cuda = res_cuda[0].flatten(order="F")
     Jred_lu_cuda = res_cuda[1].flatten(order="F")
     Jblue_lu_cuda = res_cuda[2].flatten(order="F")

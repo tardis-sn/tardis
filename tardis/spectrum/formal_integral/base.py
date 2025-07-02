@@ -236,9 +236,12 @@ def make_source_function(simulation_state, plasma, transport, interpolate_shells
 def interpolate_integrator_quantities(
     att_S_ul, Jredlu, Jbluelu, e_dot_u,
     interpolate_shells,
-    transport, simulation_state, plasma, opacity_state
+    transport, simulation_state, plasma
 ):
+
     mct_state = transport.transport_state
+    opacity_state = transport.transport_state.opacity_state
+    
     nshells = interpolate_shells
     r_middle = (
         mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer

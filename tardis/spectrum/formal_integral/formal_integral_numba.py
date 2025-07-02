@@ -1,8 +1,7 @@
 
 
 
-from tardis.spectrum.formal_integral.base import C_INV, KB_CGS
-from tardis.spectrum.formal_integral.base import H_CGS
+from tardis.spectrum.formal_integral.base import C_INV, KB_CGS, H_CGS, BoundsError
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
