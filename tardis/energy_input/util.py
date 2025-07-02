@@ -133,10 +133,19 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
         New direction after aberration
     """
     velocity_vector = position_vector / time
-    direction_dot_velocity = np.dot(direction_vector, velocity_vector)
+    direction_vector_contiguous = np.ascontiguousarray(direction_vector)
+    velocity_vector_contiguous = np.ascontiguousarray(velocity_vector)
+
+    direction_dot_velocity = np.dot(
+        direction_vector_contiguous, velocity_vector_contiguous
+    )
 
     gamma = 1.0 / np.sqrt(
-        1.0 - (np.dot(velocity_vector, velocity_vector) / (C_CGS**2.0))
+        1.0
+        - (
+            np.dot(velocity_vector_contiguous, velocity_vector_contiguous)
+            / (C_CGS**2.0)
+        )
     )
 
     factor_a = gamma * (1.0 - direction_dot_velocity / C_CGS)
@@ -240,9 +249,17 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
 
     """
     light_distance = time * C_CGS
-    a = np.dot(direction, direction) - (radius / light_distance) ** 2.0
-    b = 2.0 * (np.dot(position, direction) - radius**2.0 / light_distance)
-    c = np.dot(position, position) - radius**2.0
+    position_contiguous = np.ascontiguousarray(position)
+    direction_contiguous = np.ascontiguousarray(direction)
+
+    a = (
+        np.dot(direction_contiguous, direction_contiguous)
+        - (radius / light_distance) ** 2.0
+    )
+    b = 2.0 * (
+        np.dot(position_contiguous, direction_contiguous) - radius**2.0 / light_distance
+    )
+    c = np.dot(position_contiguous, position_contiguous) - radius**2.0
     discriminant = b**2.0 - 4.0 * a * c
     solution_1 = -np.inf
     solution_2 = -np.inf
