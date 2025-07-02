@@ -8,6 +8,7 @@ from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
+from tardis.spectrum.formal_integral.base import make_source_function
 from tardis.spectrum.formal_integral.formal_integral_numba import NumbaFormalIntegrator
 
 @cuda.jit
