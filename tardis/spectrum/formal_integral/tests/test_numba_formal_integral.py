@@ -4,7 +4,7 @@ import pytest
 
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-import tardis.spectrum.formal_integral as formal_integral
+import tardis.spectrum.formal_integral.formal_integral as formal_integral
 from tardis.util.base import intensity_black_body
 
 

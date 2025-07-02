@@ -8,11 +8,14 @@ import scipy.sparse.linalg as linalg
 from astropy import units as u
 from scipy.interpolate import interp1d
 import warnings
-from tardis.spectrum.formal_integral_cuda import CudaFormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_cuda import CudaFormalIntegrator
 from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
-from tardis.transport.montecarlo.configuration import montecarlo_globals, trapezoid_integration
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
+
+class BoundsError(IndexError):
+    pass
 
 
 class IntegrationError(Exception):
@@ -743,11 +746,7 @@ def calculate_z(r, p, inv_t):
         return np.sqrt(r * r - p * p) * C_INV * inv_t
     else:
         return 0
-
-
-class BoundsError(IndexError):
-    pass
-
+    
 
 @njit(**njit_dict_no_parallel)
 def line_search(nu, nu_insert, number_of_lines):
