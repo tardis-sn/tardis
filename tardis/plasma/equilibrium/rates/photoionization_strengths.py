@@ -173,7 +173,7 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         )
         photoionization_rate_coeff = integrate_array_by_blocks(
             photoionization_rate_coeff.values,
-            self.nu,
+            self.nu.value,
             self.photoionization_block_references,
         )
         photoionization_rate_coeff = pd.DataFrame(
@@ -218,7 +218,7 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         )
         stimulated_recombination_rate_coeff = integrate_array_by_blocks(
             stimulated_recombination_rate_coeff.values,
-            self.nu,
+            self.nu.value,
             self.photoionization_block_references,
         )
         stimulated_recombination_rate_coeff = pd.DataFrame(

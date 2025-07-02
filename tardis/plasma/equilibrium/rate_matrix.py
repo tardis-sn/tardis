@@ -179,8 +179,8 @@ class IonRateMatrix:
             (
                 rate[cell],
                 (
-                    rate.index.get_level_values("ion_number_source"),
                     rate.index.get_level_values("ion_number_destination"),
+                    rate.index.get_level_values("ion_number_source"),
                 ),
             ),
             shape=(ion_states, ion_states),
@@ -239,7 +239,9 @@ class IonRateMatrix:
 
         collisional_ionization_rates_df, collision_recombination_rates_df = (
             self.collisional_ionization_rate_solver.solve(
-                thermal_electron_energy_distribution, saha_factor
+                thermal_electron_energy_distribution,
+                saha_factor,
+                level_population,
             )
         )
 
@@ -299,7 +301,7 @@ class IonRateMatrix:
                     + coll_recomb_matrix
                 ).toarray()
                 np.fill_diagonal(matrix_array, -np.sum(matrix_array, axis=0))
-                matrix_array[0, :] = 1
+                matrix_array[1, :] = 1
                 if charge_conservation:
                     charge_conservation_row = np.hstack(
                         (np.arange(0, ion_states), -1)

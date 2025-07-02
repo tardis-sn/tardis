@@ -19,7 +19,13 @@ class CollisionalIonizationRateSolver:
         """
         self.photoionization_cross_sections = photoionization_cross_sections
 
-    def solve(self, electron_distribution, saha_factor, approximation="seaton"):
+    def solve(
+        self,
+        electron_distribution,
+        saha_factor,
+        level_population,
+        approximation="seaton",
+    ):
         """Solve the collisional ionization and recombination rates.
 
         Parameters
@@ -59,9 +65,15 @@ class CollisionalIonizationRateSolver:
             saha_factor
         )
 
+        # TODO: calculate from boltzmann factor and partition function instead
+        level_population_fraction = level_population / level_population.sum()
+
+        # used to scale the photoionization rate because we keep the level population
+        # fixed while we calculated the ion number density
         collision_ionization_rates = (
             reindex_ionization_rate_dataframe(
-                collision_ionization_rates, recombination=False
+                collision_ionization_rates * level_population_fraction,
+                recombination=False,
             )
             * electron_distribution.number_density
         )

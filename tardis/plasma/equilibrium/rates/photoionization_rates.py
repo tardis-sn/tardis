@@ -77,11 +77,17 @@ class AnalyticPhotoionizationRateSolver:
             )
         )
 
-        photoionization_rate = photoionization_rate_coeff * level_population
+        # TODO: calculate from boltzmann factor and partition function instead
+        fractional_level_population = level_population / level_population.sum()
+
+        # used to scale the photoionization rate because we keep the level population
+        # fixed while we calculated the ion number density
+        photoionization_rate = (
+            photoionization_rate_coeff * fractional_level_population
+        )
 
         recombination_rate = (
             recombination_rate_coeff
-            * level_population
             * electron_energy_distribution.number_density
         )
 
