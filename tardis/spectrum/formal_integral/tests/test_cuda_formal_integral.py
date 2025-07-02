@@ -5,9 +5,10 @@ import pytest
 
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator, NumbaFormalIntegrator
-import tardis.spectrum.formal_integral.formal_integral as formal_integral_numba
+from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
+from tardis.spectrum.formal_integral.formal_integral_numba import NumbaFormalIntegrator
 
 @cuda.jit
 def black_body_caller(nu, temperature, actual):
@@ -129,7 +130,7 @@ def calculate_z_caller(r, p, inv_t, actual):
     the array
     """
     x = cuda.grid(1)
-    actual[x] = tardis.spectrum.formal_integral.formal_integral_cuda.calculate_z_cuda(r, p, inv_t)
+    actual[x] = formal_integral_cuda.calculate_z_cuda(r, p, inv_t)
 
 
 @pytest.mark.skipif(
@@ -163,7 +164,7 @@ def populate_z_caller(
     the array
     """
     x = cuda.grid(1)
-    actual[x] = tardis.spectrum.formal_integral.formal_integral_cuda.populate_z_cuda(
+    actual[x] = formal_integral_cuda.populate_z_cuda(
         r_inner, r_outer, time_explosion, p, oz, oshell_id
     )
 
@@ -243,7 +244,7 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
     the array
     """
     x = cuda.grid(1)
-    actual[x] = tardis.spectrum.formal_integral.formal_integral_cuda.line_search_cuda(
+    actual[x] = formal_integral_cuda.line_search_cuda(
         line_list_nu, nu_insert, len(line_list_nu)
     )
 
@@ -280,7 +281,7 @@ def reverse_binary_search_cuda_caller(
     the array
     """
     x = cuda.grid(1)
-    actual[x] = tardis.spectrum.formal_integral.formal_integral_cuda.reverse_binary_search_cuda(
+    actual[x] = formal_integral_cuda.reverse_binary_search_cuda(
         line_list_nu, nu_insert, imin, imax
     )
 
