@@ -143,7 +143,7 @@ class TestShellInfoWidget:
     def shell_info_widget(self, base_shell_info, monkeysession):
         shell_info_widget = ShellInfoWidget(base_shell_info)
         monkeysession.setattr(
-            "tardis.visualization.widgets.shell_info.is_notebook", lambda: True
+            "tardis.util.environment.Environment.is_notebook", lambda: True
         )
         # To attach event listeners to table widgets of shell_info_widget
         _ = shell_info_widget.display()

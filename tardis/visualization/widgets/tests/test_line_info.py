@@ -149,7 +149,7 @@ class TestLineInfoWidgetEvents:
         """
         liw = LineInfoWidget.from_simulation(simulation_verysimple)
         monkeysession.setattr(
-            "tardis.visualization.widgets.line_info.is_notebook", lambda: True
+            "tardis.util.environment.Environment.is_notebook", lambda: True
         )
         # To attach event listeners to component widgets of line_info_widget
         _ = liw.display()
