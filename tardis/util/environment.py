@@ -26,7 +26,8 @@ class Environment(StrEnum):
         elif cls.is_terminal():
             return cls.TERMINAL
         else:
-            raise ValueError("Unknown environment detected")
+            logger.critical("Unknown environment detected")
+            return cls.TERMINAL
     
     @staticmethod
     def is_terminal() -> bool:
