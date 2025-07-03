@@ -105,7 +105,7 @@ class FormalIntegrator:
         # Very crude implementation
         # The c extension needs bin centers (or something similar)
         # while TARDISSpectrum needs bin edges
-        check(raises)
+        check(self.simulation_state, self.plasma, self.transport, raises=raises)
         N = points or self.points
         if interpolate_shells == 0:  # Default Value
             interpolate_shells = max(2 * self.simulation_state.no_of_shells, 80)
