@@ -129,7 +129,7 @@ jobs:
       
       - name: Install Kaleido
         run: |
-          pip install kaleido
+          pip install kaleido==0.2.1
 
       - name: Run comparison notebook
         run: |
