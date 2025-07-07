@@ -73,6 +73,8 @@ jobs:
       
       - name: Install asv
         run: micromamba install -c conda-forge asv=0.6.4
+      
+      - run: which python
 
       - name: Accept all asv questions
         run: asv machine --yes
