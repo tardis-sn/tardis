@@ -66,19 +66,13 @@ jobs:
         with:
           atom-data-sparse: true
 
-      - name: Setup Mamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Setup environment
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
-          environment-name: benchmark
-          init-shell: >-
-            bash
-          create-args: >-
-            python
-            asv=0.6.4
-            mamba
-            libmambapy<2.0
-            conda-build
-            conda=24.11.0
+          os-label: linux-64
+      
+      - name: Install asv
+        run: micromamba install -c conda-forge asv=0.6.4
 
       - name: Accept all asv questions
         run: asv machine --yes
