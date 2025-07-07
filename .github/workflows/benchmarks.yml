@@ -88,7 +88,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           git log -n 4  --pretty=format:"%H" >> tag_commits.txt
-          asv run -a rounds=1 HASHFILE:tag_commits.txt | tee asv-output.log
+          asv run -a rounds=1 HASHFILE:tag_commits.txt --python /home/runner/micromamba/envs/tardis/bin/python  | tee asv-output.log
           if grep -q failed asv-output.log; then 
             echo "Some benchmarks have failed!"
             exit 1
