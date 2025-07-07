@@ -74,7 +74,10 @@ jobs:
       - name: Install asv
         run: micromamba install -c conda-forge "asv" "mamba" "libmambapy" "conda-build" "conda"
 
-      - run: which python
+      - name: Install TARDIS
+        run: |
+          pip install -e ".[tardisbase]"
+          pip install --no-deps qgridnext lineid_plot
 
       - name: Accept all asv questions
         run: asv machine --yes
@@ -119,7 +122,7 @@ jobs:
         run: |
           echo $(git rev-parse HEAD) > commit_hashes.txt
           echo $(git rev-parse master) >> commit_hashes.txt
-          asv run -a rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
+          asv run -a rounds=1 HASHFILE:commit_hashes.txt -E existing:/home/runner/micromamba/envs/tardis/bin/python | tee asv-output-PR.log  
             if grep -q failed asv-output-PR.log; then 
               echo "Some benchmarks have failed!"
               exit 1
