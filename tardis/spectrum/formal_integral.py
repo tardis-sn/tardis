@@ -14,6 +14,9 @@ from tardis.opacities.opacity_state import (
     OpacityState,
     opacity_state_initialize,
 )
+
+from tardis.spectrum.source_function_solver import SourceFunctionSolver
+
 from tardis.spectrum.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
@@ -419,169 +422,6 @@ class FormalIntegrator:
 
         return TARDISSpectrum(frequency, luminosity)
 
-    def make_source_function(self):
-        """
-        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
-
-        Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
-        so there is no need to factor out the source function explicitly.
-
-        Parameters
-        ----------
-        model : tardis.model.SimulationState
-
-        Returns
-        -------
-        Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
-        """
-
-        simulation_state = self.simulation_state
-        # slice for the active shells
-        local_slice = slice(
-            simulation_state.geometry.v_inner_boundary_index,
-            simulation_state.geometry.v_outer_boundary_index,
-        )
-
-        transport = self.transport
-        montecarlo_transport_state = transport.transport_state
-        transition_probabilities = self.opacity_state.transition_probabilities[
-            :, local_slice
-        ]
-        tau_sobolevs = self.opacity_state.tau_sobolev[:, local_slice]
-
-        columns = range(simulation_state.no_of_shells)
-
-        # macro_ref = self.atomic_data.macro_atom_references
-        macro_ref = self.atomic_data.macro_atom_references
-        # macro_data = self.atomic_data.macro_atom_data
-        macro_data = self.plasma.atomic_data.macro_atom_data
-
-        no_lvls = len(self.levels_index)
-        no_shells = len(simulation_state.dilution_factor)
-
-        if transport.line_interaction_type == "macroatom":
-            internal_jump_mask = (macro_data.transition_type >= 0).values
-            ma_int_data = macro_data[internal_jump_mask]
-            internal = transition_probabilities[internal_jump_mask]
-
-            source_level_idx = ma_int_data.source_level_idx.values
-            destination_level_idx = ma_int_data.destination_level_idx.values
-
-        Edotlu_norm_factor = 1 / (
-            montecarlo_transport_state.packet_collection.time_of_simulation
-            * simulation_state.volume
-        )
-        exptau = 1 - np.exp(-tau_sobolevs)
-        Edotlu = (
-            Edotlu_norm_factor
-            * exptau
-            * montecarlo_transport_state.radfield_mc_estimators.Edotlu_estimator
-        )
-
-        # The following may be achieved by calling the appropriate plasma
-        # functions
-        Jbluelu_norm_factor = (
-            (
-                const.c.cgs
-                * simulation_state.time_explosion
-                / (
-                    4
-                    * np.pi
-                    * montecarlo_transport_state.time_of_simulation
-                    * simulation_state.volume
-                )
-            )
-            .to("1/(cm^2 s)")
-            .value
-        )
-        # Jbluelu should already by in the correct order, i.e. by wavelength of
-        # the transition l->u
-        Jbluelu = (
-            transport.transport_state.radfield_mc_estimators.j_blue_estimator
-            * Jbluelu_norm_factor
-        )
-
-        upper_level_index = self.atomic_data.lines.index.droplevel(
-            "level_number_lower"
-        )
-        e_dot_lu = pd.DataFrame(
-            Edotlu.value, index=upper_level_index, columns=columns
-        )
-        e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
-        e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
-
-        if transport.line_interaction_type == "macroatom":
-            C_frame = pd.DataFrame(columns=columns, index=macro_ref.index)
-            q_indices = (source_level_idx, destination_level_idx)
-            for shell in range(no_shells):
-                Q = sp.coo_matrix(
-                    (internal[:, shell], q_indices), shape=(no_lvls, no_lvls)
-                )
-                inv_N = sp.identity(no_lvls) - Q
-                e_dot_u_vec = np.zeros(no_lvls)
-                e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].values
-                C_frame[shell] = linalg.spsolve(inv_N.T, e_dot_u_vec)
-
-        e_dot_u.index.names = [
-            "atomic_number",
-            "ion_number",
-            "source_level_number",
-        ]  # To make the q_ul e_dot_u product work, could be cleaner
-        transitions = self.plasma.atomic_data.macro_atom_data[
-            self.plasma.atomic_data.macro_atom_data.transition_type == -1
-        ].copy()
-        transitions_index = transitions.set_index(
-            ["atomic_number", "ion_number", "source_level_number"]
-        ).index.copy()
-        tmp = pd.DataFrame(
-            transition_probabilities[
-                (self.atomic_data.macro_atom_data.transition_type == -1).values
-            ]
-        )
-        q_ul = tmp.set_index(transitions_index)
-        t = simulation_state.time_explosion.value
-        t = simulation_state.time_explosion.value
-        lines = self.atomic_data.lines.set_index("line_id")
-        wave = lines.wavelength_cm.loc[
-            transitions.transition_line_id
-        ].values.reshape(-1, 1)
-        if transport.line_interaction_type == "macroatom":
-            e_dot_u = C_frame.loc[e_dot_u.index]
-        att_S_ul = wave * (q_ul * e_dot_u) * t / (4 * np.pi)
-
-        result = pd.DataFrame(
-            att_S_ul.values,
-            index=transitions.transition_line_id.values,
-            columns=columns,
-        )
-        att_S_ul = result.loc[lines.index.values].values
-
-        # Jredlu should already by in the correct order, i.e. by wavelength of
-        # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-tau_sobolevs) + att_S_ul
-        if self.interpolate_shells > 0:
-            (
-                att_S_ul,
-                Jredlu,
-                Jbluelu,
-                e_dot_u,
-            ) = self.interpolate_integrator_quantities(
-                att_S_ul, Jredlu, Jbluelu, e_dot_u
-            )
-        else:
-            transport.r_inner_i = (
-                montecarlo_transport_state.geometry_state.r_inner
-            )
-            transport.r_outer_i = (
-                montecarlo_transport_state.geometry_state.r_outer
-            )
-            transport.tau_sobolevs_integ = self.opacity_state.tau_sobolev
-            transport.electron_densities_integ = (
-                self.opacity_state.electron_density
-            )
-
-        return att_S_ul, Jredlu, Jbluelu, e_dot_u
-
     def interpolate_integrator_quantities(
         self, att_S_ul, Jredlu, Jbluelu, e_dot_u
     ):
@@ -647,8 +487,33 @@ class FormalIntegrator:
         routines
         """
         # TODO: get rid of storage later on
+        transport_state = self.transport.transport_state
 
-        res = self.make_source_function()
+        sourceFunction = SourceFunctionSolver()
+        res = sourceFunction.solve(self.simulation_state, self.opacity_state, transport_state, 
+                                   self.plasma.atomic_data, self.plasma.levels)
+        
+        att_S_ul, Jredlu, Jbluelu, e_dot_u = res[0], res[1], res[2], res[3]
+        if self.interpolate_shells > 0:
+            (
+                att_S_ul,
+                Jredlu,
+                Jbluelu,
+                e_dot_u,
+            ) = self.interpolate_integrator_quantities(
+                att_S_ul, Jredlu, Jbluelu, e_dot_u
+            )
+        else:
+            self.transport.r_inner_i = (
+                self.transport_state.geometry_state.r_inner
+            )
+            self.transport.r_outer_i = (
+                self.transport_state.geometry_state.r_outer
+            )
+            self.transport.tau_sobolevs_integ = self.opacity_state.tau_sobolev
+            self.transport.electron_densities_integ = (
+                self.opacity_state.electron_density
+            )
 
         att_S_ul = res[0].flatten(order="F")
         Jred_lu = res[1].flatten(order="F")

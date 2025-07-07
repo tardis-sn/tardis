@@ -19,7 +19,6 @@ class SourceFunctionSolver:
         self.line_interaction_type = line_interaction_type
 
 
-    # TODO: make solve take in the states needed
     def solve(self, sim_state, opacity_state, transport_state, atomic_data, levels):
         """
         Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
