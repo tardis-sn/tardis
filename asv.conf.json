@@ -12,6 +12,7 @@
         "origin/master",
         "HEAD"
     ],
+    "environment_type": "mamba",
     "show_commit_url": "https://github.com/tardis-sn/tardis/commit/",
     "conda_environment_file": "IGNORE",
     "benchmark_dir": "benchmarks",
