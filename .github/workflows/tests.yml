@@ -54,6 +54,7 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
+        pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
         include:
           - label: osx-arm64
             os: macos-latest
@@ -74,13 +75,13 @@ jobs:
           os-label: ${{ matrix.label }}
 
       - name: Install tardis editable
-        if: ${{ !inputs.pip_git }}
+        if: ${{ !matrix.pip_git }}
         run: |
           pip install -e ".[tardisbase]" 
           pip install --no-deps qgridnext lineid_plot
 
       - name: Install tardis git
-        if: ${{ inputs.pip_git }}
+        if: ${{ matrix.pip_git }}
         run: |
           pip install "tardis[tardisbase,viz] @ git+https://github.com/tardis-sn/tardis.git@master"
 
