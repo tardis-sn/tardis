@@ -3,51 +3,24 @@
 from tardis import constants as const
 from tardis.spectrum.formal_integral.base import interpolate_integrator_quantities
 
-
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
 
+from astropy import units as u
+
 
 class SourceFunctionSolver:
 
-    def __init__():
-        pass
+    def __init__(self, line_interaction_type):
 
-    def solve(self, v_inner_boundary_index, v_outer_boundary_index, time_explosion, volume,
-            no_of_shells, dilution_factor,
-            transition_probabilities, tau_sobolev,
-            atomic_data, levels,
-            line_interaction_type, time_of_simulation, j_blue_estimator, Edotlu_estimator):
+        # self.configuration = configuration
+        self.line_interaction_type = line_interaction_type
 
-        return self.make_source_function( 
-            v_inner_boundary_index, v_outer_boundary_index, time_explosion, volume,
-            no_of_shells, dilution_factor,
-            transition_probabilities, tau_sobolev,
-            atomic_data, levels,
-            line_interaction_type, time_of_simulation, j_blue_estimator, Edotlu_estimator
-        )
 
-    # TODO: make it take only the necessary things
-    # sim_state 
-        # geometry: v_inner_boundary_index, v_outer_boundary_index
-        # no_of_shells, dilution_factor
-        # time_explosion, volume
-    # opacity_state
-        # transition_probabilites, tau_sobolev
-    # transport
-        # line_interaction_type
-        # j_blue_estimator, Edotlu_estimator,  time_of_simulation
-    # plasma
-        # atomic_data, levels
-    def make_source_function(self, 
-            v_inner_boundary_index, v_outer_boundary_index, time_explosion, volume,
-            no_of_shells, dilution_factor,
-            transition_probabilities, tau_sobolev,
-            atomic_data, levels,
-            line_interaction_type, time_of_simulation, j_blue_estimator, Edotlu_estimator
-        ):
+    # TODO: make solve take in the states needed
+    def solve(self, sim_state, opacity_state, transport_state, atomic_data, levels):
         """
         Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
 
@@ -55,12 +28,42 @@ class SourceFunctionSolver:
         so there is no need to factor out the source function explicitly.
         Parameters
         ----------
-        model : tardis.model.SimulationState
+        sim_state : tardis.model.SimulationState
+        opacity_state : tardis.transport.montecarlo.OpacityState
+        transport_state : tardis.transport.montecarlo.TransportState
+        atomic_data : tardis.atomic.AtomicData
+        levels : pandas.DataFrame
+            DataFrame containing the levels of the atomic data
 
         Returns
         -------
         Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
+
+        att_S_ul : np.ndarray
+            Attenuated source function
+        Jredlu : np.ndarray
+        Jbluelu : np.ndarray
+        e_dot_u : pd.DataFrame
+
         """
+        # Parse states for required values
+        v_inner_boundary_index = sim_state.geometry.v_inner_boundary_index
+        v_outer_boundary_index = sim_state.geometry.v_outer_boundary_index
+        no_of_shells = sim_state.no_of_shells
+        dilution_factor = sim_state.dilution_factor
+        time_explosion = sim_state.time_explosion
+        volume = sim_state.volume
+
+        # TODO: check if the opacity state only lives in the transport state
+            # and if so, remove the opacity_state parameter
+            # and use transport_state.opacity_state instead
+        tau_sobolev = opacity_state.tau_sobolev
+        transition_probabilities = opacity_state.transition_probabilities
+
+        j_blue_estimator = transport_state.radfield_mc_estimators.j_blue_estimator
+        Edotlu_estimator = transport_state.radfield_mc_estimators.Edotlu_estimator
+        time_of_simulation = transport_state.packet_collection.time_of_simulation * u.s
+
 
         # slice for the active shells
         local_slice = slice(v_inner_boundary_index,v_outer_boundary_index)
@@ -76,17 +79,16 @@ class SourceFunctionSolver:
         no_lvls = len(levels)
         no_shells = len(dilution_factor) # TODO: is dilution_factor len=no_of_shells 
 
-        Jbluelu = calculate_Jbluelu(time_explosion, time_of_simulation, volume, j_blue_estimator)
-
-
+        # Calculate e_dot_u
         upper_level_index = atomic_data.lines.index.droplevel(
             "level_number_lower"
         )
         e_dot_u = calculate_edotu(time_of_simulation, volume, tau_sobolevs, Edotlu_estimator, 
-                        macro_data, macro_ref, line_interaction_type,
+                        macro_data, macro_ref, self.line_interaction_type,
                         transition_probabilities, upper_level_index, columns, no_lvls)
 
 
+        # Calculate att_S_ul
         transitions_index = transitions.set_index(
             ["atomic_number", "ion_number", "source_level_number"]
         ).index.copy()
@@ -95,15 +97,18 @@ class SourceFunctionSolver:
         transition_line_id = transitions.transition_line_id.values
         lines = atomic_data.lines.set_index('line_id') # TODO: investigate why this is like this
         lines_idx = lines.index.values 
+        
         att_S_ul = calculate_att_S_ul(lines, transition_probabilities, 
                             no_of_shells, transition_line_id, lines_idx, 
                             transitions_index, transition_type,
                             e_dot_u, time_explosion)
 
+        # Calculate Jredlu and Jbluelu
         Jbluelu = calculate_Jbluelu(time_explosion, time_of_simulation, volume, j_blue_estimator)
         Jredlu = calculate_Jredlu(Jbluelu, tau_sobolevs, att_S_ul)
 
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
+        
     
 # transport
     # time of sim, Edotlu_estimator, line_interaction_type
