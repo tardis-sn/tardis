@@ -72,7 +72,7 @@ jobs:
           os-label: linux-64
       
       - name: Install asv
-        run: micromamba install -c conda-forge "asv=0.6.4" "mamba" "libmambapy<2.0" "conda-build" "conda=24.11.0"
+        run: micromamba install -c conda-forge "asv" "mamba" "libmambapy" "conda-build" "conda"
 
       - run: which python
 
