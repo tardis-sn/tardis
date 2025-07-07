@@ -489,35 +489,35 @@ class FormalIntegrator:
         # TODO: get rid of storage later on
         transport_state = self.transport.transport_state
 
-        sourceFunction = SourceFunctionSolver()
+        sourceFunction = SourceFunctionSolver(line_interaction_type = self.transport.line_interaction_type)
         res = sourceFunction.solve(self.simulation_state, self.opacity_state, transport_state, 
                                    self.plasma.atomic_data, self.plasma.levels)
         
-        att_S_ul, Jredlu, Jbluelu, e_dot_u = res[0], res[1], res[2], res[3]
+        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = res[0], res[1], res[2], res[3]
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
-                Jredlu,
-                Jbluelu,
+                Jred_lu,
+                Jblue_lu,
                 e_dot_u,
             ) = self.interpolate_integrator_quantities(
-                att_S_ul, Jredlu, Jbluelu, e_dot_u
+                att_S_ul, Jred_lu, Jblue_lu, e_dot_u
             )
         else:
             self.transport.r_inner_i = (
-                self.transport_state.geometry_state.r_inner
+                transport_state.geometry_state.r_inner
             )
             self.transport.r_outer_i = (
-                self.transport_state.geometry_state.r_outer
+                transport_state.geometry_state.r_outer
             )
             self.transport.tau_sobolevs_integ = self.opacity_state.tau_sobolev
             self.transport.electron_densities_integ = (
                 self.opacity_state.electron_density
             )
 
-        att_S_ul = res[0].flatten(order="F")
-        Jred_lu = res[1].flatten(order="F")
-        Jblue_lu = res[2].flatten(order="F")
+        att_S_ul = att_S_ul.flatten(order="F")
+        Jred_lu = Jred_lu.flatten(order="F")
+        Jblue_lu = Jblue_lu.flatten(order="F")
 
         self.generate_numba_objects()
         L, I_nu_p = self.integrator.formal_integral(

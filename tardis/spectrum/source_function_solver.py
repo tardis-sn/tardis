@@ -1,7 +1,6 @@
 
 
 from tardis import constants as const
-from tardis.spectrum.formal_integral.base import interpolate_integrator_quantities
 
 import numpy as np
 import pandas as pd
@@ -88,11 +87,11 @@ class SourceFunctionSolver:
 
 
         # Calculate att_S_ul
+        transition_type = atomic_data.macro_atom_data.transition_type
+        transitions = atomic_data.macro_atom_data[transition_type == -1].copy()
         transitions_index = transitions.set_index(
             ["atomic_number", "ion_number", "source_level_number"]
         ).index.copy()
-        transition_type = atomic_data.macro_atom_data.transition_type
-        transitions = atomic_data.macro_atom_data[transition_type == -1].copy()
         transition_line_id = transitions.transition_line_id.values
         lines = atomic_data.lines.set_index('line_id') # TODO: investigate why this is like this
         lines_idx = lines.index.values 
