@@ -194,6 +194,8 @@ class IonRateMatrix:
         level_population,
         lte_ion_population,
         ion_population,
+        partition_function,
+        boltzmann_factor,
         charge_conservation=False,
     ):
         """Compute the ionization rate matrix.
@@ -229,6 +231,8 @@ class IonRateMatrix:
                 level_population,
                 lte_ion_population,
                 ion_population,
+                partition_function,
+                boltzmann_factor,
             )
         )
 
@@ -241,7 +245,8 @@ class IonRateMatrix:
             self.collisional_ionization_rate_solver.solve(
                 thermal_electron_energy_distribution,
                 saha_factor,
-                level_population,
+                partition_function,
+                boltzmann_factor,
             )
         )
 

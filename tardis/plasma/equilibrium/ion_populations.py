@@ -29,30 +29,34 @@ class IonPopulationSolver:
 
         Parameters
         ----------
-        number_density : pandas.DataFrame
-            Number densities of all present species.
+        elemental_number_density : pandas.Series
+            Elemental number densities indexed by atomic number.
         rate_matrix_index : pandas.MultiIndex
-            (atomic_number, ion_number, treatment type)
+            (atomic_number, ion_number)
+        charge_conservation : bool, optional
+            Whether to include a charge conservation row.
 
         Returns
         -------
         numpy.array
-        Solution vector for the NLTE ionization solver.
+            Solution vector for the NLTE ionization solver.
         """
-        atomic_numbers = elemental_number_density.index
-        balance_array = []
-        for atomic_number in atomic_numbers:
-            needed_number_of_elements = (
-                rate_matrix_index.get_level_values("atomic_number")
-                == atomic_number
-            ).sum()
-            balance_vector_block = np.zeros(needed_number_of_elements + 1)
-            balance_vector_block[-1] = elemental_number_density.loc[
-                atomic_number
-            ]
-            balance_array.append(balance_vector_block)
-            if charge_conservation:
-                balance_array.append(np.array([0.0]))
+        balance_array = [
+            np.append(
+                np.zeros(
+                    (
+                        rate_matrix_index.get_level_values("atomic_number")
+                        == atomic_number
+                    ).sum()
+                ),
+                elemental_number_density.loc[atomic_number],
+            )
+            for atomic_number in elemental_number_density.index
+        ]
+
+        if charge_conservation:
+            balance_array.append(np.array([0.0]))
+
         return np.hstack(balance_array)
 
     def solve(
@@ -64,6 +68,8 @@ class IonPopulationSolver:
         level_population,
         lte_ion_population,
         ion_population,
+        partition_function,
+        boltzmann_factor,
         charge_conservation=False,
     ):
         """Solves the normalized ion population values from the rate matrices.
@@ -120,6 +126,8 @@ class IonPopulationSolver:
                 level_population.loc[lower_ion_level_index],
                 lte_ion_population.loc[upper_ion_population_index],
                 ion_population.loc[upper_ion_population_index],
+                partition_function,
+                boltzmann_factor,
                 charge_conservation,
             )
             solved_matrices = pd.DataFrame(

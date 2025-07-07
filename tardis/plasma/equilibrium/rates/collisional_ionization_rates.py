@@ -23,7 +23,8 @@ class CollisionalIonizationRateSolver:
         self,
         electron_distribution,
         saha_factor,
-        level_population,
+        partition_function,
+        level_boltzmann_factor,
         approximation="seaton",
     ):
         """Solve the collisional ionization and recombination rates.
@@ -65,8 +66,8 @@ class CollisionalIonizationRateSolver:
             saha_factor
         )
 
-        # TODO: calculate from boltzmann factor and partition function instead
-        level_population_fraction = level_population / level_population.sum()
+        # TODO: Update for non-Hydrogenic species
+        level_population_fraction = level_boltzmann_factor / partition_function
 
         # used to scale the photoionization rate because we keep the level population
         # fixed while we calculated the ion number density

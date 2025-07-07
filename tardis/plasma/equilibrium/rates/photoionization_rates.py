@@ -30,6 +30,8 @@ class AnalyticPhotoionizationRateSolver:
         level_population,
         lte_ion_population,
         ion_population,
+        partition_function,
+        level_boltzmann_factor,
     ):
         """Solve the photoionization and spontaneous recombination rates in the
         case where the radiation field is not estimated.
@@ -77,8 +79,14 @@ class AnalyticPhotoionizationRateSolver:
             )
         )
 
-        # TODO: calculate from boltzmann factor and partition function instead
-        fractional_level_population = level_population / level_population.sum()
+        # TODO: Update for non-Hydrogenic species
+        fractional_level_population = (
+            level_boltzmann_factor / partition_function
+        )
+
+        level_population_ratio = lte_level_population / (
+            lte_ion_population * electron_energy_distribution.number_density
+        )
 
         # used to scale the photoionization rate because we keep the level population
         # fixed while we calculated the ion number density
@@ -88,6 +96,7 @@ class AnalyticPhotoionizationRateSolver:
 
         recombination_rate = (
             recombination_rate_coeff
+            * level_population_ratio
             * electron_energy_distribution.number_density
         )
 
