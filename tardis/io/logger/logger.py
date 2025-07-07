@@ -245,7 +245,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
     tardislogger = TARDISLogger(log_columns=log_columns)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
-    use_widget = display_logging_widget and (Environment.is_notebook() or Environment.get_current_environment() == Environment.VSCODE)
+    use_widget = display_logging_widget and (Environment.is_notebook() or Environment.is_vscode())
     
     if Environment.is_notebook():
         display_handles = {}
