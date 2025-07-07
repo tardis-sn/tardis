@@ -3,12 +3,7 @@
     "project": "tardis",
     "project_url": "https://tardis-sn.github.io/tardis",
     "repo": ".",
-    "install_command": [
-        "in-dir={env_dir} python -mpip install {wheel_file}"
-    ],
-    "uninstall_command": [
-        "return-code=any python -mpip uninstall -y {project}"
-    ],
+    "pythons": ["/home/runner/micromamba/envs/tardis/bin/python"],
     "build_command": [
         "pip install -e .",
         "PIP_NO_BUILD_ISOLATION=false python -mpip wheel --no-deps --no-index -w {build_cache_dir} {build_dir}"
