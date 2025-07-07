@@ -260,13 +260,13 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         # Update tardislogger with display handles and IDs
         tardislogger.display_handles = display_handles
         tardislogger.display_ids = display_ids
-    elif Environment.get_current_environment() == Environment.VSCODE:
+    elif Environment.is_vscode():
         # Use direct display for vscode (no change)
         for level, column in log_columns.items():
             level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
             display(level_title)
             display(column)
-    elif Environment.get_current_environment() == Environment.TERMINAL:
+    elif Environment.is_terminal():
         logger.warning("Terminal environment detected, skipping logger widget")
     else:
         logger.warning("Unknown environment, skipping logger widget")
