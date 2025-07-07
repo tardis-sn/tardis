@@ -100,9 +100,9 @@ class SourceFunctionSolver:
                             transitions_index, transition_type,
                             e_dot_u, time_explosion)
 
-        # Jredlu should already by in the correct order, i.e. by wavelength of
-        # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-tau_sobolevs) + att_S_ul
+        Jbluelu = calculate_Jbluelu(time_explosion, time_of_simulation, volume, j_blue_estimator)
+        Jredlu = calculate_Jredlu(Jbluelu, tau_sobolevs, att_S_ul)
+
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
     
 # transport
