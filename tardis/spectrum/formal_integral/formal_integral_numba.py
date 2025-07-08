@@ -21,7 +21,7 @@ def calculate_z(r, p, inv_t):
     Inputs:
         :r: (double) radius of the shell
         :p: (double) distance of the p-line to the center of the supernova
-        :inv_t: (double) inverse time_explosio is needed to norm to unit-length
+        :inv_t: (double) inverse time_explosion is needed to norm to unit-length
     """
     if r > p:
         return np.sqrt(r * r - p * p) * C_INV * inv_t
