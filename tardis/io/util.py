@@ -1,7 +1,5 @@
 # Utility functions for the IO part of TARDIS
 
-from __future__ import annotations
-
 import collections.abc as collections_abc
 import hashlib
 import logging
@@ -9,7 +7,7 @@ import shutil
 from collections import OrderedDict
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import Any
 
 import numpy as np
 import yaml
@@ -18,7 +16,6 @@ from astropy.utils.data import download_file
 
 from tardis import __path__ as TARDIS_PATH
 from tardis import constants as const
-
 
 logger = logging.getLogger(__name__)
 
