@@ -10,35 +10,6 @@ import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_
 from tardis.util.base import intensity_black_body
 
 
-@pytest.mark.parametrize(
-    ["nu", "temperature"],
-    [
-        (1e14, 1e4),
-        (0, 1),
-        (1, 1),
-    ],
-)
-def test_intensity_black_body(nu, temperature):
-    func = formal_integral_numba.intensity_black_body
-    actual = func(nu, temperature)
-    print(actual, type(actual))
-    expected = intensity_black_body(nu, temperature)
-    ntest.assert_almost_equal(actual, expected)
-
-
-@pytest.mark.parametrize("N", (1e2, 1e3, 1e4, 1e5))
-def test_trapezoid_integration(N):
-    func = formal_integral_numba.trapezoid_integration
-    h = 1.0
-    N = int(N)
-    data = np.random.random(N)
-
-    actual = func(data, h)
-    expected = np.trapz(data)
-
-    ntest.assert_almost_equal(actual, expected)
-
-
 TESTDATA = [
     {
         "r": np.linspace(1, 2, 3, dtype=np.float64),
@@ -48,8 +19,6 @@ TESTDATA = [
     },
     # {"r": np.linspace(1, 2, 10, dtype=np.float64)},
 ]
-
-
 @pytest.fixture(scope="function", params=TESTDATA)
 def formal_integral_geometry(request):
     r = request.param["r"]
@@ -67,6 +36,33 @@ def time_explosion():
     return 1 / c.c.cgs.value
 
 
+@pytest.mark.parametrize(
+    ["nu", "temperature"],
+    [
+        (1e14, 1e4),
+        (0, 1),
+        (1, 1),
+    ],
+)
+def test_intensity_black_body(nu, temperature):
+    actual = formal_integral_numba.intensity_black_body(nu, temperature)
+    print(actual, type(actual))
+    expected = intensity_black_body(nu, temperature)
+    ntest.assert_almost_equal(actual, expected)
+
+
+@pytest.mark.parametrize("N", (1e2, 1e3, 1e4, 1e5))
+def test_trapezoid_integration(N):
+    h = 1.0
+    N = int(N)
+    data = np.random.random(N)
+
+    actual = formal_integral_numba.trapezoid_integration(data, h)
+    expected = np.trapz(data)
+
+    ntest.assert_almost_equal(actual, expected)
+
+
 def calculate_z(r, p):
     return np.sqrt(r * r - p * p)
 
@@ -74,13 +70,12 @@ def calculate_z(r, p):
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
 def test_calculate_z(formal_integral_geometry, time_explosion, p):
 
-    func = formal_integral_numba.calculate_z
     inv_t = 1.0 / time_explosion
     size = len(formal_integral_geometry.r_outer)
     r_outer = formal_integral_geometry.r_outer
     for r in r_outer:
 
-        actual = func(r, p, inv_t)
+        actual = formal_integral_numba.calculate_z(r, p, inv_t)
         if p >= r:
             assert actual == 0
         else:
@@ -94,8 +89,6 @@ def test_populate_z_photosphere(formal_integral_geometry, time_explosion, p):
     Test the case where p < r[0]
     That means we 'hit' all shells from inside to outside.
     """
-    integrator = FormalIntegrator(time_explosion, None, None)
-    func = formal_integral_numba.populate_z
     size = len(formal_integral_geometry.r_outer)
     r_inner = formal_integral_geometry.r_inner
     r_outer = formal_integral_geometry.r_outer
@@ -104,7 +97,7 @@ def test_populate_z_photosphere(formal_integral_geometry, time_explosion, p):
     oz = np.zeros_like(r_inner)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-    N = func(formal_integral_geometry, time_explosion, p, oz, oshell_id)
+    N = formal_integral_numba.populate_z(formal_integral_geometry, time_explosion, p, oz, oshell_id)
     assert N == size
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
@@ -117,8 +110,6 @@ def test_populate_z_shells(formal_integral_geometry, time_explosion, p):
     """
     Test the case where p > r[0]
     """
-    integrator = FormalIntegrator(time_explosion, None, None)
-    func = formal_integral_numba.populate_z
 
     size = len(formal_integral_geometry.r_inner)
     r_inner = formal_integral_geometry.r_inner
@@ -148,7 +139,7 @@ def test_populate_z_shells(formal_integral_geometry, time_explosion, p):
         r_outer[np.arange(idx, size, 1)], p
     )
 
-    N = func(formal_integral_geometry, time_explosion, p, oz, oshell_id)
+    N = formal_integral_numba.populate_z(formal_integral_geometry, time_explosion, p, oz, oshell_id)
 
     assert N == expected_N
 
@@ -167,10 +158,9 @@ def test_populate_z_shells(formal_integral_geometry, time_explosion, p):
 )
 def test_calculate_p_values(N):
     r = 1.0
-    func = formal_integral_numba.calculate_p_values
 
     expected = r / (N - 1) * np.arange(0, N, dtype=np.float64)
     actual = np.zeros_like(expected, dtype=np.float64)
 
-    actual[::] = func(r, N)
+    actual[::] = formal_integral_numba.calculate_p_values(r, N)
     ntest.assert_allclose(actual, expected)
