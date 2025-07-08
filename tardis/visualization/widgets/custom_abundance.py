@@ -1,5 +1,4 @@
 """Class to create and display Custom Abundance Widget."""
-import os
 from pathlib import Path
 
 import ipywidgets as ipw
@@ -92,9 +91,7 @@ class CustomAbundanceWidgetData:
         CustomAbundanceWidgetData
         """
         csvy_model_config, csvy_model_data = load_csvy(fpath)
-        csvy_schema_file = os.path.join(
-            BASE_DIR, "io", "schemas", "csvy_model.yml"
-        )
+        csvy_schema_file = Path(BASE_DIR) / "io" / "schemas" / "csvy_model.yml"
         csvy_model_config = Configuration(
             validate_dict(csvy_model_config, schemapath=csvy_schema_file)
         )

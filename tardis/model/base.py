@@ -1,5 +1,4 @@
 import logging
-import os
 from pathlib import Path
 
 import numpy as np
@@ -333,12 +332,10 @@ class SimulationState(HDFWriterMixin):
             "dilution_factor",
         }
 
-        if os.path.isabs(config.csvy_model):
+        if Path(config.csvy_model).is_absolute():
             csvy_model_fname = config.csvy_model
         else:
-            csvy_model_fname = os.path.join(
-                config.config_dirname, config.csvy_model
-            )
+            csvy_model_fname = Path(config.config_dirname) / config.csvy_model
         csvy_model_config, csvy_model_data = load_csvy(csvy_model_fname)
         csvy_schema_fname = SCHEMA_DIR / "csvy_model.yml"
         csvy_model_config = Configuration(

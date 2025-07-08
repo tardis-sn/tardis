@@ -1,4 +1,3 @@
-import os
 from copy import deepcopy
 from pathlib import Path
 
@@ -78,7 +77,7 @@ def pytest_configure(config):
 
         from . import __version__
 
-        packagename = os.path.basename(os.path.dirname(__file__))
+        packagename = Path(__file__).parent.name
         TESTED_VERSIONS[packagename] = __version__
 
     # Create a marker to ignore the `--generate-reference` flag. A use case for this
@@ -171,9 +170,7 @@ def tardis_regression_path(request):
     if tardis_regression_path is None:
         pytest.skip("--tardis-regression-data was not specified")
     else:
-        return Path(
-            os.path.expandvars(os.path.expanduser(tardis_regression_path))
-        )
+        return Path(tardis_regression_path).expanduser().resolve()
 
 
 @pytest.fixture(scope="function")

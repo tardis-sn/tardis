@@ -1,5 +1,5 @@
 import logging
-import os
+from pathlib import Path
 
 import astropy.units as u
 import numpy as np
@@ -59,12 +59,10 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
         )
 
     elif mass_fractions_section.type == "file":
-        if os.path.isabs(mass_fractions_section.filename):
+        if Path(mass_fractions_section.filename).is_absolute():
             mass_fractions_fname = mass_fractions_section.filename
         else:
-            mass_fractions_fname = os.path.join(
-                config.config_dirname, mass_fractions_section.filename
-            )
+            mass_fractions_fname = Path(config.config_dirname) / mass_fractions_section.filename
 
         (
             index,
