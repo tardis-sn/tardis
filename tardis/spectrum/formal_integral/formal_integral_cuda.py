@@ -2,15 +2,8 @@ import numpy as np
 import math
 
 from numba import cuda
-
+from tardis.spectrum.formal_integral.base import C_INV, KB_CGS, H_CGS
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
-
-
-PI = np.pi
-C_INV = 3.33564e-11
-KB_CGS = 1.3806488e-16
-H_CGS = 6.62606957e-27
-
 
 @cuda.jit(device=True)
 def trapezoid_integration_cuda(arr, dx):
@@ -48,7 +41,7 @@ def cuda_vector_integrator(L, I_nu, N, R_max):
     """
     nu_idx = cuda.grid(1)
     L[nu_idx] = (
-        8 * PI * PI * trapezoid_integration_cuda(I_nu[nu_idx], R_max / N)
+        8 * np.pi * np.pi * trapezoid_integration_cuda(I_nu[nu_idx], R_max / N)
     )
 
 
