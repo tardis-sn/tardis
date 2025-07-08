@@ -19,8 +19,11 @@ def test_check(simulation_verysimple, line_interaction_type):
     transport.line_interaction_type = line_interaction_type
 
     assert check(sim_state, plasma, transport)
-)
+
+    # should return false
     assert not check(None, plasma, transport, raises=False)
+    assert not check(sim_state, None, transport, raises=False)
+    assert not check(sim_state, plasma, None, raises=False)
 
 
 
