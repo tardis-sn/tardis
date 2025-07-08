@@ -5,7 +5,7 @@
 name: compare-regdata
 
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - master
     types:
@@ -129,7 +129,7 @@ jobs:
       
       - name: Install Kaleido
         run: |
-          pip install kaleido==0.2.1
+          pip install kaleido
 
       - name: Run comparison notebook
         run: |
@@ -152,7 +152,7 @@ jobs:
 
   deploy-comparison:
     needs: tests
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: main
@@ -177,7 +177,7 @@ jobs:
 
       - name: Set destination directory
         run: |
-          if [[ $EVENT == pull_request ]]; then
+          if [[ $EVENT == pull_request_target ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
           else
             echo "DEST_DIR=commit/$GITHUB_SHA" >> $GITHUB_ENV
