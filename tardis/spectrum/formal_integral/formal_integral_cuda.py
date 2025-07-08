@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 from numba import cuda
-from tardis.spectrum.formal_integral.base import C_INV, KB_CGS, H_CGS
+from tardis.spectrum.formal_integral.base import C_INV, calculate_p_values, intensity_black_body
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 @cuda.jit(device=True)
@@ -205,27 +205,8 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
     return result
 
 
-@cuda.jit(device=True)
-def intensity_black_body_cuda(nu, temperature):
-    """
-    Calculate the blackbody intensity.
-
-    Parameters
-    ----------
-    nu : float64
-        frequency
-    temperature : float64
-        Temperature
-
-    Returns
-    -------
-    float64
-    """
-    if nu == 0:
-        return np.nan  # to avoid ZeroDivisionError
-    beta_rad = 1 / (KB_CGS * temperature)
-    coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)
+calculate_p_values = cuda.jit(calculate_p_values, device=True)
+intensity_black_body_cuda = cuda.jit(intensity_black_body, device=True)
 
 
 @cuda.jit
@@ -425,22 +406,6 @@ def cuda_formal_integral(
         pJblue_lu += direction
 
     I_nu_thread[p_idx] *= p
-
-
-def calculate_p_values(R_max, N):
-    """
-    Calculates the p values of N
-
-    Parameters
-    ----------
-    R_max : float64
-    N : int64
-
-    Returns
-    -------
-    float64
-    """
-    return np.arange(N).astype(np.float64) * R_max / (N - 1)
 
 
 class CudaFormalIntegrator:

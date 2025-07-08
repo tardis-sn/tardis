@@ -7,6 +7,7 @@ import scipy.sparse.linalg as linalg
 import warnings
 
 from tardis import constants as const
+from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 C_INV = 3.33564e-11
@@ -64,6 +65,45 @@ def check(simulation_state, plasma, transport, raises=True):
         )
 
     return True
+
+
+def calculate_p_values(R_max, N):
+    """
+    Calculates the p values of N
+
+    Parameters
+    ----------
+    R_max : float64
+    N : int64
+
+    Returns
+    -------
+    float64
+    """
+    return np.arange(N).astype(np.float64) * R_max / (N - 1)
+
+
+def intensity_black_body(nu, temperature):
+    """
+    Calculate the blackbody intensity.
+
+    Parameters
+    ----------
+    nu : float64
+        frequency
+    temperature : float64
+        Temperature
+
+    Returns
+    -------
+    float64
+    """
+    if nu == 0:
+        return np.nan  # to avoid ZeroDivisionError
+    beta_rad = 1 / (KB_CGS * temperature)
+    coefficient = 2 * H_CGS * C_INV * C_INV
+    return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
+
 
 def make_source_function(simulation_state, plasma, transport, interpolate_shells=0):
     """
