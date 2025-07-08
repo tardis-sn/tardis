@@ -334,7 +334,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
         """
         if self.radius is None or self.time_explosion is None:
             raise ValueError("Black body Radius or Time of Explosion isn't set")
-        self.beta = ((self.radius / self.time_explosion) / const.c).to("")
+        self.beta = ((self.radius / self.time_explosion) / const.c).to(u.dimensionless_unscaled).to_value()
         return super().create_packets(no_of_packets, *args, **kwargs)
 
     def create_packet_mus(self, no_of_packets):
