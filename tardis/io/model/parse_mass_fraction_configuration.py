@@ -92,7 +92,7 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
         assert model_isotope_time_0 < time_explosion
         isotope_mass_fractions = IsotopicMassFraction(
             isotope_mass_fractions, time_0=model_isotope_time_0
-        ).decay(time_explosion)
+        ).calculate_decayed_mass_fractions(time_explosion)
     else:
         logger.warning(
             "model_isotope_time_0 is not set in the configuration. "
