@@ -16,11 +16,9 @@ import yaml
 from astropy import units as u
 from astropy.utils.data import download_file
 
-from tardis import __path__ as tardis_path
+from tardis import __path__ as TARDIS_PATH
 from tardis import constants as const
 
-if TYPE_CHECKING:
-    from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +37,7 @@ def get_internal_data_path(fname: str) -> str:
     str
         Internal data path of TARDIS joined with the filename.
     """
-    return str(Path(tardis_path[0]) / "data" / fname)
+    return str(Path(TARDIS_PATH[0]) / "data" / fname)
 
 
 def quantity_from_str(text: str) -> u.Quantity:

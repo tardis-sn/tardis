@@ -4,6 +4,9 @@ import pytest
 from plotly.callbacks import BoxSelector, Points
 
 from tardis.util.base import species_string_to_tuple
+
+# check if qgrid is installed for the widgets
+qgridnext = pytest.importorskip("qgridnext", reason="qgridnext is not installed")
 from tardis.visualization.widgets.line_info import LineInfoWidget
 
 
@@ -52,6 +55,12 @@ class TestLineInfoWidgetData:
                 .ngroups
             )
             assert species_interactions_df.shape == (expected_df_length, 1)
+
+    def test_get_middle_half_edges(self, line_info_widget, wavelength_range, filter_mode):
+        arr = np.array([0, 1, 2, 3, 4])
+        res = line_info_widget.get_middle_half_edges(arr)
+        expected_res = [(arr[-1] - arr[0]) / 4 + arr[1], (arr[-1] - arr[0]) * 3 / 4 + arr[1]]
+        assert res == expected_res
 
     @pytest.fixture
     def allowed_species(self, line_info_widget, wavelength_range, filter_mode):
