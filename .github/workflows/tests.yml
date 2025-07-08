@@ -87,6 +87,10 @@ jobs:
       - name: Install qgridnext and lineid_plot
         run: |
           pip install --no-deps qgridnext lineid_plot
+      
+      - run: python -c "import tardis; tardis.__file__"
+      
+      - run: exit 1
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
