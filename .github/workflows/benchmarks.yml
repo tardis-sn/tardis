@@ -99,7 +99,7 @@ jobs:
             git checkout $commit_hash
             pip install -e ".[tardisbase]"
             pip install --no-deps qgridnext lineid_plot
-            TARDIS_REF_PATH=tardis-regression-data/atom_data asv dev --set-commit-hash $commit_hash -a rounds=1
+            TARDIS_REF_PATH=tardis-regression-data/atom_data asv run --python=same --set-commit-hash $commit_hash -a rounds=1 --quick
           done < tag_commits.txt | tee asv-output.log
           
           # Return to original state
@@ -140,14 +140,14 @@ jobs:
           git checkout master
           pip install -e ".[tardisbase]"
           pip install --no-deps qgridnext lineid_plot
-          TARDIS_REF_PATH=tardis-regression-data/atom_data asv dev --set-commit-hash $MASTER_HASH -a rounds=1
+          TARDIS_REF_PATH=tardis-regression-data/atom_data asv run --python=same --set-commit-hash $MASTER_HASH -a rounds=1 --quick
           
           # Benchmark PR head
           echo "Benchmarking PR head commit: $HEAD_HASH"
           git checkout $HEAD_HASH
           pip install -e ".[tardisbase]"
           pip install --no-deps qgridnext lineid_plot
-          TARDIS_REF_PATH=tardis-regression-data/atom_data asv dev --set-commit-hash $HEAD_HASH -a rounds=1 | tee asv-output-PR.log
+          TARDIS_REF_PATH=tardis-regression-data/atom_data asv run --python=same --set-commit-hash $HEAD_HASH -a rounds=1 --quick | tee asv-output-PR.log
           
           if grep -q failed asv-output-PR.log; then 
             echo "Some benchmarks have failed!"
