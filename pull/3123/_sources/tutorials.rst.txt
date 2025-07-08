@@ -3,6 +3,6 @@ Tutorials
 
 The following pages contain the TARDIS tutorials:
 
-* :doc:`tutorial_logging_configuration`
-* :doc:`tutorial_callback_example`
 * :doc:`tutorial_read_configuration`
+* :doc:`tutorial_callback_example`
+* :doc:`tutorial_logging_configuration`

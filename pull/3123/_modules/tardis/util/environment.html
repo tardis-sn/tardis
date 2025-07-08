@@ -164,7 +164,8 @@ class Environment(StrEnum):
         elif cls.is_terminal():
             return cls.TERMINAL
         else:
-            raise ValueError(&quot;Unknown environment detected&quot;)</div>
+            logger.critical(&quot;Unknown environment detected&quot;)
+            return cls.TERMINAL</div>
 
     
 <div class="viewcode-block" id="Environment.is_terminal">
@@ -237,7 +238,7 @@ class Environment(StrEnum):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Jun 2025.
+      <span class="lastupdated">Last updated on 08 Jul 2025.
       </span></p>
   </div>
 

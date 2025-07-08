@@ -408,7 +408,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
     tardislogger = TARDISLogger(log_columns=log_columns)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
-    use_widget = display_logging_widget and (Environment.is_notebook() or Environment.get_current_environment() == Environment.VSCODE)
+    use_widget = display_logging_widget and (Environment.is_notebook() or Environment.is_vscode())
     
     if Environment.is_notebook():
         display_handles = {}
@@ -423,13 +423,13 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         # Update tardislogger with display handles and IDs
         tardislogger.display_handles = display_handles
         tardislogger.display_ids = display_ids
-    elif Environment.get_current_environment() == Environment.VSCODE:
+    elif Environment.is_vscode():
         # Use direct display for vscode (no change)
         for level, column in log_columns.items():
             level_title = pn.pane.HTML(f&quot;&lt;h4 style=&#39;margin: 5px 0; color: #333;&#39;&gt;{level} LOGS&lt;/h4&gt;&quot;)
             display(level_title)
             display(column)
-    elif Environment.get_current_environment() == Environment.TERMINAL:
+    elif Environment.is_terminal():
         logger.warning(&quot;Terminal environment detected, skipping logger widget&quot;)
     else:
         logger.warning(&quot;Unknown environment, skipping logger widget&quot;)
@@ -452,7 +452,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 18 Jun 2025.
+      <span class="lastupdated">Last updated on 08 Jul 2025.
       </span></p>
   </div>
 
