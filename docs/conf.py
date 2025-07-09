@@ -443,7 +443,7 @@ def create_redirect_files(app, docname):
                 )
             except ValueError:
                 # Fall back to os.path.relpath for arbitrary relative paths
-                new_url = os.fspath.relpath(
+                new_url = os.path.relpath(
                     to_html_ext(new_fpath), str(Path(old_fpath).parent)
                 )
             # urls in a html file are relative to the dir containing it
