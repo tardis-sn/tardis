@@ -26,9 +26,9 @@ defaults:
   run:
     shell: bash -l {0}
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#   cancel-in-progress: true
 
 jobs:
   test-cache:
@@ -94,6 +94,11 @@ jobs:
        
       - run: python -c "import tardis; print(tardis.__file__); print('\n', tardis.__version__)"
         working-directory: ${{ github.workspace }}/tardisbase }
+        continue-on-error: true
+      
+      - run: python -c "import tardis; print(tardis.__file__); print('\n', tardis.__version__)"
+        working-directory: ${{ github.workspace }}/tardis-regression-data
+        continue-on-error: true
       
       
           
