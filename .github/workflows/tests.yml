@@ -67,6 +67,9 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
+      
+      - run: python -c "import tardis; print(tardis.__file__); print('\n', tardis.__version__)"
+        continue-on-error: true
 
       - name: Install tardis editable
         if: ${{ matrix.install_method == 'editable' }}
@@ -88,5 +91,9 @@ jobs:
           pip install --no-deps qgridnext lineid_plot
       
       - run: python -c "import tardis; print(tardis.__file__); print('\n', tardis.__version__)"
+       
+      - run: python -c "import tardis; print(tardis.__file__); print('\n', tardis.__version__)"
+        working-directory: ${{ github.workspace }}/tardisbase }
+      
       
           
