@@ -1,5 +1,5 @@
 import argparse
-import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -406,9 +406,9 @@ class Profile:
         if str(filename).endswith(".csvy"):
             filename = str(filename).replace(".csvy", "")
 
-        if os.path.exists(f"{filename}.csvy") and not overwrite:
+        if Path(f"{filename}.csvy").exists() and not overwrite:
             i = 0
-            while os.path.exists(f"{filename}_{i}.csvy"):
+            while Path(f"{filename}_{i}.csvy").exists():
                 i += 1
             filename = f"{filename}_{i}.csvy"
         else:

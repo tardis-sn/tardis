@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from matplotlib import colors
 
@@ -18,7 +18,7 @@ plt.figure(2).clf()
 ax2 = plt.figure(2).add_subplot(111)
 
 # expanding the tilde to the users directory
-atom_fname = os.path.expanduser("~/.tardis/si_kurucz.h5")
+atom_fname = Path.home() / ".tardis" / "si_kurucz.h5"
 
 # reading in the HDF5 File
 atom_data = base.AtomData.from_hdf(atom_fname)
