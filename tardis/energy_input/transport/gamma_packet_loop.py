@@ -246,15 +246,17 @@ def gamma_packet_loop(
                     bin_width = energy_bins[bin_index + 1] - energy_bins[bin_index]
                     freq_bin_width = bin_width / H_CGS_KEV
 
-                    # get energy out in ergs per second per keV
+                    # get energy out in ergs per second per Hz
                     energy_out[bin_index, time_index] += (
                         packet.energy_rf
                         / dt
                         / freq_bin_width  # Take light crossing time into account
                     )
                     # get energy out in photons per second per keV
-                    energy_out_cosi[bin_index, time_index] += 1 / dt / bin_width
-
+                    energy_out_cosi[bin_index, time_index] += (packet.energy_rf
+                                        / dt
+                                        / bin_width
+                                    )
                     luminosity = packet.energy_rf / dt
                     packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
