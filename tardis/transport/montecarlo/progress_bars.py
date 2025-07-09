@@ -6,30 +6,17 @@ from typing import Optional
 
 from tqdm.auto import tqdm
 
-# Global progress bar instances
-iterations_pbar: Optional[tqdm] = None
-packet_pbar: Optional[tqdm] = None
-
-
-def _initialize_progress_bars() -> None:
-    """
-    Initialize progress bars if they haven't been created yet.
-
-    This function lazily initializes the global progress bar instances,
-    creating them only when first needed to avoid early tqdm initialization.
-    """
-    global iterations_pbar, packet_pbar
-
-    if iterations_pbar is None or packet_pbar is None:
-        iterations_pbar = tqdm(
-            desc="Iterations:",
-            bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-        )
-        packet_pbar = tqdm(
-            desc="Packets:   ",
-            postfix="0",
-            bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-        )
+# Global progress bar instances - initialized at import time for thread safety
+# Use tqdm.auto which automatically detects environment
+iterations_pbar = tqdm(
+    desc="Iterations:",
+    bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+)
+packet_pbar = tqdm(
+    desc="Packets:   ",
+    postfix="0",
+    bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+)
 
 
 def update_packet_pbar(
@@ -49,13 +36,6 @@ def update_packet_pbar(
     total_iterations : int
         Total number of iterations.
     """
-    # Initialize progress bars if needed
-    _initialize_progress_bars()
-
-    # These assertions help the type checker understand these are not None after initialization
-    assert iterations_pbar is not None
-    assert packet_pbar is not None
-
     if packet_pbar.postfix == "":
         packet_pbar.postfix = "0"
     bar_iteration = int(packet_pbar.postfix) - 1
@@ -94,9 +74,6 @@ def refresh_packet_pbar() -> None:
     This function refreshes the visual display of the packet progress bar
     to ensure accurate rendering after each iteration completes.
     """
-    # Initialize progress bars if needed
-    _initialize_progress_bars()
-    assert packet_pbar is not None
     packet_pbar.refresh()
 
 
@@ -109,16 +86,11 @@ def update_iterations_pbar(i: int) -> None:
     i : int
         Amount by which the progress bar needs to be updated.
     """
-    # Initialize progress bars if needed
-    _initialize_progress_bars()
-    assert iterations_pbar is not None
     iterations_pbar.update(i)
 
 
 def fix_bar_layout(
-    bar: tqdm,
-    no_of_packets: Optional[int] = None,
-    total_iterations: Optional[int] = None,
+    bar, no_of_packets: Optional[int] = None, total_iterations: Optional[int] = None
 ) -> None:
     """
     Fix the layout of progress bars.
@@ -135,20 +107,35 @@ def fix_bar_layout(
     total_iterations : int, optional
         Total number of iterations, by default None.
     """
-    if no_of_packets is not None:
-        bar.reset(total=no_of_packets)
-    if total_iterations is not None:
-        bar.reset(total=total_iterations)
+    if type(bar).__name__ == "tqdm_notebook":
+        bar.container = bar.status_printer(
+            bar.fp,
+            bar.total,
+            bar.desc,
+            bar.ncols,
+        )
+        if no_of_packets is not None:
+            bar.reset(total=no_of_packets)
+        if total_iterations is not None:
+            bar.reset(total=total_iterations)
 
-    # Handle notebook-specific layout if applicable
-    if hasattr(bar, "container") and hasattr(bar.container, "children"):
+        # change the amount of space the prefix string of the bar takes
+        # here, either packets or iterations
+        bar.container.children[0].layout.width = "6%"
+
+        # change the length of the bar
+        bar.container.children[1].layout.width = "60%"
+
+        # display the progress bar
         try:
-            # change the amount of space the prefix string of the bar takes
-            bar.container.children[0].layout.width = "6%"
-            # change the length of the bar
-            bar.container.children[1].layout.width = "60%"
+            from IPython import display
 
-            # Note: tqdm.auto automatically handles display, no need to manually display
-        except (AttributeError, ImportError):
-            # Not in a notebook environment or layout not available
+            display.display(bar.container)
+        except ImportError:
+            # Not in a notebook environment
             pass
+    else:
+        if no_of_packets is not None:
+            bar.reset(total=no_of_packets)
+        if total_iterations is not None:
+            bar.reset(total=total_iterations)
