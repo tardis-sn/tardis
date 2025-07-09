@@ -1,7 +1,0 @@
-tardis.io.model.readers.snec.snec\_output module
-================================================
-
-.. automodule:: tardis.io.model.readers.snec.snec_output
-   :members:
-   :show-inheritance:
-   :undoc-members:
