@@ -58,7 +58,10 @@ jobs:
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
-      - uses: actions/checkout@v4          
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full git history
+          fetch-tags: true  # Fetch all tags          
 
       - name: Setup LFS
         uses: tardis-sn/tardis-actions/setup-lfs@main
@@ -67,9 +70,17 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
-      
-      - run: python -c "import tardis; print(tardis.__file__); print('\n', tardis.__version__)"
-        continue-on-error: true
+
+      - name: Inspect git tags and version info
+        run: |
+          echo "=== Git Tags ==="
+          git tag --sort=-version:refname | head -10 || echo "No tags found"
+          echo "\n=== Git Describe ==="
+          git describe --tags --always --dirty || echo "No describe available"
+          echo "\n=== Current Commit ==="
+          git rev-parse HEAD
+          echo "\n=== Tag on Current Commit ==="
+          git tag --points-at HEAD || echo "No tag on current commit"
 
       - name: Install tardis editable
         if: ${{ matrix.install_method == 'editable' }}
@@ -86,20 +97,16 @@ jobs:
         run: |
           pip install ".[tardisbase]"
 
+      - name: Verify installation and version
+        run: |
+          echo "=== TARDIS Version (${{ matrix.install_method }}) ==="
+          python -c "import tardis; print(f'Python version: {tardis.__version__}')"
+          echo "\n=== Git State ==="
+          git describe --tags --always --dirty 
+          echo "\n=== Package Info ==="
+          micromamba list | grep tardis 
+
       - name: Install qgridnext and lineid_plot
         run: |
           pip install --no-deps qgridnext lineid_plot
       
-      - run: python -c "import tardis; print(tardis.__file__); print('\n', tardis.__version__)"
-       
-      - run: python -c "import tardis; print(tardis.__file__); print('\n', tardis.__version__)"
-        working-directory: ${{ github.workspace }}/tardisbase }
-        continue-on-error: true
-      
-      - run: python -c "import tardis; print(tardis.__file__); print('\n', tardis.__version__)"
-        working-directory: ${{ github.workspace }}/tardis-regression-data
-        continue-on-error: true
-      
-      - run: micromamba list | grep tardis
-      
-          
