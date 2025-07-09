@@ -44,7 +44,7 @@ jobs:
       allow_lfs_pull: ${{ contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: compare-regdata ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
+    name: compare-regdata ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -53,6 +53,7 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
+        pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
         include:
           - label: osx-arm64
             os: macos-latest
@@ -93,25 +94,20 @@ jobs:
         with:
           os-label: ${{ matrix.label }}
 
-      - name: Install package editable
-        if: ${{ !inputs.pip_git }}
+      - name: Install tardis editable
+        if: ${{ !matrix.pip_git }}
         run: |
-          pip install -e . --user
+          pip install -e ".[tardisbase]" 
 
-      - name: Install package git
-        if: ${{ inputs.pip_git }}
+      - name: Install tardis git
+        if: ${{ matrix.pip_git }}
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git@master
+          pip install "tardis[tardisbase] @ git+https://github.com/tardis-sn/tardis.git@master"
 
-      - name: Install qgridnext
-        if: ${{ !inputs.pip_git }}
+      - name: Install qgridnext and lineid_plot
         run: |
-          pip install qgridnext
+          pip install --no-deps qgridnext lineid_plot
 
-      - name: Install tardisbase
-        run: pip install -e ".[tardisbase,viz]" 
-        working-directory: ${{ github.workspace }}/tardisbase
-        
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
       
@@ -143,7 +139,7 @@ jobs:
       - name: Upload comparison notebook
         uses: actions/upload-artifact@v4
         with:
-          name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+          name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}.html
           include-hidden-files: true
           path: |
             ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html

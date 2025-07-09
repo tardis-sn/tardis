@@ -7,7 +7,8 @@ import functools
 from numba import config
 
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.spectrum import formal_integral
+from tardis.spectrum.formal_integral import formal_integral
+from tardis.spectrum.formal_integral.formal_integral_numba import intensity_black_body
 
 config.THREADING_LAYER = "workqueue"
 
@@ -30,7 +31,7 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
     def time_intensity_black_body(self):
         nu = 1e14
         temperature = 1e4
-        formal_integral.intensity_black_body(nu, temperature)
+        intensity_black_body(nu, temperature)
 
     # Benchmark for functions in FormalIntegrator class
     def time_FormalIntegrator_functions(self):
