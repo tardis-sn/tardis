@@ -100,5 +100,6 @@ jobs:
         working-directory: ${{ github.workspace }}/tardis-regression-data
         continue-on-error: true
       
+      - run: micromamba list | grep tardis
       
           
