@@ -1,0 +1,682 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.plasma.properties package &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=da9e405b"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tardis.plasma.properties.continuum_processes package" href="tardis.plasma.properties.continuum_processes.html" />
+    <link rel="prev" title="tardis.plasma.equilibrium.rate_matrix module" href="tardis.plasma.equilibrium.rate_matrix.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tardis.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.html">tardis.energy_input package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.grid.html">tardis.grid package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.gui.html">tardis.gui package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.html">tardis.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.model.html">tardis.model package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.opacities.html">tardis.opacities package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="tardis.plasma.html">tardis.plasma package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.scripts.html">tardis.scripts package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.simulation.html">tardis.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.spectrum.html">tardis.spectrum package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.stats.html">tardis.stats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.html">tardis.transport package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.util.html">tardis.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.html">tardis.visualization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.html">tardis.workflows package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#module-tardis">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">tardis</a></li>
+          <li class="breadcrumb-item"><a href="tardis.html">tardis package</a></li>
+          <li class="breadcrumb-item"><a href="tardis.plasma.html">tardis.plasma package</a></li>
+      <li class="breadcrumb-item active">tardis.plasma.properties package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/tardis.plasma.properties.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tardis-plasma-properties-package">
+<h1>tardis.plasma.properties package<a class="headerlink" href="#tardis-plasma-properties-package" title="Link to this heading">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.html">tardis.plasma.properties.continuum_processes package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.fast_array_util.html">tardis.plasma.properties.continuum_processes.fast_array_util module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.fast_array_util.html#tardis.plasma.properties.continuum_processes.fast_array_util.cumulative_integrate_array_by_blocks"><code class="docutils literal notranslate"><span class="pre">cumulative_integrate_array_by_blocks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.fast_array_util.html#tardis.plasma.properties.continuum_processes.fast_array_util.numba_cumulative_trapezoid"><code class="docutils literal notranslate"><span class="pre">numba_cumulative_trapezoid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html">tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff"><code class="docutils literal notranslate"><span class="pre">PhotoIonRateCoeff</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html">tardis.plasma.properties.continuum_processes.rates module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate"><code class="docutils literal notranslate"><span class="pre">AdiabaticCoolingRate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.BfHeatingRateCoeffEstimator"><code class="docutils literal notranslate"><span class="pre">BfHeatingRateCoeffEstimator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollDeexcRateCoeff"><code class="docutils literal notranslate"><span class="pre">CollDeexcRateCoeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollExcRateCoeff"><code class="docutils literal notranslate"><span class="pre">CollExcRateCoeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton"><code class="docutils literal notranslate"><span class="pre">CollIonRateCoeffSeaton</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollRecombRateCoeff"><code class="docutils literal notranslate"><span class="pre">CollRecombRateCoeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff"><code class="docutils literal notranslate"><span class="pre">CorrPhotoIonRateCoeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate"><code class="docutils literal notranslate"><span class="pre">FreeBoundCoolingRate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundEmissionCDF"><code class="docutils literal notranslate"><span class="pre">FreeBoundEmissionCDF</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeFreeCoolingRate"><code class="docutils literal notranslate"><span class="pre">FreeFreeCoolingRate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.LevelNumberDensityLTE"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensityLTE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor"><code class="docutils literal notranslate"><span class="pre">PhotoIonBoltzmannFactor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawCollisionTransProbs"><code class="docutils literal notranslate"><span class="pre">RawCollisionTransProbs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawPhotoIonTransProbs"><code class="docutils literal notranslate"><span class="pre">RawPhotoIonTransProbs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawRecombTransProbs"><code class="docutils literal notranslate"><span class="pre">RawRecombTransProbs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.RawTwoPhotonTransProbs"><code class="docutils literal notranslate"><span class="pre">RawTwoPhotonTransProbs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.SpontRecombCoolingRateCoeff"><code class="docutils literal notranslate"><span class="pre">SpontRecombCoolingRateCoeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.StimRecombCoolingRateCoeffEstimator"><code class="docutils literal notranslate"><span class="pre">StimRecombCoolingRateCoeffEstimator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF"><code class="docutils literal notranslate"><span class="pre">TwoPhotonEmissionCDF</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonFrequencySampler"><code class="docutils literal notranslate"><span class="pre">TwoPhotonFrequencySampler</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html">tardis.plasma.properties.continuum_processes.recomb_rate_coeff module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.SpontRecombRateCoeff"><code class="docutils literal notranslate"><span class="pre">SpontRecombRateCoeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateCoeff"><code class="docutils literal notranslate"><span class="pre">StimRecombRateCoeff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.recomb_rate_coeff.html#tardis.plasma.properties.continuum_processes.recomb_rate_coeff.StimRecombRateFactor"><code class="docutils literal notranslate"><span class="pre">StimRecombRateFactor</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.continuum_processes.html#module-tardis.plasma.properties.continuum_processes">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.atomic.html">tardis.plasma.properties.atomic module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.ContinuumInteractionHandler"><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionHandler</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.ContinuumInteractionHandler.calculate"><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionHandler.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.ContinuumInteractionHandler.outputs"><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionHandler.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.IonizationData"><code class="docutils literal notranslate"><span class="pre">IonizationData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.IonizationData.outputs"><code class="docutils literal notranslate"><span class="pre">IonizationData.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LevelIdxs2LineIdx"><code class="docutils literal notranslate"><span class="pre">LevelIdxs2LineIdx</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LevelIdxs2LineIdx.calculate"><code class="docutils literal notranslate"><span class="pre">LevelIdxs2LineIdx.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LevelIdxs2LineIdx.outputs"><code class="docutils literal notranslate"><span class="pre">LevelIdxs2LineIdx.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LevelIdxs2TransitionIdx"><code class="docutils literal notranslate"><span class="pre">LevelIdxs2TransitionIdx</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LevelIdxs2TransitionIdx.calculate"><code class="docutils literal notranslate"><span class="pre">LevelIdxs2TransitionIdx.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LevelIdxs2TransitionIdx.outputs"><code class="docutils literal notranslate"><span class="pre">LevelIdxs2TransitionIdx.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.Levels"><code class="docutils literal notranslate"><span class="pre">Levels</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.Levels.latex_name"><code class="docutils literal notranslate"><span class="pre">Levels.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.Levels.outputs"><code class="docutils literal notranslate"><span class="pre">Levels.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.Lines"><code class="docutils literal notranslate"><span class="pre">Lines</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.Lines.latex_name"><code class="docutils literal notranslate"><span class="pre">Lines.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.Lines.outputs"><code class="docutils literal notranslate"><span class="pre">Lines.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LinesLowerLevelIndex"><code class="docutils literal notranslate"><span class="pre">LinesLowerLevelIndex</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LinesLowerLevelIndex.calculate"><code class="docutils literal notranslate"><span class="pre">LinesLowerLevelIndex.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LinesLowerLevelIndex.outputs"><code class="docutils literal notranslate"><span class="pre">LinesLowerLevelIndex.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LinesUpperLevelIndex"><code class="docutils literal notranslate"><span class="pre">LinesUpperLevelIndex</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LinesUpperLevelIndex.calculate"><code class="docutils literal notranslate"><span class="pre">LinesUpperLevelIndex.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LinesUpperLevelIndex.outputs"><code class="docutils literal notranslate"><span class="pre">LinesUpperLevelIndex.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.MacroAtomData"><code class="docutils literal notranslate"><span class="pre">MacroAtomData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.MacroAtomData.outputs"><code class="docutils literal notranslate"><span class="pre">MacroAtomData.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.NLTEData"><code class="docutils literal notranslate"><span class="pre">NLTEData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.NLTEData.calculate"><code class="docutils literal notranslate"><span class="pre">NLTEData.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.NLTEData.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEData.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.PhotoIonizationData"><code class="docutils literal notranslate"><span class="pre">PhotoIonizationData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.PhotoIonizationData.calculate"><code class="docutils literal notranslate"><span class="pre">PhotoIonizationData.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.PhotoIonizationData.latex_name"><code class="docutils literal notranslate"><span class="pre">PhotoIonizationData.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.PhotoIonizationData.outputs"><code class="docutils literal notranslate"><span class="pre">PhotoIonizationData.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.TwoPhotonData"><code class="docutils literal notranslate"><span class="pre">TwoPhotonData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.TwoPhotonData.calculate"><code class="docutils literal notranslate"><span class="pre">TwoPhotonData.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.TwoPhotonData.outputs"><code class="docutils literal notranslate"><span class="pre">TwoPhotonData.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData"><code class="docutils literal notranslate"><span class="pre">YgData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.calculate"><code class="docutils literal notranslate"><span class="pre">YgData.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.calculate_yg_van_regemorter"><code class="docutils literal notranslate"><span class="pre">YgData.calculate_yg_van_regemorter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.exp1_times_exp"><code class="docutils literal notranslate"><span class="pre">YgData.exp1_times_exp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.latex_name"><code class="docutils literal notranslate"><span class="pre">YgData.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.outputs"><code class="docutils literal notranslate"><span class="pre">YgData.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgInterpolator"><code class="docutils literal notranslate"><span class="pre">YgInterpolator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgInterpolator.calculate"><code class="docutils literal notranslate"><span class="pre">YgInterpolator.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgInterpolator.latex_name"><code class="docutils literal notranslate"><span class="pre">YgInterpolator.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgInterpolator.outputs"><code class="docutils literal notranslate"><span class="pre">YgInterpolator.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.ZetaData"><code class="docutils literal notranslate"><span class="pre">ZetaData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.ZetaData.outputs"><code class="docutils literal notranslate"><span class="pre">ZetaData.outputs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.base.html">tardis.plasma.properties.base module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.ArrayInput"><code class="docutils literal notranslate"><span class="pre">ArrayInput</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.BaseAtomicDataProperty"><code class="docutils literal notranslate"><span class="pre">BaseAtomicDataProperty</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.BaseAtomicDataProperty.calculate"><code class="docutils literal notranslate"><span class="pre">BaseAtomicDataProperty.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.BaseAtomicDataProperty.inputs"><code class="docutils literal notranslate"><span class="pre">BaseAtomicDataProperty.inputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.BasePlasmaProperty"><code class="docutils literal notranslate"><span class="pre">BasePlasmaProperty</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.BasePlasmaProperty.get_latex_label"><code class="docutils literal notranslate"><span class="pre">BasePlasmaProperty.get_latex_label()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.BasePlasmaProperty.name"><code class="docutils literal notranslate"><span class="pre">BasePlasmaProperty.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.BasePlasmaProperty.outputs"><code class="docutils literal notranslate"><span class="pre">BasePlasmaProperty.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.DataFrameInput"><code class="docutils literal notranslate"><span class="pre">DataFrameInput</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.HiddenPlasmaProperty"><code class="docutils literal notranslate"><span class="pre">HiddenPlasmaProperty</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.Input"><code class="docutils literal notranslate"><span class="pre">Input</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.Input.set_value"><code class="docutils literal notranslate"><span class="pre">Input.set_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.PreviousIterationProperty"><code class="docutils literal notranslate"><span class="pre">PreviousIterationProperty</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.PreviousIterationProperty.set_value"><code class="docutils literal notranslate"><span class="pre">PreviousIterationProperty.set_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.ProcessingPlasmaProperty"><code class="docutils literal notranslate"><span class="pre">ProcessingPlasmaProperty</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.ProcessingPlasmaProperty.calculate"><code class="docutils literal notranslate"><span class="pre">ProcessingPlasmaProperty.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.base.html#tardis.plasma.properties.base.ProcessingPlasmaProperty.update"><code class="docutils literal notranslate"><span class="pre">ProcessingPlasmaProperty.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.general.html">tardis.plasma.properties.general module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaElectron"><code class="docutils literal notranslate"><span class="pre">BetaElectron</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaElectron.calculate"><code class="docutils literal notranslate"><span class="pre">BetaElectron.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaElectron.latex_formula"><code class="docutils literal notranslate"><span class="pre">BetaElectron.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaElectron.latex_name"><code class="docutils literal notranslate"><span class="pre">BetaElectron.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaElectron.outputs"><code class="docutils literal notranslate"><span class="pre">BetaElectron.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaRadiation"><code class="docutils literal notranslate"><span class="pre">BetaRadiation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaRadiation.calculate"><code class="docutils literal notranslate"><span class="pre">BetaRadiation.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaRadiation.latex_formula"><code class="docutils literal notranslate"><span class="pre">BetaRadiation.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaRadiation.latex_name"><code class="docutils literal notranslate"><span class="pre">BetaRadiation.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.BetaRadiation.outputs"><code class="docutils literal notranslate"><span class="pre">BetaRadiation.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ElectronTemperature"><code class="docutils literal notranslate"><span class="pre">ElectronTemperature</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ElectronTemperature.calculate"><code class="docutils literal notranslate"><span class="pre">ElectronTemperature.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ElectronTemperature.latex_formula"><code class="docutils literal notranslate"><span class="pre">ElectronTemperature.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ElectronTemperature.latex_name"><code class="docutils literal notranslate"><span class="pre">ElectronTemperature.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ElectronTemperature.outputs"><code class="docutils literal notranslate"><span class="pre">ElectronTemperature.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.GElectron"><code class="docutils literal notranslate"><span class="pre">GElectron</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.GElectron.calculate"><code class="docutils literal notranslate"><span class="pre">GElectron.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.GElectron.latex_formula"><code class="docutils literal notranslate"><span class="pre">GElectron.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.GElectron.latex_name"><code class="docutils literal notranslate"><span class="pre">GElectron.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.GElectron.outputs"><code class="docutils literal notranslate"><span class="pre">GElectron.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.SelectedAtoms"><code class="docutils literal notranslate"><span class="pre">SelectedAtoms</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.SelectedAtoms.calculate"><code class="docutils literal notranslate"><span class="pre">SelectedAtoms.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.SelectedAtoms.outputs"><code class="docutils literal notranslate"><span class="pre">SelectedAtoms.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ThermalGElectron"><code class="docutils literal notranslate"><span class="pre">ThermalGElectron</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ThermalGElectron.calculate"><code class="docutils literal notranslate"><span class="pre">ThermalGElectron.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ThermalGElectron.latex_formula"><code class="docutils literal notranslate"><span class="pre">ThermalGElectron.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ThermalGElectron.latex_name"><code class="docutils literal notranslate"><span class="pre">ThermalGElectron.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.general.html#tardis.plasma.properties.general.ThermalGElectron.outputs"><code class="docutils literal notranslate"><span class="pre">ThermalGElectron.outputs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.helium_nlte.html">tardis.plasma.properties.helium_nlte module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNLTE"><code class="docutils literal notranslate"><span class="pre">HeliumNLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNLTE.calculate"><code class="docutils literal notranslate"><span class="pre">HeliumNLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNLTE.calculate_helium_one"><code class="docutils literal notranslate"><span class="pre">HeliumNLTE.calculate_helium_one()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNLTE.calculate_helium_three"><code class="docutils literal notranslate"><span class="pre">HeliumNLTE.calculate_helium_three()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNLTE.outputs"><code class="docutils literal notranslate"><span class="pre">HeliumNLTE.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNumericalNLTE"><code class="docutils literal notranslate"><span class="pre">HeliumNumericalNLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNumericalNLTE.calculate"><code class="docutils literal notranslate"><span class="pre">HeliumNumericalNLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNumericalNLTE.outputs"><code class="docutils literal notranslate"><span class="pre">HeliumNumericalNLTE.outputs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.ion_population.html">tardis.plasma.properties.ion_population module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity"><code class="docutils literal notranslate"><span class="pre">IonNumberDensity</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate"><code class="docutils literal notranslate"><span class="pre">IonNumberDensity.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate_with_n_electron"><code class="docutils literal notranslate"><span class="pre">IonNumberDensity.calculate_with_n_electron()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.latex_name"><code class="docutils literal notranslate"><span class="pre">IonNumberDensity.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.outputs"><code class="docutils literal notranslate"><span class="pre">IonNumberDensity.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE"><code class="docutils literal notranslate"><span class="pre">IonNumberDensityHeNLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE.calculate"><code class="docutils literal notranslate"><span class="pre">IonNumberDensityHeNLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE.latex_name"><code class="docutils literal notranslate"><span class="pre">IonNumberDensityHeNLTE.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE.outputs"><code class="docutils literal notranslate"><span class="pre">IonNumberDensityHeNLTE.outputs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE.update_he_population"><code class="docutils literal notranslate"><span class="pre">IonNumberDensityHeNLTE.update_he_population()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaLTE"><code class="docutils literal notranslate"><span class="pre">PhiSahaLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaLTE.broadcast_ionization_energy"><code class="docutils literal notranslate"><span class="pre">PhiSahaLTE.broadcast_ionization_energy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaLTE.calculate"><code class="docutils literal notranslate"><span class="pre">PhiSahaLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaLTE.latex_formula"><code class="docutils literal notranslate"><span class="pre">PhiSahaLTE.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaLTE.latex_name"><code class="docutils literal notranslate"><span class="pre">PhiSahaLTE.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaLTE.outputs"><code class="docutils literal notranslate"><span class="pre">PhiSahaLTE.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaNebular"><code class="docutils literal notranslate"><span class="pre">PhiSahaNebular</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaNebular.calculate"><code class="docutils literal notranslate"><span class="pre">PhiSahaNebular.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaNebular.get_zeta_values"><code class="docutils literal notranslate"><span class="pre">PhiSahaNebular.get_zeta_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaNebular.latex_formula"><code class="docutils literal notranslate"><span class="pre">PhiSahaNebular.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaNebular.latex_name"><code class="docutils literal notranslate"><span class="pre">PhiSahaNebular.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaNebular.outputs"><code class="docutils literal notranslate"><span class="pre">PhiSahaNebular.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.RadiationFieldCorrection"><code class="docutils literal notranslate"><span class="pre">RadiationFieldCorrection</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.RadiationFieldCorrection.calculate"><code class="docutils literal notranslate"><span class="pre">RadiationFieldCorrection.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.RadiationFieldCorrection.latex_name"><code class="docutils literal notranslate"><span class="pre">RadiationFieldCorrection.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.RadiationFieldCorrection.outputs"><code class="docutils literal notranslate"><span class="pre">RadiationFieldCorrection.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.SahaFactor"><code class="docutils literal notranslate"><span class="pre">SahaFactor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.SahaFactor.calculate"><code class="docutils literal notranslate"><span class="pre">SahaFactor.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.SahaFactor.latex_name"><code class="docutils literal notranslate"><span class="pre">SahaFactor.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.SahaFactor.outputs"><code class="docutils literal notranslate"><span class="pre">SahaFactor.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.ThermalPhiSahaLTE"><code class="docutils literal notranslate"><span class="pre">ThermalPhiSahaLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.ThermalPhiSahaLTE.calculate"><code class="docutils literal notranslate"><span class="pre">ThermalPhiSahaLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.ThermalPhiSahaLTE.latex_formula"><code class="docutils literal notranslate"><span class="pre">ThermalPhiSahaLTE.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.ThermalPhiSahaLTE.latex_name"><code class="docutils literal notranslate"><span class="pre">ThermalPhiSahaLTE.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.ThermalPhiSahaLTE.outputs"><code class="docutils literal notranslate"><span class="pre">ThermalPhiSahaLTE.outputs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.legacy_property_collections.html">tardis.plasma.properties.legacy_property_collections module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.legacy_property_collections.html#tardis.plasma.properties.legacy_property_collections.PlasmaPropertyCollection"><code class="docutils literal notranslate"><span class="pre">PlasmaPropertyCollection</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.level_population.html">tardis.plasma.properties.level_population module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.level_population.html#tardis.plasma.properties.level_population.LevelNumberDensity"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensity</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.level_population.html#tardis.plasma.properties.level_population.LevelNumberDensity.calculate"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensity.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.level_population.html#tardis.plasma.properties.level_population.LevelNumberDensity.latex_formula"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensity.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.level_population.html#tardis.plasma.properties.level_population.LevelNumberDensity.latex_name"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensity.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.level_population.html#tardis.plasma.properties.level_population.LevelNumberDensity.outputs"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensity.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.level_population.html#tardis.plasma.properties.level_population.LevelNumberDensityHeNLTE"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensityHeNLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.level_population.html#tardis.plasma.properties.level_population.LevelNumberDensityHeNLTE.calculate"><code class="docutils literal notranslate"><span class="pre">LevelNumberDensityHeNLTE.calculate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.nlte.html">tardis.plasma.properties.nlte module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.nlte.html#tardis.plasma.properties.nlte.PreviousBetaSobolev"><code class="docutils literal notranslate"><span class="pre">PreviousBetaSobolev</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.nlte.html#tardis.plasma.properties.nlte.PreviousBetaSobolev.outputs"><code class="docutils literal notranslate"><span class="pre">PreviousBetaSobolev.outputs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.nlte.html#tardis.plasma.properties.nlte.PreviousBetaSobolev.set_initial_value"><code class="docutils literal notranslate"><span class="pre">PreviousBetaSobolev.set_initial_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.nlte.html#tardis.plasma.properties.nlte.PreviousElectronDensities"><code class="docutils literal notranslate"><span class="pre">PreviousElectronDensities</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.nlte.html#tardis.plasma.properties.nlte.PreviousElectronDensities.outputs"><code class="docutils literal notranslate"><span class="pre">PreviousElectronDensities.outputs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.nlte.html#tardis.plasma.properties.nlte.PreviousElectronDensities.set_initial_value"><code class="docutils literal notranslate"><span class="pre">PreviousElectronDensities.set_initial_value()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.nlte_excitation_data.html">tardis.plasma.properties.nlte_excitation_data module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.nlte_excitation_data.html#tardis.plasma.properties.nlte_excitation_data.NLTEExcitationData"><code class="docutils literal notranslate"><span class="pre">NLTEExcitationData</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.nlte_rate_equation_solver.html">tardis.plasma.properties.nlte_rate_equation_solver module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.calculate"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.calculate_lu_solver_delta"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU.calculate_lu_solver_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverLU.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverRoot</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot.calculate"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverRoot.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEPopulationSolverRoot.outputs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.partition_function.html">tardis.plasma.properties.partition_function module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorDiluteLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE.calculate"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorDiluteLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE.latex_formula"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorDiluteLTE.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE.latex_name"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorDiluteLTE.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE.outputs"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorDiluteLTE.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorLTE"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorLTE.calculate"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorLTE.latex_formula"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorLTE.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorLTE.latex_name"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorLTE.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorLTE.outputs"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorLTE.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorNLTE"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorNLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorNLTE.calculate"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorNLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorNLTE.from_config"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorNLTE.from_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorNLTE.outputs"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorNLTE.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorNoNLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE.calculate"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorNoNLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE.outputs"><code class="docutils literal notranslate"><span class="pre">LevelBoltzmannFactorNoNLTE.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.PartitionFunction"><code class="docutils literal notranslate"><span class="pre">PartitionFunction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.PartitionFunction.calculate"><code class="docutils literal notranslate"><span class="pre">PartitionFunction.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.PartitionFunction.latex_formula"><code class="docutils literal notranslate"><span class="pre">PartitionFunction.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.PartitionFunction.latex_name"><code class="docutils literal notranslate"><span class="pre">PartitionFunction.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.PartitionFunction.outputs"><code class="docutils literal notranslate"><span class="pre">PartitionFunction.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.ThermalLTEPartitionFunction"><code class="docutils literal notranslate"><span class="pre">ThermalLTEPartitionFunction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.ThermalLTEPartitionFunction.calculate"><code class="docutils literal notranslate"><span class="pre">ThermalLTEPartitionFunction.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.ThermalLTEPartitionFunction.latex_name"><code class="docutils literal notranslate"><span class="pre">ThermalLTEPartitionFunction.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.ThermalLTEPartitionFunction.outputs"><code class="docutils literal notranslate"><span class="pre">ThermalLTEPartitionFunction.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.ThermalLevelBoltzmannFactorLTE"><code class="docutils literal notranslate"><span class="pre">ThermalLevelBoltzmannFactorLTE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.ThermalLevelBoltzmannFactorLTE.calculate"><code class="docutils literal notranslate"><span class="pre">ThermalLevelBoltzmannFactorLTE.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.ThermalLevelBoltzmannFactorLTE.latex_formula"><code class="docutils literal notranslate"><span class="pre">ThermalLevelBoltzmannFactorLTE.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.ThermalLevelBoltzmannFactorLTE.latex_name"><code class="docutils literal notranslate"><span class="pre">ThermalLevelBoltzmannFactorLTE.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.partition_function.html#tardis.plasma.properties.partition_function.ThermalLevelBoltzmannFactorLTE.outputs"><code class="docutils literal notranslate"><span class="pre">ThermalLevelBoltzmannFactorLTE.outputs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html">tardis.plasma.properties.plasma_input module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.Abundance"><code class="docutils literal notranslate"><span class="pre">Abundance</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.Abundance.outputs"><code class="docutils literal notranslate"><span class="pre">Abundance.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.AtomicData"><code class="docutils literal notranslate"><span class="pre">AtomicData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.AtomicData.outputs"><code class="docutils literal notranslate"><span class="pre">AtomicData.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.ContinuumInteractionSpecies"><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionSpecies</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.ContinuumInteractionSpecies.outputs"><code class="docutils literal notranslate"><span class="pre">ContinuumInteractionSpecies.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.DilutePlanckianRadField"><code class="docutils literal notranslate"><span class="pre">DilutePlanckianRadField</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.DilutePlanckianRadField.outputs"><code class="docutils literal notranslate"><span class="pre">DilutePlanckianRadField.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.DilutionFactor"><code class="docutils literal notranslate"><span class="pre">DilutionFactor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.DilutionFactor.calculate"><code class="docutils literal notranslate"><span class="pre">DilutionFactor.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.DilutionFactor.latex_name"><code class="docutils literal notranslate"><span class="pre">DilutionFactor.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.DilutionFactor.outputs"><code class="docutils literal notranslate"><span class="pre">DilutionFactor.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.HeliumTreatment"><code class="docutils literal notranslate"><span class="pre">HeliumTreatment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.HeliumTreatment.outputs"><code class="docutils literal notranslate"><span class="pre">HeliumTreatment.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.IsotopeAbundance"><code class="docutils literal notranslate"><span class="pre">IsotopeAbundance</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.IsotopeAbundance.outputs"><code class="docutils literal notranslate"><span class="pre">IsotopeAbundance.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.JBlues"><code class="docutils literal notranslate"><span class="pre">JBlues</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.JBlues.latex_name"><code class="docutils literal notranslate"><span class="pre">JBlues.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.JBlues.outputs"><code class="docutils literal notranslate"><span class="pre">JBlues.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.LinkTRadTElectron"><code class="docutils literal notranslate"><span class="pre">LinkTRadTElectron</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.LinkTRadTElectron.latex_name"><code class="docutils literal notranslate"><span class="pre">LinkTRadTElectron.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.LinkTRadTElectron.outputs"><code class="docutils literal notranslate"><span class="pre">LinkTRadTElectron.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEExcitationSpecies"><code class="docutils literal notranslate"><span class="pre">NLTEExcitationSpecies</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEExcitationSpecies.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEExcitationSpecies.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEIonizationSpecies"><code class="docutils literal notranslate"><span class="pre">NLTEIonizationSpecies</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEIonizationSpecies.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEIonizationSpecies.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NumberDensity"><code class="docutils literal notranslate"><span class="pre">NumberDensity</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NumberDensity.latex_name"><code class="docutils literal notranslate"><span class="pre">NumberDensity.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NumberDensity.outputs"><code class="docutils literal notranslate"><span class="pre">NumberDensity.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.TRadiative"><code class="docutils literal notranslate"><span class="pre">TRadiative</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.TRadiative.calculate"><code class="docutils literal notranslate"><span class="pre">TRadiative.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.TRadiative.latex_name"><code class="docutils literal notranslate"><span class="pre">TRadiative.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.TRadiative.outputs"><code class="docutils literal notranslate"><span class="pre">TRadiative.outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.TimeExplosion"><code class="docutils literal notranslate"><span class="pre">TimeExplosion</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.TimeExplosion.latex_name"><code class="docutils literal notranslate"><span class="pre">TimeExplosion.latex_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.TimeExplosion.outputs"><code class="docutils literal notranslate"><span class="pre">TimeExplosion.outputs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.property_collections.html">tardis.plasma.properties.property_collections module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.property_collections.html#tardis.plasma.properties.property_collections.PlasmaPropertyCollection"><code class="docutils literal notranslate"><span class="pre">PlasmaPropertyCollection</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html">tardis.plasma.properties.radiative_properties module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs"><code class="docutils literal notranslate"><span class="pre">RawRadBoundBoundTransProbs</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs.calculate"><code class="docutils literal notranslate"><span class="pre">RawRadBoundBoundTransProbs.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs.outputs"><code class="docutils literal notranslate"><span class="pre">RawRadBoundBoundTransProbs.outputs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs.transition_probabilities_outputs"><code class="docutils literal notranslate"><span class="pre">RawRadBoundBoundTransProbs.transition_probabilities_outputs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor"><code class="docutils literal notranslate"><span class="pre">StimulatedEmissionFactor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.calculate"><code class="docutils literal notranslate"><span class="pre">StimulatedEmissionFactor.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_lower"><code class="docutils literal notranslate"><span class="pre">StimulatedEmissionFactor.get_g_lower()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_upper"><code class="docutils literal notranslate"><span class="pre">StimulatedEmissionFactor.get_g_upper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_metastable_upper"><code class="docutils literal notranslate"><span class="pre">StimulatedEmissionFactor.get_metastable_upper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.latex_formula"><code class="docutils literal notranslate"><span class="pre">StimulatedEmissionFactor.latex_formula</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.outputs"><code class="docutils literal notranslate"><span class="pre">StimulatedEmissionFactor.outputs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.plasma.properties.rate_matrix_index.html">tardis.plasma.properties.rate_matrix_index module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper"><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.calculate"><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.calculate_rate_matrix_index"><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper.calculate_rate_matrix_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.plasma.properties.rate_matrix_index.html#tardis.plasma.properties.rate_matrix_index.NLTEIndexHelper.outputs"><code class="docutils literal notranslate"><span class="pre">NLTEIndexHelper.outputs</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="module-tardis.plasma.properties">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tardis.plasma.properties" title="Link to this heading">¶</a></h2>
+<p>Store and calculate the properties of the plasma.</p>
+<p>Each plasma object has an array of properties which are then used to calculate plasma parameter values.
+Every property has a calculate function that returns the values of its outputs.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tardis.plasma.equilibrium.rate_matrix.html" class="btn btn-neutral float-left" title="tardis.plasma.equilibrium.rate_matrix module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.plasma.properties.continuum_processes.html" class="btn btn-neutral float-right" title="tardis.plasma.properties.continuum_processes package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 09 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
