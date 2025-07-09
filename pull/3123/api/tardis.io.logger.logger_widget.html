@@ -167,7 +167,7 @@
 <span id="tardis-io-logger-logger-widget-module"></span><h1>tardis.io.logger.logger_widget module<a class="headerlink" href="#module-tardis.io.logger.logger_widget" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.io.logger.logger_widget.PanelWidgetLogHandler">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger_widget.</span></span><span class="sig-name descname"><span class="pre">PanelWidgetLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_handles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger_widget.html#PanelWidgetLogHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger_widget.PanelWidgetLogHandler" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger_widget.</span></span><span class="sig-name descname"><span class="pre">PanelWidgetLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_handles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger_widget.html#PanelWidgetLogHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger_widget.PanelWidgetLogHandler" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Handler" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></a></p>
 <p>Log handler for logging to scroll columns.</p>
 <dl class="field-list simple">
@@ -180,6 +180,8 @@
 <dt><strong>display_widget</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to display logs in the widget. Defaults to True.</p>
 </dd>
 <dt><strong>display_handles</strong><span class="classifier">dict, optional</span></dt><dd><p>Dictionary of display handles for each column (jupyter environment).</p>
+</dd>
+<dt><strong>batch_size</strong><span class="classifier">int, optional</span></dt><dd><p>Number of log entries to accumulate before updating the UI. Default is 20.</p>
 </dd>
 </dl>
 </dd>
@@ -204,6 +206,12 @@ and the filter list to empty.</p>
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.io.logger.logger_widget.PanelWidgetLogHandler.flush_all_pending">
+<span class="sig-name descname"><span class="pre">flush_all_pending</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger_widget.html#PanelWidgetLogHandler.flush_all_pending"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger_widget.PanelWidgetLogHandler.flush_all_pending" title="Link to this definition">¶</a></dt>
+<dd><p>Flush all pending updates for all log levels.</p>
 </dd></dl>
 
 </dd></dl>
@@ -236,7 +244,7 @@ and the filter list to empty.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Jul 2025.
+      <span class="lastupdated">Last updated on 09 Jul 2025.
       </span></p>
   </div>
 
