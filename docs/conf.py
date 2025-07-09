@@ -41,7 +41,7 @@ except ImportError:
     )
     sys.exit(1)
 
-#Get configuration information from pyproject.toml
+# Get configuration information from pyproject.toml
 toml_conf_path = Path(__file__).parent.parent / "pyproject.toml"
 
 with open(toml_conf_path, 'r') as f_toml:
@@ -264,7 +264,6 @@ htmlhelp_basename = project + "doc"
 modindex_common_prefix = ["tardis."]
 
 
-
 # -- Google Analytics Using Extension -------------------------------------------------
 
 if os.getenv("GITHUB_ACTIONS"):
@@ -437,7 +436,17 @@ def create_redirect_files(app, docname):
             copyfile(template_html_path, old_html_fpath)
 
             # Replace url placeholders i.e. "#" in this file with the new url
-            new_url = Path(to_html_ext(new_fpath)).relative_to(Path(old_fpath).parent)  # urls in a html file are relative to the dir containing it
+            try:
+                # Try using pathlib's relative_to for paths that share a common parent
+                new_url = Path(to_html_ext(new_fpath)).relative_to(
+                    Path(old_fpath).parent
+                )
+            except ValueError:
+                # Fall back to os.path.relpath for arbitrary relative paths
+                new_url = os.path.relpath(
+                    to_html_ext(new_fpath), os.path.dirname(old_fpath)
+                )
+            # urls in a html file are relative to the dir containing it
             with open(old_html_fpath) as f:
                 new_content = f.read().replace("#", str(new_url))
             with open(old_html_fpath, "w") as f:

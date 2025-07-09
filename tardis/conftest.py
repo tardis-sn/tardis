@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 from pathlib import Path
 
@@ -170,7 +171,7 @@ def tardis_regression_path(request):
     if tardis_regression_path is None:
         pytest.skip("--tardis-regression-data was not specified")
     else:
-        return Path(tardis_regression_path).expanduser().resolve()
+        return Path(os.path.expandvars(tardis_regression_path)).expanduser().resolve()
 
 
 @pytest.fixture(scope="function")
