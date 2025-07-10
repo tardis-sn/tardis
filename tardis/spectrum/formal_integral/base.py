@@ -112,7 +112,12 @@ def make_source_function(simulation_state, opacity_state, transport, plasma, int
     so there is no need to factor out the source function explicitly.
     Parameters
     ----------
-    model : tardis.model.SimulationState
+    simulation_state : tardis.model.SimulationState
+    opacity_state : tardis.opacity.OpacityStateNumba
+    transport : tardis.transport.montecarlo.MonteCarloTransportSolver
+    plasma : tardis.plasma.BasePlasma
+    interpolate_shells : int
+        Number of shells to interpolate to. If set to 0, no interpolation is performed.
 
     Returns
     -------
@@ -273,6 +278,30 @@ def interpolate_integrator_quantities(
     interpolate_shells,
     transport, simulation_state, opacity_state, plasma
 ):
+    """Interpolate the integrator quantities to interpolate_shells.
+
+    Parameters
+    ----------
+    att_S_ul : np.ndarray
+        attenuated source function for each line in each shell
+    Jredlu : np.ndarray
+        J estimator from the red end of the line from lower to upper level
+    Jbluelu : np.ndarray
+        J estimator from the blue end of the line from lower to upper level
+    e_dot_u : np.ndarray
+        Line estimator for the rate of energy density absorption from lower to upper level
+    interpolate_shells : int
+        number of shells to interpolate to
+    transport : tardis.transport.montecarlo.MonteCarloTransportSolver
+    simulation_state : tardis.model.SimulationState
+    opacity_state : OpacityStateNumba
+    plasma : tardis.plasma.BasePlasma
+
+    Returns
+    -------
+    tuple
+        Interpolated values of att_S_ul, Jredlu, Jbluelu, and e_dot_u
+    """
 
     mct_state = transport.transport_state
     
