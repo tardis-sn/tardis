@@ -10,9 +10,10 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
-
-from tardis.util.base import packet_pbar, iterations_pbar
-from tardis.tests.test_util import monkeysession
+from tardis.transport.montecarlo.progress_bars import (
+    iterations_pbar,
+    packet_pbar,
+)
 
 try:
     import tardisbase
@@ -165,9 +166,7 @@ def generate_reference(request):
 
 @pytest.fixture(scope="session")
 def tardis_regression_path(request):
-    tardis_regression_path = request.config.getoption(
-        "--tardis-regression-data"
-    )
+    tardis_regression_path = request.config.getoption("--tardis-regression-data")
     if tardis_regression_path is None:
         pytest.skip("--tardis-regression-data was not specified")
     else:
@@ -291,5 +290,7 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
 
 
 def pytest_sessionfinish(session, exitstatus):
-    packet_pbar.close()
-    iterations_pbar.close()
+    if packet_pbar is not None:
+        packet_pbar.close()
+    if iterations_pbar is not None:
+        iterations_pbar.close()
