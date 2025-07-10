@@ -11,37 +11,20 @@ from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 
 @pytest.fixture(scope="module")
-def config_simulation(example_configuration_dir, atomic_data_fname):
-    # this config is intended to match with the one used for simulation_one_loop in the test_simulation.py
-    config = Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_verysimple.yml"
+def v_inner_config(config_verysimple_for_simulation_one_loop):
+    config_verysimple_for_simulation_one_loop.model.structure.velocity.start = (
+        5000 * u.km / u.s
     )
-    config.atom_data = atomic_data_fname
-    config.montecarlo.iterations = 2
-    config.montecarlo.no_of_packets = int(4e4)
-    config.montecarlo.last_no_of_packets = int(4e4)
-    return config
-
-
-@pytest.fixture(scope="module")
-def v_inner_config(example_configuration_dir, atomic_data_fname):
-    config = Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_verysimple.yml"
-    )
-    config.atom_data = atomic_data_fname
-    config.montecarlo.iterations = 2
-    config.montecarlo.no_of_packets = int(4e4)
-    config.montecarlo.last_no_of_packets = int(4e4)
-
-    config.model.structure.velocity.start = 5000 * u.km / u.s
-    config.model.structure.velocity.num = 50
-    config.montecarlo.convergence_strategy["v_inner_boundary"] = {
+    config_verysimple_for_simulation_one_loop.model.structure.velocity.num = 50
+    config_verysimple_for_simulation_one_loop.montecarlo.convergence_strategy[
+        "v_inner_boundary"
+    ] = {
         "damping_constant": 0.5,
         "threshold": 0.01,
         "type": "damped",
         "store_iteration_properties": True,
     }
-    return config
+    return config_verysimple_for_simulation_one_loop
 
 
 @pytest.fixture(scope="module")
@@ -52,17 +35,18 @@ def v_inner_workflow(v_inner_config):
 
 
 @pytest.fixture(scope="module")
-def simple_workflow_one_loop(config_simulation):
-    workflow = SimpleTARDISWorkflow(config_simulation)
+def simple_workflow_one_loop(config_verysimple_for_simulation_one_loop):
+    workflow = SimpleTARDISWorkflow(config_verysimple_for_simulation_one_loop)
     workflow.run()
     return workflow
 
 
 @pytest.fixture(scope="module")
-def standard_workflow_one_loop(config_simulation):
-    workflow = StandardTARDISWorkflow(config_simulation)
+def standard_workflow_one_loop(config_verysimple_for_simulation_one_loop):
+    workflow = StandardTARDISWorkflow(config_verysimple_for_simulation_one_loop)
     workflow.run()
     return workflow
+
 
 @pytest.mark.parametrize(
     ["attr_type", "attr"],

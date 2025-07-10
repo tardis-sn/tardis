@@ -183,6 +183,14 @@ def tardis_config_verysimple():
         YAMLLoader,
     )
 
+@pytest.fixture(scope="session")
+def config_verysimple_for_simulation_one_loop(config_verysimple):
+    config = deepcopy(config_verysimple)
+    config.montecarlo.iterations = 2
+    config.montecarlo.no_of_packets = int(4e4)
+    config.montecarlo.last_no_of_packets = int(4e4)
+    return config
+
 
 @pytest.fixture(scope="function")
 def tardis_config_verysimple_nlte():
