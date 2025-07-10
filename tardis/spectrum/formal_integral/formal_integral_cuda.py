@@ -408,6 +408,22 @@ def cuda_formal_integral(
     I_nu_thread[p_idx] *= p
 
 
+def calculate_p_values(R_max, N):
+    """
+    Calculates the p values of N
+
+    Parameters
+    ----------
+    R_max : float64
+    N : int64
+
+    Returns
+    -------
+    float64
+    """
+    return np.arange(N).astype(np.float64) * R_max / (N - 1)
+
+
 class CudaFormalIntegrator:
     """
     Helper class for performing the formal integral

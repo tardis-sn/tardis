@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -34,7 +34,7 @@ from tardis import __path__ as path
 @pytest.fixture(scope="module")
 def continuum_compare_data_fname():
     fname = "continuum_compare_data.hdf"
-    return os.path.join(path[0], "montecarlo", "tests", "data", fname)
+    return str(Path(path[0]) / "montecarlo" / "tests" / "data" / fname)
 
 
 @pytest.fixture(scope="module")

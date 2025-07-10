@@ -7,7 +7,6 @@ import scipy.sparse.linalg as linalg
 import warnings
 
 from tardis import constants as const
-from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 C_INV = 3.33564e-11
