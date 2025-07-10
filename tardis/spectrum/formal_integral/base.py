@@ -105,7 +105,7 @@ def intensity_black_body(nu, temperature):
     return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
 
 
-def make_source_function(simulation_state, plasma, transport, interpolate_shells=0):
+def make_source_function(simulation_state, opacity_state, transport, plasma, interpolate_shells=0):
     """
     Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
 
@@ -121,7 +121,6 @@ def make_source_function(simulation_state, plasma, transport, interpolate_shells
     """
 
     montecarlo_transport_state = transport.transport_state
-    opacity_state = transport.transport_state.opacity_state
     atomic_data = plasma.atomic_data
     levels_index = plasma.levels
 
@@ -227,7 +226,6 @@ def make_source_function(simulation_state, plasma, transport, interpolate_shells
     )
     q_ul = tmp.set_index(transitions_index)
     t = simulation_state.time_explosion.value
-    t = simulation_state.time_explosion.value
     lines = atomic_data.lines.set_index("line_id")
     wave = lines.wavelength_cm.loc[
         transitions.transition_line_id
@@ -254,10 +252,8 @@ def make_source_function(simulation_state, plasma, transport, interpolate_shells
             e_dot_u,
         ) = interpolate_integrator_quantities(
             att_S_ul, Jredlu, Jbluelu, e_dot_u,
-            interpolate_shells=interpolate_shells,
-            transport=transport,
-            simulation_state=simulation_state,
-            plasma=plasma,
+            interpolate_shells,
+            transport, simulation_state, opacity_state, plasma
         )
     else:
         transport.r_inner_i = (
@@ -276,11 +272,10 @@ def make_source_function(simulation_state, plasma, transport, interpolate_shells
 def interpolate_integrator_quantities(
     att_S_ul, Jredlu, Jbluelu, e_dot_u,
     interpolate_shells,
-    transport, simulation_state, plasma
+    transport, simulation_state, opacity_state, plasma
 ):
 
     mct_state = transport.transport_state
-    opacity_state = transport.transport_state.opacity_state
     
     nshells = interpolate_shells
     r_middle = (
