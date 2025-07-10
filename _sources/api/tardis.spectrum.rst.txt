@@ -1,6 +1,14 @@
 tardis.spectrum package
 =======================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.spectrum.formal_integral
+
 Submodules
 ----------
 
@@ -8,8 +16,6 @@ Submodules
    :maxdepth: 4
 
    tardis.spectrum.base
-   tardis.spectrum.formal_integral
-   tardis.spectrum.formal_integral_cuda
    tardis.spectrum.luminosity
    tardis.spectrum.spectrum
 
