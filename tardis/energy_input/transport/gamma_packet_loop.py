@@ -1,17 +1,17 @@
 import numpy as np
 from numba import njit
 
-from tardis.energy_input.gamma_ray_grid import (
+from tardis.energy_input.transport.gamma_ray_grid import (
     distance_trace,
     move_packet,
 )
-from tardis.energy_input.gamma_ray_interactions import (
+from tardis.energy_input.transport.gamma_ray_interactions import (
     compton_scatter,
     get_compton_fraction_artis,
     pair_creation_packet,
     scatter_type,
 )
-from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.energy_input.transport.GXPacket import GXPacketStatus
 from tardis.energy_input.util import (
     C_CGS,
     H_CGS_KEV,
@@ -135,8 +135,7 @@ def gamma_packet_loop(
                 # artis threshold for Thomson scattering
                 if kappa < 1e-2:
                     compton_opacity = (
-                        SIGMA_T
-                        * electron_number_density_time[packet.shell, time_index]
+                        SIGMA_T * electron_number_density_time[packet.shell, time_index]
                     )
                 else:
                     compton_opacity = compton_opacity_calculation(
@@ -150,12 +149,10 @@ def gamma_packet_loop(
                     photoabsorption_opacity = 0
                     # photoabsorption_opacity_calculation_kasen()
                 elif photoabsorption_opacity_type == "tardis":
-                    photoabsorption_opacity = (
-                        photoabsorption_opacity_calculation(
-                            comoving_energy,
-                            mass_density_time[packet.shell, time_index],
-                            iron_group_fraction_per_shell[packet.shell],
-                        )
+                    photoabsorption_opacity = photoabsorption_opacity_calculation(
+                        comoving_energy,
+                        mass_density_time[packet.shell, time_index],
+                        iron_group_fraction_per_shell[packet.shell],
                     )
                 else:
                     raise ValueError("Invalid photoabsorption opacity type!")
@@ -183,9 +180,7 @@ def gamma_packet_loop(
 
             # convert opacities to rest frame
             total_opacity = (
-                compton_opacity
-                + photoabsorption_opacity
-                + pair_creation_opacity
+                compton_opacity + photoabsorption_opacity + pair_creation_opacity
             ) * doppler_factor
 
             packet.tau = -np.log(np.random.random())
@@ -204,9 +199,7 @@ def gamma_packet_loop(
                 times[time_index + 1],
             )
 
-            distance = min(
-                distance_interaction, distance_boundary, distance_time
-            )
+            distance = min(distance_interaction, distance_boundary, distance_time)
 
             packet.time_start += distance / C_CGS
 
@@ -234,9 +227,7 @@ def gamma_packet_loop(
                 packet, ejecta_energy_gained = process_packet_path(packet)
 
                 # Ejecta gains energy from the packets (gamma-rays)
-                energy_deposited_gamma[
-                    packet.shell, time_index
-                ] += ejecta_energy_gained
+                energy_deposited_gamma[packet.shell, time_index] += ejecta_energy_gained
                 # Ejecta gains energy from both gamma-rays and positrons
                 total_energy[packet.shell, time_index] += ejecta_energy_gained
 
@@ -252,9 +243,7 @@ def gamma_packet_loop(
                 if packet.shell > len(mass_density_time[:, 0]) - 1:
                     rest_energy = packet.nu_rf * H_CGS_KEV
                     bin_index = get_index(rest_energy, energy_bins)
-                    bin_width = (
-                        energy_bins[bin_index + 1] - energy_bins[bin_index]
-                    )
+                    bin_width = energy_bins[bin_index + 1] - energy_bins[bin_index]
                     freq_bin_width = bin_width / H_CGS_KEV
 
                     # get energy out in ergs per second per keV
@@ -264,10 +253,7 @@ def gamma_packet_loop(
                         / freq_bin_width  # Take light crossing time into account
                     )
                     # get energy out in photons per second per keV
-                    energy_out_cosi[bin_index, time_index] += (1
-                        / dt
-                        / bin_width
-                    )
+                    energy_out_cosi[bin_index, time_index] += 1 / dt / bin_width
 
                     luminosity = packet.energy_rf / dt
                     packet.status = GXPacketStatus.ESCAPED

@@ -34,18 +34,29 @@ def calculate_distance_radial(photon, r_inner, r_outer):
         photon.location, photon.direction, r_outer
     )
 
-    final_position_inner_1 = photon.location + photon.direction * inner_1
-    final_position_inner_2 = photon.location + photon.direction * inner_2
-    final_position_outer_1 = photon.location + photon.direction * outer_1
-    final_position_outer_2 = photon.location + photon.direction * outer_2
+    final_position_inner_1 = np.ascontiguousarray(
+        photon.location + photon.direction * inner_1
+    )
+    final_position_inner_2 = np.ascontiguousarray(
+        photon.location + photon.direction * inner_2
+    )
+    final_position_outer_1 = np.ascontiguousarray(
+        photon.location + photon.direction * outer_1
+    )
+    final_position_outer_2 = np.ascontiguousarray(
+        photon.location + photon.direction * outer_2
+    )
 
-    if np.dot(final_position_inner_1, photon.direction) > 0:
+    # Ensure photon.direction is contiguous for dot product operations
+    direction_contiguous = np.ascontiguousarray(photon.direction)
+
+    if np.dot(final_position_inner_1, direction_contiguous) > 0:
         inner_1 = -1
-    if np.dot(final_position_inner_2, photon.direction) > 0:
+    if np.dot(final_position_inner_2, direction_contiguous) > 0:
         inner_2 = -1
-    if np.dot(final_position_outer_1, photon.direction) < 0:
+    if np.dot(final_position_outer_1, direction_contiguous) < 0:
         outer_1 = -1
-    if np.dot(final_position_outer_2, photon.direction) < 0:
+    if np.dot(final_position_outer_2, direction_contiguous) < 0:
         outer_2 = -1
 
     distances = np.array([inner_1, inner_2, outer_1, outer_2])
