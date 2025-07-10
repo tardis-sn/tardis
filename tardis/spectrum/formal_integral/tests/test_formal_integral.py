@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import numpy as np
 import numpy.testing as ntest
 import pytest
@@ -14,12 +13,6 @@ from tardis.spectrum.formal_integral.formal_integral_cuda import (
     calculate_p_values as calculate_p_values_cuda,
     intensity_black_body_cuda
 )
-=======
-import pytest
-
-from tardis.spectrum.formal_integral.base import check
-from tardis.transport.montecarlo.configuration import montecarlo_globals
->>>>>>> master
 
 @pytest.mark.parametrize(
         "line_interaction_type", 
@@ -44,7 +37,6 @@ def test_check(simulation_verysimple, line_interaction_type):
     assert not check(sim_state, plasma, None, raises=False)
 
 
-<<<<<<< HEAD
 @pytest.mark.parametrize(
     ["nu", "temperature", "expected"],
     [
@@ -88,6 +80,4 @@ def test_calculate_p_values(N):
     # actual_cuda[::] = calculate_p_values_cuda(r, N)
     # ntest.assert_allclose(actual_cuda, expected)
 
-=======
->>>>>>> master
 
