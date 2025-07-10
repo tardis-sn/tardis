@@ -64,32 +64,6 @@ def standard_workflow_one_loop(config_simulation):
     workflow.run()
     return workflow
 
-
-@pytest.fixture(scope="function")
-def simulation_regression_data(regression_data):
-    """Fixture to access simulation regression data for test_simulation.py"""
-
-    class SimulationRegressionData:
-        def __init__(self, base_regression_data):
-            self.base_regression_data = base_regression_data
-            self.simulation_regression_dir = (
-                base_regression_data.absolute_regression_data_dir.parent
-                / "tardis"
-                / "simulation"
-                / "tests"
-                / "test_simulation"
-            )
-
-        def get_data(self, attr_root, attr):
-            regression_file = (
-                self.simulation_regression_dir
-                / f"test_{attr_root}__{attr}__.h5"
-            )
-            return pd.read_hdf(regression_file)
-
-    return SimulationRegressionData(regression_data)
-
-
 @pytest.mark.parametrize(
     ["attr_type", "attr"],
     [
@@ -104,34 +78,41 @@ def simulation_regression_data(regression_data):
     ],
 )
 def test_standard_tardis_workflow(
-    standard_workflow_one_loop, attr_type, attr, simulation_regression_data
+    standard_workflow_one_loop, attr_type, attr, regression_data
 ):
+    ref_file = (
+        regression_data.absolute_regression_data_dir.parent
+        / "tardis"
+        / "simulation"
+        / "tests"
+        / "test_simulation"
+        / f"test_{attr_type}__{attr}__.h5"
+    )
+    ref_data = pd.read_hdf(ref_file)
     if attr_type == "plasma_estimates":
         if attr in ["nu_bar_estimator", "j_estimator"]:
-            actual = getattr(
+            attr_data = getattr(
                 standard_workflow_one_loop.transport_state.radfield_mc_estimators,
                 attr,
             )
         elif attr in ["output_nus", "output_energies"]:
-            actual = getattr(
+            attr_data = getattr(
                 standard_workflow_one_loop.transport_state.packet_collection,
                 attr,
             )
         else:
             raise ValueError(f"Unknown plasma_estimates attr: {attr}")
-        if hasattr(actual, "value"):
-            actual = actual.value
-        actual = pd.Series(actual)
-        expected = simulation_regression_data.get_data(attr_type, attr)
+        if hasattr(attr_data, "value"):
+            attr_data = attr_data.value
+        attr_data = pd.Series(attr_data)
         pd.testing.assert_series_equal(
-            actual, expected, check_exact=False, rtol=1e-6
+            attr_data, ref_data, check_exact=False, rtol=1e-6
         )
     elif attr_type == "plasma_state_iterations":
         attr_data = getattr(standard_workflow_one_loop, attr)
         if hasattr(attr_data, "value"):
             attr_data = attr_data.value
         attr_data = pd.DataFrame(attr_data)
-        ref_data = simulation_regression_data.get_data(attr_type, attr)
         pd.testing.assert_frame_equal(attr_data, ref_data, atol=1e-3, rtol=1e-6)
     else:
         raise ValueError(f"Unknown attr_type: {attr_type}")
