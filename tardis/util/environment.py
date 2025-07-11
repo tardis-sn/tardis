@@ -41,7 +41,7 @@ class Environment(StrEnum):
         """
         Checking if the current environment is VSCode
         """
-        return any(x for x in ('VSCODE_PID', 'VSCODE', 'VSCODE_CMD') if x in os.environ)
+        return any(x for x in ('VSCODE_PID', 'VSCODE', 'VSCODE_CWD') if x in os.environ)
     
     @staticmethod
     def is_moria() -> bool:
