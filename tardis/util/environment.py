@@ -44,6 +44,18 @@ class Environment(StrEnum):
         return any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ)
     
     @staticmethod
+    def is_moria() -> bool:
+        """
+        Checking if the current environment is Moria/JupyterHub
+        
+        Returns
+        -------
+        True : if running in notebook with JupyterHub environment variables
+        False : otherwise
+        """
+        return Environment.is_notebook() and any(key.startswith('JUPYTERHUB') for key in os.environ.keys())
+
+    @staticmethod
     def is_notebook() -> bool:
         """
         Checking the shell environment where the simulation is run is Jupyter based
@@ -76,6 +88,5 @@ class Environment(StrEnum):
             return False
         # All other shell instances are returned False
         return False
-
 
 

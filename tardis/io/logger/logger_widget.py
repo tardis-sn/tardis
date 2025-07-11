@@ -3,7 +3,9 @@ import re
 import pandas as pd
 from tardis.util.environment import Environment
 import panel as pn
-pn.extension(comms="ipywidgets")
+
+import tardis.util.panel_init as panel_init
+panel_init.auto()
 
 
 def create_logger_columns(start_height=10, max_height=300):
