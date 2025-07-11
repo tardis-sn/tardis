@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit, prange
 
-from tardis.spectrum.formal_integral.base import C_INV, KB_CGS, H_CGS, BoundsError
+from tardis.spectrum.formal_integral.base import C_INV, BoundsError, intensity_black_body, calculate_p_values
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
@@ -129,33 +129,9 @@ def trapezoid_integration(array, h):
     return np.trapz(array, dx=h)
 
 
-@njit(**njit_dict_no_parallel)
-def intensity_black_body(nu, temperature):
-    """
-    Calculate the blackbody intensity.
-
-    Parameters
-    ----------
-    nu : float64
-        frequency
-    temperature : float64
-        Temperature
-
-    Returns
-    -------
-    float64
-    """
-    if nu == 0:
-        return np.nan  # to avoid ZeroDivisionError
-    beta_rad = 1 / (KB_CGS * temperature)
-    coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
-
-
-@njit(**njit_dict_no_parallel)
-def calculate_p_values(R_max, N):
-    """This can probably be replaced with a simpler function"""
-    return np.arange(N).astype(np.float64) * R_max / (N - 1)
+# numba jit
+calculate_p_values = njit(calculate_p_values, **njit_dict_no_parallel)
+intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
 
 
 @njit(**njit_dict)

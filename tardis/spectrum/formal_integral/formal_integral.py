@@ -140,7 +140,8 @@ class FormalIntegrator:
         """
         # TODO: get rid of storage later on
 
-        res = make_source_function(self.simulation_state, self.plasma, self.transport, self.interpolate_shells)
+        res = make_source_function(self.simulation_state, self.opacity_state, self.transport, 
+                                   self.plasma, self.interpolate_shells)
 
         att_S_ul = res[0].flatten(order="F")
         Jred_lu = res[1].flatten(order="F")

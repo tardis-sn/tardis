@@ -7,7 +7,6 @@ from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.formal_integral.base import C_INV
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
-from tardis.util.base import intensity_black_body
 
 
 TESTDATA = [
@@ -34,21 +33,6 @@ def formal_integral_geometry(request):
 @pytest.fixture(scope="function")
 def time_explosion():
     return 1 / c.c.cgs.value
-
-
-@pytest.mark.parametrize(
-    ["nu", "temperature"],
-    [
-        (1e14, 1e4),
-        (0, 1),
-        (1, 1),
-    ],
-)
-def test_intensity_black_body(nu, temperature):
-    actual = formal_integral_numba.intensity_black_body(nu, temperature)
-    print(actual, type(actual))
-    expected = intensity_black_body(nu, temperature)
-    ntest.assert_almost_equal(actual, expected)
 
 
 @pytest.mark.parametrize("N", (1e2, 1e3, 1e4, 1e5))
@@ -146,21 +130,3 @@ def test_populate_z_shells(formal_integral_geometry, time_explosion, p):
     ntest.assert_allclose(oshell_id, expected_oshell_id)
 
     ntest.assert_allclose(oz, expected_oz, atol=1e-5)
-
-
-@pytest.mark.parametrize(
-    "N",
-    [
-        100,
-        1000,
-        10000,
-    ],
-)
-def test_calculate_p_values(N):
-    r = 1.0
-
-    expected = r / (N - 1) * np.arange(0, N, dtype=np.float64)
-    actual = np.zeros_like(expected, dtype=np.float64)
-
-    actual[::] = formal_integral_numba.calculate_p_values(r, N)
-    ntest.assert_allclose(actual, expected)
