@@ -5,10 +5,9 @@ on:
     branches:
       - master
 
-  pull_request_target:
+  pull_request:
     branches:
       - master
-
     types:
       - opened
       - reopened
@@ -29,25 +28,25 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  test-cache:
-    uses: ./.github/workflows/lfs-cache.yml
-    with:
-      atom-data-sparse: false
-      regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+  # test-cache:
+  #   uses: ./.github/workflows/lfs-cache.yml
+  #   with:
+  #     atom-data-sparse: false
+  #     regression-data-repo: tardis-sn/tardis-regression-data
+  #     allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   build:
-    if: github.repository_owner == 'tardis-sn' &&
-      (github.event_name == 'push' ||
-      (!github.event.pull_request.draft) ||
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request_target' &&
-      contains(github.event.pull_request.labels.*.name, 'benchmarks')))
+    # if: github.repository_owner == 'tardis-sn' &&
+    #   (github.event_name == 'push' ||
+    #   (!github.event.pull_request.draft) ||
+    #   github.event_name == 'workflow_dispatch' ||
+    #   (github.event_name == 'pull_request' &&
+    #   contains(github.event.pull_request.labels.*.name, 'benchmarks')))
     runs-on: ubuntu-latest
-    needs: [test-cache]
+    # needs: [test-cache]
     steps:
       - uses: actions/checkout@v4
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         with:
           fetch-depth: 0
 
@@ -56,57 +55,69 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Fetch master branch
         run: git fetch origin master:master
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
         with:
           atom-data-sparse: true
 
-      - name: Setup Mamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Setup environment
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
-          environment-name: benchmark
-          init-shell: >-
-            bash
-          create-args: >-
-            python
-            asv=0.6.4
-            mamba
-            libmambapy<2.0
-            conda-build
-            conda=24.11.0
+          os-label: linux-64
+      
+      - name: Install asv
+        run: micromamba install -c conda-forge "asv" "mamba" "libmambapy" "conda-build" "conda"
+
+      - name: Install TARDIS
+        run: |
+          pip install -e ".[tardisbase]"
+          pip install --no-deps qgridnext lineid_plot
 
       - name: Accept all asv questions
         run: asv machine --yes
       
       - name: Download lockfile for benchmarks
-        run: wget -q https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/env.yml
+        run: | 
+          wget -q https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/env.yml
+          wget -q https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/conda-linux-64.lock
 
       - name: Run benchmarks for last 4 commits if not PR
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         run: |
-          git log -n 4  --pretty=format:"%H" >> tag_commits.txt
-          asv run -a rounds=1 HASHFILE:tag_commits.txt | tee asv-output.log
+          # Get last 4 commit hashes
+          git log -n 4 --pretty=format:"%H" > tag_commits.txt
+          
+          # Benchmark each commit using existing environment
+          while read commit_hash; do
+            echo "Benchmarking commit: $commit_hash"
+            git checkout $commit_hash
+            pip install -e ".[tardisbase]"
+            pip install --no-deps qgridnext lineid_plot
+            TARDIS_REF_PATH=tardis-regression-data/atom_data asv run --python=same --set-commit-hash $commit_hash -a rounds=1 --quick
+          done < tag_commits.txt | tee asv-output.log
+          
+          # Return to original state
+          git checkout HEAD
+          pip install -e ".[tardisbase]"
+          pip install --no-deps qgridnext lineid_plot
+          
           if grep -q failed asv-output.log; then 
             echo "Some benchmarks have failed!"
             exit 1
           fi
 
       - name: Generate Graphs and HTML
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         run: asv publish
 
-      - name: Delete env files
-        if: github.event_name != 'pull_request_target'
-        run: rm -r .asv/env
-
       - name: Deploy asv page
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.BOT_TOKEN }}
@@ -118,21 +129,44 @@ jobs:
           user_email: "tardis.sn.bot@gmail.com"
 
       - name: Run benchmarks for base and head commits of PR
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: |
-          echo $(git rev-parse HEAD) > commit_hashes.txt
-          echo $(git rev-parse master) >> commit_hashes.txt
-          asv run -a rounds=1 HASHFILE:commit_hashes.txt | tee asv-output-PR.log  
-            if grep -q failed asv-output-PR.log; then 
-              echo "Some benchmarks have failed!"
-              exit 1
-            fi
+          # Get commit hashes
+          HEAD_HASH=$(git rev-parse HEAD)
+          MASTER_HASH=$(git rev-parse master)
+          
+          # Benchmark master branch
+          echo "Benchmarking master commit: $MASTER_HASH"
+          git checkout master
+          pip install -e ".[tardisbase]"
+          pip install --no-deps qgridnext lineid_plot
+          TARDIS_REF_PATH=tardis-regression-data/atom_data asv run --python=same --set-commit-hash $MASTER_HASH -a rounds=1 --quick
+          
+          # Benchmark PR head
+          echo "Benchmarking PR head commit: $HEAD_HASH"
+          git checkout $HEAD_HASH
+          pip install -e ".[tardisbase]"
+          pip install --no-deps qgridnext lineid_plot
+          TARDIS_REF_PATH=tardis-regression-data/atom_data asv run --python=same --set-commit-hash $HEAD_HASH -a rounds=1 --quick | tee asv-output-PR.log
+          
+          if grep -q failed asv-output-PR.log; then 
+            echo "Some benchmarks have failed!"
+            exit 1
+          fi
 
       - name: Compare Master and PR head
-        run: asv compare origin/master HEAD --factor 1.1 --split --sort ratio | tee asv-compare-output.log
+        if: github.event_name == 'pull_request'
+        run: |
+          HEAD_HASH=$(git rev-parse HEAD)
+          MASTER_HASH=$(git rev-parse master)
+          asv compare $MASTER_HASH $HEAD_HASH --factor 1.1 --split --sort ratio | tee asv-compare-output.log
 
       - name: Compare Master and PR head but only show changed results
-        run: asv compare origin/master HEAD --only-changed --factor 1.1 --split --sort ratio | tee asv-compare-changed-output.log
+        if: github.event_name == 'pull_request'
+        run: |
+          HEAD_HASH=$(git rev-parse HEAD)
+          MASTER_HASH=$(git rev-parse master)
+          asv compare $MASTER_HASH $HEAD_HASH --only-changed --factor 1.1 --split --sort ratio | tee asv-compare-changed-output.log
 
       - name: Benchmarks compare output
         id: asv_pr_vs_master
@@ -147,16 +181,12 @@ jobs:
           path: asv-compare-changed-output.log
 
       - name: Generate Graphs and HTML of PR
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: |
           asv publish
 
-      - name: Delete env files of PR
-        if: github.event_name == 'pull_request_target'
-        run: rm -r .asv/env
-
       - name: Set destination directory
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: |
           BRANCH=$(echo ${GITHUB_REF#refs/heads/})
           if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
@@ -167,7 +197,7 @@ jobs:
               echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
             fi
 
-          elif [[ $EVENT == pull_request_target ]]; then
+          elif [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
 
           else
@@ -183,7 +213,7 @@ jobs:
           PR: ${{ github.event.number }}
 
       - name: Set clean branch option
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: |
           if [[ $EVENT == workflow_dispatch ]]; then
             echo "CLEAN_BRANCH=true" >> $GITHUB_ENV
@@ -198,7 +228,7 @@ jobs:
           EVENT: ${{ github.event_name }}
 
       - name: Deploy ${{ env.DEST_DIR }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.BOT_TOKEN }}
@@ -212,7 +242,7 @@ jobs:
           user_email: "tardis.sn.bot@gmail.com"
       
       - name: Find Comment
-        if: always() && github.event_name == 'pull_request_target'
+        if: always() && github.event_name == 'pull_request'
         uses: peter-evans/find-comment@v1
         id: fc
         with:
@@ -220,7 +250,7 @@ jobs:
           body-includes: I ran benchmarks as you asked
 
       - name: Post comment
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v2
         with:
           token: ${{ secrets.BOT_TOKEN }}
