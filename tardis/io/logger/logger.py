@@ -7,12 +7,12 @@ import pandas as pd
 from tardis.io.logger.colored_logger import ColoredFormatter
 from tardis.util.environment import Environment
 from tardis.io.logger.logger_widget import create_logger_columns, PanelWidgetLogHandler
+import tardis.util.panel_init as panel_init
+panel_init.auto()
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
 logger = logging.getLogger(__name__)
-
-pn.extension(comms="ipywidgets")
 
 @dataclass
 class LoggingConfig:
