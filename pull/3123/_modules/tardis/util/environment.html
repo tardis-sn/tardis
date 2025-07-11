@@ -185,9 +185,24 @@ class Environment(StrEnum):
         &quot;&quot;&quot;
         Checking if the current environment is VSCode
         &quot;&quot;&quot;
-        return any(x for x in (&#39;VSCODE_PID&#39;, &#39;VSCODE&#39;) if x in os.environ)</div>
+        return any(x for x in (&#39;VSCODE_PID&#39;, &#39;VSCODE&#39;, &#39;VSCODE_CWD&#39;) if x in os.environ)</div>
 
     
+<div class="viewcode-block" id="Environment.is_moria">
+<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_moria">[docs]</a>
+    @staticmethod
+    def is_moria() -&gt; bool:
+        &quot;&quot;&quot;
+        Checking if the current environment is Moria/JupyterHub
+        
+        Returns
+        -------
+        True : if running in notebook with JupyterHub environment variables
+        False : otherwise
+        &quot;&quot;&quot;
+        return Environment.is_notebook() and any(key.startswith(&#39;JUPYTERHUB&#39;) for key in os.environ.keys())</div>
+
+
 <div class="viewcode-block" id="Environment.is_notebook">
 <a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_notebook">[docs]</a>
     @staticmethod
@@ -227,7 +242,6 @@ class Environment(StrEnum):
 
 
 
-
 </pre></div>
 
            </div>
@@ -238,7 +252,7 @@ class Environment(StrEnum):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 09 Jul 2025.
+      <span class="lastupdated">Last updated on 11 Jul 2025.
       </span></p>
   </div>
 

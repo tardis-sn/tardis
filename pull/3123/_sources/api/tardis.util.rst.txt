@@ -9,6 +9,7 @@ Submodules
 
    tardis.util.base
    tardis.util.environment
+   tardis.util.panel_init
 
 Module contents
 ---------------

@@ -141,19 +141,19 @@ import pandas as pd
 from tardis.io.logger.colored_logger import ColoredFormatter
 from tardis.util.environment import Environment
 from tardis.io.logger.logger_widget import create_logger_columns, PanelWidgetLogHandler
+import tardis.util.panel_init as panel_init
+panel_init.auto()
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger(&quot;py.warnings&quot;)
 
 logger = logging.getLogger(__name__)
-
-pn.extension(comms=&quot;ipywidgets&quot;)
 
 <div class="viewcode-block" id="LoggingConfig">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig">[docs]</a>
 @dataclass
 class LoggingConfig:
     &quot;&quot;&quot;Logging configuration.
-
+    
     Attributes
     ----------
     LEVELS : dict
@@ -164,8 +164,6 @@ class LoggingConfig:
         The default logging level.
     DEFAULT_SPECIFIC_STATE : bool
         The default specific log level state.
-    DEFAULT_BATCH_SIZE : int
-        The default batch size for log updates.
     &quot;&quot;&quot;
     LEVELS: dict = field(default_factory=lambda: {
         &quot;NOTSET&quot;: logging.NOTSET,
@@ -186,8 +184,7 @@ class LoggingConfig:
     })
 
     DEFAULT_LEVEL = &quot;INFO&quot;
-    DEFAULT_SPECIFIC_STATE = False
-    DEFAULT_BATCH_SIZE = 20</div>
+    DEFAULT_SPECIFIC_STATE = False</div>
 
 
 LOGGING_LEVELS = LoggingConfig().LEVELS
@@ -196,23 +193,20 @@ LOGGING_LEVELS = LoggingConfig().LEVELS
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger">[docs]</a>
 class TARDISLogger:
     &quot;&quot;&quot;Main logger class for TARDIS.
-
+    
     Parameters
     ----------
     log_columns : dict
         Dictionary of scroll columns for each log level.
     display_handles : dict, optional
         Dictionary of display handles for each column (jupyter environment).
-    batch_size : int, optional
-        Number of log entries to accumulate before updating the UI.
     &quot;&quot;&quot;
-    def __init__(self, log_columns=None, display_handles=None, batch_size=None):
+    def __init__(self, log_columns=None, display_handles=None):
         self.config = LoggingConfig()
         self.logger = logging.getLogger(&quot;tardis&quot;)
         self.log_columns = log_columns
         self.display_handles = display_handles
         self.display_ids = {}
-        self.batch_size = batch_size or self.config.DEFAULT_BATCH_SIZE
 
 <div class="viewcode-block" id="TARDISLogger.configure_logging">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.configure_logging">[docs]</a>
@@ -296,8 +290,7 @@ class TARDISLogger:
             log_columns=self.log_columns,
             colors=self.config.COLORS,
             display_widget=display_widget,
-            display_handles=self.display_handles,
-            batch_size=self.batch_size
+            display_handles=self.display_handles
         )
         self.widget_handler.setFormatter(
             logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;)
@@ -393,9 +386,9 @@ class LogFilter:
 
 <div class="viewcode-block" id="logging_state">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.logging_state">[docs]</a>
-def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True, widget_start_height=10, widget_max_height=300, log_batch_size=None):
+def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True, widget_start_height=10, widget_max_height=300):
     &quot;&quot;&quot;Configure and initialize the TARDIS logging system.
-
+    
     Parameters
     ----------
     log_level : str
@@ -406,25 +399,14 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         Whether to enable specific log level filtering.
     display_logging_widget : bool, optional
         Whether to display the logging widget. Default is True.
-    widget_start_height : int, optional
-        Initial height of the logging widget. Default is 10.
-    widget_max_height : int, optional
-        Maximum height of the logging widget. Default is 300.
-    log_batch_size : int, optional
-        Number of log entries to accumulate before updating the UI.
-        Default is 20. Set to 1 for immediate updates.
-
+        
     Returns
     -------
     dict
         Dictionary of log columns if display_logging_widget is True, otherwise None.
     &quot;&quot;&quot;
-    # Set default batch size if not provided
-    if log_batch_size is None:
-        log_batch_size = LoggingConfig().DEFAULT_BATCH_SIZE
-
     log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
-    tardislogger = TARDISLogger(log_columns=log_columns, batch_size=log_batch_size)
+    tardislogger = TARDISLogger(log_columns=log_columns)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
     use_widget = display_logging_widget and (Environment.is_notebook() or Environment.is_vscode())
     
@@ -470,7 +452,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 09 Jul 2025.
+      <span class="lastupdated">Last updated on 11 Jul 2025.
       </span></p>
   </div>
 

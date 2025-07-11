@@ -137,7 +137,9 @@ import re
 import pandas as pd
 from tardis.util.environment import Environment
 import panel as pn
-pn.extension(comms=&quot;ipywidgets&quot;)
+
+import tardis.util.panel_init as panel_init
+panel_init.auto()
 
 
 <div class="viewcode-block" id="create_logger_columns">
@@ -182,7 +184,7 @@ def create_logger_columns(start_height=10, max_height=300):
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger_widget.html#tardis.io.logger.logger_widget.PanelWidgetLogHandler">[docs]</a>
 class PanelWidgetLogHandler(logging.Handler):
     &quot;&quot;&quot;Log handler for logging to scroll columns.
-
+    
     Parameters
     ----------
     log_columns : dict
@@ -193,26 +195,15 @@ class PanelWidgetLogHandler(logging.Handler):
         Whether to display logs in the widget. Defaults to True.
     display_handles : dict, optional
         Dictionary of display handles for each column (jupyter environment).
-    batch_size : int, optional
-        Number of log entries to accumulate before updating the UI. Default is 20.
     &quot;&quot;&quot;
-    def __init__(self, log_columns, colors, display_widget=True, display_handles=None, batch_size=20):
+    def __init__(self, log_columns, colors, display_widget=True, display_handles=None):
         super().__init__()
         self.log_columns = log_columns
         self.colors = colors
         self.display_widget = display_widget
         self.display_handles = display_handles or {}
         self.environment = Environment.get_current_environment()
-        self.batch_size = batch_size
-
-        # Initialize batch tracking for each log level
-        self.pending_updates = {}  # Store pending HTML updates for each level
-        self.update_counters = {}  # Track number of pending updates per level
-
-        for level in [&quot;INFO&quot;, &quot;WARNING/ERROR&quot;, &quot;DEBUG&quot;]:
-            self.pending_updates[level] = []
-            self.update_counters[level] = 0
-
+        
         self.stream_handler = None
         if not self.display_widget:
             self.stream_handler = logging.StreamHandler()
@@ -222,7 +213,7 @@ class PanelWidgetLogHandler(logging.Handler):
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger_widget.html#tardis.io.logger.logger_widget.PanelWidgetLogHandler.emit">[docs]</a>
     def emit(self, record):
         &quot;&quot;&quot;Process and emit a log record.
-
+        
         Parameters
         ----------
         record : logging.LogRecord
@@ -241,10 +232,7 @@ class PanelWidgetLogHandler(logging.Handler):
             clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
             html_output = self._format_html_output(clean_log_entry, record)
 
-        # Check if this is a critical error that should bypass batching
-        force_immediate = record.levelno &gt;= logging.ERROR
-
-        self._emit_to_columns(record.levelno, html_output, force_immediate)</div>
+        self._emit_to_columns(record.levelno, html_output)</div>
 
 
     @staticmethod
@@ -286,17 +274,15 @@ class PanelWidgetLogHandler(logging.Handler):
             return f&#39;&lt;span&gt;{prefix}&lt;/span&gt; &lt;span style=&quot;color: {color}; font-weight: bold;&quot;&gt;{levelname}&lt;/span&gt; {message}&#39;
         return log_entry
 
-    def _emit_to_columns(self, level, html_output, force_immediate=False):
-        &quot;&quot;&quot;Add log entry to appropriate scroll columns with batch updates.
-
+    def _emit_to_columns(self, level, html_output):
+        &quot;&quot;&quot;Add log entry to appropriate scroll columns using string concatenation.
+        
         Parameters
         ----------
         level : int
             The logging level.
         html_output : str
             The HTML-formatted log message.
-        force_immediate : bool, optional
-            Whether to force immediate update (for critical errors). Default is False.
         &quot;&quot;&quot;
         level_to_output = {
             logging.WARNING: &quot;WARNING/ERROR&quot;,
@@ -306,72 +292,36 @@ class PanelWidgetLogHandler(logging.Handler):
             logging.DEBUG: &quot;DEBUG&quot;
         }
 
+        # Add to specific level column using string concatenation
         output_key = level_to_output.get(level)
-        if not output_key or output_key not in self.log_columns:
-            return
-
-        # Wrap in div for consistent formatting
-        html_wrapped = f&quot;&lt;div style=&#39;margin: 2px 0; padding: 2px 0;&#39;&gt;{html_output}&lt;/div&gt;&quot;
-
-        # Add to pending updates
-        self.pending_updates[output_key].append(html_wrapped)
-        self.update_counters[output_key] += 1
-
-        # Check if we should update now
-        should_update = (
-            force_immediate or
-            self.update_counters[output_key] &gt;= self.batch_size or
-            self.batch_size == 1  # Immediate mode
-        )
-
-        if should_update:
-            self._flush_pending_updates(output_key)
-
-    def _flush_pending_updates(self, output_key):
-        &quot;&quot;&quot;Flush all pending updates for a specific log level.
-
-        Parameters
-        ----------
-        output_key : str
-            The log level key (e.g., &quot;INFO&quot;, &quot;WARNING/ERROR&quot;, &quot;DEBUG&quot;).
-        &quot;&quot;&quot;
-        if not self.pending_updates[output_key]:
-            return
-
-        level_column = self.log_columns[output_key]
-
-        # Get current content
-        current_content = getattr(level_column, &#39;_log_content&#39;, &#39;&#39;) or level_column.object or &#39;&#39;
-
-        # Add all pending updates
-        new_content_parts = [current_content] if current_content else []
-        new_content_parts.extend(self.pending_updates[output_key])
-        new_content = &#39;&#39;.join(new_content_parts)
-
-        # Store content and update column
-        level_column._log_content = new_content
-        level_column.object = new_content
-
-        # Dynamic height adjustment
-        self._adjust_column_height(level_column, new_content)
-
-        # Trim old entries if needed (count divs)
-        if new_content.count(&#39;&lt;div&#39;) &gt; level_column.max_log_entries:
-            # Keep only the last max_log_entries
-            divs = new_content.split(&#39;&lt;div&#39;)
-            trimmed = &#39;&lt;div&#39;.join(divs[-level_column.max_log_entries:])
-            level_column._log_content = trimmed
-            level_column.object = trimmed
-
-        # Update display handle in jupyter environment
-        if (self.environment == &#39;jupyter&#39; and output_key in self.display_handles
-            and self.display_handles[output_key] is not None):
-            self.display_handles[output_key].update(level_column)
-
-        # Clear pending updates
-        self.pending_updates[output_key] = []
-        self.update_counters[output_key] = 0
-
+        if output_key and output_key in self.log_columns:
+            level_column = self.log_columns[output_key]
+            
+            # Wrap in div and concatenate to existing content
+            html_wrapped = f&quot;&lt;div style=&#39;margin: 2px 0; padding: 2px 0;&#39;&gt;{html_output}&lt;/div&gt;&quot;
+            current_content = getattr(level_column, &#39;_log_content&#39;, &#39;&#39;) or level_column.object or &#39;&#39;
+            new_content = current_content + html_wrapped if current_content else html_wrapped
+            
+            # Store content and update column
+            level_column._log_content = new_content
+            level_column.object = new_content
+            
+            # Dynamic height adjustment
+            self._adjust_column_height(level_column, new_content)
+            
+            # Trim old entries if needed (count divs)
+            if new_content.count(&#39;&lt;div&#39;) &gt; level_column.max_log_entries:
+                # Keep only the last max_log_entries
+                divs = new_content.split(&#39;&lt;div&#39;)
+                trimmed = &#39;&lt;div&#39;.join(divs[-level_column.max_log_entries:])
+                level_column._log_content = trimmed
+                level_column.object = trimmed
+            
+            # Update display handle in jupyter environment
+            if (self.environment == &#39;jupyter&#39; and output_key in self.display_handles 
+                and self.display_handles[output_key] is not None):
+                self.display_handles[output_key].update(level_column)
+    
     def _adjust_column_height(self, column, content=None):
         &quot;&quot;&quot;Dynamically adjust column height based on content.
         
@@ -394,23 +344,11 @@ class PanelWidgetLogHandler(logging.Handler):
             new_height = min(estimated_height, column._max_height)
             column.height = new_height
     
-<div class="viewcode-block" id="PanelWidgetLogHandler.flush_all_pending">
-<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger_widget.html#tardis.io.logger.logger_widget.PanelWidgetLogHandler.flush_all_pending">[docs]</a>
-    def flush_all_pending(self):
-        &quot;&quot;&quot;Flush all pending updates for all log levels.
-        &quot;&quot;&quot;
-        for output_key in self.pending_updates.keys():
-            self._flush_pending_updates(output_key)</div>
-
-
 <div class="viewcode-block" id="PanelWidgetLogHandler.close">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger_widget.html#tardis.io.logger.logger_widget.PanelWidgetLogHandler.close">[docs]</a>
     def close(self):
         &quot;&quot;&quot;Close the log handler.
         &quot;&quot;&quot;
-        # Flush any remaining pending updates before closing
-        self.flush_all_pending()
-
         super().close()
         if self.stream_handler:
             self.stream_handler.flush()
@@ -430,7 +368,7 @@ class PanelWidgetLogHandler(logging.Handler):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 09 Jul 2025.
+      <span class="lastupdated">Last updated on 11 Jul 2025.
       </span></p>
   </div>
 
