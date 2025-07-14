@@ -15,15 +15,13 @@ jobs:
       contents: read
     
     steps:
-      - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v4
+      - name: Update PR Description (LFS Warning)
+        uses: ./.github/workflows/pr-description-updater.yml
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          edit-mode: replace
-          body: |
-            Warning - LFS bandwidth usage
-            ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
+          section_id: 'lfs_warning'
+          content: '⚠️ **LFS bandwidth warning**: The label you applied triggers workflows that consume LFS bandwidth. Use carefully - this label will be removed after checks complete.'
+          pr_number: '${{ github.event.pull_request.number }}'
+          title: 'LFS Warning'
 
   check-first-time-committer:
     runs-on: ubuntu-latest
@@ -32,14 +30,13 @@ jobs:
       pull-requests: write
     
     steps:
-      - name: Add welcome comment
-        uses: peter-evans/create-or-update-comment@v4
+      - name: Update PR Description (Welcome)
+        uses: ./.github/workflows/pr-description-updater.yml
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
-            Before asking for reviews, please make sure all checks have passed.
+          section_id: 'welcome'
+          content: '👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution! Please ensure all checks pass before requesting reviews.'
+          pr_number: '${{ github.event.pull_request.number }}'
+          title: 'Welcome Message'
 
   
   check-orcid:
@@ -67,27 +64,25 @@ jobs:
           body-includes: Please add your email and ORCID ID
         if: always()
 
-      - name: Create comment
+      - name: Update PR Description (ORCID)
         if: steps.check_orcid.outcome == 'failure'
-        uses: peter-evans/create-or-update-comment@v4
+        uses: ./.github/workflows/pr-description-updater.yml
         with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
-
-            Hi, human.
-
-            I'm the @tardis-bot and I noticed that your email is not associated with an ORCID ID in our database.
-
-            Please add your email and ORCID ID to the `.orcid.csv` file in your current branch and push the changes to this pull request.
-
-            If you don't have an ORCID ID yet, you can create one for free at [orcid.org](https://orcid.org/). ORCID IDs help ensure you get proper credit for your scientific contributions.
-
-            The format should be:
+          section_id: 'orcid'
+          content: |
+            ❌ ORCID validation failed
+            
+            Your email is not associated with an ORCID ID in our database.
+            
+            **Action required:** Please add your email and ORCID ID to the `.orcid.csv` file in your current branch.
+            
+            **Format:**
             ```
             email,orcid
             your.email@example.com,0000-0000-0000-0000
             ```
+            
+            Don't have an ORCID? [Create one for free](https://orcid.org/) - it helps ensure you get proper credit for your contributions.
+          pr_number: '${{ github.event.pull_request.number }}'
+          collapsible: true
+          title: 'ORCID Check'
