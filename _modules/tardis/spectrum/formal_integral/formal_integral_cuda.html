@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=a8f33eb0"></script>
+      <script src="../../../../_static/documentation_options.js?v=06477de7"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,7 +136,7 @@
 import math
 
 from numba import cuda
-from tardis.spectrum.formal_integral.base import C_INV, KB_CGS, H_CGS
+from tardis.spectrum.formal_integral.base import C_INV, calculate_p_values, intensity_black_body
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 <div class="viewcode-block" id="trapezoid_integration_cuda">
@@ -357,30 +357,8 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
 
 
 
-<div class="viewcode-block" id="intensity_black_body_cuda">
-<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.intensity_black_body_cuda">[docs]</a>
-@cuda.jit(device=True)
-def intensity_black_body_cuda(nu, temperature):
-    &quot;&quot;&quot;
-    Calculate the blackbody intensity.
-
-    Parameters
-    ----------
-    nu : float64
-        frequency
-    temperature : float64
-        Temperature
-
-    Returns
-    -------
-    float64
-    &quot;&quot;&quot;
-    if nu == 0:
-        return np.nan  # to avoid ZeroDivisionError
-    beta_rad = 1 / (KB_CGS * temperature)
-    coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)</div>
-
+calculate_p_values = cuda.jit(calculate_p_values, device=True)
+intensity_black_body_cuda = cuda.jit(intensity_black_body, device=True)
 
 
 <div class="viewcode-block" id="cuda_formal_integral">
@@ -734,7 +712,7 @@ class BoundsError(IndexError):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 10 Jul 2025.
+      <span class="lastupdated">Last updated on 14 Jul 2025.
       </span></p>
   </div>
 
