@@ -466,10 +466,10 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
 
-            opacity_states = self.solve_opacity()
+            self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count
             )
 
             (
@@ -501,6 +501,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         )
 
         self.initialize_spectrum_solver(
-            opacity_states,
+            self.opacity_states,
             virtual_packet_energies,
         )

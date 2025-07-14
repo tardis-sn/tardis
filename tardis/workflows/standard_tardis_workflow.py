@@ -217,10 +217,10 @@ class StandardTARDISWorkflow(
                 self.simulation_state.t_inner,
             )
 
-            opacity_states = self.solve_opacity()
+            self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count
             )
 
             (
@@ -268,6 +268,6 @@ class StandardTARDISWorkflow(
                 last=True,
             )
         self.initialize_spectrum_solver(
-            opacity_states,
+            self.opacity_states,
             virtual_packet_energies,
         )
