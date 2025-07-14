@@ -61,7 +61,7 @@ def standard_workflow_one_loop(config_verysimple_for_simulation_one_loop):
         ("plasma_estimates", "output_energies"),
     ],
 )
-def test_standard_tardis_workflow(
+def test_standard_tardis_workflow_against_run_tardis(
     standard_workflow_one_loop, attr_type, attr, regression_data
 ):
     ref_file = (
@@ -110,10 +110,11 @@ def test_standard_tardis_workflow(
         "t_inner",
     ],
 )
-def test_simple_tardis_workflow(
+def test_simple_tardis_workflow_against_standard_workflow(
     simple_workflow_one_loop, standard_workflow_one_loop, attr
 ):
-    # this test reply on that the standard workflow pass the test comparing with the regression data
+    # this test cross compare the simple workflow results against the standard workflow results for now,
+    # since by default the simple workflow does not save the iteration properties
     attr_simple_workflow = getattr(
         simple_workflow_one_loop.simulation_state, attr
     )
