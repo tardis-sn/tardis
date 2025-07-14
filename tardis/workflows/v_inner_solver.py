@@ -8,6 +8,9 @@ from scipy.interpolate import interp1d
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
+from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.workflows.util import get_tau_integ
 
 # logging support
@@ -38,6 +41,33 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         )
 
         self.store_iteration_properties = configuration.montecarlo.convergence_strategy.v_inner_boundary.store_iteration_properties
+
+        if ~np.isclose(
+            self.simulation_state.geometry.v_inner_boundary,
+            self.simulation_state.geometry.v_inner[0],
+        ):
+            logger.warning(
+                "WARNING: overwriting initial v_inner_boundary to be the first shell in the v_inner solver workflow."
+            )
+            self.simulation_state.geometry.v_inner_boundary = (
+                self.simulation_state.geometry.v_inner[0]
+            )
+            self.simulation_state.blackbody_packet_source.radius = (
+                self.simulation_state.geometry.r_inner[0]
+            )
+
+            self.plasma_solver = self.plasma_solver_factory.assemble(
+                self.simulation_state.elemental_number_density,
+                self.simulation_state.radiation_field_state,
+                self.simulation_state.time_explosion,
+                self.simulation_state._electron_densities,
+            )
+
+            self.transport_solver = MonteCarloTransportSolver.from_config(
+                configuration,
+                packet_source=self.simulation_state.packet_source,
+                enable_virtual_packet_logging=self.enable_virtual_packet_logging,
+            )
 
         # Need to compute the opacity state on init to get the optical depths
         # for the first inner boundary calculation.
@@ -165,9 +195,7 @@ class InnerVelocitySolverWorkflow(SimpleTARDISWorkflow):
         )
 
         interpolator = interp1d(
-            self.tau_integ[
-                self.simulation_state.geometry.v_inner_boundary_index :
-            ],
+            self.tau_integ,
             self.simulation_state.geometry.v_inner_active,  # Only use the active values as we only need a numerical estimate, not an index
             fill_value="extrapolate",
         )
