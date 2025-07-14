@@ -8,8 +8,6 @@ from scipy.interpolate import interp1d
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
-from tardis.opacities.opacity_solver import OpacitySolver
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.workflows.util import get_tau_integ
 
