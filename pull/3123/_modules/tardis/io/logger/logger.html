@@ -320,7 +320,7 @@ class TARDISLogger:
         &quot;&quot;&quot;Finalize widget logging by embedding the final state.
         &quot;&quot;&quot;
         # Embed the final state for Jupyter environments
-        if (Environment.is_notebook() or Environment.is_moria() and hasattr(self, &#39;display_handles&#39;) 
+        if (Environment.is_notebook() and hasattr(self, &#39;display_handles&#39;) 
             and hasattr(self, &#39;display_ids&#39;) and self.display_handles and self.display_ids):
             print(&quot;Embedding the final state for Jupyter environments&quot;)
             for level, column in self.log_columns.items():

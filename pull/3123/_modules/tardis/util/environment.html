@@ -145,6 +145,7 @@ class Environment(StrEnum):
     VSCODE = &#39;vscode&#39;
     JUPYTER = &#39;jupyter&#39;
     TERMINAL = &#39;terminal&#39;
+    MORIA = &#39;moria&#39;
     
 <div class="viewcode-block" id="Environment.get_current_environment">
 <a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.get_current_environment">[docs]</a>
@@ -161,6 +162,8 @@ class Environment(StrEnum):
             return cls.VSCODE
         elif cls.is_notebook():
             return cls.JUPYTER
+        elif cls.is_moria():
+            return cls.MORIA
         elif cls.is_terminal():
             return cls.TERMINAL
         else:
@@ -188,36 +191,15 @@ class Environment(StrEnum):
         return any(x for x in (&#39;VSCODE_PID&#39;, &#39;VSCODE&#39;, &#39;VSCODE_CWD&#39;) if x in os.environ)</div>
 
     
-<div class="viewcode-block" id="Environment.is_moria">
-<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_moria">[docs]</a>
     @staticmethod
-    def is_moria() -&gt; bool:
+    def _detect_jupyter_shell() -&gt; bool:
         &quot;&quot;&quot;
-        Checking if the current environment is Moria/JupyterHub
-        
-        Returns
-        -------
-        True : if running in notebook with JupyterHub environment variables
-        False : otherwise
-        &quot;&quot;&quot;
-        return Environment.is_notebook() and any(key.startswith(&#39;JUPYTERHUB&#39;) for key in os.environ.keys())</div>
-
-
-<div class="viewcode-block" id="Environment.is_notebook">
-<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_notebook">[docs]</a>
-    @staticmethod
-    def is_notebook() -&gt; bool:
-        &quot;&quot;&quot;
-        Checking the shell environment where the simulation is run is Jupyter based
-
-        Returns
-        -------
-        True : if the shell environment is Jupyter Based
-        False : if the shell environment is Terminal or anything else
+        Internal helper to detect if running in Jupyter shell.
+        Keeps all the existing import and error handling logic.
         &quot;&quot;&quot;
         try:
-          from ipykernel.zmqshell import ZMQInteractiveShell
-          from IPython.core.interactiveshell import InteractiveShell
+            from ipykernel.zmqshell import ZMQInteractiveShell
+            from IPython.core.interactiveshell import InteractiveShell
         except ImportError:
             logger.debug(&quot;Cannot import IPython/Jupyter modules. Not in IPython environment&quot;)
             return False
@@ -237,7 +219,36 @@ class Environment(StrEnum):
         elif isinstance(shell, InteractiveShell):
             return False
         # All other shell instances are returned False
-        return False</div>
+        return False
+
+<div class="viewcode-block" id="Environment.is_moria">
+<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_moria">[docs]</a>
+    @staticmethod
+    def is_moria() -&gt; bool:
+        &quot;&quot;&quot;
+        Checking if the current environment is Moria/JupyterHub
+        
+        Returns
+        -------
+        True : if running in notebook with JupyterHub environment variables
+        False : otherwise
+        &quot;&quot;&quot;
+        return Environment._detect_jupyter_shell() and any(key.startswith(&#39;JUPYTERHUB&#39;) for key in os.environ.keys())</div>
+
+
+<div class="viewcode-block" id="Environment.is_notebook">
+<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_notebook">[docs]</a>
+    @staticmethod
+    def is_notebook() -&gt; bool:
+        &quot;&quot;&quot;
+        Checking the shell environment where the simulation is run is Jupyter based
+
+        Returns
+        -------
+        True : if the shell environment is Jupyter Based
+        False : if the shell environment is Terminal or anything else
+        &quot;&quot;&quot;
+        return Environment._detect_jupyter_shell() and not any(key.startswith(&#39;JUPYTERHUB&#39;) for key in os.environ.keys())</div>
 </div>
 
 
