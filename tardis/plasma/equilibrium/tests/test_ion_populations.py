@@ -38,19 +38,33 @@ def test_solve(rate_matrix_solver, regression_data):
         ),
     )
 
+    boltzmann_factor = pd.DataFrame(
+        data=np.vstack([np.ones(20) * 2.0, np.ones(20) * 0.000011]),
+        index=pd.MultiIndex.from_tuples(
+            [(1, 0, 0), (1, 0, 1)],
+            names=["atomic_number", "ion_number", "level_number"],
+        ),
+    )
+
+    elemental_number_density = pd.DataFrame(
+        data=np.vstack([np.ones(20) * 1e5]),
+    )
+
     level_population = lte_level_population.copy() * 1.4
-    ion_population = lte_ion_population.copy() * 3.0
-    # needs to be true for the solver to work
-    charge_conservation = True
+    ion_population = lte_ion_population.copy() * 1.1
+    charge_conservation = False
 
     actual_ion_population, actual_electron_density = (
         ion_population_solver.solve(
             radiation_field,
             thermal_electron_energy_distribution,
+            elemental_number_density,
             lte_level_population,
             level_population,
             lte_ion_population,
             ion_population,
+            1.0,
+            boltzmann_factor,
             charge_conservation,
         )
     )

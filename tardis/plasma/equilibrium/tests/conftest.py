@@ -56,15 +56,6 @@ def hydrogen_atomic_data_fname(tardis_regression_path):
     return atomic_data_fname
 
 
-@pytest.fixture(scope="session")
-def hydrogen_atomic_dataset(hydrogen_atomic_data_fname):
-    """
-    Atomic dataset used for NLTE ionization solver tests.
-    """
-    h_atomic_data = AtomData.from_hdf(hydrogen_atomic_data_fname)
-    return h_atomic_data
-
-
 @pytest.fixture(params=[(14, 1, slice(None), slice(None))])
 def radiative_transitions(new_chianti_atomic_dataset_si, request):
     return new_chianti_atomic_dataset_si.lines.loc[request.param, :]
@@ -117,17 +108,15 @@ def collisional_simulation_state(new_chianti_atomic_dataset_si):
 
 
 @pytest.fixture
-def photoionization_rate_solver(hydrogen_atomic_dataset):
+def photoionization_rate_solver(mock_photoionization_cross_sections):
     return AnalyticPhotoionizationRateSolver(
-        hydrogen_atomic_dataset.photoionization_data
+        mock_photoionization_cross_sections
     )
 
 
 @pytest.fixture
-def collisional_ionization_rate_solver(hydrogen_atomic_dataset):
-    return CollisionalIonizationRateSolver(
-        hydrogen_atomic_dataset.photoionization_data
-    )
+def collisional_ionization_rate_solver(mock_photoionization_cross_sections):
+    return CollisionalIonizationRateSolver(mock_photoionization_cross_sections)
 
 
 @pytest.fixture
@@ -137,3 +126,12 @@ def rate_matrix_solver(
     return IonRateMatrix(
         photoionization_rate_solver, collisional_ionization_rate_solver
     )
+
+
+@pytest.fixture
+def mock_boltzmann_factor():
+    index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    return pd.DataFrame([[2.0, 0.000011], [2.0, 0.003432]], index=index)

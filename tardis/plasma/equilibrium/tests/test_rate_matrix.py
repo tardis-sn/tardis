@@ -43,6 +43,7 @@ def test_ion_rate_matrix_solver(
     photoionization_rate_solver,
     collisional_ionization_rate_solver,
     collisional_simulation_state,
+    mock_boltzmann_factor,
     charge_conservation,
     regression_data,
 ):
@@ -84,6 +85,8 @@ def test_ion_rate_matrix_solver(
         level_population,
         lte_ion_population,
         ion_population,
+        1.0,
+        mock_boltzmann_factor,
         charge_conservation,
     )
 

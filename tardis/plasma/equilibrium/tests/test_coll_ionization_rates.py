@@ -22,7 +22,7 @@ def mock_electron_distribution():
     """Fixture for mock electron distribution."""
     return MockElectronDistribution(
         temperature=np.array([10000, 20000]) * u.K,
-        number_density=np.array([1e13, 2e13]) * u.cm**-3,
+        number_density=np.array([2.20677509e09, 1.62501734e09]) * u.cm**-3,
     )
 
 
@@ -33,7 +33,10 @@ def mock_saha_factor():
         [(1, 0, 0), (1, 0, 1)],
         names=["atomic_number", "ion_number", "level_number"],
     )
-    return pd.DataFrame([[1e-15, 1e-20], [1e-15, 1e-20]], index=index)
+    return pd.DataFrame(
+        [[02.954267e-15, 8.561028e-20], [3.910658e-19, 4.210347e-21]],
+        index=index,
+    )
 
 
 def test_collisional_ionization_rate_solver_init(
@@ -52,6 +55,7 @@ def test_collisional_ionization_rate_solver_solve(
     mock_photoionization_cross_sections,
     mock_electron_distribution,
     mock_saha_factor,
+    mock_boltzmann_factor,
     regression_data,
 ):
     """Test the solve method of CollisionalIonizationRateSolver."""
@@ -60,7 +64,11 @@ def test_collisional_ionization_rate_solver_solve(
     )
 
     actual_ionization_rates, actual_recombination_rates = solver.solve(
-        mock_electron_distribution, mock_saha_factor, approximation="seaton"
+        mock_electron_distribution,
+        mock_saha_factor,
+        1.0,  # Simple partition function for testing
+        mock_boltzmann_factor,
+        approximation="seaton",
     )
 
     # write paths manually with regression_data directory info from the class
@@ -101,6 +109,7 @@ def test_collisional_ionization_rate_solver_invalid_approximation(
     mock_photoionization_cross_sections,
     mock_electron_distribution,
     mock_saha_factor,
+    mock_boltzmann_factor,
 ):
     """Test that an invalid approximation raises a ValueError."""
     solver = CollisionalIonizationRateSolver(
@@ -112,5 +121,7 @@ def test_collisional_ionization_rate_solver_invalid_approximation(
         solver.solve(
             mock_electron_distribution,
             mock_saha_factor,
+            1.0,  # Simple partition function for testing
+            mock_boltzmann_factor,
             approximation="invalid_approx",
         )
