@@ -103,10 +103,15 @@ class SpontaneousRecombinationCoeffSolver:
             )
         )
 
-        return pd.DataFrame(
+        spontaneous_recombination_rate_coeff_df = pd.DataFrame(
             spontaneous_recombination_rate_coeff_integrated,
             index=self.photoionization_index,
         )
+
+        # Lymann continuum handling
+        spontaneous_recombination_rate_coeff_df.loc[(1, 0, 0)] = 0.0
+
+        return spontaneous_recombination_rate_coeff_df
 
 
 class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):

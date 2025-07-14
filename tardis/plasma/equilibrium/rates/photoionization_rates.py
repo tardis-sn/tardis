@@ -84,8 +84,9 @@ class AnalyticPhotoionizationRateSolver:
             level_boltzmann_factor / partition_function
         )
 
-        level_population_ratio = lte_level_population / (
-            lte_ion_population * electron_energy_distribution.number_density
+        level_population_ratio = lte_level_population.values / (
+            lte_ion_population.values
+            * electron_energy_distribution.number_density
         )
 
         # used to scale the photoionization rate because we keep the level population
