@@ -2,7 +2,7 @@ import pytest
 import numpy.testing as npt
 
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
-from tardis.spectrum.formal_integral.source_function_solver import SourceFunctionSolver
+from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
 def test_source_function_solver(simulation_verysimple, regression_data, tmp_path):
     """
@@ -21,7 +21,7 @@ def test_source_function_solver(simulation_verysimple, regression_data, tmp_path
         formal_integrator.plasma.atomic_data, 
         formal_integrator.plasma.levels
     )
-    att_S_ul, Jred_lu, Jblue_lu, e_dot_u = res[0], res[1], res[2], res[3]
+    att_S_ul, Jred_lu, Jblue_lu, e_dot_u = res.att_S_ul, res.Jred_lu, res.Jblue_lu, res.e_dot_u
 
 
     # check against the regression data

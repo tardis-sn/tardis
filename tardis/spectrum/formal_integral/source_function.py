@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
+from dataclasses import dataclass
 
 from astropy import units as u
 
@@ -105,9 +106,9 @@ class SourceFunctionSolver:
         Jbluelu = calculate_Jbluelu(time_explosion, time_of_simulation, volume, j_blue_estimator)
         Jredlu = calculate_Jredlu(Jbluelu, tau_sobolevs, att_S_ul)
 
-        return att_S_ul, Jredlu, Jbluelu, e_dot_u
-        
-    
+        return SourceFunctionState(att_S_ul, Jredlu, Jbluelu, e_dot_u)
+
+
 # transport
     # time of sim, Edotlu_estimator, line_interaction_type
 # sim state
@@ -217,3 +218,21 @@ def calculate_Jbluelu(time_explosion, time_of_simulation, volume, j_blue_estimat
 def calculate_Jredlu(Jbluelu, tau_sobolevs, att_S_ul):
     
     return Jbluelu * np.exp(-tau_sobolevs) + att_S_ul   
+
+
+@dataclass
+class SourceFunctionState:
+    """
+    Data class to hold the resuling source function values
+    """
+
+    att_S_ul: np.ndarray
+    Jred_lu: np.ndarray
+    Jblue_lu: np.ndarray
+    e_dot_u: pd.DataFrame
+
+    def __init__(self, att_S_ul, Jred_lu, Jblue_lu, e_dot_u):
+        self.att_S_ul = att_S_ul
+        self.Jred_lu = Jred_lu
+        self.Jblue_lu = Jblue_lu
+        self.e_dot_u = e_dot_u
