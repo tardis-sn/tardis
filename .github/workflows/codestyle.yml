@@ -9,7 +9,7 @@ on:
     branches:
       - "*"
 
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Checkout PR and master branch
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -39,11 +39,11 @@ jobs:
           os-label: linux-64
 
       - name: Show statistics pull request
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt
       
       - name: Show entire output pull request
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD -- | grep -E '\.py$') | tee ruff_full.txt
 
       - name: Show statistics push
@@ -67,7 +67,7 @@ jobs:
           path: ruff_full.txt
       
       - name: Find Comment
-        if: always() && github.event_name == 'pull_request_target'
+        if: always() && github.event_name == 'pull_request'
         uses: peter-evans/find-comment@v1
         id: fc
         with:
@@ -75,7 +75,7 @@ jobs:
           body-includes: I ran ruff on the latest commit
       
       - name: Update PR Description (Ruff)
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: ./.github/workflows/pr-description-updater.yml
         with:
           section_id: 'ruff'
