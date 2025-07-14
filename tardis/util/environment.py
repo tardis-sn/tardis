@@ -9,6 +9,7 @@ class Environment(StrEnum):
     VSCODE = 'vscode'
     JUPYTER = 'jupyter'
     TERMINAL = 'terminal'
+    MORIA = 'moria'
     
     @classmethod
     def get_current_environment(cls) -> 'Environment':
@@ -23,6 +24,8 @@ class Environment(StrEnum):
             return cls.VSCODE
         elif cls.is_notebook():
             return cls.JUPYTER
+        elif cls.is_moria():
+            return cls.MORIA
         elif cls.is_terminal():
             return cls.TERMINAL
         else:
@@ -44,30 +47,14 @@ class Environment(StrEnum):
         return any(x for x in ('VSCODE_PID', 'VSCODE', 'VSCODE_CWD') if x in os.environ)
     
     @staticmethod
-    def is_moria() -> bool:
+    def _detect_jupyter_shell() -> bool:
         """
-        Checking if the current environment is Moria/JupyterHub
-        
-        Returns
-        -------
-        True : if running in notebook with JupyterHub environment variables
-        False : otherwise
-        """
-        return Environment.is_notebook() and any(key.startswith('JUPYTERHUB') for key in os.environ.keys())
-
-    @staticmethod
-    def is_notebook() -> bool:
-        """
-        Checking the shell environment where the simulation is run is Jupyter based
-
-        Returns
-        -------
-        True : if the shell environment is Jupyter Based
-        False : if the shell environment is Terminal or anything else
+        Internal helper to detect if running in Jupyter shell.
+        Keeps all the existing import and error handling logic.
         """
         try:
-          from ipykernel.zmqshell import ZMQInteractiveShell
-          from IPython.core.interactiveshell import InteractiveShell
+            from ipykernel.zmqshell import ZMQInteractiveShell
+            from IPython.core.interactiveshell import InteractiveShell
         except ImportError:
             logger.debug("Cannot import IPython/Jupyter modules. Not in IPython environment")
             return False
@@ -88,5 +75,29 @@ class Environment(StrEnum):
             return False
         # All other shell instances are returned False
         return False
+
+    @staticmethod
+    def is_moria() -> bool:
+        """
+        Checking if the current environment is Moria/JupyterHub
+        
+        Returns
+        -------
+        True : if running in notebook with JupyterHub environment variables
+        False : otherwise
+        """
+        return Environment._detect_jupyter_shell() and any(key.startswith('JUPYTERHUB') for key in os.environ.keys())
+
+    @staticmethod
+    def is_notebook() -> bool:
+        """
+        Checking the shell environment where the simulation is run is Jupyter based
+
+        Returns
+        -------
+        True : if the shell environment is Jupyter Based
+        False : if the shell environment is Terminal or anything else
+        """
+        return Environment._detect_jupyter_shell() and not any(key.startswith('JUPYTERHUB') for key in os.environ.keys())
 
 
