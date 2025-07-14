@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from astropy import units as u
 
@@ -47,12 +47,10 @@ def parse_structure_from_config(config):
         ).cgs
 
     elif structure_config.type == "file":
-        if os.path.isabs(structure_config.filename):
+        if Path(structure_config.filename).is_absolute():
             structure_config_fname = structure_config.filename
         else:
-            structure_config_fname = os.path.join(
-                config.config_dirname, structure_config.filename
-            )
+            structure_config_fname = Path(config.config_dirname) / structure_config.filename
 
         (
             density_time,

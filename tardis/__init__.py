@@ -1,26 +1,19 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import sys
 
 # Packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-import os
-from importlib.metadata import PackageNotFoundError, version
+from importlib.metadata import version as ilversion
+from packaging.version import Version as pversion
 
-__all__ = ['__version__', 'test']
-
-try:
-    __version__ = version("package-name")
-except PackageNotFoundError:
-    __version__ = ''
-
-# ----------------------------------------------------------------------------
-
-import sys
-import warnings
-
-# ----------------------------------------------------------------------------
+__version__ = ilversion("tardis")
+last_release = pversion(__version__).base_version
+__all__ = ['__version__', 'run_tardis', 'last_release']
 
 if ("astropy.units" in sys.modules) or ("astropy.constants" in sys.modules):
+    import warnings
+
     warnings.warn(
         "Astropy is already imported externally. Astropy should be imported"
         " after TARDIS."
@@ -34,4 +27,3 @@ else:
 # ----------------------------------------------------------------------------
 
 from tardis.base import run_tardis
-from tardis.io.util import yaml_load_file as yaml_load

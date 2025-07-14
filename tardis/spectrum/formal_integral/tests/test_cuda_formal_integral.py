@@ -1,16 +1,26 @@
 import numpy as np
 import numpy.testing as ntest
-import pytest
 from numba import cuda
+import pytest
 
-import tardis.spectrum.formal_integral as formal_integral_numba
-import tardis.spectrum.formal_integral_cuda as formal_integral_cuda
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.spectrum.formal_integral import (
-    FormalIntegrator,
-    NumbaFormalIntegrator,
-)
+import tardis.spectrum.formal_integral.base
+from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
+import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
+from tardis.spectrum.formal_integral.base import make_source_function
+from tardis.spectrum.formal_integral.formal_integral_numba import NumbaFormalIntegrator
+
+@cuda.jit
+def black_body_caller(nu, temperature, actual):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
+    x = cuda.grid(1)
+    actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, temperature)
+
 
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
 GPUs_available = cuda.is_available()
@@ -37,19 +47,19 @@ def test_intensity_black_body_cuda(nu, temperature):
     actual = np.zeros(3)
     black_body_caller[1, 3](nu, temperature, actual)
 
-    expected = formal_integral_numba.intensity_black_body(nu, temperature)
+    expected = tardis.spectrum.formal_integral.base.intensity_black_body(nu, temperature)
 
     ntest.assert_allclose(actual, expected, rtol=1e-14)
 
 
 @cuda.jit
-def black_body_caller(nu, temperature, actual):
+def trapezoid_integration_caller(data, h, actual):
     """
     This calls the CUDA function and fills out
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, temperature)
+    actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
 
 
 @pytest.mark.skipif(
@@ -77,16 +87,6 @@ def test_trapezoid_integration_cuda(N):
     # there will be more floating point error due to the difference
     # in how the trapezoid integration is called.
     ntest.assert_allclose(actual[0], expected, rtol=1e-13)
-
-
-@cuda.jit
-def trapezoid_integration_caller(data, h, actual):
-    """
-    This calls the CUDA function and fills out
-    the array
-    """
-    x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
 
 
 TESTDATA_model = [
@@ -125,6 +125,16 @@ def time_explosion():
     return 1 / c.c.cgs.value
 
 
+@cuda.jit
+def calculate_z_caller(r, p, inv_t, actual):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
+    x = cuda.grid(1)
+    actual[x] = formal_integral_cuda.calculate_z_cuda(r, p, inv_t)
+
+
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
@@ -148,13 +158,17 @@ def test_calculate_z_cuda(formal_integral_geometry, time_explosion, p, p_loc):
 
 
 @cuda.jit
-def calculate_z_caller(r, p, inv_t, actual):
+def populate_z_caller(
+    r_inner, r_outer, time_explosion, p, oz, oshell_id, actual
+):
     """
     This calls the CUDA function and fills out
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.calculate_z_cuda(r, p, inv_t)
+    actual[x] = formal_integral_cuda.populate_z_cuda(
+        r_inner, r_outer, time_explosion, p, oz, oshell_id
+    )
 
 
 @pytest.mark.skipif(
@@ -201,42 +215,15 @@ def test_populate_z(formal_integral_geometry, time_explosion, p, p_loc):
 
 
 @cuda.jit
-def populate_z_caller(
-    r_inner, r_outer, time_explosion, p, oz, oshell_id, actual
-):
+def line_search_cuda_caller(line_list_nu, nu_insert, actual):
     """
     This calls the CUDA function and fills out
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.populate_z_cuda(
-        r_inner, r_outer, time_explosion, p, oz, oshell_id
+    actual[x] = formal_integral_cuda.line_search_cuda(
+        line_list_nu, nu_insert, len(line_list_nu)
     )
-
-
-@pytest.mark.parametrize(
-    "N",
-    [
-        100,
-        1000,
-        10000,
-    ],
-)
-def test_calculate_p_values(N):
-    """
-    Initializes the test of the cuda version
-    against the numba implementation of the
-    calculate_p_values to 15 decimals. This is done as
-    both results have 15 digits of precision.
-    """
-    r = 1.0
-
-    expected = formal_integral_numba.calculate_p_values(r, N)
-
-    actual = np.zeros_like(expected, dtype=np.float64)
-    actual[::] = formal_integral_cuda.calculate_p_values(r, N)
-
-    ntest.assert_allclose(actual, expected, rtol=1e-14)
 
 
 @pytest.mark.skipif(
@@ -263,14 +250,16 @@ def test_line_search_cuda(nu_insert, simulation_verysimple_opacity_state):
 
 
 @cuda.jit
-def line_search_cuda_caller(line_list_nu, nu_insert, actual):
+def reverse_binary_search_cuda_caller(
+    line_list_nu, nu_insert, imin, imax, actual
+):
     """
     This calls the CUDA function and fills out
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.line_search_cuda(
-        line_list_nu, nu_insert, len(line_list_nu)
+    actual[x] = formal_integral_cuda.reverse_binary_search_cuda(
+        line_list_nu, nu_insert, imin, imax
     )
 
 
@@ -302,20 +291,6 @@ def test_reverse_binary_search(nu_insert, simulation_verysimple_opacity_state):
     )
 
     ntest.assert_equal(actual, expected)
-
-
-@cuda.jit
-def reverse_binary_search_cuda_caller(
-    line_list_nu, nu_insert, imin, imax, actual
-):
-    """
-    This calls the CUDA function and fills out
-    the array
-    """
-    x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.reverse_binary_search_cuda(
-        line_list_nu, nu_insert, imin, imax
-    )
 
 
 # no_of_packets and iterations match what is used by config_verysimple
@@ -351,12 +326,22 @@ def test_full_formal_integral(
         2 * formal_integrator_cuda.simulation_state.no_of_shells, 80
     )
 
-    res_numba = formal_integrator_numba.make_source_function()
+    res_numba = make_source_function(
+        formal_integrator_numba.simulation_state,
+        formal_integrator_numba.plasma,
+        formal_integrator_numba.transport,
+        formal_integrator_numba.interpolate_shells
+    )
     att_S_ul_numba = res_numba[0].flatten(order="F")
     Jred_lu_numba = res_numba[1].flatten(order="F")
     Jblue_lu_numba = res_numba[2].flatten(order="F")
 
-    res_cuda = formal_integrator_cuda.make_source_function()
+    res_cuda = make_source_function(
+        formal_integrator_cuda.simulation_state,
+        formal_integrator_cuda.plasma,
+        formal_integrator_cuda.transport,
+        formal_integrator_cuda.interpolate_shells
+    )
     att_S_ul_cuda = res_cuda[0].flatten(order="F")
     Jred_lu_cuda = res_cuda[1].flatten(order="F")
     Jblue_lu_cuda = res_cuda[2].flatten(order="F")

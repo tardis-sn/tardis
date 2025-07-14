@@ -1,50 +1,67 @@
 # Utility functions for the IO part of TARDIS
 
+from __future__ import annotations
+
 import collections.abc as collections_abc
 import hashlib
 import logging
-import os
-import re
 import shutil
 from collections import OrderedDict
 from functools import lru_cache
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
-import pandas as pd
 import yaml
 from astropy import units as u
 from astropy.utils.data import download_file
 
-from tardis import __path__ as TARDIS_PATH
+from tardis import __path__ as tardis_path
+from tardis import __version__
 from tardis import constants as const
+
+if TYPE_CHECKING:
+    from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def get_internal_data_path(fname):
+def get_internal_data_path(fname: str) -> str:
     """
-    Get internal data path of TARDIS
-
-    Returns
-    -------
-    data_path : str
-        internal data path of TARDIS
-    """
-    return os.path.join(TARDIS_PATH[0], "data", fname)
-
-
-def quantity_from_str(text):
-    """
-    Convert a string to `astropy.units.Quantity`
+    Get internal data path of TARDIS.
 
     Parameters
     ----------
-    text :
-        The string to convert to `astropy.units.Quantity`
+    fname : str
+        The filename to join with the internal data path.
 
     Returns
     -------
-    `astropy.units.Quantity`
+    str
+        Internal data path of TARDIS joined with the filename.
+    """
+    return str(Path(tardis_path[0]) / "data" / fname)
+
+
+def quantity_from_str(text: str) -> u.Quantity:
+    """
+    Convert a string to `astropy.units.Quantity`.
+
+    Parameters
+    ----------
+    text : str
+        The string to convert to `astropy.units.Quantity`. Expected format
+        is "value unit", e.g., "1.0 cm" or "5 log_lsun".
+
+    Returns
+    -------
+    astropy.units.Quantity
+        The converted quantity with appropriate units.
+
+    Notes
+    -----
+    Special handling for "log_lsun" unit which is converted to solar luminosity
+    in CGS units.
     """
     value_str, unit_str = text.split(None, 1)
     value = float(value_str)
@@ -67,23 +84,38 @@ class MockRegexPattern:
     Notes
     -----
     This is usually a lot slower than regex matching.
+
+    Parameters
+    ----------
+    target_type : type
+        The target type for conversion testing.
     """
 
-    def __init__(self, target_type):
-        self.type = target_type
-
-    def match(self, text):
+    def __init__(self, target_type: type) -> None:
         """
+        Initialize the MockRegexPattern.
+
         Parameters
         ----------
-        text :
+        target_type : type
+            The target type for conversion testing.
+        """
+        self.type = target_type
+
+    def match(self, text: str) -> bool:
+        """
+        Test if text can be converted to the target type.
+
+        Parameters
+        ----------
+        text : str
             A string to be passed to `target_type` for conversion.
 
         Returns
         -------
         bool
             Returns `True` if `text` can be converted to `target_type`,
-            otherwise returns `False`
+            otherwise returns `False`.
         """
         try:
             self.type(text)
@@ -98,32 +130,43 @@ class YAMLLoader(yaml.Loader):
     to properly parse the tardis configuration.
     """
 
-    def construct_quantity(self, node):
+    def construct_quantity(self, node: yaml.ScalarNode) -> u.Quantity:
         """
         A constructor for converting quantity-like YAML nodes to
         `astropy.units.Quantity` objects.
 
         Parameters
         ----------
-        node :
-            The YAML node to be constructed
+        node : yaml.Node
+            The YAML node to be constructed.
 
         Returns
         -------
-        `astropy.units.Quantity`
-
+        astropy.units.Quantity
+            The constructed quantity object.
         """
         data = self.construct_scalar(node)
         return quantity_from_str(data)
 
-    def mapping_constructor(self, node):
+    def mapping_constructor(self, node: yaml.MappingNode) -> OrderedDict:
+        """
+        Construct an OrderedDict from a YAML mapping node.
+
+        Parameters
+        ----------
+        node : yaml.Node
+            The YAML mapping node to construct.
+
+        Returns
+        -------
+        OrderedDict
+            The constructed ordered dictionary.
+        """
         return OrderedDict(self.construct_pairs(node))
 
 
 YAMLLoader.add_constructor("!quantity", YAMLLoader.construct_quantity)
-YAMLLoader.add_implicit_resolver(
-    "!quantity", MockRegexPattern(quantity_from_str), None
-)
+YAMLLoader.add_implicit_resolver("!quantity", MockRegexPattern(quantity_from_str), None)
 YAMLLoader.add_implicit_resolver(
     "tag:yaml.org,2002:float", MockRegexPattern(float), None
 )
@@ -133,34 +176,49 @@ YAMLLoader.add_constructor(
 )
 
 
-def yaml_load_file(filename, loader=yaml.Loader):
+def yaml_load_file(filename: str, loader: type = yaml.Loader) -> Any:
+    """
+    Load a YAML file using the specified loader.
+
+    Parameters
+    ----------
+    filename : str
+        Path to the YAML file to load.
+    loader : type, optional
+        YAML loader class to use, by default yaml.Loader.
+
+    Returns
+    -------
+    Any
+        The loaded YAML content.
+    """
     with open(filename) as stream:
         return yaml.load(stream, Loader=loader)
 
 
-def traverse_configs(base, other, func, *args):
+def traverse_configs(base: Any, other: Any, func: Any, *args: Any) -> None:
     """
     Recursively traverse a base dict or list along with another one
     calling `func` for leafs of both objects.
 
     Parameters
     ----------
-    base :
-        The object on which the traversing is done
-    other :
-        The object which is traversed along with `base`
-    func :
-        A function called for each leaf of `base` and the correspnding leaf of `other`
-        Signature: `func(item1, item2, *args)`
-    args :
-        Arguments passed into `func`
+    base : Any
+        The object on which the traversing is done.
+    other : Any
+        The object which is traversed along with `base`.
+    func : Any
+        A function called for each leaf of `base` and the corresponding leaf of `other`.
+        Signature: `func(item1, item2, *args)`.
+    *args : Any
+        Arguments passed into `func`.
     """
     if isinstance(base, collections_abc.Mapping):
         for k in base:
             traverse_configs(base[k], other[k], func, *args)
     elif (
         isinstance(base, collections_abc.Iterable)
-        and not isinstance(base, basestring)
+        and not isinstance(base, str)
         and not hasattr(base, "shape")
     ):
         for val1, val2 in zip(base, other):
@@ -169,7 +227,22 @@ def traverse_configs(base, other, func, *args):
         func(base, other, *args)
 
 
-def assert_equality(item1, item2):
+def assert_equality(item1: Any, item2: Any) -> None:
+    """
+    Assert that two items are equal, handling special cases for units and arrays.
+
+    Parameters
+    ----------
+    item1 : Any
+        First item to compare.
+    item2 : Any
+        Second item to compare.
+
+    Raises
+    ------
+    AssertionError
+        If the items are not equal.
+    """
     assert type(item1) is type(item2)
     try:
         if hasattr(item1, "unit"):
@@ -179,7 +252,22 @@ def assert_equality(item1, item2):
         assert item1 == item2
 
 
-def check_equality(item1, item2):
+def check_equality(item1: Any, item2: Any) -> bool:
+    """
+    Check if two items are equal using traverse_configs and assert_equality.
+
+    Parameters
+    ----------
+    item1 : Any
+        First item to compare.
+    item2 : Any
+        Second item to compare.
+
+    Returns
+    -------
+    bool
+        True if items are equal, False otherwise.
+    """
     try:
         traverse_configs(item1, item2, assert_equality)
     except AssertionError:
@@ -188,219 +276,34 @@ def check_equality(item1, item2):
         return True
 
 
-class HDFWriterMixin:
-    def __new__(cls, *args, **kwargs):
-        instance = super().__new__(cls)
-        instance.optional_hdf_properties = []
-        instance.__init__(*args, **kwargs)
-        return instance
-
-    @staticmethod
-    def to_hdf_util(
-        path_or_buf, path, elements, overwrite, complevel=9, complib="blosc"
-    ):
-        """
-        A function to uniformly store TARDIS data to an HDF file.
-
-        Scalars will be stored in a Series under path/scalars
-        1D arrays will be stored under path/property_name as distinct Series
-        2D arrays will be stored under path/property_name as distinct DataFrames
-
-        Units will be stored as their CGS value
-
-        Parameters
-        ----------
-        path_or_buf : str or pandas.io.pytables.HDFStore
-            Path or buffer to the HDF file
-        path : str
-            Path inside the HDF file to store the `elements`
-        elements : dict
-            A dict of property names and their values to be
-            stored.
-        overwrite : bool
-            If the HDF file path already exists, whether to overwrite it or not
-
-        Notes
-        -----
-        `overwrite` option doesn't have any effect when `path_or_buf` is an
-        HDFStore because the user decides on the mode in which they have
-        opened the HDFStore ('r', 'w' or 'a').
-        """
-        if (
-            isinstance(path_or_buf, str)
-            and os.path.exists(path_or_buf)
-            and not overwrite
-        ):
-            raise FileExistsError(
-                "The specified HDF file already exists. If you still want "
-                "to overwrite it, set function parameter overwrite=True"
-            )
-
-        else:
-            try:  # when path_or_buf is a str, the HDFStore should get created
-                buf = pd.HDFStore(
-                    path_or_buf, complevel=complevel, complib=complib
-                )
-            except TypeError as e:
-                if str(e) == "Expected bytes, got HDFStore":
-                    # when path_or_buf is an HDFStore buffer instead
-                    logger.debug(
-                        "Expected bytes, got HDFStore. Changing path to HDF buffer"
-                    )
-                    buf = path_or_buf
-                else:
-                    raise e
-
-        if not buf.is_open:
-            buf.open()
-
-        scalars = {}
-        for key, value in elements.items():
-            if value is None:
-                value = "none"
-            if hasattr(value, "cgs"):
-                value = value.cgs.value
-            if np.isscalar(value):
-                scalars[key] = value
-            elif hasattr(value, "shape"):
-                if value.ndim == 1:
-                    # This try,except block is only for model.plasma.levels
-                    try:
-                        pd.Series(value).to_hdf(
-                            buf, key=os.path.join(path, key)
-                        )
-                    except NotImplementedError:
-                        logger.debug(
-                            "Could not convert SERIES to HDF. Converting DATAFRAME to HDF"
-                        )
-                        pd.DataFrame(value).to_hdf(
-                            buf, key=os.path.join(path, key)
-                        )
-                else:
-                    pd.DataFrame(value).to_hdf(buf, key=os.path.join(path, key))
-            else:  # value is a TARDIS object like model, transport or plasma
-                try:
-                    value.to_hdf(buf, path, name=key, overwrite=overwrite)
-                except AttributeError:
-                    logger.debug(
-                        "Could not convert VALUE to HDF. Converting DATA (Dataframe) to HDF"
-                    )
-                    data = pd.DataFrame([value])
-                    data.to_hdf(buf, key=os.path.join(path, key))
-
-        if scalars:
-            pd.Series(scalars).to_hdf(buf, key=os.path.join(path, "scalars"))
-
-        if buf.is_open:
-            buf.close()
-
-    def get_properties(self):
-        data = {name: getattr(self, name) for name in self.full_hdf_properties}
-        return data
-
-    @property
-    def full_hdf_properties(self):
-        if hasattr(self, "virt_logging") and self.virt_logging:
-            self.hdf_properties.extend(self.vpacket_hdf_properties)
-
-        return self.optional_hdf_properties + self.hdf_properties
-
-    @staticmethod
-    def convert_to_snake_case(s):
-        s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", s)
-        return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
-
-    def to_hdf(self, file_path_or_buf, path="", name=None, overwrite=False):
-        """
-        Parameters
-        ----------
-        file_path_or_buf : str or pandas.io.pytables.HDFStore
-            Path or buffer to the HDF file
-        path : str
-            Path inside the HDF file to store the `elements`
-        name : str
-            Group inside the HDF file to which the `elements` need to be saved
-        overwrite : bool
-            If the HDF file path already exists, whether to overwrite it or not
-        """
-        if name is None:
-            try:
-                name = self.hdf_name
-            except AttributeError:
-                name = self.convert_to_snake_case(self.__class__.__name__)
-                logger.debug(
-                    f"self.hdf_name not present, setting name to {name} for HDF"
-                )
-
-        data = self.get_properties()
-        buff_path = os.path.join(path, name)
-        self.to_hdf_util(file_path_or_buf, buff_path, data, overwrite)
-
-
-class PlasmaWriterMixin(HDFWriterMixin):
-    def get_properties(self):
-        data = {}
-        if self.collection:
-            properties = [
-                name
-                for name in self.plasma_properties
-                if isinstance(name, tuple(self.collection))
-            ]
-        else:
-            properties = self.plasma_properties
-        for prop in properties:
-            for output in prop.outputs:
-                data[output] = getattr(prop, output)
-        data["atom_data_uuid"] = self.atomic_data.uuid1
-        if "atomic_data" in data:
-            data.pop("atomic_data")
-        if "nlte_data" in data:
-            logger.warning("nlte_data can't be saved")
-            data.pop("nlte_data")
-        return data
-
-    def to_hdf(
-        self,
-        file_path_or_buf,
-        path="",
-        name=None,
-        collection=None,
-        overwrite=False,
-    ):
-        """
-        Parameters
-        ----------
-        file_path_or_buf : str or pandas.io.pytables.HDFStore
-            Path or buffer to the HDF file
-        path : str
-            Path inside the HDF file to store the `elements`
-        name : str
-            Group inside the HDF file to which the `elements` need to be saved
-        collection :
-            `None` or a `PlasmaPropertyCollection` of which members are
-            the property types which will be stored. If `None` then
-            all types of properties will be stored. This acts like a filter,
-            for example if a value of `property_collections.basic_inputs` is
-            given, only those input parameters will be stored to the HDF file.
-        overwrite : bool
-            If the HDF file path already exists, whether to overwrite it or not
-        """
-        self.collection = collection
-        super().to_hdf(file_path_or_buf, path, name, overwrite)
-
-
 @lru_cache(maxsize=None)
-def download_from_url(url, dst, checksum, src=None, retries=3):
-    """Download files from a given URL
+def download_from_url(
+    url: str,
+    dst: str,
+    checksum: str,
+    src: tuple[str, ...] | None = None,
+    retries: int = 3,
+) -> None:
+    """
+    Download files from a given URL.
 
     Parameters
     ----------
     url : str
-        URL to download from
+        URL to download from.
     dst : str
-        Destination folder for the downloaded file
-    src : tuple
-        List of URLs to use as mirrors
+        Destination folder for the downloaded file.
+    checksum : str
+        Expected MD5 checksum of the file.
+    src : tuple of str, optional
+        List of URLs to use as mirrors.
+    retries : int, optional
+        Number of retry attempts, by default 3.
+
+    Raises
+    ------
+    RuntimeError
+        If maximum number of retries is reached and checksum still doesn't match.
     """
     cached_file_path = download_file(url, sources=src, pkgname="tardis")
 
@@ -413,7 +316,7 @@ def download_from_url(url, dst, checksum, src=None, retries=3):
     elif checksum != new_checksum and retries > 0:
         retries -= 1
         logger.warning(
-            f"Incorrect checksum, retrying... ({retries+1} attempts remaining)"
+            "Incorrect checksum, retrying... (%d attempts remaining)", retries + 1
         )
         download_from_url(url, dst, checksum, src, retries)
 
