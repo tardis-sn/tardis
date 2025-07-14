@@ -7,7 +7,7 @@ name: post-release
 on:
   release:
     types: [published]
-
+  pull_request:
   workflow_dispatch: # manual trigger
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Generate a changelog
-        uses: orhun/git-cliff-action@v3
+        uses: orhun/git-cliff-action@v4
         with:
           config: pyproject.toml
           args: --verbose --tag ${{ github.event.release.tag_name }}
