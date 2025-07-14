@@ -5,7 +5,7 @@ on:
     branches:
       - master
   workflow_dispatch:
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -19,14 +19,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
 
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Setup environment
         uses: tardis-sn/tardis-actions/setup-env@main

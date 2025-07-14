@@ -9,7 +9,7 @@ on:
     branches:
       - master
 
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -51,18 +51,18 @@ jobs:
       docs-check-outcome: ${{ steps.docs_check.outcome }}
     steps:
       - uses: actions/checkout@v4
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
 
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Check for trigger by push event, manual dispatch, build-docs label on a PR
         id: trigger_check
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'build-docs')
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'build-docs')
         run: |
           echo "Building docs as a test."
           exit 0
@@ -88,13 +88,13 @@ jobs:
     if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     steps:
       - uses: actions/checkout@v4
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
 
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -131,7 +131,7 @@ jobs:
               echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
             fi
 
-          elif [[ $EVENT == pull_request_target ]]; then
+          elif [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
 
           else
@@ -178,10 +178,10 @@ jobs:
         with:
           issue-number: ${{ github.event.number }}
           body-includes: Hi, human.
-        if: always() && github.event_name == 'pull_request_target'
+        if: always() && github.event_name == 'pull_request'
 
       - name: Update PR Description (Docs)
-        if: always() && github.event_name == 'pull_request_target'
+        if: always() && github.event_name == 'pull_request'
         uses: ./.github/workflows/pr-description-updater.yml
         with:
           section_id: 'docs'
