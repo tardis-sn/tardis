@@ -17,7 +17,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: tardis-sn/tardis
-          token: ${{ secrets.BOT_TOKEN }}
           fetch-depth: 0
 
       - name: Generate a changelog
