@@ -74,37 +74,28 @@ jobs:
           issue-number: ${{ github.event.number }}
           body-includes: I ran ruff on the latest commit
       
-      - name: Post comment
+      - name: Update PR Description (Ruff)
         if: github.event_name == 'pull_request_target'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: ./.github/workflows/pr-description-updater.yml
         with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
-            Hi human, 
-            I ran ruff on the latest commit (${{ github.event.pull_request.head.sha }}). 
-            Here are the outputs produced.
-            Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
-            Summarised output:
-            <details>
-
-              ```diff
-              ${{ steps.ruff_stats.outputs.content }}
-              ```
-
-            </details>
-
-            Complete output(might be large):
-            <details>
-
-              ```diff
-              ${{ steps.ruff_complete.outputs.content }}
-              ```
-              
-            </details>
+          section_id: 'ruff'
+          content: |
+            ${{ success() && '✅ Code style checks passed' || '❌ Code style issues found' }} on commit ${{ github.event.pull_request.head.sha }}
+            
+            **Summary:**
+            ```diff
+            ${{ steps.ruff_stats.outputs.content }}
+            ```
+            
+            **Complete output:**
+            ```diff
+            ${{ steps.ruff_complete.outputs.content }}
+            ```
+            
+            [View detailed results](${{ env.URL }})
+          pr_number: '${{ github.event.number }}'
+          collapsible: true
+          title: 'Code Style (Ruff)'
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
           

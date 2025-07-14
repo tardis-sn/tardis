@@ -180,40 +180,11 @@ jobs:
           body-includes: Hi, human.
         if: always() && github.event_name == 'pull_request_target'
 
-      - name: Post comment (success)
-        uses: peter-evans/create-or-update-comment@v1
+      - name: Update PR Description (Docs)
+        if: always() && github.event_name == 'pull_request_target'
+        uses: ./.github/workflows/pr-description-updater.yml
         with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
-
-            Hi, human.
-
-            The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
-
-            [**Click here**](${{ env.URL }}) to see your results.
-        env:
-          URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ github.event.number }}/index.html
-        if: success() && github.event_name == 'pull_request_target'
-
-      - name: Post comment (failure)
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
-
-            Hi, human.
-
-            The **`${{ github.workflow }}`** workflow has **failed** :x:
-
-            [**Click here**](${{ env.URL }}) to see the build log.
-        env:
-          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
-        if: failure() && github.event_name == 'pull_request_target'
+          section_id: 'docs'
+          content: '${{ success() && "✅ [Documentation build successful](https://" || "❌ [Documentation build failed](https://github.com/" }}${{ github.repository_owner }}${{ success() && ".github.io/" || "/" }}${{ github.event.repository.name }}${{ success() && "/pull/" || "/actions/runs/" }}${{ success() && github.event.number || github.run_id }}${{ success() && "/index.html)" || "?check_suite_focus=true)" }}'
+          pr_number: '${{ github.event.number }}'
+          title: 'Documentation Build'

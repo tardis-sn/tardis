@@ -1,0 +1,106 @@
+name: Update PR Description Section
+
+on:
+  workflow_call:
+    inputs:
+      section_id:
+        required: true
+        type: string
+        description: 'Unique section identifier (docs, benchmarks, regdata, ruff, orcid, welcome)'
+      content:
+        required: true
+        type: string
+        description: 'Content to update in the section'
+      pr_number:
+        required: true
+        type: string
+        description: 'PR number'
+      collapsible:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to make content collapsible'
+      title:
+        required: false
+        type: string
+        description: 'Section title'
+
+jobs:
+  update-description:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update PR Description
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          script: |
+            const sectionId = '${{ inputs.section_id }}';
+            const content = `${{ inputs.content }}`;
+            const collapsible = ${{ inputs.collapsible }};
+            const title = '${{ inputs.title }}' || sectionId.toUpperCase();
+            const prNumber = parseInt('${{ inputs.pr_number }}');
+            
+            // Get current PR
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+            
+            let description = pr.body || '';
+            
+            // Section delimiters
+            const startMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_START -->`;
+            const endMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_END -->`;
+            
+            // Format content
+            let formattedContent;
+            if (collapsible) {
+              formattedContent = `
+            <details>
+            <summary>${title}</summary>
+
+            ${content}
+
+            </details>`;
+            } else {
+              formattedContent = `
+            **${title}**: ${content}`;
+            }
+            
+            const sectionContent = `${startMarker}
+            ${formattedContent}
+            ${endMarker}`;
+            
+            // Check if section exists
+            const startIndex = description.indexOf(startMarker);
+            const endIndex = description.indexOf(endMarker);
+            
+            if (startIndex !== -1 && endIndex !== -1) {
+              // Update existing section
+              const before = description.substring(0, startIndex);
+              const after = description.substring(endIndex + endMarker.length);
+              description = before + sectionContent + after;
+            } else {
+              // Add new section
+              if (!description.includes('<!-- TARDIS_SECTIONS_START -->')) {
+                description += '\n\n<!-- TARDIS_SECTIONS_START -->\n## 🤖 Automated Checks\n<!-- TARDIS_SECTIONS_END -->';
+              }
+              
+              const sectionsStart = description.indexOf('<!-- TARDIS_SECTIONS_START -->');
+              const sectionsEnd = description.indexOf('<!-- TARDIS_SECTIONS_END -->');
+              
+              if (sectionsStart !== -1 && sectionsEnd !== -1) {
+                const before = description.substring(0, sectionsEnd);
+                const after = description.substring(sectionsEnd);
+                description = before + '\n' + sectionContent + '\n' + after;
+              }
+            }
+            
+            // Update PR description
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              body: description
+            });

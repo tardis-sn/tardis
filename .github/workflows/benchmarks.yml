@@ -219,40 +219,28 @@ jobs:
           issue-number: ${{ github.event.number }}
           body-includes: I ran benchmarks as you asked
 
-      - name: Post comment
+      - name: Update PR Description (Benchmarks)
         if: github.event_name == 'pull_request_target'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: ./.github/workflows/pr-description-updater.yml
         with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
-            Hi human, 
-            I ran benchmarks as you asked comparing master (${{ github.event.pull_request.base.sha }}) and the latest commit (${{ github.event.pull_request.head.sha }}). 
-            Here are the logs produced by ASV.
-            Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
-
-            Significantly changed benchmarks:
-            <details>
-
-              ```diff
-              ${{ steps.asv_pr_vs_master_changed.outputs.content }}
-              ```
-
-            </details>
-
-            All benchmarks:
-            <details>
-
-              ```diff
-              ${{ steps.asv_pr_vs_master.outputs.content }}
-              ```
-              
-            </details>
-
-            If you want to see the graph of the results, you can check it [**here**](${{ env.URL_PAGES }})
+          section_id: 'benchmarks'
+          content: |
+            ${{ success() && '✅' || '❌' }} Benchmark Results comparing master (${{ github.event.pull_request.base.sha }}) and latest commit (${{ github.event.pull_request.head.sha }})
+            
+            **Significantly changed benchmarks:**
+            ```diff
+            ${{ steps.asv_pr_vs_master_changed.outputs.content }}
+            ```
+            
+            **All benchmarks:**
+            ```diff
+            ${{ steps.asv_pr_vs_master.outputs.content }}
+            ```
+            
+            [View detailed results](${{ env.URL }}) | [View graphs](${{ env.URL_PAGES }})
+          pr_number: '${{ github.event.number }}'
+          collapsible: true
+          title: 'Performance Benchmarks'
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
           URL_PAGES: https://tardis-sn.github.io/tardis-benchmarks/pull/${{ github.event.number }}
