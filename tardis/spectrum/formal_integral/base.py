@@ -65,14 +65,75 @@ def check(simulation_state, plasma, transport, raises=True):
 
     return True
 
+def calculate_p_values(R_max, N):
+    """
+    Calculates the p values of N
+
+    Parameters
+    ----------
+    R_max : float64
+    N : int64
+
+    Returns
+    -------
+    float64
+    """
+    return np.arange(N).astype(np.float64) * R_max / (N - 1)
+
+
+def intensity_black_body(nu, temperature):
+    """
+    Calculate the blackbody intensity.
+
+    Parameters
+    ----------
+    nu : float64
+        frequency
+    temperature : float64
+        Temperature
+
+    Returns
+    -------
+    float64
+    """
+    if nu == 0:
+        return np.nan  # to avoid ZeroDivisionError
+    beta_rad = 1 / (KB_CGS * temperature)
+    coefficient = 2 * H_CGS * C_INV * C_INV
+    return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
+
+
 def interpolate_integrator_quantities(
     att_S_ul, Jredlu, Jbluelu, e_dot_u,
     interpolate_shells,
     transport, simulation_state, electron_densities
 ):
+    """Interpolate the integrator quantities to interpolate_shells.
+
+    Parameters
+    ----------
+    att_S_ul : np.ndarray
+        attenuated source function for each line in each shell
+    Jredlu : np.ndarray
+        J estimator from the red end of the line from lower to upper level
+    Jbluelu : np.ndarray
+        J estimator from the blue end of the line from lower to upper level
+    e_dot_u : np.ndarray
+        Line estimator for the rate of energy density absorption from lower to upper level
+    interpolate_shells : int
+        number of shells to interpolate to
+    transport : tardis.transport.montecarlo.MonteCarloTransportSolver
+    simulation_state : tardis.model.SimulationState
+    opacity_state : OpacityStateNumba
+    plasma : tardis.plasma.BasePlasma
+
+    Returns
+    -------
+    tuple
+        Interpolated values of att_S_ul, Jredlu, Jbluelu, and e_dot_u
+    """
 
     mct_state = transport.transport_state
-    opacity_state = transport.transport_state.opacity_state
     
     nshells = interpolate_shells
     r_middle = (

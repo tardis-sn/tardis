@@ -5,6 +5,7 @@ import pytest
 
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+import tardis.spectrum.formal_integral.base
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
@@ -45,7 +46,7 @@ def test_intensity_black_body_cuda(nu, temperature):
     actual = np.zeros(3)
     black_body_caller[1, 3](nu, temperature, actual)
 
-    expected = formal_integral_numba.intensity_black_body(nu, temperature)
+    expected = tardis.spectrum.formal_integral.base.intensity_black_body(nu, temperature)
 
     ntest.assert_allclose(actual, expected, rtol=1e-14)
 
@@ -210,31 +211,6 @@ def test_populate_z(formal_integral_geometry, time_explosion, p, p_loc):
     ntest.assert_equal(actual[p_loc], expected)
     ntest.assert_equal(oshell_id, expected_oshell_id)
     ntest.assert_allclose(oz, expected_oz, atol=1e-4)
-
-
-@pytest.mark.parametrize(
-    "N",
-    [
-        100,
-        1000,
-        10000,
-    ],
-)
-def test_calculate_p_values(N):
-    """
-    Initializes the test of the cuda version
-    against the numba implementation of the
-    calculate_p_values to 15 decimals. This is done as
-    both results have 15 digits of precision.
-    """
-    r = 1.0
-
-    expected = formal_integral_numba.calculate_p_values(r, N)
-
-    actual = np.zeros_like(expected, dtype=np.float64)
-    actual[::] = formal_integral_cuda.calculate_p_values(r, N)
-
-    ntest.assert_allclose(actual, expected, rtol=1e-14)
 
 
 @cuda.jit

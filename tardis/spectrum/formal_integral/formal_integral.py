@@ -157,7 +157,7 @@ class FormalIntegrator:
             ) = interpolate_integrator_quantities(
                 att_S_ul, Jred_lu, Jblue_lu, e_dot_u,
                 self.interpolate_shells,
-                self.transport, self.simulation_state, self.plasma.electron_densities # TODO: not use plasma
+                self.transport, self.simulation_state, self.plasma.electron_densities
             )
         else:
             self.transport.r_inner_i = (
