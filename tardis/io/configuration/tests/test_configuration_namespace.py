@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import pytest
 from astropy import units as u
@@ -12,8 +12,8 @@ simple_config_dict = {
 
 
 def data_path(filename):
-    data_dir = os.path.dirname(__file__)
-    return os.path.join(data_dir, "data", filename)
+    data_dir = Path(__file__).parent
+    return data_dir / "data" / filename
 
 
 @pytest.fixture(scope="function")
