@@ -2,12 +2,11 @@
 
 from tardis import constants as const
 
+from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
-from dataclasses import dataclass
-
 from astropy import units as u
 
 
@@ -15,7 +14,6 @@ class SourceFunctionSolver:
 
     def __init__(self, line_interaction_type):
 
-        # self.configuration = configuration
         self.line_interaction_type = line_interaction_type
 
 
@@ -43,8 +41,8 @@ class SourceFunctionSolver:
         Jredlu : np.ndarray
         Jbluelu : np.ndarray
         e_dot_u : pd.DataFrame
-
         """
+
         # Parse states for required values
         v_inner_boundary_index = sim_state.geometry.v_inner_boundary_index
         v_outer_boundary_index = sim_state.geometry.v_outer_boundary_index
@@ -53,9 +51,6 @@ class SourceFunctionSolver:
         time_explosion = sim_state.time_explosion
         volume = sim_state.volume
 
-        # TODO: check if the opacity state only lives in the transport state
-            # and if so, remove the opacity_state parameter
-            # and use transport_state.opacity_state instead
         tau_sobolev = opacity_state.tau_sobolev
         transition_probabilities = opacity_state.transition_probabilities
 
@@ -70,21 +65,21 @@ class SourceFunctionSolver:
         transition_probabilities = transition_probabilities[:, local_slice]
         tau_sobolevs = tau_sobolev[:, local_slice]
 
-        columns = range(no_of_shells)
-
         macro_ref = atomic_data.macro_atom_references
         macro_data = atomic_data.macro_atom_data
 
         no_lvls = len(levels)
-        no_shells = len(dilution_factor) # TODO: is dilution_factor len=no_of_shells 
+        no_shells = len(dilution_factor)
 
         # Calculate e_dot_u
         upper_level_index = atomic_data.lines.index.droplevel(
             "level_number_lower"
         )
         e_dot_u = calculate_edotu(time_of_simulation, volume, tau_sobolevs, Edotlu_estimator, 
-                        macro_data, macro_ref, self.line_interaction_type,
-                        transition_probabilities, upper_level_index, columns, no_lvls)
+                        macro_data, macro_ref,
+                        transition_probabilities, upper_level_index, no_shells, no_lvls,
+                        line_interaction_type=self.line_interaction_type
+                        )
 
 
         # Calculate att_S_ul
@@ -94,7 +89,7 @@ class SourceFunctionSolver:
             ["atomic_number", "ion_number", "source_level_number"]
         ).index.copy()
         transition_line_id = transitions.transition_line_id.values
-        lines = atomic_data.lines.set_index('line_id') # TODO: investigate why this is like this
+        lines = atomic_data.lines.set_index('line_id') 
         lines_idx = lines.index.values 
         
         att_S_ul = calculate_att_S_ul(lines, transition_probabilities, 
@@ -109,19 +104,41 @@ class SourceFunctionSolver:
         return SourceFunctionState(att_S_ul, Jredlu, Jbluelu, e_dot_u)
 
 
-# transport
-    # time of sim, Edotlu_estimator, line_interaction_type
-# sim state
-    # volume
-# upper_level_index = atomic_data.lines.index.droplevel("level_number_lower")
 def calculate_edotu(time_of_simulation, volume, tau_sobolevs, Edotlu_estimator, 
-                    macro_data, macro_ref, line_interaction_type,
-                    transition_probabilities, upper_level_idx, columns, no_lvls):
+                    macro_data, macro_ref,
+                    transition_probabilities, upper_level_idx, no_of_shells, no_lvls,
+                    line_interaction_type="macroatom"):
+    """
+    Calculate e_dot_u, the rate energy density is add to the upper level of transitions excited to it
+    
+    Parameters
+    ----------
+    time_of_simulation: float
+        Time duration of the simulation
+    volume: astropy.units.Quantity
+    tau_sobolevs: np.ndarray
+        Sobolev optical depths 
+    Edotlu_estimator: np.ndarray
+        The line estimator for the rate of energy absorption of a transition from lower to upper level
+    macro_data: pd.DataFrame
+        DataFrame containing macro atom data
+    macro_ref: pd.DataFrame
+        DataFrame containing macro atom references, see http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
+    transition_probabilities: np.ndarray
+    upper_level_idx: pd.Index
+        Index of the upper levels in the atomic data
+    no_of_shells: int
+        Number of shells in the simulation
+    no_lvls: int
+        Number of levels in the atomic data
+    """
 
     Edotlu_norm_factor = 1 / (time_of_simulation * volume)
     exptau = 1 - np.exp(-tau_sobolevs)
     Edotlu = Edotlu_norm_factor * exptau * Edotlu_estimator
 
+
+    columns = range(no_of_shells)
     e_dot_lu = pd.DataFrame(
         Edotlu.value, index=upper_level_idx, columns=columns
     )
@@ -142,7 +159,6 @@ def calculate_edotu(time_of_simulation, volume, tau_sobolevs, Edotlu_estimator,
         source_level_idx = ma_int_data.source_level_idx.values
         destination_level_idx = ma_int_data.destination_level_idx.values
 
-    # if transport.line_interaction_type == "macroatom":
         C_frame = pd.DataFrame(columns=columns, index=macro_ref.index)
         q_indices = (source_level_idx, destination_level_idx)
         for shell in columns:
@@ -153,29 +169,45 @@ def calculate_edotu(time_of_simulation, volume, tau_sobolevs, Edotlu_estimator,
             e_dot_u_vec = np.zeros(no_lvls)
             e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].values
             C_frame[shell] = linalg.spsolve(inv_N.T, e_dot_u_vec)
-    # if transport.line_interaction_type == "macroatom":
+        
         e_dot_u = C_frame.loc[e_dot_u.index]
 
     return e_dot_u
 
 
-# transition_line_id: 
-    # transitions = macro_atom_data[macro_atom_data.transition_type == -1].copy()
-    # transition_line_id = transitions.transition_line_id.values
-# line_idx:
-    # line_idx = 
-    # line_idx = lines.index.values
 def calculate_att_S_ul(lines, transition_probabilities, 
                         no_of_shells, transition_line_id, line_idx, 
                         transitions_index, transition_type,
                         e_dot_u, time_explosion):
+    """
+    Calculate the attenuated source function
+
+    Parameters
+    ----------
+    lines: pd.DataFrame
+        atomic line data
+    transition_probabilities: np.ndarray
+    no_of_shells: int
+        Number of shells in the simulation
+    transition_line_id: np.ndarray
+        Line ids for the transitions
+    line_idx: np.ndarray
+        Indices of the lines in the atomic data
+    transitions_index: pd.Index
+        Index of the transitions in the macro atom data
+    transition_type: np.ndarray
+        transition types, see https://tardis-sn.github.io/tardis/physics/setup/plasma/macroatom.html#macroatom for flag definitions
+    e_dot_u: pd.DataFrame
+        the rate energy density is add to the upper level of transitions excited to it
+    time_explosion: float
+        geometrical explosion time
+    """
     
-    # rewrite as : q_ul = dataframe(index = trans_idx)
     q_ul = pd.DataFrame(
         transition_probabilities[
             (transition_type == -1).values
-        ], 
-        index = transitions_index
+        ],
+        index=transitions_index
     )
     wave = lines.wavelength_cm.loc[transition_line_id].values.reshape(-1, 1)
     att_S_ul = wave * (q_ul * e_dot_u) * time_explosion / (4 * np.pi)
@@ -192,10 +224,21 @@ def calculate_att_S_ul(lines, transition_probabilities,
 
     return att_S_ul
 
-# time_explosion and volume from sim state
-# time of sim from montecarlo transport state which is transport state
-# j_blue_estimator from transport state
+
 def calculate_Jbluelu(time_explosion, time_of_simulation, volume, j_blue_estimator):
+    """
+    Calculates Jbluelu, the normalized J estimator from the blue end of the line from lower to upper level
+
+    Parameters
+    ----------
+    time_explosion: float
+        Time duration of the explosion in seconds
+    time_of_simulation: float
+        Time duration of the simulation
+    volume: astropy.units.Quantity
+    j_blue_estimator: np.ndarray
+        the line estimator 
+    """
 
     Jbluelu_norm_factor = (
         (
@@ -209,6 +252,7 @@ def calculate_Jbluelu(time_explosion, time_of_simulation, volume, j_blue_estimat
             )
         ).to("1/(cm^2 s)").value
     )
+    
     # Jbluelu should already by in the correct order, i.e. by wavelength of
     # the transition l->u
     Jbluelu = j_blue_estimator * Jbluelu_norm_factor
@@ -216,6 +260,9 @@ def calculate_Jbluelu(time_explosion, time_of_simulation, volume, j_blue_estimat
 
 
 def calculate_Jredlu(Jbluelu, tau_sobolevs, att_S_ul):
+    """
+    Calculates Jredlu, J estimator from the red end of the line from lower to upper level
+    """
     
     return Jbluelu * np.exp(-tau_sobolevs) + att_S_ul   
 
@@ -223,7 +270,7 @@ def calculate_Jredlu(Jbluelu, tau_sobolevs, att_S_ul):
 @dataclass
 class SourceFunctionState:
     """
-    Data class to hold the resuling source function values
+    Data class to hold the computed source function values
     """
 
     att_S_ul: np.ndarray
