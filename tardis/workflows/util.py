@@ -27,7 +27,10 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
     freqs = plasma.atomic_data.lines.nu.values * u.Hz
     order = np.argsort(freqs)
     freqs = freqs[order]
-    taus = opacity_state.tau_sobolev.values[order]
+    taus = opacity_state.tau_sobolev.iloc[
+        :,
+        simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index,
+    ].values[order]
 
     check_bin_size = True
     while check_bin_size:
@@ -51,7 +54,7 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
     freqs = freqs[1 : n_bins * bin_size + 1]
 
     ct = simulation_state.time_explosion * const.c
-    t_rad = simulation_state.radiation_field_state.temperature
+    t_rad = simulation_state.t_radiative
 
     def B(nu, T):
         return (
@@ -72,7 +75,13 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
         / ct
         * (1 - np.exp(-taus.reshape(n_bins, bin_size, -1))).sum(axis=1)
     )
-    kappa_thom = plasma.electron_densities.values * u.cm ** (-3) * const.sigma_T
+    kappa_thom = (
+        plasma.electron_densities.values[
+            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+        ]
+        * u.cm ** (-3)
+        * const.sigma_T
+    )
     Bdnu = B(bins_low.reshape(-1, 1), t_rad.reshape(1, -1)) * delta_nu.reshape(
         -1, 1
     )
@@ -88,7 +97,7 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
         (udnu * kappa_tot**-1).sum(axis=0) / (udnu.sum(axis=0))
     ) ** -1
 
-    dr = simulation_state.geometry.r_outer - simulation_state.geometry.r_inner
+    dr = simulation_state.r_outer - simulation_state.r_inner
     dtau = kappa_planck * dr
     planck_integ_tau = np.cumsum(dtau[::-1])[::-1]
     rosseland_integ_tau = np.cumsum((kappa_rosseland * dr)[::-1])[::-1]
