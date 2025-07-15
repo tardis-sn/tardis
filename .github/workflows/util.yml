@@ -18,6 +18,8 @@ jobs:
       content: '⚠️ **LFS bandwidth warning**: The label you applied triggers workflows that consume LFS bandwidth. Use carefully - this label will be removed after checks complete.'
       pr_number: '${{ github.event.pull_request.number }}'
       title: 'LFS Warning'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
   check-first-time-committer:
     if: github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
@@ -29,6 +31,8 @@ jobs:
       content: '👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution! Please ensure all checks pass before requesting reviews.'
       pr_number: '${{ github.event.pull_request.number }}'
       title: 'Welcome Message'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
 
   check-orcid:
@@ -83,3 +87,5 @@ jobs:
       pr_number: '${{ github.event.pull_request.number }}'
       collapsible: true
       title: 'ORCID Check'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}

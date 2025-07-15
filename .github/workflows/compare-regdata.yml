@@ -240,4 +240,6 @@ jobs:
       pr_number: '${{ github.event.number }}'
       collapsible: true
       title: 'Regression Data Changes'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
  
