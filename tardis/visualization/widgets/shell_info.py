@@ -435,7 +435,7 @@ class ShellInfoWidget:
         ipywidgets.Box
             Shell info widget containing all component widgets
         """
-        if not Environment.is_notebook():
+        if not Environment.is_notebook() or not Environment.is_moria() or not Environment.is_vscode():
             print("Please use a notebook to display the widget")
         else:
             # CSS properties of the layout of shell info tables container

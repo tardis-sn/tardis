@@ -671,7 +671,7 @@ class LineInfoWidget:
         ipywidgets.Box
             Line info widget containing all component widgets
         """
-        if not Environment.is_notebook():
+        if not Environment.is_notebook() or not Environment.is_moria() or not Environment.is_vscode():
             print("Please use a notebook to display the widget")
         else:
             # Set widths of widgets

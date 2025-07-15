@@ -577,7 +577,7 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     df.columns = [Z_DICT[i] for i in range(1, df.shape[1] + 1)]
     return df
 
-if Environment.is_notebook():
+if Environment.is_notebook() or Environment.is_moria() or Environment.is_vscode():
     iterations_pbar = tqdm.notebook.tqdm(
         desc="Iterations:",
         bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",

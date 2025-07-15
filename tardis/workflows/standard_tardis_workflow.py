@@ -82,7 +82,7 @@ class StandardTARDISWorkflow(
         TypeError
             Raised if export_convergence_plots is not a bool
         """
-        if not Environment.is_notebook():
+        if not Environment.is_notebook() or not Environment.is_moria() or not Environment.is_vscode():
             raise RuntimeError(
                 "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                 "to False."
