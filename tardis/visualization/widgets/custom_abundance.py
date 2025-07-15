@@ -1288,7 +1288,7 @@ class CustomAbundanceWidget:
         ipywidgets.widgets.widget_box.VBox
             A box that contains all the widgets in the GUI.
         """
-        if not Environment.is_notebook():
+        if not Environment.is_notebook() or not Environment.is_moria() or not Environment.is_vscode():
             print("Please use a notebook to display the widget")
         else:
             # --------------Combine widget components--------------
