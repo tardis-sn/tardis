@@ -118,3 +118,5 @@ jobs:
       pr_number: '${{ github.event.number }}'
       collapsible: true
       title: 'Code Style (Ruff)'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}

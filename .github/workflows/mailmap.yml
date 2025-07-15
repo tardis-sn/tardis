@@ -50,3 +50,5 @@ jobs:
       pr_number: '${{ github.event.pull_request.number }}'
       collapsible: true
       title: 'Mailmap Check'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}

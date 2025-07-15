@@ -199,3 +199,5 @@ jobs:
       content: '${{ needs.build-docs.outputs.docs_success == ''true'' && "✅ [Documentation build successful](https://" || "❌ [Documentation build failed](https://github.com/" }}${{ github.repository_owner }}${{ needs.build-docs.outputs.docs_success == ''true'' && ".github.io/" || "/" }}${{ github.event.repository.name }}${{ needs.build-docs.outputs.docs_success == ''true'' && "/pull/" || "/actions/runs/" }}${{ needs.build-docs.outputs.docs_success == ''true'' && github.event.number || github.run_id }}${{ needs.build-docs.outputs.docs_success == ''true'' && "/index.html)" || "?check_suite_focus=true)" }}'
       pr_number: '${{ github.event.number }}'
       title: 'Documentation Build'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}

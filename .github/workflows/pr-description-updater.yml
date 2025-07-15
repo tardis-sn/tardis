@@ -24,6 +24,10 @@ on:
         required: false
         type: string
         description: 'Section title'
+    secrets:
+      BOT_TOKEN:
+        required: true
+        description: 'GitHub token with pull request write permissions'
 
 jobs:
   update-description:
