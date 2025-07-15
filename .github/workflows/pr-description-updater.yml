@@ -35,14 +35,20 @@ jobs:
     steps:
       - name: Update PR Description
         uses: actions/github-script@v7
+        env:
+          SECTION_ID: ${{ inputs.section_id }}
+          CONTENT: ${{ inputs.content }}
+          COLLAPSIBLE: ${{ inputs.collapsible }}
+          TITLE: ${{ inputs.title }}
+          PR_NUMBER: ${{ inputs.pr_number }}
         with:
           github-token: ${{ secrets.BOT_TOKEN }}
           script: |
-            const sectionId = '${{ inputs.section_id }}';
-            const content = `${{ inputs.content }}`;
-            const collapsible = ${{ inputs.collapsible }};
-            const title = '${{ inputs.title }}' || sectionId.toUpperCase();
-            const prNumber = parseInt('${{ inputs.pr_number }}');
+            const sectionId = process.env.SECTION_ID;
+            const content = process.env.CONTENT;
+            const collapsible = process.env.COLLAPSIBLE === 'true';
+            const title = process.env.TITLE || sectionId.toUpperCase();
+            const prNumber = parseInt(process.env.PR_NUMBER);
             
             // Get current PR
             const { data: pr } = await github.rest.pulls.get({
