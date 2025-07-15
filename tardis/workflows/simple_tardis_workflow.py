@@ -42,21 +42,21 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             Set true if the configuration uses CSVY, by default False
         """
         super().__init__(configuration, self.log_level, self.specific_log_level)
-        atom_data = parse_atom_data(configuration)
+        self.atom_data = parse_atom_data(configuration)
 
         # set up states and solvers
         if csvy:
             self.simulation_state = SimulationState.from_csvy(
-                configuration, atom_data=atom_data
+                configuration, atom_data=self.atom_data
             )
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration,
-                atom_data=atom_data,
+                atom_data=self.atom_data,
             )
 
         self.plasma_solver_factory = PlasmaSolverFactory(
-            atom_data,
+            self.atom_data,
             configuration,
         )
 
@@ -73,7 +73,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         self.plasma_solver = self.plasma_solver_factory.assemble(
             self.simulation_state.calculate_elemental_number_density(
-                atom_data.atom_data.mass
+                self.atom_data.atom_data.mass
             ),
             radiation_field,
             self.simulation_state.time_explosion,
