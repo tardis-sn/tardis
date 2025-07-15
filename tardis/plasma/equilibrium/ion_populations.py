@@ -71,6 +71,7 @@ class IonPopulationSolver:
         partition_function,
         boltzmann_factor,
         charge_conservation=False,
+        tolerance=1e-14,
     ):
         """Solves the normalized ion population values from the rate matrices.
 
@@ -92,6 +93,8 @@ class IonPopulationSolver:
             Estimated ion number density. Columns are cells.
         charge_conservation : bool, optional
             Whether to include a charge conservation row in the rate matrix.
+        tolerance : float, optional
+            Tolerance for convergence of the ion population solver.
 
         Returns
         -------
@@ -170,8 +173,8 @@ class IonPopulationSolver:
             ) / electron_population_solution
 
             if (
-                np.all(np.abs(delta_ion) < 1e-14).any().any()
-                and (np.abs(delta_electron) < 1e-14).any().any()
+                np.all(np.abs(delta_ion) < tolerance).any().any()
+                and (np.abs(delta_electron) < tolerance).any().any()
             ):
                 logger.info(
                     "Ion population solver converged after %d iterations.",
