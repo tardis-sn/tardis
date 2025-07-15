@@ -87,7 +87,7 @@ jobs:
     needs: [test-cache, check-for-changes]
     if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     outputs:
-      docs_success: ${{ steps.docs_status.outputs.success }}
+      docs_success: ${{ steps.docs_status_success.outputs.success || steps.docs_status_failure.outputs.success }}
     steps:
       - uses: actions/checkout@v4
         if: github.event_name != 'pull_request'
@@ -182,11 +182,17 @@ jobs:
           body-includes: Hi, human.
         if: always() && github.event_name == 'pull_request'
 
-      - name: Set docs status
-        if: always()
-        id: docs_status
+      - name: Set docs status (success)
+        if: success()
+        id: docs_status_success
         run: |
-          echo "success=${{ success() }}" >> $GITHUB_OUTPUT
+          echo "success=true" >> $GITHUB_OUTPUT
+
+      - name: Set docs status (failure)
+        if: failure()
+        id: docs_status_failure
+        run: |
+          echo "success=false" >> $GITHUB_OUTPUT
 
   update-docs-pr-description:
     needs: build-docs
@@ -196,7 +202,10 @@ jobs:
       pull-requests: write
     with:
       section_id: 'docs'
-      content: '${{ needs.build-docs.outputs.docs_success == ''true'' && "✅ [Documentation build successful](https://" || "❌ [Documentation build failed](https://github.com/" }}${{ github.repository_owner }}${{ needs.build-docs.outputs.docs_success == ''true'' && ".github.io/" || "/" }}${{ github.event.repository.name }}${{ needs.build-docs.outputs.docs_success == ''true'' && "/pull/" || "/actions/runs/" }}${{ needs.build-docs.outputs.docs_success == ''true'' && github.event.number || github.run_id }}${{ needs.build-docs.outputs.docs_success == ''true'' && "/index.html)" || "?check_suite_focus=true)" }}'
+      content: |
+        ${{ needs.build-docs.outputs.docs_success == 'true' && '✅' || '❌' }} Documentation Build
+
+        ${{ needs.build-docs.outputs.docs_success == 'true' && format('[View documentation](https://{0}.github.io/{1}/pull/{2}/index.html)', github.repository_owner, github.event.repository.name, github.event.number) || format('[View build logs](https://github.com/{0}/{1}/actions/runs/{2}?check_suite_focus=true)', github.repository_owner, github.event.repository.name, github.run_id) }}
       pr_number: '${{ github.event.number }}'
       title: 'Documentation Build'
     secrets:
