@@ -45,6 +45,10 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'benchmarks')))
     runs-on: ubuntu-latest
     needs: [test-cache]
+    outputs:
+      benchmark_success: ${{ steps.benchmark_status.outputs.success }}
+      asv_pr_vs_master_changed: ${{ steps.asv_pr_vs_master_changed.outputs.content }}
+      asv_pr_vs_master: ${{ steps.asv_pr_vs_master.outputs.content }}
     steps:
       - uses: actions/checkout@v4
         if: github.event_name != 'pull_request'
@@ -219,31 +223,11 @@ jobs:
           issue-number: ${{ github.event.number }}
           body-includes: I ran benchmarks as you asked
 
-      - name: Update PR Description (Benchmarks)
-        if: github.event_name == 'pull_request'
-        uses: ./.github/workflows/pr-description-updater.yml
-        with:
-          section_id: 'benchmarks'
-          content: |
-            ${{ success() && '✅' || '❌' }} Benchmark Results comparing master (${{ github.event.pull_request.base.sha }}) and latest commit (${{ github.event.pull_request.head.sha }})
-            
-            **Significantly changed benchmarks:**
-            ```diff
-            ${{ steps.asv_pr_vs_master_changed.outputs.content }}
-            ```
-            
-            **All benchmarks:**
-            ```diff
-            ${{ steps.asv_pr_vs_master.outputs.content }}
-            ```
-            
-            [View detailed results](${{ env.URL }}) | [View graphs](${{ env.URL_PAGES }})
-          pr_number: '${{ github.event.number }}'
-          collapsible: true
-          title: 'Performance Benchmarks'
-        env:
-          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
-          URL_PAGES: https://tardis-sn.github.io/tardis-benchmarks/pull/${{ github.event.number }}
+      - name: Set benchmark status
+        if: always()
+        id: benchmark_status
+        run: |
+          echo "success=${{ success() }}" >> $GITHUB_OUTPUT
 
       - name: Save results artifact
         uses: actions/upload-artifact@v4
@@ -254,3 +238,29 @@ jobs:
             .asv/results
             asv-compare-output.log
             asv-compare-changed-output.log
+
+  update-benchmarks-pr-description:
+    needs: build
+    if: always() && github.event_name == 'pull_request'
+    uses: ./.github/workflows/pr-description-updater.yml
+    permissions:
+      pull-requests: write
+    with:
+      section_id: 'benchmarks'
+      content: |
+        ${{ needs.build.outputs.benchmark_success == 'true' && '✅' || '❌' }} Benchmark Results comparing master (${{ github.event.pull_request.base.sha }}) and latest commit (${{ github.event.pull_request.head.sha }})
+
+        **Significantly changed benchmarks:**
+        ```diff
+        ${{ needs.build.outputs.asv_pr_vs_master_changed }}
+        ```
+
+        **All benchmarks:**
+        ```diff
+        ${{ needs.build.outputs.asv_pr_vs_master }}
+        ```
+
+        [View detailed results](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true) | [View graphs](https://tardis-sn.github.io/tardis-benchmarks/pull/${{ github.event.number }})
+      pr_number: '${{ github.event.number }}'
+      collapsible: true
+      title: 'Performance Benchmarks'
