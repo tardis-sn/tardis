@@ -184,8 +184,11 @@ def tardis_config_verysimple():
     )
 
 @pytest.fixture(scope="session")
-def config_verysimple_for_simulation_one_loop(config_verysimple):
+def config_verysimple_for_simulation_one_loop(
+    config_verysimple, atomic_data_fname
+):
     config = deepcopy(config_verysimple)
+    config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
     config.montecarlo.no_of_packets = int(4e4)
     config.montecarlo.last_no_of_packets = int(4e4)
