@@ -8,45 +8,39 @@ on:
 jobs:
   git-lfs-pull-label:
     if: contains(github.event.pull_request.labels.*.name, 'git-lfs-pull')
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/pr-description-updater.yml
     permissions:
       pull-requests: write
       issues: write
       contents: read
-    
-    steps:
-      - name: Update PR Description (LFS Warning)
-        uses: ./.github/workflows/pr-description-updater.yml
-        with:
-          section_id: 'lfs_warning'
-          content: '⚠️ **LFS bandwidth warning**: The label you applied triggers workflows that consume LFS bandwidth. Use carefully - this label will be removed after checks complete.'
-          pr_number: '${{ github.event.pull_request.number }}'
-          title: 'LFS Warning'
+    with:
+      section_id: 'lfs_warning'
+      content: '⚠️ **LFS bandwidth warning**: The label you applied triggers workflows that consume LFS bandwidth. Use carefully - this label will be removed after checks complete.'
+      pr_number: '${{ github.event.pull_request.number }}'
+      title: 'LFS Warning'
 
   check-first-time-committer:
-    runs-on: ubuntu-latest
     if: github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    uses: ./.github/workflows/pr-description-updater.yml
     permissions:
       pull-requests: write
-    
-    steps:
-      - name: Update PR Description (Welcome)
-        uses: ./.github/workflows/pr-description-updater.yml
-        with:
-          section_id: 'welcome'
-          content: '👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution! Please ensure all checks pass before requesting reviews.'
-          pr_number: '${{ github.event.pull_request.number }}'
-          title: 'Welcome Message'
+    with:
+      section_id: 'welcome'
+      content: '👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution! Please ensure all checks pass before requesting reviews.'
+      pr_number: '${{ github.event.pull_request.number }}'
+      title: 'Welcome Message'
 
-  
+
   check-orcid:
     runs-on: ubuntu-latest
+    outputs:
+      orcid_check_failed: ${{ steps.check_orcid.outcome == 'failure' }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      
+
       - name: Check if author email exists in orcid.csv
         id: check_orcid
         continue-on-error: true
@@ -64,25 +58,28 @@ jobs:
           body-includes: Please add your email and ORCID ID
         if: always()
 
-      - name: Update PR Description (ORCID)
-        if: steps.check_orcid.outcome == 'failure'
-        uses: ./.github/workflows/pr-description-updater.yml
-        with:
-          section_id: 'orcid'
-          content: |
-            ❌ ORCID validation failed
-            
-            Your email is not associated with an ORCID ID in our database.
-            
-            **Action required:** Please add your email and ORCID ID to the `.orcid.csv` file in your current branch.
-            
-            **Format:**
-            ```
-            email,orcid
-            your.email@example.com,0000-0000-0000-0000
-            ```
-            
-            Don't have an ORCID? [Create one for free](https://orcid.org/) - it helps ensure you get proper credit for your contributions.
-          pr_number: '${{ github.event.pull_request.number }}'
-          collapsible: true
-          title: 'ORCID Check'
+  update-orcid-pr-description:
+    needs: check-orcid
+    if: needs.check-orcid.outputs.orcid_check_failed == 'true'
+    uses: ./.github/workflows/pr-description-updater.yml
+    permissions:
+      pull-requests: write
+    with:
+      section_id: 'orcid'
+      content: |
+        ❌ ORCID validation failed
+
+        Your email is not associated with an ORCID ID in our database.
+
+        **Action required:** Please add your email and ORCID ID to the `.orcid.csv` file in your current branch.
+
+        **Format:**
+        ```
+        email,orcid
+        your.email@example.com,0000-0000-0000-0000
+        ```
+
+        Don't have an ORCID? [Create one for free](https://orcid.org/) - it helps ensure you get proper credit for your contributions.
+      pr_number: '${{ github.event.pull_request.number }}'
+      collapsible: true
+      title: 'ORCID Check'
