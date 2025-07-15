@@ -147,7 +147,7 @@ class FormalIntegrator:
         res = sourceFunction.solve(self.simulation_state, self.opacity_state, transport_state, 
                                    self.plasma.atomic_data, self.plasma.levels)
 
-        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = res[0], res[1], res[2], res[3]
+        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = res.att_S_ul, res.Jred_lu, res.Jblue_lu, res.e_dot_u
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -157,7 +157,7 @@ class FormalIntegrator:
             ) = interpolate_integrator_quantities(
                 att_S_ul, Jred_lu, Jblue_lu, e_dot_u,
                 self.interpolate_shells,
-                self.transport, self.simulation_state, self.plasma.electron_densities
+                self.simulation_state, self.transport, self.opacity_state, self.plasma.electron_densities
             )
         else:
             self.transport.r_inner_i = (

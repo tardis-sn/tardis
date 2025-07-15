@@ -106,7 +106,7 @@ def intensity_black_body(nu, temperature):
 def interpolate_integrator_quantities(
     att_S_ul, Jredlu, Jbluelu, e_dot_u,
     interpolate_shells,
-    transport, simulation_state, electron_densities
+    simulation_state, transport, opacity_state, electron_densities
 ):
     """Interpolate the integrator quantities to interpolate_shells.
 
@@ -119,13 +119,13 @@ def interpolate_integrator_quantities(
     Jbluelu : np.ndarray
         J estimator from the blue end of the line from lower to upper level
     e_dot_u : np.ndarray
-        Line estimator for the rate of energy density absorption from lower to upper level
+        Line estimator for the rate of energgity density absorption from lower to upper level
     interpolate_shells : int
         number of shells to interpolate to
-    transport : tardis.transport.montecarlo.MonteCarloTransportSolver
     simulation_state : tardis.model.SimulationState
+    transport : tardis.transport.montecarlo.MonteCarloTransportSolver
     opacity_state : OpacityStateNumba
-    plasma : tardis.plasma.BasePlasma
+    electron_densities : np.ndarray
 
     Returns
     -------

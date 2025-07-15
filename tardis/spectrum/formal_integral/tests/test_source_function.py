@@ -1,19 +1,27 @@
 import pytest
 import numpy.testing as npt
+from copy import deepcopy
 
 from tardisbase.testing.regression_data.regression_data import RegressionData
 
+from tardis.simulation import Simulation
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
-@pytest.fixture
-def source_function_verysimple(simulation_verysimple):
+
+@pytest.fixture(scope="module")
+def source_function_verysimple(config_verysimple, atomic_dataset):
     """
     Generate the source function state from the simulation.
     """
-    sim_state = simulation_verysimple.simulation_state
-    plasma = simulation_verysimple.plasma
-    transport = simulation_verysimple.transport
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    sim.last_no_of_packets = 4000
+    sim.run_final()
+
+    sim_state = sim.simulation_state
+    plasma = sim.plasma
+    transport = sim.transport
 
     formal_integrator = FormalIntegrator(sim_state, plasma, transport)
     sourceFunction = SourceFunctionSolver(line_interaction_type = formal_integrator.transport.line_interaction_type)

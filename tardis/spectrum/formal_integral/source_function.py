@@ -77,7 +77,7 @@ class SourceFunctionSolver:
         )
         e_dot_u = calculate_edotu(time_of_simulation, volume, tau_sobolevs, Edotlu_estimator, 
                         macro_data, macro_ref,
-                        transition_probabilities, upper_level_index, no_shells, no_lvls,
+                        transition_probabilities, upper_level_index, no_of_shells, no_lvls,
                         line_interaction_type=self.line_interaction_type
                         )
 
