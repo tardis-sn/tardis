@@ -16,6 +16,29 @@ def config(example_configuration_dir):
 
 
 @pytest.fixture(scope="module")
+def config_non_first_shell_v_inner_csvy(example_configuration_dir):
+    return Configuration.from_yaml(
+        example_configuration_dir
+        / "tardis_configv1_verysimple_converted_csvy.yml"
+    )
+
+
+@pytest.fixture(scope="module")
+def simulation_one_loop_from_csvy(
+    config_non_first_shell_v_inner_csvy, atomic_data_fname
+):
+    config_non_first_shell_v_inner_csvy.atom_data = atomic_data_fname
+    config_non_first_shell_v_inner_csvy.montecarlo.iterations = 2
+    config_non_first_shell_v_inner_csvy.montecarlo.no_of_packets = int(4e4)
+    config_non_first_shell_v_inner_csvy.montecarlo.last_no_of_packets = int(4e4)
+
+    sim = Simulation.from_config(config_non_first_shell_v_inner_csvy)
+    sim.run_convergence()
+    sim.run_final()
+    return sim
+
+
+@pytest.fixture(scope="module")
 def simulation_one_loop(config, atomic_data_fname):
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
@@ -78,6 +101,27 @@ def test_plasma_estimates(simulation_one_loop, attr, regression_data):
     actual = pd.Series(actual)
     expected = regression_data.sync_dataframe(actual)
     pd.testing.assert_series_equal(actual, expected, rtol=1e-5, atol=1e-8)
+
+
+@pytest.mark.parametrize(
+    "attr",
+    [
+        "iterations_w",
+        "iterations_t_rad",
+        "iterations_electron_densities",
+        "iterations_t_inner",
+    ],
+)
+def test_simulation_one_loop_csvy_against_yml(
+    simulation_one_loop_from_csvy, simulation_one_loop, attr
+):
+    actual = getattr(simulation_one_loop_from_csvy, attr)
+    if hasattr(actual, "value"):
+        actual = actual.value
+    expected = getattr(simulation_one_loop, attr)
+    if hasattr(expected, "value"):
+        expected = expected.value
+    np.testing.assert_allclose(actual, expected)
 
 
 @pytest.fixture(scope="module")
