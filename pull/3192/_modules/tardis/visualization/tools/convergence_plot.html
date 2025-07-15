@@ -1,0 +1,631 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.visualization.tools.convergence_plot &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=34879b2c"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.visualization.tools.convergence_plot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.visualization.tools.convergence_plot</h1><div class="highlight"><pre>
+<span></span>&quot;&quot;&quot;Convergence Plots to see the convergence of the simulation in real time.&quot;&quot;&quot;
+
+from collections import defaultdict
+from contextlib import suppress
+
+import ipywidgets as widgets
+import matplotlib as mpl
+import numpy as np
+import plotly.graph_objects as go
+from astropy import units as u
+from IPython.display import display
+from traitlets import TraitError
+
+
+# Added the below as a (temporary) workaround to the latex
+# labels on the convergence plots not rendering correctly.
+import plotly
+from IPython.display import display, HTML
+import tardis.visualization.plot_util as pu
+
+plotly.offline.init_notebook_mode(connected=True)
+# mathjax needs to be loaded for latex labels to render correctly
+# see https://github.com/tardis-sn/tardis/issues/2446
+display(HTML(&#39;&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG&quot;&gt;&lt;/script&gt;&#39;))
+
+<div class="viewcode-block" id="ConvergencePlots">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots">[docs]</a>
+class ConvergencePlots(object):
+    &quot;&quot;&quot;
+    Create and update convergence plots for visualizing convergence of the simulation.
+
+    Parameters
+    ----------
+    iterations : int
+        iteration number
+    **kwargs : dict, optional
+        Additional keyword arguments. These arguments are defined in the Other Parameters section.
+
+    Other Parameters
+    ----------------
+    plasma_plot_config : dict, optional
+        Dictionary used to override default plot properties of plasma plots.
+    t_inner_luminosities_config : dict, optional
+        Dictionary used to override default plot properties of the inner boundary temperature and luminosity plots.
+    plasma_cmap : str, default: &#39;jet&#39;, optional
+        String defining the cmap used in plasma plots.
+    t_inner_luminosities_colors : str or list, optional
+        String defining cmap for luminosity and inner boundary temperature plot.
+        The list can be a list of colors in rgb, hex or css-names format as well.
+    export_convergence_plots : bool, default: False, optional
+        If True, plots are displayed again using the `notebook_connected` renderer. This helps
+        to display the plots in the documentation or in platforms like nbviewer.
+
+    Notes
+    -----
+        When overriding plot&#39;s configuration using the `plasma_plot_config` and the
+        `t_inner_luminosities_config` dictionaries, data related properties are
+        applied equally accross all traces.
+        The dictionary should have a structure like that of `plotly.graph_objs.FigureWidget.to_dict()`,
+        for more information please see https://plotly.com/python/figure-structure/
+    &quot;&quot;&quot;
+
+    def __init__(self, iterations, **kwargs):
+        self.iterable_data = {}
+        self.value_data = defaultdict(list)
+        self.iterations = iterations
+        self.current_iteration = 1
+        self.luminosities = [&quot;Emitted&quot;, &quot;Absorbed&quot;, &quot;Requested&quot;]
+        self.plasma_plot = None
+        self.t_inner_luminosities_plot = None
+        self.display_handle = None
+
+        if &quot;plasma_plot_config&quot; in kwargs:
+            self.plasma_plot_config = kwargs[&quot;plasma_plot_config&quot;]
+
+        if &quot;t_inner_luminosities_config&quot; in kwargs:
+            self.t_inner_luminosities_config = kwargs[
+                &quot;t_inner_luminosities_config&quot;
+            ]
+
+        if &quot;plasma_cmap&quot; in kwargs:
+            self.plasma_colorscale = pu.get_hex_color_strings(
+                name=kwargs[&quot;plasma_cmap&quot;], length=self.iterations
+            )
+        else:
+            # default color scale is jet
+            self.plasma_colorscale = pu.get_hex_color_strings(length=self.iterations)
+
+        if &quot;t_inner_luminosities_colors&quot; in kwargs:
+            # use cmap if string
+            if type(kwargs[&quot;t_inner_luminosities_colors&quot;]) == str:
+                self.t_inner_luminosities_colors = pu.get_hex_color_strings(
+                    length=5,
+                    name=kwargs[&quot;t_inner_luminosities_colors&quot;],
+                )
+            else:
+                self.t_inner_luminosities_colors = kwargs[
+                    &quot;t_inner_luminosities_colors&quot;
+                ]
+        else:
+            # using default plotly colors
+            self.t_inner_luminosities_colors = [None] * 5
+
+<div class="viewcode-block" id="ConvergencePlots.fetch_data">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.fetch_data">[docs]</a>
+    def fetch_data(self, name=None, value=None, item_type=None):
+        &quot;&quot;&quot;
+        Fetch data from the Simulation class.
+
+        Parameters
+        ----------
+        name : string
+            name of the data
+        value : string or array
+            string or an array of quantities
+        item_type : string
+            either iterable or value
+
+        &quot;&quot;&quot;
+        # trace data for plasma plots is added in iterable data dictionary
+        if item_type == &quot;iterable&quot;:
+            self.iterable_data[name] = value
+
+        # trace data for luminosity plots and inner boundary temperature plot is stored in value_data dictionary
+        if item_type == &quot;value&quot;:
+            self.value_data[name].append(value)</div>
+
+
+<div class="viewcode-block" id="ConvergencePlots.create_plasma_plot">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.create_plasma_plot">[docs]</a>
+    def create_plasma_plot(self):
+        &quot;&quot;&quot;Create an empty plasma plot.&quot;&quot;&quot;
+        fig = go.FigureWidget().set_subplots(rows=1, cols=2, shared_xaxes=True)
+
+        # empty traces to build figure
+        fig.add_scatter(row=1, col=1)
+        fig.add_scatter(row=1, col=2)
+
+        # 2 y axes and 2 x axes correspond to the 2 subplots in the plasma plot
+        fig = fig.update_layout(
+            xaxis={
+                &quot;tickformat&quot;: &quot;g&quot;,
+                &quot;title&quot;: r&quot;$\text{Velocity}~[\text{km}~\text{s}^{-1}]$&quot;,
+            },
+            xaxis2={
+                &quot;tickformat&quot;: &quot;g&quot;,
+                &quot;title&quot;: r&quot;$\text{Velocity}~[\text{km}~\text{s}^{-1}]$&quot;,
+                &quot;matches&quot;: &quot;x&quot;,
+            },
+            yaxis={
+                &quot;tickformat&quot;: &quot;g&quot;,
+                &quot;title&quot;: r&quot;$T_{\text{rad}}\ [\text{K}]$&quot;,
+                &quot;nticks&quot;: 15,
+            },
+            yaxis2={
+                &quot;tickformat&quot;: &quot;g&quot;,
+                &quot;title&quot;: r&quot;$W$&quot;,
+                &quot;nticks&quot;: 15,
+            },
+            height=450,
+            legend_title_text=&quot;Iterations&quot;,
+            legend_traceorder=&quot;reversed&quot;,
+            margin=dict(
+                l=10, r=135, b=25, t=25, pad=0
+            ),  # reduce whitespace surrounding the plot and increase right indentation to align with the t_inner and luminosity plot
+        )
+
+        # allow overriding default layout
+        if hasattr(self, &quot;plasma_plot_config&quot;):
+            self.override_plot_parameters(fig, self.plasma_plot_config)
+        self.plasma_plot = fig</div>
+
+
+<div class="viewcode-block" id="ConvergencePlots.create_t_inner_luminosities_plot">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.create_t_inner_luminosities_plot">[docs]</a>
+    def create_t_inner_luminosities_plot(self):
+        &quot;&quot;&quot;Create an empty t_inner and luminosity plot.&quot;&quot;&quot;
+        fig = go.FigureWidget().set_subplots(
+            rows=3,
+            cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.08,
+            row_heights=[0.25, 0.5, 0.25],
+        )
+
+        # add inner boundary temperature vs iterations plot
+        fig.add_scatter(
+            name=&quot;Inner&lt;br&gt;Boundary&lt;br&gt;Temperature&quot;,
+            row=1,
+            col=1,
+            hovertext=&quot;text&quot;,
+            marker_color=self.t_inner_luminosities_colors[0],
+            mode=&quot;lines&quot;,
+        )
+
+        # add luminosity vs iterations plot
+        # has three traces for emitted, requested and absorbed luminosities
+        for luminosity, line_color in zip(
+            self.luminosities, self.t_inner_luminosities_colors[1:4]
+        ):
+            fig.add_scatter(
+                name=luminosity + &quot;&lt;br&gt;Luminosity&quot;,
+                mode=&quot;lines&quot;,
+                row=2,
+                col=1,
+                marker_color=line_color,
+            )
+
+        # add residual luminosity vs iterations plot
+        fig.add_scatter(
+            name=&quot;Residual&lt;br&gt;Luminosity&quot;,
+            row=3,
+            col=1,
+            marker_color=self.t_inner_luminosities_colors[4],
+            mode=&quot;lines&quot;,
+        )
+
+        # 3 y axes and 3 x axes correspond to the 3 subplots in the t_inner and luminosity convergence plot
+        fig = fig.update_layout(
+            xaxis=dict(range=[0, self.iterations + 1], dtick=2),
+            xaxis2=dict(
+                matches=&quot;x&quot;,
+                range=[0, self.iterations + 1],
+                dtick=2,
+            ),
+            xaxis3=dict(
+                title=r&quot;$\mbox{Iteration Number}$&quot;,
+                dtick=2,
+            ),
+            yaxis=dict(
+                title=r&quot;$T_{\text{inner}}\ [\text{K}]$&quot;,
+                automargin=True,
+                tickformat=&quot;g&quot;,
+                exponentformat=&quot;e&quot;,
+                nticks=4,
+            ),
+            yaxis2=dict(
+                exponentformat=&quot;e&quot;,
+                title=r&quot;$\text{Luminosity}~[\text{erg s}^{-1}]$&quot;,
+                title_font_size=13,
+                automargin=True,
+                nticks=7,
+            ),
+            yaxis3=dict(
+                title=r&quot;$~~\text{Residual}\\\text{Luminosity[%]}$&quot;,
+                title_font_size=12,
+                automargin=True,
+                nticks=4,
+            ),
+            height=630,
+            hoverlabel_align=&quot;right&quot;,
+            margin=dict(
+                b=25, t=25, pad=0
+            ),  # reduces whitespace surrounding the plot
+        )
+
+        # allow overriding default layout
+        if hasattr(self, &quot;t_inner_luminosities_config&quot;):
+            self.override_plot_parameters(fig, self.t_inner_luminosities_config)
+
+        self.t_inner_luminosities_plot = fig</div>
+
+
+<div class="viewcode-block" id="ConvergencePlots.override_plot_parameters">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.override_plot_parameters">[docs]</a>
+    def override_plot_parameters(self, fig, parameters):
+        &quot;&quot;&quot;
+        Override default plot properties.
+
+        Any property inside the data dictionary is however, applied equally across all traces.
+        This means trace-specific data properties can&#39;t be changed using this function.
+
+        Parameters
+        ----------
+        fig : go.FigureWidget
+            FigureWidget object to be updated
+        parameters : dict
+            Dictionary used to update the default plot style.
+        &quot;&quot;&quot;
+        # because fig.data is a tuple of traces, a property in the data dictionary is applied to all traces
+        # the fig is a nested dictionary, any property n levels deep is not changed until the value is a not dictionary
+        # fig[&quot;property_1&quot;][&quot;property_2&quot;]...[&quot;property_n&quot;] = &quot;value&quot;
+        for key, value in parameters.items():
+            if key == &quot;data&quot;:
+                # all traces will have same data property
+                for trace in list(fig.data):
+                    self.override_plot_parameters(trace, value)
+            else:
+                if type(value) == dict:
+                    self.override_plot_parameters(fig[key], value)
+                else:
+                    fig[key] = value</div>
+
+
+<div class="viewcode-block" id="ConvergencePlots.build">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.build">[docs]</a>
+    def build(self, display_plot=True):
+        &quot;&quot;&quot;
+        Create empty convergence plots and display them.
+
+        Parameters
+        ----------
+        display_plot : bool, default: True, optional
+            Displays empty plots.
+        &quot;&quot;&quot;
+        self.create_plasma_plot()
+        self.create_t_inner_luminosities_plot()
+
+        if display_plot:
+            self.display_handle = display(
+                widgets.VBox(
+                    [self.plasma_plot, self.t_inner_luminosities_plot],
+                ),
+                display_id=&quot;convergence_plots&quot;
+            )</div>
+
+
+<div class="viewcode-block" id="ConvergencePlots.update_plasma_plots">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.update_plasma_plots">[docs]</a>
+    def update_plasma_plots(self):
+        &quot;&quot;&quot;Update plasma convergence plots every iteration.&quot;&quot;&quot;
+        # convert velocity to km/s
+        velocity_km_s = (
+            self.iterable_data[&quot;velocity&quot;].to(u.km / u.s).value.tolist()
+        )
+
+        # add luminosity data in hover data in plasma plots
+        customdata = len(velocity_km_s) * [
+            &quot;&lt;br&gt;&quot;
+            + &quot;Emitted Luminosity: &quot;
+            + f&#39;{self.value_data[&quot;Emitted&quot;][-1]:.4g}&#39;
+            + &quot;&lt;br&gt;&quot;
+            + &quot;Requested Luminosity: &quot;
+            + f&#39;{self.value_data[&quot;Requested&quot;][-1]:.4g}&#39;
+            + &quot;&lt;br&gt;&quot;
+            + &quot;Absorbed Luminosity: &quot;
+            + f&#39;{self.value_data[&quot;Absorbed&quot;][-1]:.4g}&#39;
+        ]
+
+        # add a radiation temperature vs shell velocity trace to the plasma plot
+        self.plasma_plot.add_scatter(
+            x=velocity_km_s,
+            y=np.append(
+                self.iterable_data[&quot;t_rad&quot;], self.iterable_data[&quot;t_rad&quot;][-1:]
+            ),
+            line_color=self.plasma_colorscale[self.current_iteration - 1],
+            line_shape=&quot;hv&quot;,
+            row=1,
+            col=1,
+            name=self.current_iteration,
+            legendgroup=f&quot;group-{self.current_iteration}&quot;,
+            showlegend=False,
+            customdata=customdata,
+            hovertemplate=&quot;&lt;b&gt;Y&lt;/b&gt;: %{y:.3f} at &lt;b&gt;X&lt;/b&gt; = %{x:,.0f}%{customdata}&quot;,
+        )
+
+        # add a dilution factor vs shell velocity trace to the plasma plot
+        self.plasma_plot.add_scatter(
+            x=velocity_km_s,
+            y=np.append(self.iterable_data[&quot;w&quot;], self.iterable_data[&quot;w&quot;][-1:]),
+            line_color=self.plasma_colorscale[self.current_iteration - 1],
+            line_shape=&quot;hv&quot;,
+            row=1,
+            col=2,
+            legendgroup=f&quot;group-{self.current_iteration}&quot;,
+            name=self.current_iteration,
+            customdata=customdata,
+            hovertemplate=&quot;&lt;b&gt;Y&lt;/b&gt;: %{y:.3f} at &lt;b&gt;X&lt;/b&gt; = %{x:,.0f}%{customdata}&quot;,
+        )</div>
+
+
+<div class="viewcode-block" id="ConvergencePlots.update_t_inner_luminosities_plot">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.update_t_inner_luminosities_plot">[docs]</a>
+    def update_t_inner_luminosities_plot(self):
+        &quot;&quot;&quot;Update the t_inner and luminosity convergence plots every iteration.&quot;&quot;&quot;
+        x = list(range(1, self.iterations + 1))
+
+        with self.t_inner_luminosities_plot.batch_update():
+            # traces are updated according to the order they were added
+            # the first trace is of the inner boundary temperature plot
+            self.t_inner_luminosities_plot.data[0].x = x
+            self.t_inner_luminosities_plot.data[0].y = self.value_data[
+                &quot;t_inner&quot;
+            ]
+            self.t_inner_luminosities_plot.data[
+                0
+            ].hovertemplate = &quot;&lt;b&gt;%{y:.3f}&lt;/b&gt; at X = %{x:,.0f}&lt;extra&gt;Inner Boundary Temperature&lt;/extra&gt;&quot;  # trace name in extra tag to avoid new lines in hoverdata
+
+            # the next three for emitted, absorbed and requested luminosities
+            for index, luminosity in zip(range(1, 4), self.luminosities):
+                self.t_inner_luminosities_plot.data[index].x = x
+                self.t_inner_luminosities_plot.data[index].y = self.value_data[
+                    luminosity
+                ]
+                self.t_inner_luminosities_plot.data[index].hovertemplate = (
+                    &quot;&lt;b&gt;%{y:.4g}&lt;/b&gt;&quot; + &quot;&lt;br&gt;at X = %{x}&lt;br&gt;&quot;
+                )
+
+            # last is for the residual luminosity
+            y = [
+                ((emitted - requested) * 100) / requested
+                for emitted, requested in zip(
+                    self.value_data[&quot;Emitted&quot;], self.value_data[&quot;Requested&quot;]
+                )
+            ]
+
+            self.t_inner_luminosities_plot.data[4].x = x
+            self.t_inner_luminosities_plot.data[4].y = y
+            self.t_inner_luminosities_plot.data[
+                4
+            ].hovertemplate = &quot;&lt;b&gt;%{y:.2f}%&lt;/b&gt; at X = %{x:,.0f}&quot;</div>
+
+
+<div class="viewcode-block" id="ConvergencePlots.update">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.update">[docs]</a>
+    def update(self, export_convergence_plots=False, last=False):
+        &quot;&quot;&quot;
+        Update the convergence plots every iteration.
+
+        Parameters
+        ----------
+        export_convergence_plots : bool, default: False, optional
+            Displays the convergence plots again using plotly&#39;s `notebook_connected` renderer.
+            This helps to display the plots in notebooks when shared on platforms like nbviewer.
+            Please see https://plotly.com/python/renderers/ for more information.
+        last : bool, default: False, optional
+            True if it&#39;s last iteration.
+        &quot;&quot;&quot;
+        if self.iterable_data != {}:
+            # build only at first iteration
+            if self.current_iteration == 1:
+                self.build()
+
+            self.update_plasma_plots()
+            self.update_t_inner_luminosities_plot()
+            self.display_handle.update(
+                widgets.VBox(
+                    [self.plasma_plot, self.t_inner_luminosities_plot],
+                )
+            )
+
+            # data property for plasma plots needs to be
+            # updated after the last iteration because new traces have been added
+            if hasattr(self, &quot;plasma_plot_config&quot;) and last:
+                if &quot;data&quot; in self.plasma_plot_config:
+                    self.override_plot_parameters(
+                        self.plasma_plot, self.plasma_plot_config
+                    )
+
+        self.current_iteration += 1
+
+        # the display function expects a Widget, while
+        # fig.show() returns None, which causes the TraitError.
+        if export_convergence_plots and (self.plasma_plot is not None):
+            with suppress(TraitError):
+                display(
+                    widgets.VBox(
+                        [
+                            self.plasma_plot.show(),
+                            self.t_inner_luminosities_plot.show(),
+                        ]
+                    )
+                )</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 15 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
