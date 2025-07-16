@@ -21,7 +21,8 @@ from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral.formal_integral import FormalIntegratorSolver
+from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+# from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -537,7 +538,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.last_no_of_packets, self.no_of_virtual_packets
         )
 
-        formal_integrator = FormalIntegratorSolver() # TODO: figure out where configurations are
+        formal_integrator = FormalIntegrator(self.simulation_state, self.plasma, self.transport)
+        # formal_integrator = FormalIntegratorSolver() # TODO: figure out where configurations are
         # formal_integrator.setup_optional() # TODO: Implement this method
 
         self.spectrum_solver.setup_optional_spectra(

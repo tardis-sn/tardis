@@ -68,7 +68,7 @@ class SpectrumSolver(HDFWriterMixin):
             virtual_packet_luminosity * u.erg / u.s
         )
     
-    def setup_integrated_spectrum(self, integrator, simulation_state, opacity_state, transport_state, atomic_data, levels):
+    def setup_integrated_spectrum(self, simulation_state, opacity_state, transport_state, atomic_data, levels):
         """Set up for the integrated spectra
 
         Parameters
@@ -76,7 +76,6 @@ class SpectrumSolver(HDFWriterMixin):
         integrator : FormalIntegratorSolver, optional
             Integrator to compute the integrated spectrum with, by default None
         """
-        self._integrator = integrator
         self.simulation_state = simulation_state
         self.opacity_state = opacity_state
         self.transport_state = transport_state
