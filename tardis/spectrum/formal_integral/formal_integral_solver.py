@@ -13,7 +13,7 @@ from tardis.spectrum.formal_integral.formal_integral_cuda import CudaFormalInteg
 
 class FormalIntegralSolver:
 
-    def __init__(self, integrator_configuration):
+    def __init__(self, integrator_settings):
 
         # will need configurations for
             # which method to use (numba, cuda, etc)
@@ -21,10 +21,9 @@ class FormalIntegralSolver:
             # spectrum configuration
         # self.formal_integral_configuration = formal_integral_configuration
         # self.spectrum_configuration = spectrum_configuration
-        self.integrator_configuration = integrator_configuration # TODO: add option to specify 'numba' or 'cuda'
-        # self.montecarlo_configuration = montecarlo_configuration
+        self.integrator_settings = integrator_settings # TODO: add option to specify 'numba' or 'cuda'
 
-    def setup(self, simulation_state, opacity_state, transport, plasma, macro_atom_state=None):
+    def setup(self, opacity_state, transport, plasma, macro_atom_state=None):
 
         """
         Set up the integrator depending on the method specified in the configuration.
@@ -90,9 +89,9 @@ class FormalIntegralSolver:
                 self.integrator_configuration.points
             )
     
-    def solve(self, nu, simulation_state, opacity_state, transport, plasma):
+    def solve(self, nu, simulation_state, opacity_state, transport, plasma, macro_atom_state=None):
 
-        atomic_data, levels, opacity_state = self.setup(simulation_state, opacity_state, transport, plasma)
+        atomic_data, levels, opacity_state = self.setup(opacity_state, transport, plasma, macro_atom_state)
         transport_state = transport.transport_state
 
         points = self.integrator_configuration.points

@@ -9,6 +9,7 @@ from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.util.base import (
     quantity_linspace,
 )
+from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegratorSolver
 
 
 class SpectrumSolver(HDFWriterMixin):
@@ -35,7 +36,8 @@ class SpectrumSolver(HDFWriterMixin):
         self._spectrum_integrated = None
 
     def setup_optional_spectra(
-        self, transport_state, virtual_packet_luminosity=None, integrator=None
+        self, transport_state, virtual_packet_luminosity=None, integrator=None,
+        # simulation_state, opacity_state, transport, plasma, macro_atom_state
     ):
         """Set up the solver to handle real and virtual spectra
 
@@ -53,35 +55,11 @@ class SpectrumSolver(HDFWriterMixin):
             virtual_packet_luminosity * u.erg / u.s
         )
         self._integrator = integrator
-
-    def setup_virtual_spectrum(
-            self, virtual_packet_luminosity=None
-    ):
-        """Set up for the virtual spectrum
-
-        Parameters
-        ----------
-        virtual_packet_luminosity : np.ndarray, optional
-            Virtual packet luminosity, unnormalized, by default None
-        """
-        self._montecarlo_virtual_luminosity = (
-            virtual_packet_luminosity * u.erg / u.s
-        )
-    
-    def setup_integrated_spectrum(self, simulation_state, opacity_state, transport_state, atomic_data, levels):
-        """Set up for the integrated spectra
-
-        Parameters
-        ----------
-        integrator : FormalIntegratorSolver, optional
-            Integrator to compute the integrated spectrum with, by default None
-        """
-        self.simulation_state = simulation_state
-        self.opacity_state = opacity_state
-        self.transport_state = transport_state
-        self.atomic_data = atomic_data
-        self.levels_index = levels
-
+        # self.simulation_state = simulation_state
+        # self.opacity_state = opacity_state
+        # self.transport = transport
+        # self.plasma = plasma
+        # self.macro_atom_state = macro_atom_state
 
     @property
     def spectrum_real_packets(self):
@@ -121,11 +99,12 @@ class SpectrumSolver(HDFWriterMixin):
                     interpolate_shells=self.integrator_settings.interpolate_shells,
                 )
                 # self._spectrum_integrated = self.integrator.solve( # TODO: finish
+                #     self.spectrum_frequency_grid[:-1],
                 #     self.simulation_state, 
                 #     self.opacity_state, 
                 #     self.transport_state, 
-                #     self.atomic_data, 
-                #     self.levels_index
+                #     self.plasma, 
+                #     self.macro_atom_state
                 # )
             except IntegrationError:
                 # if integration is impossible or fails, return an empty spectrum

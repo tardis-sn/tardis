@@ -539,13 +539,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         formal_integrator = FormalIntegrator(self.simulation_state, self.plasma, self.transport)
-        # formal_integrator = FormalIntegratorSolver() # TODO: figure out where configurations are
-        # formal_integrator.setup_optional() # TODO: Implement this method
+        # formal_integrator = FormalIntegratorSolver(self.spectrum_solver.integrator_settings) # TODO: figure out where configurations are
+
 
         self.spectrum_solver.setup_optional_spectra(
             self.transport.transport_state,
             v_packets_energy_hist,
             formal_integrator,
+            # simulation_state, opacity_state, transport, plasma, macro_atom_state
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)
