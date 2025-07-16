@@ -1,3 +1,6 @@
+import numpy as np
+from scipy.interpolate import interp1d
+
 from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
@@ -59,32 +62,34 @@ class FormalIntegralSolver:
         atomic_data = plasma.atomic_data
         levels_index = plasma.levels
 
+        return atomic_data, levels_index, opacity_state
+
+    def setup_integrator(self, opacity_state, time_explosion, r_inner_i, r_outer_i):
+        # TODO: move out - this has to happen after the interpolation, if any
         numba_radial_1d_geometry = NumbaRadial1DGeometry(
-            transport.r_inner_i,
-            transport.r_outer_i,
-            transport.r_inner_i
-            / simulation_state.time_explosion.to("s").value,
-            transport.r_outer_i
-            / simulation_state.time_explosion.to("s").value,
+            r_inner_i,
+            r_outer_i,
+            r_inner_i
+            / time_explosion.to("s").value,
+            r_outer_i
+            / time_explosion.to("s").value,
         )
 
         if self.integrator_configuration.method == 'cuda':
             self.integrator = CudaFormalIntegrator(
                 numba_radial_1d_geometry,
-                simulation_state.time_explosion.cgs.value,
+                time_explosion.cgs.value,
                 opacity_state,
                 self.integrator_configuration.points,
             )
         else:
             self.integrator = NumbaFormalIntegrator(
                 numba_radial_1d_geometry,
-                simulation_state.time_explosion.cgs.value,
+                time_explosion.cgs.value,
                 opacity_state,
                 self.integrator_configuration.points
             )
-
-        return atomic_data, levels_index, opacity_state
-
+    
     def solve(self, nu, simulation_state, opacity_state, transport, plasma):
 
         atomic_data, levels, opacity_state = self.setup(simulation_state, opacity_state, transport, plasma)
@@ -104,6 +109,10 @@ class FormalIntegralSolver:
                 Jred_lu,
                 Jblue_lu,
                 e_dot_u,
+                r_inner_i,
+                r_outer_i,
+                tau_sobolevs_integ,
+                electron_densities_integ
             ) = interpolate_integrator_quantities(
                 att_S_ul, Jred_lu, Jblue_lu, e_dot_u,
                 interpolate_shells,
@@ -111,31 +120,27 @@ class FormalIntegralSolver:
             )
         else:
             # TODO: check jax version where I sorted all the bits
-            self.transport.r_inner_i = ( #TODO: fix so this doesnt happen!!! no assigning stuff to the transport
-                transport_state.geometry_state.r_inner
-            )
-            self.transport.r_outer_i = (
-                transport_state.geometry_state.r_outer
-            )
-            self.transport.tau_sobolevs_integ = self.opacity_state.tau_sobolev
-            self.transport.electron_densities_integ = (
-                self.opacity_state.electron_density
-            )
+                # TODO: fix so this doesnt happen!!! no assigning stuff to the transport
+            r_inner_i = transport_state.geometry_state.r_inner
+            r_outer_i = transport_state.geometry_state.r_outer
+            tau_sobolevs_integ = opacity_state.tau_sobolev
+            electron_densities_integ = opacity_state.electron_density
 
         att_S_ul = att_S_ul.flatten(order="F")
         Jred_lu = Jred_lu.flatten(order="F")
         Jblue_lu = Jblue_lu.flatten(order="F")
 
-        self.generate_numba_objects()
+        self.setup_integrator(opacity_state, simulation_state.time_explosion, r_inner_i, r_outer_i)
+
         L, I_nu_p = self.integrator.formal_integral(
-            self.simulation_state.t_inner,
+            simulation_state.t_inner,
             nu,
             nu.shape[0],
             att_S_ul,
             Jred_lu,
             Jblue_lu,
-            self.transport.tau_sobolevs_integ,
-            self.transport.electron_densities_integ,
+            tau_sobolevs_integ,
+            electron_densities_integ,
             points,
         )
         
@@ -144,7 +149,91 @@ class FormalIntegralSolver:
     
 
     # TODO: rewrite interpolate_integrator_quantities
-    def interpolate():
+    def interpolate_integrator_quantities(
+        att_S_ul, Jredlu, Jbluelu, e_dot_u,
+        interpolate_shells,
+        simulation_state, transport, opacity_state, electron_densities
+    ):
+        """Interpolate the integrator quantities to interpolate_shells.
+
+        Parameters
+        ----------
+        att_S_ul : np.ndarray
+            attenuated source function for each line in each shell
+        Jredlu : np.ndarray
+            J estimator from the red end of the line from lower to upper level
+        Jbluelu : np.ndarray
+            J estimator from the blue end of the line from lower to upper level
+        e_dot_u : np.ndarray
+            Line estimator for the rate of energgity density absorption from lower to upper level
+        interpolate_shells : int
+            number of shells to interpolate to
+        simulation_state : tardis.model.SimulationState
+        transport : tardis.transport.montecarlo.MonteCarloTransportSolver
+        opacity_state : OpacityStateNumba
+        electron_densities : np.ndarray
+
+        Returns
+        -------
+        tuple
+            Interpolated values of att_S_ul, Jredlu, Jbluelu, and e_dot_u
+        """
+
+        mct_state = transport.transport_state
+        
+        nshells = interpolate_shells
+        r_middle = (
+            mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
+        ) / 2.0
+
+        r_integ = np.linspace(
+            mct_state.geometry_state.r_inner[0],
+            mct_state.geometry_state.r_outer[-1],
+            nshells,
+        )
+        r_inner_i = r_integ[:-1]
+        r_outer_i = r_integ[1:]
+
+        r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
+
+        electron_densities_integ = interp1d(
+            r_middle,
+            electron_densities.iloc[
+                simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+            ],
+            fill_value="extrapolate",
+            kind="nearest",
+        )(r_middle_integ)
+        # Assume tau_sobolevs to be constant within a shell
+        # (as in the MC simulation)
+        tau_sobolevs_integ = interp1d(
+            r_middle,
+            opacity_state.tau_sobolev[
+                :,
+                simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index,
+            ],
+            fill_value="extrapolate",
+            kind="nearest",
+        )(r_middle_integ)
+        att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
+            r_middle_integ
+        )
+        Jredlu = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
+            r_middle_integ
+        )
+        Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
+            r_middle_integ
+        )
+        e_dot_u = interp1d(r_middle, e_dot_u, fill_value="extrapolate")(
+            r_middle_integ
+        )
+
+        # Set negative values from the extrapolation to zero
+        att_S_ul = att_S_ul.clip(0.0)
+        Jbluelu = Jbluelu.clip(0.0)
+        Jredlu = Jredlu.clip(0.0)
+        e_dot_u = e_dot_u.clip(0.0)
+        return att_S_ul, Jredlu, Jbluelu, e_dot_u, r_inner_i, r_outer_i, tau_sobolevs_integ, electron_densities_integ
 
 
 
