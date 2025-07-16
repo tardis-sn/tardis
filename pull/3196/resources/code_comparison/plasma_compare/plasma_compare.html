@@ -1,0 +1,914 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plasma comparison &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=e62b4e93"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="References and Glossary" href="../../zreferences.html" />
+    <link rel="prev" title="Compare Blondin Toy Models" href="../toy_models/reading%20blondin%20toymodel.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Code Comparison</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../toy_models/reading%20blondin%20toymodel.html">Compare Blondin Toy Models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Plasma comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Accessing-the-plasma-states">Accessing the plasma states</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Updating-the-plasma-state">Updating the plasma state</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Code Comparison</a></li>
+      <li class="breadcrumb-item active">Plasma comparison</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/resources/code_comparison/plasma_compare/plasma_compare.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/resources/code_comparison/plasma_compare/plasma_compare.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><section id="Plasma-comparison">
+<h1>Plasma comparison<a class="headerlink" href="#Plasma-comparison" title="Link to this heading">¶</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileLinks</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/wkerzend/miniconda/envs/tardis3/lib/python3.6/site-packages/tqdm/autonotebook/__init__.py:14: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
+  &#34; (e.g. in jupyter console)&#34;, TqdmExperimentalWarning)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /Users/wkerzend/miniconda/envs/tardis3/lib/python3.6/importlib/_bootstrap.py:219: QAWarning: pyne.data is not yet QA compliant.
+  return f(*args, **kwds)
+ (<span class="ansi-bold">warnings.py</span>:99)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /Users/wkerzend/miniconda/envs/tardis3/lib/python3.6/importlib/_bootstrap.py:219: QAWarning: pyne.material is not yet QA compliant.
+  return f(*args, **kwds)
+ (<span class="ansi-bold">warnings.py</span>:99)
+</pre></div></div>
+</div>
+<p><strong>The example tardis_example can be downloaded here</strong></p>
+<p><a class="reference external" href="tardis_example.yml">tardis_example.yml</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s1">&#39;tardis_example.yml&#39;</span><span class="p">)</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /Users/wkerzend/miniconda/envs/tardis3/lib/python3.6/site-packages/astropy/units/quantity.py:1067: AstropyDeprecationWarning: The truth value of a Quantity is ambiguous. In the future this will raise a ValueError.
+  AstropyDeprecationWarning)
+ (<span class="ansi-bold">warnings.py</span>:99)
+[<span class="ansi-bold">tardis.plasma.standard_plasmas</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Reading Atomic Data from kurucz_cd23_chianti_H_He_latest.h5 (<span class="ansi-bold">standard_plasmas.py</span>:74)
+[<span class="ansi-bold">tardis.io.atom_data.util</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Atom Data kurucz_cd23_chianti_H_He_latest.h5 not found in local path. Exists in TARDIS Data repo /Users/wkerzend/projects/tardis/tardis-data/kurucz_cd23_chianti_H_He_latest.h5 (<span class="ansi-bold">util.py</span>:29)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /Users/wkerzend/miniconda/envs/tardis3/lib/python3.6/site-packages/IPython/core/interactiveshell.py:3185: PerformanceWarning: indexing past lexsort depth may impact performance.
+  if (yield from self.run_code(code, result)):
+ (<span class="ansi-bold">warnings.py</span>:99)
+[<span class="ansi-bold">tardis.io.atom_data.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Read Atom Data with UUID=6f7b09e887a311e7a06b246e96350010 and MD5=864f1753714343c41f99cb065710cace. (<span class="ansi-bold">base.py</span>:184)
+[<span class="ansi-bold">tardis.io.atom_data.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Non provided atomic data: synpp_refs, photoionization_data (<span class="ansi-bold">base.py</span>:187)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /Users/wkerzend/miniconda/envs/tardis3/lib/python3.6/site-packages/astropy/units/quantity.py:1067: AstropyDeprecationWarning: The truth value of a Quantity is ambiguous. In the future this will raise a ValueError.
+  AstropyDeprecationWarning)
+ (<span class="ansi-bold">warnings.py</span>:99)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /Users/wkerzend/python/tardis/tardis/plasma/properties/ion_population.py:63: FutureWarning:
+Passing list-likes to .loc or [] with any missing label will raise
+KeyError in the future, you can use .reindex() as an alternative.
+
+See the documentation here:
+https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex-listlike
+  partition_function.index].dropna())
+ (<span class="ansi-bold">warnings.py</span>:99)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /Users/wkerzend/miniconda/envs/tardis3/lib/python3.6/site-packages/astropy/units/equivalencies.py:90: RuntimeWarning: divide by zero encountered in double_scalars
+  (si.m, si.Hz, lambda x: _si.c.value / x),
+ (<span class="ansi-bold">warnings.py</span>:99)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /Users/wkerzend/miniconda/envs/tardis3/lib/python3.6/site-packages/astropy/units/quantity.py:1067: AstropyDeprecationWarning: The truth value of a Quantity is ambiguous. In the future this will raise a ValueError.
+  AstropyDeprecationWarning)
+ (<span class="ansi-bold">warnings.py</span>:99)
+</pre></div></div>
+</div>
+<section id="Accessing-the-plasma-states">
+<h2>Accessing the plasma states<a class="headerlink" href="#Accessing-the-plasma-states" title="Link to this heading">¶</a></h2>
+<p>In this example, we are accessing Si and also the unionized number density (0)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All Si ionization states</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+    </tr>
+    <tr>
+      <th>ion_number</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3.406539e-13</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9.307653e-04</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.293418e+04</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2.468681e+08</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>8.681218e+08</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Normalizing by si number density</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">/</span> <span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+    </tr>
+    <tr>
+      <th>ion_number</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3.055157e-22</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>8.347575e-13</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2.056853e-05</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2.214038e-01</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7.785756e-01</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Accessing the first ionization state</span>
+
+<span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0    0.000931
+Name: (14, 1), dtype: float64
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">density</span><span class="o">=</span><span class="p">[</span><span class="mf">1e-13</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>0</th>
+    </tr>
+    <tr>
+      <th>atomic_number</th>
+      <th>ion_number</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="9" valign="top">8</th>
+      <th>0</th>
+      <td>1.288175e+04</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>7.151416e+08</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.598774e+03</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>6.741210e-14</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th rowspan="13" valign="top">12</th>
+      <th>0</th>
+      <td>3.800017e-05</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6.545794e+03</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>7.432405e+07</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th rowspan="8" valign="top">14</th>
+      <th>0</th>
+      <td>3.172104e-02</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.332867e+06</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.113664e+09</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.601707e+04</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5.800053e-08</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="9" valign="top">18</th>
+      <th>10</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th rowspan="21" valign="top">20</th>
+      <th>0</th>
+      <td>2.144981e-07</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.601330e+02</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4.507800e+07</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.833649e-06</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+<p>94 rows × 1 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Updating-the-plasma-state">
+<h2>Updating the plasma state<a class="headerlink" href="#Updating-the-plasma-state" title="Link to this heading">¶</a></h2>
+<p>It is possible to update the plasma state with different temperatures or dilution factors (as well as different densities.). We are updating the radiative temperatures and plotting the evolution of the ionization state</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">si_ionization_state</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">cur_t_rad</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">20000</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">t_rad</span><span class="o">=</span><span class="p">[</span><span class="n">cur_t_rad</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">si_ionization_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">si_ionization_state</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">si_ionization_state</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">cur_t_rad</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">si_ionization_state</span><span class="p">[</span><span class="n">cur_t_rad</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /Users/wkerzend/python/tardis/tardis/plasma/properties/ion_population.py:63: FutureWarning:
+Passing list-likes to .loc or [] with any missing label will raise
+KeyError in the future, you can use .reindex() as an alternative.
+
+See the documentation here:
+https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex-listlike
+  partition_function.index].dropna())
+ (<span class="ansi-bold">warnings.py</span>:99)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pylab</span> inline
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">si_ionization_state</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;radiative Temperature [K]&#39;</span><span class="p">)</span>
+<span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Number density [1/cm$^3$]&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;Number density [1/cm$^3$]&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/resources_code_comparison_plasma_compare_plasma_compare_12_2.png" src="../../../_images/resources_code_comparison_plasma_compare_plasma_compare_12_2.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../toy_models/reading%20blondin%20toymodel.html" class="btn btn-neutral float-left" title="Compare Blondin Toy Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../zreferences.html" class="btn btn-neutral float-right" title="References and Glossary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 16 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

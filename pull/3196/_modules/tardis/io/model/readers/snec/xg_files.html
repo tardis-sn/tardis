@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.io.model.readers.snec.xg_files &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=e62b4e93"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+    <link href="../../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.io.model.readers.snec.xg_files</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.io.model.readers.snec.xg_files</h1><div class="highlight"><pre>
+<span></span>from dataclasses import dataclass, field
+from io import StringIO
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import xarray as xr
+from astropy import units as u
+from astropy.units import Quantity
+from tqdm.auto import tqdm
+
+
+<div class="viewcode-block" id="XGData">
+<a class="viewcode-back" href="../../../../../../api/tardis.io.model.readers.snec.xg_files.html#tardis.io.model.readers.snec.xg_files.XGData">[docs]</a>
+@dataclass
+class XGData:
+    timestamps: Quantity
+    data_blocks: list
+    metadata: dict = field(default_factory=dict)
+
+<div class="viewcode-block" id="XGData.to_xr_dataset">
+<a class="viewcode-back" href="../../../../../../api/tardis.io.model.readers.snec.xg_files.html#tardis.io.model.readers.snec.xg_files.XGData.to_xr_dataset">[docs]</a>
+    def to_xr_dataset(self):
+        idx = self.data_blocks[0].index
+        cols = [
+            col
+            for col in self.data_blocks[0].columns
+            if col not in [&quot;enclosed_mass&quot;, &quot;radius&quot;]
+        ]
+        arr = np.stack(
+            [
+                df.drop([&quot;enclosed_mass&quot;, &quot;radius&quot;], axis=1).values
+                for df in self.data_blocks
+            ],
+            axis=0,
+        )
+
+        # Enclosed mass stays 1D
+        enclosed_mass = self.data_blocks[0][&quot;enclosed_mass&quot;].values
+
+        # Radius becomes 2D (time, cell_id)
+        radius_arr = np.stack([df[&quot;radius&quot;].values for df in self.data_blocks], axis=0)
+
+        data_vars = {
+            col: ((&quot;time&quot;, &quot;cell_id&quot;), arr[:, :, i]) for i, col in enumerate(cols)
+        }
+
+        ds = xr.Dataset(
+            data_vars=data_vars,
+            coords={&quot;time&quot;: self.timestamps, &quot;cell_id&quot;: idx + 1},
+        )
+        ds = ds.assign_coords(enclosed_mass=(&quot;cell_id&quot;, enclosed_mass))
+        ds = ds.assign_coords(radius=((&quot;time&quot;, &quot;cell_id&quot;), radius_arr))
+
+        return ds</div>
+</div>
+
+
+
+<div class="viewcode-block" id="xg_block_size">
+<a class="viewcode-back" href="../../../../../../api/tardis.io.model.readers.snec.xg_files.html#tardis.io.model.readers.snec.xg_files.xg_block_size">[docs]</a>
+def xg_block_size(path):
+    &quot;&quot;&quot;
+    Determines the block size (number of lines) between consecutive lines starting with \&quot;Time in an .xg file.
+
+    Parameters
+    ----------
+        path (str): Path to the .xg file.
+
+    Returns
+    -------
+        int: The block size.
+    &quot;&quot;&quot;
+    timestamp_blocks = []
+
+    with open(path) as fh:
+        for i, line in enumerate(fh):
+            if line.startswith(&#39; &quot;Time&#39;):
+                timestamp_blocks.append(i)
+
+    # Ensure all differences between timestamps are consistent
+    assert (
+        len(timestamp_blocks) &gt; 1
+    ), &quot;File must contain at least two &#39;Time&#39; entries to determine block size.&quot;
+    assert np.all(
+        np.diff(timestamp_blocks) == np.diff(timestamp_blocks)[0]
+    ), &quot;Inconsistent block sizes detected in the file.&quot;
+
+    return len(timestamp_blocks), np.diff(timestamp_blocks)[0]</div>
+
+
+
+<div class="viewcode-block" id="read_xg_file">
+<a class="viewcode-back" href="../../../../../../api/tardis.io.model.readers.snec.xg_files.html#tardis.io.model.readers.snec.xg_files.read_xg_file">[docs]</a>
+def read_xg_file(file_path: str, column_names: list, show_progress: bool = True):
+    &quot;&quot;&quot;
+    Reads the timestamps and corresponding data blocks from an .xg file.
+
+    Parameters
+    ----------
+        file_path (str): Path to the .xg file.
+        column_names (list): List of column names for the data blocks.
+        show_progress (bool): Whether to show a progress bar (default: False).
+
+    Returns
+    -------
+        list: A list of timestamps extracted from the file.
+        list: A list of pandas DataFrames, each containing a data block corresponding to a timestamp.
+    &quot;&quot;&quot;
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f&quot;The file {file_path} does not exist.&quot;)
+
+    timestamps = []
+    data_blocks = []
+
+    # Read the entire file into memory
+    with open(path) as file_obj:
+        lines = file_obj.readlines()
+
+    # Split the file into blocks based on lines starting with &quot;Time
+    num_blocks, block_size = xg_block_size(path)
+
+    block_ranges = list(
+        zip(
+            np.arange(0, num_blocks) * block_size,
+            np.arange(1, num_blocks + 1) * block_size,
+        )
+    )
+
+    iterator = tqdm(block_ranges) if show_progress else block_ranges
+    for block_start, block_end in iterator:
+        # Extract the timestamp from the current block
+        current_block = lines[block_start:block_end]
+        timestamp = float(current_block[0].split(&quot;=&quot;)[1].strip().split()[0])
+        timestamps.append(timestamp)
+
+        # Extract the data block corresponding to the timestamp
+        data_block = pd.read_csv(
+            StringIO(&quot;&quot;.join(current_block[1:])),
+            sep=r&quot;\s+&quot;,
+            header=None,
+            names=column_names,
+        )
+        data_blocks.append(data_block)
+
+    return XGData(timestamps * u.s, data_blocks)</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 16 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
