@@ -141,6 +141,37 @@ class SDECPlotter:
 
         return plotter
 
+    @classmethod
+    def from_workflow(cls, workflow):
+        """
+        Create an instance of SDECPlotter from a StandardTARDISWorkflow.
+
+        Parameters
+        ----------
+        workflow : StandardTARDISWorkflow
+
+        Returns
+        -------
+        SDECPlotter
+        """
+        plotter = cls()
+        plotter.t_inner = workflow.simulation_state.t_inner
+        plotter.r_inner = workflow.simulation_state.geometry.r_inner_active
+        plotter.time_of_simulation = (
+            workflow.transport_state.time_of_simulation * u.s
+        )
+
+        modes = ["real"]
+        if workflow.enable_virtual_packet_logging:
+            modes.append("virtual")
+
+        for mode in modes:
+            plotter.spectrum[mode] = pu.get_spectrum_data(mode, workflow)
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                workflow, mode
+            )
+        return plotter
+
     def _parse_species_list(self, species_list):
         """
         Parse user requested species list and create list of species ids to be used.

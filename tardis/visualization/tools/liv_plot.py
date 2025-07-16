@@ -95,6 +95,33 @@ class LIVPlotter:
 
         return plotter
 
+    @classmethod
+    def from_workflow(cls, workflow):
+        """
+        Create an instance of the plotter from a StandardTARDISWorkflow.
+
+        Parameters
+        ----------
+        workflow : StandardTARDISWorkflow
+
+        Returns
+        -------
+        LIVPlotter
+        """
+        plotter = cls()
+        plotter.velocity = workflow.simulation_state.velocity
+        plotter.time_explosion = workflow.transport_state.time_explosion * u.s
+        modes = ["real"]
+        if workflow.enable_virtual_packet_logging:
+            modes.append("virtual")
+
+        for mode in modes:
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                workflow, mode
+            )
+
+        return plotter
+
     def _parse_species_list(self, species_list, packets_mode, nelements=None):
         """
         Parse user requested species list and create list of species ids to be used.
