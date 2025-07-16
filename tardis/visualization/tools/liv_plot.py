@@ -98,11 +98,11 @@ class LIVPlotter:
     @classmethod
     def from_workflow(cls, workflow):
         """
-        Create an instance of the plotter from a StandardTARDISWorkflow.
+        Create an instance of the plotter from a TARDIS workflow.
 
         Parameters
         ----------
-        workflow : StandardTARDISWorkflow
+        workflow : SimpleTARDISWorkflow
 
         Returns
         -------

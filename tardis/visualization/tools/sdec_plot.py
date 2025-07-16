@@ -144,11 +144,11 @@ class SDECPlotter:
     @classmethod
     def from_workflow(cls, workflow):
         """
-        Create an instance of SDECPlotter from a StandardTARDISWorkflow.
+        Create an instance of SDECPlotter from a TARDIS workflow.
 
         Parameters
         ----------
-        workflow : StandardTARDISWorkflow
+        workflow : SimpleTARDISWorkflow
 
         Returns
         -------
