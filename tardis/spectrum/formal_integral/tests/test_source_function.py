@@ -24,12 +24,12 @@ def source_function_verysimple(config_verysimple, atomic_dataset):
     transport = sim.transport
 
     formal_integrator = FormalIntegrator(sim_state, plasma, transport)
-    sourceFunction = SourceFunctionSolver(line_interaction_type = formal_integrator.transport.line_interaction_type)
+    sourceFunction = SourceFunctionSolver(formal_integrator.transport.line_interaction_type, 
+                                          formal_integrator.atomic_data)
     res = sourceFunction.solve(
         formal_integrator.simulation_state, 
         formal_integrator.opacity_state, 
-        formal_integrator.transport.transport_state, 
-        formal_integrator.plasma.atomic_data, 
+        formal_integrator.transport.transport_state,
         formal_integrator.plasma.levels
     )
     return res

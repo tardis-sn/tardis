@@ -143,9 +143,8 @@ class FormalIntegrator:
 
         transport_state = self.transport.transport_state
 
-        sourceFunction = SourceFunctionSolver(line_interaction_type = self.transport.line_interaction_type)
-        res = sourceFunction.solve(self.simulation_state, self.opacity_state, transport_state, 
-                                   self.plasma.atomic_data, self.plasma.levels)
+        sourceFunction = SourceFunctionSolver(self.transport.line_interaction_type, self.plasma.atomic_data)
+        res = sourceFunction.solve(self.simulation_state, self.opacity_state, transport_state, self.plasma.levels)
 
         att_S_ul, Jred_lu, Jblue_lu, e_dot_u = res.att_S_ul, res.Jred_lu, res.Jblue_lu, res.e_dot_u
         if self.interpolate_shells > 0:
