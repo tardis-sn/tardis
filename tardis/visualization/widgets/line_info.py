@@ -1,12 +1,14 @@
 """Class to create and display Line Info Widget."""
 
-
 import ipywidgets as ipw
 import numpy as np
 import pandas as pd
+import panel as pn
 from astropy import units as u
 from plotly import graph_objects as go
 from plotly.callbacks import BoxSelector
+
+# Initialize Panel extension using auto-detection
 
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import (
@@ -212,8 +214,7 @@ class LineInfoWidget:
                 )
 
             else:  # No species could be selected in specified wavelength_range
-                # qgrid cannot show empty dataframe properly,
-                # so create one row with empty strings
+                # Create one row with empty strings for empty dataframe
                 selected_species_symbols = [""]
                 fractional_species_interactions = pd.Series([""])
 
@@ -390,8 +391,7 @@ class LineInfoWidget:
                 )
 
         else:  # species_selected is None
-            # qgrid cannot show empty dataframe properly,
-            # so create one row with empty strings
+            # Create one row with empty strings for empty dataframe
             interacting_packets_count = [""]
             last_line_interaction_string = [""]
 
@@ -605,13 +605,12 @@ class LineInfoWidget:
             self.FILTER_MODES[self.filter_mode_buttons.index],
         )
 
-    def _species_intrctn_selection_handler(self, event, qgrid_widget):
+    def _species_intrctn_selection_handler(self, event, panel_widget):
         """
         Event handler for selection in species_interactions_table.
 
         This method has the expected signature of the function passed to
-        :code:`handler` argument of :code:`on_selection` method of qgrid.QgridWidget
-        as explained in `their docs <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
+        :code:`handler` argument of :code:`on` method of PanelTableWidget.
         """
         # Don't execute function if no row was selected implicitly (by api)
         if event["new"] == [] and event["source"] == "api":
@@ -668,17 +667,14 @@ class LineInfoWidget:
 
         Returns
         -------
-        ipywidgets.Box
+        panel.Column
             Line info widget containing all component widgets
         """
         if not is_notebook():
             print("Please use a notebook to display the widget")
         else:
-            # Set widths of widgets
-            self.species_interactions_table.layout.width = "350px"
-            self.last_line_counts_table.layout.width = "450px"
+            # Panel tables handle their own sizing
             self.total_packets_label.update_and_resize(0)
-            self.group_mode_dropdown.layout.width = "auto"
 
             # Attach event listeners to widgets
             spectrum_trace = self.figure_widget.data[0]
@@ -700,42 +696,39 @@ class LineInfoWidget:
                 "width: 0.8em; height: 1.2em; vertical-align: middle;'></span>"
             )
 
-            table_container_left = ipw.VBox(
-                [
-                    self.ui_control_description(
-                        "Filter selected wavelength range "
-                        f"( {selection_box_symbol} ) by"
-                    ),
-                    self.filter_mode_buttons,
-                    self.species_interactions_table,
-                ],
-                layout=dict(margin="0px 15px"),
+            # Create Panel description components
+            filter_description = pn.pane.HTML(
+                f"<span style='font-size: 1.15em;'>Filter selected wavelength range "
+                f"( {selection_box_symbol} ) by:</span>"
             )
 
-            table_container_right = ipw.VBox(
-                [
-                    self.ui_control_description("Group packet counts by"),
-                    self.group_mode_dropdown,
-                    self.last_line_counts_table,
-                    self.total_packets_label.widget,
-                ],
-                layout=dict(margin="0px 15px"),
+            group_description = pn.pane.HTML(
+                "<span style='font-size: 1.15em;'>Group packet counts by:</span>"
             )
 
-            return ipw.VBox(
-                [
-                    self.figure_widget,
-                    ipw.Box(
-                        [
-                            table_container_left,
-                            table_container_right,
-                        ],
-                        layout=dict(
-                            display="flex",
-                            align_items="flex-start",
-                            justify_content="center",
-                            height="420px",
-                        ),
-                    ),
-                ]
+            table_container_left = pn.Column(
+                filter_description,
+                self.filter_mode_buttons,
+                self.species_interactions_table.table,
+                margin=(0, 15)
+            )
+
+            table_container_right = pn.Column(
+                group_description,
+                self.group_mode_dropdown,
+                self.last_line_counts_table.table,
+                self.total_packets_label.widget,
+                margin=(0, 15)
+            )
+
+            tables_row = pn.Row(
+                table_container_left,
+                table_container_right,
+                sizing_mode='stretch_width'
+            )
+
+            return pn.Column(
+                self.figure_widget,
+                tables_row,
+                sizing_mode='stretch_width'
             )

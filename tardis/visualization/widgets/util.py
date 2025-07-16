@@ -4,8 +4,149 @@ import asyncio
 import logging
 
 import ipywidgets as ipw
+import panel as pn
+import pandas as pd
+
 
 logger = logging.getLogger(__name__)
+
+
+class PanelTableWidget:
+    """Panel-based table widget that mimics qgrid functionality."""
+
+    def __init__(self, data, col_widths, table_options=None, changeable_col=None):
+        """Initialize the Panel table widget.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data to display in table widget
+        col_widths : list
+            Column width proportions (must sum to 100)
+        table_options : dict, optional
+            Table configuration options
+        changeable_col : dict, optional
+            Information about changeable column names
+        """
+        self._df = data.copy()
+        self.col_widths = col_widths
+        self.table_options = table_options or {}
+        self.changeable_col = changeable_col
+        self._selected_rows = []
+        self._selection_callbacks = []
+
+        # Validate column widths
+        if len(col_widths) != data.shape[1] + 1:
+            raise ValueError(
+                "Size of column widths list do not match with "
+                "number of columns + 1 (index) in dataframe"
+            )
+
+        if sum(col_widths) != 100:
+            raise ValueError(
+                "Column widths are not proportions of 100 (i.e. "
+                "they do not sum to 100)"
+            )
+
+        # Create the Panel table
+        self._create_table()
+
+    def _create_table(self):
+        """Create the Panel table widget."""
+        # Configure table parameters
+        pagination = 'remote' if self.table_options.get('maxVisibleRows') else None
+        page_size = self.table_options.get('maxVisibleRows', len(self._df))
+
+        # Create the table
+        self.table = pn.widgets.Tabulator(
+            self._df,
+            pagination=pagination,
+            page_size=page_size,
+            selectable='checkbox',
+            show_index=True,
+            sizing_mode='stretch_width',
+            height=min(400, max(200, len(self._df) * 30 + 50))
+        )
+
+        # Set up selection callback
+        self.table.param.watch(self._on_selection_change, 'selection')
+
+    def _on_selection_change(self, event):
+        """Handle selection changes in the table."""
+        if event.new:
+            # Panel sends row positions directly, no conversion needed
+            selected_indices = event.new
+            self._selected_rows = selected_indices
+        else:
+            self._selected_rows = []
+            selected_indices = []
+
+        # Call registered callbacks
+        for callback in self._selection_callbacks:
+            # Create event dict similar to qgrid format
+            event_dict = {
+                'new': selected_indices,
+                'old': getattr(event, 'old', []),
+                'source': 'user'
+            }
+            callback(event_dict, self)
+
+    @property
+    def df(self):
+        """Get the current dataframe."""
+        return self._df
+
+    @df.setter
+    def df(self, value):
+        """Set the dataframe and update the table."""
+        self._df = value.copy()
+        self.table.value = self._df
+
+    def get_selected_rows(self):
+        """Get the currently selected row indices."""
+        return self._selected_rows
+
+    def change_selection(self, row_indices):
+        """Programmatically change the selection."""
+        if not row_indices:
+            self.table.selection = []
+            self._selected_rows = []
+        else:
+            # Convert row indices to actual index values
+            index_values = [self._df.index[i] for i in row_indices if i < len(self._df)]
+            self.table.selection = index_values
+            self._selected_rows = row_indices
+
+    def on(self, event_type, callback):
+        """Register an event callback."""
+        if event_type == 'selection_changed':
+            self._selection_callbacks.append(callback)
+
+    @property
+    def layout(self):
+        """Get the layout object for compatibility."""
+        return self.table.param
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        """Display the table widget."""
+        try:
+            return self.table._repr_mimebundle_(include, exclude)
+        except Exception:
+            # Fallback to simple HTML representation
+            return {'text/html': self._df.to_html()}, {}
+
+    def __repr__(self):
+        """String representation of the widget."""
+        return f"PanelTableWidget({self._df.shape[0]} rows, {self._df.shape[1]} columns)"
+
+    def show(self):
+        """Show the table widget using Panel's show method."""
+        try:
+            return self.table.show()
+        except Exception:
+            # Fallback to displaying the dataframe
+            from IPython.display import display, HTML
+            display(HTML(self._df.to_html()))
 
 
 def create_table_widget(
@@ -24,10 +165,7 @@ def create_table_widget(
         100 i.e. they must sum to 100.
     table_options : dict, optional
         A dictionary to specify options to use when creating interactive table
-        widget (same as :grid_options: of qgrid, specified in Notes section of
-        their `API documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.show_grid>_`).
-        Invalid keys will have no effect and valid keys will override or add to
-        the options used by this function.
+        widget. Supported options: maxVisibleRows.
     changeable_col : dict, optional
         A dictionary to specify the information about column which will
         change its name when data in generated table widget updates. It
@@ -39,83 +177,15 @@ def create_table_widget(
 
     Returns
     -------
-    qgrid.QgridWidget
+    PanelTableWidget
         Table widget object
     """
-    try:
-        import qgridnext
-    except ModuleNotFoundError as e:
-        logger.exception(
-            "qgridnext must be installed via pip for widgets to work.\n \
-            Run 'pip install qgridnext' inside your tardis environment.\n \
-            Falling back to qgrid"
-        )
-        import qgrid as qgridnext
-
-    # Setting the options to be used for creating table widgets
-    grid_options = {
-        "sortable": False,
-        "filterable": False,
-        "editable": False,
-        "minVisibleRows": 2,
-    }
-    if table_options:
-        grid_options.update(table_options)
-
-    column_options = {
-        "minWidth": None,
-    }
-
-    # Check whether passed col_widths list is correct or not
-    if len(col_widths) != data.shape[1] + 1:
-        raise ValueError(
-            "Size of column widths list do not match with "
-            "number of columns + 1 (index) in dataframe"
-        )
-
-    # Note: Since forceFitColumns is enabled by default in grid_options,
-    # the column widths (when all specified) get applied in proportions,
-    # despite their original unit is px thus it's better they sum to 100
-    if sum(col_widths) != 100:
-        raise ValueError(
-            "Column widths are not proportions of 100 (i.e. "
-            "they do not sum to 100)"
-        )
-
-    # Preparing dictionary that defines column widths
-    cols_with_index = [data.index.name] + data.columns.to_list()
-    column_widths_definitions = {
-        col_name: {"width": col_width}
-        for col_name, col_width in zip(cols_with_index, col_widths)
-    }
-
-    # We also need to define widths for different names of changeable column
-    if changeable_col:
-        if {"index", "other_names"}.issubset(set(changeable_col.keys())):
-            column_widths_definitions.update(
-                {
-                    col_name: {"width": col_widths[changeable_col["index"]]}
-                    for col_name in changeable_col["other_names"]
-                }
-            )
-        else:
-            raise ValueError(
-                "Changeable column dictionary does not contain "
-                "'index' or 'other_names' key"
-            )
-
-    # Create the table widget using qgrid
-    return qgridnext.show_grid(
-        data,
-        grid_options=grid_options,
-        column_options=column_options,
-        column_definitions=column_widths_definitions,
-    )
+    return PanelTableWidget(data, col_widths, table_options, changeable_col)
 
 
 class TableSummaryLabel:
     """
-    Label like widget to show summary of a qgrid table widget.
+    Label like widget to show summary of a Panel table widget.
 
     Also handles aligning the label with the table columns exactly like a
     summary row.
@@ -127,7 +197,7 @@ class TableSummaryLabel:
 
         Parameters
         ----------
-        target_table : qgrid.QgridWidget
+        target_table : PanelTableWidget
             Table widget whose summary label it is
         table_col_widths : list
             A list containing width of each column of table in order (including
@@ -166,36 +236,20 @@ class TableSummaryLabel:
         ----------
         value : int
             Value to be shown in label
-
-        Notes
-        -----
-        The width resizing operation is highly dependent on qgrid tables'
-        layout. So it may not remain precise if there happens any CSS change
-        in upcoming versions of qgrid.
         """
         self.widget.children[1].value = str(value)
 
+        # For Panel tables, we use proportional widths
+        # The exact pixel calculation is less critical since Panel handles responsive sizing
         try:
-            table_width = int(self.target_table.layout.width.rstrip("px"))
-        except AttributeError:
+            # Update the label components with proportional widths
+            self.widget.children[0].layout.width = f"{self.table_col_widths[0]}%"
+            self.widget.children[1].layout.width = f"{self.table_col_widths[1]}%"
+        except Exception:
             logger.warning(
-                "target_table doesn't have any fixed width defined, label "
-                "cannot be resized!",
+                "Could not resize label components to match table width",
                 exc_info=1,
             )
-            return
-
-        max_rows_allowed = self.target_table.grid_options["maxVisibleRows"]
-        if len(self.target_table.df) > max_rows_allowed:
-            table_width -= 12  # 12px is space consumed by scroll bar of qgrid
-
-        # Distribute the table width in proportions of column width to label components
-        self.widget.children[
-            0
-        ].layout.width = f"{(table_width) * self.table_col_widths[0]/100}px"
-        self.widget.children[
-            1
-        ].layout.width = f"{(table_width) * self.table_col_widths[1]/100}px"
 
     def _create(self, key, value):
         """
