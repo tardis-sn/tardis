@@ -65,7 +65,7 @@ def test_standard_tardis_workflow_against_run_tardis(
     standard_workflow_one_loop, attr_type, attr, regression_data
 ):
     ref_file = (
-        regression_data.absolute_regression_data_dir.parent
+        regression_data.regression_data_path
         / "tardis"
         / "simulation"
         / "tests"
