@@ -118,8 +118,6 @@ class FormalIntegralSolver:
                 simulation_state, transport, opacity_state, plasma.electron_densities
             )
         else:
-            # TODO: check jax version where I sorted all the bits
-                # TODO: fix so this doesnt happen!!! no assigning stuff to the transport
             r_inner_i = transport_state.geometry_state.r_inner
             r_outer_i = transport_state.geometry_state.r_outer
             tau_sobolevs_integ = opacity_state.tau_sobolev

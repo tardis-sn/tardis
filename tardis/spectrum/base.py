@@ -9,7 +9,6 @@ from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.util.base import (
     quantity_linspace,
 )
-from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegratorSolver
 
 
 class SpectrumSolver(HDFWriterMixin):
@@ -37,7 +36,7 @@ class SpectrumSolver(HDFWriterMixin):
 
     def setup_optional_spectra(
         self, transport_state, virtual_packet_luminosity=None, integrator=None,
-        # simulation_state, opacity_state, transport, plasma, macro_atom_state
+        simulation_state=None, transport=None, plasma=None, opacity_state=None, macro_atom_state=None
     ):
         """Set up the solver to handle real and virtual spectra
 
@@ -55,11 +54,11 @@ class SpectrumSolver(HDFWriterMixin):
             virtual_packet_luminosity * u.erg / u.s
         )
         self._integrator = integrator
-        # self.simulation_state = simulation_state
-        # self.opacity_state = opacity_state
-        # self.transport = transport
-        # self.plasma = plasma
-        # self.macro_atom_state = macro_atom_state
+        self.simulation_state = simulation_state
+        self.opacity_state = opacity_state
+        self.transport = transport
+        self.plasma = plasma
+        self.macro_atom_state = macro_atom_state
 
     @property
     def spectrum_real_packets(self):
@@ -93,19 +92,19 @@ class SpectrumSolver(HDFWriterMixin):
             # This was changed from unpacking to specific attributes as compute
             # is not used in calculate_spectrum
             try:
-                self._spectrum_integrated = self.integrator.calculate_spectrum(
-                    self.spectrum_frequency_grid[:-1],
-                    points=self.integrator_settings.points,
-                    interpolate_shells=self.integrator_settings.interpolate_shells,
-                )
-                # self._spectrum_integrated = self.integrator.solve( # TODO: finish
+                # self._spectrum_integrated = self.integrator.calculate_spectrum(
                 #     self.spectrum_frequency_grid[:-1],
-                #     self.simulation_state, 
-                #     self.opacity_state, 
-                #     self.transport_state, 
-                #     self.plasma, 
-                #     self.macro_atom_state
+                #     points=self.integrator_settings.points,
+                #     interpolate_shells=self.integrator_settings.interpolate_shells,
                 # )
+                self._spectrum_integrated = self.integrator.solve( # TODO: finish
+                    self.spectrum_frequency_grid[:-1],
+                    self.simulation_state, 
+                    self.opacity_state, 
+                    self.transport_state, 
+                    self.plasma, 
+                    self.macro_atom_state
+                )
             except IntegrationError:
                 # if integration is impossible or fails, return an empty spectrum
                 warnings.warn(
