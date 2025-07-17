@@ -43,7 +43,7 @@ class FormalIntegralSolver:
 
         if transport:
             self.montecarlo_configuration = (
-                self.transport.montecarlo_configuration
+                transport.montecarlo_configuration
             )
 
         # TODO warn if no plasma
@@ -74,19 +74,19 @@ class FormalIntegralSolver:
             / time_explosion.to("s").value,
         )
 
-        if self.integrator_configuration.method == 'cuda':
+        if self.integrator_settings.method == 'cuda':
             self.integrator = CudaFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
                 opacity_state,
-                self.integrator_configuration.points,
+                self.integrator_settings.points,
             )
         else:
             self.integrator = NumbaFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
                 opacity_state,
-                self.integrator_configuration.points
+                self.integrator_settings.points
             )
     
     def solve(self, nu, simulation_state, opacity_state, transport, plasma, macro_atom_state=None):
@@ -94,15 +94,15 @@ class FormalIntegralSolver:
         atomic_data, levels, opacity_state = self.setup(opacity_state, transport, plasma, macro_atom_state)
         transport_state = transport.transport_state
 
-        points = self.integrator_configuration.points
-        interpolate_shells = self.integrator_configuration.interpolate_shells
-        line_interaction_type = transport_state.line_interaction_type
+        points = self.integrator_settings.points
+        interpolate_shells = self.integrator_settings.interpolate_shells
+        line_interaction_type = transport.line_interaction_type
 
-        sourceFunction = SourceFunctionSolver(line_interaction_type=line_interaction_type)
-        res = sourceFunction.solve(simulation_state, opacity_state, transport_state, atomic_data, levels)
+        sourceFunction = SourceFunctionSolver(line_interaction_type, atomic_data)
+        res = sourceFunction.solve(simulation_state, opacity_state, transport_state, levels)
 
         att_S_ul, Jred_lu, Jblue_lu, e_dot_u = res.att_S_ul, res.Jred_lu, res.Jblue_lu, res.e_dot_u
-        if self.interpolate_shells > 0: # TODO: fix up the interpolation
+        if interpolate_shells > 0: # TODO: fix up the interpolation
             (
                 att_S_ul,
                 Jred_lu,

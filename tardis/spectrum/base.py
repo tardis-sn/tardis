@@ -101,7 +101,7 @@ class SpectrumSolver(HDFWriterMixin):
                     self.spectrum_frequency_grid[:-1],
                     self.simulation_state, 
                     self.opacity_state, 
-                    self.transport_state, 
+                    self.transport, 
                     self.plasma, 
                     self.macro_atom_state
                 )
