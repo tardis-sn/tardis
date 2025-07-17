@@ -1,11 +1,13 @@
 import numpy as np
+from astropy import units as u
+import warnings
 from scipy.interpolate import interp1d
 
 from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
 from tardis.spectrum.base import TARDISSpectrum
-from tardis.spectrum.formal_integral.base import check, interpolate_integrator_quantities
+from tardis.spectrum.formal_integral.base import check
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 from tardis.spectrum.formal_integral.formal_integral_numba import NumbaFormalIntegrator
 from tardis.spectrum.formal_integral.formal_integral_cuda import CudaFormalIntegrator
@@ -22,6 +24,10 @@ class FormalIntegralSolver:
         # self.formal_integral_configuration = formal_integral_configuration
         # self.spectrum_configuration = spectrum_configuration
         self.integrator_settings = integrator_settings # TODO: add option to specify 'numba' or 'cuda'
+        try:
+            self.method = self.integrator_settings.integrated.method
+        except AttributeError:
+            self.method = None
 
     def setup(self, opacity_state, transport, plasma, macro_atom_state=None):
 
@@ -38,13 +44,27 @@ class FormalIntegralSolver:
         integrator : FormalIntegrator
             An instance of the appropriate formal integrator.
         """
-        # atomic_data = plasma.atomic_data
-        # levels = plasma.levels
+
 
         if transport:
             self.montecarlo_configuration = (
                 transport.montecarlo_configuration
             )
+        
+        if self.method in [None, 'numba', 'cuda']:
+            # use GPU if available
+            if transport.use_gpu:
+                self.method = 'cuda'
+            else:
+                self.method = 'numba'
+        else:
+            warnings.warn(
+                    f"Computing formal integral via the {self.method} method is supported"
+                    "Please run with config option numba or cuda"
+                    "Defaulting to numba implementation",
+                    UserWarning,
+            )
+            self.method = 'numba'
 
         # TODO warn if no plasma
         if opacity_state and macro_atom_state:
@@ -74,7 +94,7 @@ class FormalIntegralSolver:
             / time_explosion.to("s").value,
         )
 
-        if self.integrator_settings.method == 'cuda':
+        if self.method == 'cuda':
             self.integrator = CudaFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
@@ -112,7 +132,7 @@ class FormalIntegralSolver:
                 r_outer_i,
                 tau_sobolevs_integ,
                 electron_densities_integ
-            ) = interpolate_integrator_quantities(
+            ) = self.interpolate_integrator_quantities(
                 att_S_ul, Jred_lu, Jblue_lu, e_dot_u,
                 interpolate_shells,
                 simulation_state, transport, opacity_state, plasma.electron_densities
@@ -140,13 +160,29 @@ class FormalIntegralSolver:
             electron_densities_integ,
             points,
         )
-        
-        spec = TARDISSpectrum(nu, L)
-        return spec
+
+        L = np.array(L, dtype=np.float64)
+        luminosity = u.Quantity(L, "erg") * (nu[1] - nu[0])
+
+        self.interpolate_shells = interpolate_shells
+        frequency = nu.to("Hz", u.spectral())
+
+        # Ugly hack to convert to 'bin edges'
+        frequency = u.Quantity(
+            np.concatenate(
+                [
+                    frequency.value,
+                    [frequency.value[-1] + np.diff(frequency.value)[-1]],
+                ]
+            ),
+            frequency.unit,
+        )
+
+        return TARDISSpectrum(frequency, luminosity)
     
 
     # TODO: rewrite interpolate_integrator_quantities
-    def interpolate_integrator_quantities(
+    def interpolate_integrator_quantities(self,
         att_S_ul, Jredlu, Jbluelu, e_dot_u,
         interpolate_shells,
         simulation_state, transport, opacity_state, electron_densities
