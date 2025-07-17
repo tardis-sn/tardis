@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 from numba import cuda
-from tardis.spectrum.formal_integral.base import C_INV, calculate_p_values
+from tardis.spectrum.formal_integral.base import C_INV, KB_CGS, H_CGS, calculate_p_values
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 @cuda.jit(device=True)
