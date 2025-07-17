@@ -136,10 +136,14 @@ def extract_and_process_packet_data(simulation, packets_mode):
         Dictionary containing raw packet data, the full DataFrame `packets_df`,
         and a filtered `packets_df_line_interaction` with line interaction info.
     """
-    transport_state = simulation.transport.transport_state
-    lines_df = simulation.plasma.atomic_data.lines.reset_index().set_index(
-        "line_id"
-    )
+    if hasattr(simulation, "transport_state"): # for workflows
+        transport_state = simulation.transport_state
+        lines = simulation.plasma_solver.atomic_data.lines
+    else:
+        transport_state = simulation.transport.transport_state
+        lines = simulation.plasma.atomic_data.lines
+
+    lines_df = lines.reset_index().set_index("line_id")
 
     if packets_mode == "virtual":
         vpacket_tracker = transport_state.vpacket_tracker
