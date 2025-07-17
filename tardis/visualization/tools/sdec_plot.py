@@ -148,7 +148,7 @@ class SDECPlotter:
 
         Parameters
         ----------
-        workflow : SimpleTARDISWorkflow
+        workflow : A TARDIS workflow object
 
         Returns
         -------

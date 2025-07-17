@@ -102,7 +102,7 @@ class LIVPlotter:
 
         Parameters
         ----------
-        workflow : SimpleTARDISWorkflow
+        workflow : A TARDIS workflow object
 
         Returns
         -------
