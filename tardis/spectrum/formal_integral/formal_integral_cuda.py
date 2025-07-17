@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 from numba import cuda
-from tardis.spectrum.formal_integral.base import C_INV, calculate_p_values, intensity_black_body
+from tardis.spectrum.formal_integral.base import C_INV, calculate_p_values
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 @cuda.jit(device=True)
@@ -206,7 +206,28 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
 
 
 calculate_p_values = cuda.jit(calculate_p_values, device=True)
-intensity_black_body_cuda = cuda.jit(intensity_black_body, device=True)
+
+def intensity_black_body_cuda(nu, temperature):
+    """
+    Calculate the blackbody intensity.
+
+    Parameters
+    ----------
+    nu : float64
+        frequency
+    temperature : float64
+        Temperature
+
+    Returns
+    -------
+    float64
+    """
+    if nu == 0:
+        return np.nan  # to avoid ZeroDivisionError
+    beta_rad = 1 / (KB_CGS * temperature)
+    coefficient = 2 * H_CGS * C_INV * C_INV
+    return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)
+
 
 
 @cuda.jit

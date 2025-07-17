@@ -101,7 +101,7 @@ def intensity_black_body(nu, temperature):
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)
+    return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
 
 
 def interpolate_integrator_quantities(
