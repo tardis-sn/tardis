@@ -207,6 +207,7 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
 
 calculate_p_values = cuda.jit(calculate_p_values, device=True)
 
+@cuda.jit(device=True)
 def intensity_black_body_cuda(nu, temperature):
     """
     Calculate the blackbody intensity.
