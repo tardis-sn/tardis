@@ -76,13 +76,17 @@ class BenchmarkBase:
 
     @functools.cached_property
     def atomic_data_fname(self):
+        from tardis.io.configuration.config_internal import get_data_dir
+
+        data_dir = get_data_dir()
         atomic_data_fname = (
-            f"{self.tardis_ref_path}/kurucz_cd23_chianti_H_He_latest.h5"
+            f"{data_dir}/kurucz_cd23_chianti_H_He_latest.h5"
         )
 
         if not Path(atomic_data_fname).exists():
             atom_data_missing_str = (
-                f"{atomic_data_fname} atomic datafiles does not seem to exist"
+                f"{atomic_data_fname} atomic datafiles "
+                f"does not seem to exist"
             )
             raise Exception(atom_data_missing_str)
 
