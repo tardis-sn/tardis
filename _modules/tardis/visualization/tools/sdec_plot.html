@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=e2b4d50f"></script>
+      <script src="../../../../_static/documentation_options.js?v=902ba904"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -280,6 +280,40 @@ class SDECPlotter:
                 plotter.spectrum[mode] = pu.extract_spectrum_data_hdf(hdf, mode)
                 plotter.packet_data[mode] = pu.extract_and_process_packet_data_hdf(hdf, mode)
 
+        return plotter</div>
+
+
+<div class="viewcode-block" id="SDECPlotter.from_workflow">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.from_workflow">[docs]</a>
+    @classmethod
+    def from_workflow(cls, workflow):
+        &quot;&quot;&quot;
+        Create an instance of SDECPlotter from a TARDIS workflow.
+
+        Parameters
+        ----------
+        workflow : A TARDIS workflow object
+
+        Returns
+        -------
+        SDECPlotter
+        &quot;&quot;&quot;
+        plotter = cls()
+        plotter.t_inner = workflow.simulation_state.t_inner
+        plotter.r_inner = workflow.simulation_state.geometry.r_inner_active
+        plotter.time_of_simulation = (
+            workflow.transport_state.time_of_simulation * u.s
+        )
+
+        modes = [&quot;real&quot;]
+        if workflow.enable_virtual_packet_logging:
+            modes.append(&quot;virtual&quot;)
+
+        for mode in modes:
+            plotter.spectrum[mode] = pu.get_spectrum_data(mode, workflow)
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                workflow, mode
+            )
         return plotter</div>
 
 
@@ -1454,7 +1488,7 @@ class SDECPlotter:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jul 2025.
+      <span class="lastupdated">Last updated on 17 Jul 2025.
       </span></p>
   </div>
 
