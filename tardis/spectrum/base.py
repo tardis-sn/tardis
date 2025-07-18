@@ -100,9 +100,9 @@ class SpectrumSolver(HDFWriterMixin):
                 self._spectrum_integrated = self.integrator.solve( # TODO: finish
                     self.spectrum_frequency_grid[:-1],
                     self.simulation_state, 
-                    self.opacity_state, 
                     self.transport, 
                     self.plasma, 
+                    self.opacity_state, 
                     self.macro_atom_state
                 )
             except IntegrationError:

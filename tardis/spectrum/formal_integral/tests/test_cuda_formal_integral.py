@@ -333,7 +333,6 @@ def test_full_formal_integral(
     L_numba = formal_integrator_numba.solve(
         sim.spectrum_solver.spectrum_real_packets.frequency,
         sim.simulation_state,
-        None, 
         sim.transport,
         sim.plasma
     ).luminosity
@@ -341,7 +340,6 @@ def test_full_formal_integral(
     L_cuda = formal_integrator_cuda.solve(
         sim.spectrum_solver.spectrum_real_packets.frequency,
         sim.simulation_state,
-        None, 
         sim.transport,
         sim.plasma
     ).luminosity

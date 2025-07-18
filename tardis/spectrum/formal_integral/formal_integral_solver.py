@@ -29,7 +29,7 @@ class FormalIntegralSolver:
         except AttributeError:
             self.method = None
 
-    def setup(self, opacity_state, transport, plasma, macro_atom_state=None):
+    def setup(self, transport, plasma, opacity_state=None, macro_atom_state=None):
 
         """
         Set up the integrator depending on the method specified in the configuration.
@@ -109,9 +109,9 @@ class FormalIntegralSolver:
                 self.integrator_settings.points
             )
     
-    def solve(self, nu, simulation_state, opacity_state, transport, plasma, macro_atom_state=None):
+    def solve(self, nu, simulation_state, transport, plasma, opacity_state=None, macro_atom_state=None):
 
-        atomic_data, levels, opacity_state = self.setup(opacity_state, transport, plasma, macro_atom_state)
+        atomic_data, levels, opacity_state = self.setup(transport, plasma, opacity_state, macro_atom_state)
         transport_state = transport.transport_state
 
         points = self.integrator_settings.points
@@ -121,31 +121,15 @@ class FormalIntegralSolver:
         sourceFunction = SourceFunctionSolver(line_interaction_type, atomic_data)
         res = sourceFunction.solve(simulation_state, opacity_state, transport_state, levels)
 
-        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = res.att_S_ul, res.Jred_lu, res.Jblue_lu, res.e_dot_u
-        if interpolate_shells > 0: # TODO: fix up the interpolation
-            (
-                att_S_ul,
-                Jred_lu,
-                Jblue_lu,
-                e_dot_u,
-                r_inner_i,
-                r_outer_i,
-                tau_sobolevs_integ,
-                electron_densities_integ
-            ) = self.interpolate_integrator_quantities(
-                att_S_ul, Jred_lu, Jblue_lu, e_dot_u,
-                interpolate_shells,
-                simulation_state, transport, opacity_state, plasma.electron_densities
-            )
-        else:
-            r_inner_i = transport_state.geometry_state.r_inner
-            r_outer_i = transport_state.geometry_state.r_outer
-            tau_sobolevs_integ = opacity_state.tau_sobolev
-            electron_densities_integ = opacity_state.electron_density
-
-        att_S_ul = att_S_ul.flatten(order="F")
-        Jred_lu = Jred_lu.flatten(order="F")
-        Jblue_lu = Jblue_lu.flatten(order="F")
+        (
+            att_S_ul, 
+            Jred_lu, 
+            Jblue_lu, _, 
+            r_inner_i, 
+            r_outer_i, 
+            tau_sobolevs_integ, 
+            electron_densities_integ
+        ) = self.get_interpolated_quantities(res, interpolate_shells, simulation_state, transport, opacity_state, plasma)        
 
         self.setup_integrator(opacity_state, simulation_state.time_explosion, r_inner_i, r_outer_i)
 
@@ -269,7 +253,33 @@ class FormalIntegralSolver:
         return att_S_ul, Jredlu, Jbluelu, e_dot_u, r_inner_i, r_outer_i, tau_sobolevs_integ, electron_densities_integ
 
 
+    def get_interpolated_quantities(self, source_function_state, interpolate_shells, simulation_state, transport, opacity_state, plasma):
+        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = source_function_state.att_S_ul, source_function_state.Jred_lu, source_function_state.Jblue_lu, source_function_state.e_dot_u
+        if interpolate_shells > 0: # TODO: fix up the interpolation
+            (
+                att_S_ul,
+                Jred_lu,
+                Jblue_lu,
+                e_dot_u,
+                r_inner_i,
+                r_outer_i,
+                tau_sobolevs_integ,
+                electron_densities_integ
+            ) = self.interpolate_integrator_quantities(
+                att_S_ul, Jred_lu, Jblue_lu, e_dot_u,
+                interpolate_shells,
+                simulation_state, transport, opacity_state, plasma.electron_densities
+            )
+        else:
+            r_inner_i = transport.transport_state.geometry_state.r_inner
+            r_outer_i = transport.transport_state.geometry_state.r_outer
+            tau_sobolevs_integ = opacity_state.tau_sobolev
+            electron_densities_integ = opacity_state.electron_density
 
+        att_S_ul = att_S_ul.flatten(order="F")
+        Jred_lu = Jred_lu.flatten(order="F")
+        Jblue_lu = Jblue_lu.flatten(order="F")
 
+        return att_S_ul, Jred_lu, Jblue_lu, e_dot_u, r_inner_i, r_outer_i, tau_sobolevs_integ, electron_densities_integ
     
 

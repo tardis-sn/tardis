@@ -6,6 +6,7 @@ from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis.simulation import Simulation
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
 
@@ -23,14 +24,15 @@ def source_function_verysimple(config_verysimple, atomic_dataset):
     plasma = sim.plasma
     transport = sim.transport
 
-    formal_integrator = FormalIntegrator(sim_state, plasma, transport)
-    sourceFunction = SourceFunctionSolver(formal_integrator.transport.line_interaction_type, 
-                                          formal_integrator.atomic_data)
+    formal_integrator = FormalIntegralSolver(sim.spectrum_solver.integrator_settings)
+    atomic_data, levels, opacity_state = formal_integrator.setup(transport, plasma)
+    sourceFunction = SourceFunctionSolver(transport.line_interaction_type, 
+                                          atomic_data)
     res = sourceFunction.solve(
-        formal_integrator.simulation_state, 
-        formal_integrator.opacity_state, 
-        formal_integrator.transport.transport_state,
-        formal_integrator.plasma.levels
+        sim_state, 
+        opacity_state, 
+        transport.transport_state,
+        levels
     )
     return res
 
