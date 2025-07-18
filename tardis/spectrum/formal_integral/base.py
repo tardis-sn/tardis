@@ -120,7 +120,7 @@ def interpolate_integrator_quantities(
     Jbluelu : np.ndarray
         J estimator from the blue end of the line from lower to upper level
     e_dot_u : np.ndarray
-        Line estimator for the rate of energgity density absorption from lower to upper level
+        Line estimator for the rate of energy density absorption from lower to upper level
     interpolate_shells : int
         number of shells to interpolate to
     simulation_state : tardis.model.SimulationState
