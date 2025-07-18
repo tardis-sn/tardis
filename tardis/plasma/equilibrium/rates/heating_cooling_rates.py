@@ -313,17 +313,17 @@ class CollisionalBoundThermalRates:
         heating_rate = (
             electron_density
             * collisional_deexcitation_rate_coefficient
-            * upper_level_number_density
+            * upper_level_number_density.values
             * self.nu
             * const.h.cgs
         )
 
         cooling_rate = (
-            collisional_excitation_rate_coefficient
+            electron_density
+            * collisional_excitation_rate_coefficient
+            * lower_level_number_density.values
             * self.nu
             * const.h.cgs
-            * electron_density
-            * lower_level_number_density
         )
 
         return heating_rate, cooling_rate
