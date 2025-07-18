@@ -208,7 +208,7 @@ class FreeFreeThermalRates:
 
         heating_rate = (
             heating_estimator
-            * np.sqrt(thermal_electron_distribution.temperature)
+            / np.sqrt(thermal_electron_distribution.temperature)
             * heating_factor
         )
 
