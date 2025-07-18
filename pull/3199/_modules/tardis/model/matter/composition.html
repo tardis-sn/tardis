@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.model.matter.composition &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8f09d370"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css"> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.model.matter.composition</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.model.matter.composition</h1><div class="highlight"><pre>
+<span></span>import numpy as np
+import pandas as pd
+import radioactivedecay as rd
+from astropy import units as u
+from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
+
+from tardis.model.matter.decay import IsotopicMassFraction
+
+
+<div class="viewcode-block" id="compile_rd_isotope_masses">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.compile_rd_isotope_masses">[docs]</a>
+def compile_rd_isotope_masses():
+    &quot;&quot;&quot;
+    Compiles the masses of isotopes from the default data in RD_DEFAULT_DATA.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    pandas.Series
+        A series containing the masses of isotopes, indexed by atomic number and mass number.
+    &quot;&quot;&quot;
+    atomic_numbers = []
+    mass_numbers = []
+    nuclide_masses = []
+    for nuclide_name in RD_DEFAULT_DATA.nuclides:
+        current_nuclide = rd.Nuclide(nuclide_name)
+        atomic_numbers.append(current_nuclide.Z)
+        mass_numbers.append(current_nuclide.A)
+        nuclide_masses.append(current_nuclide.atomic_mass)
+
+    isotope_mass_index = pd.MultiIndex.from_arrays(
+        (atomic_numbers, mass_numbers), names=[&quot;atomic_number&quot;, &quot;mass_number&quot;]
+    )
+    isotope_masses = pd.Series(
+        index=isotope_mass_index, data=nuclide_masses
+    ).sort_index()
+    # there are duplicates that are likely due to excited states
+    # dropping them for now
+
+    return isotope_masses.drop_duplicates()</div>
+
+
+
+ISOTOPE_MASSES = compile_rd_isotope_masses()
+
+
+<div class="viewcode-block" id="Composition">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition">[docs]</a>
+class Composition:
+    &quot;&quot;&quot;
+    Holds information about model composition
+
+    Parameters
+    ----------
+    density : astropy.units.quantity.Quantity
+        An array of densities for each shell.
+    isotopic_mass_fraction : pd.DataFrame
+    raw_isotope_abundance : pd.DataFrame
+    atomic_mass : pd.DataFrame
+    atomic_mass_unit: astropy.units.Unit
+
+    Attributes
+    ----------
+    atomic_mass : pd.DataFrame
+        Atomic mass of elements calculated for each shell.
+    elemental_number_density : pd.DataFrame
+        Number density of each element in each shell.
+    &quot;&quot;&quot;
+
+    def __init__(self, density, nuclide_mass_fraction):
+        self.density = density
+        assert np.all(
+            nuclide_mass_fraction.values &gt;= 0
+        ), &quot;Negative mass fraction detected&quot;
+        self.nuclide_mass_fraction = nuclide_mass_fraction
+
+        self.isotope_masses = self.assemble_isotope_masses()
+
+<div class="viewcode-block" id="Composition.assemble_isotope_masses">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.assemble_isotope_masses">[docs]</a>
+    def assemble_isotope_masses(self):
+        isotope_mass_df = pd.Series(
+            index=self.isotopic_mass_fraction.index, data=-1, dtype=&quot;float64&quot;
+        )
+        for isotope_tuple in self.isotopic_mass_fraction.index:
+            isotope_symbol = int(&quot;{:03d}{:03d}0000&quot;.format(*isotope_tuple))
+            isotope_mass = rd.Nuclide(isotope_symbol).atomic_mass * u.u.to(u.g)
+            isotope_mass_df[isotope_tuple] = isotope_mass
+
+        return isotope_mass_df</div>
+
+
+<div class="viewcode-block" id="Composition.convert_element2nuclide_index">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.convert_element2nuclide_index">[docs]</a>
+    @staticmethod
+    def convert_element2nuclide_index(element_index):
+        new_nuclide_index = pd.MultiIndex.from_product([element_index, [-1]])
+        new_nuclide_index.names = [&quot;atomic_number&quot;, &quot;mass_number&quot;]
+        return new_nuclide_index</div>
+
+
+    @property
+    def isotopic_mass_fraction(self):
+        filtered_nuclide_mass_fraction = self.nuclide_mass_fraction[
+            self.nuclide_mass_fraction.index.get_level_values(1) != -1
+        ]
+        return IsotopicMassFraction(filtered_nuclide_mass_fraction)
+
+    @property
+    def elemental_mass_fraction(self):
+        return self.nuclide_mass_fraction.groupby(level=0).sum()
+
+<div class="viewcode-block" id="Composition.calculate_effective_element_masses">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.calculate_effective_element_masses">[docs]</a>
+    def calculate_effective_element_masses(self, element_masses):
+        # This is functionality that we will likely want to remove
+        effective_element_masses = self.nuclide_mass_fraction[
+            self.nuclide_mass_fraction.index.get_level_values(1) == -1
+        ].copy()
+        effective_element_masses.index = effective_element_masses.index.droplevel(1)
+        for col in effective_element_masses.columns:
+            effective_element_masses[col] = element_masses.loc[
+                effective_element_masses.index
+            ]
+
+        current_isotope_masses = ISOTOPE_MASSES.loc[self.isotopic_mass_fraction.index]
+        contributing_isotope_masses = (
+            self.isotopic_mass_fraction.multiply(current_isotope_masses, axis=0)
+            .groupby(level=0)
+            .sum()
+        )
+        effective_isotopes_masses = (
+            contributing_isotope_masses
+            / self.isotopic_mass_fraction.groupby(level=0).sum()
+        ) * u.u.to(u.g)
+
+        effective_element_masses = pd.concat(
+            [effective_element_masses, effective_isotopes_masses]
+        )
+        return effective_element_masses</div>
+
+
+<div class="viewcode-block" id="Composition.calculate_elemental_number_density">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.calculate_elemental_number_density">[docs]</a>
+    def calculate_elemental_number_density(self, element_masses):
+        &quot;&quot;&quot;Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass&quot;&quot;&quot;
+        return (
+            self.elemental_mass_fraction * self.density.to(u.g / u.cm**3).value
+        ).divide(
+            self.calculate_effective_element_masses(element_masses).reindex(
+                self.elemental_mass_fraction.index
+            ),
+            axis=0,
+        )</div>
+
+
+    @property
+    def isotopic_number_density(self):
+        &quot;&quot;&quot;Isotopic Number Density computed using the formula: (isotopic_mass_fraction * density) / atomic mass&quot;&quot;&quot;
+        return (
+            self.isotopic_mass_fraction * self.density.to(u.g / u.cm**3).value
+        ).divide(
+            ISOTOPE_MASSES.loc[self.isotopic_mass_fraction.index] * u.u.to(u.g),
+            axis=0,
+        )
+
+<div class="viewcode-block" id="Composition.calculate_mass_fraction_at_time">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.calculate_mass_fraction_at_time">[docs]</a>
+    def calculate_mass_fraction_at_time(self, time_explosion):
+        &quot;&quot;&quot;
+        Calculate the mass fraction at a given time using the radioactive decay from
+        the IsotopicMassFraction.
+
+        Parameters
+        ----------
+        time_explosion : astropy.units.quantity.Quantity
+            The time of the explosion.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        &gt;&gt;&gt; composition.calculate_mass_fraction_at_time(10 * u.s)
+        &quot;&quot;&quot;
+        if self.isotopic_mass_fraction.empty:
+            return self.elemental_mass_fraction
+        else:
+            self.isotopic_mass_fraction.decay(time_explosion)</div>
+
+
+<div class="viewcode-block" id="Composition.calculate_elemental_cell_masses">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.calculate_elemental_cell_masses">[docs]</a>
+    def calculate_elemental_cell_masses(self, volume):
+        &quot;&quot;&quot;
+        Calculate the elemental cell masses.
+
+        Parameters
+        ----------
+        volume : astropy.units.quantity.Quantity
+        The volume of the cell.
+
+        Returns
+        -------
+        numpy.ndarray
+        An array of elemental cell masses.
+
+        Examples
+        --------
+        &gt;&gt;&gt; composition.calculate_cell_masses(10 * u.cm**3)
+        &quot;&quot;&quot;
+        return self.elemental_mass_fraction * (self.density * volume).to(u.g).value</div>
+
+
+<div class="viewcode-block" id="Composition.calculate_cell_masses">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.composition.html#tardis.model.matter.composition.Composition.calculate_cell_masses">[docs]</a>
+    def calculate_cell_masses(self, volume):
+        &quot;&quot;&quot;
+        Calculate the cell masses.
+
+        Parameters
+        ----------
+        volume : astropy.units.quantity.Quantity
+        The volume of the cell.
+
+        Returns
+        -------
+        astropy.units.quantity.Quantity
+        An array of cell masses.
+
+        Examples
+        --------
+        &gt;&gt;&gt; composition.calculate_cell_masses(10 * u.cm**3)
+        &quot;&quot;&quot;
+        return (self.density * volume).to(u.g)</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 18 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
