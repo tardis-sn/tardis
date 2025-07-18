@@ -1,0 +1,1150 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gamma-ray energy deposition &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=628aba3c"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Positronium" href="positronium.html" />
+    <link rel="prev" title="Features In-Progress" href="../index.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Features In-Progress</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#google-summer-of-code-gsoc">Google Summer of Code (GSOC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#restructure">Restructure</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#new-physics">New Physics</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#simulate-supernovae-in-the-nebular-phase">Simulate Supernovae in the Nebular Phase</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Gamma-ray energy deposition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="positronium.html">Positronium</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#implement-more-continuum-interactions">Implement More Continuum Interactions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#simulate-non-homologous-expansion">Simulate Non-Homologous Expansion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#simulate-asymmetric-supernovae">Simulate Asymmetric Supernovae</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#adding-time-dependence">Adding Time Dependence</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#interoperability">Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#stardis">STARDIS</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Features In-Progress</a></li>
+      <li class="breadcrumb-item active">Gamma-ray energy deposition</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/contributing/in_progress/nebular_phase/gammaray_deposition.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/contributing/in_progress/nebular_phase/gammaray_deposition.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><section id="Gamma-ray-energy-deposition">
+<h1>Gamma-ray energy deposition<a class="headerlink" href="#Gamma-ray-energy-deposition" title="Link to this heading">¶</a></h1>
+<p>This notebook provides the initial implementation of Gamma-ray energy deposition into an arbitrary ejecta. It is a WORK IN PROGRESS and should NOT be used for any science work until further notice.</p>
+<section id="Main-loop">
+<h2>Main loop<a class="headerlink" href="#Main-loop" title="Link to this heading">¶</a></h2>
+<p>Generates a simple 1D ejecta and a list of gamma-ray objects.</p>
+<p>Runs packets of gamma-rays through the ejecta. Handles interactions by calling the appropriate function.</p>
+<p>Adds deposited energy and output energy to 2 different dataframes.</p>
+</section>
+<section id="Model-setup">
+<h2>Model setup<a class="headerlink" href="#Model-setup" title="Link to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties</span><span class="w"> </span><span class="kn">import</span> <span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePlasma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.gamma_ray_transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">main_gamma_ray_loop</span>
+
+<span class="c1"># Adjust model</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;../../../../tardis/io/tests/data/tardis_configv1_density_exponential_nebular.yml&quot;</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">velocity</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+<span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">rho_0</span> <span class="o">=</span> <span class="mf">5e2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span> <span class="o">/</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">supernova</span><span class="o">.</span><span class="n">time_explosion</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">d</span>
+
+<span class="n">config</span><span class="o">.</span><span class="n">atom_data</span> <span class="o">=</span> <span class="s2">&quot;kurucz_cd23_chianti_H_He_latest.h5&quot;</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+<span class="c1"># Construct plasma</span>
+<span class="nb">input</span> <span class="o">=</span> <span class="p">[</span><span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">]</span>
+
+<span class="n">plasma</span> <span class="o">=</span> <span class="n">BasePlasma</span><span class="p">(</span>
+        <span class="n">plasma_properties</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span>
+        <span class="n">density</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+        <span class="n">abundance</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">abundance</span><span class="p">,</span>
+        <span class="n">isotope_abundance</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">raw_isotope_abundance</span><span class="p">,</span>
+        <span class="n">atomic_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">atom_data</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="c1"># Set up packet count</span>
+<span class="n">num_packets</span> <span class="o">=</span> <span class="mi">500000</span>
+
+<span class="c1"># Lock seed</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Generate-plasma">
+<h2>Generate plasma<a class="headerlink" href="#Generate-plasma" title="Link to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties</span><span class="w"> </span><span class="kn">import</span> <span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePlasma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
+
+<span class="nb">input</span> <span class="o">=</span> <span class="p">[</span><span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">]</span>
+
+<span class="n">plasma</span> <span class="o">=</span> <span class="n">BasePlasma</span><span class="p">(</span>
+        <span class="n">plasma_properties</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span>
+        <span class="n">density</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+        <span class="n">abundance</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">abundance</span><span class="p">,</span>
+        <span class="n">isotope_abundance</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">raw_isotope_abundance</span><span class="p">,</span>
+        <span class="n">atomic_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">atom_data</span><span class="p">)</span>
+    <span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="c1"># Compute energy deposition rate</span>
+<span class="c1"># ejecta_energy_df is the deposited energy</span>
+<span class="c1"># ejecta_plot_energy_df is information for plotting</span>
+<span class="c1"># escape_energy is the escaping energy</span>
+<span class="c1"># decayed_packet_count is the number of packets created per shell</span>
+<span class="c1"># energy_plot_positrons is the deposited energy from positrons</span>
+<span class="c1"># estimated_deposition is the deposited energy from the Kasen (2006) estimator (currently not functional)</span>
+<span class="p">(</span>
+    <span class="n">energy_df</span><span class="p">,</span>
+    <span class="n">energy_plot_df</span><span class="p">,</span>
+    <span class="n">escape_energy</span><span class="p">,</span>
+    <span class="n">decayed_packet_count</span><span class="p">,</span>
+    <span class="n">energy_plot_positrons</span><span class="p">,</span>
+    <span class="n">estimated_deposition</span>
+<span class="p">)</span> <span class="o">=</span> <span class="n">main_gamma_ray_loop</span><span class="p">(</span>
+    <span class="n">num_packets</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">plasma</span><span class="p">,</span>
+    <span class="n">time_steps</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">time_end</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span>
+    <span class="n">path_to_decay_data</span><span class="o">=</span><span class="s2">&quot;~/compiled_ensdf.hdf&quot;</span>
+<span class="p">)</span>
+
+<span class="n">ejecta_energy</span> <span class="o">=</span> <span class="n">energy_plot_df</span><span class="p">[</span><span class="s2">&quot;energy_input&quot;</span><span class="p">]</span>
+<span class="n">ejecta_energy_r</span> <span class="o">=</span> <span class="n">energy_plot_df</span><span class="p">[</span><span class="s2">&quot;energy_input_r&quot;</span><span class="p">]</span>
+<span class="n">energy_input_time</span> <span class="o">=</span> <span class="n">energy_plot_df</span><span class="p">[</span><span class="s2">&quot;energy_input_time&quot;</span><span class="p">]</span>
+<span class="n">energy_input_type</span> <span class="o">=</span> <span class="n">energy_plot_df</span><span class="p">[</span><span class="s2">&quot;energy_input_type&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Total gamma-ray energy
+6.389259861704378e+49
+Total positron energy
+8.454621397870039e+47
+Total packets: 500000
+Energy per packet 7.975724746893494e+52
+Initializing packets
+Total positron energy from packets
+8.417997803471385e+47
+Total CMF energy
+3.7264874091697995e+58
+Total RF energy
+3.7279788130927574e+58
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/afullard/tardis/tardis/energy_input/gamma_packet_loop.py:129: NumbaPerformanceWarning: <span class="ansi-bold">np.dot() is faster on contiguous arrays, called on (array(float64, 1d, A), array(float64, 1d, C))</span>
+  doppler_factor = doppler_factor_3d(
+/home/afullard/tardis/tardis/energy_input/gamma_packet_loop.py:197: NumbaPerformanceWarning: <span class="ansi-bold">np.dot() is faster on contiguous arrays, called on (array(float64, 1d, C), array(float64, 1d, A))</span>
+  ) = distance_trace(
+/home/afullard/tardis/tardis/energy_input/gamma_packet_loop.py:245: NumbaPerformanceWarning: <span class="ansi-bold">np.dot() is faster on contiguous arrays, called on (array(float64, 1d, A), array(float64, 1d, C))</span>
+  packet, ejecta_energy_gained = process_packet_path(packet)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Entering gamma ray loop for 500000 packets
+Escaped packets: 81593
+Scattered packets: 23333
+Final energy to test for conservation
+3.720648730441454e+58
+</pre></div></div>
+</div>
+</section>
+<section id="Plotting-results">
+<h2>Plotting results<a class="headerlink" href="#Plotting-results" title="Link to this heading">¶</a></h2>
+<p>Energy deposited at a given radius</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+
+<span class="n">scatter</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ejecta_energy_r</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">v_outer</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ejecta_energy</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;r/R&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;E (keV)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">semilogy</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_8_0.png" src="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_8_0.png" />
+</div>
+</div>
+</section>
+<section id="Interactions-binned-by-radius">
+<h2>Interactions binned by radius<a class="headerlink" href="#Interactions-binned-by-radius" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ejecta_energy_r</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="c1">#ax.set_xlim(0, 1)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;r (cm)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Interaction count&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_10_0.png" src="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_10_0.png" />
+</div>
+</div>
+</section>
+<section id="Density-Profile">
+<h2>Density Profile<a class="headerlink" href="#Density-Profile" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">r_middle</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">r_outer</span><span class="p">),</span> <span class="n">model</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Density g cm$^{-3}$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;r/R&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_12_0.png" src="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_12_0.png" />
+</div>
+</div>
+</section>
+<section id="Fraction-of-energy-escaping-from-the-ejecta">
+<h2>Fraction of energy escaping from the ejecta<a class="headerlink" href="#Fraction-of-energy-escaping-from-the-ejecta" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">escape_energy</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">escape_energy</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">energy_df</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1.844372140556195e-53
+</pre></div></div>
+</div>
+</section>
+<section id="Spectrum-of-escape-energy-at-the-final-time-step">
+<h2>Spectrum of escape energy at the final time step<a class="headerlink" href="#Spectrum-of-escape-energy-at-the-final-time-step" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.energy_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_artis_lines</span>
+
+<span class="n">ni56_lines</span> <span class="o">=</span> <span class="n">read_artis_lines</span><span class="p">(</span><span class="s2">&quot;ni56&quot;</span><span class="p">,</span> <span class="s2">&quot;~/Downloads/tardisnuclear/&quot;</span><span class="p">)</span>
+<span class="n">co56_lines</span> <span class="o">=</span> <span class="n">read_artis_lines</span><span class="p">(</span><span class="s2">&quot;co56&quot;</span><span class="p">,</span> <span class="s2">&quot;~/Downloads/tardisnuclear/&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">escape_energy</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">escape_energy</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">49</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;$\gamma$-spectrum&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Energy (keV)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;keV/keV/s&quot;</span><span class="p">);</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">4000</span><span class="p">)</span>
+<span class="c1">#plt.ylim(0.01, 100)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">ni56_lines</span><span class="o">.</span><span class="n">energy</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Ni56&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">co56_lines</span><span class="o">.</span><span class="n">energy</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Co56&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/afullard/tardis/tardis/energy_input/energy_source.py:170: ParserWarning: Falling back to the &#39;python&#39; engine because the &#39;c&#39; engine does not support regex separators (separators &gt; 1 char and different from &#39;\s+&#39; are interpreted as regex); you can avoid this warning by specifying engine=&#39;python&#39;.
+  return pd.read_csv(
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7eff9e39b8e0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_16_2.png" src="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_16_2.png" />
+</div>
+</div>
+</section>
+<section id="Energy-deposition-rate">
+<h2>Energy deposition rate<a class="headerlink" href="#Energy-deposition-rate" title="Link to this heading">¶</a></h2>
+<p>Dataframe index is the radial grid location. Columns are time steps in seconds</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energy_df</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>1.728000e+05</th>
+      <th>1.842903e+05</th>
+      <th>1.965447e+05</th>
+      <th>2.096139e+05</th>
+      <th>2.235522e+05</th>
+      <th>2.384173e+05</th>
+      <th>2.542708e+05</th>
+      <th>2.711786e+05</th>
+      <th>2.892106e+05</th>
+      <th>3.084416e+05</th>
+      <th>...</th>
+      <th>2.269320e+06</th>
+      <th>2.420218e+06</th>
+      <th>2.581151e+06</th>
+      <th>2.752784e+06</th>
+      <th>2.935830e+06</th>
+      <th>3.131048e+06</th>
+      <th>3.339247e+06</th>
+      <th>3.561290e+06</th>
+      <th>3.798098e+06</th>
+      <th>4.050652e+06</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.268952e+54</td>
+      <td>1.434033e+53</td>
+      <td>1.283598e+53</td>
+      <td>1.493515e+53</td>
+      <td>1.665060e+53</td>
+      <td>1.864771e+53</td>
+      <td>1.369552e+53</td>
+      <td>1.291566e+53</td>
+      <td>1.206870e+53</td>
+      <td>1.210695e+53</td>
+      <td>...</td>
+      <td>2.413105e+52</td>
+      <td>1.946078e+52</td>
+      <td>1.601020e+52</td>
+      <td>1.681973e+52</td>
+      <td>1.532812e+52</td>
+      <td>1.746724e+52</td>
+      <td>1.142765e+52</td>
+      <td>1.155513e+52</td>
+      <td>1.013063e+52</td>
+      <td>6.851335e+51</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6.352248e+54</td>
+      <td>6.256791e+53</td>
+      <td>5.862575e+53</td>
+      <td>6.364949e+53</td>
+      <td>7.788701e+53</td>
+      <td>7.056560e+53</td>
+      <td>6.954693e+53</td>
+      <td>7.225777e+53</td>
+      <td>6.150372e+53</td>
+      <td>6.159685e+53</td>
+      <td>...</td>
+      <td>1.326250e+53</td>
+      <td>1.128764e+53</td>
+      <td>9.533177e+52</td>
+      <td>9.066819e+52</td>
+      <td>8.349490e+52</td>
+      <td>6.819232e+52</td>
+      <td>7.361927e+52</td>
+      <td>6.937388e+52</td>
+      <td>5.521254e+52</td>
+      <td>4.563154e+52</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.256390e+55</td>
+      <td>1.224663e+54</td>
+      <td>1.455274e+54</td>
+      <td>1.393148e+54</td>
+      <td>1.294472e+54</td>
+      <td>1.200354e+54</td>
+      <td>1.191072e+54</td>
+      <td>1.325274e+54</td>
+      <td>1.247067e+54</td>
+      <td>1.228414e+54</td>
+      <td>...</td>
+      <td>2.548472e+53</td>
+      <td>2.394402e+53</td>
+      <td>2.271846e+53</td>
+      <td>1.892756e+53</td>
+      <td>1.689675e+53</td>
+      <td>1.628341e+53</td>
+      <td>1.372483e+53</td>
+      <td>1.343997e+53</td>
+      <td>1.264984e+53</td>
+      <td>1.023617e+53</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.720830e+55</td>
+      <td>1.969217e+54</td>
+      <td>1.770751e+54</td>
+      <td>1.902969e+54</td>
+      <td>1.772499e+54</td>
+      <td>1.860536e+54</td>
+      <td>1.849413e+54</td>
+      <td>1.688380e+54</td>
+      <td>1.837876e+54</td>
+      <td>1.673101e+54</td>
+      <td>...</td>
+      <td>3.721530e+53</td>
+      <td>3.252044e+53</td>
+      <td>2.997976e+53</td>
+      <td>2.889827e+53</td>
+      <td>2.407073e+53</td>
+      <td>2.254808e+53</td>
+      <td>2.174352e+53</td>
+      <td>1.838789e+53</td>
+      <td>1.819876e+53</td>
+      <td>1.590544e+53</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2.061597e+55</td>
+      <td>2.118889e+54</td>
+      <td>2.361284e+54</td>
+      <td>2.224901e+54</td>
+      <td>1.929322e+54</td>
+      <td>2.138034e+54</td>
+      <td>2.121064e+54</td>
+      <td>1.924094e+54</td>
+      <td>1.987540e+54</td>
+      <td>1.973124e+54</td>
+      <td>...</td>
+      <td>4.067807e+53</td>
+      <td>3.866050e+53</td>
+      <td>3.417029e+53</td>
+      <td>3.527510e+53</td>
+      <td>2.975597e+53</td>
+      <td>2.717593e+53</td>
+      <td>2.501916e+53</td>
+      <td>2.181535e+53</td>
+      <td>1.990705e+53</td>
+      <td>1.963625e+53</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2.183037e+55</td>
+      <td>2.313466e+54</td>
+      <td>2.486110e+54</td>
+      <td>2.332249e+54</td>
+      <td>2.466149e+54</td>
+      <td>2.202191e+54</td>
+      <td>2.202279e+54</td>
+      <td>2.211636e+54</td>
+      <td>2.227595e+54</td>
+      <td>2.093595e+54</td>
+      <td>...</td>
+      <td>4.533677e+53</td>
+      <td>4.126323e+53</td>
+      <td>3.522390e+53</td>
+      <td>3.371528e+53</td>
+      <td>3.012767e+53</td>
+      <td>2.863011e+53</td>
+      <td>2.678039e+53</td>
+      <td>2.315553e+53</td>
+      <td>1.989705e+53</td>
+      <td>1.950900e+53</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2.314019e+55</td>
+      <td>2.541623e+54</td>
+      <td>2.458594e+54</td>
+      <td>2.224427e+54</td>
+      <td>2.101068e+54</td>
+      <td>2.393609e+54</td>
+      <td>2.401742e+54</td>
+      <td>2.069722e+54</td>
+      <td>2.161520e+54</td>
+      <td>2.233445e+54</td>
+      <td>...</td>
+      <td>4.401336e+53</td>
+      <td>3.829897e+53</td>
+      <td>3.344355e+53</td>
+      <td>3.361478e+53</td>
+      <td>2.807300e+53</td>
+      <td>2.594261e+53</td>
+      <td>2.613329e+53</td>
+      <td>2.173414e+53</td>
+      <td>2.075456e+53</td>
+      <td>1.861470e+53</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2.111323e+55</td>
+      <td>2.151525e+54</td>
+      <td>2.260010e+54</td>
+      <td>2.081330e+54</td>
+      <td>2.245851e+54</td>
+      <td>2.237418e+54</td>
+      <td>2.117185e+54</td>
+      <td>2.193539e+54</td>
+      <td>2.033406e+54</td>
+      <td>1.965041e+54</td>
+      <td>...</td>
+      <td>4.041338e+53</td>
+      <td>3.574777e+53</td>
+      <td>3.243658e+53</td>
+      <td>2.860518e+53</td>
+      <td>2.836507e+53</td>
+      <td>2.387642e+53</td>
+      <td>2.345213e+53</td>
+      <td>2.193704e+53</td>
+      <td>1.705966e+53</td>
+      <td>1.731529e+53</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>1.922621e+55</td>
+      <td>2.195889e+54</td>
+      <td>1.937526e+54</td>
+      <td>1.994053e+54</td>
+      <td>2.080152e+54</td>
+      <td>2.091939e+54</td>
+      <td>2.013608e+54</td>
+      <td>1.954220e+54</td>
+      <td>1.887144e+54</td>
+      <td>1.888389e+54</td>
+      <td>...</td>
+      <td>3.376278e+53</td>
+      <td>3.379366e+53</td>
+      <td>2.893652e+53</td>
+      <td>2.460482e+53</td>
+      <td>2.349191e+53</td>
+      <td>2.123134e+53</td>
+      <td>1.840041e+53</td>
+      <td>1.691727e+53</td>
+      <td>1.431448e+53</td>
+      <td>1.261554e+53</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>1.725510e+55</td>
+      <td>1.852217e+54</td>
+      <td>1.755411e+54</td>
+      <td>2.035626e+54</td>
+      <td>1.885113e+54</td>
+      <td>1.804745e+54</td>
+      <td>1.800571e+54</td>
+      <td>1.683805e+54</td>
+      <td>1.719869e+54</td>
+      <td>1.687133e+54</td>
+      <td>...</td>
+      <td>2.819492e+53</td>
+      <td>2.637785e+53</td>
+      <td>2.536277e+53</td>
+      <td>2.043085e+53</td>
+      <td>1.644105e+53</td>
+      <td>1.596846e+53</td>
+      <td>1.468581e+53</td>
+      <td>1.328962e+53</td>
+      <td>1.123189e+53</td>
+      <td>9.315640e+52</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>1.478802e+55</td>
+      <td>1.811474e+54</td>
+      <td>1.466713e+54</td>
+      <td>1.580566e+54</td>
+      <td>1.612419e+54</td>
+      <td>1.622183e+54</td>
+      <td>1.479221e+54</td>
+      <td>1.564288e+54</td>
+      <td>1.383014e+54</td>
+      <td>1.467392e+54</td>
+      <td>...</td>
+      <td>2.130141e+53</td>
+      <td>2.118125e+53</td>
+      <td>1.711647e+53</td>
+      <td>1.648757e+53</td>
+      <td>1.546999e+53</td>
+      <td>1.292042e+53</td>
+      <td>1.012572e+53</td>
+      <td>1.090591e+53</td>
+      <td>8.554179e+52</td>
+      <td>7.878659e+52</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>1.308745e+55</td>
+      <td>1.460406e+54</td>
+      <td>1.447386e+54</td>
+      <td>1.346796e+54</td>
+      <td>1.402081e+54</td>
+      <td>1.420153e+54</td>
+      <td>1.299567e+54</td>
+      <td>1.205790e+54</td>
+      <td>1.428299e+54</td>
+      <td>1.339745e+54</td>
+      <td>...</td>
+      <td>1.757030e+53</td>
+      <td>1.548390e+53</td>
+      <td>1.376493e+53</td>
+      <td>1.125006e+53</td>
+      <td>1.040292e+53</td>
+      <td>9.341924e+52</td>
+      <td>8.638519e+52</td>
+      <td>7.397325e+52</td>
+      <td>6.592805e+52</td>
+      <td>5.976537e+52</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>1.123812e+55</td>
+      <td>1.225134e+54</td>
+      <td>1.087325e+54</td>
+      <td>1.129301e+54</td>
+      <td>1.278660e+54</td>
+      <td>1.068451e+54</td>
+      <td>1.077110e+54</td>
+      <td>1.102109e+54</td>
+      <td>1.066945e+54</td>
+      <td>1.003824e+54</td>
+      <td>...</td>
+      <td>1.138373e+53</td>
+      <td>9.911889e+52</td>
+      <td>8.863272e+52</td>
+      <td>9.083607e+52</td>
+      <td>7.878527e+52</td>
+      <td>6.366229e+52</td>
+      <td>6.144144e+52</td>
+      <td>4.775543e+52</td>
+      <td>4.849689e+52</td>
+      <td>4.762654e+52</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>9.236778e+54</td>
+      <td>1.055157e+54</td>
+      <td>9.396187e+53</td>
+      <td>8.982871e+53</td>
+      <td>1.015297e+54</td>
+      <td>8.711438e+53</td>
+      <td>9.211775e+53</td>
+      <td>8.318177e+53</td>
+      <td>8.380983e+53</td>
+      <td>8.134140e+53</td>
+      <td>...</td>
+      <td>9.137514e+52</td>
+      <td>8.480772e+52</td>
+      <td>7.327633e+52</td>
+      <td>5.763397e+52</td>
+      <td>5.614848e+52</td>
+      <td>4.220384e+52</td>
+      <td>4.918503e+52</td>
+      <td>3.944850e+52</td>
+      <td>3.457032e+52</td>
+      <td>2.885190e+52</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>7.707517e+54</td>
+      <td>8.334156e+53</td>
+      <td>9.577188e+53</td>
+      <td>7.962057e+53</td>
+      <td>6.930276e+53</td>
+      <td>8.204323e+53</td>
+      <td>7.828914e+53</td>
+      <td>7.164728e+53</td>
+      <td>6.386090e+53</td>
+      <td>6.956695e+53</td>
+      <td>...</td>
+      <td>5.413666e+52</td>
+      <td>4.705275e+52</td>
+      <td>4.130852e+52</td>
+      <td>3.872048e+52</td>
+      <td>4.527747e+52</td>
+      <td>3.207596e+52</td>
+      <td>2.490193e+52</td>
+      <td>2.495629e+52</td>
+      <td>2.457263e+52</td>
+      <td>1.981165e+52</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>6.191768e+54</td>
+      <td>5.473081e+53</td>
+      <td>6.655216e+53</td>
+      <td>6.239894e+53</td>
+      <td>6.975514e+53</td>
+      <td>6.084465e+53</td>
+      <td>7.786685e+53</td>
+      <td>5.483303e+53</td>
+      <td>5.721475e+53</td>
+      <td>5.412126e+53</td>
+      <td>...</td>
+      <td>3.969469e+52</td>
+      <td>4.340826e+52</td>
+      <td>3.682750e+52</td>
+      <td>3.111694e+52</td>
+      <td>2.165591e+52</td>
+      <td>2.104476e+52</td>
+      <td>2.120679e+52</td>
+      <td>2.012698e+52</td>
+      <td>1.412540e+52</td>
+      <td>1.609626e+52</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>4.915662e+54</td>
+      <td>4.883089e+53</td>
+      <td>5.309932e+53</td>
+      <td>5.435722e+53</td>
+      <td>5.847968e+53</td>
+      <td>5.329650e+53</td>
+      <td>4.808035e+53</td>
+      <td>3.888501e+53</td>
+      <td>5.008029e+53</td>
+      <td>4.654530e+53</td>
+      <td>...</td>
+      <td>2.642693e+52</td>
+      <td>2.896227e+52</td>
+      <td>2.212667e+52</td>
+      <td>2.213041e+52</td>
+      <td>1.790653e+52</td>
+      <td>1.690462e+52</td>
+      <td>1.916662e+52</td>
+      <td>1.402938e+52</td>
+      <td>8.857395e+51</td>
+      <td>1.167084e+52</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>4.147753e+54</td>
+      <td>4.613959e+53</td>
+      <td>3.960488e+53</td>
+      <td>4.516572e+53</td>
+      <td>4.716706e+53</td>
+      <td>4.121339e+53</td>
+      <td>4.278267e+53</td>
+      <td>4.491534e+53</td>
+      <td>2.649101e+53</td>
+      <td>3.225867e+53</td>
+      <td>...</td>
+      <td>2.639209e+52</td>
+      <td>1.600225e+52</td>
+      <td>1.834074e+52</td>
+      <td>1.458769e+52</td>
+      <td>1.407996e+52</td>
+      <td>1.274043e+52</td>
+      <td>9.493741e+51</td>
+      <td>8.616331e+51</td>
+      <td>8.732235e+51</td>
+      <td>8.816470e+51</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>3.245799e+54</td>
+      <td>3.905090e+53</td>
+      <td>3.410483e+53</td>
+      <td>3.592481e+53</td>
+      <td>2.625412e+53</td>
+      <td>3.660111e+53</td>
+      <td>3.573277e+53</td>
+      <td>4.006494e+53</td>
+      <td>2.275214e+53</td>
+      <td>2.788264e+53</td>
+      <td>...</td>
+      <td>1.712318e+52</td>
+      <td>7.255677e+51</td>
+      <td>1.114020e+52</td>
+      <td>1.186242e+52</td>
+      <td>1.025083e+52</td>
+      <td>9.771694e+51</td>
+      <td>6.949339e+51</td>
+      <td>7.629940e+51</td>
+      <td>6.335910e+51</td>
+      <td>4.726639e+51</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>2.490859e+54</td>
+      <td>3.183146e+53</td>
+      <td>1.705482e+53</td>
+      <td>2.854045e+53</td>
+      <td>2.615611e+53</td>
+      <td>2.653951e+53</td>
+      <td>2.443372e+53</td>
+      <td>2.982978e+53</td>
+      <td>2.598039e+53</td>
+      <td>2.129802e+53</td>
+      <td>...</td>
+      <td>9.081512e+51</td>
+      <td>5.451095e+51</td>
+      <td>9.925498e+51</td>
+      <td>8.614093e+51</td>
+      <td>9.119476e+51</td>
+      <td>5.419938e+51</td>
+      <td>4.528037e+51</td>
+      <td>3.783831e+51</td>
+      <td>4.377392e+51</td>
+      <td>3.675127e+51</td>
+    </tr>
+  </tbody>
+</table>
+<p>20 rows × 50 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Energy-deposition-rate-versus-radius-at-time_explosion">
+<h2>Energy deposition rate versus radius at time_explosion<a class="headerlink" href="#Energy-deposition-rate-versus-radius-at-time_explosion" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">v_middle</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">v_outer</span><span class="p">),</span> <span class="n">energy_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;r/R&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Energy deposition rate [eV/s$]&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_20_0.png" src="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_20_0.png" />
+</div>
+</div>
+</section>
+<section id="Energy-Deposition-rate-versus-time-compared-to-the-analytic-estimate">
+<h2>Energy Deposition rate versus time compared to the analytic estimate<a class="headerlink" href="#Energy-Deposition-rate-versus-time-compared-to-the-analytic-estimate" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy_df</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">eV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;erg&#39;</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">analytic_estimate</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.97</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">40</span> <span class="o">/</span> <span class="n">t</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="mf">0.03</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">6.45</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="o">/</span><span class="mf">8.8</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.45</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="o">/</span><span class="mf">111.3</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1e43</span>
+
+<span class="n">t_tardis</span> <span class="o">=</span> <span class="n">energy</span><span class="o">.</span><span class="n">index</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_tardis</span><span class="p">,</span> <span class="n">energy</span> <span class="o">/</span> <span class="n">analytic_estimate</span><span class="p">(</span><span class="n">t_tardis</span><span class="p">),</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;t_exp (d)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Energy deposition / analytic&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(0.7, 1.1)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_22_2.png" src="../../../_images/contributing_in_progress_nebular_phase_gammaray_deposition_22_2.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Features In-Progress" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="positronium.html" class="btn btn-neutral float-right" title="Positronium" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 18 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
