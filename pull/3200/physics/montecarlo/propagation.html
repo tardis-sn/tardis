@@ -1,0 +1,509 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packet Propagation &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=042a363d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Line Interaction Treatments" href="lineinteraction.html" />
+    <link rel="prev" title="Energy Packet Initialization" href="initialization.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Monte Carlo Iteration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basicprinciples.html">Monte Carlo Radiative Transfer - Basic Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="initialization.html">Energy Packet Initialization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Packet Propagation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#propagation-in-a-spherical-domain">Propagation in a Spherical Domain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#supernova-expansion">Supernova Expansion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reference-frames">Reference Frames</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#numerical-and-physical-events">Numerical and Physical Events</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#distance-to-next-cell">Distance to Next Cell</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#physical-interactions">Physical Interactions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#distance-to-next-event">Distance to Next Event</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#performing-an-interaction">Performing an Interaction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-main-propagation-loop">Implementation: Main Propagation Loop</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lineinteraction.html">Line Interaction Treatments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html">Volume-Based Estimators</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Monte Carlo Iteration</a></li>
+      <li class="breadcrumb-item active">Packet Propagation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/physics/montecarlo/propagation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="packet-propagation">
+<span id="propagation"></span><h1>Packet Propagation<a class="headerlink" href="#packet-propagation" title="Link to this heading">¶</a></h1>
+<p>The bulk of a Monte Carlo Radiative Transfer calculation is spent on
+determining the propagation history of the different packets. After a packet is
+initialized (see <a class="reference internal" href="initialization.html"><span class="doc">Energy Packet Initialization</span></a>), it is launched and may then perform interactions with the
+surrounding material. This occurs again in a probabilistic manner. The packet
+propagation is followed until it escapes through the outer boundary of the
+computational domain, at which point the packet contributes to the synthetic
+spectrum, the main product of a TARDIS calculation. The different spectral
+features are simply a combined product of the changes in the packet properties
+induced in the radiation-matter interactions.</p>
+<section id="propagation-in-a-spherical-domain">
+<span id="spherical-domain"></span><h2>Propagation in a Spherical Domain<a class="headerlink" href="#propagation-in-a-spherical-domain" title="Link to this heading">¶</a></h2>
+<p>Once the initial packet properties are assigned, the propagation process
+commences. Without interacting, a packet, like a photon, will propagate on a
+straight trajectory.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Since TARDIS is designed for systems for which the Newtonian limit may be
+safely applied, no general relativistic effects which would force photons on
+curved trajectories are included.</p>
+</div>
+<p>In spherical geometry, this propagation process may be illustrated by the
+following sketch (taken from <span id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>):</p>
+<a class="reference internal image-reference" href="../../_images/spherical_symmetry.png"><img alt="../../_images/spherical_symmetry.png" src="../../_images/spherical_symmetry.png" style="width: 500px;" />
+</a>
+<p>The packet starts the propagation at <span class="math notranslate nohighlight">\(r_i\)</span> along the direction
+<span class="math notranslate nohighlight">\(\mu_i\)</span>. After covering a distance <span class="math notranslate nohighlight">\(l\)</span>, the packet is now located
+at</p>
+<div class="math notranslate nohighlight">
+\[r_f = \sqrt{r_i^2 + l^2 + 2 l r_i \mu_i}.\]</div>
+<p>Note that the propagation direction has also changed and now takes the value</p>
+<div class="math notranslate nohighlight">
+\[\mu_f = \frac{l + r_i \mu_i}{r_f}.\]</div>
+</section>
+<section id="supernova-expansion">
+<h2>Supernova Expansion<a class="headerlink" href="#supernova-expansion" title="Link to this heading">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This section is a summary of part of <a class="reference internal" href="../setup/model.html"><span class="doc">Model</span></a> which is included here for easy reference. For a complete
+explanation, please refer back to that page.</p>
+</div>
+<p>TARDIS models supernovae as expanding homologously, as shown in the animation below. This means that plasma at a
+distance <span class="math notranslate nohighlight">\(r\)</span> from the center of the supernova will be moving outwards at a velocity
+<span class="math notranslate nohighlight">\(v=\frac{r}{t_\mathrm{explosion}}\)</span>, where <span class="math notranslate nohighlight">\(t_\mathrm{explosion}\)</span> is the time after the explosion for
+which TARDIS is running (which is provided in the <a class="reference internal" href="../../io/configuration/components/models/index.html#model-csvy-and-config"><span class="std std-ref">model configuration</span></a>). This is also
+shown in the animation.</p>
+<p>TARDIS simulates radiative transfer between an inner boundary (the photosphere) with a radius
+<span class="math notranslate nohighlight">\(r_\mathrm{boundary\_inner}\)</span>, and an outer boundary (the outer edge of the supernova ejecta) with a radius
+<span class="math notranslate nohighlight">\(r_\mathrm{boundary\_outer}\)</span>. Additionally, TARDIS divides the space between the inner and outer computational
+boundaries into cells – radial shells for which the plasma state is (spatially) constant. In the animation, 6 cells
+are shown, being divided by the light blue lines. The boundaries of the computational domain and of these cells are
+computed during the simulation setup (refer back to <a class="reference internal" href="../setup/model.html"><span class="doc">Model</span></a>). As TARDIS is a time-independent code, meaning
+that it calculates the spectra at an instant in time (namely at the time <span class="math notranslate nohighlight">\(t_\mathrm{explosion}\)</span>), the radii of
+the boundaries (both of the computational domain and of the cells) do not change throughout the simulation.</p>
+<a class="reference internal image-reference" href="../../_images/expansion_animation.gif"><img alt="../../_images/expansion_animation.gif" src="../../_images/expansion_animation.gif" style="width: 500px;" />
+</a>
+</section>
+<section id="reference-frames">
+<span id="referenceframes"></span><h2>Reference Frames<a class="headerlink" href="#reference-frames" title="Link to this heading">¶</a></h2>
+<p>Because ejecta in the supernova is moving, TARDIS must take reference frames into account.</p>
+<p>In TARDIS, two reference frames are of particular importance: the lab frame and the co-moving frame. In the lab
+frame, the center of the supernova is at rest; for example, the animation above is shown in the lab frame.
+This is the frame for which the spectra are calculated.</p>
+<p>The co-moving frame at some point in the supernova, however, has the plasma at that point be at rest. This is the
+frame of reference “according to the plasma.”</p>
+<p>If a photon is propagating in the ejecta with a frequency <span class="math notranslate nohighlight">\(\nu_\mathrm{lab}\)</span> in the lab frame and a propagation
+direction <span class="math notranslate nohighlight">\(\mu\)</span>, the doppler effect says that in the co-moving frame at a distance <span class="math notranslate nohighlight">\(r\)</span> from the center of
+the supernova, the photon’s frequency is shifted to</p>
+<div class="math notranslate nohighlight">
+\[\nu_\mathrm{co-moving} = \nu_\mathrm{lab}\frac{1-\beta\mu}{\sqrt{1-\beta^2}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\beta = \frac{v}{c} = \frac{r}{ct_\mathrm{explosion}}\)</span> (note again that <span class="math notranslate nohighlight">\(v\)</span> is the velocity of the
+plasma at a radius <span class="math notranslate nohighlight">\(r\)</span> from the center of the supernova). The term <span class="math notranslate nohighlight">\(\frac{1-\beta\mu}{\sqrt{1-\beta^2}}\)</span>
+is known as the doppler factor. In the nonrelativistic limit (as <span class="math notranslate nohighlight">\(v &lt;&lt; c\)</span>), we get</p>
+<div class="math notranslate nohighlight">
+\[\nu_\mathrm{co-moving} = \nu_\mathrm{lab}(1-\beta\mu).\]</div>
+<p>Note that if the photon is propagating away from the center of the supernova (<span class="math notranslate nohighlight">\(\mu&gt;0\)</span>) it is red-shifted
+(<span class="math notranslate nohighlight">\(\nu_\mathrm{co-moving}&lt;\nu_\mathrm{lab}\)</span>), and if the photon is propagating towards the center of the
+supernova (<span class="math notranslate nohighlight">\(\mu&lt;0\)</span>) it is blue-shifted (<span class="math notranslate nohighlight">\(\nu_\mathrm{co-moving}&gt;\nu_\mathrm{lab}\)</span>).</p>
+</section>
+<section id="numerical-and-physical-events">
+<h2>Numerical and Physical Events<a class="headerlink" href="#numerical-and-physical-events" title="Link to this heading">¶</a></h2>
+<p>While a packet is propagating through the computational domain, TARDIS calculates the distance the packet will
+propagate until it (i) crosses into a new cell and (ii) interacts with the plasma in the ejecta. If the former
+distance is shorter, the packet will be moved into the new cell (and the plasma properties will be recalculated), and
+if the latter distance is shorter, the packet will be moved to the location of the interaction, and the interaction
+will be performed.</p>
+<section id="distance-to-next-cell">
+<h3>Distance to Next Cell<a class="headerlink" href="#distance-to-next-cell" title="Link to this heading">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this documentation, and in TARDIS as a whole, the subscripts “inner” and “outer” refer respectively to the
+inner an outer boundaries of a cell. The subscripts “inner_boundary” and “outer_boundary” refer respectively to
+the inner and outer boundaries of the computational domain.</p>
+</div>
+<p>As previously mentioned, the physical properties of the plasma are stored in a discrete mesh of cells for which the
+plasma state is spatially constant. As a consequence, whenever a packet propagates into a
+new cell, important quantities which are relevant for performing
+radiation-matter interactions have to be re-evaluated in accordance with the
+new state of the ambient material. Thus, during the packet propagation, the
+distance to the next radial shell is tracked to predict when the packet crosses
+into a new shell. The following figures summarize the calculations
+of these distances:</p>
+<p>The calculations for the distance to the outer cell boundary:</p>
+<a class="reference internal image-reference" href="../../_images/d_outer.png"><img alt="../../_images/d_outer.png" src="../../_images/d_outer.png" style="width: 500px;" />
+</a>
+<p>The calculations for the distance to the inner cell boundary:</p>
+<a class="reference internal image-reference" href="../../_images/d_inner.png"><img alt="../../_images/d_inner.png" src="../../_images/d_inner.png" style="width: 500px;" />
+</a>
+<p>Special care is taken at the edges of the computational
+domain. If a packet crosses back into the photosphere, it is discarded. Its
+propagation is stopped and it is no longer considered. Instead, processing the
+next packet of the population is started. Similarly, the propagation is stopped
+if the packet escapes through the outer surface of the domain. However, in this
+case the packet contributes to the final emergent spectrum (see <a class="reference internal" href="../../analyzing_tardis/spectrum/index.html#spectrum"><span class="std std-ref">Spectrum
+Formation</span></a>).</p>
+<p>When a packet is moved into a new cell, as mentioned before, it is moved to the location at which it crosses the
+boundary, the plasma properties are recalculated, and the propagation direction of the packet is updated (using
+<span class="math notranslate nohighlight">\(\mu_f = \frac{l + r_i \mu_i}{r_f}\)</span>).</p>
+</section>
+<section id="physical-interactions">
+<span id="id2"></span><h3>Physical Interactions<a class="headerlink" href="#physical-interactions" title="Link to this heading">¶</a></h3>
+<p>As a packet propagates through the computational domain, physical radiation-matter interactions can trigger changes
+in the packet properties. The probability that a photon/packet will interact with matter is characterized by its
+optical depth <span class="math notranslate nohighlight">\(\tau\)</span>; the probability that a packet will have interacted after going through an optical depth
+<span class="math notranslate nohighlight">\(\Delta \tau\)</span> is <span class="math notranslate nohighlight">\(1-e^{-\Delta \tau}\)</span> (see <a class="reference internal" href="../intro/light_and_matter.html#opacity"><span class="std std-ref">Opacity and Optical Depth</span></a> for more). To model this
+(see <a class="reference internal" href="basicprinciples.html#randomsampling"><span class="std std-ref">Random Sampling</span></a>), the
+packet is assigned a random value of optical depth <span class="math notranslate nohighlight">\(\tau_\mathrm{interaction} = -\log z\)</span> (for another random
+<span class="math notranslate nohighlight">\(z\)</span> between 0 and 1), and upon reaching that optical depth, the packet will interact.</p>
+<p>TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic
+line interactions (see <a class="reference internal" href="../intro/light_and_matter.html#light-and-matter"><span class="std std-ref">Light, Matter, and How They Interact</span></a> for a basic introduction to these interactions). As packets propagate,
+they accumulate optical depth due to the possibility of going through either
+of these interactions. Since the main focus of TARDIS is to calculate optical spectra,
+electron-scatterings are treated in the elastic low-energy limit as classical
+Thomson scatterings. In this case, the electron scattering process is frequency-independent. As a consequence to the
+frequency independence, the rate at which a packet accumulates electron scattering optical depth depends only on the
+free electron density <span class="math notranslate nohighlight">\(n_e\)</span>. The optical depth that a Monte Carlo packet accumulates along a path of length
+<span class="math notranslate nohighlight">\(l\)</span> due to
+Thomson scattering is calculated by the formula</p>
+<div class="math notranslate nohighlight">
+\[\Delta \tau = \sigma_{\mathrm{T}} n_e l.\]</div>
+<p>The Thomson cross section <span class="math notranslate nohighlight">\(\sigma_{\mathrm{T}}\)</span>, which is a constant,
+appears here. This corresponds to the fact that a packet has a probability of <span class="math notranslate nohighlight">\(1-e^{-\sigma_{\mathrm{T}} n_e l}\)</span>
+of going through a Thomson scattering prior to traveling a distance <span class="math notranslate nohighlight">\(l\)</span> (in other words, the probability of the
+packet making it across a distance <span class="math notranslate nohighlight">\(l\)</span> without scattering is <span class="math notranslate nohighlight">\(e^{-\sigma_{\mathrm{T}} n_e l}\)</span>).</p>
+<p>The situation is complicated by the inclusion of frequency-dependent
+bound-bound interactions, i.e. interactions with atomic line transitions.
+Photons and thus Monte Carlo packets can only interact with a line transition
+if their frequency in the co-moving frame corresponds to the energy difference between the
+atomic levels linked by the transition, i.e. if it comes into resonance. As discussed above, as a
+photon/packet propagates through the homologously expanding ejecta, its
+co-moving frame frequency is continuously red- or blue-shifted (depending on the packet’s propagation direction).
+Thus, during its
+propagation through the supernova ejecta, a photon/packet may come into resonance with
+many line transitions. This and the fact that line transitions have a finite
+width given by the line profile function (in the case at hand, this width is
+mainly given by thermal broadening) would render the determination of the line
+optical depth accumulated along the photon/packet trajectory a complicated
+task. Fortunately, the typical conditions in supernova ejecta warrant the use
+of the so-called Sobolev approximation. Roughly speaking, this approximation replaces the line
+profile function with a <span class="math notranslate nohighlight">\(\delta\)</span> distribution around the natural line
+frequency. Thus, photons/packets may only interact with a line transition if
+their co-moving frame frequency exactly equals the natural frequency of the
+line. The location at which this occurs is referred to as the resonance or
+Sobolev point. This effectively reduces the line optical depth determination to
+a pure local problem.</p>
+<p>If a packet with a frequency <span class="math notranslate nohighlight">\(\nu_\mathrm{lab}\)</span> in the lab frame is at a radius <span class="math notranslate nohighlight">\(r_i\)</span> with a propagation
+direction <span class="math notranslate nohighlight">\(\mu_i\)</span>, the distance that the packet must travel to reach the next Sobolev point is calculated by
+setting the frequency of the packet in the co-moving frame at the Sobolev point equal to the resonant frequency that
+it will next hit, which we will label <span class="math notranslate nohighlight">\(\nu_\mathrm{line}\)</span> (which is, of course, in the co-moving frame). Using
+the nonrelativistic doppler shift formula, we get</p>
+<div class="math notranslate nohighlight">
+\[\nu_\mathrm{line} = (1-\beta_f \mu_f)\nu_\mathrm{lab}\]</div>
+<p>where the subscript <span class="math notranslate nohighlight">\(f\)</span> refers to being at the sobolev point. Using
+<span class="math notranslate nohighlight">\(\beta_f=\frac{r_f}{ct_\mathrm{explosion}}\)</span> and <span class="math notranslate nohighlight">\(\mu_f = \frac{l + r_i \mu_i}{r_f}\)</span>, we get that the
+distance <span class="math notranslate nohighlight">\(l\)</span> to the next Sobolev point is</p>
+<div class="math notranslate nohighlight">
+\[l = \left( 1-\beta_i\mu_i - \frac{\nu_\mathrm{line}}{\nu_\mathrm{lab}} \right)ct_\mathrm{explosion} = \frac{\nu_{\mathrm{CMF},i}-\nu_\mathrm{line}}{\nu_\mathrm{lab}}ct_\mathrm{explosion}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\nu_{\mathrm{CMF},i}\)</span> is the frequency of the packet in the co-moving frame at the initial position.</p>
+<p>At a Sobolev point, the packet instantaneously accumulates optical depth, the value of which is called the Sobolev
+optical depth <span class="math notranslate nohighlight">\(\tau_\mathrm{Sobolev}\)</span> (see <a class="reference internal" href="../setup/plasma/index.html#tau-sobolev"><span class="std std-ref">Sobolev optical depth</span></a>). This corresponds to a probability of
+<span class="math notranslate nohighlight">\(1-e^{-\tau_\mathrm{Sobolev}}\)</span> that the packet interacts with the atomic line.</p>
+</section>
+<section id="distance-to-next-event">
+<h3>Distance to Next Event<a class="headerlink" href="#distance-to-next-event" title="Link to this heading">¶</a></h3>
+<p>With these assumptions, the accumulation of optical depth along a packet’s trajectory currently proceeds according
+to the following scheme (which was originally introduced by <span id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):
+given the current lab-frame frequency of the packet, the distance to the next
+Sobolev point (i.e. to the next line resonance) is calculated as discussed above.
+Until this location, the packet continuously accumulates optical depth due to the possibility of
+electron-scattering. At the Sobolev point, the accumulated optical depth is
+instantaneously incremented by the Sobolev optical depth. Afterwards, the
+procedure is repeated, now with respect to the next transition in the
+frequency-ordered list of all possible atomic line transitions. The point at
+which the accumulated optical depth reaches the randomly generated interaction optical depth
+<span class="math notranslate nohighlight">\(\tau_\mathrm{interaction}\)</span> determines the type of interaction the packet performs and at which location in
+the spatial mesh, as shown with the example cases in the sketch below (taken from <span id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>, adapted from
+<span id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):</p>
+<a class="reference internal image-reference" href="../../_images/optical_depth_summation.png"><img alt="../../_images/optical_depth_summation.png" src="../../_images/optical_depth_summation.png" style="width: 500px;" />
+</a>
+<p>Three possible cases are highlighted in the above diagram, with the dotted lines showing the (randomly assigned)
+optical depth <span class="math notranslate nohighlight">\(\tau_\mathrm{interaction}\)</span> at which the packet interacts. In case I, the interaction optical
+depth value is reached on one of the path segments between successive Sobolev
+points, where the packet is accumulating electron scattering optical depth.
+Thus, the packet performs a Thomson scattering at the point at which its accumulated optical depth reaches
+<span class="math notranslate nohighlight">\(\tau_\mathrm{interaction}\)</span>. In case II, the interaction
+optical depth is reached during the instantaneous increment by the line optical
+depth at one of the Sobolev points. As a consequence, the packet performs an
+interaction with the corresponding atomic line transition. In both of these cases, the packet is moved to the
+interaction location, the interaction will be performed (as will be described in the next section), and the process
+of accumulating optical depth starts over. Finally, if the packet reaches the shell boundary before the optical depth
+value necessary for a physical interaction is achieved (as in case III), the packet will be moved to the next cell,
+the plasma properties will be updated, and the accumulation of optical depth will <strong>restart</strong> in the next cell.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While it would make physical sense for the accumulation of optical depth to continue between cells until the packet eventually interacts, due to the exponential nature of optical depth and interaction probabilities, both continuing and restarting the accumulation of optical depth between cells can be mathematically shown to yield the same overall statistical results. Restarting the optical depth accumulation is computationally easier, and hence it is the method employed by TARDIS.</p>
+</div>
+</section>
+<section id="performing-an-interaction">
+<h3>Performing an Interaction<a class="headerlink" href="#performing-an-interaction" title="Link to this heading">¶</a></h3>
+<p>When a physical interaction occurs, whether it is a Thomson scattering or a line interaction, the packet is moved to
+the interaction location and a new propagation direction is assigned. Since this process is isotropic, the new
+direction is sampled according to (see <a class="reference internal" href="basicprinciples.html#randomsampling"><span class="std std-ref">Random Sampling</span></a>)</p>
+<div class="math notranslate nohighlight">
+\[\mu_f = 2 z - 1.\]</div>
+<p>using a new random <span class="math notranslate nohighlight">\(z\)</span> (between 0 and 1).</p>
+<p>For Thomson scattering, the energy of the packet in the co-moving frame is conserved, and thus the new energy and
+frequency of the packet in the lab frame (due to the doppler effect) is:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\varepsilon_f &amp; = \varepsilon_i \frac{1 - \beta \mu_i}{1 - \beta \mu_f} \\
+\nu_f &amp; = \nu_i \frac{1 - \beta \mu_i}{1 - \beta \mu_f}\end{split}\]</div>
+<p>Here, the subscripts highlight the packet properties before (<span class="math notranslate nohighlight">\(i\)</span> for
+initial) and after (<span class="math notranslate nohighlight">\(f\)</span> for final) the scattering. Note that <span class="math notranslate nohighlight">\(\mu_i\)</span> is the propagation direction prior
+to the interaction <strong>but at the interaction location.</strong></p>
+<p>For line interactions, the energy of the packet after the interaction is still given by the same formula (based on
+energy conservation in the co-moving frame). However, the post-interaction frequency depends on the selected line
+interaction treatment (see <a class="reference internal" href="lineinteraction.html#lineinteraction"><span class="std std-ref">Line Interaction Treatments</span></a>).</p>
+<p>The ratio <span class="math notranslate nohighlight">\(\frac{1 - \beta \mu_i}{1 - \beta \mu_f}\)</span> can be visualized with the following graph for a plasma
+speed of <span class="math notranslate nohighlight">\(1.1 \times 10^4\)</span> km/s:</p>
+<p>(<a class="reference download internal" download="" href="../../_downloads/4c8fecd2e6b3b223fe33c408beed06dc/plot_mu_in_out_packet.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../../_downloads/f98fd9f7f5fd3e491a50703ed90a26d3/plot_mu_in_out_packet.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../../_downloads/2e290002c49fc56cf755169d6beddc77/plot_mu_in_out_packet.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../../_downloads/2af6c67d004a218e22f4b44c5b8c341f/plot_mu_in_out_packet.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="../../_images/plot_mu_in_out_packet.png" class="plot-directive" src="../../_images/plot_mu_in_out_packet.png" />
+</figure>
+</section>
+</section>
+<section id="implementation-main-propagation-loop">
+<h2>Implementation: Main Propagation Loop<a class="headerlink" href="#implementation-main-propagation-loop" title="Link to this heading">¶</a></h2>
+<p>In summary of the concepts outlined above, the main Monte Carlo process within
+TARDIS consists of successively processing all packets with represent the
+radiation field emitted by the photosphere in the following way:</p>
+<ul class="simple">
+<li><p>initialize the packet: assign initial energy, direction and frequency</p></li>
+<li><p>launch the packet: now the propagation of this packet is followed until one of the termination events is triggered</p></li>
+<li><dl class="simple">
+<dt>follow the propagation:</dt><dd><ul>
+<li><p>calculate the distance to the next shell and determine the distance to the next physical interaction</p></li>
+<li><dl class="simple">
+<dt>the packet covers the shorter of these two distances:</dt><dd><ul>
+<li><p>if the new shell is reached first, propagate into the shell and recalculate both distances</p></li>
+<li><p>if the packet has crossed through the inner domain boundary (photosphere), terminate propagation</p></li>
+<li><p>likewise, in case the packet escapes through the outer boundary (ejecta surface): account for contribution to emergent spectrum and terminate propagation</p></li>
+<li><p>if the interaction location is reached first, propagate to this location, perform interaction and recalculate both distances</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>repeat this procedure until one of the two termination events occurs</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The following flow chart summarizes this process again:</p>
+<div class="graphviz"><object data="../../_images/graphviz-92b26f870c406bb7b9f1108157cd8181cf69667b.svg" type="image/svg+xml" class="graphviz">
+<p class="warning">digraph {
+  start[shape=&quot;box&quot;, style=rounded, label=&quot;Start&quot;];
+  end[shape=&quot;box&quot;, style=rounded, label=&quot;End&quot;];
+  allpacketsprocessed[shape=&quot;diamond&quot;, style=&quot;&quot;, label=&quot;All packets\nprocessed?&quot;];
+  shortestdistance[shape=&quot;diamond&quot;, style=&quot;&quot;, label=&quot;Distance to next\nshell shortests?&quot;];
+  outeredge[shape=&quot;diamond&quot;, style=&quot;&quot;, label=&quot;Escaping through\nsurface?&quot;];
+  inneredge[shape=&quot;diamond&quot;, style=&quot;&quot;, label=&quot;Crossing into\nphotosphere?&quot;];
+
+  nextpacket[shape=&quot;box&quot;, style=&quot;rounded&quot;, label=&quot;Select next\npacket&quot;];
+  initpacket[shape=&quot;box&quot;, style=&quot;rounded&quot;, label=&quot;Initialize packet&quot;];
+  calculatedistances[shape=&quot;box&quot;, style=&quot;rounded&quot;, label=&quot;Calculated distances:\nto next cell, to next interaction&quot;];
+  crossintoshell[shape=&quot;box&quot;, style=&quot;rounded&quot;, label=&quot;Move packet into\nnext cell&quot;];
+  terminate[shape=&quot;box&quot;, style=&quot;rounded&quot;, label=&quot;Terminate propagation,\ndiscard packet&quot;];
+  interact[shape=&quot;box&quot;, style=&quot;rounded&quot;, label=&quot;Move packet to interaction location,\nperform interaction&quot;];
+  spectralcontrib[shape=&quot;box&quot;, style=&quot;rounded&quot;, label=&quot;Determine contribution to spectrum&quot;];
+
+  start -&gt; allpacketsprocessed;
+  allpacketsprocessed -&gt; nextpacket[label=&quot;no&quot;];
+  allpacketsprocessed -&gt; end[label=&quot;yes&quot;];
+
+  nextpacket -&gt; initpacket;
+  initpacket -&gt; calculatedistances;
+  calculatedistances -&gt; shortestdistance;
+  shortestdistance -&gt; outeredge[label=&quot;yes&quot;];
+  shortestdistance -&gt; interact[label=&quot;no&quot;];
+  interact -&gt; calculatedistances;
+  crossintoshell -&gt; calculatedistances;
+  outeredge -&gt; spectralcontrib[label=&quot;yes&quot;]
+  outeredge -&gt; inneredge[label=&quot;no&quot;]
+  inneredge -&gt; terminate[label=&quot;yes&quot;]
+  inneredge -&gt; crossintoshell[label=&quot;no&quot;];
+  spectralcontrib -&gt; terminate;
+  terminate -&gt; allpacketsprocessed;
+
+  allpacketsprocessed[label=&quot;All packets\nprocessed?&quot;]
+  nextpacket[label=&quot;Select next packet\nfrom pool&quot;]
+  shortestdistance[label=&quot;Distance to cell\nedge shortest?&quot;]
+
+}</p></object></div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="initialization.html" class="btn btn-neutral float-left" title="Energy Packet Initialization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lineinteraction.html" class="btn btn-neutral float-right" title="Line Interaction Treatments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 18 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
