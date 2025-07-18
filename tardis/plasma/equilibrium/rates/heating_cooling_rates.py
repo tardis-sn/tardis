@@ -1,6 +1,6 @@
-import numpy as np
-
 import astropy.units as u
+import numpy as np
+import pandas as pd
 
 from tardis import constants as const
 from tardis.transport.montecarlo.estimators.util import (
@@ -83,10 +83,14 @@ class BoundFreeThermalRates:
                 * mean_intensities
             )
 
-            integrated_heating_coefficient = integrate_array_by_blocks(
-                heating_coefficient.values,
-                self.nu.values,
-                self.photoionization_block_references,
+            integrated_heating_coefficient = pd.DataFrame(
+                integrate_array_by_blocks(
+                    heating_coefficient.values,
+                    self.nu.values,
+                    self.photoionization_block_references,
+                ),
+                index=heating_coefficient.index,
+                columns=heating_coefficient.columns,
             )
 
         boltzmann_factor = np.exp(
@@ -96,7 +100,7 @@ class BoundFreeThermalRates:
             * (const.h.cgs / const.k_B.cgs)
         )
 
-        spontaneous_recombination_cooling_coefficient = (
+        spontaneous_recombination_cooling_coefficient = pd.DataFrame(
             (
                 8
                 * np.pi
@@ -109,27 +113,32 @@ class BoundFreeThermalRates:
             * boltzmann_factor
         )
 
-        integrated_cooling_coefficient = integrate_array_by_blocks(
-            spontaneous_recombination_cooling_coefficient.values,
-            self.nu.values,
-            self.photoionization_block_references,
+        spontaneous_recombination_cooling_coefficient.insert(0, "nu", self.nu)
+
+        integrated_cooling_coefficient = (
+            spontaneous_recombination_cooling_coefficient.groupby(
+                level=[0, 1, 2]
+            ).apply(lambda sub: np.trapezoid(sub[0], sub["nu"]))
         )
 
-        heating_rate = integrated_heating_coefficient * level_population
+        heating_rate = (
+            integrated_heating_coefficient
+            * level_population.loc[integrated_heating_coefficient.index]
+        ).sum()
 
         spontaneous_recombination_cooling_rate = (
             integrated_cooling_coefficient
-            * saha_factor
-            * thermal_electron_distribution.number_density
-            * ion_population
+            * saha_factor.loc[integrated_cooling_coefficient.index]
+            * thermal_electron_distribution.number_density.value
+            * ion_population.loc[(1, 1)]  # Hydrogen ion population
         )
 
         if stimulated_recombination_estimator is not None:
             stimulated_recombination_cooling_rate = (
                 stimulated_recombination_estimator
-                * saha_factor
-                * thermal_electron_distribution.number_density
-                * ion_population
+                * saha_factor.loc[stimulated_recombination_estimator.index]
+                * thermal_electron_distribution.number_density.value
+                * ion_population.loc[(1, 1)]
             )
         else:
             stimulated_recombination_cooling_rate = np.zeros(1)
@@ -209,7 +218,7 @@ class FreeFreeThermalRates:
             * heating_factor
         )
 
-        return heating_rate, cooling_rate
+        return heating_rate.value, cooling_rate.value
 
 
 class CollisionalIonizationThermalRates:
@@ -292,10 +301,10 @@ class CollisionalBoundThermalRates:
             Heating and cooling rates for the collisional bound process.
         """
         lower_index = collisional_excitation_rate_coefficient.index.droplevel(
-            level=3
+            "level_number_upper"
         )
         upper_index = collisional_excitation_rate_coefficient.index.droplevel(
-            level=2
+            "level_number_lower"
         )
 
         lower_level_number_density = level_population.loc[lower_index]
