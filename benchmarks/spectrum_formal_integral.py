@@ -58,8 +58,8 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
             transport.transport_state, 
             levels)
         
-        interpolate_shells = self.integrator_settings.interpolate_shells
-        att_S_ul, Jred_lu, Jblue_lu, _, r_inner_i, r_outer_i, tau_sobolevs_integ, electron_densities_integ = self.get_interpolated_quantities(
+        interpolate_shells = self.FormalIntegrator.integrator_settings.interpolate_shells
+        att_S_ul, Jred_lu, Jblue_lu, _, r_inner_i, r_outer_i, tau_sobolevs_integ, electron_densities_integ = self.FormalIntegrator.get_interpolated_quantities(
             res, interpolate_shells, sim_state, transport, opacity_state, plasma
         ) 
 
