@@ -1,0 +1,656 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.io.logger.logger &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a7967b0f"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.io.logger.logger</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.io.logger.logger</h1><div class="highlight"><pre>
+<span></span>import logging
+import os
+import re
+import sys
+from dataclasses import dataclass, field
+import panel as pn
+from IPython.display import display
+from functools import lru_cache
+import pandas as pd
+from tardis.io.logger.colored_logger import ColoredFormatter
+
+PYTHON_WARNINGS_LOGGER = logging.getLogger(&quot;py.warnings&quot;)
+
+# During the sphinx build, we don&#39;t need the ipywidgets comms.
+if &#39;GITHUB_ACTIONS&#39; not in os.environ:
+    pn.extension(comms=&quot;ipywidgets&quot;)
+else:
+    pn.extension()
+
+
+<div class="viewcode-block" id="get_environment">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.get_environment">[docs]</a>
+def get_environment():
+    &quot;&quot;&quot;Determine the execution environment.
+    
+    Panel behaves differently in vscode and jupyter. In jupyter, the logger widget&#39;s display handle
+    has to be updated after each log entry. In vscode, this is not needed.
+
+    Returns
+    -------
+    str
+        The environment name.
+    &quot;&quot;&quot;
+    if any(x for x in (&#39;VSCODE_PID&#39;, &#39;VSCODE&#39;) if x in os.environ):
+        return &#39;vscode&#39;
+    return &#39;jupyter&#39;</div>
+
+
+<div class="viewcode-block" id="create_output_widget">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.create_output_widget">[docs]</a>
+def create_output_widget(height=300):
+    &quot;&quot;&quot;Create an HTML pane for logging output.
+    
+    Parameters
+    ----------
+    height : int, optional
+        The height of the pane in pixels.
+        
+    Returns
+    -------
+    panel.pane.HTML
+        A Panel HTML pane configured for logging output.
+    &quot;&quot;&quot;
+    return pn.pane.HTML(
+        &quot;&quot;,
+        height=height,
+        styles={
+            &#39;overflow-y&#39;: &#39;auto&#39;,
+            &#39;overflow-x&#39;: &#39;auto&#39;,
+            &#39;border&#39;: &#39;1px solid #ddd&#39;,
+            &#39;width&#39;: &#39;100%&#39;,
+            &#39;font-family&#39;: &#39;monospace&#39;,
+            &#39;padding&#39;: &#39;8px&#39;,
+            &#39;background-color&#39;: &#39;white&#39;
+        }
+    )</div>
+
+
+ENVIRONMENT = get_environment()
+LOG_OUTPUTS = {
+    &quot;WARNING/ERROR&quot;: create_output_widget(),
+    &quot;INFO&quot;: create_output_widget(),
+    &quot;DEBUG&quot;: create_output_widget(),
+    &quot;ALL&quot;: create_output_widget(),
+}
+TAB_ORDER = [&quot;ALL&quot;, &quot;WARNING/ERROR&quot;, &quot;INFO&quot;, &quot;DEBUG&quot;]
+LOGGER_WIDGET = pn.Tabs(
+    *[(title, LOG_OUTPUTS[title]) for title in TAB_ORDER],
+    height=350,
+    sizing_mode=&#39;stretch_width&#39;
+)
+
+<div class="viewcode-block" id="LoggingConfig">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LoggingConfig">[docs]</a>
+@dataclass
+class LoggingConfig:
+    &quot;&quot;&quot;Logging configuration.
+    
+    Attributes
+    ----------
+    LEVELS : dict
+        The logging levels.
+    COLORS : dict
+        The logging colors.
+    DEFAULT_LEVEL : str
+        The default logging level.
+    DEFAULT_SPECIFIC_STATE : bool
+        The default specific log level state.
+    &quot;&quot;&quot;
+    LEVELS: dict = field(default_factory=lambda: {
+        &quot;NOTSET&quot;: logging.NOTSET,
+        &quot;DEBUG&quot;: logging.DEBUG,
+        &quot;INFO&quot;: logging.INFO,
+        &quot;WARNING&quot;: logging.WARNING,
+        &quot;ERROR&quot;: logging.ERROR,
+        &quot;CRITICAL&quot;: logging.CRITICAL,
+    })
+
+    COLORS: dict = field(default_factory=lambda: {
+        logging.INFO: &quot;#D3D3D3&quot;,
+        logging.WARNING: &quot;orange&quot;,
+        logging.ERROR: &quot;red&quot;,
+        logging.CRITICAL: &quot;orange&quot;,
+        logging.DEBUG: &quot;blue&quot;,
+        &quot;default&quot;: &quot;black&quot;,
+    })
+
+    DEFAULT_LEVEL = &quot;INFO&quot;
+    DEFAULT_SPECIFIC_STATE = False</div>
+
+
+LOGGING_LEVELS = LoggingConfig().LEVELS
+
+<div class="viewcode-block" id="PanelWidgetLogHandler">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler">[docs]</a>
+class PanelWidgetLogHandler(logging.Handler):
+    &quot;&quot;&quot;Log handler for logging to a widget.
+    
+    Handles the formatting and display of log messages in Panel widgets.
+    
+    Parameters
+    ----------
+    log_outputs : dict
+        Dictionary of Panel HTML panes for different log levels.
+    colors : dict
+        Dictionary mapping log levels to display colors.
+    display_widget : bool, optional
+        Whether to display logs in the widget. Defaults to True.
+    display_handle : IPython.display.DisplayHandle, optional
+        Handle for updating the display in Jupyter environment.
+    logger_widget : panel.Tabs, optional
+        The Panel Tabs widget containing the log outputs.
+    &quot;&quot;&quot;
+    def __init__(self, log_outputs, colors, display_widget=True, display_handle=None, logger_widget=None):
+        super().__init__()
+        self.log_outputs = log_outputs
+        self.colors = colors
+        self.environment = get_environment()
+        self.display_widget = display_widget
+        self.display_handle = display_handle
+        self.logger_widget = logger_widget
+        self.stream_handler = None
+        if not self.display_widget or self.display_handle is None:
+            self.stream_handler = logging.StreamHandler()
+            self.stream_handler.setFormatter(logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;))
+
+<div class="viewcode-block" id="PanelWidgetLogHandler.emit">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler.emit">[docs]</a>
+    def emit(self, record):
+        &quot;&quot;&quot;Process and emit a log record.
+        
+        Parameters
+        ----------
+        record : logging.LogRecord
+            The log record to process and display.
+        &quot;&quot;&quot;
+        if not self.display_widget or self.display_handle is None:
+            self.stream_handler.emit(record)
+            return
+
+        if isinstance(record.msg, pd.DataFrame):
+            df_str = record.msg.to_string(index=True)
+            html_output = f&#39;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;{df_str}&lt;/pre&gt;&#39;
+        else:
+            log_entry = self.format(record)
+            clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
+            html_output = self._format_html_output(clean_log_entry, record)
+        self._emit_to_widget(record.levelno, html_output)</div>
+
+
+    @staticmethod
+    def _remove_ansi_escape_sequences(text):
+        &quot;&quot;&quot;Remove ANSI escape sequences from string.
+        
+        Parameters
+        ----------
+        text : str
+            The text containing ANSI escape sequences.
+            
+        Returns
+        -------
+        str
+            Cleaned text with ANSI escape sequences removed.
+        &quot;&quot;&quot;
+        ansi_escape = re.compile(r&quot;\x1B[@-_][0-?]*[ -/]*[@-~]&quot;)
+        return ansi_escape.sub(&quot;&quot;, text)
+
+    def _format_html_output(self, log_entry, record):
+        &quot;&quot;&quot;Format log entry as HTML with appropriate styling.
+        
+        Parameters
+        ----------
+        log_entry : str
+            The log entry text to format.
+        record : logging.LogRecord
+            The log record containing level information.
+            
+        Returns
+        -------
+        str
+            HTML-formatted log entry.
+        &quot;&quot;&quot;
+        color = self.colors.get(record.levelno, self.colors[&quot;default&quot;])
+        parts = log_entry.split(&quot; &quot;, 2)
+        if len(parts) &gt; 2:
+            prefix, levelname, message = parts
+            return f&#39;&lt;span&gt;{prefix}&lt;/span&gt; &lt;span style=&quot;color: {color}; font-weight: bold;&quot;&gt;{levelname}&lt;/span&gt; {message}&#39;
+        return log_entry
+
+    def _emit_to_widget(self, level, html_output):
+        &quot;&quot;&quot;Handles the widget updates.
+        
+        Updates the appropriate log output widgets based on the log level
+        and updates the display handle in Jupyter environments. Updates happen automatically
+        in the vscode environment.
+        
+        Parameters
+        ----------
+        level : int
+            The logging level (e.g., logging.INFO, logging.ERROR).
+        html_output : str
+            The HTML-formatted log message.
+        &quot;&quot;&quot;
+        level_to_output = {
+            logging.WARNING: &quot;WARNING/ERROR&quot;,
+            logging.ERROR: &quot;WARNING/ERROR&quot;,
+            logging.INFO: &quot;INFO&quot;,
+            logging.DEBUG: &quot;DEBUG&quot;
+        }
+
+        html_wrapped = f&quot;&lt;div style=&#39;margin: 0;&#39;&gt;{html_output}&lt;/div&gt;&quot;
+
+        # Update specific level output
+        output_key = level_to_output.get(level)
+        if output_key:
+            current = self.log_outputs[output_key].object or &quot;&quot;
+            self.log_outputs[output_key].object = current + &quot;\n&quot; + html_wrapped if current else html_wrapped
+        # Update ALL output
+        current_all = self.log_outputs[&quot;ALL&quot;].object or &quot;&quot;
+        self.log_outputs[&quot;ALL&quot;].object = current_all + &quot;\n&quot; + html_wrapped if current_all else html_wrapped
+
+        # Update Jupyter display if in jupyter environment
+        if self.environment == &#39;jupyter&#39; and self.display_handle is not None:
+            self.display_handle.update(self.logger_widget)
+    
+<div class="viewcode-block" id="PanelWidgetLogHandler.close">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.PanelWidgetLogHandler.close">[docs]</a>
+    def close(self):
+        &quot;&quot;&quot;Close the log handler.
+        &quot;&quot;&quot;
+        super().close()
+        if self.stream_handler:
+            self.stream_handler.flush()
+            self.stream_handler.close()
+            self.stream_handler = None</div>
+</div>
+
+
+
+<div class="viewcode-block" id="TARDISLogger">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger">[docs]</a>
+class TARDISLogger:
+    &quot;&quot;&quot;Main logger class for TARDIS.
+    
+    Handles configuration of logging levels, filters, and outputs.
+    
+    Parameters
+    ----------
+    display_handle : IPython.display.DisplayHandle, optional
+        Handle for updating the display in Jupyter environment.
+    logger_widget : panel.Tabs, optional
+        The Panel Tabs widget containing the log outputs.
+    log_outputs : dict, optional
+        Dictionary of Panel HTML panes for different log levels.
+    &quot;&quot;&quot;
+    def __init__(self, display_handle=None, logger_widget=None, log_outputs=None):
+        self.config = LoggingConfig()
+        self.logger = logging.getLogger(&quot;tardis&quot;)
+        self.display_handle = display_handle
+        self.logger_widget = logger_widget
+        self.log_outputs = log_outputs
+
+<div class="viewcode-block" id="TARDISLogger.configure_logging">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.configure_logging">[docs]</a>
+    def configure_logging(self, log_level, tardis_config, specific_log_level=None):
+        &quot;&quot;&quot;Configure the logging level and filtering for TARDIS loggers.
+        
+        Parameters
+        ----------
+        log_level : str
+            The logging level to use (e.g., &quot;INFO&quot;, &quot;DEBUG&quot;).
+        tardis_config : dict
+            Configuration dictionary containing debug settings.
+        specific_log_level : bool, optional
+            Whether to enable specific log level filtering.
+            
+        Raises
+        ------
+        ValueError
+            If an invalid log_level is provided.
+        &quot;&quot;&quot;
+        if &quot;debug&quot; in tardis_config:
+            specific_log_level = tardis_config[&quot;debug&quot;].get(
+                &quot;specific_log_level&quot;, specific_log_level
+            )
+            logging_level = log_level or tardis_config[&quot;debug&quot;].get(
+                &quot;log_level&quot;, &quot;INFO&quot;
+            )
+            if log_level and tardis_config[&quot;debug&quot;].get(&quot;log_level&quot;):
+                self.logger.debug(
+                    &quot;log_level is defined both in Functional Argument &amp; YAML Configuration {debug section}, &quot;
+                    f&quot;log_level = {log_level.upper()} will be used for Log Level Determination&quot;
+                )
+        else:
+            tardis_config[&quot;debug&quot;] = {}
+            logging_level = log_level or self.config.DEFAULT_LEVEL
+            specific_log_level = specific_log_level or self.config.DEFAULT_SPECIFIC_STATE
+
+        logging_level = logging_level.upper()
+        if logging_level not in self.config.LEVELS:
+            raise ValueError(
+                f&quot;Passed Value for log_level = {logging_level} is Invalid. Must be one of the following {list(self.config.LEVELS.keys())}&quot;
+            )
+
+        logger = logging.getLogger(&quot;tardis&quot;)
+        tardis_loggers = [
+            logging.getLogger(name)
+            for name in logging.root.manager.loggerDict
+            if name.startswith(&quot;tardis&quot;)
+        ]
+
+        if logging_level in self.config.LEVELS:
+            for logger in tardis_loggers:
+                logger.setLevel(self.config.LEVELS[logging_level])
+
+        if logger.filters:
+            for filter in logger.filters:
+                for logger in tardis_loggers:
+                    logger.removeFilter(filter)
+
+        if specific_log_level:
+            filter_log = LogFilter([self.config.LEVELS[logging_level], logging.INFO, logging.DEBUG])
+            for logger in tardis_loggers:
+                logger.addFilter(filter_log)
+        else:
+            for filter in logger.filters:
+                for logger in tardis_loggers:
+                    logger.removeFilter(filter)</div>
+
+
+<div class="viewcode-block" id="TARDISLogger.setup_widget_logging">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.setup_widget_logging">[docs]</a>
+    def setup_widget_logging(self, display_widget=True):
+        &quot;&quot;&quot;Set up widget-based logging interface.
+
+        Parameters
+        ----------
+        display_widget : bool, optional
+            Whether to display the widget in GUI environments. Default is True.
+        &quot;&quot;&quot;
+        self.widget_handler = PanelWidgetLogHandler(
+            log_outputs=self.log_outputs,
+            colors=self.config.COLORS,
+            display_widget=display_widget,
+            display_handle=self.display_handle,
+            logger_widget=self.logger_widget
+        )
+        self.widget_handler.setFormatter(
+            logging.Formatter(&quot;%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)&quot;)
+        )
+
+        self._configure_handlers()</div>
+
+
+    def _configure_handlers(self):
+        &quot;&quot;&quot;Configure logging handlers.
+        
+        Removes existing handlers and adds the widget handler to the
+        TARDIS logger and Python warnings logger.
+        &quot;&quot;&quot;
+        logging.captureWarnings(True)
+
+        for logger in [self.logger, logging.getLogger()]:
+            for handler in logger.handlers[:]:
+                logger.removeHandler(handler)
+
+        self.logger.addHandler(self.widget_handler)
+        PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
+    
+<div class="viewcode-block" id="TARDISLogger.remove_widget_handler">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.remove_widget_handler">[docs]</a>
+    def remove_widget_handler(self):
+        &quot;&quot;&quot;Remove the widget handler from the logger.
+        &quot;&quot;&quot;
+        self.logger.removeHandler(self.widget_handler)
+        PYTHON_WARNINGS_LOGGER.removeHandler(self.widget_handler)
+        self.widget_handler.close()</div>
+
+        
+<div class="viewcode-block" id="TARDISLogger.setup_stream_handler">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.TARDISLogger.setup_stream_handler">[docs]</a>
+    def setup_stream_handler(self):
+        &quot;&quot;&quot;Set up notebook-based logging after widget handler is removed.
+        &quot;&quot;&quot;
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setFormatter(ColoredFormatter())
+        
+        self.logger.addHandler(stream_handler)
+        PYTHON_WARNINGS_LOGGER.addHandler(stream_handler)</div>
+</div>
+
+
+<div class="viewcode-block" id="LogFilter">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LogFilter">[docs]</a>
+class LogFilter:
+    &quot;&quot;&quot;Filter for controlling which log levels are displayed.
+    
+    Parameters
+    ----------
+    log_levels : list
+        List of logging levels to allow through the filter.
+    &quot;&quot;&quot;
+    def __init__(self, log_levels):
+        self.log_levels = log_levels
+
+<div class="viewcode-block" id="LogFilter.filter">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.LogFilter.filter">[docs]</a>
+    def filter(self, log_record):
+        &quot;&quot;&quot;Determine if a log record should be displayed.
+        
+        Parameters
+        ----------
+        log_record : logging.LogRecord
+            The log record to evaluate.
+            
+        Returns
+        -------
+        bool
+            True if the record&#39;s level is in the allowed levels, False otherwise.
+        &quot;&quot;&quot;
+        return log_record.levelno in self.log_levels</div>
+</div>
+
+
+<div class="viewcode-block" id="logging_state">
+<a class="viewcode-back" href="../../../../api/tardis.io.logger.logger.html#tardis.io.logger.logger.logging_state">[docs]</a>
+def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
+    &quot;&quot;&quot;Configure and initialize the TARDIS logging system.
+    
+    Sets up the logging environment, configures log levels, and displays
+    the logging widget if requested.
+    
+    Parameters
+    ----------
+    log_level : str
+        The logging level to use (e.g., &quot;INFO&quot;, &quot;DEBUG&quot;).
+    tardis_config : dict
+        Configuration dictionary containing debug settings.
+    specific_log_level : bool, optional
+        Whether to enable specific log level filtering.
+    display_logging_widget : bool, optional
+        Whether to display the logging widget. Default is True.
+        
+    Returns
+    -------
+    panel.Tabs or None
+        The logger widget if display_logging_widget is True and in a
+        supported environment, otherwise None.
+    &quot;&quot;&quot;
+    if display_logging_widget and ENVIRONMENT == &#39;jupyter&#39;:
+        display_handle = display(LOGGER_WIDGET.embed(), display_id=&quot;logger_widget&quot;)
+    elif display_logging_widget:
+        display_handle = display(LOGGER_WIDGET, display_id=&quot;logger_widget&quot;)
+    else:
+        display_handle = None
+    tardislogger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
+    tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
+    tardislogger.setup_widget_logging(display_widget=display_logging_widget)
+    return LOGGER_WIDGET, tardislogger if (display_logging_widget and ENVIRONMENT in [&#39;jupyter&#39;, &#39;vscode&#39;]) else None</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 20 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
