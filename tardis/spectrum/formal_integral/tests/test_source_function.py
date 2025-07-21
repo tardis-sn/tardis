@@ -8,12 +8,16 @@ from tardis.simulation import Simulation
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
+config_line_modes = ["downbranch", "macroatom"]
 
-@pytest.fixture(scope="module")
-def source_function_verysimple(config_verysimple, atomic_dataset):
+@pytest.fixture(scope="module", params=config_line_modes)
+def source_function_verysimple(request, config_verysimple, atomic_dataset):
     """
     Generate the source function state from the simulation.
     """
+
+    config_verysimple["plasma"]["line_interaction_type"] = request.param
+    print(f"Using line interaction type: {request.param}")
     atomic_data = deepcopy(atomic_dataset)
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.last_no_of_packets = 4000
