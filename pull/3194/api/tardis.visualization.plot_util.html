@@ -1,0 +1,551 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.visualization.plot_util module &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8e209b53"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tardis.workflows package" href="tardis.workflows.html" />
+    <link rel="prev" title="tardis.visualization.widgets.util module" href="tardis.visualization.widgets.util.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tardis.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.html">tardis.energy_input package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.grid.html">tardis.grid package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.gui.html">tardis.gui package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.html">tardis.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.model.html">tardis.model package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.opacities.html">tardis.opacities package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.html">tardis.plasma package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.scripts.html">tardis.scripts package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.simulation.html">tardis.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.spectrum.html">tardis.spectrum package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.stats.html">tardis.stats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.html">tardis.transport package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.util.html">tardis.util package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="tardis.visualization.html">tardis.visualization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.html">tardis.workflows package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#module-tardis">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">tardis</a></li>
+          <li class="breadcrumb-item"><a href="tardis.html">tardis package</a></li>
+          <li class="breadcrumb-item"><a href="tardis.visualization.html">tardis.visualization package</a></li>
+      <li class="breadcrumb-item active">tardis.visualization.plot_util module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/tardis.visualization.plot_util.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-tardis.visualization.plot_util">
+<span id="tardis-visualization-plot-util-module"></span><h1>tardis.visualization.plot_util module<a class="headerlink" href="#module-tardis.visualization.plot_util" title="Link to this heading">¶</a></h1>
+<p>Utility functions to be used in plotting.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.axis_label_in_latex">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">axis_label_in_latex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#axis_label_in_latex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.axis_label_in_latex" title="Link to this definition">¶</a></dt>
+<dd><p>Get axis label for plotly plots that can show units in latex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>label_text</strong><span class="classifier">str</span></dt><dd><p>Text to show on label, may be expressed in latex</p>
+</dd>
+<dt><strong>unit</strong><span class="classifier">astropy.units</span></dt><dd><p>Unit of the label which needs to be expressed in latex</p>
+</dd>
+<dt><strong>only_text</strong><span class="classifier">bool</span></dt><dd><p>If label_text is expressed purely in text (i.e. without
+using latex) or not. Default value is True</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Latex string for label renderable by plotly</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.create_wavelength_mask">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">create_wavelength_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_wvl_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#create_wavelength_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.create_wavelength_mask" title="Link to this definition">¶</a></dt>
+<dd><p>Create mask for packets based on wavelength range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>packets_mode</strong><span class="classifier">str</span></dt><dd><p>‘virtual’ or ‘real’ packets mode</p>
+</dd>
+<dt><strong>packet_wvl_range</strong><span class="classifier">astropy.Quantity or None</span></dt><dd><p>Wavelength range to filter packets</p>
+</dd>
+<dt><strong>df_key</strong><span class="classifier">str</span></dt><dd><p>Key for the dataframe in packet_data (‘packets_df’ or ‘packets_df_line_interaction’)</p>
+</dd>
+<dt><strong>column_name</strong><span class="classifier">str</span></dt><dd><p>Column name to filter on (‘nus’ or ‘last_line_interaction_in_nu’)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.array</dt><dd><p>Boolean mask for packets in the specified wavelength range</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.expand_species_list">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">expand_species_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#expand_species_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.expand_species_list" title="Link to this definition">¶</a></dt>
+<dd><p>Expand a species list into a fully-resolved list of species strings.</p>
+<p>This includes:
+- Expanding ion ranges like ‘Si I - V’ into [‘Si I’, ‘Si II’, …, ‘Si V’]
+- Keeping individual ions or elements as-is</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>species_list</strong><span class="classifier">list of str</span></dt><dd><p>List of species requested by the user.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>full_species_list</strong><span class="classifier">list of str</span></dt><dd><p>Expanded list of species strings in ‘Element Ion’ format.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If any digit is found in the input (species must use Roman numerals).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.extract_and_process_packet_data">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">extract_and_process_packet_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#extract_and_process_packet_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.extract_and_process_packet_data" title="Link to this definition">¶</a></dt>
+<dd><p>Extract and process packet data from the simulation object.</p>
+<p>This includes converting the packet data into a DataFrame and appending
+processed line interaction information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>simulation</strong><span class="classifier">tardis.simulation.BaseSimulation</span></dt><dd><p>Full TARDIS simulation object containing transport state, plasma,
+and atomic data.</p>
+</dd>
+<dt><strong>packets_mode</strong><span class="classifier">str</span></dt><dd><p>Type of packets to extract:
+- ‘virtual’: Use virtual packet tracker.
+- ‘real’: Use emitted real packets.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>Dictionary containing raw packet data, the full DataFrame <code class="xref py py-obj docutils literal notranslate"><span class="pre">packets_df</span></code>,
+and a filtered <code class="xref py py-obj docutils literal notranslate"><span class="pre">packets_df_line_interaction</span></code> with line interaction info.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.extract_and_process_packet_data_hdf">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">extract_and_process_packet_data_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#extract_and_process_packet_data_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.extract_and_process_packet_data_hdf" title="Link to this definition">¶</a></dt>
+<dd><p>Extract and process packet data from an HDF file.</p>
+<p>This function retrieves packet data from an HDF file and processes it
+based on the specified packet mode (either “virtual” or “real”). The
+extracted data is organized into a dictionary and further processed
+to include line interaction information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>hdf</strong><span class="classifier">h5py.File or dict-like</span></dt><dd><p>The HDF file object containing the simulation data.</p>
+</dd>
+<dt><strong>packets_mode</strong><span class="classifier">str</span></dt><dd><p>The mode of packets to process. Can be “virtual” for virtual packets
+or any other value for real packets.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>A dictionary containing the processed packet data.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>KeyError</dt><dd><p>If required keys are missing in the HDF file.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If an invalid <code class="xref py py-obj docutils literal notranslate"><span class="pre">packets_mode</span></code> is provided.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.extract_spectrum_data_hdf">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">extract_spectrum_data_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#extract_spectrum_data_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.extract_spectrum_data_hdf" title="Link to this definition">¶</a></dt>
+<dd><p>Extract spectrum data from HDF5.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>hdf</strong><span class="classifier">h5py.File</span></dt><dd><p>Open HDF5 file containing simulation output.</p>
+</dd>
+<dt><strong>packets_mode</strong><span class="classifier">str</span></dt><dd><p>Packet mode to extract spectrum data for (e.g., ‘real’, ‘virtual’).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt>dict</dt><dd><p>Dictionary containing:
+- “spectrum_delta_frequency” : Quantity</p>
+<blockquote>
+<div><p>Frequency bin width in Hz.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>“spectrum_frequency_bins”<span class="classifier">Quantity</span></dt><dd><p>Frequency bin edges in Hz.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>“spectrum_luminosity_density_lambda”<span class="classifier">Quantity</span></dt><dd><p>Luminosity density in erg / s / Å.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>“spectrum_wavelength”<span class="classifier">Quantity</span></dt><dd><p>Wavelength values in Å.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.get_hex_color_strings">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">get_hex_color_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#get_hex_color_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.get_hex_color_strings" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a list of hex color strings from a discrete colormap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>length</strong><span class="classifier">int</span></dt><dd><p>Number of discrete colors to extract from the colormap.</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str, optional</span></dt><dd><p>Name of the Matplotlib colormap to use (default is ‘jet’).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>list of str</dt><dd><p>List of hex color strings ([‘#ff0000’, ‘#00ff00’, ‘#0000ff’])</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.get_mid_point_idx">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">get_mid_point_idx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#get_mid_point_idx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.get_mid_point_idx" title="Link to this definition">¶</a></dt>
+<dd><p>Get index of the middle point of a sorted array (ascending or descending).</p>
+<p>The values in array may not be evenly distributed so it picks the middle
+point not by index but by their values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>arr</strong><span class="classifier">np.array</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>int</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.get_spectrum_data">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">get_spectrum_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#get_spectrum_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.get_spectrum_data" title="Link to this definition">¶</a></dt>
+<dd><p>Get spectrum data from simulation based on mode.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>packets_mode</strong><span class="classifier">str</span></dt><dd><p>Packet mode to extract spectrum data for (e.g., ‘real’, ‘virtual’).</p>
+</dd>
+<dt><strong>sim</strong><span class="classifier">Simulation</span></dt><dd><p>Simulation object containing the spectrum solver and data.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt>dict</dt><dd><p>Dictionary containing:
+- “spectrum_delta_frequency” : Quantity</p>
+<blockquote>
+<div><p>Frequency bin width in Hz.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>“spectrum_frequency_bins”<span class="classifier">Quantity</span></dt><dd><p>Frequency bin edges in Hz.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>“spectrum_luminosity_density_lambda”<span class="classifier">Quantity</span></dt><dd><p>Luminosity density in erg / s / Å.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>“spectrum_wavelength”<span class="classifier">Quantity</span></dt><dd><p>Wavelength values in Å.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.parse_species_list_util">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">parse_species_list_util</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#parse_species_list_util"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.parse_species_list_util" title="Link to this definition">¶</a></dt>
+<dd><p>Parse user-requested species list and create list of species IDs to be used.</p>
+<p>The function interprets element or ion names and ion ranges, converting them
+into (Z, ion) tuples, where Z is the atomic number and <code class="xref py py-obj docutils literal notranslate"><span class="pre">ion</span></code> is the zero-based ionization stage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>species_list</strong><span class="classifier">list of str</span></dt><dd><p>List of species that the user wants to show in distinct colors.
+Species can be given as:
+- An ion (e.g. ‘Fe II’)
+- An element (e.g. ‘Ca’)
+- A range of ions (e.g. ‘Si I - V’)
+- A combination of the above (e.g. [‘Si II’, ‘Fe I - III’, ‘Ca’])</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>species_mapped_result</strong><span class="classifier">dict</span></dt><dd><p>Dictionary mapping (Z, ion) to lists of (Z, ion) tuples.</p>
+</dd>
+<dt><strong>species_list_result</strong><span class="classifier">list of tuple</span></dt><dd><p>Flattened list of all (Z, ion) tuples to be used.</p>
+</dd>
+<dt><strong>elements_with_shared_color</strong><span class="classifier">list of int</span></dt><dd><p>Atomic numbers of elements that should be grouped by color.</p>
+</dd>
+<dt><strong>full_species_list</strong><span class="classifier">list of str</span></dt><dd><p>Expanded list of user-requested species in string format.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>‘Fe II’        -&gt; [(26, 1)]
+‘Ca’           -&gt; [(20, 0), (20, 1), …, (20, 19)]
+‘Si I-V’       -&gt; [(14, 0), (14, 1), (14, 2), (14, 3), (14, 4)]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.process_line_interactions">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">process_line_interactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#process_line_interactions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.process_line_interactions" title="Link to this definition">¶</a></dt>
+<dd><p>Add line interaction metadata to the packet DataFrame.</p>
+<p>Filters packets that experienced a line interaction and computes:
+- Atomic number of the last interaction (out).
+- Species ID (Z * 100 + ion number).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>packet_data</strong><span class="classifier">dict</span></dt><dd><p>Dictionary containing a ‘packets_df’ DataFrame.</p>
+</dd>
+<dt><strong>lines_df</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>DataFrame with ‘atomic_number’ and ‘ion_number’ indexed by line ID.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.visualization.plot_util.to_rgb255_string">
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">to_rgb255_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_tuple</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#to_rgb255_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.to_rgb255_string" title="Link to this definition">¶</a></dt>
+<dd><p>Convert a matplotlib RGBA tuple to a generic RGB 255 string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>color_tuple</strong><span class="classifier">tuple</span></dt><dd><p>Matplotlib RGBA tuple of float values in closed interval [0, 1]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>RGB string of format rgb(r,g,b) where r,g,b are integers between
+0 and 255 (both inclusive)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tardis.visualization.widgets.util.html" class="btn btn-neutral float-left" title="tardis.visualization.widgets.util module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.workflows.html" class="btn btn-neutral float-right" title="tardis.workflows package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 21 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

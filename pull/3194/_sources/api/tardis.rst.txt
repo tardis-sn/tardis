@@ -1,0 +1,42 @@
+tardis package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.energy_input
+   tardis.grid
+   tardis.gui
+   tardis.io
+   tardis.model
+   tardis.opacities
+   tardis.plasma
+   tardis.scripts
+   tardis.simulation
+   tardis.spectrum
+   tardis.stats
+   tardis.transport
+   tardis.util
+   tardis.visualization
+   tardis.workflows
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.analysis
+   tardis.base
+   tardis.constants
+
+Module contents
+---------------
+
+.. automodule:: tardis
+   :members:
+   :show-inheritance:
+   :undoc-members:
