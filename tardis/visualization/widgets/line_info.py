@@ -8,8 +8,8 @@ from astropy import units as u
 from plotly import graph_objects as go
 from plotly.callbacks import BoxSelector
 
-# Initialize Panel extension using auto-detection
-
+from bokeh.plotting import figure
+from bokeh.models import ColumnDataSource
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import (
     is_notebook,
@@ -226,9 +226,11 @@ class LineInfoWidget:
             selected_species_symbols, name="Species"
         )
         fractional_species_interactions.name = "Fraction of packets interacting"
-        return fractional_species_interactions.sort_values(
+        result = fractional_species_interactions.sort_values(
             ascending=False
         ).to_frame()
+        
+        return result
 
     def get_last_line_counts(
         self,
@@ -455,49 +457,54 @@ class LineInfoWidget:
         # the extra padding around it will be oddly visible when near the edge
         scatter_point_idx = pu.get_mid_point_idx(wavelength.value)
 
-        return go.FigureWidget(
-            [
-                go.Scatter(
-                    x=wavelength,
-                    y=luminosity_density_lambda,
-                    name="Real packets",
-                ),
-                go.Scatter(
-                    x=virt_wavelength,
-                    y=virt_luminosity_density_lambda,
-                    name="Virtual packets",
-                ),
-                # Hide a one point scatter trace, to bring boxselect in modebar
-                go.Scatter(
-                    x=wavelength[scatter_point_idx],
-                    y=luminosity_density_lambda[scatter_point_idx],
-                    mode="markers",
-                    marker=dict(opacity=0),
-                    showlegend=False,
-                ),
-            ],
-            layout=go.Layout(
-                title="Spectrum",
-                xaxis=dict(
-                    title=pu.axis_label_in_latex("Wavelength", wavelength.unit),
-                    exponentformat="none",
-                    rangeslider=dict(visible=True),
-                    range=initial_zoomed_range,
-                ),
-                yaxis=dict(
-                    title=pu.axis_label_in_latex(
-                        "Luminosity",
-                        luminosity_density_lambda.unit,
-                    ),
-                    exponentformat="e",
-                    fixedrange=False,
-                ),
-                dragmode="select",
-                selectdirection="h",
-                height=400,
-                margin=dict(t=50, b=60),
-            ),
-        )
+        
+        # Create Bokeh figure with box select
+        p = figure(width=800, height=400, title='Spectrum', tools='box_select,reset')
+        
+        # Add proper axis labels with units
+        p.xaxis.axis_label = pu.axis_label_in_latex("Wavelength", wavelength.unit)
+        p.yaxis.axis_label = pu.axis_label_in_latex("Luminosity", luminosity_density_lambda.unit)
+        
+        # Add line plots
+        p.line(wavelength.value, luminosity_density_lambda.value, legend_label='Real packets', color='blue')
+        p.line(virt_wavelength.value, virt_luminosity_density_lambda.value, legend_label='Virtual packets', color='red')
+        
+        # Create invisible scatter for selection (needed for box select to work)
+        source = ColumnDataSource(dict(x=wavelength.value, y=luminosity_density_lambda.value))
+        p.scatter('x', 'y', source=source, alpha=0, size=1)
+        
+        # Create selection overlay source (initially empty)
+        selection_source = ColumnDataSource(dict(left=[], right=[], top=[], bottom=[]))
+        selection_overlay = p.quad(left='left', right='right', top='top', bottom='bottom', 
+                                   source=selection_source, alpha=0.3, color='lightblue')
+        
+        # Store references for callback
+        self._bokeh_plot = p
+        self._selection_source = selection_source
+        self._y_range = [luminosity_density_lambda.value.min(), luminosity_density_lambda.value.max()]
+        
+        # Selection callback
+        def selection_callback(attr, old, new):
+            if new:
+                indices = new
+                if len(indices) > 0:
+                    selected_x = [wavelength.value[i] for i in indices]
+                    x_range = [min(selected_x), max(selected_x)]
+                    
+                    # Update selection overlay to show persistent selection
+                    self._selection_source.data = dict(
+                        left=[x_range[0]], 
+                        right=[x_range[1]], 
+                        top=[self._y_range[1]], 
+                        bottom=[self._y_range[0]]
+                    )
+                    
+                    self._update_species_interactions(x_range, self.FILTER_MODES[0])
+        
+        # Connect selection callback
+        source.selected.on_change('indices', selection_callback)
+        
+        return pn.pane.Bokeh(p)
 
     def _update_species_interactions(self, wavelength_range, filter_mode):
         """
@@ -513,15 +520,21 @@ class LineInfoWidget:
         )
 
         # Get index of 0th row in species_interactions_table
-        species0 = self.species_interactions_table.df.index[0]
+        if (len(self.species_interactions_table.df) > 0 and 
+            self.species_interactions_table.df.index[0] != ""):
+            
+            species0 = self.species_interactions_table.df.index[0]
 
-        # Also update last_line_counts_table by triggering its event listener
-        if self.species_interactions_table.get_selected_rows() == [0]:
-            # Listener won't trigger if last row selected in
-            # species_interactions_table was also 0th, so unselect the rows
+            # Also update last_line_counts_table by triggering its event listener
+            if self.species_interactions_table.get_selected_rows() == [0]:
+                # Listener won't trigger if last row selected in
+                # species_interactions_table was also 0th, so unselect the rows
+                self.species_interactions_table.change_selection([])
+            # Select 0th row in this table to trigger _update_last_line_counts
+            self.species_interactions_table.change_selection([species0])
+        else:
+            # Clear selection if no valid data
             self.species_interactions_table.change_selection([])
-        # Select 0th row in this table to trigger _update_last_line_counts
-        self.species_interactions_table.change_selection([species0])
 
     def _add_selection_box(self, selector):
         """
@@ -612,8 +625,8 @@ class LineInfoWidget:
         This method has the expected signature of the function passed to
         :code:`handler` argument of :code:`on` method of PanelTableWidget.
         """
-        # Don't execute function if no row was selected implicitly (by api)
-        if event["new"] == [] and event["source"] == "api":
+        # Don't execute function if no row was selected
+        if not event["new"]:
             return
 
         # Get species from the selected row in species_interactions_table
@@ -628,6 +641,7 @@ class LineInfoWidget:
             self.FILTER_MODES[self.filter_mode_buttons.index],
             self.GROUP_MODES[self.group_mode_dropdown.index],
         )
+
 
     def _group_mode_dropdown_handler(self, change):
         """
@@ -676,9 +690,6 @@ class LineInfoWidget:
             # Panel tables handle their own sizing
             self.total_packets_label.update_and_resize(0)
 
-            # Attach event listeners to widgets
-            spectrum_trace = self.figure_widget.data[0]
-            spectrum_trace.on_selection(self._spectrum_selection_handler)
             self.filter_mode_buttons.observe(
                 self._filter_mode_toggle_handler, names="index"
             )
@@ -701,6 +712,7 @@ class LineInfoWidget:
                 f"<span style='font-size: 1.15em;'>Filter selected wavelength range "
                 f"( {selection_box_symbol} ) by:</span>"
             )
+
 
             group_description = pn.pane.HTML(
                 "<span style='font-size: 1.15em;'>Group packet counts by:</span>"
@@ -727,8 +739,11 @@ class LineInfoWidget:
                 sizing_mode='stretch_width'
             )
 
-            return pn.Column(
+            widget = pn.Column(
                 self.figure_widget,
                 tables_row,
                 sizing_mode='stretch_width'
             )
+            
+            return widget
+

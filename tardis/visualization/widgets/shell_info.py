@@ -2,7 +2,9 @@ import ipywidgets as ipw
 import pandas as pd
 import panel as pn
 
-# Initialize Panel extension using auto-detection
+# Initialize Panel extension
+# pn.extension('tabulator')
+
 from tardis.util.base import (
     atomic_number2element_symbol,
     is_notebook,
@@ -350,8 +352,8 @@ class ShellInfoWidget:
         the expected signature of the function passed to :code:`handler` argument
         of :code:`on` method of a table widget (PanelTableWidget object).
         """
-        # Don't execute function if no row was selected, implicitly i.e. by api
-        if event["new"] == [] and event["source"] == "api":
+        # Don't execute function if no row was selected
+        if not event["new"]:
             return
 
         # Get shell no. & atomic_num from rows selected in previous tables
@@ -384,8 +386,8 @@ class ShellInfoWidget:
         the expected signature of the function passed to :code:`handler` argument
         of :code:`on` method of a table widget (PanelTableWidget object).
         """
-        # Don't execute function if no row was selected implicitly (by api)
-        if event["new"] == [] and event["source"] == "api":
+        # Don't execute function if no row was selected
+        if not event["new"]:
             return
 
         # Get shell no., atomic_num, ion from selected rows in previous tables

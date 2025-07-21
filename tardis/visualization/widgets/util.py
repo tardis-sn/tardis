@@ -4,9 +4,9 @@ import asyncio
 import logging
 
 import ipywidgets as ipw
+import numpy as np
 import panel as pn
 import pandas as pd
-
 
 logger = logging.getLogger(__name__)
 
@@ -74,8 +74,8 @@ class PanelTableWidget:
     def _on_selection_change(self, event):
         """Handle selection changes in the table."""
         if event.new:
-            # Panel sends row positions directly, no conversion needed
-            selected_indices = event.new
+            # Panel sends row positions, ensure they're Python int
+            selected_indices = [int(i) for i in event.new]
             self._selected_rows = selected_indices
         else:
             self._selected_rows = []
@@ -86,7 +86,7 @@ class PanelTableWidget:
             # Create event dict similar to qgrid format
             event_dict = {
                 'new': selected_indices,
-                'old': getattr(event, 'old', []),
+                'old': [int(i) for i in getattr(event, 'old', [])],
                 'source': 'user'
             }
             callback(event_dict, self)
@@ -106,16 +106,25 @@ class PanelTableWidget:
         """Get the currently selected row indices."""
         return self._selected_rows
 
-    def change_selection(self, row_indices):
-        """Programmatically change the selection."""
-        if not row_indices:
+    def change_selection(self, index_values):
+        """Programmatically change the selection by index values."""
+        if not index_values:
             self.table.selection = []
             self._selected_rows = []
         else:
-            # Convert row indices to actual index values
-            index_values = [self._df.index[i] for i in row_indices if i < len(self._df)]
-            self.table.selection = index_values
-            self._selected_rows = row_indices
+            # Convert index values to row positions for Panel Tabulator
+            # Panel expects Python int, not numpy.int64
+            row_positions = []
+            selected_rows = []
+            for idx_val in index_values:
+                try:
+                    row_pos = self._df.index.get_loc(idx_val)
+                    row_positions.append(int(row_pos))  # Convert to Python int
+                    selected_rows.append(int(row_pos))
+                except (KeyError, TypeError):
+                    continue
+            self.table.selection = row_positions
+            self._selected_rows = selected_rows
 
     def on(self, event_type, callback):
         """Register an event callback."""
