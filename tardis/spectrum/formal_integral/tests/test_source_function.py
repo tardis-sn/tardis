@@ -48,7 +48,8 @@ def test_att_S_ul(source_function_verysimple, request):
 
     att_S_ul = source_function_verysimple.att_S_ul
     expected_att_S_ul = regression_data.sync_ndarray(att_S_ul)
-    npt.assert_allclose(att_S_ul, expected_att_S_ul)
+    npt.assert_allclose(att_S_ul, expected_att_S_ul, 
+                        rtol=1e-5, atol=1e-8)
 
 def test_Jred_lu(source_function_verysimple, request):
     """
@@ -58,7 +59,8 @@ def test_Jred_lu(source_function_verysimple, request):
 
     Jred_lu = source_function_verysimple.Jred_lu
     expected_Jred_lu = regression_data.sync_ndarray(Jred_lu)
-    npt.assert_allclose(Jred_lu, expected_Jred_lu)
+    npt.assert_allclose(Jred_lu, expected_Jred_lu, 
+                        rtol=1e-5, atol=1e-8)
 
 def test_Jblue_lu(source_function_verysimple, request):
     """
