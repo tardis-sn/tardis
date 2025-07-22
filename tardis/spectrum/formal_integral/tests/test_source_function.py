@@ -3,8 +3,6 @@ import numpy.testing as npt
 import pandas.testing as pdt
 from copy import deepcopy
 
-from tardisbase.testing.regression_data.regression_data import RegressionData
-
 from tardis.simulation import Simulation
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
