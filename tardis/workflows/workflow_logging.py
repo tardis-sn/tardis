@@ -60,7 +60,7 @@ class WorkflowLogging:
 
         logger.info("\n\tPlasma stratification:")
 
-        if Environment.is_notebook() or Environment.is_moria() or Environment.is_vscode():
+        if Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode():
             self.log_dataframe_notebook(plasma_state_log, log_sampling)
         else:
             self.log_dataframe_console(plasma_state_log, log_sampling)
