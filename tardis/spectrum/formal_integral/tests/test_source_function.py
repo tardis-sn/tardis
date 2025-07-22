@@ -1,5 +1,6 @@
 import pytest
 import numpy.testing as npt
+import pandas.testing as pdt
 from copy import deepcopy
 
 from tardisbase.testing.regression_data.regression_data import RegressionData
@@ -77,4 +78,5 @@ def test_e_dot_u(source_function_verysimple, request):
     
     e_dot_u = source_function_verysimple.e_dot_u
     expected_e_dot_u = regression_data.sync_dataframe(e_dot_u)
-    npt.assert_allclose(e_dot_u, expected_e_dot_u)
+    pdt.assert_frame_equal(e_dot_u, expected_e_dot_u)
+    
