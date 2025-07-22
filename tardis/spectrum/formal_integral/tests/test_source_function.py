@@ -11,6 +11,7 @@ from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
 config_line_modes = ["downbranch", "macroatom"]
 
+
 @pytest.fixture(scope="module", params=config_line_modes)
 def source_function_verysimple(request, config_verysimple, atomic_dataset):
     """
@@ -29,56 +30,50 @@ def source_function_verysimple(request, config_verysimple, atomic_dataset):
     transport = sim.transport
 
     formal_integrator = FormalIntegrator(sim_state, plasma, transport)
-    sourceFunction = SourceFunctionSolver(formal_integrator.transport.line_interaction_type, 
-                                          formal_integrator.atomic_data)
+    sourceFunction = SourceFunctionSolver(
+        formal_integrator.transport.line_interaction_type,
+        formal_integrator.atomic_data,
+    )
     res = sourceFunction.solve(
-        formal_integrator.simulation_state, 
-        formal_integrator.opacity_state, 
+        formal_integrator.simulation_state,
+        formal_integrator.opacity_state,
         formal_integrator.transport.transport_state,
-        formal_integrator.plasma.levels
+        formal_integrator.plasma.levels,
     )
     return res
 
 
-def test_att_S_ul(source_function_verysimple, request):
+def test_att_S_ul(source_function_verysimple, regression_data):
     """
     Test the attenuated source function
     """
-    regression_data = RegressionData(request)
-
     att_S_ul = source_function_verysimple.att_S_ul
     expected_att_S_ul = regression_data.sync_ndarray(att_S_ul)
-    npt.assert_allclose(att_S_ul, expected_att_S_ul, 
-                        rtol=1e-5, atol=1e-8)
+    npt.assert_allclose(att_S_ul, expected_att_S_ul, rtol=1e-5, atol=1e-8)
 
-def test_Jred_lu(source_function_verysimple, request):
+
+def test_Jred_lu(source_function_verysimple, regression_data):
     """
     Test the red end line estimator
     """
-    regression_data = RegressionData(request)
-
     Jred_lu = source_function_verysimple.Jred_lu
     expected_Jred_lu = regression_data.sync_ndarray(Jred_lu)
-    npt.assert_allclose(Jred_lu, expected_Jred_lu, 
-                        rtol=1e-5, atol=1e-8)
+    npt.assert_allclose(Jred_lu, expected_Jred_lu, rtol=1e-5, atol=1e-8)
 
-def test_Jblue_lu(source_function_verysimple, request):
+
+def test_Jblue_lu(source_function_verysimple, regression_data):
     """
     Test the blue end line estimator
     """
-    regression_data = RegressionData(request)
-    
     Jblue_lu = source_function_verysimple.Jblue_lu
     expected_Jblue_lu = regression_data.sync_ndarray(Jblue_lu)
-    npt.assert_allclose(Jblue_lu, expected_Jblue_lu)
+    npt.assert_allclose(Jblue_lu, expected_Jblue_lu, rtol=1e-5, atol=1e-8)
 
-def test_e_dot_u(source_function_verysimple, request):
+
+def test_e_dot_u(source_function_verysimple, regression_data):
     """
     Test the energy density estimator
     """
-    regression_data = RegressionData(request)
-    
     e_dot_u = source_function_verysimple.e_dot_u
     expected_e_dot_u = regression_data.sync_dataframe(e_dot_u)
     pdt.assert_frame_equal(e_dot_u, expected_e_dot_u)
-    

@@ -1,14 +1,26 @@
-from tardis.opacities.opacity_state import opacity_state_initialize
+import warnings
+
 import numpy as np
 from astropy import units as u
 from scipy.interpolate import interp1d
-import warnings
-from tardis.spectrum.formal_integral.formal_integral_cuda import CudaFormalIntegrator
-from tardis.spectrum.formal_integral.formal_integral_numba import NumbaFormalIntegrator, calculate_p_values, trapezoid_integration
-from tardis.spectrum.formal_integral.base import check, interpolate_integrator_quantities
+
+from tardis.opacities.opacity_state import opacity_state_initialize
+from tardis.spectrum.formal_integral.formal_integral_cuda import (
+    CudaFormalIntegrator,
+)
+from tardis.spectrum.formal_integral.formal_integral_numba import (
+    NumbaFormalIntegrator,
+    calculate_p_values,
+    trapezoid_integration,
+)
+from tardis.spectrum.formal_integral.base import (
+    check,
+    interpolate_integrator_quantities,
+)
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+
 
 class FormalIntegrator:
     """
@@ -134,7 +146,6 @@ class FormalIntegrator:
 
         return TARDISSpectrum(frequency, luminosity)
 
-    
     def formal_integral(self, nu, N):
         """Do the formal integral with the numba
         routines
@@ -143,10 +154,22 @@ class FormalIntegrator:
 
         transport_state = self.transport.transport_state
 
-        sourceFunction = SourceFunctionSolver(self.transport.line_interaction_type, self.plasma.atomic_data)
-        res = sourceFunction.solve(self.simulation_state, self.opacity_state, transport_state, self.plasma.levels)
+        sourceFunction = SourceFunctionSolver(
+            self.transport.line_interaction_type, self.plasma.atomic_data
+        )
+        res = sourceFunction.solve(
+            self.simulation_state,
+            self.opacity_state,
+            transport_state,
+            self.plasma.levels,
+        )
 
-        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = res.att_S_ul, res.Jred_lu, res.Jblue_lu, res.e_dot_u
+        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
+            res.att_S_ul,
+            res.Jred_lu,
+            res.Jblue_lu,
+            res.e_dot_u,
+        )
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -154,17 +177,19 @@ class FormalIntegrator:
                 Jblue_lu,
                 e_dot_u,
             ) = interpolate_integrator_quantities(
-                att_S_ul, Jred_lu, Jblue_lu, e_dot_u,
+                att_S_ul,
+                Jred_lu,
+                Jblue_lu,
+                e_dot_u,
                 self.interpolate_shells,
-                self.simulation_state, self.transport, self.opacity_state, self.plasma.electron_densities
+                self.simulation_state,
+                self.transport,
+                self.opacity_state,
+                self.plasma.electron_densities,
             )
         else:
-            self.transport.r_inner_i = (
-                transport_state.geometry_state.r_inner
-            )
-            self.transport.r_outer_i = (
-                transport_state.geometry_state.r_outer
-            )
+            self.transport.r_inner_i = transport_state.geometry_state.r_inner
+            self.transport.r_outer_i = transport_state.geometry_state.r_outer
             self.transport.tau_sobolevs_integ = self.opacity_state.tau_sobolev
             self.transport.electron_densities_integ = (
                 self.opacity_state.electron_density
@@ -195,13 +220,16 @@ class FormalIntegrator:
         I_nu = self.transport.I_nu_p * ps
         L_test = np.array(
             [
-                8 * np.pi * np.pi * trapezoid_integration((I_nu)[i, :], R_max / N)
+                8
+                * np.pi
+                * np.pi
+                * trapezoid_integration((I_nu)[i, :], R_max / N)
                 for i in range(nu.shape[0])
             ]
         )
         error = np.max(np.abs((L_test - L) / L))
-        assert (
-            error < 1e-7
-        ), f"Incorrect I_nu_p values, max relative difference:{error}"
+        assert error < 1e-7, (
+            f"Incorrect I_nu_p values, max relative difference:{error}"
+        )
 
         return np.array(L, np.float64)
