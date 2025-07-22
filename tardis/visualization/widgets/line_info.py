@@ -461,9 +461,9 @@ class LineInfoWidget:
         # Create Bokeh figure with box select
         p = figure(width=800, height=400, title='Spectrum', tools='box_select,reset')
         
-        # Add proper axis labels with units
-        p.xaxis.axis_label = pu.axis_label_in_latex("Wavelength", wavelength.unit)
-        p.yaxis.axis_label = pu.axis_label_in_latex("Luminosity", luminosity_density_lambda.unit)
+        # Add proper axis labels with units (Bokeh compatible)
+        p.xaxis.axis_label = f"Wavelength [{wavelength.unit}]"
+        p.yaxis.axis_label = f"Luminosity [{luminosity_density_lambda.unit}]"
         
         # Add line plots
         p.line(wavelength.value, luminosity_density_lambda.value, legend_label='Real packets', color='blue')
