@@ -14,6 +14,7 @@ C_INV = 3.33564e-11
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
+
 # here will go function that are independent of the type of formal integral
 class BoundsError(IndexError):
     pass
@@ -66,6 +67,7 @@ def check(simulation_state, plasma, transport, raises=True):
 
     return True
 
+
 def calculate_p_values(R_max, N):
     """
     Calculates the p values of N
@@ -105,9 +107,15 @@ def intensity_black_body(nu, temperature):
 
 
 def interpolate_integrator_quantities(
-    att_S_ul, Jredlu, Jbluelu, e_dot_u,
+    att_S_ul,
+    Jredlu,
+    Jbluelu,
+    e_dot_u,
     interpolate_shells,
-    simulation_state, transport, opacity_state, electron_densities
+    simulation_state,
+    transport,
+    opacity_state,
+    electron_densities,
 ):
     """Interpolate the integrator quantities to interpolate_shells.
 
@@ -135,7 +143,7 @@ def interpolate_integrator_quantities(
     """
 
     mct_state = transport.transport_state
-    
+
     nshells = interpolate_shells
     r_middle = (
         mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
