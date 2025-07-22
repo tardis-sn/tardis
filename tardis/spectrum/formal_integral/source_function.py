@@ -66,10 +66,9 @@ class SourceFunctionSolver:
         transition_probabilities = transition_probabilities[:, local_slice]
         tau_sobolevs = tau_sobolev[:, local_slice]
 
+
         macro_ref = self.atomic_data.macro_atom_references
         macro_data = self.atomic_data.macro_atom_data
-
-        # levels = self.atomic_data.levels
 
         no_lvls = len(levels)
         no_shells = len(dilution_factor)
@@ -80,7 +79,7 @@ class SourceFunctionSolver:
         )
         e_dot_u = self.calculate_edotu(time_of_simulation, volume, tau_sobolevs, Edotlu_estimator, 
                         macro_data, macro_ref,
-                        transition_probabilities, upper_level_index, no_of_shells, no_lvls,
+                        transition_probabilities, upper_level_index, no_shells, no_lvls,
                         line_interaction_type=self.line_interaction_type
                         )
 
@@ -148,12 +147,6 @@ class SourceFunctionSolver:
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
 
-        e_dot_u.index.names = [
-            "atomic_number",
-            "ion_number",
-            "source_level_number",
-        ]
-
         if line_interaction_type == "macroatom":
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
@@ -174,6 +167,13 @@ class SourceFunctionSolver:
                 C_frame[shell] = linalg.spsolve(inv_N.T, e_dot_u_vec)
             
             e_dot_u = C_frame.loc[e_dot_u.index]
+
+        # needed for att_S_ul calculation
+        e_dot_u.index.names = [
+            "atomic_number",
+            "ion_number",
+            "source_level_number",
+        ]
 
         return e_dot_u
 

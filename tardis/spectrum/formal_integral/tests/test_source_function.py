@@ -76,5 +76,5 @@ def test_e_dot_u(source_function_verysimple, request):
     regression_data = RegressionData(request)
     
     e_dot_u = source_function_verysimple.e_dot_u
-    expected_e_dot_u = regression_data.sync_ndarray(e_dot_u)
+    expected_e_dot_u = regression_data.sync_dataframe(e_dot_u)
     npt.assert_allclose(e_dot_u, expected_e_dot_u)
