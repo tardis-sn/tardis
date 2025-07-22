@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=599924ba"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d519c70"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -216,7 +216,8 @@ class FormalIntegrator:
 <div class="viewcode-block" id="FormalIntegrator.generate_numba_objects">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral.html#tardis.spectrum.formal_integral.formal_integral.FormalIntegrator.generate_numba_objects">[docs]</a>
     def generate_numba_objects(self):
-        &quot;&quot;&quot;instantiate the numba interface objects
+        &quot;&quot;&quot;
+        Instantiate the numba interface objects
         needed for computing the formal integral
         &quot;&quot;&quot;
         from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
@@ -291,8 +292,8 @@ class FormalIntegrator:
 <div class="viewcode-block" id="FormalIntegrator.formal_integral">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral.html#tardis.spectrum.formal_integral.formal_integral.FormalIntegrator.formal_integral">[docs]</a>
     def formal_integral(self, nu, N):
-        &quot;&quot;&quot;Do the formal integral with the numba
-        routines
+        &quot;&quot;&quot;
+        Do the formal integral with the numba routines
         &quot;&quot;&quot;
         # TODO: get rid of storage later on
 

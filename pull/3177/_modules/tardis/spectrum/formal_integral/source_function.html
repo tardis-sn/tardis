@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=599924ba"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d519c70"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -132,20 +132,31 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.spectrum.formal_integral.source_function</h1><div class="highlight"><pre>
-<span></span>from tardis import constants as const
-
-from dataclasses import dataclass
+<span></span>from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
 from astropy import units as u
 
+from tardis import constants as const
+
 
 <div class="viewcode-block" id="SourceFunctionSolver">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver">[docs]</a>
 class SourceFunctionSolver:
     def __init__(self, line_interaction_type, atomic_data):
+        &quot;&quot;&quot;
+        Configures the source function solver
+
+        Parameters
+        ----------
+        line_interaction_type : str
+            The type of line interaction (e.g. &quot;downbranch&quot;, &quot;macroatom&quot;).
+        atomic_data : tardis.atomic.AtomicData
+            The atomic data for the simulation.
+        &quot;&quot;&quot;
+
         self.line_interaction_type = line_interaction_type
         self.atomic_data = atomic_data
 
@@ -153,10 +164,8 @@ class SourceFunctionSolver:
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.solve">[docs]</a>
     def solve(self, sim_state, opacity_state, transport_state, levels):
         &quot;&quot;&quot;
-        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
-
-        Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
-        so there is no need to factor out the source function explicitly.
+        Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.
+        
         Parameters
         ----------
         sim_state : tardis.model.SimulationState
@@ -168,13 +177,15 @@ class SourceFunctionSolver:
 
         Returns
         -------
-        Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -&gt; l
-
-        att_S_ul : np.ndarray
-            Attenuated source function
-        Jredlu : np.ndarray
-        Jbluelu : np.ndarray
-        e_dot_u : pd.DataFrame
+        SourceFunctionState with attributes
+            att_S_ul : np.ndarray
+                The attenuated source function
+            Jred_lu : np.ndarray
+                the normalized J estimator from the red end of the line from lower to upper level
+            Jblue_lu : np.ndarray
+                the normalized J estimator from the blue end of the line from lower to upper level 
+            e_dot_u : pd.DataFrame
+                The rate energy density is added to the upper level of transitions excited to it
         &quot;&quot;&quot;
 
         # Parse states for required values
@@ -278,7 +289,7 @@ class SourceFunctionSolver:
         line_interaction_type=&quot;macroatom&quot;,
     ):
         &quot;&quot;&quot;
-        Calculate e_dot_u, the rate energy density is add to the upper level of transitions excited to it
+        Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it
 
         Parameters
         ----------
@@ -359,7 +370,10 @@ class SourceFunctionSolver:
         time_explosion,
     ):
         &quot;&quot;&quot;
-        Calculate the attenuated source function
+        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
+
+        Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+        so there is no need to factor out the source function explicitly.
 
         Parameters
         ----------
@@ -454,6 +468,18 @@ class SourceFunctionSolver:
 class SourceFunctionState:
     &quot;&quot;&quot;
     Data class to hold the computed source function values
+
+    Attributes:
+    ----------
+    
+    att_S_ul : np.ndarray
+        The attenuated source function
+    Jred_lu : np.ndarray
+        the normalized J estimator from the red end of the line from lower to upper level
+    Jblue_lu : np.ndarray
+        the normalized J estimator from the blue end of the line from lower to upper level 
+    e_dot_u : pd.DataFrame
+        The rate energy density is added to the upper level of transitions excited to it
     &quot;&quot;&quot;
 
     att_S_ul: np.ndarray
