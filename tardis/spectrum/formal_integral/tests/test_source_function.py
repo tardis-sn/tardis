@@ -43,7 +43,7 @@ def source_function_verysimple(request, config_verysimple, atomic_dataset):
 
 def test_att_S_ul(source_function_verysimple, regression_data):
     """
-    Test the attenuated source function
+    Test att_S_ul
     """
     att_S_ul = source_function_verysimple.att_S_ul
     expected_att_S_ul = regression_data.sync_ndarray(att_S_ul)
@@ -52,7 +52,7 @@ def test_att_S_ul(source_function_verysimple, regression_data):
 
 def test_Jred_lu(source_function_verysimple, regression_data):
     """
-    Test the red end line estimator
+    Test Jred_lu
     """
     Jred_lu = source_function_verysimple.Jred_lu
     expected_Jred_lu = regression_data.sync_ndarray(Jred_lu)
@@ -61,7 +61,7 @@ def test_Jred_lu(source_function_verysimple, regression_data):
 
 def test_Jblue_lu(source_function_verysimple, regression_data):
     """
-    Test the blue end line estimator
+    Test Jblue_lu
     """
     Jblue_lu = source_function_verysimple.Jblue_lu
     expected_Jblue_lu = regression_data.sync_ndarray(Jblue_lu)
@@ -70,7 +70,7 @@ def test_Jblue_lu(source_function_verysimple, regression_data):
 
 def test_e_dot_u(source_function_verysimple, regression_data):
     """
-    Test the energy density estimator
+    Test e_dot_u
     """
     e_dot_u = source_function_verysimple.e_dot_u
     expected_e_dot_u = regression_data.sync_dataframe(e_dot_u)

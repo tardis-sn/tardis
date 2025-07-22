@@ -78,7 +78,8 @@ class FormalIntegrator:
             self.opacity_state = None
 
     def generate_numba_objects(self):
-        """instantiate the numba interface objects
+        """
+        Instantiate the numba interface objects
         needed for computing the formal integral
         """
         from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
@@ -147,8 +148,8 @@ class FormalIntegrator:
         return TARDISSpectrum(frequency, luminosity)
 
     def formal_integral(self, nu, N):
-        """Do the formal integral with the numba
-        routines
+        """
+        Do the formal integral with the numba routines
         """
         # TODO: get rid of storage later on
 
