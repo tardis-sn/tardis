@@ -245,9 +245,9 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
     tardislogger = TARDISLogger(log_columns=log_columns)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
-    use_widget = display_logging_widget and (Environment.is_notebook() or Environment.is_vscode() or Environment.is_moria())
+    use_widget = display_logging_widget and (Environment.is_notebook() or Environment.is_vscode() or Environment.is_sshjh())
     
-    if Environment.is_notebook() or Environment.is_moria():
+    if Environment.is_notebook() or Environment.is_sshjh():
         display_handles = {}
         display_ids = {}
         for level, column in log_columns.items():

@@ -9,7 +9,7 @@ class Environment(StrEnum):
     VSCODE = 'vscode'
     JUPYTER = 'jupyter'
     TERMINAL = 'terminal'
-    MORIA = 'moria'
+    SSH_JH = 'ssh_jh'
     
     @classmethod
     def get_current_environment(cls) -> 'Environment':
@@ -24,8 +24,8 @@ class Environment(StrEnum):
             return cls.VSCODE
         elif cls.is_notebook():
             return cls.JUPYTER
-        elif cls.is_moria():
-            return cls.MORIA
+        elif cls.is_sshjh():
+            return cls.SSH_JH
         elif cls.is_terminal():
             return cls.TERMINAL
         else:
@@ -77,9 +77,9 @@ class Environment(StrEnum):
         return False
 
     @staticmethod
-    def is_moria() -> bool:
+    def is_sshjh() -> bool:
         """
-        Checking if the current environment is Moria/JupyterHub
+        Checking if the current environment is JupyterHub
         
         Returns
         -------

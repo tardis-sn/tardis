@@ -4,12 +4,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-VALID_MODES = ["moria", "notebook", "vscode", "vscode_noipy"]
+VALID_MODES = ["ssh_jh", "notebook", "vscode", "vscode_noipy"]
 preferred_mode = None
 
-def moria():
-    """Initialize panel for Moria/JupyterHub (colab comms)"""
-    print("Initializing panel with colab comms for Moria/JupyterHub")
+def ssh_jh():
+    """Initialize panel for JupyterHub (colab comms)"""
+    print("Initializing panel with colab comms for JupyterHub")
     pn.extension(comms="colab")
 
 def notebook():
@@ -34,14 +34,14 @@ def auto():
         if preferred_mode not in VALID_MODES:
             raise ValueError(f"Invalid mode: {preferred_mode}. Valid modes are: {VALID_MODES}")
         print(f"Using preferred mode: {preferred_mode}")
-        modes = {"moria": moria, "notebook": notebook, "vscode": vscode, "vscode_noipy": vscode_noipy}
+        modes = {"ssh_jh": ssh_jh, "notebook": notebook, "vscode": vscode, "vscode_noipy": vscode_noipy}
         modes[preferred_mode]()
         return
     
     # Otherwise auto-detect
-    if Environment.is_moria():
-        print("Auto-detected Moria/JupyterHub environment")
-        moria()
+    if Environment.is_sshjh():
+        print("Auto-detected JupyterHub environment")
+        ssh_jh()
     elif Environment.is_vscode():
         print("Auto-detected VSCode environment")
         vscode()
