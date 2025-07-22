@@ -1,5 +1,3 @@
-from tardis import constants as const
-
 from dataclasses import dataclass
 import numpy as np
 import pandas as pd
@@ -7,18 +5,29 @@ import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
 from astropy import units as u
 
+from tardis import constants as const
+
 
 class SourceFunctionSolver:
     def __init__(self, line_interaction_type, atomic_data):
+        """
+        Configures the source function solver
+
+        Parameters
+        ----------
+        line_interaction_type : str
+            The type of line interaction (e.g. "downbranch", "macroatom").
+        atomic_data : tardis.atomic.AtomicData
+            The atomic data for the simulation.
+        """
+
         self.line_interaction_type = line_interaction_type
         self.atomic_data = atomic_data
 
     def solve(self, sim_state, opacity_state, transport_state, levels):
         """
-        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
-
-        Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
-        so there is no need to factor out the source function explicitly.
+        Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.
+        
         Parameters
         ----------
         sim_state : tardis.model.SimulationState
@@ -30,13 +39,15 @@ class SourceFunctionSolver:
 
         Returns
         -------
-        Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
-
-        att_S_ul : np.ndarray
-            Attenuated source function
-        Jredlu : np.ndarray
-        Jbluelu : np.ndarray
-        e_dot_u : pd.DataFrame
+        SourceFunctionState with attributes
+            att_S_ul : np.ndarray
+                The attenuated source function
+            Jred_lu : np.ndarray
+                the normalized J estimator from the red end of the line from lower to upper level
+            Jblue_lu : np.ndarray
+                the normalized J estimator from the blue end of the line from lower to upper level 
+            e_dot_u : pd.DataFrame
+                The rate energy density is added to the upper level of transitions excited to it
         """
 
         # Parse states for required values
@@ -137,7 +148,7 @@ class SourceFunctionSolver:
         line_interaction_type="macroatom",
     ):
         """
-        Calculate e_dot_u, the rate energy density is add to the upper level of transitions excited to it
+        Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it
 
         Parameters
         ----------
@@ -215,7 +226,10 @@ class SourceFunctionSolver:
         time_explosion,
     ):
         """
-        Calculate the attenuated source function
+        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
+
+        Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+        so there is no need to factor out the source function explicitly.
 
         Parameters
         ----------
@@ -300,6 +314,18 @@ class SourceFunctionSolver:
 class SourceFunctionState:
     """
     Data class to hold the computed source function values
+
+    Attributes:
+    ----------
+    
+    att_S_ul : np.ndarray
+        The attenuated source function
+    Jred_lu : np.ndarray
+        the normalized J estimator from the red end of the line from lower to upper level
+    Jblue_lu : np.ndarray
+        the normalized J estimator from the blue end of the line from lower to upper level 
+    e_dot_u : pd.DataFrame
+        The rate energy density is added to the upper level of transitions excited to it
     """
 
     att_S_ul: np.ndarray
