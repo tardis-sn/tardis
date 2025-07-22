@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5268f5c3"></script>
+      <script src="../../../../_static/documentation_options.js?v=599924ba"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -132,12 +132,28 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.spectrum.formal_integral.formal_integral_cuda</h1><div class="highlight"><pre>
-<span></span>import numpy as np
-import math
-
+<span></span>import math
+import numpy as np
 from numba import cuda
-from tardis.spectrum.formal_integral.base import C_INV, KB_CGS, H_CGS, calculate_p_values
+
+from tardis.spectrum.formal_integral.base import (
+    C_INV,
+    KB_CGS,
+    H_CGS,
+    calculate_p_values,
+)
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
+
+
+<div class="viewcode-block" id="BoundsError">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.BoundsError">[docs]</a>
+class BoundsError(IndexError):
+    &quot;&quot;&quot;
+    Used to check bounds in reverse
+    binary search
+    &quot;&quot;&quot;</div>
+
+
 
 <div class="viewcode-block" id="trapezoid_integration_cuda">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.trapezoid_integration_cuda">[docs]</a>
@@ -182,7 +198,6 @@ def cuda_vector_integrator(L, I_nu, N, R_max):
     L[nu_idx] = (
         8 * np.pi * np.pi * trapezoid_integration_cuda(I_nu[nu_idx], R_max / N)
     )</div>
-
 
 
 
@@ -359,6 +374,7 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
 
 calculate_p_values = cuda.jit(calculate_p_values, device=True)
 
+
 <div class="viewcode-block" id="intensity_black_body_cuda">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.intensity_black_body_cuda">[docs]</a>
 @cuda.jit(device=True)
@@ -382,7 +398,6 @@ def intensity_black_body_cuda(nu, temperature):
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
     return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)</div>
-
 
 
 
@@ -716,16 +731,6 @@ class CudaFormalIntegrator:
 
         return L, I_nu</div>
 </div>
-
-
-
-<div class="viewcode-block" id="BoundsError">
-<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.BoundsError">[docs]</a>
-class BoundsError(IndexError):
-    &quot;&quot;&quot;
-    Used to check bounds in reverse
-    binary search
-    &quot;&quot;&quot;</div>
 
 </pre></div>
 

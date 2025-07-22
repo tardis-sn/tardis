@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5268f5c3"></script>
+      <script src="../../../../_static/documentation_options.js?v=599924ba"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -148,6 +148,7 @@ C_INV = 3.33564e-11
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
+
 # here will go function that are independent of the type of formal integral
 <div class="viewcode-block" id="BoundsError">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.BoundsError">[docs]</a>
@@ -209,6 +210,7 @@ def check(simulation_state, plasma, transport, raises=True):
     return True</div>
 
 
+
 <div class="viewcode-block" id="calculate_p_values">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.calculate_p_values">[docs]</a>
 def calculate_p_values(R_max, N):
@@ -256,9 +258,15 @@ def intensity_black_body(nu, temperature):
 <div class="viewcode-block" id="interpolate_integrator_quantities">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities">[docs]</a>
 def interpolate_integrator_quantities(
-    att_S_ul, Jredlu, Jbluelu, e_dot_u,
+    att_S_ul,
+    Jredlu,
+    Jbluelu,
+    e_dot_u,
     interpolate_shells,
-    simulation_state, transport, opacity_state, electron_densities
+    simulation_state,
+    transport,
+    opacity_state,
+    electron_densities,
 ):
     &quot;&quot;&quot;Interpolate the integrator quantities to interpolate_shells.
 
@@ -286,7 +294,7 @@ def interpolate_integrator_quantities(
     &quot;&quot;&quot;
 
     mct_state = transport.transport_state
-    
+
     nshells = interpolate_shells
     r_middle = (
         mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
