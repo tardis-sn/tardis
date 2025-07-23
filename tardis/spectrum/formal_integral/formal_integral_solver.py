@@ -16,14 +16,20 @@ from tardis.spectrum.formal_integral.formal_integral_cuda import CudaFormalInteg
 class FormalIntegralSolver:
 
     def __init__(self, integrator_settings):
+        """
+        Initialize the formal integral solver.
 
-        # will need configurations for
-            # which method to use (numba, cuda, etc)
-            # number of shells and points
-            # spectrum configuration
-        # self.formal_integral_configuration = formal_integral_configuration
-        # self.spectrum_configuration = spectrum_configuration
-        self.integrator_settings = integrator_settings # TODO: add option to specify 'numba' or 'cuda'
+        Parameters
+        ----------
+        integrator_settings : IntegratorSettings
+            The settings to use for the integrator, such as: 
+                points (int): Number of points
+                interpolate_shells (int): Number of shells to interpolate to
+                method (str): Method to use for the formal integral solver ('numba' or 'cuda')
+        """
+        self.integrator_settings = integrator_settings
+
+        # check if the method was set in the configuration
         try:
             self.method = self.integrator_settings.integrated.method
         except AttributeError:
@@ -32,24 +38,23 @@ class FormalIntegralSolver:
     def setup(self, transport, plasma, opacity_state=None, macro_atom_state=None):
 
         """
-        Set up the integrator depending on the method specified in the configuration.
+        Prepares the necessary data for the formal integral solver.
 
         Parameters
         ----------
         method : str
-            The method to use for the formal integral solver, e.g., 'numba', 'cuda'.
+            The method to use for the formal integral solver ('numba', 'cuda').
 
         Returns
         -------
-        integrator : FormalIntegrator
-            An instance of the appropriate formal integrator.
+        atomic_data : AtomicData
+        levels_index : np.ndarray
+        opacity_state : OpacityStateNumba
         """
 
-
-        if transport:
-            self.montecarlo_configuration = (
-                transport.montecarlo_configuration
-            )
+        self.montecarlo_configuration = (
+            transport.montecarlo_configuration
+        )
         
         if self.method in [None, 'numba', 'cuda']:
             # use GPU if available
@@ -83,14 +88,28 @@ class FormalIntegralSolver:
 
         return atomic_data, levels_index, opacity_state
 
-    def setup_integrator(self, opacity_state, time_explosion, r_inner_i, r_outer_i):
-        # TODO: move out - this has to happen after the interpolation, if any
+    def setup_integrator(self, opacity_state, time_explosion, r_inner, r_outer):
+        """
+        Setup the integrator depending on the choice of method
+
+        Parameters
+        ----------
+        opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
+            The opacity state to use for the formal integral
+        time_explosion : u.Quantity
+            The time of the explosion
+        r_inner : np.ndarray
+            The inner radii of the shells
+        r_outer : np.ndarray
+            The outer radii of the shells
+        """
+
         numba_radial_1d_geometry = NumbaRadial1DGeometry(
-            r_inner_i,
-            r_outer_i,
-            r_inner_i
+            r_inner,
+            r_outer,
+            r_inner
             / time_explosion.to("s").value,
-            r_outer_i
+            r_outer
             / time_explosion.to("s").value,
         )
 
@@ -110,6 +129,27 @@ class FormalIntegralSolver:
             )
     
     def solve(self, nu, simulation_state, transport, plasma, opacity_state=None, macro_atom_state=None):
+        """
+        Solve the formal integral
+
+        Parameters
+        ----------
+        nu : u.Quantity
+            The frequency grid for the formal integral.
+        simulation_state : tardis.model.SimulationState
+            State which hold information about each shell
+        transport : tardis.transport.montecarlo.MonteCarloTransportSolver
+        plasma : tardis.plasma.BasePlasma
+        opacity_state : tardis.opacities.opacity_state.OpacityState or None
+            State of the line opacities
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState or None
+            State of the macro atom
+
+        Returns
+        -------
+        TARDISSpectrum
+            the formal integral
+        """
 
         atomic_data, levels, opacity_state = self.setup(transport, plasma, opacity_state, macro_atom_state)
         transport_state = transport.transport_state
@@ -171,7 +211,8 @@ class FormalIntegralSolver:
         interpolate_shells,
         simulation_state, transport, opacity_state, electron_densities
     ):
-        """Interpolate the integrator quantities to interpolate_shells.
+        """
+        Interpolate the integrator quantities to interpolate_shells.
 
         Parameters
         ----------
@@ -181,19 +222,19 @@ class FormalIntegralSolver:
             J estimator from the red end of the line from lower to upper level
         Jbluelu : np.ndarray
             J estimator from the blue end of the line from lower to upper level
-        e_dot_u : np.ndarray
-            Line estimator for the rate of energgity density absorption from lower to upper level
+        e_dot_u : pd.DataFrame
+            Line estimator for the rate of energy density absorption from lower to upper level
         interpolate_shells : int
             number of shells to interpolate to
         simulation_state : tardis.model.SimulationState
         transport : tardis.transport.montecarlo.MonteCarloTransportSolver
-        opacity_state : OpacityStateNumba
+        opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
         electron_densities : np.ndarray
 
         Returns
         -------
         tuple
-            Interpolated values of att_S_ul, Jredlu, Jbluelu, and e_dot_u
+            Interpolated values of att_S_ul, Jredlu, Jbluelu, e_dot_u, r_inner_i, r_outer_i, tau_sobolevs_integ, and electron_densities_integ
         """
 
         mct_state = transport.transport_state
@@ -254,8 +295,30 @@ class FormalIntegralSolver:
 
 
     def get_interpolated_quantities(self, source_function_state, interpolate_shells, simulation_state, transport, opacity_state, plasma):
+        """
+        If needed, interpolate the quantities from the source function state, and prepare the results for use in the formal integral.
+
+        Parameters
+        ----------
+        source_function_state : tardis.spectrum.formal_integral.source_function.SourceFunctionState
+            The source function state containing the quantities to be interpolated.
+        interpolate_shells : int
+            The number of shells to interpolate to.
+        simulation_state : tardis.model.SimulationState
+        transport : tardis.transport.montecarlo.MonteCarloTransportSolver
+        opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
+        plasma : tardis.plasma.Plasma
+
+        Returns
+        -------
+        tuple
+            (possibly interpolated) att_S_ul, Jred_lu, Jblue_lu, e_dot_u, r_inner, r_outer, tau_sobolevs, electron_densities
+        """
+
         att_S_ul, Jred_lu, Jblue_lu, e_dot_u = source_function_state.att_S_ul, source_function_state.Jred_lu, source_function_state.Jblue_lu, source_function_state.e_dot_u
-        if interpolate_shells > 0: # TODO: fix up the interpolation
+        
+        # interpolate, if not use existing values
+        if interpolate_shells > 0: 
             (
                 att_S_ul,
                 Jred_lu,
