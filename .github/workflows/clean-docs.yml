@@ -6,7 +6,7 @@ name: clean-docs
 
 on:
   delete:
-  pull_request_target: # remove closed or merged pull requests
+  pull_request: # remove closed or merged pull requests
     branches:
       - "*"
     types:
@@ -26,7 +26,7 @@ jobs:
           if [[ $EVENT == delete ]]; then
             echo "DEST_DIR=$EVENT_TYPE/$EVENT_REF" >> $GITHUB_ENV
 
-          elif [[ $EVENT == pull_request_target ]]; then
+          elif [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
 
           else
