@@ -115,6 +115,8 @@ class LineInfoWidget:
             options=self.GROUP_MODES_DESC, index=0
         )
 
+        self._current_wavelength_range = None  # Track current selection
+
     @classmethod
     def from_simulation(cls, sim):
         """
@@ -565,6 +567,9 @@ class LineInfoWidget:
         if isinstance(selector, BoxSelector):
             wavelength_range = selector.xrange
             
+            # Track the current selection
+            self._current_wavelength_range = wavelength_range
+            
             # Update selection overlay in Bokeh plot
             if hasattr(self, '_selection_source'):
                 self._selection_source.data = dict(
@@ -587,17 +592,12 @@ class LineInfoWidget:
         passed to :code:`observe` method of ipywidgets as explained in
         `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
         """
-        try:
-            wavelength_range = [
-                self.figure_widget.layout.shapes[0][x] for x in ("x0", "x1")
-            ]
-        except IndexError:  # No selection is made on figure widget
-            return
-
-        self._update_species_interactions(
-            wavelength_range,
-            self.FILTER_MODES[self.filter_mode_buttons.index],
-        )
+        # Use tracked wavelength range instead of trying to access plotly shapes
+        if self._current_wavelength_range is not None:
+            self._update_species_interactions(
+                self._current_wavelength_range,
+                self.FILTER_MODES[self.filter_mode_buttons.index],
+            )
 
     def _species_intrctn_selection_handler(self, event, panel_widget):
         """

@@ -180,6 +180,8 @@ class TestLineInfoWidgetEvents:
                     ],  # Not very relevant, approx height of box
                 ),
             )
+            # Ensure the selection is properly tracked
+            liw._current_wavelength_range = selection_range
 
         return liw, selection_range
 
