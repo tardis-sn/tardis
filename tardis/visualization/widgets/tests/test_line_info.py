@@ -170,7 +170,7 @@ class TestLineInfoWidgetEvents:
         # selected wavelength range in a BoxSelector object
         if selection_range:
             liw._spectrum_selection_handler(
-                trace=liw.figure_widget.data[0],
+                trace=None,
                 points=Points(),
                 selector=BoxSelector(
                     xrange=selection_range,

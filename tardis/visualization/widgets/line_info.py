@@ -536,34 +536,6 @@ class LineInfoWidget:
             # Clear selection if no valid data
             self.species_interactions_table.change_selection([])
 
-    def _add_selection_box(self, selector):
-        """
-        Draw a shape on plotly figure widget to represent the selection.
-
-        Parameters
-        ----------
-        selector : plotly.callbacks.BoxSelector
-            The object containing data about current selection made on plot
-            (x-axis and y-axis range of selection box)
-        """
-        self.figure_widget.layout.shapes = [
-            dict(
-                type="rect",
-                xref="x",
-                yref="y",
-                x0=selector.xrange[0],
-                y0=selector.yrange[0],
-                x1=selector.xrange[1],
-                y1=selector.yrange[1],
-                line=dict(
-                    color=self.COLORS["selection_border"],
-                    width=1,
-                ),
-                fillcolor=self.COLORS["selection_area"],
-                opacity=0.5,
-            )
-        ]
-
     def _update_last_line_counts(self, species, filter_mode, group_mode):
         """
         Update data in last_line_counts_table and associated total_packets_label.
@@ -583,18 +555,27 @@ class LineInfoWidget:
         else:  # Line counts table will be empty
             self.total_packets_label.update_and_resize(0)
 
-    def _spectrum_selection_handler(self, trace, points, selector):
+    def _spectrum_selection_handler(self, trace=None, points=None, selector=None):
         """
-        Event handler for selection of spectrum in plotly figure widget.
+        Event handler for selection of spectrum - compatibility layer for tests.
 
-        This method has the expected signature of the callback function passed
-        to :code:`on_selection` method of a plotly trace as explained in
-        `their docs <https://plotly.com/python-api-reference/generated/plotly.html#plotly.basedatatypes.BaseTraceType.on_selection>`_.
+        This method maintains compatibility with existing tests while working
+        with the new Bokeh/Panel implementation.
         """
         if isinstance(selector, BoxSelector):
-            self._add_selection_box(selector)
+            wavelength_range = selector.xrange
+            
+            # Update selection overlay in Bokeh plot
+            if hasattr(self, '_selection_source'):
+                self._selection_source.data = dict(
+                    left=[wavelength_range[0]], 
+                    right=[wavelength_range[1]], 
+                    top=[self._y_range[1]], 
+                    bottom=[self._y_range[0]]
+                )
+            
             self._update_species_interactions(
-                selector.xrange,
+                wavelength_range,
                 self.FILTER_MODES[self.filter_mode_buttons.index],
             )
 
