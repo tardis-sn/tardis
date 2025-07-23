@@ -27,7 +27,10 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
     freqs = plasma.atomic_data.lines.nu.values * u.Hz
     order = np.argsort(freqs)
     freqs = freqs[order]
-    taus = opacity_state.tau_sobolev.values[order]
+    if isinstance(a,np.ndarray):
+        taus = opacity_state.tau_sobolev[order]
+    else:
+        taus = opacity_state.tau_sobolev.values[order]
 
     check_bin_size = True
     while check_bin_size:
