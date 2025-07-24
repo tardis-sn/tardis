@@ -35,15 +35,18 @@ class SpectrumSolver(HDFWriterMixin):
         self._spectrum_integrated = None
 
     def setup_optional_spectra(
-        self, transport_state, virtual_packet_luminosity=None, integrator=None
+        self, transport_state, virtual_packet_luminosity=None, integrator=None,
+        simulation_state=None, transport=None, plasma=None, opacity_state=None, macro_atom_state=None
     ):
-        """Set up the solver to handle virtual and integrated spectra
+        """Set up the solver to handle real and virtual spectra
 
         Parameters
         ----------
-        virtual_packet_luminosity : np.ndarray, optional
-            Virtual packet luminosity, unnormalized, by default None
-        integrator : FormalIntegrator, optional
+        transport_state : MonteCarloTransportState
+            The transport state to be used to compute the spectra
+        v_packets_energy_hist : np.ndarray
+            Virtual packets energy histogram, unnormalized
+        integrator : FormalIntegratorSolver, optional
             Integrator to compute the integrated spectrum with, by default None
         """
         self.transport_state = transport_state
@@ -51,6 +54,11 @@ class SpectrumSolver(HDFWriterMixin):
             virtual_packet_luminosity * u.erg / u.s
         )
         self._integrator = integrator
+        self.simulation_state = simulation_state
+        self.opacity_state = opacity_state
+        self.transport = transport
+        self.plasma = plasma
+        self.macro_atom_state = macro_atom_state
 
     @property
     def spectrum_real_packets(self):
@@ -84,10 +92,18 @@ class SpectrumSolver(HDFWriterMixin):
             # This was changed from unpacking to specific attributes as compute
             # is not used in calculate_spectrum
             try:
-                self._spectrum_integrated = self.integrator.calculate_spectrum(
+                # self._spectrum_integrated = self.integrator.calculate_spectrum(
+                #     self.spectrum_frequency_grid[:-1],
+                #     points=self.integrator_settings.points,
+                #     interpolate_shells=self.integrator_settings.interpolate_shells,
+                # )
+                self._spectrum_integrated = self.integrator.solve( # TODO: finish
                     self.spectrum_frequency_grid[:-1],
-                    points=self.integrator_settings.points,
-                    interpolate_shells=self.integrator_settings.interpolate_shells,
+                    self.simulation_state, 
+                    self.transport, 
+                    self.plasma, 
+                    self.opacity_state, 
+                    self.macro_atom_state
                 )
             except IntegrationError:
                 # if integration is impossible or fails, return an empty spectrum
