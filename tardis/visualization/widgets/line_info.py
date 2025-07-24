@@ -1,11 +1,9 @@
 """Class to create and display Line Info Widget."""
 
-import ipywidgets as ipw
 import numpy as np
 import pandas as pd
 import panel as pn
 from astropy import units as u
-from plotly import graph_objects as go
 from plotly.callbacks import BoxSelector
 
 from bokeh.plotting import figure
@@ -16,7 +14,7 @@ from tardis.util.base import (
     species_string_to_tuple,
     species_tuple_to_string,
 )
-from tardis.visualization import plot_util as pu
+
 from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
@@ -107,12 +105,12 @@ class LineInfoWidget:
             virt_spectrum_luminosity_density_lambda,
         )
 
-        self.filter_mode_buttons = ipw.ToggleButtons(
-            options=self.FILTER_MODES_DESC, index=0
+        self.filter_mode_buttons = pn.widgets.RadioButtonGroup(
+            options=list(self.FILTER_MODES_DESC), value=self.FILTER_MODES_DESC[0]
         )
 
-        self.group_mode_dropdown = ipw.Dropdown(
-            options=self.GROUP_MODES_DESC, index=0
+        self.group_mode_dropdown = pn.widgets.Select(
+            options=list(self.GROUP_MODES_DESC), value=self.GROUP_MODES_DESC[0]
         )
 
         self._current_wavelength_range = None  # Track current selection
@@ -452,12 +450,9 @@ class LineInfoWidget:
         -------
         plotly.graph_objects.FigureWidget
         """
-        # Initially zoomed range in rangeslider should be middle half of spectrum
-        initial_zoomed_range = self.get_middle_half_edges(wavelength.value)
-
-        # The scatter point should be a middle point in spectrum otherwise
-        # the extra padding around it will be oddly visible when near the edge
-        scatter_point_idx = pu.get_mid_point_idx(wavelength.value)
+        # Note: These variables were used for plotly compatibility but are kept for potential future use
+        # initial_zoomed_range = self.get_middle_half_edges(wavelength.value)
+        # scatter_point_idx = pu.get_mid_point_idx(wavelength.value)
 
         
         # Create Bokeh figure with box select
@@ -477,8 +472,8 @@ class LineInfoWidget:
         
         # Create selection overlay source (initially empty)
         selection_source = ColumnDataSource(dict(left=[], right=[], top=[], bottom=[]))
-        selection_overlay = p.quad(left='left', right='right', top='top', bottom='bottom', 
-                                   source=selection_source, alpha=0.3, color='lightblue')
+        p.quad(left='left', right='right', top='top', bottom='bottom',
+               source=selection_source, alpha=0.3, color='lightblue')
         
         # Store references for callback
         self._bokeh_plot = p
@@ -486,22 +481,27 @@ class LineInfoWidget:
         self._y_range = [luminosity_density_lambda.value.min(), luminosity_density_lambda.value.max()]
         
         # Selection callback
-        def selection_callback(attr, old, new):
+        def selection_callback(_attr, _old, new):
             if new:
                 indices = new
                 if len(indices) > 0:
                     selected_x = [wavelength.value[i] for i in indices]
                     x_range = [min(selected_x), max(selected_x)]
-                    
+
                     # Update selection overlay to show persistent selection
                     self._selection_source.data = dict(
-                        left=[x_range[0]], 
-                        right=[x_range[1]], 
-                        top=[self._y_range[1]], 
+                        left=[x_range[0]],
+                        right=[x_range[1]],
+                        top=[self._y_range[1]],
                         bottom=[self._y_range[0]]
                     )
-                    
-                    self._update_species_interactions(x_range, self.FILTER_MODES[0])
+
+                    # Track the current selection
+                    self._current_wavelength_range = x_range
+
+                    # Get current filter mode from buttons
+                    filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
+                    self._update_species_interactions(x_range, self.FILTER_MODES[filter_mode_index])
         
         # Connect selection callback
         source.selected.on_change('indices', selection_callback)
@@ -579,27 +579,29 @@ class LineInfoWidget:
                     bottom=[self._y_range[0]]
                 )
             
+            filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
             self._update_species_interactions(
                 wavelength_range,
-                self.FILTER_MODES[self.filter_mode_buttons.index],
+                self.FILTER_MODES[filter_mode_index],
             )
 
-    def _filter_mode_toggle_handler(self, change):
+    def _filter_mode_toggle_handler(self, event):
         """
         Event handler for toggle in filter_mode_buttons.
 
         This method has the expected signature of the callback function
-        passed to :code:`observe` method of ipywidgets as explained in
-        `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
+        for Panel widgets.
         """
         # Use tracked wavelength range instead of trying to access plotly shapes
         if self._current_wavelength_range is not None:
+            # Get index from the selected value
+            filter_mode_index = list(self.FILTER_MODES_DESC).index(event.new)
             self._update_species_interactions(
                 self._current_wavelength_range,
-                self.FILTER_MODES[self.filter_mode_buttons.index],
+                self.FILTER_MODES[filter_mode_index],
             )
 
-    def _species_intrctn_selection_handler(self, event, panel_widget):
+    def _species_intrctn_selection_handler(self, event, _panel_widget):
         """
         Event handler for selection in species_interactions_table.
 
@@ -617,20 +619,23 @@ class LineInfoWidget:
         if species_selected == "":  # when species_interactions_table is empty
             species_selected = None
 
+        # Get indices from the selected values
+        filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
+        group_mode_index = list(self.GROUP_MODES_DESC).index(self.group_mode_dropdown.value)
+
         self._update_last_line_counts(
             species_selected,
-            self.FILTER_MODES[self.filter_mode_buttons.index],
-            self.GROUP_MODES[self.group_mode_dropdown.index],
+            self.FILTER_MODES[filter_mode_index],
+            self.GROUP_MODES[group_mode_index],
         )
 
 
-    def _group_mode_dropdown_handler(self, change):
+    def _group_mode_dropdown_handler(self, event):
         """
         Event handler for selection in group_mode_dropdown.
 
         This method has the expected signature of the callback function
-        passed to :code:`observe` method of ipywidgets as explained in
-        `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
+        for Panel widgets.
         """
         try:
             selected_row_idx = (
@@ -642,16 +647,20 @@ class LineInfoWidget:
         except IndexError:  # No row is selected in species_interactions_table
             return
 
+        # Get indices from the selected values
+        filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
+        group_mode_index = list(self.GROUP_MODES_DESC).index(event.new)
+
         self._update_last_line_counts(
             species_selected,
-            self.FILTER_MODES[self.filter_mode_buttons.index],
-            self.GROUP_MODES[self.group_mode_dropdown.index],
+            self.FILTER_MODES[filter_mode_index],
+            self.GROUP_MODES[group_mode_index],
         )
 
     @staticmethod
     def ui_control_description(text):
         """Get description label of a UI control with increased font size."""
-        return ipw.HTML(f"<span style='font-size: 1.15em;'>{text}:</span>")
+        return pn.pane.HTML(f"<span style='font-size: 1.15em;'>{text}:</span>")
 
     def display(self):
         """
@@ -671,14 +680,14 @@ class LineInfoWidget:
             # Panel tables handle their own sizing
             self.total_packets_label.update_and_resize(0)
 
-            self.filter_mode_buttons.observe(
-                self._filter_mode_toggle_handler, names="index"
+            self.filter_mode_buttons.param.watch(
+                self._filter_mode_toggle_handler, "value"
             )
             self.species_interactions_table.on(
                 "selection_changed", self._species_intrctn_selection_handler
             )
-            self.group_mode_dropdown.observe(
-                self._group_mode_dropdown_handler, names="index"
+            self.group_mode_dropdown.param.watch(
+                self._group_mode_dropdown_handler, "value"
             )
 
             selection_box_symbol = (

@@ -3,7 +3,6 @@
 import asyncio
 import logging
 
-import ipywidgets as ipw
 import numpy as np
 import panel as pn
 import pandas as pd
@@ -246,19 +245,11 @@ class TableSummaryLabel:
         value : int
             Value to be shown in label
         """
-        self.widget.children[1].value = str(value)
+        # Update the value component with new value
+        self.widget[1].object = f"<div style='padding:0px 2px; margin:0px;'>{str(value)}</div>"
 
-        # For Panel tables, we use proportional widths
-        # The exact pixel calculation is less critical since Panel handles responsive sizing
-        try:
-            # Update the label components with proportional widths
-            self.widget.children[0].layout.width = f"{self.table_col_widths[0]}%"
-            self.widget.children[1].layout.width = f"{self.table_col_widths[1]}%"
-        except Exception:
-            logger.warning(
-                "Could not resize label components to match table width",
-                exc_info=1,
-            )
+        # For Panel components, sizing is handled automatically with sizing_mode='stretch_width'
+        # No manual width calculation needed as Panel handles responsive sizing
 
     def _create(self, key, value):
         """
@@ -273,32 +264,24 @@ class TableSummaryLabel:
 
         Returns
         -------
-        ipywidgets.Box
-            Widget containing all componets of label
+        panel.Row
+            Widget containing all components of label
         """
-        # WARNING: Use dictionary instead of ipw.Layout for specifying layout
-        # of ipywidgets, otherwise there will be unintended behavior
-        component_layout_options = dict(
-            flex="0 0 auto",  # to prevent shrinking of flex-items
-            padding="0px 2px",  # match with header
-            margin="0px",  # remove default 1px margin
+        # Create Panel HTML components with styling
+        key_component = pn.pane.HTML(
+            f"<div style='text-align:right; padding:0px 2px; margin:0px;'> <b>{key}:</b> </div>",
+            sizing_mode='stretch_width'
         )
 
-        return ipw.Box(
-            [
-                ipw.HTML(
-                    f"<div style='text-align:right;'> <b>{key}:<b> </div>",
-                    layout=component_layout_options,
-                ),
-                ipw.HTML(
-                    str(value),
-                    layout=component_layout_options,
-                ),
-            ],
-            layout=dict(
-                display="flex",
-                justify_content="flex-start",
-            ),
+        value_component = pn.pane.HTML(
+            f"<div style='padding:0px 2px; margin:0px;'>{str(value)}</div>",
+            sizing_mode='stretch_width'
+        )
+
+        return pn.Row(
+            key_component,
+            value_component,
+            sizing_mode='stretch_width'
         )
 
 
