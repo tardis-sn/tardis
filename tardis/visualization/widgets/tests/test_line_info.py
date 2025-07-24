@@ -195,12 +195,14 @@ class TestLineInfoWidgetEvents:
 
         line_info_widget, selected_wavelength_range = liw_with_selection
 
+        # Get current filter mode index from the widget value
+        filter_mode_index = list(line_info_widget.FILTER_MODES_DESC).index(
+            line_info_widget.filter_mode_buttons.value
+        )
         expected_species_interactions = (
             line_info_widget.get_species_interactions(
                 wavelength_range=selected_wavelength_range,
-                filter_mode=line_info_widget.FILTER_MODES[
-                    line_info_widget.filter_mode_buttons.index
-                ],
+                filter_mode=line_info_widget.FILTER_MODES[filter_mode_index],
             )
         )
 
@@ -209,14 +211,14 @@ class TestLineInfoWidgetEvents:
             line_info_widget.species_interactions_table.df,
         )
 
+        # Get current group mode index from the widget value
+        group_mode_index = list(line_info_widget.GROUP_MODES_DESC).index(
+            line_info_widget.group_mode_dropdown.value
+        )
         expected_last_line_counts = line_info_widget.get_last_line_counts(
             selected_species=expected_species_interactions.index[0],
-            filter_mode=line_info_widget.FILTER_MODES[
-                line_info_widget.filter_mode_buttons.index
-            ],
-            group_mode=line_info_widget.GROUP_MODES[
-                line_info_widget.group_mode_dropdown.index
-            ],
+            filter_mode=line_info_widget.FILTER_MODES[filter_mode_index],
+            group_mode=line_info_widget.GROUP_MODES[group_mode_index],
         )
 
         pd.testing.assert_frame_equal(
@@ -245,7 +247,7 @@ class TestLineInfoWidgetEvents:
         line_info_widget, selected_wavelength_range = liw_with_selection
 
         # Toggle the filter_mode_buttons
-        line_info_widget.filter_mode_buttons.index = selected_filter_mode_idx
+        line_info_widget.filter_mode_buttons.value = line_info_widget.FILTER_MODES_DESC[selected_filter_mode_idx]
 
         expected_species_interactions = (
             line_info_widget.get_species_interactions(
@@ -265,7 +267,7 @@ class TestLineInfoWidgetEvents:
             selected_species=expected_species_interactions.index[0],
             filter_mode=line_info_widget.FILTER_MODES[selected_filter_mode_idx],
             group_mode=line_info_widget.GROUP_MODES[
-                line_info_widget.group_mode_dropdown.index
+                list(line_info_widget.GROUP_MODES_DESC).index(line_info_widget.group_mode_dropdown.value)
             ],
         )
 
@@ -305,10 +307,10 @@ class TestLineInfoWidgetEvents:
             expected_last_line_counts = line_info_widget.get_last_line_counts(
                 selected_species=selected_species,
                 filter_mode=line_info_widget.FILTER_MODES[
-                    line_info_widget.filter_mode_buttons.index
+                    list(line_info_widget.FILTER_MODES_DESC).index(line_info_widget.filter_mode_buttons.value)
                 ],
                 group_mode=line_info_widget.GROUP_MODES[
-                    line_info_widget.group_mode_dropdown.index
+                    list(line_info_widget.GROUP_MODES_DESC).index(line_info_widget.group_mode_dropdown.value)
                 ],
             )
 
@@ -338,7 +340,7 @@ class TestLineInfoWidgetEvents:
         line_info_widget, _ = liw_with_selection
 
         # Select the option in group_mode_dropdown
-        line_info_widget.group_mode_dropdown.index = selected_group_mode_idx
+        line_info_widget.group_mode_dropdown.value = line_info_widget.GROUP_MODES_DESC[selected_group_mode_idx]
 
         # For testing changes in last_line_counts_table data,
         # we're only considering the 1st row (0th index species)
@@ -355,7 +357,7 @@ class TestLineInfoWidgetEvents:
         expected_last_line_counts = line_info_widget.get_last_line_counts(
             selected_species=species0,
             filter_mode=line_info_widget.FILTER_MODES[
-                line_info_widget.filter_mode_buttons.index
+                list(line_info_widget.FILTER_MODES_DESC).index(line_info_widget.filter_mode_buttons.value)
             ],
             group_mode=line_info_widget.GROUP_MODES[selected_group_mode_idx],
         )
