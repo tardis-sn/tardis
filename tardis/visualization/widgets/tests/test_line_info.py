@@ -231,7 +231,7 @@ class TestLineInfoWidgetEvents:
         else:
             expected_total_packets = expected_last_line_counts.iloc[:, 0].sum()
         assert expected_total_packets == int(
-            line_info_widget.total_packets_label.widget.children[1].value
+            line_info_widget.total_packets_label.get_value()
         )
 
     @pytest.mark.parametrize("selected_filter_mode_idx", [0, 1])
@@ -281,7 +281,7 @@ class TestLineInfoWidgetEvents:
         else:
             expected_total_packets = expected_last_line_counts.iloc[:, 0].sum()
         assert expected_total_packets == int(
-            line_info_widget.total_packets_label.widget.children[1].value
+            line_info_widget.total_packets_label.get_value()
         )
 
     def test_selection_on_species_intrctn_table(self, liw_with_selection):
@@ -326,7 +326,7 @@ class TestLineInfoWidgetEvents:
                     :, 0
                 ].sum()
             assert expected_total_packets == int(
-                line_info_widget.total_packets_label.widget.children[1].value
+                line_info_widget.total_packets_label.get_value()
             )
 
     @pytest.mark.parametrize("selected_group_mode_idx", [0, 1, 2])
@@ -372,5 +372,5 @@ class TestLineInfoWidgetEvents:
         else:
             expected_total_packets = expected_last_line_counts.iloc[:, 0].sum()
         assert expected_total_packets == int(
-            line_info_widget.total_packets_label.widget.children[1].value
+            line_info_widget.total_packets_label.get_value()
         )

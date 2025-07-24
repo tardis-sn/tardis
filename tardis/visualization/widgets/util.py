@@ -2,7 +2,7 @@
 
 import asyncio
 import logging
-
+import re
 import numpy as np
 import panel as pn
 import pandas as pd
@@ -250,6 +250,22 @@ class TableSummaryLabel:
 
         # For Panel components, sizing is handled automatically with sizing_mode='stretch_width'
         # No manual width calculation needed as Panel handles responsive sizing
+
+    def get_value(self):
+        """
+        Get the current value displayed in the label.
+
+        Returns
+        -------
+        str
+            The current value as a string
+        """
+        # Extract value from HTML content
+        html_content = self.widget[1].object
+        match = re.search(r'<div[^>]*>([^<]*)</div>', html_content)
+        if match:
+            return match.group(1)
+        return "0"
 
     def _create(self, key, value):
         """
