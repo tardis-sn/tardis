@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=38204986"></script>
+      <script src="../../../_static/documentation_options.js?v=7809e311"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -575,7 +575,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.beta_sobolev = None
             macro_atom_state = None
 
-        opacity_state = self.opacity.legacy_solve(self.plasma)
+        self.opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 macro_atom_state = LegacyMacroAtomState.from_legacy_plasma(
@@ -585,14 +585,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
                     self.plasma.atomic_data,
-                    opacity_state.tau_sobolev,
+                    self.opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
-                    opacity_state.beta_sobolev,
+                    self.opacity_state.beta_sobolev,
                 )
 
         transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
-            opacity_state,
+            self.opacity_state,
             macro_atom_state,
             self.plasma,
             no_of_packets,
@@ -974,7 +974,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 20 Jul 2025.
+      <span class="lastupdated">Last updated on 24 Jul 2025.
       </span></p>
   </div>
 
