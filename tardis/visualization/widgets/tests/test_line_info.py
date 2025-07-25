@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import pytest
-from plotly.callbacks import BoxSelector, Points
 
 from tardis.util.base import species_string_to_tuple
 
@@ -165,23 +164,18 @@ class TestLineInfoWidgetEvents:
 
         selection_range = request.param
 
-        # Since we cannot programatically make a Box selection on spectrum
-        # so we have to directly call its event listener by passing
-        # selected wavelength range in a BoxSelector object
+        # Since we cannot programmatically make a Box selection on spectrum,
+        # we directly set the wavelength range and update the species interactions
         if selection_range:
-            liw._spectrum_selection_handler(
-                trace=None,
-                points=Points(),
-                selector=BoxSelector(
-                    xrange=selection_range,
-                    yrange=[
-                        -1.8e39,
-                        1.8e40,
-                    ],  # Not very relevant, approx height of box
-                ),
-            )
-            # Ensure the selection is properly tracked
+            # Set the current wavelength range
             liw._current_wavelength_range = selection_range
+
+            # Get current filter mode and update species interactions directly
+            filter_mode_index = list(liw.FILTER_MODES_DESC).index(liw.filter_mode_buttons.value)
+            liw._update_species_interactions(
+                selection_range,
+                liw.FILTER_MODES[filter_mode_index]
+            )
 
         return liw, selection_range
 

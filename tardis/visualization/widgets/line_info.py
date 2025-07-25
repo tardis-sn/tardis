@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import panel as pn
 from astropy import units as u
-from plotly.callbacks import BoxSelector
 
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
@@ -566,33 +565,7 @@ class LineInfoWidget:
         else:  # Line counts table will be empty
             self.total_packets_label.update_and_resize(0)
 
-    def _spectrum_selection_handler(self, trace=None, points=None, selector=None):
-        """
-        Event handler for selection of spectrum - compatibility layer for tests.
 
-        This method maintains compatibility with existing tests while working
-        with the new Bokeh/Panel implementation.
-        """
-        if isinstance(selector, BoxSelector):
-            wavelength_range = selector.xrange
-            
-            # Track the current selection
-            self._current_wavelength_range = wavelength_range
-            
-            # Update selection overlay in Bokeh plot
-            if hasattr(self, '_selection_source'):
-                self._selection_source.data = dict(
-                    left=[wavelength_range[0]], 
-                    right=[wavelength_range[1]], 
-                    top=[self._y_range[1]], 
-                    bottom=[self._y_range[0]]
-                )
-            
-            filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
-            self._update_species_interactions(
-                wavelength_range,
-                self.FILTER_MODES[filter_mode_index],
-            )
 
     def _filter_mode_toggle_handler(self, event):
         """
