@@ -1,0 +1,7 @@
+tardis.io.model.readers.csvy module
+===================================
+
+.. automodule:: tardis.io.model.readers.csvy
+   :members:
+   :show-inheritance:
+   :undoc-members:

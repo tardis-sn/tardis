@@ -1,0 +1,547 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.spectrum.formal_integral.base &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=f82be51c"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.spectrum.formal_integral.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.spectrum.formal_integral.base</h1><div class="highlight"><pre>
+<span></span>import numpy as np
+import pandas as pd
+from scipy.interpolate import interp1d
+import scipy.sparse as sp
+import scipy.sparse.linalg as linalg
+
+import warnings
+
+from tardis import constants as const
+from tardis.transport.montecarlo.configuration import montecarlo_globals
+
+C_INV = 3.33564e-11
+KB_CGS = 1.3806488e-16
+H_CGS = 6.62606957e-27
+
+# here will go function that are independent of the type of formal integral
+<div class="viewcode-block" id="BoundsError">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.BoundsError">[docs]</a>
+class BoundsError(IndexError):
+    pass</div>
+
+
+
+<div class="viewcode-block" id="IntegrationError">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.IntegrationError">[docs]</a>
+class IntegrationError(Exception):
+    pass</div>
+
+
+
+<div class="viewcode-block" id="check">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.check">[docs]</a>
+def check(simulation_state, plasma, transport, raises=True):
+    &quot;&quot;&quot;
+    A method that determines if the formal integral can be performed with
+    the current configuration settings
+
+    The function returns False if the configuration conflicts with the
+    required settings. If raises evaluates to True, then a
+    IntegrationError is raised instead
+    &quot;&quot;&quot;
+
+    def raise_or_return(message):
+        if raises:
+            raise IntegrationError(message)
+        else:
+            warnings.warn(message)
+            return False
+
+    for obj in (simulation_state, plasma, transport):
+        if obj is None:
+            return raise_or_return(
+                &quot;The integrator is missing either model, plasma or &quot;
+                &quot;transport. Please make sure these are provided to the &quot;
+                &quot;FormalIntegrator.&quot;
+            )
+
+    if transport.line_interaction_type not in [
+        &quot;downbranch&quot;,
+        &quot;macroatom&quot;,
+    ]:
+        return raise_or_return(
+            &quot;The FormalIntegrator currently only works for &quot;
+            &#39;line_interaction_type == &quot;downbranch&quot;&#39;
+            &#39;and line_interaction_type == &quot;macroatom&quot;&#39;
+        )
+
+    if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+        return raise_or_return(
+            &quot;The FormalIntegrator currently does not work for &quot;
+            &quot;continuum interactions.&quot;
+        )
+
+    return True</div>
+
+
+
+<div class="viewcode-block" id="calculate_p_values">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.calculate_p_values">[docs]</a>
+def calculate_p_values(R_max, N):
+    &quot;&quot;&quot;
+    Calculates the p values of N
+
+    Parameters
+    ----------
+    R_max : float64
+    N : int64
+
+    Returns
+    -------
+    float64
+    &quot;&quot;&quot;
+    return np.arange(N).astype(np.float64) * R_max / (N - 1)</div>
+
+
+
+<div class="viewcode-block" id="intensity_black_body">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.intensity_black_body">[docs]</a>
+def intensity_black_body(nu, temperature):
+    &quot;&quot;&quot;
+    Calculate the blackbody intensity.
+
+    Parameters
+    ----------
+    nu : float64
+        frequency
+    temperature : float64
+        Temperature
+
+    Returns
+    -------
+    float64
+    &quot;&quot;&quot;
+    if nu == 0:
+        return np.nan  # to avoid ZeroDivisionError
+    beta_rad = 1 / (KB_CGS * temperature)
+    coefficient = 2 * H_CGS * C_INV * C_INV
+    return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)</div>
+
+
+
+<div class="viewcode-block" id="make_source_function">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.make_source_function">[docs]</a>
+def make_source_function(simulation_state, opacity_state, transport, plasma, interpolate_shells=0):
+    &quot;&quot;&quot;
+    Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
+
+    Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+    so there is no need to factor out the source function explicitly.
+    Parameters
+    ----------
+    simulation_state : tardis.model.SimulationState
+    opacity_state : tardis.opacity.OpacityStateNumba
+    transport : tardis.transport.montecarlo.MonteCarloTransportSolver
+    plasma : tardis.plasma.BasePlasma
+    interpolate_shells : int
+        Number of shells to interpolate to. If set to 0, no interpolation is performed.
+
+    Returns
+    -------
+    Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -&gt; l
+    &quot;&quot;&quot;
+
+    montecarlo_transport_state = transport.transport_state
+    atomic_data = plasma.atomic_data
+    levels_index = plasma.levels
+
+    # slice for the active shells
+    local_slice = slice(
+        simulation_state.geometry.v_inner_boundary_index,
+        simulation_state.geometry.v_outer_boundary_index,
+    )
+
+    transition_probabilities = opacity_state.transition_probabilities[
+        :, local_slice
+    ]
+    tau_sobolevs = opacity_state.tau_sobolev[:, local_slice]
+
+    columns = range(simulation_state.no_of_shells)
+
+    # macro_ref = atomic_data.macro_atom_references
+    macro_ref = atomic_data.macro_atom_references
+    # macro_data = atomic_data.macro_atom_data
+    macro_data = plasma.atomic_data.macro_atom_data
+
+    no_lvls = len(levels_index)
+    no_shells = len(simulation_state.dilution_factor)
+
+    if transport.line_interaction_type == &quot;macroatom&quot;:
+        internal_jump_mask = (macro_data.transition_type &gt;= 0).values
+        ma_int_data = macro_data[internal_jump_mask]
+        internal = transition_probabilities[internal_jump_mask]
+
+        source_level_idx = ma_int_data.source_level_idx.values
+        destination_level_idx = ma_int_data.destination_level_idx.values
+
+    Edotlu_norm_factor = 1 / (
+        montecarlo_transport_state.packet_collection.time_of_simulation
+        * simulation_state.volume
+    )
+    exptau = 1 - np.exp(-tau_sobolevs)
+    Edotlu = (
+        Edotlu_norm_factor
+        * exptau
+        * montecarlo_transport_state.radfield_mc_estimators.Edotlu_estimator
+    )
+
+    # The following may be achieved by calling the appropriate plasma
+    # functions
+    Jbluelu_norm_factor = (
+        (
+            const.c.cgs
+            * simulation_state.time_explosion
+            / (
+                4
+                * np.pi
+                * montecarlo_transport_state.time_of_simulation
+                * simulation_state.volume
+            )
+        )
+        .to(&quot;1/(cm^2 s)&quot;)
+        .value
+    )
+    # Jbluelu should already by in the correct order, i.e. by wavelength of
+    # the transition l-&gt;u
+    Jbluelu = (
+        transport.transport_state.radfield_mc_estimators.j_blue_estimator
+        * Jbluelu_norm_factor
+    )
+
+    upper_level_index = atomic_data.lines.index.droplevel(
+        &quot;level_number_lower&quot;
+    )
+    e_dot_lu = pd.DataFrame(
+        Edotlu.value, index=upper_level_index, columns=columns
+    )
+    e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+    e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
+
+    if transport.line_interaction_type == &quot;macroatom&quot;:
+        C_frame = pd.DataFrame(columns=columns, index=macro_ref.index)
+        q_indices = (source_level_idx, destination_level_idx)
+        for shell in range(no_shells):
+            Q = sp.coo_matrix(
+                (internal[:, shell], q_indices), shape=(no_lvls, no_lvls)
+            )
+            inv_N = sp.identity(no_lvls) - Q
+            e_dot_u_vec = np.zeros(no_lvls)
+            e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].values
+            C_frame[shell] = linalg.spsolve(inv_N.T, e_dot_u_vec)
+
+    e_dot_u.index.names = [
+        &quot;atomic_number&quot;,
+        &quot;ion_number&quot;,
+        &quot;source_level_number&quot;,
+    ]  # To make the q_ul e_dot_u product work, could be cleaner
+    transitions = plasma.atomic_data.macro_atom_data[
+        plasma.atomic_data.macro_atom_data.transition_type == -1
+    ].copy()
+    transitions_index = transitions.set_index(
+        [&quot;atomic_number&quot;, &quot;ion_number&quot;, &quot;source_level_number&quot;]
+    ).index.copy()
+    tmp = pd.DataFrame(
+        transition_probabilities[
+            (atomic_data.macro_atom_data.transition_type == -1).values
+        ]
+    )
+    q_ul = tmp.set_index(transitions_index)
+    t = simulation_state.time_explosion.value
+    lines = atomic_data.lines.set_index(&quot;line_id&quot;)
+    wave = lines.wavelength_cm.loc[
+        transitions.transition_line_id
+    ].values.reshape(-1, 1)
+    if transport.line_interaction_type == &quot;macroatom&quot;:
+        e_dot_u = C_frame.loc[e_dot_u.index]
+    att_S_ul = wave * (q_ul * e_dot_u) * t / (4 * np.pi)
+
+    result = pd.DataFrame(
+        att_S_ul.values,
+        index=transitions.transition_line_id.values,
+        columns=columns,
+    )
+    att_S_ul = result.loc[lines.index.values].values
+
+    # Jredlu should already by in the correct order, i.e. by wavelength of
+    # the transition l-&gt;u (similar to Jbluelu)
+    Jredlu = Jbluelu * np.exp(-tau_sobolevs) + att_S_ul
+    if interpolate_shells &gt; 0:
+        (
+            att_S_ul,
+            Jredlu,
+            Jbluelu,
+            e_dot_u,
+        ) = interpolate_integrator_quantities(
+            att_S_ul, Jredlu, Jbluelu, e_dot_u,
+            interpolate_shells,
+            transport, simulation_state, opacity_state, plasma
+        )
+    else:
+        transport.r_inner_i = (
+            montecarlo_transport_state.geometry_state.r_inner
+        )
+        transport.r_outer_i = (
+            montecarlo_transport_state.geometry_state.r_outer
+        )
+        transport.tau_sobolevs_integ = opacity_state.tau_sobolev
+        transport.electron_densities_integ = (
+            opacity_state.electron_density
+        )
+
+    return att_S_ul, Jredlu, Jbluelu, e_dot_u</div>
+
+
+<div class="viewcode-block" id="interpolate_integrator_quantities">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities">[docs]</a>
+def interpolate_integrator_quantities(
+    att_S_ul, Jredlu, Jbluelu, e_dot_u,
+    interpolate_shells,
+    transport, simulation_state, opacity_state, plasma
+):
+    &quot;&quot;&quot;Interpolate the integrator quantities to interpolate_shells.
+
+    Parameters
+    ----------
+    att_S_ul : np.ndarray
+        attenuated source function for each line in each shell
+    Jredlu : np.ndarray
+        J estimator from the red end of the line from lower to upper level
+    Jbluelu : np.ndarray
+        J estimator from the blue end of the line from lower to upper level
+    e_dot_u : np.ndarray
+        Line estimator for the rate of energy density absorption from lower to upper level
+    interpolate_shells : int
+        number of shells to interpolate to
+    transport : tardis.transport.montecarlo.MonteCarloTransportSolver
+    simulation_state : tardis.model.SimulationState
+    opacity_state : OpacityStateNumba
+    plasma : tardis.plasma.BasePlasma
+
+    Returns
+    -------
+    tuple
+        Interpolated values of att_S_ul, Jredlu, Jbluelu, and e_dot_u
+    &quot;&quot;&quot;
+
+    mct_state = transport.transport_state
+    
+    nshells = interpolate_shells
+    r_middle = (
+        mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
+    ) / 2.0
+
+    r_integ = np.linspace(
+        mct_state.geometry_state.r_inner[0],
+        mct_state.geometry_state.r_outer[-1],
+        nshells,
+    )
+    transport.r_inner_i = r_integ[:-1]
+    transport.r_outer_i = r_integ[1:]
+
+    r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
+
+    transport.electron_densities_integ = interp1d(
+        r_middle,
+        plasma.electron_densities.iloc[
+            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+        ],
+        fill_value=&quot;extrapolate&quot;,
+        kind=&quot;nearest&quot;,
+    )(r_middle_integ)
+    # Assume tau_sobolevs to be constant within a shell
+    # (as in the MC simulation)
+    transport.tau_sobolevs_integ = interp1d(
+        r_middle,
+        opacity_state.tau_sobolev[
+            :,
+            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index,
+        ],
+        fill_value=&quot;extrapolate&quot;,
+        kind=&quot;nearest&quot;,
+    )(r_middle_integ)
+    att_S_ul = interp1d(r_middle, att_S_ul, fill_value=&quot;extrapolate&quot;)(
+        r_middle_integ
+    )
+    Jredlu = interp1d(r_middle, Jredlu, fill_value=&quot;extrapolate&quot;)(
+        r_middle_integ
+    )
+    Jbluelu = interp1d(r_middle, Jbluelu, fill_value=&quot;extrapolate&quot;)(
+        r_middle_integ
+    )
+    e_dot_u = interp1d(r_middle, e_dot_u, fill_value=&quot;extrapolate&quot;)(
+        r_middle_integ
+    )
+
+    # Set negative values from the extrapolation to zero
+    att_S_ul = att_S_ul.clip(0.0)
+    Jbluelu = Jbluelu.clip(0.0)
+    Jredlu = Jredlu.clip(0.0)
+    e_dot_u = e_dot_u.clip(0.0)
+    return att_S_ul, Jredlu, Jbluelu, e_dot_u</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 25 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
