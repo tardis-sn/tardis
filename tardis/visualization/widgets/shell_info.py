@@ -1,4 +1,3 @@
-import ipywidgets as ipw
 import pandas as pd
 import panel as pn
 
@@ -402,51 +401,18 @@ class ShellInfoWidget:
             ion, atomic_num, shell_num
         )
 
-    def display(
-        self,
-        shells_table_width="30%",
-        element_count_table_width="24%",
-        ion_count_table_width="24%",
-        level_count_table_width="18%",
-        **layout_kwargs,
-    ):
+    def display(self):
         """Display the shell info widget by putting all component widgets nicely
         together and allowing interaction between the table widgets
 
-        Parameters
-        ----------
-        shells_table_width : str, optional
-            CSS :code:`width` property value for shells table, by default '30%'
-        element_count_table_width : str, optional
-            CSS :code:`width` property value for element count table, by default '24%'
-        ion_count_table_width : str, optional
-            CSS :code:`width` property value for ion count table, by default '24%'
-        level_count_table_width : str, optional
-            CSS :code:`width` property value for level count table, by default '18%'
-
-        Other Parameters
-        ----------------
-        **layout_kwargs
-            Any valid CSS properties to be passed to the :code:`layout` attribute
-            of table widgets container (HTML :code:`div`) as explained in
-            `ipywidgets documentation <https://ipywidgets.readthedocs.io/en/stable/examples/Widget%20Styling.html#The-layout-attribute>`_
-
         Returns
         -------
-        ipywidgets.Box
+        panel.Column
             Shell info widget containing all component widgets
         """
         if not is_notebook():
             print("Please use a notebook to display the widget")
         else:
-            # CSS properties of the layout of shell info tables container
-            tables_container_layout = dict(
-                display="flex",
-                align_items="flex-start",
-                justify_content="space-between",
-            )
-            tables_container_layout.update(layout_kwargs)
-
             # Panel tables handle their own sizing automatically
 
             # Attach event listeners to table widgets
