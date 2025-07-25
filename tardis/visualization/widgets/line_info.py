@@ -226,11 +226,10 @@ class LineInfoWidget:
             selected_species_symbols, name="Species"
         )
         fractional_species_interactions.name = "Fraction of packets interacting"
-        result = fractional_species_interactions.sort_values(
+        return fractional_species_interactions.sort_values(
             ascending=False
         ).to_frame()
-        
-        return result
+
 
     def get_last_line_counts(
         self,
@@ -450,11 +449,6 @@ class LineInfoWidget:
         -------
         plotly.graph_objects.FigureWidget
         """
-        # Note: These variables were used for plotly compatibility but are kept for potential future use
-        # initial_zoomed_range = self.get_middle_half_edges(wavelength.value)
-        # scatter_point_idx = pu.get_mid_point_idx(wavelength.value)
-
-        
         # Create Bokeh figure with box select
         p = figure(width=800, height=400, title='Spectrum', tools='box_select,reset')
         
@@ -479,34 +473,49 @@ class LineInfoWidget:
         self._bokeh_plot = p
         self._selection_source = selection_source
         self._y_range = [luminosity_density_lambda.value.min(), luminosity_density_lambda.value.max()]
-        
-        # Selection callback
-        def selection_callback(_attr, _old, new):
-            if new:
-                indices = new
-                if len(indices) > 0:
-                    selected_x = [wavelength.value[i] for i in indices]
-                    x_range = [min(selected_x), max(selected_x)]
+        self._wavelength_data = wavelength  # Store wavelength data for callback access
 
-                    # Update selection overlay to show persistent selection
-                    self._selection_source.data = dict(
-                        left=[x_range[0]],
-                        right=[x_range[1]],
-                        top=[self._y_range[1]],
-                        bottom=[self._y_range[0]]
-                    )
-
-                    # Track the current selection
-                    self._current_wavelength_range = x_range
-
-                    # Get current filter mode from buttons
-                    filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
-                    self._update_species_interactions(x_range, self.FILTER_MODES[filter_mode_index])
-        
         # Connect selection callback
-        source.selected.on_change('indices', selection_callback)
+        source.selected.on_change('indices', self._selection_callback)
         
         return pn.pane.Bokeh(p)
+
+    def _selection_callback(self, _attr, _old, new):
+        """
+        Bokeh selection callback for spectrum plot.
+
+        This method handles selection events from the Bokeh plot and updates
+        the species interactions table based on the selected wavelength range.
+
+        Parameters
+        ----------
+        _attr : str
+            Attribute name (unused)
+        _old : list
+            Previous selection indices (unused)
+        new : list
+            New selection indices
+        """
+        if new:
+            indices = new
+            if len(indices) > 0:
+                selected_x = [self._wavelength_data.value[i] for i in indices]
+                x_range = [min(selected_x), max(selected_x)]
+
+                # Update selection overlay to show persistent selection
+                self._selection_source.data = dict(
+                    left=[x_range[0]],
+                    right=[x_range[1]],
+                    top=[self._y_range[1]],
+                    bottom=[self._y_range[0]]
+                )
+
+                # Track the current selection
+                self._current_wavelength_range = x_range
+
+                # Get current filter mode from buttons
+                filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
+                self._update_species_interactions(x_range, self.FILTER_MODES[filter_mode_index])
 
     def _update_species_interactions(self, wavelength_range, filter_mode):
         """
