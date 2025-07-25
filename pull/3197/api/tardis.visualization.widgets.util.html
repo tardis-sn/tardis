@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=2079204a"></script>
+      <script src="../_static/documentation_options.js?v=0eb2d23e"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -168,7 +168,7 @@
 <p>Utility classes and functions for widgets.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.util.PanelTableWidget">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.util.</span></span><span class="sig-name descname"><span class="pre">PanelTableWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_widths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">changeable_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#PanelTableWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.PanelTableWidget" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.util.</span></span><span class="sig-name descname"><span class="pre">PanelTableWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#PanelTableWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.PanelTableWidget" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Panel-based table widget that mimics qgrid functionality.</p>
 <p>Initialize the Panel table widget.</p>
@@ -177,11 +177,7 @@
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Data to display in table widget</p>
 </dd>
-<dt><strong>col_widths</strong><span class="classifier">list</span></dt><dd><p>Column width proportions (must sum to 100)</p>
-</dd>
 <dt><strong>table_options</strong><span class="classifier">dict, optional</span></dt><dd><p>Table configuration options</p>
-</dd>
-<dt><strong>changeable_col</strong><span class="classifier">dict, optional</span></dt><dd><p>Information about changeable column names</p>
 </dd>
 </dl>
 </dd>
@@ -316,27 +312,15 @@ please see <a class="reference external" href="https://ipywidgets.readthedocs.io
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.util.create_table_widget">
-<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.util.</span></span><span class="sig-name descname"><span class="pre">create_table_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_widths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">changeable_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#create_table_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.create_table_widget" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.util.</span></span><span class="sig-name descname"><span class="pre">create_table_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#create_table_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.create_table_widget" title="Link to this definition">¶</a></dt>
 <dd><p>Create table widget object which supports interaction and updating the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Data you want to display in table widget</p>
 </dd>
-<dt><strong>col_widths</strong><span class="classifier">list</span></dt><dd><p>A list containing width of each column of data in order (including
-the index as 1st column). The width values must be proportions of
-100 i.e. they must sum to 100.</p>
-</dd>
 <dt><strong>table_options</strong><span class="classifier">dict, optional</span></dt><dd><p>A dictionary to specify options to use when creating interactive table
 widget. Supported options: maxVisibleRows.</p>
-</dd>
-<dt><strong>changeable_col</strong><span class="classifier">dict, optional</span></dt><dd><p>A dictionary to specify the information about column which will
-change its name when data in generated table widget updates. It
-must have two keys - <code class="code docutils literal notranslate"><span class="pre">index</span></code> to specify index of changeable
-column in dataframe <code class="code docutils literal notranslate"><span class="pre">data</span></code> as an integer, and <code class="code docutils literal notranslate"><span class="pre">other_names</span></code>
-to specify all possible names changeable column will get as a list
-of strings. Default value <code class="code docutils literal notranslate"><span class="pre">None</span></code> indicates that there is no
-changable column.</p>
 </dd>
 </dl>
 </dd>

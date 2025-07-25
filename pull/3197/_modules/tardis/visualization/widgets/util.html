@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=2079204a"></script>
+      <script src="../../../../_static/documentation_options.js?v=0eb2d23e"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -147,39 +147,20 @@ logger = logging.getLogger(__name__)
 class PanelTableWidget:
     &quot;&quot;&quot;Panel-based table widget that mimics qgrid functionality.&quot;&quot;&quot;
 
-    def __init__(self, data, col_widths, table_options=None, changeable_col=None):
+    def __init__(self, data, table_options=None):
         &quot;&quot;&quot;Initialize the Panel table widget.
 
         Parameters
         ----------
         data : pandas.DataFrame
             Data to display in table widget
-        col_widths : list
-            Column width proportions (must sum to 100)
         table_options : dict, optional
             Table configuration options
-        changeable_col : dict, optional
-            Information about changeable column names
         &quot;&quot;&quot;
         self._df = data.copy()
-        self.col_widths = col_widths
         self.table_options = table_options or {}
-        self.changeable_col = changeable_col
         self._selected_rows = []
         self._selection_callbacks = []
-
-        # Validate column widths
-        if len(col_widths) != data.shape[1] + 1:
-            raise ValueError(
-                &quot;Size of column widths list do not match with &quot;
-                &quot;number of columns + 1 (index) in dataframe&quot;
-            )
-
-        if sum(col_widths) != 100:
-            raise ValueError(
-                &quot;Column widths are not proportions of 100 (i.e. &quot;
-                &quot;they do not sum to 100)&quot;
-            )
 
         # Create the Panel table
         self._create_table()
@@ -294,9 +275,7 @@ class PanelTableWidget:
 
 <div class="viewcode-block" id="create_table_widget">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.create_table_widget">[docs]</a>
-def create_table_widget(
-    data, col_widths, table_options=None, changeable_col=None
-):
+def create_table_widget(data, table_options=None):
     &quot;&quot;&quot;
     Create table widget object which supports interaction and updating the data.
 
@@ -304,28 +283,16 @@ def create_table_widget(
     ----------
     data : pandas.DataFrame
         Data you want to display in table widget
-    col_widths : list
-        A list containing width of each column of data in order (including
-        the index as 1st column). The width values must be proportions of
-        100 i.e. they must sum to 100.
     table_options : dict, optional
         A dictionary to specify options to use when creating interactive table
         widget. Supported options: maxVisibleRows.
-    changeable_col : dict, optional
-        A dictionary to specify the information about column which will
-        change its name when data in generated table widget updates. It
-        must have two keys - :code:`index` to specify index of changeable
-        column in dataframe :code:`data` as an integer, and :code:`other_names`
-        to specify all possible names changeable column will get as a list
-        of strings. Default value :code:`None` indicates that there is no
-        changable column.
 
     Returns
     -------
     PanelTableWidget
         Table widget object
     &quot;&quot;&quot;
-    return PanelTableWidget(data, col_widths, table_options, changeable_col)</div>
+    return PanelTableWidget(data, table_options)</div>
 
 
 

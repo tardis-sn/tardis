@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=2079204a"></script>
+      <script src="../../../../_static/documentation_options.js?v=0eb2d23e"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -134,9 +134,6 @@
   <h1>Source code for tardis.visualization.widgets.shell_info</h1><div class="highlight"><pre>
 <span></span>import pandas as pd
 import panel as pn
-
-# Initialize Panel extension
-# pn.extension(&#39;tabulator&#39;)
 
 from tardis.util.base import (
     atomic_number2element_symbol,
@@ -402,21 +399,12 @@ class ShellInfoWidget:
 
         # Creating the shells data table widget
         self.shells_table = create_table_widget(
-            self.data.shells_data(), [30, 35, 35]
+            self.data.shells_data()
         )
 
         # Creating the element count table widget
         self.element_count_table = create_table_widget(
-            self.data.element_count(self.shells_table.df.index[0]),
-            [15, 30, 55],
-            changeable_col={
-                &quot;index&quot;: -1,  # since last column will change names
-                # Shells table index will give all possible shell numbers
-                &quot;other_names&quot;: [
-                    f&quot;Frac. Ab. (Shell {shell_num})&quot;
-                    for shell_num in self.shells_table.df.index
-                ],
-            },
+            self.data.element_count(self.shells_table.df.index[0])
         )
 
         # Creating the ion count table widget
@@ -424,17 +412,7 @@ class ShellInfoWidget:
             self.data.ion_count(
                 self.element_count_table.df.index[0],
                 self.shells_table.df.index[0],
-            ),
-            [20, 30, 50],
-            changeable_col={
-                &quot;index&quot;: -1,
-                # Since element are same for each shell thus previous table
-                # (element counts for shell 1) will give all possible elements
-                &quot;other_names&quot;: [
-                    f&quot;Frac. Ab. (Z={atomic_num})&quot;
-                    for atomic_num in self.element_count_table.df.index
-                ],
-            },
+            )
         )
 
         # Creating the level count table widget
@@ -443,19 +421,7 @@ class ShellInfoWidget:
                 self.ion_count_table.df.index[0],
                 self.element_count_table.df.index[0],
                 self.shells_table.df.index[0],
-            ),
-            [30, 70],
-            changeable_col={
-                &quot;index&quot;: -1,
-                # Ion values range from 0 to max atomic_num present in
-                # element count table
-                &quot;other_names&quot;: [
-                    f&quot;Frac. Ab. (Ion={ion})&quot;
-                    for ion in range(
-                        self.element_count_table.df.index.max() + 1
-                    )
-                ],
-            },
+            )
         )
 
 <div class="viewcode-block" id="ShellInfoWidget.update_element_count_table">
