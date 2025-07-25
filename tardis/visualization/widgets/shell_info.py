@@ -1,9 +1,6 @@
 import pandas as pd
 import panel as pn
 
-# Initialize Panel extension
-# pn.extension('tabulator')
-
 from tardis.util.base import (
     atomic_number2element_symbol,
     is_notebook,
