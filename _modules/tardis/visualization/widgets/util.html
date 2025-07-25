@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88cae98f"></script>
+      <script src="../../../../_static/documentation_options.js?v=39a822d3"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,17 +136,151 @@
 
 import asyncio
 import logging
-
-import ipywidgets as ipw
+import re
+import panel as pn
 
 logger = logging.getLogger(__name__)
 
 
+<div class="viewcode-block" id="PanelTableWidget">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget">[docs]</a>
+class PanelTableWidget:
+    &quot;&quot;&quot;Panel-based table widget that mimics qgrid functionality.&quot;&quot;&quot;
+
+    def __init__(self, data, table_options=None):
+        &quot;&quot;&quot;Initialize the Panel table widget.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data to display in table widget
+        table_options : dict, optional
+            Table configuration options
+        &quot;&quot;&quot;
+        self._df = data.copy()
+        self.table_options = table_options or {}
+        self._selected_rows = []
+        self._selection_callbacks = []
+
+        # Create the Panel table
+        self._create_table()
+
+    def _create_table(self):
+        &quot;&quot;&quot;Create the Panel table widget.&quot;&quot;&quot;
+        # Configure table parameters
+        pagination = &#39;remote&#39; if self.table_options.get(&#39;maxVisibleRows&#39;) else None
+        page_size = self.table_options.get(&#39;maxVisibleRows&#39;, len(self._df))
+
+        # Create the table
+        self.table = pn.widgets.Tabulator(
+            self._df,
+            pagination=pagination,
+            page_size=page_size,
+            selectable=True,  # Single row selection (radio button style)
+            show_index=True,
+            sizing_mode=&#39;stretch_width&#39;,
+            height=min(400, max(200, len(self._df) * 30 + 50)),
+            disabled=True,  # Make cells non-editable
+            configuration={
+                &#39;selectable&#39;: &#39;highlight&#39;,  # Make entire row selectable/highlightable
+                &#39;selectableRangeMode&#39;: &#39;click&#39;,  # Allow clicking anywhere on row to select
+            }
+        )
+
+        # Set up selection callback
+        self.table.param.watch(self._on_selection_change, &#39;selection&#39;)
+
+    def _on_selection_change(self, event):
+        &quot;&quot;&quot;Handle selection changes in the table.&quot;&quot;&quot;
+        if event.new:
+            # With single selection, Panel sends a list with one item or just the index
+            if isinstance(event.new, list):
+                selected_indices = [int(i) for i in event.new]
+            else:
+                selected_indices = [int(event.new)]
+            self._selected_rows = selected_indices
+        else:
+            self._selected_rows = []
+            selected_indices = []
+
+        # Call registered callbacks
+        for callback in self._selection_callbacks:
+            # Create event dict similar to qgrid format
+            event_dict = {
+                &#39;new&#39;: selected_indices,
+                &#39;old&#39;: [int(i) for i in getattr(event, &#39;old&#39;, [])] if hasattr(event, &#39;old&#39;) and event.old else [],
+                &#39;source&#39;: &#39;user&#39;
+            }
+            callback(event_dict, self)
+
+    @property
+    def df(self):
+        &quot;&quot;&quot;Get the current dataframe.&quot;&quot;&quot;
+        return self._df
+
+    @df.setter
+    def df(self, value):
+        &quot;&quot;&quot;Set the dataframe and update the table.&quot;&quot;&quot;
+        self._df = value.copy()
+        self.table.value = self._df
+
+<div class="viewcode-block" id="PanelTableWidget.get_selected_rows">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.get_selected_rows">[docs]</a>
+    def get_selected_rows(self):
+        &quot;&quot;&quot;Get the currently selected row indices.&quot;&quot;&quot;
+        return self._selected_rows</div>
+
+
+<div class="viewcode-block" id="PanelTableWidget.change_selection">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.change_selection">[docs]</a>
+    def change_selection(self, index_values):
+        &quot;&quot;&quot;Programmatically change the selection by index values.&quot;&quot;&quot;
+        if not index_values:
+            self.table.selection = []
+            self._selected_rows = []
+        else:
+            # For single selection, only take the first index value
+            idx_val = index_values[0] if isinstance(index_values, list) else index_values
+            try:
+                row_pos = self._df.index.get_loc(idx_val)
+                row_position = int(row_pos)  # Convert to Python int
+                self.table.selection = [row_position]  # Panel expects a list even for single selection
+                self._selected_rows = [row_position]
+            except (KeyError, TypeError) as e:
+                print(f&quot;Error selecting index {idx_val}: {e}&quot;)
+                self.table.selection = []
+                self._selected_rows = []</div>
+
+
+<div class="viewcode-block" id="PanelTableWidget.on">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.on">[docs]</a>
+    def on(self, event_type, callback):
+        &quot;&quot;&quot;Register an event callback.&quot;&quot;&quot;
+        if event_type == &#39;selection_changed&#39;:
+            self._selection_callbacks.append(callback)</div>
+
+
+    @property
+    def layout(self):
+        &quot;&quot;&quot;Get the layout object for compatibility.&quot;&quot;&quot;
+        return self.table.param
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        &quot;&quot;&quot;Display the table widget.&quot;&quot;&quot;
+        return self.table._repr_mimebundle_(include, exclude)
+
+<div class="viewcode-block" id="PanelTableWidget.show">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.show">[docs]</a>
+    def show(self):
+        &quot;&quot;&quot;Show the table widget using Panel&#39;s show method.&quot;&quot;&quot;
+        return self.table.show()</div>
+</div>
+
+
+
 <div class="viewcode-block" id="create_table_widget">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.create_table_widget">[docs]</a>
-def create_table_widget(
-    data, col_widths, table_options=None, changeable_col=None
-):
+def create_table_widget(data, table_options=None):
     &quot;&quot;&quot;
     Create table widget object which supports interaction and updating the data.
 
@@ -154,99 +288,16 @@ def create_table_widget(
     ----------
     data : pandas.DataFrame
         Data you want to display in table widget
-    col_widths : list
-        A list containing width of each column of data in order (including
-        the index as 1st column). The width values must be proportions of
-        100 i.e. they must sum to 100.
     table_options : dict, optional
         A dictionary to specify options to use when creating interactive table
-        widget (same as :grid_options: of qgrid, specified in Notes section of
-        their `API documentation &lt;https://qgrid.readthedocs.io/en/latest/#qgrid.show_grid&gt;_`).
-        Invalid keys will have no effect and valid keys will override or add to
-        the options used by this function.
-    changeable_col : dict, optional
-        A dictionary to specify the information about column which will
-        change its name when data in generated table widget updates. It
-        must have two keys - :code:`index` to specify index of changeable
-        column in dataframe :code:`data` as an integer, and :code:`other_names`
-        to specify all possible names changeable column will get as a list
-        of strings. Default value :code:`None` indicates that there is no
-        changable column.
+        widget. Supported options: maxVisibleRows.
 
     Returns
     -------
-    qgrid.QgridWidget
+    PanelTableWidget
         Table widget object
     &quot;&quot;&quot;
-    try:
-        import qgridnext
-    except ModuleNotFoundError as e:
-        logger.exception(
-            &quot;qgridnext must be installed via pip for widgets to work.\n \
-            Run &#39;pip install qgridnext&#39; inside your tardis environment.\n \
-            Falling back to qgrid&quot;
-        )
-        import qgrid as qgridnext
-
-    # Setting the options to be used for creating table widgets
-    grid_options = {
-        &quot;sortable&quot;: False,
-        &quot;filterable&quot;: False,
-        &quot;editable&quot;: False,
-        &quot;minVisibleRows&quot;: 2,
-    }
-    if table_options:
-        grid_options.update(table_options)
-
-    column_options = {
-        &quot;minWidth&quot;: None,
-    }
-
-    # Check whether passed col_widths list is correct or not
-    if len(col_widths) != data.shape[1] + 1:
-        raise ValueError(
-            &quot;Size of column widths list do not match with &quot;
-            &quot;number of columns + 1 (index) in dataframe&quot;
-        )
-
-    # Note: Since forceFitColumns is enabled by default in grid_options,
-    # the column widths (when all specified) get applied in proportions,
-    # despite their original unit is px thus it&#39;s better they sum to 100
-    if sum(col_widths) != 100:
-        raise ValueError(
-            &quot;Column widths are not proportions of 100 (i.e. &quot;
-            &quot;they do not sum to 100)&quot;
-        )
-
-    # Preparing dictionary that defines column widths
-    cols_with_index = [data.index.name] + data.columns.to_list()
-    column_widths_definitions = {
-        col_name: {&quot;width&quot;: col_width}
-        for col_name, col_width in zip(cols_with_index, col_widths)
-    }
-
-    # We also need to define widths for different names of changeable column
-    if changeable_col:
-        if {&quot;index&quot;, &quot;other_names&quot;}.issubset(set(changeable_col.keys())):
-            column_widths_definitions.update(
-                {
-                    col_name: {&quot;width&quot;: col_widths[changeable_col[&quot;index&quot;]]}
-                    for col_name in changeable_col[&quot;other_names&quot;]
-                }
-            )
-        else:
-            raise ValueError(
-                &quot;Changeable column dictionary does not contain &quot;
-                &quot;&#39;index&#39; or &#39;other_names&#39; key&quot;
-            )
-
-    # Create the table widget using qgrid
-    return qgridnext.show_grid(
-        data,
-        grid_options=grid_options,
-        column_options=column_options,
-        column_definitions=column_widths_definitions,
-    )</div>
+    return PanelTableWidget(data, table_options)</div>
 
 
 
@@ -254,7 +305,7 @@ def create_table_widget(
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.TableSummaryLabel">[docs]</a>
 class TableSummaryLabel:
     &quot;&quot;&quot;
-    Label like widget to show summary of a qgrid table widget.
+    Label like widget to show summary of a Panel table widget.
 
     Also handles aligning the label with the table columns exactly like a
     summary row.
@@ -266,7 +317,7 @@ class TableSummaryLabel:
 
         Parameters
         ----------
-        target_table : qgrid.QgridWidget
+        target_table : PanelTableWidget
             Table widget whose summary label it is
         table_col_widths : list
             A list containing width of each column of table in order (including
@@ -307,36 +358,31 @@ class TableSummaryLabel:
         ----------
         value : int
             Value to be shown in label
-
-        Notes
-        -----
-        The width resizing operation is highly dependent on qgrid tables&#39;
-        layout. So it may not remain precise if there happens any CSS change
-        in upcoming versions of qgrid.
         &quot;&quot;&quot;
-        self.widget.children[1].value = str(value)
+        # Update the value component with new value
+        self.widget[1].object = f&quot;&lt;div style=&#39;padding:0px 2px; margin:0px;&#39;&gt;{str(value)}&lt;/div&gt;&quot;</div>
 
-        try:
-            table_width = int(self.target_table.layout.width.rstrip(&quot;px&quot;))
-        except AttributeError:
-            logger.warning(
-                &quot;target_table doesn&#39;t have any fixed width defined, label &quot;
-                &quot;cannot be resized!&quot;,
-                exc_info=1,
-            )
-            return
 
-        max_rows_allowed = self.target_table.grid_options[&quot;maxVisibleRows&quot;]
-        if len(self.target_table.df) &gt; max_rows_allowed:
-            table_width -= 12  # 12px is space consumed by scroll bar of qgrid
+        # For Panel components, sizing is handled automatically with sizing_mode=&#39;stretch_width&#39;
+        # No manual width calculation needed as Panel handles responsive sizing
 
-        # Distribute the table width in proportions of column width to label components
-        self.widget.children[
-            0
-        ].layout.width = f&quot;{(table_width) * self.table_col_widths[0]/100}px&quot;
-        self.widget.children[
-            1
-        ].layout.width = f&quot;{(table_width) * self.table_col_widths[1]/100}px&quot;</div>
+<div class="viewcode-block" id="TableSummaryLabel.get_value">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.TableSummaryLabel.get_value">[docs]</a>
+    def get_value(self):
+        &quot;&quot;&quot;
+        Get the current value displayed in the label.
+
+        Returns
+        -------
+        str
+            The current value as a string
+        &quot;&quot;&quot;
+        # Extract value from HTML content
+        html_content = self.widget[1].object
+        match = re.search(r&#39;&lt;div[^&gt;]*&gt;([^&lt;]*)&lt;/div&gt;&#39;, html_content)
+        if match:
+            return match.group(1)
+        return &quot;0&quot;</div>
 
 
     def _create(self, key, value):
@@ -352,32 +398,24 @@ class TableSummaryLabel:
 
         Returns
         -------
-        ipywidgets.Box
-            Widget containing all componets of label
+        panel.Row
+            Widget containing all components of label
         &quot;&quot;&quot;
-        # WARNING: Use dictionary instead of ipw.Layout for specifying layout
-        # of ipywidgets, otherwise there will be unintended behavior
-        component_layout_options = dict(
-            flex=&quot;0 0 auto&quot;,  # to prevent shrinking of flex-items
-            padding=&quot;0px 2px&quot;,  # match with header
-            margin=&quot;0px&quot;,  # remove default 1px margin
+        # Create Panel HTML components with styling
+        key_component = pn.pane.HTML(
+            f&quot;&lt;div style=&#39;text-align:right; padding:0px 2px; margin:0px;&#39;&gt; &lt;b&gt;{key}:&lt;/b&gt; &lt;/div&gt;&quot;,
+            sizing_mode=&#39;stretch_width&#39;
         )
 
-        return ipw.Box(
-            [
-                ipw.HTML(
-                    f&quot;&lt;div style=&#39;text-align:right;&#39;&gt; &lt;b&gt;{key}:&lt;b&gt; &lt;/div&gt;&quot;,
-                    layout=component_layout_options,
-                ),
-                ipw.HTML(
-                    str(value),
-                    layout=component_layout_options,
-                ),
-            ],
-            layout=dict(
-                display=&quot;flex&quot;,
-                justify_content=&quot;flex-start&quot;,
-            ),
+        value_component = pn.pane.HTML(
+            f&quot;&lt;div style=&#39;padding:0px 2px; margin:0px;&#39;&gt;{str(value)}&lt;/div&gt;&quot;,
+            sizing_mode=&#39;stretch_width&#39;
+        )
+
+        return pn.Row(
+            key_component,
+            value_component,
+            sizing_mode=&#39;stretch_width&#39;
         )</div>
 
 

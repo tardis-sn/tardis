@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88cae98f"></script>
+      <script src="../../../../_static/documentation_options.js?v=39a822d3"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -132,8 +132,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.visualization.widgets.shell_info</h1><div class="highlight"><pre>
-<span></span>import ipywidgets as ipw
-import pandas as pd
+<span></span>import pandas as pd
+import panel as pn
 
 from tardis.util.base import (
     atomic_number2element_symbol,
@@ -206,7 +206,7 @@ class BaseShellInfo:
             1, len(self.t_radiative) + 1
         )  # Overwrite index
         shells_temp_w.index.name = &quot;Shell No.&quot;
-        # Format to string to make qgrid show values in scientific notations
+        # Format to string to show values in scientific notations
         return shells_temp_w.map(lambda x: f&quot;{x:.6e}&quot;)</div>
 
 
@@ -399,21 +399,12 @@ class ShellInfoWidget:
 
         # Creating the shells data table widget
         self.shells_table = create_table_widget(
-            self.data.shells_data(), [30, 35, 35]
+            self.data.shells_data()
         )
 
         # Creating the element count table widget
         self.element_count_table = create_table_widget(
-            self.data.element_count(self.shells_table.df.index[0]),
-            [15, 30, 55],
-            changeable_col={
-                &quot;index&quot;: -1,  # since last column will change names
-                # Shells table index will give all possible shell numbers
-                &quot;other_names&quot;: [
-                    f&quot;Frac. Ab. (Shell {shell_num})&quot;
-                    for shell_num in self.shells_table.df.index
-                ],
-            },
+            self.data.element_count(self.shells_table.df.index[0])
         )
 
         # Creating the ion count table widget
@@ -421,17 +412,7 @@ class ShellInfoWidget:
             self.data.ion_count(
                 self.element_count_table.df.index[0],
                 self.shells_table.df.index[0],
-            ),
-            [20, 30, 50],
-            changeable_col={
-                &quot;index&quot;: -1,
-                # Since element are same for each shell thus previous table
-                # (element counts for shell 1) will give all possible elements
-                &quot;other_names&quot;: [
-                    f&quot;Frac. Ab. (Z={atomic_num})&quot;
-                    for atomic_num in self.element_count_table.df.index
-                ],
-            },
+            )
         )
 
         # Creating the level count table widget
@@ -440,24 +421,12 @@ class ShellInfoWidget:
                 self.ion_count_table.df.index[0],
                 self.element_count_table.df.index[0],
                 self.shells_table.df.index[0],
-            ),
-            [30, 70],
-            changeable_col={
-                &quot;index&quot;: -1,
-                # Ion values range from 0 to max atomic_num present in
-                # element count table
-                &quot;other_names&quot;: [
-                    f&quot;Frac. Ab. (Ion={ion})&quot;
-                    for ion in range(
-                        self.element_count_table.df.index.max() + 1
-                    )
-                ],
-            },
+            )
         )
 
 <div class="viewcode-block" id="ShellInfoWidget.update_element_count_table">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table">[docs]</a>
-    def update_element_count_table(self, event, qgrid_widget):
+    def update_element_count_table(self, event, panel_widget):
         &quot;&quot;&quot;Event listener to update the data in element count table widget based
         on interaction (row selected event) in shells table widget.
 
@@ -465,15 +434,14 @@ class ShellInfoWidget:
         ----------
         event : dict
             Dictionary that holds information about event (see Notes section)
-        qgrid_widget : qgrid.QgridWidget
-            QgridWidget instance that fired the event (see Notes section)
+        panel_widget : PanelTableWidget
+            PanelTableWidget instance that fired the event (see Notes section)
 
         Notes
         -----
         You will never need to pass any of these arguments explicitly. This is
         the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (qgrid.QgridWidget object) as
-        explained in `qrid documentation &lt;https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on&gt;`_.
+        of :code:`on` method of a table widget (PanelTableWidget object).
         &quot;&quot;&quot;
         # Get shell number from row selected in shells_table
         shell_num = event[&quot;new&quot;][0] + 1
@@ -494,7 +462,7 @@ class ShellInfoWidget:
 
 <div class="viewcode-block" id="ShellInfoWidget.update_ion_count_table">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table">[docs]</a>
-    def update_ion_count_table(self, event, qgrid_widget):
+    def update_ion_count_table(self, event, panel_widget):
         &quot;&quot;&quot;Event listener to update the data in ion count table widget based
         on interaction (row selected event) in element count table widget.
 
@@ -502,18 +470,17 @@ class ShellInfoWidget:
         ----------
         event : dict
             Dictionary that holds information about event (see Notes section)
-        qgrid_widget : qgrid.QgridWidget
-            QgridWidget instance that fired the event (see Notes section)
+        panel_widget : PanelTableWidget
+            PanelTableWidget instance that fired the event (see Notes section)
 
         Notes
         -----
         You will never need to pass any of these arguments explicitly. This is
         the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (qgrid.QgridWidget object) as
-        explained in `qrid documentation &lt;https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on&gt;`_.
+        of :code:`on` method of a table widget (PanelTableWidget object).
         &quot;&quot;&quot;
-        # Don&#39;t execute function if no row was selected, implicitly i.e. by api
-        if event[&quot;new&quot;] == [] and event[&quot;source&quot;] == &quot;api&quot;:
+        # Don&#39;t execute function if no row was selected
+        if not event[&quot;new&quot;]:
             return
 
         # Get shell no. &amp; atomic_num from rows selected in previous tables
@@ -532,7 +499,7 @@ class ShellInfoWidget:
 
 <div class="viewcode-block" id="ShellInfoWidget.update_level_count_table">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table">[docs]</a>
-    def update_level_count_table(self, event, qgrid_widget):
+    def update_level_count_table(self, event, panel_widget):
         &quot;&quot;&quot;Event listener to update the data in level count table widget based
         on interaction (row selected event) in ion count table widget.
 
@@ -540,18 +507,17 @@ class ShellInfoWidget:
         ----------
         event : dict
             Dictionary that holds information about event (see Notes section)
-        qgrid_widget : qgrid.QgridWidget
-            QgridWidget instance that fired the event (see Notes section)
+        panel_widget : PanelTableWidget
+            PanelTableWidget instance that fired the event (see Notes section)
 
         Notes
         -----
         You will never need to pass any of these arguments explicitly. This is
         the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (qgrid.QgridWidget object) as
-        explained in `qrid documentation &lt;https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on&gt;`_.
+        of :code:`on` method of a table widget (PanelTableWidget object).
         &quot;&quot;&quot;
-        # Don&#39;t execute function if no row was selected implicitly (by api)
-        if event[&quot;new&quot;] == [] and event[&quot;source&quot;] == &quot;api&quot;:
+        # Don&#39;t execute function if no row was selected
+        if not event[&quot;new&quot;]:
             return
 
         # Get shell no., atomic_num, ion from selected rows in previous tables
@@ -569,56 +535,19 @@ class ShellInfoWidget:
 
 <div class="viewcode-block" id="ShellInfoWidget.display">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.display">[docs]</a>
-    def display(
-        self,
-        shells_table_width=&quot;30%&quot;,
-        element_count_table_width=&quot;24%&quot;,
-        ion_count_table_width=&quot;24%&quot;,
-        level_count_table_width=&quot;18%&quot;,
-        **layout_kwargs,
-    ):
+    def display(self):
         &quot;&quot;&quot;Display the shell info widget by putting all component widgets nicely
         together and allowing interaction between the table widgets
 
-        Parameters
-        ----------
-        shells_table_width : str, optional
-            CSS :code:`width` property value for shells table, by default &#39;30%&#39;
-        element_count_table_width : str, optional
-            CSS :code:`width` property value for element count table, by default &#39;24%&#39;
-        ion_count_table_width : str, optional
-            CSS :code:`width` property value for ion count table, by default &#39;24%&#39;
-        level_count_table_width : str, optional
-            CSS :code:`width` property value for level count table, by default &#39;18%&#39;
-
-        Other Parameters
-        ----------------
-        **layout_kwargs
-            Any valid CSS properties to be passed to the :code:`layout` attribute
-            of table widgets container (HTML :code:`div`) as explained in
-            `ipywidgets documentation &lt;https://ipywidgets.readthedocs.io/en/stable/examples/Widget%20Styling.html#The-layout-attribute&gt;`_
-
         Returns
         -------
-        ipywidgets.Box
+        panel.Column
             Shell info widget containing all component widgets
         &quot;&quot;&quot;
         if not is_notebook():
             print(&quot;Please use a notebook to display the widget&quot;)
         else:
-            # CSS properties of the layout of shell info tables container
-            tables_container_layout = dict(
-                display=&quot;flex&quot;,
-                align_items=&quot;flex-start&quot;,
-                justify_content=&quot;space-between&quot;,
-            )
-            tables_container_layout.update(layout_kwargs)
-
-            # Setting tables&#39; widths
-            self.shells_table.layout.width = shells_table_width
-            self.element_count_table.layout.width = element_count_table_width
-            self.ion_count_table.layout.width = ion_count_table_width
-            self.level_count_table.layout.width = level_count_table_width
+            # Panel tables handle their own sizing automatically
 
             # Attach event listeners to table widgets
             self.shells_table.on(
@@ -631,27 +560,25 @@ class ShellInfoWidget:
                 &quot;selection_changed&quot;, self.update_level_count_table
             )
 
-            # Putting all table widgets in a container styled with tables_container_layout
-            shell_info_tables_container = ipw.Box(
-                [
-                    self.shells_table,
-                    self.element_count_table,
-                    self.ion_count_table,
-                    self.level_count_table,
-                ],
-                layout=ipw.Layout(**tables_container_layout),
+            # Create Panel layout for the tables
+            shell_info_tables_container = pn.Row(
+                self.shells_table.table,
+                self.element_count_table.table,
+                self.ion_count_table.table,
+                self.level_count_table.table,
+                sizing_mode=&#39;stretch_width&#39;
             )
             self.shells_table.change_selection([1])
 
             # Notes text explaining how to interpret tables widgets&#39; data
-            text = ipw.HTML(
+            text = pn.pane.HTML(
                 &quot;&lt;b&gt;Frac. Ab.&lt;/b&gt; denotes &lt;i&gt;Fractional Abundances&lt;/i&gt; (i.e all &quot;
                 &quot;values sum to 1)&lt;br&gt;&lt;b&gt;W&lt;/b&gt; denotes &lt;i&gt;Dilution Factor&lt;/i&gt; and &quot;
                 &quot;&lt;b&gt;Rad. Temp.&lt;/b&gt; is &lt;i&gt;Radiative Temperature (in K)&lt;/i&gt;&quot;
             )
 
-            # Put text horizontally before shell info container
-            shell_info_widget = ipw.VBox([text, shell_info_tables_container])
+            # Put text vertically before shell info container
+            shell_info_widget = pn.Column(text, shell_info_tables_container)
             return shell_info_widget</div>
 </div>
 
