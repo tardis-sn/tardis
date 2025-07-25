@@ -198,7 +198,7 @@ class WorkflowLogging:
 
         logger.info(&quot;\n\tPlasma stratification:&quot;)
 
-        if Environment.is_notebook():
+        if Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode():
             self.log_dataframe_notebook(plasma_state_log, log_sampling)
         else:
             self.log_dataframe_console(plasma_state_log, log_sampling)
@@ -261,7 +261,7 @@ class WorkflowLogging:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jul 2025.
+      <span class="lastupdated">Last updated on 25 Jul 2025.
       </span></p>
   </div>
 

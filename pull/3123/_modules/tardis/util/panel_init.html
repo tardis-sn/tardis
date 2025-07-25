@@ -138,14 +138,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-VALID_MODES = [&quot;moria&quot;, &quot;notebook&quot;, &quot;vscode&quot;, &quot;vscode_noipy&quot;]
+VALID_MODES = [&quot;ssh_jh&quot;, &quot;notebook&quot;, &quot;vscode&quot;, &quot;vscode_noipy&quot;]
 preferred_mode = None
 
-<div class="viewcode-block" id="moria">
-<a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.moria">[docs]</a>
-def moria():
-    &quot;&quot;&quot;Initialize panel for Moria/JupyterHub (colab comms)&quot;&quot;&quot;
-    print(&quot;Initializing panel with colab comms for Moria/JupyterHub&quot;)
+<div class="viewcode-block" id="ssh_jh">
+<a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.ssh_jh">[docs]</a>
+def ssh_jh():
+    &quot;&quot;&quot;Initialize panel for JupyterHub (colab comms)&quot;&quot;&quot;
+    print(&quot;Initializing panel with colab comms for JupyterHub&quot;)
     pn.extension(comms=&quot;colab&quot;)</div>
 
 
@@ -182,14 +182,14 @@ def auto():
         if preferred_mode not in VALID_MODES:
             raise ValueError(f&quot;Invalid mode: {preferred_mode}. Valid modes are: {VALID_MODES}&quot;)
         print(f&quot;Using preferred mode: {preferred_mode}&quot;)
-        modes = {&quot;moria&quot;: moria, &quot;notebook&quot;: notebook, &quot;vscode&quot;: vscode, &quot;vscode_noipy&quot;: vscode_noipy}
+        modes = {&quot;ssh_jh&quot;: ssh_jh, &quot;notebook&quot;: notebook, &quot;vscode&quot;: vscode, &quot;vscode_noipy&quot;: vscode_noipy}
         modes[preferred_mode]()
         return
     
     # Otherwise auto-detect
-    if Environment.is_moria():
-        print(&quot;Auto-detected Moria/JupyterHub environment&quot;)
-        moria()
+    if Environment.is_sshjh():
+        print(&quot;Auto-detected JupyterHub environment&quot;)
+        ssh_jh()
     elif Environment.is_vscode():
         print(&quot;Auto-detected VSCode environment&quot;)
         vscode()
@@ -211,7 +211,7 @@ def auto():
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jul 2025.
+      <span class="lastupdated">Last updated on 25 Jul 2025.
       </span></p>
   </div>
 

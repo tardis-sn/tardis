@@ -145,7 +145,7 @@ class Environment(StrEnum):
     VSCODE = &#39;vscode&#39;
     JUPYTER = &#39;jupyter&#39;
     TERMINAL = &#39;terminal&#39;
-    MORIA = &#39;moria&#39;
+    SSH_JH = &#39;ssh_jh&#39;
     
 <div class="viewcode-block" id="Environment.get_current_environment">
 <a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.get_current_environment">[docs]</a>
@@ -162,8 +162,8 @@ class Environment(StrEnum):
             return cls.VSCODE
         elif cls.is_notebook():
             return cls.JUPYTER
-        elif cls.is_moria():
-            return cls.MORIA
+        elif cls.is_sshjh():
+            return cls.SSH_JH
         elif cls.is_terminal():
             return cls.TERMINAL
         else:
@@ -221,12 +221,12 @@ class Environment(StrEnum):
         # All other shell instances are returned False
         return False
 
-<div class="viewcode-block" id="Environment.is_moria">
-<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_moria">[docs]</a>
+<div class="viewcode-block" id="Environment.is_sshjh">
+<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_sshjh">[docs]</a>
     @staticmethod
-    def is_moria() -&gt; bool:
+    def is_sshjh() -&gt; bool:
         &quot;&quot;&quot;
-        Checking if the current environment is Moria/JupyterHub
+        Checking if the current environment is JupyterHub
         
         Returns
         -------
@@ -263,7 +263,7 @@ class Environment(StrEnum):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jul 2025.
+      <span class="lastupdated">Last updated on 25 Jul 2025.
       </span></p>
   </div>
 

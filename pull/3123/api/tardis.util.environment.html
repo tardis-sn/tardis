@@ -174,8 +174,8 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.util.environment.Environment.MORIA">
-<span class="sig-name descname"><span class="pre">MORIA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'moria'</span></em><a class="headerlink" href="#tardis.util.environment.Environment.MORIA" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.util.environment.Environment.SSH_JH">
+<span class="sig-name descname"><span class="pre">SSH_JH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ssh_jh'</span></em><a class="headerlink" href="#tardis.util.environment.Environment.SSH_JH" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -203,20 +203,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tardis.util.environment.Environment.is_moria">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_moria</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tardis/util/environment.html#Environment.is_moria"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.util.environment.Environment.is_moria" title="Link to this definition">¶</a></dt>
-<dd><p>Checking if the current environment is Moria/JupyterHub</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>True</strong><span class="classifier">if running in notebook with JupyterHub environment variables</span></dt><dd></dd>
-<dt><strong>False</strong><span class="classifier">otherwise</span></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="tardis.util.environment.Environment.is_notebook">
 <em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_notebook</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tardis/util/environment.html#Environment.is_notebook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.util.environment.Environment.is_notebook" title="Link to this definition">¶</a></dt>
 <dd><p>Checking the shell environment where the simulation is run is Jupyter based</p>
@@ -225,6 +211,20 @@
 <dd class="field-odd"><dl class="simple">
 <dt><strong>True</strong><span class="classifier">if the shell environment is Jupyter Based</span></dt><dd></dd>
 <dt><strong>False</strong><span class="classifier">if the shell environment is Terminal or anything else</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.util.environment.Environment.is_sshjh">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_sshjh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tardis/util/environment.html#Environment.is_sshjh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.util.environment.Environment.is_sshjh" title="Link to this definition">¶</a></dt>
+<dd><p>Checking if the current environment is JupyterHub</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>True</strong><span class="classifier">if running in notebook with JupyterHub environment variables</span></dt><dd></dd>
+<dt><strong>False</strong><span class="classifier">otherwise</span></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -258,7 +258,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jul 2025.
+      <span class="lastupdated">Last updated on 25 Jul 2025.
       </span></p>
   </div>
 

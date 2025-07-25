@@ -334,7 +334,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         if show_convergence_plots:
-            if not Environment.is_notebook():
+            if not Environment.is_notebook() and not Environment.is_sshjh() and not Environment.is_vscode():
                 raise RuntimeError(
                     &quot;Convergence Plots cannot be displayed in command-line. Set show_convergence_plots &quot;
                     &quot;to False.&quot;
@@ -1011,7 +1011,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jul 2025.
+      <span class="lastupdated">Last updated on 25 Jul 2025.
       </span></p>
   </div>
 
