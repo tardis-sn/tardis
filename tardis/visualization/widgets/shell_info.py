@@ -245,21 +245,12 @@ class ShellInfoWidget:
 
         # Creating the shells data table widget
         self.shells_table = create_table_widget(
-            self.data.shells_data(), [30, 35, 35]
+            self.data.shells_data()
         )
 
         # Creating the element count table widget
         self.element_count_table = create_table_widget(
-            self.data.element_count(self.shells_table.df.index[0]),
-            [15, 30, 55],
-            changeable_col={
-                "index": -1,  # since last column will change names
-                # Shells table index will give all possible shell numbers
-                "other_names": [
-                    f"Frac. Ab. (Shell {shell_num})"
-                    for shell_num in self.shells_table.df.index
-                ],
-            },
+            self.data.element_count(self.shells_table.df.index[0])
         )
 
         # Creating the ion count table widget
@@ -267,17 +258,7 @@ class ShellInfoWidget:
             self.data.ion_count(
                 self.element_count_table.df.index[0],
                 self.shells_table.df.index[0],
-            ),
-            [20, 30, 50],
-            changeable_col={
-                "index": -1,
-                # Since element are same for each shell thus previous table
-                # (element counts for shell 1) will give all possible elements
-                "other_names": [
-                    f"Frac. Ab. (Z={atomic_num})"
-                    for atomic_num in self.element_count_table.df.index
-                ],
-            },
+            )
         )
 
         # Creating the level count table widget
@@ -286,19 +267,7 @@ class ShellInfoWidget:
                 self.ion_count_table.df.index[0],
                 self.element_count_table.df.index[0],
                 self.shells_table.df.index[0],
-            ),
-            [30, 70],
-            changeable_col={
-                "index": -1,
-                # Ion values range from 0 to max atomic_num present in
-                # element count table
-                "other_names": [
-                    f"Frac. Ab. (Ion={ion})"
-                    for ion in range(
-                        self.element_count_table.df.index.max() + 1
-                    )
-                ],
-            },
+            )
         )
 
     def update_element_count_table(self, event, panel_widget):

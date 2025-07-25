@@ -11,39 +11,20 @@ logger = logging.getLogger(__name__)
 class PanelTableWidget:
     """Panel-based table widget that mimics qgrid functionality."""
 
-    def __init__(self, data, col_widths, table_options=None, changeable_col=None):
+    def __init__(self, data, table_options=None):
         """Initialize the Panel table widget.
 
         Parameters
         ----------
         data : pandas.DataFrame
             Data to display in table widget
-        col_widths : list
-            Column width proportions (must sum to 100)
         table_options : dict, optional
             Table configuration options
-        changeable_col : dict, optional
-            Information about changeable column names
         """
         self._df = data.copy()
-        self.col_widths = col_widths
         self.table_options = table_options or {}
-        self.changeable_col = changeable_col
         self._selected_rows = []
         self._selection_callbacks = []
-
-        # Validate column widths
-        if len(col_widths) != data.shape[1] + 1:
-            raise ValueError(
-                "Size of column widths list do not match with "
-                "number of columns + 1 (index) in dataframe"
-            )
-
-        if sum(col_widths) != 100:
-            raise ValueError(
-                "Column widths are not proportions of 100 (i.e. "
-                "they do not sum to 100)"
-            )
 
         # Create the Panel table
         self._create_table()
@@ -143,9 +124,7 @@ class PanelTableWidget:
         return self.table.show()
 
 
-def create_table_widget(
-    data, col_widths, table_options=None, changeable_col=None
-):
+def create_table_widget(data, table_options=None):
     """
     Create table widget object which supports interaction and updating the data.
 
@@ -153,28 +132,16 @@ def create_table_widget(
     ----------
     data : pandas.DataFrame
         Data you want to display in table widget
-    col_widths : list
-        A list containing width of each column of data in order (including
-        the index as 1st column). The width values must be proportions of
-        100 i.e. they must sum to 100.
     table_options : dict, optional
         A dictionary to specify options to use when creating interactive table
         widget. Supported options: maxVisibleRows.
-    changeable_col : dict, optional
-        A dictionary to specify the information about column which will
-        change its name when data in generated table widget updates. It
-        must have two keys - :code:`index` to specify index of changeable
-        column in dataframe :code:`data` as an integer, and :code:`other_names`
-        to specify all possible names changeable column will get as a list
-        of strings. Default value :code:`None` indicates that there is no
-        changable column.
 
     Returns
     -------
     PanelTableWidget
         Table widget object
     """
-    return PanelTableWidget(data, col_widths, table_options, changeable_col)
+    return PanelTableWidget(data, table_options)
 
 
 class TableSummaryLabel:

@@ -80,19 +80,16 @@ class LineInfoWidget:
         max_rows_option = {"maxVisibleRows": 9}
         self.species_interactions_table = create_table_widget(
             data=self.get_species_interactions(None),
-            col_widths=[35, 65],
             table_options=max_rows_option,
         )
 
-        line_counts_col_widths = [75, 25]
         self.last_line_counts_table = create_table_widget(
             data=self.get_last_line_counts(None),
-            col_widths=line_counts_col_widths,
             table_options=max_rows_option,
         )
         self.total_packets_label = TableSummaryLabel(
             target_table=self.last_line_counts_table,
-            table_col_widths=line_counts_col_widths,
+            table_col_widths=[75, 25],
             label_key="Total Packets",
             label_value=0,
         )
