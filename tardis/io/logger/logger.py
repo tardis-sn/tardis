@@ -7,6 +7,7 @@ import pandas as pd
 from tardis.io.logger.colored_logger import ColoredFormatter
 from tardis.util.environment import Environment
 from tardis.io.logger.logger_widget import create_logger_columns, PanelWidgetLogHandler
+from tardis.io.logger.logger_widget_2 import PanelLoggingHandler
 import tardis.util.panel_init as panel_init
 panel_init.auto()
 
@@ -134,7 +135,7 @@ class TARDISLogger:
                 for logger in tardis_loggers:
                     logger.removeFilter(filter)
 
-    def setup_widget_logging(self, display_widget=True):
+    def setup_widget_logging(self, logging_columns, logging_feeds):
         """Set up widget-based logging interface.
 
         Parameters
@@ -142,12 +143,8 @@ class TARDISLogger:
         display_widget : bool, optional
             Whether to display the widget in GUI environments. Default is True.
         """
-        self.widget_handler = PanelWidgetLogHandler(
-            log_columns=self.log_columns,
-            colors=self.config.COLORS,
-            display_widget=display_widget,
-            display_handles=self.display_handles
-        )
+        display(pn.Tabs(*logging_columns))
+        self.widget_handler = PanelLoggingHandler(logging_feeds)
         self.widget_handler.setFormatter(
             logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
         )
@@ -247,34 +244,28 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
     use_widget = display_logging_widget and (Environment.is_notebook() or Environment.is_vscode() or Environment.is_sshjh())
     
-    if Environment.is_notebook() or Environment.is_sshjh():
-        display_handles = {}
-        display_ids = {}
-        for level, column in log_columns.items():
-            level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
-            display(level_title)
-            display_id = f"logger_column_{level.lower().replace('/', '_')}"
-            display_handles[level] = display(column, display_id=display_id)
-            display_ids[level] = display_id
-        
-        # Update tardislogger with display handles and IDs
-        tardislogger.display_handles = display_handles
-        tardislogger.display_ids = display_ids
-    elif Environment.is_vscode():
-        # Use direct display for vscode (no change)
-        for level, column in log_columns.items():
-            level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
-            display(level_title)
-            display(column)
-    elif Environment.is_terminal():
+    all_feed = pn.Feed(view_latest=True, sizing_mode='stretch_width')
+    info_feed = pn.Feed(view_latest=True, sizing_mode='stretch_width')
+    debug_feed = pn.Feed(view_latest=True, sizing_mode='stretch_width')
+    warning_feed = pn.Feed(view_latest=True, sizing_mode='stretch_width')
+    errors_feed = pn.Feed(view_latest=True, sizing_mode='stretch_width')
+    critical_feed = pn.Feed(view_latest=True, sizing_mode='stretch_width')
+
+    logging_columns = [("All", all_feed), ("Info", info_feed), ("Debug", debug_feed), ("Warning", warning_feed), ("Error", errors_feed), ("Critical", critical_feed)]
+
+    logging_feeds = [all_feed, info_feed, debug_feed, warning_feed, errors_feed, critical_feed,]
+
+    if Environment.is_terminal():
         logger.warning("Terminal environment detected, skipping logger widget")
     else:
         logger.warning("Unknown environment, skipping logger widget")
 
     # Setup widget logging once after display handles are configured
-    tardislogger.setup_widget_logging(display_widget=display_logging_widget)
+    if display_logging_widget:
+        print("Setting up widget logging")
+        tardislogger.setup_widget_logging(logging_columns, logging_feeds)
     
     if use_widget:
         return log_columns, tardislogger
     else:
-        return None, tardislogger
+        return None, tardislogger   
