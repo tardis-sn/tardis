@@ -84,8 +84,12 @@ class LIVPlotter:
             plotter.velocity = hdf["/simulation/simulation_state/velocity"] * (
                 u.cm / u.s
             )
-            transport_state_scalars = hdf["/simulation/transport/transport_state/scalars"]
-            has_virtual = bool(getattr(transport_state_scalars, "virt_logging", False))
+            transport_state_scalars = hdf[
+                "/simulation/transport/transport_state/scalars"
+            ]
+            has_virtual = bool(
+                getattr(transport_state_scalars, "virt_logging", False)
+            )
 
             modes = ["real"] + (["virtual"] if has_virtual else [])
             for mode in modes:
@@ -124,15 +128,8 @@ class LIVPlotter:
                 full_species_list,
             ) = pu.parse_species_list_util(species_list)
             self._full_species_list = full_species_list
-            self._species_list = [
-                atomic_num * 100 + ion_num
-                for atomic_num, ion_num in requested_species_ids_tuples
-            ]
-
-            self._species_mapped = {
-                (k[0] * 100 + k[1]): [v[0] * 100 + v[1] for v in values]
-                for k, values in species_mapped_tuples.items()
-            }
+            self._species_list = requested_species_ids_tuples
+            self._species_mapped = species_mapped_tuples
             self._keep_colour = keep_colour
         else:
             self._species_list = None
@@ -143,13 +140,13 @@ class LIVPlotter:
             interaction_counts = self.packet_data[packets_mode][
                 "packets_df_line_interaction"
             ]["last_line_interaction_species"].value_counts()
-            interaction_counts.index = interaction_counts.index // 100
+            # interaction_counts.index = interaction_counts.index // 100
             element_counts = interaction_counts.groupby(
                 interaction_counts.index
             ).sum()
             top_elements = element_counts.nlargest(nelements).index
             top_species_list = [
-                atomic_number2element_symbol(element)
+                atomic_number2element_symbol(element[0])
                 for element in top_elements
             ]
             self._parse_species_list(top_species_list, packets_mode)
@@ -169,8 +166,9 @@ class LIVPlotter:
         else:
             species_name = []
             for species_key, species_ids in self._species_mapped.items():
+                print(self.species, species_ids)
                 if any(spec_id in self.species for spec_id in species_ids):
-                    atomic_number, ion_number = divmod(species_key, 100) #(quotient, remainder) Eg: 1402 = 14, 02
+                    atomic_number, ion_number = species_key
                     if ion_number == 0:
                         label = atomic_number2element_symbol(atomic_number)
                     else:
@@ -229,7 +227,7 @@ class LIVPlotter:
             for species in species_list:
                 if species in self.species:
                     if species not in groups.groups:
-                        atomic_number, ion_number = divmod(species, 100) #(quotient, remainder)
+                        atomic_number, ion_number = species
                         ion_numeral = int_to_roman(ion_number + 1)
                         label = f"{atomic_number2element_symbol(atomic_number)} {ion_numeral}"
                         species_not_wvl_range.append(label)
@@ -301,18 +299,19 @@ class LIVPlotter:
         species_in_model = np.unique(
             self.packet_data[packets_mode]["packets_df_line_interaction"][
                 "last_line_interaction_species"
-            ].values
+            ]
+            .apply(lambda x: (int(x[0]), int(x[1])))
+            .to_numpy()
         )
         if species_list is None:
             species_list = [
-                f"{atomic_number2element_symbol(specie // 100)}"
-                for specie in species_in_model
+                f"{atomic_number2element_symbol(species[0])}"
+                for species in species_in_model
             ]
         self._parse_species_list(species_list, packets_mode, nelements)
         if self._species_list is None or not self._species_list:
             raise ValueError("No species provided for plotting.")
-        msk = np.isin(self._species_list, species_in_model)
-        self.species = np.array(self._species_list)[msk]
+        self.species = list(set(self._species_list) & set(species_in_model))
 
         if len(self.species) == 0:
             raise ValueError("No valid species found for plotting.")
