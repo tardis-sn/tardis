@@ -40,10 +40,15 @@ class PanelTableWidget:
             self._df,
             pagination=pagination,
             page_size=page_size,
-            selectable='checkbox',
+            selectable=True,  # Single row selection (radio button style)
             show_index=True,
             sizing_mode='stretch_width',
-            height=min(400, max(200, len(self._df) * 30 + 50))
+            height=min(400, max(200, len(self._df) * 30 + 50)),
+            disabled=True,  # Make cells non-editable
+            configuration={
+                'selectable': 'highlight',  # Make entire row selectable/highlightable
+                'selectableRangeMode': 'click',  # Allow clicking anywhere on row to select
+            }
         )
 
         # Set up selection callback
@@ -52,8 +57,11 @@ class PanelTableWidget:
     def _on_selection_change(self, event):
         """Handle selection changes in the table."""
         if event.new:
-            # Panel sends row positions, ensure they're Python int
-            selected_indices = [int(i) for i in event.new]
+            # With single selection, Panel sends a list with one item or just the index
+            if isinstance(event.new, list):
+                selected_indices = [int(i) for i in event.new]
+            else:
+                selected_indices = [int(event.new)]
             self._selected_rows = selected_indices
         else:
             self._selected_rows = []
@@ -64,7 +72,7 @@ class PanelTableWidget:
             # Create event dict similar to qgrid format
             event_dict = {
                 'new': selected_indices,
-                'old': [int(i) for i in getattr(event, 'old', [])],
+                'old': [int(i) for i in getattr(event, 'old', [])] if hasattr(event, 'old') and event.old else [],
                 'source': 'user'
             }
             callback(event_dict, self)
@@ -90,20 +98,17 @@ class PanelTableWidget:
             self.table.selection = []
             self._selected_rows = []
         else:
-            # Convert index values to row positions for Panel Tabulator
-            # Panel expects Python int, not numpy.int64
-            row_positions = []
-            selected_rows = []
-            for idx_val in index_values:
-                try:
-                    row_pos = self._df.index.get_loc(idx_val)
-                    row_positions.append(int(row_pos))  # Convert to Python int
-                    selected_rows.append(int(row_pos))
-                except (KeyError, TypeError) as e:
-                    print(f"Error selecting index {idx_val}: {e}")
-                    continue
-            self.table.selection = row_positions
-            self._selected_rows = selected_rows
+            # For single selection, only take the first index value
+            idx_val = index_values[0] if isinstance(index_values, list) else index_values
+            try:
+                row_pos = self._df.index.get_loc(idx_val)
+                row_position = int(row_pos)  # Convert to Python int
+                self.table.selection = [row_position]  # Panel expects a list even for single selection
+                self._selected_rows = [row_position]
+            except (KeyError, TypeError) as e:
+                print(f"Error selecting index {idx_val}: {e}")
+                self.table.selection = []
+                self._selected_rows = []
 
     def on(self, event_type, callback):
         """Register an event callback."""
