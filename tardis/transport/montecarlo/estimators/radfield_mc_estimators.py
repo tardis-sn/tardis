@@ -138,3 +138,30 @@ class RadiationFieldMCEstimators:
                 )
             )
         return estimator_list
+
+    def get_first_n_shells(self, n_shell_number_to_keep):
+        """
+        Returns a new instance of RadiationFieldMCEstimators with attributes
+        sliced along the shells to keep only the first n shells.
+
+        Parameters
+        ----------
+        n_shell_number_to_keep : int
+            The number of shells to keep in the sliced estimators.
+
+        Returns
+        -------
+        RadiationFieldMCEstimators
+            A new estimator instance with sliced data.
+        """
+        return RadiationFieldMCEstimators(
+            self.j_estimator[:n_shell_number_to_keep],
+            self.nu_bar_estimator[:n_shell_number_to_keep],
+            self.j_blue_estimator[:, :n_shell_number_to_keep],
+            self.Edotlu_estimator[:, :n_shell_number_to_keep],
+            self.photo_ion_estimator,
+            self.stim_recomb_estimator,
+            self.bf_heating_estimator,
+            self.stim_recomb_cooling_estimator,
+            self.photo_ion_estimator_statistics,
+        )

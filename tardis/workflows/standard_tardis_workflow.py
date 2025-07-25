@@ -118,7 +118,9 @@ class StandardTARDISWorkflow(
         """
         estimated_radfield_properties = (
             self.transport_solver.radfield_prop_solver.solve(
-                self.transport_state.radfield_mc_estimators,
+                self.transport_state.radfield_mc_estimators.get_first_n_shells(
+                    self.simulation_state.no_of_shells
+                ),  # the MC estimators are populated from index 0 to no_of_shells,
                 self.transport_state.time_explosion,
                 self.transport_state.time_of_simulation,
                 self.transport_state.geometry_state.volume,

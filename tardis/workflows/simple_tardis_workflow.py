@@ -42,42 +42,40 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             Set true if the configuration uses CSVY, by default False
         """
         super().__init__(configuration, self.log_level, self.specific_log_level)
-        atom_data = parse_atom_data(configuration)
+        self.atom_data = parse_atom_data(configuration)
 
         # set up states and solvers
         if csvy:
             self.simulation_state = SimulationState.from_csvy(
-                configuration, atom_data=atom_data
+                configuration, atom_data=self.atom_data
             )
-            assert np.isclose(
-                self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
-                self.simulation_state.geometry.v_inner[0].to(u.km / u.s).value,
-            ), (
-                "If using csvy density input in the workflow, the initial v_inner_boundary must start at the first shell, see issue #3129."
-            )
-
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration,
-                atom_data=atom_data,
+                atom_data=self.atom_data,
             )
 
-        plasma_solver_factory = PlasmaSolverFactory(
-            atom_data,
+        self.plasma_solver_factory = PlasmaSolverFactory(
+            self.atom_data,
             configuration,
         )
 
-        plasma_solver_factory.prepare_factory(
+        self.plasma_solver_factory.prepare_factory(
             self.simulation_state.abundance.index,
             "tardis.plasma.properties.property_collections",
             configuration,
         )
 
-        self.plasma_solver = plasma_solver_factory.assemble(
+        radiation_field = DilutePlanckianRadiationField(
+            temperature=self.simulation_state.t_radiative,
+            dilution_factor=self.simulation_state.dilution_factor,
+        )
+
+        self.plasma_solver = self.plasma_solver_factory.assemble(
             self.simulation_state.calculate_elemental_number_density(
-                atom_data.atom_data.mass
+                self.atom_data.atom_data.mass
             ),
-            self.simulation_state.radiation_field_state,
+            radiation_field,
             self.simulation_state.time_explosion,
             self.simulation_state._electron_densities,
         )
@@ -176,14 +174,14 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         EstimatedRadiationFieldProperties
             Dilute radiation file and j_blues dataclass
         """
-        estimated_radfield_properties = (
-            self.transport_solver.radfield_prop_solver.solve(
-                self.transport_state.radfield_mc_estimators,
-                self.transport_state.time_explosion,
-                self.transport_state.time_of_simulation,
-                self.transport_state.geometry_state.volume,
-                self.transport_state.opacity_state.line_list_nu,
-            )
+        estimated_radfield_properties = self.transport_solver.radfield_prop_solver.solve(
+            self.transport_state.radfield_mc_estimators.get_first_n_shells(
+                self.simulation_state.no_of_shells
+            ),  # the MC estimators are populated from index 0 to no_of_shells
+            self.transport_state.time_explosion,
+            self.transport_state.time_of_simulation,
+            self.transport_state.geometry_state.volume,
+            self.transport_state.opacity_state.line_list_nu,
         )
 
         estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
