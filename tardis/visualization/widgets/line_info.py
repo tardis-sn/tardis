@@ -527,8 +527,7 @@ class LineInfoWidget:
         )
 
         # Get index of 0th row in species_interactions_table
-        if (len(self.species_interactions_table.df) > 0 and 
-            self.species_interactions_table.df.index[0] != ""):
+        if not self.species_interactions_table.df.empty and self.species_interactions_table.df.index[0] != "":
             
             species0 = self.species_interactions_table.df.index[0]
 
