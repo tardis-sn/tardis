@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=d5f8adf6"></script>
+      <script src="../../../../_static/documentation_options.js?v=2079204a"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -137,9 +137,7 @@
 import asyncio
 import logging
 import re
-import numpy as np
 import panel as pn
-import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -261,7 +259,8 @@ class PanelTableWidget:
                     row_pos = self._df.index.get_loc(idx_val)
                     row_positions.append(int(row_pos))  # Convert to Python int
                     selected_rows.append(int(row_pos))
-                except (KeyError, TypeError):
+                except (KeyError, TypeError) as e:
+                    print(f&quot;Error selecting index {idx_val}: {e}&quot;)
                     continue
             self.table.selection = row_positions
             self._selected_rows = selected_rows</div>
@@ -282,26 +281,13 @@ class PanelTableWidget:
 
     def _repr_mimebundle_(self, include=None, exclude=None):
         &quot;&quot;&quot;Display the table widget.&quot;&quot;&quot;
-        try:
-            return self.table._repr_mimebundle_(include, exclude)
-        except Exception:
-            # Fallback to simple HTML representation
-            return {&#39;text/html&#39;: self._df.to_html()}, {}
-
-    def __repr__(self):
-        &quot;&quot;&quot;String representation of the widget.&quot;&quot;&quot;
-        return f&quot;PanelTableWidget({self._df.shape[0]} rows, {self._df.shape[1]} columns)&quot;
+        return self.table._repr_mimebundle_(include, exclude)
 
 <div class="viewcode-block" id="PanelTableWidget.show">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.show">[docs]</a>
     def show(self):
         &quot;&quot;&quot;Show the table widget using Panel&#39;s show method.&quot;&quot;&quot;
-        try:
-            return self.table.show()
-        except Exception:
-            # Fallback to displaying the dataframe
-            from IPython.display import display, HTML
-            display(HTML(self._df.to_html()))</div>
+        return self.table.show()</div>
 </div>
 
 

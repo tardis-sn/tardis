@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=d5f8adf6"></script>
+      <script src="../../../../_static/documentation_options.js?v=2079204a"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,7 +138,6 @@ import numpy as np
 import pandas as pd
 import panel as pn
 from astropy import units as u
-from plotly.callbacks import BoxSelector
 
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
@@ -367,11 +366,10 @@ class LineInfoWidget:
             selected_species_symbols, name=&quot;Species&quot;
         )
         fractional_species_interactions.name = &quot;Fraction of packets interacting&quot;
-        result = fractional_species_interactions.sort_values(
+        return fractional_species_interactions.sort_values(
             ascending=False
-        ).to_frame()
-        
-        return result</div>
+        ).to_frame()</div>
+
 
 
 <div class="viewcode-block" id="LineInfoWidget.get_last_line_counts">
@@ -600,11 +598,6 @@ class LineInfoWidget:
         -------
         plotly.graph_objects.FigureWidget
         &quot;&quot;&quot;
-        # Note: These variables were used for plotly compatibility but are kept for potential future use
-        # initial_zoomed_range = self.get_middle_half_edges(wavelength.value)
-        # scatter_point_idx = pu.get_mid_point_idx(wavelength.value)
-
-        
         # Create Bokeh figure with box select
         p = figure(width=800, height=400, title=&#39;Spectrum&#39;, tools=&#39;box_select,reset&#39;)
         
@@ -629,35 +622,50 @@ class LineInfoWidget:
         self._bokeh_plot = p
         self._selection_source = selection_source
         self._y_range = [luminosity_density_lambda.value.min(), luminosity_density_lambda.value.max()]
-        
-        # Selection callback
-        def selection_callback(_attr, _old, new):
-            if new:
-                indices = new
-                if len(indices) &gt; 0:
-                    selected_x = [wavelength.value[i] for i in indices]
-                    x_range = [min(selected_x), max(selected_x)]
+        self._wavelength_data = wavelength  # Store wavelength data for callback access
 
-                    # Update selection overlay to show persistent selection
-                    self._selection_source.data = dict(
-                        left=[x_range[0]],
-                        right=[x_range[1]],
-                        top=[self._y_range[1]],
-                        bottom=[self._y_range[0]]
-                    )
-
-                    # Track the current selection
-                    self._current_wavelength_range = x_range
-
-                    # Get current filter mode from buttons
-                    filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
-                    self._update_species_interactions(x_range, self.FILTER_MODES[filter_mode_index])
-        
         # Connect selection callback
-        source.selected.on_change(&#39;indices&#39;, selection_callback)
+        source.selected.on_change(&#39;indices&#39;, self._selection_callback)
         
         return pn.pane.Bokeh(p)</div>
 
+
+    def _selection_callback(self, _attr, _old, new):
+        &quot;&quot;&quot;
+        Bokeh selection callback for spectrum plot.
+
+        This method handles selection events from the Bokeh plot and updates
+        the species interactions table based on the selected wavelength range.
+
+        Parameters
+        ----------
+        _attr : str
+            Attribute name (unused)
+        _old : list
+            Previous selection indices (unused)
+        new : list
+            New selection indices
+        &quot;&quot;&quot;
+        if new:
+            indices = new
+            if len(indices) &gt; 0:
+                selected_x = [self._wavelength_data.value[i] for i in indices]
+                x_range = [min(selected_x), max(selected_x)]
+
+                # Update selection overlay to show persistent selection
+                self._selection_source.data = dict(
+                    left=[x_range[0]],
+                    right=[x_range[1]],
+                    top=[self._y_range[1]],
+                    bottom=[self._y_range[0]]
+                )
+
+                # Track the current selection
+                self._current_wavelength_range = x_range
+
+                # Get current filter mode from buttons
+                filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
+                self._update_species_interactions(x_range, self.FILTER_MODES[filter_mode_index])
 
     def _update_species_interactions(self, wavelength_range, filter_mode):
         &quot;&quot;&quot;
@@ -708,33 +716,7 @@ class LineInfoWidget:
         else:  # Line counts table will be empty
             self.total_packets_label.update_and_resize(0)
 
-    def _spectrum_selection_handler(self, trace=None, points=None, selector=None):
-        &quot;&quot;&quot;
-        Event handler for selection of spectrum - compatibility layer for tests.
 
-        This method maintains compatibility with existing tests while working
-        with the new Bokeh/Panel implementation.
-        &quot;&quot;&quot;
-        if isinstance(selector, BoxSelector):
-            wavelength_range = selector.xrange
-            
-            # Track the current selection
-            self._current_wavelength_range = wavelength_range
-            
-            # Update selection overlay in Bokeh plot
-            if hasattr(self, &#39;_selection_source&#39;):
-                self._selection_source.data = dict(
-                    left=[wavelength_range[0]], 
-                    right=[wavelength_range[1]], 
-                    top=[self._y_range[1]], 
-                    bottom=[self._y_range[0]]
-                )
-            
-            filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
-            self._update_species_interactions(
-                wavelength_range,
-                self.FILTER_MODES[filter_mode_index],
-            )
 
     def _filter_mode_toggle_handler(self, event):
         &quot;&quot;&quot;
