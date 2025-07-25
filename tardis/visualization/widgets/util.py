@@ -3,9 +3,7 @@
 import asyncio
 import logging
 import re
-import numpy as np
 import panel as pn
-import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +118,8 @@ class PanelTableWidget:
                     row_pos = self._df.index.get_loc(idx_val)
                     row_positions.append(int(row_pos))  # Convert to Python int
                     selected_rows.append(int(row_pos))
-                except (KeyError, TypeError):
+                except (KeyError, TypeError) as e:
+                    print(f"Error selecting index {idx_val}: {e}")
                     continue
             self.table.selection = row_positions
             self._selected_rows = selected_rows
@@ -137,24 +136,11 @@ class PanelTableWidget:
 
     def _repr_mimebundle_(self, include=None, exclude=None):
         """Display the table widget."""
-        try:
-            return self.table._repr_mimebundle_(include, exclude)
-        except Exception:
-            # Fallback to simple HTML representation
-            return {'text/html': self._df.to_html()}, {}
-
-    def __repr__(self):
-        """String representation of the widget."""
-        return f"PanelTableWidget({self._df.shape[0]} rows, {self._df.shape[1]} columns)"
+        return self.table._repr_mimebundle_(include, exclude)
 
     def show(self):
         """Show the table widget using Panel's show method."""
-        try:
-            return self.table.show()
-        except Exception:
-            # Fallback to displaying the dataframe
-            from IPython.display import display, HTML
-            display(HTML(self._df.to_html()))
+        return self.table.show()
 
 
 def create_table_widget(
