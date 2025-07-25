@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=0eb2d23e"></script>
+      <script src="../../../../_static/documentation_options.js?v=222c928e"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -176,10 +176,15 @@ class PanelTableWidget:
             self._df,
             pagination=pagination,
             page_size=page_size,
-            selectable=&#39;checkbox&#39;,
+            selectable=True,  # Single row selection (radio button style)
             show_index=True,
             sizing_mode=&#39;stretch_width&#39;,
-            height=min(400, max(200, len(self._df) * 30 + 50))
+            height=min(400, max(200, len(self._df) * 30 + 50)),
+            disabled=True,  # Make cells non-editable
+            configuration={
+                &#39;selectable&#39;: &#39;highlight&#39;,  # Make entire row selectable/highlightable
+                &#39;selectableRangeMode&#39;: &#39;click&#39;,  # Allow clicking anywhere on row to select
+            }
         )
 
         # Set up selection callback
@@ -188,8 +193,11 @@ class PanelTableWidget:
     def _on_selection_change(self, event):
         &quot;&quot;&quot;Handle selection changes in the table.&quot;&quot;&quot;
         if event.new:
-            # Panel sends row positions, ensure they&#39;re Python int
-            selected_indices = [int(i) for i in event.new]
+            # With single selection, Panel sends a list with one item or just the index
+            if isinstance(event.new, list):
+                selected_indices = [int(i) for i in event.new]
+            else:
+                selected_indices = [int(event.new)]
             self._selected_rows = selected_indices
         else:
             self._selected_rows = []
@@ -200,7 +208,7 @@ class PanelTableWidget:
             # Create event dict similar to qgrid format
             event_dict = {
                 &#39;new&#39;: selected_indices,
-                &#39;old&#39;: [int(i) for i in getattr(event, &#39;old&#39;, [])],
+                &#39;old&#39;: [int(i) for i in getattr(event, &#39;old&#39;, [])] if hasattr(event, &#39;old&#39;) and event.old else [],
                 &#39;source&#39;: &#39;user&#39;
             }
             callback(event_dict, self)
@@ -231,20 +239,17 @@ class PanelTableWidget:
             self.table.selection = []
             self._selected_rows = []
         else:
-            # Convert index values to row positions for Panel Tabulator
-            # Panel expects Python int, not numpy.int64
-            row_positions = []
-            selected_rows = []
-            for idx_val in index_values:
-                try:
-                    row_pos = self._df.index.get_loc(idx_val)
-                    row_positions.append(int(row_pos))  # Convert to Python int
-                    selected_rows.append(int(row_pos))
-                except (KeyError, TypeError) as e:
-                    print(f&quot;Error selecting index {idx_val}: {e}&quot;)
-                    continue
-            self.table.selection = row_positions
-            self._selected_rows = selected_rows</div>
+            # For single selection, only take the first index value
+            idx_val = index_values[0] if isinstance(index_values, list) else index_values
+            try:
+                row_pos = self._df.index.get_loc(idx_val)
+                row_position = int(row_pos)  # Convert to Python int
+                self.table.selection = [row_position]  # Panel expects a list even for single selection
+                self._selected_rows = [row_position]
+            except (KeyError, TypeError) as e:
+                print(f&quot;Error selecting index {idx_val}: {e}&quot;)
+                self.table.selection = []
+                self._selected_rows = []</div>
 
 
 <div class="viewcode-block" id="PanelTableWidget.on">
