@@ -1,13 +1,15 @@
+from typing import Iterable, Tuple, Union
+
 import numpy as np
 import pandas as pd
 import radioactivedecay as rd
 
+from tardis.energy_input.util import (
+    ELECTRON_MASS_ENERGY_KEV,
+    convert_half_life_to_astropy_units,
+)
 from tardis.util.base import (
     atomic_number2element_symbol,
-)
-from tardis.energy_input.util import (
-    convert_half_life_to_astropy_units,
-    ELECTRON_MASS_ENERGY_KEV,
 )
 
 
@@ -73,7 +75,8 @@ def intensity_ratio(nuclear_data, source_1, source_2):
 
 
 def get_all_isotopes(abundances):
-    """Get the possible isotopes present over time
+    """
+    Get the possible isotopes present over time
     for a given starting abundance
 
     Parameters
@@ -93,7 +96,7 @@ def get_all_isotopes(abundances):
     isotopes = set(progenitors)
     check = True
 
-    while check == True:
+    while check:
         progeny = set(isotopes)
 
         for i in isotopes:
@@ -111,6 +114,57 @@ def get_all_isotopes(abundances):
 
     isotopes = [i for i in isotopes]
     return isotopes
+
+
+def get_radioactive_isotopes(
+    isotope_index: Union[pd.MultiIndex, Iterable[Tuple[int, int]]],
+) -> pd.MultiIndex:
+    """
+    Build a complete set of unstable isotopes that appear in any decay chain
+    starting from the isotopes in the given index.
+
+    Parameters
+    ----------
+    isotope_index : Union[pd.MultiIndex, Iterable[Tuple[int, int]]]
+        An iterable or MultiIndex of (atomic_number, mass_number) tuples.
+
+    Returns
+    -------
+    pd.MultiIndex
+        A MultiIndex with entries (atomic_number, mass_number)
+        for all unstable isotopes in the decay chains.
+    """
+    isotopes = set(isotope_index)
+    found_new = True
+
+    # Expand chain, skipping spontaneous fission and stable daughters
+    while found_new:
+        found_new = False
+        for Z, A in list(isotopes):
+            parent_symbol = rd.utils.Z_DICT[Z]
+            parent = rd.Nuclide(f"{parent_symbol}-{A}")
+            for child_str in parent.progeny():
+                if child_str == "SF":
+                    continue
+                child_nuclide = rd.Nuclide(child_str)
+                if child_nuclide.half_life("readable") == "stable":
+                    continue
+                child = (child_nuclide.Z, child_nuclide.A)
+                if child not in isotopes:
+                    isotopes.add(child)
+                    found_new = True
+
+    # Filter out any stable isotopes that might have been in the input
+    unstable_isotopes = []
+    for Z, A in isotopes:
+        nuclide = rd.Nuclide(f"{rd.utils.Z_DICT[Z]}-{A}")
+        if nuclide.half_life("readable") != "stable":
+            unstable_isotopes.append((Z, A))
+
+    # Sort and return as MultiIndex
+    return pd.MultiIndex.from_tuples(
+        unstable_isotopes, names=["atomic_number", "mass_number"]
+    )
 
 
 def get_tau(meta, isotope_string):
@@ -207,7 +261,6 @@ def positronium_continuum():
     intensity
         An array of intensities between 0 and 1
     """
-
     energy = np.linspace(1, ELECTRON_MASS_ENERGY_KEV, num=100, endpoint=False)
 
     x = energy / ELECTRON_MASS_ENERGY_KEV
