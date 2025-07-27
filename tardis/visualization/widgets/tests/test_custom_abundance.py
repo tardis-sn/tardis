@@ -41,7 +41,7 @@ def caw(yml_data, monkeysession):
     """
     caw = CustomAbundanceWidget(yml_data)
     monkeysession.setattr(
-        "tardis.visualization.widgets.custom_abundance.is_notebook",
+        "tardis.util.environment.Environment.is_notebook",
         lambda: True,
     )
     caw.display()
