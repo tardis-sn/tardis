@@ -1,0 +1,28 @@
+tardis_config_version: v1.0
+
+supernova:
+    luminosity_requested: 9.44 log_lsun
+    time_explosion: 30.10 day
+    
+
+atom_data:  kurucz_cd23_chianti_H_He_latest.h5
+
+csvy_model: gamma_ray_code_ddt_n100_comp.csvy
+
+plasma:
+    ionization: nebular
+    excitation: dilute-lte
+    radiative_rates_type: dilute-blackbody
+    line_interaction_type: scatter
+
+montecarlo:
+    seed: 23111963
+    no_of_packets: 2.0e+5
+    iterations: 30
+    last_no_of_packets: 5.0e+5
+    no_of_virtual_packets: 5
+
+spectrum:
+    start: 500 angstrom
+    stop: 20000 angstrom
+    num: 10000

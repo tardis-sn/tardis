@@ -55,6 +55,24 @@ def get_random_unit_vector():
 
 
 @njit(**njit_dict_no_parallel)
+def get_random_unit_vectors(no_of_packets, seed):
+    """Generate a random unit vector
+
+    Returns
+    -------
+        array: random unit vector
+    """
+    directions = np.zeros((3, no_of_packets), dtype=np.float64)
+    np.random.seed(seed)
+    for i in range(no_of_packets):
+        theta = get_random_theta_photon()
+        phi = get_random_phi_photon()
+        vector = spherical_to_cartesian(1, theta, phi)
+        directions[:, i] = normalize_vector(vector)
+    return directions
+
+
+@njit(**njit_dict_no_parallel)
 def doppler_factor_3d(direction_vector, position_vector, time):
     """Doppler shift for photons in 3D
 
@@ -115,10 +133,19 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
         New direction after aberration
     """
     velocity_vector = position_vector / time
-    direction_dot_velocity = np.dot(direction_vector, velocity_vector)
+    direction_vector_contiguous = np.ascontiguousarray(direction_vector)
+    velocity_vector_contiguous = np.ascontiguousarray(velocity_vector)
+
+    direction_dot_velocity = np.dot(
+        direction_vector_contiguous, velocity_vector_contiguous
+    )
 
     gamma = 1.0 / np.sqrt(
-        1.0 - (np.dot(velocity_vector, velocity_vector) / (C_CGS**2.0))
+        1.0
+        - (
+            np.dot(velocity_vector_contiguous, velocity_vector_contiguous)
+            / (C_CGS**2.0)
+        )
     )
 
     factor_a = gamma * (1.0 - direction_dot_velocity / C_CGS)
@@ -222,9 +249,17 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
 
     """
     light_distance = time * C_CGS
-    a = np.dot(direction, direction) - (radius / light_distance) ** 2.0
-    b = 2.0 * (np.dot(position, direction) - radius**2.0 / light_distance)
-    c = np.dot(position, position) - radius**2.0
+    position_contiguous = np.ascontiguousarray(position)
+    direction_contiguous = np.ascontiguousarray(direction)
+
+    a = (
+        np.dot(direction_contiguous, direction_contiguous)
+        - (radius / light_distance) ** 2.0
+    )
+    b = 2.0 * (
+        np.dot(position_contiguous, direction_contiguous) - radius**2.0 / light_distance
+    )
+    c = np.dot(position_contiguous, position_contiguous) - radius**2.0
     discriminant = b**2.0 - 4.0 * a * c
     solution_1 = -np.inf
     solution_2 = -np.inf

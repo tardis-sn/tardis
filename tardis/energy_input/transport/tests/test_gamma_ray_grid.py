@@ -1,7 +1,7 @@
 import numpy.testing as npt
 import pytest
 
-from tardis.energy_input.gamma_ray_grid import (
+from tardis.energy_input.transport.gamma_ray_grid import (
     move_packet,
 )
 

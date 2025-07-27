@@ -1,596 +1,178 @@
-import astropy.units as u
-import numpy as np
+import logging
 
-from tardis.energy_input.GXPacket import (
-    GXPacketCollection,
-)
+import numpy as np
+import pandas as pd
+
 from tardis.energy_input.samplers import (
     PositroniumSampler,
-    sample_energy,
+)
+from tardis.energy_input.transport.GXPacket import (
+    GXPacketCollection,
 )
 from tardis.energy_input.util import (
     H_CGS_KEV,
-    doppler_factor_3d,
     doppler_factor_3D_all_packets,
-    get_index,
-    get_random_unit_vector,
+    get_random_unit_vectors,
 )
 from tardis.transport.montecarlo.packet_source import BasePacketSource
+
+logger = logging.getLogger(__name__)
 
 POSITRON_ANNIHILATION_LINE = 511.0
 PARA_TO_ORTHO_RATIO = 0.25
 
 
-class RadioactivePacketSource(BasePacketSource):
-    def __init__(
-        self,
-        packet_energy,
-        gamma_ray_lines,
-        positronium_fraction,
-        inner_velocities,
-        outer_velocities,
-        inv_volume_time,
-        times,
-        energy_df_rows,
-        effective_times,
-        taus,
-        parents,
-        average_positron_energies,
-        average_power_per_mass,
-        **kwargs,
-    ):
-        self.packet_energy = packet_energy
-        self.gamma_ray_lines = gamma_ray_lines
-        self.positronium_fraction = positronium_fraction
-        self.inner_velocities = inner_velocities
-        self.outer_velocities = outer_velocities
-        self.inv_volume_time = inv_volume_time
-        self.times = times
-        self.energy_df_rows = energy_df_rows
-        self.effective_times = effective_times
-        self.taus = taus
-        self.parents = parents
-        self.average_positron_energies = average_positron_energies
-        self.average_power_per_mass = average_power_per_mass
-        self.energy_plot_positron_rows = np.empty(0)
-        super().__init__(**kwargs)
-
-    def create_packet_mus(self, no_of_packets, *args, **kwargs):
-        return super().create_packet_mus(no_of_packets, *args, **kwargs)
-
-    def create_packet_radii(
-        self, no_of_packets, inner_velocity, outer_velocity
-    ):
-        """Initialize the random radii of packets in a shell
-
-        Parameters
-        ----------
-        packet_count : int
-            Number of packets in the shell
-        inner_velocity : float
-            Inner velocity of the shell
-        outer_velocity : float
-            Outer velocity of the shell
-
-        Returns
-        -------
-        array
-            Array of length packet_count of random locations in the shell
-        """
-        z = np.random.random(no_of_packets)
-        initial_radii = (
-            z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0
-        ) ** (1.0 / 3.0)
-
-        return initial_radii
-
-    def create_packet_nus(
-        self,
-        no_of_packets,
-        energy,
-        intensity,
-        positronium_fraction,
-        positronium_energy,
-        positronium_intensity,
-    ):
-        """Create an array of packet frequency-energies (i.e. E = h * nu)
-
-        Parameters
-        ----------
-        no_of_packets : int
-            Number of packets to produce frequency-energies for
-        energy : One-dimensional Numpy Array, dtype float
-            Array of frequency-energies to sample
-        intensity : One-dimensional Numpy Array, dtype float
-            Array of intensities to sample
-        positronium_fraction : float
-            The fraction of positrons that form positronium
-        positronium_energy : array
-            Array of positronium frequency-energies to sample
-        positronium_intensity : array
-            Array of positronium intensities to sample
-
-        Returns
-        -------
-        array
-            Array of sampled frequency-energies
-        array
-            Positron creation mask
-        """
-        nu_energies = np.zeros(no_of_packets)
-        positrons = np.zeros(no_of_packets)
-        zs = np.random.random(no_of_packets)
-        for i in range(no_of_packets):
-            nu_energies[i] = sample_energy(energy, intensity)
-            # positron
-            if nu_energies[i] == 511:
-                # positronium formation 25% of the time if fraction is 1
-                if zs[i] < positronium_fraction and np.random.random() < 0.25:
-                    nu_energies[i] = sample_energy(
-                        positronium_energy, positronium_intensity
-                    )
-                positrons[i] = 1
-
-        return nu_energies, positrons
-
-    def create_packet_directions(self, no_of_packets):
-        """Create an array of random directions
-
-        Parameters
-        ----------
-        no_of_packets : int
-            Number of packets to produce directions for
-
-        Returns
-        -------
-        array
-            Array of direction vectors
-        """
-        directions = np.zeros((3, no_of_packets))
-        for i in range(no_of_packets):
-            directions[:, i] = get_random_unit_vector()
-
-        return directions
-
-    def create_packet_energies(self, no_of_packets, energy):
-        """Create the uniform packet energy for a number of packets
-
-        Parameters
-        ----------
-        no_of_packets : int
-            Number of packets
-        energy : float
-            The packet energy
-
-        Returns
-        -------
-        array
-            Array of packet energies
-        """
-        return np.ones(no_of_packets) * energy
-
-    def create_packet_times_uniform_time(self, no_of_packets, start, end):
-        """Samples decay time uniformly (needs non-uniform packet energies)
-
-        Parameters
-        ----------
-        no_of_packets : int
-            Number of packets
-        start : float
-            Start time
-        end : float
-            End time
-
-        Returns
-        -------
-        array
-            Array of packet decay times
-        """
-        z = np.random.random(no_of_packets)
-        decay_times = z * start + (1 - z) * end
-        return decay_times
-
-    def create_packet_times_uniform_energy(
-        self,
-        no_of_packets,
-        start_tau,
-        end_tau=0.0,
-        decay_time_min=0.0,
-        decay_time_max=0.0,
-    ):
-        """Samples the decay time from the mean lifetime of the isotopes
-
-        Parameters
-        ----------
-        no_of_packets : int
-            Number of packets
-        start_tau : float
-            Initial isotope mean lifetime
-        end_tau : float, optional
-            Ending mean lifetime, by default 0.0 for single decays
-        decay_time_min : float, optional
-            Minimum time to decay, by default 0.0
-        decay_time_max : float, optional
-            Maximum time to decay, by default 0.0
-
-        Returns
-        -------
-        array
-            Array of decay times
-        """
-        decay_times = np.ones(no_of_packets) * decay_time_min
-        for i in range(no_of_packets):
-            # rejection sampling
-            while (decay_times[i] <= decay_time_min) or (
-                decay_times[i] >= decay_time_max
-            ):
-                decay_times[i] = -start_tau * np.log(
-                    np.random.random()
-                ) - end_tau * np.log(np.random.random())
-        return decay_times
-
-    def calculate_energy_factors(self, no_of_packets, start_time, decay_times):
-        """Calculates the factors that adjust the energy of packets emitted
-        before the first time step and moves those packets to the earliest
-        possible time
-
-        Parameters
-        ----------
-        no_of_packets : int
-            Number of packets
-        start_time : float
-            First time step
-        decay_times : array
-            Packet decay times
-
-        Returns
-        -------
-        array
-            Energy factors
-        array
-            Adjusted decay times
-        """
-        energy_factors = np.ones(no_of_packets)
-        for i in range(no_of_packets):
-            if decay_times[i] < start_time:
-                energy_factors[i] = decay_times[i] / start_time
-                decay_times[i] = start_time
-        return energy_factors, decay_times
-
-    def create_packets(self, decays_per_isotope, *args, **kwargs):
-        """Initialize a collection of GXPacket objects for the simulation
-        to operate on.
-
-        Parameters
-        ----------
-        decays_per_isotope : array int64
-            Number of decays per simulation shell per isotope
-
-        Returns
-        -------
-        list
-            List of GXPacket objects
-        array
-            Array of main output dataframe rows
-        array
-            Array of plotting output dataframe rows
-        array
-            Array of positron output dataframe rows
-        """
-        number_of_packets = decays_per_isotope.sum().sum()
-        decays_per_shell = decays_per_isotope.sum().values
-
-        locations = np.zeros((3, number_of_packets))
-        directions = np.zeros((3, number_of_packets))
-        packet_energies_rf = np.zeros(number_of_packets)
-        packet_energies_cmf = np.zeros(number_of_packets)
-        nus_rf = np.zeros(number_of_packets)
-        nus_cmf = np.zeros(number_of_packets)
-        shells = np.zeros(number_of_packets)
-        times = np.zeros(number_of_packets)
-        # set packets to IN_PROCESS status
-        statuses = np.ones(number_of_packets, dtype=np.int64) * 3
-
-        positronium_energy, positronium_intensity = positronium_continuum()
-
-        self.energy_plot_positron_rows = np.zeros((number_of_packets, 4))
-
-        packet_index = 0
-        # go through each shell
-        for shell_number, pkts in enumerate(decays_per_shell):
-            isotope_packet_count_df = decays_per_isotope.T.iloc[shell_number]
-
-            for isotope_name, isotope_packet_count in zip(
-                self.gamma_ray_lines.keys(), isotope_packet_count_df.values
-            ):
-                isotope_energy = self.gamma_ray_lines[isotope_name][0, :]
-                isotope_intensity = self.gamma_ray_lines[isotope_name][1, :]
-                isotope_positron_fraction = self.calculate_positron_fraction(
-                    self.average_positron_energies[isotope_name],
-                    isotope_energy,
-                    isotope_intensity,
-                )
-                tau_start = self.taus[isotope_name]
-
-                if isotope_name in self.parents:
-                    tau_end = self.taus[self.parents[isotope_name]]
-                else:
-                    tau_end = 0
-
-                # sample radii at time = 0
-                initial_radii = self.create_packet_radii(
-                    isotope_packet_count,
-                    self.inner_velocities[shell_number],
-                    self.outer_velocities[shell_number],
-                )
-
-                # sample directions (valid at all times)
-                initial_directions = self.create_packet_directions(
-                    isotope_packet_count
-                )
-
-                # packet decay time
-                initial_times = self.create_packet_times_uniform_energy(
-                    isotope_packet_count,
-                    tau_start,
-                    tau_end,
-                    decay_time_min=0,
-                    decay_time_max=self.times[-1],
-                )
-
-                # get the time step index of the packets
-                initial_time_indexes = np.array(
-                    [
-                        get_index(decay_time, self.times)
-                        for decay_time in initial_times
-                    ]
-                )
-
-                # get the time of the middle of the step for each packet
-                packet_effective_times = np.array(
-                    [self.effective_times[i] for i in initial_time_indexes]
-                )
-
-                # scale radius by packet decay time. This could be replaced with
-                # Geometry object calculations. Note that this also adds a random
-                # unit vector multiplication for 3D. May not be needed.
-                initial_locations = (
-                    initial_radii
-                    * packet_effective_times
-                    * self.create_packet_directions(isotope_packet_count)
-                )
-
-                # get the packet shell index
-                initial_shells = np.ones(isotope_packet_count) * shell_number
-
-                # the individual gamma-ray energies that make up a packet
-                # co-moving frame, including positronium formation
-                initial_nu_energies_cmf, positron_mask = self.create_packet_nus(
-                    isotope_packet_count,
-                    isotope_energy,
-                    isotope_intensity,
-                    self.positronium_fraction,
-                    positronium_energy,
-                    positronium_intensity,
-                )
-
-                # equivalent frequencies
-                initial_nus_cmf = initial_nu_energies_cmf / H_CGS_KEV
-
-                # compute scaling factor for packets emitted before start time
-                # and move packets to start at that time
-                # probably not necessary- we have rejection sampling in the
-                # create_packet_times_uniform_energy method
-                energy_factors, initial_times = self.calculate_energy_factors(
-                    isotope_packet_count, self.times[0], initial_times
-                )
-
-                # the CMF energy of a packet scaled by the "early energy factor"
-                initial_packet_energies_cmf = (
-                    self.create_packet_energies(
-                        isotope_packet_count, self.packet_energy
-                    )
-                    * energy_factors
-                )
-
-                # rest frame gamma-ray energy and frequency
-                # this probably works fine without the loop
-                initial_packet_energies_rf = np.zeros(isotope_packet_count)
-                initial_nus_rf = np.zeros(isotope_packet_count)
-                for i in range(isotope_packet_count):
-                    doppler_factor = doppler_factor_3d(
-                        initial_directions[:, i],
-                        initial_locations[:, i],
-                        initial_times[i],
-                    )
-                    initial_packet_energies_rf[i] = (
-                        initial_packet_energies_cmf[i] / doppler_factor
-                    )
-                    initial_nus_rf[i] = initial_nus_cmf[i] / doppler_factor
-
-                    self.energy_plot_positron_rows[i] = np.array(
-                        [
-                            packet_index,
-                            isotope_positron_fraction * self.packet_energy,
-                            # * inv_volume_time[packet.shell, decay_time_index],
-                            initial_radii[i],
-                            initial_times[i],
-                        ]
-                    )
-
-                    packet_index += 1
-
-                # deposit positron energy
-                for time in initial_time_indexes:
-                    self.energy_df_rows[shell_number, time] += (
-                        isotope_positron_fraction * self.packet_energy
-                    )
-
-                # collect packet properties
-                locations[
-                    :, packet_index - isotope_packet_count : packet_index
-                ] = initial_locations
-                directions[
-                    :, packet_index - isotope_packet_count : packet_index
-                ] = initial_directions
-                packet_energies_rf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_packet_energies_rf
-                packet_energies_cmf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_packet_energies_cmf
-                nus_rf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_rf
-                nus_cmf[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_nus_cmf
-                shells[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_shells
-                times[
-                    packet_index - isotope_packet_count : packet_index
-                ] = initial_times
-
-        return GXPacketCollection(
-            locations,
-            directions,
-            packet_energies_rf,
-            packet_energies_cmf,
-            nus_rf,
-            nus_cmf,
-            statuses,
-            shells,
-            times,
-        )
-
-    def calculate_positron_fraction(
-        self, positron_energy, isotope_energy, isotope_intensity
-    ):
-        """Calculate the fraction of energy that an isotope
-        releases as positron kinetic energy
-
-        Parameters
-        ----------
-        positron_energy : float
-            Average kinetic energy of positrons from decay
-        isotope_energy : numpy array
-            Photon energies released by the isotope
-        isotope_intensity : numpy array
-            Intensity of photon energy release
-
-        Returns
-        -------
-        float
-            Fraction of energy released as positron kinetic energy
-        """
-        return positron_energy / np.sum(isotope_energy * isotope_intensity)
-
-
 class GammaRayPacketSource(BasePacketSource):
+
     def __init__(
         self,
-        packet_energy,
-        isotope_decay_df,
-        positronium_fraction,
-        inner_velocities,
-        outer_velocities,
-        inv_volume_time,
-        times,
-        effective_times,
-        taus,
-        parents,
+        cumulative_decays_df: pd.DataFrame,
+        isotope_decay_df: pd.DataFrame,
+        positronium_fraction: float,
+        inner_velocities: np.ndarray,
+        outer_velocities: np.ndarray,
+        times: np.ndarray,
+        effective_times: np.ndarray,
         **kwargs,
-    ):
+    ) -> None:
         """
-        New Gamma ray packet source class
+        Initialize gamma ray packet source.
+
+        Initializes a gamma ray packet source for creating gamma ray packets
+        from radioactive decay data, including support for positronium formation.
 
         Parameters
         ----------
-        packet_energy : float
-            Energy of the gamma ray packet
+        cumulative_decays_df : pd.DataFrame
+            DataFrame containing cumulative decay data with columns including
+            radiation type, decay energies, and multi-level indices for
+            isotope, shell_number, and time_index.
         isotope_decay_df : pd.DataFrame
-            DataFrame of isotope decay data
+            DataFrame containing isotope decay data with decay constants
+            and other isotope-specific parameters.
         positronium_fraction : float
-            Fraction of positrons that form positronium
-        inner_velocities : array
-            Array of inner shell velocities
-        outer_velocities : array
-            Array of outer shell velocities
-        inv_volume_time : array
-            Array of inverse volume times
-            1 / ((4 * np.pi)/3 * (vt) ** 3)
-            Indicates how the ejecta volume changes with time
-        times : array
-            Array of time steps
-        effective_times : array
-            Array of effective time steps
-        taus : dict
-            Dictionary of isotope mean lifetimes in seconds
-        parents : dict
-            Dictionary of isotope parents
+            Fraction of positrons that form positronium (0.0 to 1.0).
+            Used for modeling three-photon decay vs two-photon annihilation.
+        inner_velocities : np.ndarray
+            Array of inner shell velocities [cm/s] for each spatial shell.
+        outer_velocities : np.ndarray
+            Array of outer shell velocities [cm/s] for each spatial shell.
+        times : np.ndarray
+            Array of time steps [s] used in the simulation.
+        effective_times : np.ndarray
+            Array of effective time steps [s] accounting for simulation specifics.
+        **kwargs
+            Additional keyword arguments passed to the parent BasePacketSource class.
 
+        Notes
+        -----
+        This packet source generates gamma ray packets from radioactive decay
+        events, with proper handling of:
+        - Spatial distribution within shells
+        - Time-dependent decay processes
+        - Positronium formation and decay modes
+        - Doppler effects from moving material
         """
-        self.packet_energy = packet_energy
+        self.cumulative_decays_df = cumulative_decays_df
         self.isotope_decay_df = isotope_decay_df
         self.positronium_fraction = positronium_fraction
         self.inner_velocities = inner_velocities
         self.outer_velocities = outer_velocities
-        self.inv_volume_time = inv_volume_time
         self.times = times
         self.effective_times = effective_times
-        self.taus = taus
-        self.parents = parents
         super().__init__(**kwargs)
 
-    def create_packet_mus(self, no_of_packets, *args, **kwargs):
-        return super().create_packet_mus(no_of_packets, *args, **kwargs)
-
-    def create_packet_radii(self, sampled_packets_df):
-        """Initialize the random radii of packets in a shell
-
-        Parameters
-        ----------
-        packet_count : int
-            Number of packets in the shell
-        sampled_packets_df : pd.DataFrame
-            Dataframe where each row is a packet
-
-        Returns
-        -------
-        array
-            Array of length packet_count of random locations in the shell
+    def create_packet_mus(self, no_of_packets: int, *args, **kwargs):
         """
-        z = np.random.random(len(sampled_packets_df))
-        initial_radii = (
-            z * sampled_packets_df["inner_velocity"] ** 3.0
-            + (1.0 - z) * sampled_packets_df["outer_velocity"] ** 3.0
-        ) ** (1.0 / 3.0)
+        Create packet directional cosines.
 
-        return initial_radii
-
-    def create_packet_nus(
-        self,
-        packets,
-        positronium_fraction,
-        number_of_packets,
-    ):
-        """Create an array of packet frequency-energies (i.e. E = h * nu)
+        Creates packet directional cosines by calling the parent class method.
+        This method is inherited from BasePacketSource.
 
         Parameters
         ----------
         no_of_packets : int
-            Number of packets to produce frequency-energies for
-        packets : pd.DataFrame
-            DataFrame of packets
-        positronium_fraction : float
-            The fraction of positrons that form positronium
-            default is 0.0
+            Number of packets for which to create directional cosines.
+        *args
+            Variable length argument list passed to parent method.
+        **kwargs
+            Arbitrary keyword arguments passed to parent method.
 
         Returns
         -------
-        array
-            Array of sampled frequency-energies
+        The return value from the parent class create_packet_mus method.
+        """
+        return super().create_packet_mus(no_of_packets, *args, **kwargs)
+
+    def create_packet_velocities(self, sampled_packets_df: pd.DataFrame) -> np.ndarray:
+        """
+        Initialize random radial velocities for packets within shells.
+
+        Generates random initial velocities for packets distributed within
+        spherical shells using a uniform distribution in volume.
+
+        Parameters
+        ----------
+        sampled_packets_df : pd.DataFrame
+            DataFrame where each row represents a packet, containing
+            'inner_velocity' and 'outer_velocity' columns for shell boundaries.
+
+        Returns
+        -------
+        np.ndarray
+            Array of initial velocities [cm/s] with length equal to the number
+            of packets in sampled_packets_df.
+
+        Notes
+        -----
+        Uses the cube root method to ensure uniform distribution in volume:
+        r^3 = z * r_inner^3 + (1-z) * r_outer^3, where z is uniform random [0,1].
+        """
+        np.random.seed(self.base_seed + 2 if self.base_seed is not None else None)
+        z = np.random.random(len(sampled_packets_df))
+        initial_velocities = (
+            z * sampled_packets_df["inner_velocity"] ** 3.0
+            + (1.0 - z) * sampled_packets_df["outer_velocity"] ** 3.0
+        ) ** (1.0 / 3.0)
+
+        return initial_velocities
+
+    def create_packet_nus(
+        self,
+        packets: pd.DataFrame,
+        positronium_fraction: float,
+        number_of_packets: int,
+    ) -> np.ndarray:
+        """
+        Create packet frequency-energies accounting for positronium formation.
+
+        Generates an array of packet frequency-energies (E = h * nu) considering
+        positronium formation and its decay modes for positron annihilation lines.
+
+        Parameters
+        ----------
+        packets : pd.DataFrame
+            DataFrame containing packet information with 'radiation_energy_keV' column.
+        positronium_fraction : float
+            Fraction of positrons that form positronium (0.0 to 1.0).
+            Default is 0.0 for no positronium formation.
+        number_of_packets : int
+            Number of packets to generate frequency-energies for.
+
+        Returns
+        -------
+        np.ndarray
+            Array of sampled frequency-energies [keV] with length number_of_packets.
+
+        Notes
+        -----
+        For positron annihilation lines (511 keV), this method:
+        - Determines if positronium forms based on positronium_fraction
+        - For ortho-positronium: samples from 3-photon decay spectrum
+        - For para-positronium: uses the 511 keV line energy
+        - For direct annihilation: uses the original 511 keV energy
+
+        The para/ortho ratio is set by PARA_TO_ORTHO_RATIO constant (0.25).
         """
         energy_array = np.zeros(number_of_packets)
 
@@ -622,81 +204,136 @@ class GammaRayPacketSource(BasePacketSource):
 
         return energy_array
 
-    def create_packet_directions(self, no_of_packets):
-        """Create an array of random directions
+    def create_packet_directions(
+        self, no_of_packets: int, seed: int | None
+    ) -> np.ndarray:
+        """
+        Create random isotropic directions for packets.
+
+        Generates an array of random unit vectors representing isotropic
+        directions for gamma ray packets.
 
         Parameters
         ----------
         no_of_packets : int
-            Number of packets to produce directions for
+            Number of packets to generate directions for.
+        seed : int or None
+            Random seed for reproducible direction generation.
+            If None, uses current random state.
 
         Returns
         -------
-        array
-            Array of direction vectors
+        np.ndarray
+            Array of shape (3, no_of_packets) containing unit direction vectors.
+            Each column represents a 3D unit vector [x, y, z].
+
+        Notes
+        -----
+        Directions are sampled uniformly on the unit sphere to ensure
+        isotropic distribution in 3D space.
         """
-        directions = np.zeros((3, no_of_packets))
-        for i in range(no_of_packets):
-            directions[:, i] = get_random_unit_vector()
+        directions = get_random_unit_vectors(no_of_packets, seed)
 
         return directions
 
-    def create_packet_energies(self, no_of_packets, energy):
-        """Create the uniform packet energy for a number of packets
+    def create_packet_energies(self, no_of_packets: int, energy: float) -> np.ndarray:
+        """
+        Create uniform packet energies for gamma ray packets.
+
+        Generates an array of identical packet energies for a specified
+        number of packets.
 
         Parameters
         ----------
         no_of_packets : int
-            Number of packets
+            Number of packets to create energies for.
         energy : float
-            The packet energy
+            Energy value [erg] to assign to each packet.
 
         Returns
         -------
-        array
-            Array of packet energies
+        np.ndarray
+            Array of packet energies [erg] with length no_of_packets,
+            where each element equals the input energy value.
+
+        Notes
+        -----
+        This method creates uniform energy packets, where each packet
+        carries the same energy regardless of the specific gamma ray
+        line that created it. The total energy is conserved through
+        the packet weighting system.
         """
         return np.ones(no_of_packets) * energy
 
-    def create_packet_times_uniform_time(self, no_of_packets, start, end):
-        """Samples decay time uniformly (needs non-uniform packet energies)
+    def create_packet_times_uniform_time(
+        self, no_of_packets: int, start: float, end: float
+    ) -> np.ndarray:
+        """
+        Sample packet decay times uniformly within a time interval.
+
+        Generates decay times uniformly distributed between start and end times.
+        This approach requires non-uniform packet energies to maintain
+        energy conservation.
 
         Parameters
         ----------
         no_of_packets : int
-            Number of packets
+            Number of packets to generate decay times for.
         start : float
-            Start time
+            Start time [s] of the sampling interval.
         end : float
-            End time
+            End time [s] of the sampling interval.
 
         Returns
         -------
-        array
-            Array of packet decay times
+        np.ndarray
+            Array of decay times [s] with length no_of_packets,
+            uniformly distributed between start and end.
+
+        Notes
+        -----
+        This method samples decay times uniformly in time, which means
+        the packet energies must be weighted according to the decay
+        rate at each time to properly represent the physical decay process.
         """
         z = np.random.random(no_of_packets)
         decay_times = z * start + (1 - z) * end
         return decay_times
 
     def create_packet_times_uniform_energy(
-        self, no_of_packets, isotopes, decay_time
-    ):
-        """Samples the decay time from the mean lifetime of the isotopes
+        self, no_of_packets: np.ndarray, isotopes: pd.Series, decay_time: np.ndarray
+    ) -> np.ndarray:
+        """
+        Sample decay times from isotope mean lifetimes using rejection sampling.
+
+        Generates decay times by sampling from exponential distributions
+        based on isotope mean lifetimes, constrained to specific time intervals.
 
         Parameters
         ----------
-        no_of_packets : int
-            Number of packets
+        no_of_packets : np.ndarray
+            Array indices for the packets (used for iteration).
         isotopes : pd.Series
-            Series of packet parent isotopes
-        decay_time : array
-            Series of packet decay time index
+            Series containing parent isotope names for each packet.
+        decay_time : np.ndarray
+            Array of time step indices indicating the time interval
+            for each packet's decay.
 
         Returns
         -------
-        array
-            Array of decay times
+        np.ndarray
+            Array of decay times [s] sampled from exponential distributions
+            constrained to the appropriate time intervals.
+
+        Notes
+        -----
+        This method uses rejection sampling to ensure decay times fall
+        within the correct time bins. For each packet:
+        1. Determines the time interval [t_min, t_max] from decay_time index
+        2. Samples from exponential distribution: t = -tau * ln(random)
+        3. Rejects and resamples if t is outside the interval
+
+        Requires self.taus attribute containing isotope mean lifetimes.
         """
         decay_times = np.zeros(len(no_of_packets))
         for i, isotope in enumerate(isotopes.to_numpy()):
@@ -715,22 +352,73 @@ class GammaRayPacketSource(BasePacketSource):
         return decay_times
 
     def create_packets(
-        self, decays_per_isotope, number_of_packets, *args, **kwargs
-    ):
-        """Initialize a collection of GXPacket objects for the simulation
-        to operate on.
+        self,
+        cumulative_decays_df: pd.DataFrame,
+        number_of_packets: int,
+        legacy_energy_per_packet: float | None = None,
+    ) -> GXPacketCollection:
+        """
+        Initialize a collection of gamma ray packets for simulation.
+
+        Creates a collection of gamma ray packets from radioactive decay data,
+        including proper spatial distribution, directional sampling, energy
+        assignment, and Doppler corrections.
 
         Parameters
         ----------
-        decays_per_isotope : array int64
-            Probability of decays per simulation shell per isotope per time step
+        cumulative_decays_df : pd.DataFrame
+            DataFrame containing cumulative decay data with columns including
+            'radiation', 'decay_energy_erg', and multi-level index with
+            'isotope', 'shell_number', and 'time_index'.
         number_of_packets : int
-            Number of packets to create
+            Total number of gamma ray packets to create for the simulation.
+        legacy_energy_per_packet : float, optional
+            Legacy energy per packet [erg] for backwards compatibility.
+            If None, energy per packet is calculated from total gamma ray
+            energy divided by number of packets. Default is None.
 
         Returns
         -------
         GXPacketCollection
+            Collection of gamma ray packets with initialized properties:
+            - locations: 3D positions in the simulation domain
+            - directions: isotropic unit direction vectors
+            - energies: rest frame and comoving frame energies
+            - frequencies: rest frame and comoving frame frequencies
+            - metadata: shell numbers, decay times, source isotopes
+
+        Notes
+        -----
+        The packet creation process includes:
+
+        1. **Energy calculation**: Total gamma ray energy is divided equally
+           among packets (uniform energy approach)
+        2. **Spatial sampling**: Packets are distributed within shells based
+           on decay energy weighting
+        3. **Temporal placement**: Packets are positioned at decay times with
+           appropriate radial expansion
+        4. **Spectral sampling**: Frequencies include positronium formation
+           effects for 511 keV annihilation lines
+        5. **Doppler corrections**: Applied for relativistic motion between
+           rest and comoving frames
+
+        The method ensures energy conservation while providing proper
+        statistical sampling of the decay process.
         """
+        # Calculate energy per packet
+        if legacy_energy_per_packet is None:
+            gamma_df = self.cumulative_decays_df[
+                self.cumulative_decays_df["radiation"] == "g"
+            ]
+            total_energy_gamma = gamma_df["decay_energy_erg"].sum()
+            energy_per_packet = total_energy_gamma / number_of_packets
+        else:
+            energy_per_packet = legacy_energy_per_packet
+            total_energy_gamma = number_of_packets * legacy_energy_per_packet
+
+        logger.info("Total energy in gamma-rays is %s", total_energy_gamma)
+        logger.info("Energy per packet is %s", energy_per_packet)
+
         # initialize arrays for most packet properties
         locations = np.zeros((3, number_of_packets))
         directions = np.zeros((3, number_of_packets))
@@ -741,8 +429,8 @@ class GammaRayPacketSource(BasePacketSource):
         statuses = np.ones(number_of_packets, dtype=np.int64) * 3
 
         # sample packets from the gamma-ray lines only (include X-rays!)
-        sampled_packets_df_gamma = decays_per_isotope[
-            decays_per_isotope["radiation"] == "g"
+        sampled_packets_df_gamma = cumulative_decays_df[
+            cumulative_decays_df["radiation"] == "g"
         ]
 
         # sample packets from the time evolving dataframe
@@ -754,10 +442,7 @@ class GammaRayPacketSource(BasePacketSource):
         )
 
         # get the isotopes and shells of the sampled packets
-        isotopes = sampled_packets_df.index.get_level_values("isotope")
-        isotope_positron_fraction = self.calculate_positron_fraction(
-            isotopes, number_of_packets
-        )
+        source_isotopes = sampled_packets_df.index.get_level_values("isotope")
         shells = sampled_packets_df.index.get_level_values("shell_number")
 
         # get the inner and outer velocity boundaries for each packet to compute
@@ -765,7 +450,7 @@ class GammaRayPacketSource(BasePacketSource):
         sampled_packets_df["outer_velocity"] = self.outer_velocities[shells]
 
         # The radii of the packets at what ever time they are emitted
-        initial_radii = self.create_packet_radii(sampled_packets_df)
+        initial_velocities = self.create_packet_velocities(sampled_packets_df)
 
         # get the time step index of the packets
         decay_time_indices = sampled_packets_df.index.get_level_values("time_index")
@@ -776,13 +461,18 @@ class GammaRayPacketSource(BasePacketSource):
         # Geometry object calculations. Note that this also adds a random
         # unit vector multiplication for 3D. May not be needed.
         locations = (
-            initial_radii.values
+            initial_velocities.values
             * effective_decay_times
-            * self.create_packet_directions(number_of_packets)
+            * self.create_packet_directions(number_of_packets, seed=self.base_seed)
         )
 
         # sample directions (valid at all times), non-relativistic
-        directions = self.create_packet_directions(number_of_packets)
+        # the seed is changed to not have packets that are all going outwards as the
+        # create_packet_directions method is also used for the location sampling
+        directions_seed = self.base_seed + 1 if self.base_seed is not None else None
+        directions = self.create_packet_directions(
+            number_of_packets, seed=directions_seed
+        )
 
         # the individual gamma-ray energy that makes up a packet
         # co-moving frame, including positronium formation
@@ -795,7 +485,7 @@ class GammaRayPacketSource(BasePacketSource):
         nus_cmf = nu_energies_cmf / H_CGS_KEV
 
         packet_energies_cmf = self.create_packet_energies(
-            number_of_packets, self.packet_energy
+            number_of_packets, energy_per_packet
         )
         packet_energies_rf = np.zeros(number_of_packets)
         nus_rf = np.zeros(number_of_packets)
@@ -818,49 +508,78 @@ class GammaRayPacketSource(BasePacketSource):
             shells,
             effective_decay_times,
             decay_time_indices,
-        ), isotope_positron_fraction
+            source_isotopes=source_isotopes,
+        )
 
-    def calculate_positron_fraction(self, isotopes, number_of_packets):
-        """Calculate the fraction of energy that an isotope
-        releases as positron kinetic energy compared to gamma-ray energy
 
-        Parameters
-        ----------
-        isotopes : array
-            Array of isotope names as strings. Here each isotope is associated with a packet.
-        number_of_packets : int
-            Number of gamma-ray packets
+def legacy_calculate_positron_fraction(
+    isotope_decay_df: pd.DataFrame, isotopes: np.ndarray, number_of_packets: int
+) -> np.ndarray:
+    """
+    Calculate positron kinetic energy fraction relative to gamma ray energy.
 
-        Returns
-        -------
-        dict
-            Fraction of energy released as positron kinetic energy per isotope
-        """
-        isotope_positron_fraction = np.zeros(number_of_packets)
+    Computes the fraction of energy released as positron kinetic energy
+    compared to gamma ray energy for each isotope associated with packets.
 
-        # Find the positron fraction from the zeroth shell of the dataframe
-        # this is because the total positron kinetic energy is the same for all shells
-        shell_number_0 = self.isotope_decay_df[
-            self.isotope_decay_df.index.get_level_values("shell_number") == 0
-        ]
+    Parameters
+    ----------
+    isotope_decay_df : pd.DataFrame
+        DataFrame containing isotope decay data with multi-level index
+        including 'isotope' and 'shell_number', and columns including
+        'radiation', 'energy_per_channel_keV'.
+    isotopes : np.ndarray
+        Array of isotope names as strings, where each isotope is
+        associated with a packet.
+    number_of_packets : int
+        Total number of gamma ray packets in the simulation.
 
-        gamma_decay_df = shell_number_0[shell_number_0["radiation"] == "g"]
+    Returns
+    -------
+    np.ndarray
+        Array of positron energy fractions with length number_of_packets.
+        Each element represents the ratio of positron kinetic energy to
+        gamma ray energy for the corresponding packet's source isotope.
 
-        positrons_decay_df = shell_number_0[shell_number_0["radiation"] == "bp"]
-        # Find the total energy released from positrons per isotope from the dataframe
-        positron_energy_per_isotope = positrons_decay_df.groupby("isotope")[
-            "energy_per_channel_keV"
-        ].sum()
-        # Find the total energy released from gamma-ray per isotope from the dataframe
-        # TODO: Can be tested with total energy released from all radiation types
-        gamma_energy_per_isotope = gamma_decay_df.groupby("isotope")[
-            "energy_per_channel_keV"
-        ].sum()
-        # TODO: Possibly move this for loop
-        for i, isotope in enumerate(isotopes):
-            if isotope in positron_energy_per_isotope: # check if isotope is in the dataframe
-                isotope_positron_fraction[i] = (
-                    positron_energy_per_isotope[isotope]
-                    / gamma_energy_per_isotope[isotope]
-                )
-        return isotope_positron_fraction
+    Notes
+    -----
+    This function:
+
+    1. Filters decay data for shell_number == 0 to avoid double counting
+    2. Separates gamma ray ('g') and beta plus ('bp') radiation channels
+    3. Sums energy per isotope for each radiation type
+    4. Calculates fraction = E_positron / E_gamma for each isotope
+    5. Maps isotope fractions to packet array
+
+    Isotopes not present in the decay DataFrame receive a fraction of 0.0.
+    This is used for legacy compatibility and may be deprecated in favor
+    of more sophisticated positron energy modeling.
+    """
+    isotope_positron_fraction = np.zeros(number_of_packets)
+
+    # Find the positron fraction from the zeroth shell of the dataframe
+    # this is because the total positron kinetic energy is the same for all shells
+    shell_number_0 = isotope_decay_df[
+        isotope_decay_df.index.get_level_values("shell_number") == 0
+    ]
+
+    gamma_decay_df = shell_number_0[shell_number_0["radiation"] == "g"]
+
+    positrons_decay_df = shell_number_0[shell_number_0["radiation"] == "bp"]
+    # Find the total energy released from positrons per isotope from the dataframe
+    positron_energy_per_isotope = positrons_decay_df.groupby("isotope")[
+        "energy_per_channel_keV"
+    ].sum()
+    # Find the total energy released from gamma-ray per isotope from the dataframe
+    # TODO: Can be tested with total energy released from all radiation types
+    gamma_energy_per_isotope = gamma_decay_df.groupby("isotope")[
+        "energy_per_channel_keV"
+    ].sum()
+    # TODO: Possibly move this for loop
+    for i, isotope in enumerate(isotopes):
+        if (
+            isotope in positron_energy_per_isotope
+        ):  # check if isotope is in the dataframe
+            isotope_positron_fraction[i] = (
+                positron_energy_per_isotope[isotope] / gamma_energy_per_isotope[isotope]
+            )
+    return isotope_positron_fraction
