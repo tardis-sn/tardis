@@ -7,7 +7,7 @@ import functools
 from numba import config
 
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.spectrum.formal_integral.base import make_source_function
+from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 from tardis.spectrum.formal_integral.formal_integral_numba import intensity_black_body
 
@@ -39,13 +39,14 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
         self.FormalIntegrator.calculate_spectrum(
             self.sim.spectrum_solver.spectrum_frequency_grid
         )
-        make_source_function(
+
+        sourceFunction = SourceFunctionSolver(self.FormalIntegrator.transport.line_interaction_type, self.FormalIntegrator.atomic_data)
+        sourceFunction.solve(
             self.FormalIntegrator.simulation_state, 
-            self.FormalIntegrator.opacity_state,
-            self.FormalIntegrator.transport,  
-            self.FormalIntegrator.plasma, 
-            self.FormalIntegrator.interpolate_shells
-        )
+            self.FormalIntegrator.opacity_state,  
+            self.FormalIntegrator.transport.transport_state, 
+            self.FormalIntegrator.plasma.levels)
+
         self.FormalIntegrator.generate_numba_objects()
         self.FormalIntegrator.formal_integral(
             self.sim.spectrum_solver.spectrum_frequency_grid, 1000

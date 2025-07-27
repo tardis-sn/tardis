@@ -1,9 +1,22 @@
-import numpy as np
 import math
-
+import numpy as np
 from numba import cuda
-from tardis.spectrum.formal_integral.base import C_INV, calculate_p_values, intensity_black_body
+
+from tardis.spectrum.formal_integral.base import (
+    C_INV,
+    KB_CGS,
+    H_CGS,
+    calculate_p_values,
+)
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
+
+
+class BoundsError(IndexError):
+    """
+    Used to check bounds in reverse
+    binary search
+    """
+
 
 @cuda.jit(device=True)
 def trapezoid_integration_cuda(arr, dx):
@@ -43,7 +56,6 @@ def cuda_vector_integrator(L, I_nu, N, R_max):
     L[nu_idx] = (
         8 * np.pi * np.pi * trapezoid_integration_cuda(I_nu[nu_idx], R_max / N)
     )
-
 
 
 @cuda.jit(device=True)
@@ -206,7 +218,29 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
 
 
 calculate_p_values = cuda.jit(calculate_p_values, device=True)
-intensity_black_body_cuda = cuda.jit(intensity_black_body, device=True)
+
+
+@cuda.jit(device=True)
+def intensity_black_body_cuda(nu, temperature):
+    """
+    Calculate the blackbody intensity.
+
+    Parameters
+    ----------
+    nu : float64
+        frequency
+    temperature : float64
+        Temperature
+
+    Returns
+    -------
+    float64
+    """
+    if nu == 0:
+        return np.nan  # to avoid ZeroDivisionError
+    beta_rad = 1 / (KB_CGS * temperature)
+    coefficient = 2 * H_CGS * C_INV * C_INV
+    return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)
 
 
 @cuda.jit
@@ -528,10 +562,3 @@ class CudaFormalIntegrator:
         I_nu = d_I_nu.copy_to_host()
 
         return L, I_nu
-
-
-class BoundsError(IndexError):
-    """
-    Used to check bounds in reverse
-    binary search
-    """
