@@ -1,0 +1,7 @@
+tardis.io.model.readers.arepo module
+====================================
+
+.. automodule:: tardis.io.model.readers.arepo
+   :members:
+   :show-inheritance:
+   :undoc-members:

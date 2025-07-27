@@ -1,0 +1,540 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.visualization.sdec.util &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=f010a9e6"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.visualization.sdec.util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.visualization.sdec.util</h1><div class="highlight"><pre>
+<span></span>import astropy.units as u
+import numpy as np
+import pandas as pd
+
+
+<div class="viewcode-block" id="calculate_absorption_luminosities">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_absorption_luminosities">[docs]</a>
+def calculate_absorption_luminosities(
+    sim, packets_mode, packet_wvl_range, species_list=None, distance=None
+):
+    &quot;&quot;&quot;
+    Calculate luminosities for the absorption part of SDEC plot.
+
+    Parameters
+    ----------
+    packets_mode : {&#39;virtual&#39;, &#39;real&#39;}
+        Mode of packets to be considered, either real or virtual
+    packet_wvl_range : astropy.Quantity
+        Wavelength range to restrict the analysis of escaped packets. It
+        should be a quantity having units of Angstrom, containing two
+        values - lower lambda and upper lambda i.e.
+        [lower_lambda, upper_lambda] * u.AA
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe containing luminosities contributed by absorption with
+        each element present
+    &quot;&quot;&quot;
+    # Calculate masks to be applied on packets data based on packet_wvl_range
+    transport_state = sim.transport.transport_state
+
+    # Set up appropriate data sources based on packet mode
+    if packets_mode == &quot;virtual&quot;:
+        # Virtual packets data
+        packets_df = pd.DataFrame({
+            &quot;nus&quot;: transport_state.vpacket_tracker.nus,
+            &quot;energies&quot;: transport_state.vpacket_tracker.energies,
+            &quot;last_interaction_type&quot;: transport_state.vpacket_tracker.last_interaction_type,
+            &quot;last_line_interaction_in_id&quot;: transport_state.vpacket_tracker.last_interaction_in_id,
+            &quot;last_line_interaction_in_nu&quot;: transport_state.vpacket_tracker.last_interaction_in_nu,
+            &quot;last_line_interaction_out_id&quot;: transport_state.vpacket_tracker.last_interaction_out_id
+        })
+        spectrum_delta_frequency = sim.spectrum_solver.spectrum_virtual_packets.delta_frequency
+        plot_wavelength = sim.spectrum_solver.spectrum_virtual_packets.wavelength
+        plot_frequency = sim.spectrum_solver.spectrum_virtual_packets._frequency[:-1]
+        plot_frequency_bins = sim.spectrum_solver.spectrum_virtual_packets._frequency
+
+    else:  # real packets
+        emitted_mask = transport_state.emitted_packet_mask
+        packets_df = pd.DataFrame({
+            &quot;nus&quot;: transport_state.packet_collection.output_nus[emitted_mask],
+            &quot;energies&quot;: transport_state.packet_collection.output_energies[emitted_mask],
+            &quot;last_interaction_type&quot;: transport_state.last_interaction_type[emitted_mask],
+            &quot;last_line_interaction_in_id&quot;: transport_state.last_line_interaction_in_id[emitted_mask],
+            &quot;last_line_interaction_in_nu&quot;: transport_state.last_interaction_in_nu[
+                    transport_state.emitted_packet_mask
+                ],
+            &quot;last_line_interaction_out_id&quot;: transport_state.last_line_interaction_out_id[emitted_mask]
+        })
+        spectrum_delta_frequency = sim.spectrum_solver.spectrum_real_packets.delta_frequency
+        plot_wavelength = sim.spectrum_solver.spectrum_real_packets.wavelength
+        plot_frequency = sim.spectrum_solver.spectrum_real_packets._frequency[:-1]
+        plot_frequency_bins = sim.spectrum_solver.spectrum_real_packets._frequency
+
+    time_of_simulation = transport_state.packet_collection.time_of_simulation
+    lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(&quot;line_id&quot;)
+
+    # Create packets_df_line_interaction
+    line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; -1) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
+    packets_df_line_interaction = packets_df.loc[line_mask].copy()
+
+    # Add atomic number and species columns
+    packets_df_line_interaction[&quot;last_line_interaction_atom&quot;] = (
+        lines_df[&quot;atomic_number&quot;]
+        .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
+        .to_numpy()
+    )
+    packets_df_line_interaction[&quot;last_line_interaction_species&quot;] = (
+        lines_df[&quot;atomic_number&quot;]
+        .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
+        .to_numpy() * 100
+        + lines_df[&quot;ion_number&quot;]
+        .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
+        .to_numpy()
+    )
+    if packet_wvl_range is None:
+        packet_nu_line_range_mask = np.ones(
+            packets_df_line_interaction.shape[0],
+            dtype=bool,
+        )
+    else:
+        packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
+        packet_nu_line_range_mask = (
+            packets_df_line_interaction[
+                &quot;last_line_interaction_in_nu&quot;
+            ]
+            &lt; packet_nu_range[0]
+        ) &amp; (
+            packets_df_line_interaction[
+                &quot;last_line_interaction_in_nu&quot;
+            ]
+            &gt; packet_nu_range[1]
+        )
+
+    luminosities_df = pd.DataFrame(index=plot_wavelength)
+         # Calculate the area term to convert luminosity to flux
+    if distance is None:
+        lum_to_flux = 1  # so that this term will have no effect
+    else:
+        if distance &lt;= 0:
+            raise ValueError(
+                &quot;distance passed must be greater than 0. If you intended &quot;
+                &quot;to plot luminosities instead of flux, set distance=None &quot;
+                &quot;or don&#39;t specify distance parameter in the function call.&quot;
+            )
+        else:
+            lum_to_flux = 4.0 * np.pi * (distance.to(&quot;cm&quot;)) ** 2
+    # Group packets_df by atomic number of elements with which packets
+    # had their last absorption (interaction in)
+    # or if species_list is requested then group by species id
+    if species_list is None:
+        packets_df_grouped = (
+            packets_df_line_interaction.loc[packet_nu_line_range_mask]
+            .groupby(by=&quot;last_line_interaction_atom&quot;)
+        )
+    else:
+        packets_df_grouped = (
+            packets_df_line_interaction.loc[packet_nu_line_range_mask]
+            .groupby(by=&quot;last_line_interaction_species&quot;)
+        )
+
+    for identifier, group in packets_df_grouped:
+        # Histogram of specific species
+        hist_el = np.histogram(
+            group[&quot;last_line_interaction_in_nu&quot;],
+            bins=plot_frequency_bins.value,
+            weights=group[&quot;energies&quot;]
+            / lum_to_flux
+            / time_of_simulation,
+        )
+
+        # Convert to luminosity density lambda
+        L_nu_el = (
+            hist_el[0]
+            * u.erg
+            / u.s
+            / spectrum_delta_frequency
+        )
+        L_lambda_el = L_nu_el * plot_frequency / plot_wavelength
+
+        luminosities_df[identifier] = L_lambda_el.value
+
+    absorption_species_present = np.array(
+        list(packets_df_grouped.groups.keys())
+    )
+
+    return luminosities_df, absorption_species_present</div>
+
+
+
+<div class="viewcode-block" id="calculate_emission_luminosities">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_emission_luminosities">[docs]</a>
+def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species_list=None, distance=None):
+    &quot;&quot;&quot;
+    Calculate luminosities for the emission part of SDEC plot.
+
+    Parameters
+    ----------
+    sim : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+    packets_mode : {&#39;virtual&#39;, &#39;real&#39;}
+        Mode of packets to be considered, either real or virtual
+    packet_wvl_range : astropy.Quantity
+        Wavelength range to restrict the analysis of escaped packets. It
+        should be a quantity having units of Angstrom, containing two
+        values - lower lambda and upper lambda i.e.
+        [lower_lambda, upper_lambda] * u.AA
+
+    Returns
+    -------
+    luminosities_df : pd.DataFrame
+        Dataframe containing luminosities contributed by no interaction,
+        only e-scattering and emission with each element present
+    elements_present: np.array
+        Atomic numbers of the elements with which packets of specified
+        wavelength range interacted
+    &quot;&quot;&quot;
+    transport_state = sim.transport.transport_state
+
+    # Set up appropriate data sources based on packet mode
+    if packets_mode == &quot;virtual&quot;:
+        # Virtual packets data
+        packets_df = pd.DataFrame({
+            &quot;nus&quot;: transport_state.vpacket_tracker.nus,
+            &quot;energies&quot;: transport_state.vpacket_tracker.energies,
+            &quot;last_interaction_type&quot;: transport_state.vpacket_tracker.last_interaction_type,
+            &quot;last_line_interaction_in_id&quot;: transport_state.vpacket_tracker.last_interaction_in_id,
+            &quot;last_line_interaction_in_nu&quot;: transport_state.vpacket_tracker.last_interaction_in_nu,
+            &quot;last_line_interaction_out_id&quot;: transport_state.vpacket_tracker.last_interaction_out_id
+        })
+        spectrum_delta_frequency = sim.spectrum_solver.spectrum_virtual_packets.delta_frequency
+        plot_wavelength = sim.spectrum_solver.spectrum_virtual_packets.wavelength
+        plot_frequency = sim.spectrum_solver.spectrum_virtual_packets._frequency[:-1]
+        plot_frequency_bins = sim.spectrum_solver.spectrum_virtual_packets._frequency
+
+    else:  # real packets
+        emitted_mask = transport_state.emitted_packet_mask
+        packets_df = pd.DataFrame({
+            &quot;nus&quot;: transport_state.packet_collection.output_nus[emitted_mask],
+            &quot;energies&quot;: transport_state.packet_collection.output_energies[emitted_mask],
+            &quot;last_interaction_type&quot;: transport_state.last_interaction_type[emitted_mask],
+            &quot;last_line_interaction_in_id&quot;: transport_state.last_line_interaction_in_id[emitted_mask],
+            &quot;last_line_interaction_in_nu&quot;: transport_state.last_interaction_in_nu[
+                    transport_state.emitted_packet_mask
+                ],
+            &quot;last_line_interaction_out_id&quot;: transport_state.last_line_interaction_out_id[emitted_mask]
+        })
+        spectrum_delta_frequency = sim.spectrum_solver.spectrum_real_packets.delta_frequency
+        plot_wavelength = sim.spectrum_solver.spectrum_real_packets.wavelength
+        plot_frequency = sim.spectrum_solver.spectrum_real_packets._frequency[:-1]
+        plot_frequency_bins = sim.spectrum_solver.spectrum_real_packets._frequency
+
+    time_of_simulation = transport_state.packet_collection.time_of_simulation
+    lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(&quot;line_id&quot;)
+
+    # Create packets_df_line_interaction
+    line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; -1) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
+    packets_df_line_interaction = packets_df.loc[line_mask].copy()
+
+    # Add atomic number and species columns
+    packets_df_line_interaction[&quot;last_line_interaction_atom&quot;] = (
+        lines_df[&quot;atomic_number&quot;]
+        .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
+        .to_numpy()
+    )
+    packets_df_line_interaction[&quot;last_line_interaction_species&quot;] = (
+        lines_df[&quot;atomic_number&quot;]
+        .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
+        .to_numpy() * 100
+        + lines_df[&quot;ion_number&quot;]
+        .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
+        .to_numpy()
+    )
+
+    # Calculate masks to be applied on packets data based on packet_wvl_range
+    if packet_wvl_range is None:
+        packet_nu_range_mask = np.ones(
+            packets_df.shape[0], dtype=bool
+        )
+        packet_nu_line_range_mask = np.ones(
+            packets_df_line_interaction.shape[0],
+            dtype=bool,
+        )
+    else:
+        packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
+        packet_nu_range_mask = (
+            packets_df[&quot;nus&quot;] &lt; packet_nu_range[0]
+        ) &amp; (packets_df[&quot;nus&quot;] &gt; packet_nu_range[1])
+        packet_nu_line_range_mask = (
+            packets_df_line_interaction[&quot;nus&quot;]
+            &lt; packet_nu_range[0]
+        ) &amp; (
+            packets_df_line_interaction[&quot;nus&quot;]
+            &gt; packet_nu_range[1]
+        )
+
+     # Calculate the area term to convert luminosity to flux
+    if distance is None:
+        lum_to_flux = 1  # so that this term will have no effect
+    else:
+        if distance &lt;= 0:
+            raise ValueError(
+                &quot;distance passed must be greater than 0. If you intended &quot;
+                &quot;to plot luminosities instead of flux, set distance=None &quot;
+                &quot;or don&#39;t specify distance parameter in the function call.&quot;
+            )
+        else:
+            lum_to_flux = 4.0 * np.pi * (distance.to(&quot;cm&quot;)) ** 2
+
+
+    # Histogram weights are packet luminosities or flux
+    weights = (
+        packets_df[&quot;energies&quot;][packet_nu_range_mask]
+        / lum_to_flux
+    ) / time_of_simulation
+
+    luminosities_df = pd.DataFrame(index=plot_wavelength)
+
+    # Contribution of packets which experienced no interaction
+    mask_noint = (
+        packets_df[&quot;last_interaction_type&quot;][packet_nu_range_mask]
+        == -1
+    )
+
+    hist_noint = np.histogram(
+        packets_df[&quot;nus&quot;][packet_nu_range_mask][mask_noint],
+        bins=plot_frequency_bins.value,
+        weights=weights[mask_noint],
+        density=False,
+    )
+
+    L_nu_noint = (
+        hist_noint[0]
+        * u.erg
+        / u.s
+        / spectrum_delta_frequency
+    )
+    L_lambda_noint = L_nu_noint * plot_frequency / plot_wavelength
+
+    luminosities_df[&quot;noint&quot;] = L_lambda_noint.value
+
+    # Contribution of packets which only experienced electron scattering
+    mask_escatter = (
+        packets_df[&quot;last_interaction_type&quot;][packet_nu_range_mask]
+        == 1
+    ) &amp; (
+        packets_df[&quot;last_line_interaction_in_id&quot;][packet_nu_range_mask]
+        == -1
+    )
+    hist_escatter = np.histogram(
+        packets_df[&quot;nus&quot;][packet_nu_range_mask][mask_escatter],
+        bins=plot_frequency_bins.value,
+        weights=weights[mask_escatter],
+        density=False,
+    )
+
+    L_nu_escatter = (
+        hist_escatter[0]
+        * u.erg
+        / u.s
+        / spectrum_delta_frequency
+    )
+    L_lambda_escatter = L_nu_escatter * plot_frequency / plot_wavelength
+    luminosities_df[&quot;escatter&quot;] = L_lambda_escatter.value
+
+    # Group packets_df by atomic number of elements with which packets
+    # had their last emission (interaction out)
+    if species_list is None:
+        packets_df_grouped = (
+            packets_df_line_interaction.loc[packet_nu_line_range_mask]
+            .groupby(by=&quot;last_line_interaction_atom&quot;)
+        )
+    else:
+        packets_df_grouped = (
+            packets_df_line_interaction.loc[packet_nu_line_range_mask]
+            .groupby(by=&quot;last_line_interaction_species&quot;)
+        )
+
+    # Contribution of each species with which packets interacted
+    for identifier, group in packets_df_grouped:
+        hist_el = np.histogram(
+            group[&quot;nus&quot;],
+            bins=plot_frequency_bins.value,
+            weights=group[&quot;energies&quot;]
+            / lum_to_flux
+            / time_of_simulation,
+        )
+
+        L_nu_el = (
+            hist_el[0]
+            * u.erg
+            / u.s
+            / spectrum_delta_frequency
+        )
+        L_lambda_el = L_nu_el * plot_frequency / plot_wavelength
+
+        luminosities_df[identifier] = L_lambda_el.value
+
+    # Create an array of the species with which packets interacted
+    emission_species_present = np.array(list(packets_df_grouped.groups.keys()))
+
+    return luminosities_df, emission_species_present</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 27 Jul 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
