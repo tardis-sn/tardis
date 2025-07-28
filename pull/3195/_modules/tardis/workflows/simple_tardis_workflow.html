@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=194ddfe4"></script>
+      <script src="../../../_static/documentation_options.js?v=b28d18c7"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -148,6 +148,7 @@ from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -606,14 +607,27 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.spectrum_solver.integrator_settings = (
                 self.integrated_spectrum_settings
             )
-            self.spectrum_solver._integrator = FormalIntegrator(
-                self.simulation_state,
-                self.plasma_solver,
-                self.transport_solver,
-                opacity_states[&quot;opacity_state&quot;],
-                opacity_states[&quot;macro_atom_state&quot;],
+
+            formal_integrator = FormalIntegralSolver(self.spectrum_solver.integrator_settings)
+            self.spectrum_solver.setup_optional_spectra(
+                self.transport_state,
+                virtual_packet_luminosity=None,
+                integrator=formal_integrator,
+                simulation_state=self.simulation_state,
+                transport=self.transport_solver,
+                plasma=self.plasma_solver,
+                opacity_state=opacity_states[&quot;opacity_state&quot;],
+                macro_atom_state=opacity_states[&quot;macro_atom_state&quot;],
             )</div>
 
+
+            # self.spectrum_solver._integrator = FormalIntegrator(
+            #     self.simulation_state,
+            #     self.plasma_solver,
+            #     self.transport_solver,
+            #     opacity_states[&quot;opacity_state&quot;],
+            #     opacity_states[&quot;macro_atom_state&quot;],
+            # )
 
 <div class="viewcode-block" id="SimpleTARDISWorkflow.run">
 <a class="viewcode-back" href="../../../api/tardis.workflows.simple_tardis_workflow.html#tardis.workflows.simple_tardis_workflow.SimpleTARDISWorkflow.run">[docs]</a>
@@ -674,7 +688,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 23 Jul 2025.
+      <span class="lastupdated">Last updated on 28 Jul 2025.
       </span></p>
   </div>
 
