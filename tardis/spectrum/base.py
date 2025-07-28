@@ -50,9 +50,10 @@ class SpectrumSolver(HDFWriterMixin):
             Integrator to compute the integrated spectrum with, by default None
         """
         self.transport_state = transport_state
-        self._montecarlo_virtual_luminosity = (
-            virtual_packet_luminosity * u.erg / u.s
-        )
+        if virtual_packet_luminosity is not None:
+            self._montecarlo_virtual_luminosity.value[:] = (
+                virtual_packet_luminosity
+            )
         self._integrator = integrator
         self.simulation_state = simulation_state
         self.opacity_state = opacity_state
