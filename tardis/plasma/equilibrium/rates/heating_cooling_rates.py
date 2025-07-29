@@ -257,19 +257,23 @@ class CollisionalIonizationThermalRates:
         pd.DataFrame, pd.DataFrame
             Heating and cooling rates for the collisional ionization process.
         """
-        heating_rate = (
-            electron_density**2
+        rate_factor = (
+            electron_density
             * collisional_ionization_rate_coefficient
-            * saha_factor
-            * ion_population
             * self.nu_i
-            * const.h.cgs
+            * const.h.cgs.value
+        )
+
+        heating_rate = (
+            electron_density
+            * ion_population.loc[(1, 1)]
+            * saha_factor
+            * rate_factor
         ).sum()
 
         cooling_rate = (
-            level_population
-            * electron_density
-            * collisional_ionization_rate_coefficient
+            level_population.loc[collisional_ionization_rate_coefficient.index]
+            * rate_factor
         ).sum()
 
         return heating_rate, cooling_rate
