@@ -223,7 +223,11 @@ class FreeFreeThermalRates:
 
 class CollisionalIonizationThermalRates:
     def __init__(self, photoionization_cross_sections):
-        self.nu = photoionization_cross_sections["nu"].values
+        self.nu_i = (
+            photoionization_cross_sections["nu"]
+            .groupby(level=[0, 1, 2])
+            .first()
+        )
 
     def solve(
         self,
@@ -258,15 +262,15 @@ class CollisionalIonizationThermalRates:
             * collisional_ionization_rate_coefficient
             * saha_factor
             * ion_population
-            * self.nu
+            * self.nu_i
             * const.h.cgs
-        )
+        ).sum()
 
         cooling_rate = (
             level_population
             * electron_density
             * collisional_ionization_rate_coefficient
-        )
+        ).sum()
 
         return heating_rate, cooling_rate
 
@@ -316,7 +320,7 @@ class CollisionalBoundThermalRates:
             * upper_level_number_density.values
             * self.nu
             * const.h.cgs
-        )
+        ).sum()
 
         cooling_rate = (
             electron_density
@@ -324,7 +328,7 @@ class CollisionalBoundThermalRates:
             * lower_level_number_density.values
             * self.nu
             * const.h.cgs
-        )
+        ).sum()
 
         return heating_rate, cooling_rate
 
