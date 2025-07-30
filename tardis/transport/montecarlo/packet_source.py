@@ -41,8 +41,11 @@ class BasePacketSource(abc.ABC):
     def _reseed(self, seed):
         self.rng = np.random.default_rng(seed=seed)
 
-    @abc.abstractmethod
+    # One should either implement create_packet_velocities or create_packet_radii
     def create_packet_radii(self, no_of_packets, *args, **kwargs):
+        pass
+
+    def create_packet_velocities(self, no_of_packets, *args, **kwargs):
         pass
 
     @abc.abstractmethod

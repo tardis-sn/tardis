@@ -73,7 +73,8 @@ def intensity_ratio(nuclear_data, source_1, source_2):
 
 
 def get_all_isotopes(abundances):
-    """Get the possible isotopes present over time
+    """
+    Get the possible isotopes present over time
     for a given starting abundance
 
     Parameters
@@ -93,7 +94,7 @@ def get_all_isotopes(abundances):
     isotopes = set(progenitors)
     check = True
 
-    while check == True:
+    while check:
         progeny = set(isotopes)
 
         for i in isotopes:
@@ -111,6 +112,63 @@ def get_all_isotopes(abundances):
 
     isotopes = [i for i in isotopes]
     return isotopes
+
+
+def get_radioactive_isotopes(isotope_index):
+    """
+    Build a complete set of isotopes that appear in any decay chain
+    starting from the isotopes in the given MultiIndex or list of
+    (atomic_number, mass_number) tuples. This function returns a
+    list-like index of (atomic_number, mass_number).
+
+    Parameters
+    ----------
+    isotope_index : iterable or pd.MultiIndex
+        An iterable or MultiIndex of (atomic_number, mass_number) tuples
+
+    Returns
+    -------
+    pd.MultiIndex
+        A MultiIndex with the entries (atomic_number, mass_number)
+        for all isotopes in the decay chains
+    """
+    # Convert the input to a set of (Z, A) tuples
+    isotopes = set(isotope_index)
+
+    # Iteratively explore progeny until no new isotopes are found
+    found_new = True
+    while found_new:
+        found_new = False
+        for Z, A in list(isotopes):
+            # Convert (Z, A) to "Element-Mass" format (e.g., "Ni-56")
+            parent_str = f"{rd.utils.Z_DICT[Z]}-{A}"
+            # For each progeny:
+            for child in rd.Nuclide(parent_str).progeny():
+                # Omit spontaneous fission and stable isotopes
+                if (
+                    child != "SF"
+                    and rd.Nuclide(child).half_life("readable") != "stable"
+                ):
+                    # Parse the child string (e.g., "Co-56" or "Co56")
+                    if "-" in child:
+                        elem_symbol, mass_str = child.split("-")
+                    else:
+                        elem_symbol = "".join([c for c in child if c.isalpha()])
+                        mass_str = "".join([c for c in child if c.isdigit()])
+                    child_Z = rd.utils.elem_to_Z(elem_symbol)
+                    child_A = int(mass_str)
+
+                    if (child_Z, child_A) not in isotopes:
+                        isotopes.add((child_Z, child_A))
+                        found_new = True
+
+    # Convert the final set into a sorted list
+    sorted_isotopes = sorted(isotopes, key=lambda x: (x[0], x[1]))
+
+    # Return as a MultiIndex labeled by atomic_number and mass_number
+    return pd.MultiIndex.from_tuples(
+        sorted_isotopes, names=["atomic_number", "mass_number"]
+    )
 
 
 def get_tau(meta, isotope_string):
