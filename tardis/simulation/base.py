@@ -21,7 +21,7 @@ from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -422,7 +422,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.beta_sobolev = None
             macro_atom_state = None
 
-        opacity_state = self.opacity.legacy_solve(self.plasma)
+        self.opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 macro_atom_state = LegacyMacroAtomState.from_legacy_plasma(
@@ -432,14 +432,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
                     self.plasma.atomic_data,
-                    opacity_state.tau_sobolev,
+                    self.opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
-                    opacity_state.beta_sobolev,
+                    self.opacity_state.beta_sobolev,
                 )
 
         transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
-            opacity_state,
+            self.opacity_state,
             macro_atom_state,
             self.plasma,
             no_of_packets,

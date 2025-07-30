@@ -1,5 +1,5 @@
 import argparse
-import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -99,13 +99,13 @@ def parse_file(args):
         args.input_path
     )
 
-    filename = os.path.splitext(os.path.basename(args.input_path))[0]
+    filename = Path(args.input_path).stem
     save_fname = f"{filename}.csv"
     resultant_df = pd.concat([density_df, abundances_df], axis=1)
     resultant_df.columns = pd.MultiIndex.from_tuples(
         zip(resultant_df.columns, quantities_row)
     )
-    save_file_path = os.path.join(args.output_path, save_fname)
+    save_file_path = Path(args.output_path) / save_fname
     with open(save_file_path, "w") as f:
         f.write(" ".join(("t0:", str(time_of_model), "day")))
         f.write("\n")

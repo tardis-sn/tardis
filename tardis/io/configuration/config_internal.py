@@ -1,5 +1,4 @@
 import logging
-import os
 import shutil
 from pathlib import Path
 
@@ -13,14 +12,14 @@ DEFAULT_CONFIG_PATH = (
     TARDIS_PATH / "data" / "default_tardis_internal_config.yml"
 )
 
-DEFAULT_DATA_DIR = Path(os.path.expanduser("~")) / "Downloads" / "tardis-data"
+DEFAULT_DATA_DIR = Path.home() / "Downloads" / "tardis-data"
 
 logger = logging.getLogger(__name__)
 
 
 def get_internal_configuration():
     config_fpath = Path(get_config_dir()) / "tardis_internal_config.yml"
-    if not os.path.exists(config_fpath):
+    if not config_fpath.exists():
         logger.warning(
             f"Configuration File {config_fpath} does not exist - creating new one from default"
         )
@@ -42,12 +41,12 @@ def get_data_dir():
             f"{'*' * 80} \n\n"
         )
         if not DEFAULT_DATA_DIR.exists():
-            os.makedirs(DEFAULT_DATA_DIR)
+            DEFAULT_DATA_DIR.mkdir(parents=True, exist_ok=True)
         config["data_dir"] = DEFAULT_DATA_DIR
         yaml.dump(config, open(config_fpath, "w"), default_flow_style=False)
         data_dir = DEFAULT_DATA_DIR
 
-    if not os.path.exists(data_dir):
+    if not Path(data_dir).exists():
         raise OSError(f"Data directory specified in {data_dir} does not exist")
 
     return Path(data_dir)
