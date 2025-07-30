@@ -374,7 +374,7 @@ def generate_tutorials_page(app):
 
     for notebook in io_path.rglob("*.ipynb"):
         if "tutorial_" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.stem}`"
+            notebooks += f"\n* :doc:`{notebook.parent}/{notebook.stem}`"
 
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
@@ -389,7 +389,7 @@ def generate_how_to_guides_page(app):
 
     for notebook in io_path.rglob("*.ipynb"):
         if "how_to_" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.stem}`"
+            notebooks += f"\n* :doc:`{notebook.parent}/{notebook.stem}`"
 
     title = "How-To Guides\n*********\n"
     description = "The following pages contain the TARDIS how-to guides:"
@@ -404,7 +404,7 @@ def generate_worflows_page(app):
 
     for notebook in workflows_path.rglob("*.ipynb"):
         if "workflow" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.stem}`" 
+            notebooks += f"\n* :doc:`{notebook.parent}/{notebook.stem}`"
 
     title = "Workflows\n*********\n"
     description = "The following pages contain the TARDIS workflows:\n\n These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives."
