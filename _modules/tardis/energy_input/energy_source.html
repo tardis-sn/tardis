@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2f7c69c4"></script>
+      <script src="../../../_static/documentation_options.js?v=f44beca9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -215,7 +215,8 @@ def intensity_ratio(nuclear_data, source_1, source_2):
 <div class="viewcode-block" id="get_all_isotopes">
 <a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.get_all_isotopes">[docs]</a>
 def get_all_isotopes(abundances):
-    &quot;&quot;&quot;Get the possible isotopes present over time
+    &quot;&quot;&quot;
+    Get the possible isotopes present over time
     for a given starting abundance
 
     Parameters
@@ -235,7 +236,7 @@ def get_all_isotopes(abundances):
     isotopes = set(progenitors)
     check = True
 
-    while check == True:
+    while check:
         progeny = set(isotopes)
 
         for i in isotopes:
@@ -253,6 +254,66 @@ def get_all_isotopes(abundances):
 
     isotopes = [i for i in isotopes]
     return isotopes</div>
+
+
+
+<div class="viewcode-block" id="get_radioactive_isotopes">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.get_radioactive_isotopes">[docs]</a>
+def get_radioactive_isotopes(isotope_index):
+    &quot;&quot;&quot;
+    Build a complete set of isotopes that appear in any decay chain
+    starting from the isotopes in the given MultiIndex or list of
+    (atomic_number, mass_number) tuples. This function returns a
+    list-like index of (atomic_number, mass_number).
+
+    Parameters
+    ----------
+    isotope_index : iterable or pd.MultiIndex
+        An iterable or MultiIndex of (atomic_number, mass_number) tuples
+
+    Returns
+    -------
+    pd.MultiIndex
+        A MultiIndex with the entries (atomic_number, mass_number)
+        for all isotopes in the decay chains
+    &quot;&quot;&quot;
+    # Convert the input to a set of (Z, A) tuples
+    isotopes = set(isotope_index)
+
+    # Iteratively explore progeny until no new isotopes are found
+    found_new = True
+    while found_new:
+        found_new = False
+        for Z, A in list(isotopes):
+            # Convert (Z, A) to &quot;Element-Mass&quot; format (e.g., &quot;Ni-56&quot;)
+            parent_str = f&quot;{rd.utils.Z_DICT[Z]}-{A}&quot;
+            # For each progeny:
+            for child in rd.Nuclide(parent_str).progeny():
+                # Omit spontaneous fission and stable isotopes
+                if (
+                    child != &quot;SF&quot;
+                    and rd.Nuclide(child).half_life(&quot;readable&quot;) != &quot;stable&quot;
+                ):
+                    # Parse the child string (e.g., &quot;Co-56&quot; or &quot;Co56&quot;)
+                    if &quot;-&quot; in child:
+                        elem_symbol, mass_str = child.split(&quot;-&quot;)
+                    else:
+                        elem_symbol = &quot;&quot;.join([c for c in child if c.isalpha()])
+                        mass_str = &quot;&quot;.join([c for c in child if c.isdigit()])
+                    child_Z = rd.utils.elem_to_Z(elem_symbol)
+                    child_A = int(mass_str)
+
+                    if (child_Z, child_A) not in isotopes:
+                        isotopes.add((child_Z, child_A))
+                        found_new = True
+
+    # Convert the final set into a sorted list
+    sorted_isotopes = sorted(isotopes, key=lambda x: (x[0], x[1]))
+
+    # Return as a MultiIndex labeled by atomic_number and mass_number
+    return pd.MultiIndex.from_tuples(
+        sorted_isotopes, names=[&quot;atomic_number&quot;, &quot;mass_number&quot;]
+    )</div>
 
 
 
@@ -390,7 +451,7 @@ def positronium_continuum():
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jul 2025.
+      <span class="lastupdated">Last updated on 30 Jul 2025.
       </span></p>
   </div>
 

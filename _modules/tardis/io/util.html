@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2f7c69c4"></script>
+      <script src="../../../_static/documentation_options.js?v=f44beca9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -134,8 +134,6 @@
   <h1>Source code for tardis.io.util</h1><div class="highlight"><pre>
 <span></span># Utility functions for the IO part of TARDIS
 
-from __future__ import annotations
-
 import collections.abc as collections_abc
 import hashlib
 import logging
@@ -143,19 +141,15 @@ import shutil
 from collections import OrderedDict
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import Any
 
 import numpy as np
 import yaml
 from astropy import units as u
 from astropy.utils.data import download_file
 
-from tardis import __path__ as tardis_path
-from tardis import __version__
+from tardis import __path__ as TARDIS_PATH
 from tardis import constants as const
-
-if TYPE_CHECKING:
-    from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +170,7 @@ def get_internal_data_path(fname: str) -&gt; str:
     str
         Internal data path of TARDIS joined with the filename.
     &quot;&quot;&quot;
-    return str(Path(tardis_path[0]) / &quot;data&quot; / fname)</div>
+    return str(Path(TARDIS_PATH[0]) / &quot;data&quot; / fname)</div>
 
 
 
@@ -502,7 +496,7 @@ def download_from_url(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jul 2025.
+      <span class="lastupdated">Last updated on 30 Jul 2025.
       </span></p>
   </div>
 

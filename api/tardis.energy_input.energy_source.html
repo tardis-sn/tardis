@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=2f7c69c4"></script>
+      <script src="../_static/documentation_options.js?v=f44beca9"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,8 +35,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="tardis.energy_input.gamma_packet_loop module" href="tardis.energy_input.gamma_packet_loop.html" />
-    <link rel="prev" title="tardis.energy_input.GXPacket module" href="tardis.energy_input.GXPacket.html" />
+    <link rel="next" title="tardis.energy_input.gamma_ray_channel module" href="tardis.energy_input.gamma_ray_channel.html" />
+    <link rel="prev" title="tardis.energy_input.decay_radiation module" href="tardis.energy_input.decay_radiation.html" />
     <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -228,6 +228,30 @@ for a given starting abundance</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="tardis.energy_input.energy_source.get_radioactive_isotopes">
+<span class="sig-prename descclassname"><span class="pre">tardis.energy_input.energy_source.</span></span><span class="sig-name descname"><span class="pre">get_radioactive_isotopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/energy_source.html#get_radioactive_isotopes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.energy_source.get_radioactive_isotopes" title="Link to this definition">¶</a></dt>
+<dd><p>Build a complete set of isotopes that appear in any decay chain
+starting from the isotopes in the given MultiIndex or list of
+(atomic_number, mass_number) tuples. This function returns a
+list-like index of (atomic_number, mass_number).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>isotope_index</strong><span class="classifier">iterable or pd.MultiIndex</span></dt><dd><p>An iterable or MultiIndex of (atomic_number, mass_number) tuples</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.MultiIndex</dt><dd><p>A MultiIndex with the entries (atomic_number, mass_number)
+for all isotopes in the decay chains</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="tardis.energy_input.energy_source.get_tau">
 <span class="sig-prename descclassname"><span class="pre">tardis.energy_input.energy_source.</span></span><span class="sig-name descname"><span class="pre">get_tau</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/energy_input/energy_source.html#get_tau"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.energy_input.energy_source.get_tau" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the mean lifetime of an isotope</p>
@@ -349,15 +373,15 @@ the sorted array</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tardis.energy_input.GXPacket.html" class="btn btn-neutral float-left" title="tardis.energy_input.GXPacket module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tardis.energy_input.gamma_packet_loop.html" class="btn btn-neutral float-right" title="tardis.energy_input.gamma_packet_loop module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tardis.energy_input.decay_radiation.html" class="btn btn-neutral float-left" title="tardis.energy_input.decay_radiation module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.energy_input.gamma_ray_channel.html" class="btn btn-neutral float-right" title="tardis.energy_input.gamma_ray_channel module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jul 2025.
+      <span class="lastupdated">Last updated on 30 Jul 2025.
       </span></p>
   </div>
 
