@@ -42,7 +42,7 @@ class BasePacketSource(abc.ABC):
         self.rng = np.random.default_rng(seed=seed)
 
     @abc.abstractmethod
-    def create_packet_velocities(self, no_of_packets, *args, **kwargs):
+    def create_packet_radii(self, no_of_packets, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -86,7 +86,7 @@ class BasePacketSource(abc.ABC):
             self.MAX_SEED_VAL, no_of_packets, replace=True
         )
 
-        radii = self.create_packet_velocities(no_of_packets, *args, **kwargs).value
+        radii = self.create_packet_radii(no_of_packets, *args, **kwargs).value
         nus = self.create_packet_nus(no_of_packets, *args, **kwargs).value
         mus = self.create_packet_mus(no_of_packets, *args, **kwargs)
         energies = self.create_packet_energies(
@@ -166,7 +166,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
             raise ValueError("Black body Radius or Temperature isn't set")
         return super().create_packets(no_of_packets, *args, **kwargs)
 
-    def create_packet_velocities(self, no_of_packets):
+    def create_packet_radii(self, no_of_packets):
         """
         Create packet radii
 
