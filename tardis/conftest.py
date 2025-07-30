@@ -14,6 +14,7 @@ from tardis.transport.montecarlo.progress_bars import (
     iterations_pbar,
     packet_pbar,
 )
+from tardis.tests.test_util import monkeysession
 
 try:
     import tardisbase
