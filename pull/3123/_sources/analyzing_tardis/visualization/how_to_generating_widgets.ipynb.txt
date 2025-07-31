@@ -23,16 +23,6 @@
   {
    "cell_type": "code",
    "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "import panel as pn\n",
-    "pn.extension(\"tabulator\", \"plotly\")"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
    "metadata": {
     "ExecuteTime": {
      "end_time": "2021-02-18T16:10:42.838867Z",
@@ -1858,7 +1848,7 @@
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "tardis-X",
+   "display_name": "Python 3 (ipykernel)",
    "language": "python",
    "name": "python3"
   },
