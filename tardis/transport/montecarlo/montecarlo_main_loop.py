@@ -10,6 +10,7 @@ from tardis.transport.montecarlo.packet_collections import (
     consolidate_vpacket_tracker,
     initialize_last_interaction_tracker,
 )
+from tardis.transport.montecarlo.progress_bars import update_packet_pbar
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
     RPacket,
@@ -17,7 +18,6 @@ from tardis.transport.montecarlo.r_packet import (
 from tardis.transport.montecarlo.single_packet_loop import (
     single_packet_loop,
 )
-from tardis.util.base import update_packet_pbar
 
 
 @njit(**njit_dict)
@@ -62,9 +62,7 @@ def montecarlo_main_loop(
     """
     no_of_packets = len(packet_collection.initial_nus)
 
-    last_interaction_tracker = initialize_last_interaction_tracker(
-        no_of_packets
-    )
+    last_interaction_tracker = initialize_last_interaction_tracker(no_of_packets)
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
     delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
